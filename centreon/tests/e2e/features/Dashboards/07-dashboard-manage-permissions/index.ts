@@ -1,69 +1,69 @@
-// import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-// import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
-// import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 // import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 
-// before(() => {
-//   cy.startWebContainer();
-//   cy.enableDashboardFeature();
-//   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
-// });
+before(() => {
+  cy.startWebContainer();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
+});
 
-// beforeEach(() => {
-//   cy.intercept({
-//     method: 'GET',
-//     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-//   }).as('getNavigationList');
-//   cy.intercept({
-//     method: 'GET',
-//     url: '/centreon/api/latest/configuration/dashboards?'
-//   }).as('listAllDashboards');
-//   cy.intercept({
-//     method: 'PUT',
-//     url: `/centreon/api/latest/configuration/dashboards/*/shares`
-//   }).as('updateShares');
-//   cy.loginByTypeOfUser({
-//     jsonName: dashboardAdministratorUser.login,
-//     loginViaApi: false
-//   });
-//   cy.visit('/centreon/home/dashboards/library');
-// });
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards?'
+  }).as('listAllDashboards');
+  cy.intercept({
+    method: 'PUT',
+    url: `/centreon/api/latest/configuration/dashboards/*/shares`
+  }).as('updateShares');
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
+  cy.visit('/centreon/home/dashboards/library');
+});
 
-// after(() => {
-//   cy.visit('/centreon/home/dashboards/library');
-//   cy.requestOnDatabase({
-//     database: 'centreon',
-//     query: 'DELETE FROM dashboard'
-//   });
-//   cy.stopWebContainer();
-// });
+after(() => {
+  cy.visit('/centreon/home/dashboards/library');
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
+  cy.stopWebContainer();
+});
 
-// Given(
-//   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
-//   () => {
-//     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
-//     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-//     cy.contains(dashboardCreatorUser.login).click();
-//     cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` })
-//       .eq(0)
-//       .click();
-//     cy.get('[role="listbox"]').contains('viewer').click();
-//     cy.getByTestId({ testId: 'add' }).click();
-//     cy.getByTestId({ testId: 'role-input' })
-//       .eq(1)
-//       .should('contain.text', 'viewer');
-//     cy.getByTestId({ testId: 'role-input' })
-//       .eq(2)
-//       .should('contain.text', 'editor');
-//     cy.getByLabel({ label: 'Update', tag: 'button' })
-//       .should('be.enabled')
-//       .click();
-//     cy.wait('@updateShares');
-//     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
-//   }
-// );
+Given(
+  'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
+  () => {
+    cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+    // cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    // cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    // cy.contains(dashboardCreatorUser.login).click();
+    // cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` })
+    //   .eq(0)
+    //   .click();
+    // cy.get('[role="listbox"]').contains('viewer').click();
+    // cy.getByTestId({ testId: 'add' }).click();
+    // cy.getByTestId({ testId: 'role-input' })
+    //   .eq(1)
+    //   .should('contain.text', 'viewer');
+    // cy.getByTestId({ testId: 'role-input' })
+    //   .eq(2)
+    //   .should('contain.text', 'editor');
+    // cy.getByLabel({ label: 'Update', tag: 'button' })
+    //   .should('be.enabled')
+    //   .click();
+    // cy.wait('@updateShares');
+    // cy.waitUntilForDashboardRoles('edit-access-rights', 3);
+  }
+);
 
 // When(
 //   'the dashboard administrator user promotes the viewer user to an editor',
