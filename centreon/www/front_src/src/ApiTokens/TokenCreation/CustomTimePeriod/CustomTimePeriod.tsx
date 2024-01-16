@@ -13,6 +13,7 @@ import { isInvalidDate as validateDate } from '../utils';
 
 import ActionList from './ActionsList';
 import InvisibleField from './InvisibleField';
+import useWindowMeasurement from './useWindowMeasurement';
 
 interface Props {
   anchorElDuration: AnchorElDuration;
@@ -28,6 +29,7 @@ const CustomTimePeriod = ({
   const { t } = useTranslation();
 
   const { format } = useLocaleDateTimeFormat();
+  const { height } = useWindowMeasurement();
 
   const { setFieldValue, values, setFieldError } =
     useFormikContext<CreateTokenFormValues>();
@@ -82,7 +84,13 @@ const CustomTimePeriod = ({
       cancelDate,
       isInvalidDate: validateDate({ endTime: endDate })
     },
-    popper: { anchorEl }
+    popper: {
+      anchorEl,
+      style: {
+        height: height / 2,
+        overflow: 'auto'
+      }
+    }
   };
 
   const slots = {
