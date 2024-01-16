@@ -330,12 +330,12 @@ function removeRelationLastHostDependency(int $hostId): void
     while ($row = $res->fetch()) {
         $countStatement->bindValue(':service_service_id', (int) $row['service_service_id'], \PDO::PARAM_INT);
         $countStatement->execute();
-        $result = $countStatement->fetch(\PDO::FETCH_ASSOC);
-
-        //is last service parent
-        if ($result['nb_dependency'] == 1) {
-            $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
-            $deleteStatement->execute();
+        if (false !== ($result = $countStatement->fetch(\PDO::FETCH_ASSOC))) {;
+            //is last service parent
+            if ($result['nb_dependency'] == 1) {
+                $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
+                $deleteStatement->execute();
+            }
         }
     }
 
