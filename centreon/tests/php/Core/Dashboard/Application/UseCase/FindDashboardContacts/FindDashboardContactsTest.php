@@ -40,7 +40,6 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 beforeEach(function (): void {
     $this->presenter = new FindDashboardContactsPresenterStub();
     $this->useCase = new FindDashboardContacts(
-        $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
@@ -78,7 +77,9 @@ it(
     function (): void {
         $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->readUserRepository->expects($this->once())->method('findAllUsers')->willReturn([]);
+        $this->readDashboardShareRepository->expects($this->once())->method(
+            'findContactsWithAccessRightByRequestParameters'
+        )->willReturn([]);
 
         ($this->useCase)($this->presenter);
 
@@ -91,7 +92,9 @@ it(
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
         $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
-        $this->readUserRepository->expects($this->once())->method('findByContactGroups')->willReturn([]);
+        $this->readDashboardShareRepository->expects($this->once())->method(
+            'findContactsWithAccessRightByACLGroupsAndRequestParameters'
+        )->willReturn([]);
 
         ($this->useCase)($this->presenter);
 
