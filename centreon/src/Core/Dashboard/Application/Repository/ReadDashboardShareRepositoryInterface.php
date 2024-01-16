@@ -141,7 +141,6 @@ interface ReadDashboardShareRepositoryInterface
      * @throws \Throwable|\UnexpectedValueException
      *
      * @return DashboardContactRole[]
-     *
      */
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
         RequestParametersInterface $requestParameters,

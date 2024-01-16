@@ -112,7 +112,6 @@ final class FindDashboardContacts
      * @throws \Throwable
      *
      * @return DashboardContactRole[]
-     *
      */
     private function findContactsAsNonAdmin(): array
     {
