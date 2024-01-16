@@ -268,67 +268,67 @@ Feature:
 
     And the JSON should be equal to:
       """
-      {
-        "id": 1,
-        "name": "notification-name",
-        "timeperiod": {
-            "id": 1,
-            "name": "24x7"
-        },
-        "users": [
-            {
-                "id": 20,
-                "name": "ala"
-            },
-            {
-                "id": 21,
-                "name": "user-name1"
-            }
-        ],
-        "contactgroups": [
-          {
-            "id": 3,
-            "name": "Guest"
-          }
-        ],
-        "resources": [
-            {
-                "type": "hostgroup",
-                "events": 5,
-                "ids": [
-                    {
-                        "id": 53,
-                        "name": "Linux-Servers"
-                    },
-                    {
-                        "id": 56,
-                        "name": "Printers"
-                    }
-                ],
-                "extra": {
-                    "event_services": 2
-                }
-            },
-            {
-                "type": "servicegroup",
-                "events": 5,
-                "ids": [
-                    {
-                        "id": 1,
-                        "name": "service-grp1"
-                    }
-                ]
-            }
-        ],
-        "messages": [
-            {
-                "channel": "Slack",
-                "subject": "Hello world !",
-                "message": "just a small message",
-                "formatted_message": "a formatted message"
-            }
-        ],
-        "is_activated": true
+        {
+          "id": 1,
+          "name": "notification-name",
+          "timeperiod": {
+              "id": 1,
+              "name": "24x7"
+          },
+          "users": [
+              {
+                  "id": 20,
+                  "name": "ala"
+              },
+              {
+                  "id": 21,
+                  "name": "user-name1"
+              }
+          ],
+          "contactgroups": [
+              {
+                  "id": 5,
+                  "name": "Supervisors"
+              }
+          ],
+          "resources": [
+              {
+                  "type": "hostgroup",
+                  "events": 5,
+                  "ids": [
+                      {
+                          "id": 53,
+                          "name": "Linux-Servers"
+                      },
+                      {
+                          "id": 56,
+                          "name": "Printers"
+                      }
+                  ],
+                  "extra": {
+                      "event_services": 2
+                  }
+              },
+              {
+                  "type": "servicegroup",
+                  "events": 5,
+                  "ids": [
+                      {
+                          "id": 1,
+                          "name": "service-grp1"
+                      }
+                  ]
+              }
+          ],
+          "messages": [
+              {
+                  "channel": "Slack",
+                  "subject": "Hello world !",
+                  "message": "just a small message",
+                  "formatted_message": "a formatted message"
+              }
+          ],
+          "is_activated": true
       }
       """
 
