@@ -18,6 +18,8 @@ import {
 import {
   labelChooseAtLeastOneContactOrContactGroup,
   labelNameAlreadyExists,
+  labelPleaseConfigureDatasetFilter,
+  labelPleaseSelectAResource,
   labelRequired
 } from '../../translatedLabels';
 
@@ -50,10 +52,23 @@ const useValidationSchema = (): UseValidationSchemaState => {
       return array();
     });
 
+  const datasetFiltersSchema = (): ArraySchema<ArraySchema<ObjectSchema>> =>
+    array(
+      array(
+        object({
+          resourceType: string().matches(
+            /(host|service)(group|_category)?|meta_service/
+          ),
+          resources: array().min(1)
+        })
+      ).min(1)
+    ).min(1);
+
   const validationSchema = object().shape(
     {
       contactGroups: contactsSchema('contacts'),
       contacts: contactsSchema('contactGroups'),
+      data: object().shape({ datasetFilters: datasetFiltersSchema() }),
       name: validateName
     },
     [['contacts', 'contactGroups']]

@@ -38,6 +38,8 @@ export const labelService = 'Service';
 export const labelServiceCategory = 'Service category';
 export const labelServiceGroup = 'Service group';
 export const labelPleaseSelectAResource = 'Please select a resource';
+export const labelPleaseConfigureDatasetFilter =
+  'Please configure a dataset filter';
 export const labelDelete = 'Delete';
 export const labelResourceType = 'Resource type';
 export const labelSelectResourceType = 'Select resource type';

@@ -56,11 +56,9 @@ const DatasetFilters = (): ReactElement => {
               datasetFilter={datasetFilter}
               datasetFilterIndex={index}
             />
-            <DeleteDatasetButton
-              deleteButtonHidden={datasetFilters.length <= 1}
-              displayDivider={datasetFilter.length > 1}
-              onDeleteItem={deleteDatasetFilter(index)}
-            />
+            {datasetFilters.length > 1 && (
+              <DeleteDatasetButton onDeleteItem={deleteDatasetFilter(index)} />
+            )}
           </div>
           {!equals(datasetFilters.length - 1, index) && (
             <DatasetFilterDivider />
