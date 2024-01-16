@@ -35,7 +35,7 @@
           },
           {
             "id": "malfunction",
-            "name": "Malfunction (Down & Critical)"
+            "name": "Problem (Down & Critical)"
           },
           {
             "id": "undefined",
@@ -50,7 +50,7 @@
     },
     "states": {
       "type": "checkbox",
-      "label": "Display resources with this states",
+      "label": "Display resources with this state",
       "options": [
         {
           "id": "unhandled_problems",
