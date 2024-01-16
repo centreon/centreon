@@ -10,3 +10,4 @@
 /usr/bin/mydumper
 /usr/bin/myloader
 /usr/bin/zstd
+/usr/bin/gpg
