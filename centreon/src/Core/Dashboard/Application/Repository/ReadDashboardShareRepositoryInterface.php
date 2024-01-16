@@ -122,6 +122,8 @@ interface ReadDashboardShareRepositoryInterface
     /**
      * Find users with Topology ACLs on dashboards.
      *
+     * @param RequestParametersInterface $requestParameters
+     *
      * @throws \Throwable|\UnexpectedValueException
      *
      * @return DashboardContactRole[]
@@ -131,9 +133,12 @@ interface ReadDashboardShareRepositoryInterface
     /**
      * Find users with Topology ACLs on dashboards by current user ACLs.
      *
-     * @throws \Throwable|\UnexpectedValueException
+     * @param RequestParametersInterface $requestParameters
+     * @param int[] $aclGroupIds
      *
      * @return DashboardContactRole[]
+     *@throws \Throwable|\UnexpectedValueException
+     *
      */
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(RequestParametersInterface $requestParameters, array $aclGroupIds): array;
 }

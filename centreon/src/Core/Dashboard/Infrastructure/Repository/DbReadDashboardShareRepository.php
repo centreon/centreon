@@ -507,7 +507,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal($total);
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
         $dashboardContactRoles = [];
@@ -564,7 +564,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal($sqlTranslator->getRequestParameters()->getTotal() + $total);
+            $sqlTranslator->getRequestParameters()->setTotal($sqlTranslator->getRequestParameters()->getTotal() + (int) $total);
         }
 
         $dashboardContactRoles = [];

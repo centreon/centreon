@@ -54,7 +54,10 @@ class DashboardContactRole
         return $this->contactEmail;
     }
 
-    public function getRole(): array
+    /**
+     * @return DashboardGlobalRole[]
+     */
+    public function getRoles(): array
     {
         return $this->roles;
     }

@@ -28,16 +28,11 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
-use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
-use Core\Dashboard\Infrastructure\Repository\DbReadDashboardShareRepository;
-use Core\Domain\Configuration\User\Model\User;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -46,7 +41,6 @@ final class FindDashboardContacts
     use LoggerTrait;
 
     /**
-     * @param ReadUserRepositoryInterface $readUserRepository
      * @param RequestParametersInterface $requestParameters
      * @param DashboardRights $rights
      * @param ContactInterface $contact
@@ -54,7 +48,6 @@ final class FindDashboardContacts
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      */
     public function __construct(
-        private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
