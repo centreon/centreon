@@ -264,7 +264,7 @@ Feature:
         "is_activated": true
       }
       """
-    Then the response code should be "400"
+    Then the response code should be "201"
 
     When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
