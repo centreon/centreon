@@ -91,7 +91,6 @@
     "react-dom": "^18.2.0",
     "react-test-renderer": "^18.2.0",
     "remark-gfm": "^3.0.1",
-    "sass": "^1.62.1",
     "speed-measure-vite-plugin": "^0.1.2",
     "storybook": "^7.6.8",
     "storybook-addon-mock": "^4.0.0",
