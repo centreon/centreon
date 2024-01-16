@@ -10,30 +10,62 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+
 runs:
   using: "composite"
   steps:
-    - name: Publish RPMS to Repositories
+    - name: Get released versions
       run: |
         set -eux
-        COMPONENTS=("centreon-awie", "centreon-dsm", "centreon-gorgone", "centreon-ha", "centreon-open-tickets", "centreon")
         COMPONENTS_RELEASED=()
-        CURRENT_STABLE_BRANCH=""
+        COMPONENTS=("centreon-awie", "centreon-dsm", "centreon-gorgone", "centreon-ha", "centreon-open-tickets", "centreon")
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        NEW_STABLE_TAGS=()
+        PREVIOUS_STABLE_TAGS=()
 
-        # Fetch ID of release JIRA issue
+        # Get current stable branch name
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
+        echo "Curent stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
-        # Get current stable branch (use branch or use file)
-        CURRENT_STABLE_BRANCH=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
-        # CURRENT_STABLE_BRANCH=$(cat .version | cut -d '='-f2 )
-
-        # Get versions for components with a change using last tags
+        # Get previous version tags for components
         for component in ${COMPONENTS[@]}; do
-          git tag -l "$component-$CURRENT_STABLE_BRANCH"
+          PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "centreon-$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
+        done
+        echo "Previous releases were: $PREVIOUS_STABLE_TAGS"
 
+        # Get new version tags for components
+        for component in ${COMPONENTS[@]}; do
+          MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
+          NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
+          NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
         done
 
+        # Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
+        # re use the part from check version ??
+        # or use the check-version action after turning this release action into a real workflow ?
 
-        ####
+        # Add new stable tags to stable branch
+        git config --global user.email "release@centreon.com"
+        git config --global user.name "Centreon"
+
+        for tag in ${NEW_STABLE_TAGS[@]}; do
+          git tag -a "$tag" -m "version $tag"
+          git push --follow-tags
+        done
+
+        # Create new JIRA versions
+        # TODO: add a future capacity to determine wether the release is hotfix or standard
+
+        JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+        curl --fail --request POST \
+          --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data ''$VERSION_DATA''
+
+        ######################
         NEW_VERSION=""
         MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
         echo "Major version: $MAJOR_VERSION"
@@ -77,3 +109,17 @@ runs:
           --data ''$VERSION_DATA''
 
       shell: bash
+
+    - name: Add new release tags to stable branch
+
+    - name: Create GITHUB releases from new release tags
+
+    - name: Create stable JIRA versions from new release tags
+      run: |
+        set -eux
+        # Fetch ID of release JIRA issue
+
+        # Call JIRA to provide new jira versions to create
+      shell: bash
+
+    - name: Trigger release communication for new releases
