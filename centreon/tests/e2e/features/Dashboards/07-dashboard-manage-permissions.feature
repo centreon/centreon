@@ -4,9 +4,9 @@ Feature: Managing dashboard permissions
   I need to configure the roles assigned with regards to the dashboarding feature.
   I can define whether users can manage access rights to dashboards (i.e. administrator right to the dashboarding capability).
 
-#   @TEST_MON-22193
-#   Scenario: Promote a viewer user to an editor on a dashboard
-#     Given a dashboard featuring a dashboard administrator and a dashboard viewer in its share list
+  @TEST_MON-22193
+  Scenario: Promote a viewer user to an editor on a dashboard
+    Given a dashboard featuring a dashboard administrator and a dashboard viewer in its share list
 #     When the dashboard administrator user promotes the viewer user to an editor
 #     Then the now-editor user can now perform update operations on the dashboard
 

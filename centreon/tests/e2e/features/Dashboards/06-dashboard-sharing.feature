@@ -4,12 +4,12 @@ Feature: Sharing a dashboard
   I need to be able to share dashboards to other users with either read or write access,
   So that these users may in turn consult, update or share these dashboards
 
-#   @TEST_MON-22186
-#   Scenario: Accessing the sharing list of a dashboard
-#     Given a non-admin user who is in a list of shared dashboards
-#     When the user selects the share option on a dashboard
-#     Then the user is redirected to the sharing list of the dashboard
-#     And the creator of the dashboard is listed as its sole editor
+  @TEST_MON-22186
+  Scenario: Accessing the sharing list of a dashboard
+    Given a non-admin user who is in a list of shared dashboards
+    When the user selects the share option on a dashboard
+    Then the user is redirected to the sharing list of the dashboard
+    And the creator of the dashboard is listed as its sole editor
 
 #   @TEST_MON-22187
 #   Scenario: Adding a viewer user to a dashboard
