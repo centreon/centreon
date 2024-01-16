@@ -546,7 +546,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'c.contact_name',
         ]);
         $query = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS 
+            SELECT SQL_CALC_FOUND_ROWS
                 c.contact_id,
                 c.contact_name,
                 c.contact_email,
