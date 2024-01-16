@@ -1,8 +1,8 @@
-# @REQ_MON-18516
-# Feature: Sharing a dashboard
-#   As a Centreon User with dashboard edition rights,
-#   I need to be able to share dashboards to other users with either read or write access,
-#   So that these users may in turn consult, update or share these dashboards
+@REQ_MON-18516
+Feature: Sharing a dashboard
+  As a Centreon User with dashboard edition rights,
+  I need to be able to share dashboards to other users with either read or write access,
+  So that these users may in turn consult, update or share these dashboards
 
 #   @TEST_MON-22186
 #   Scenario: Accessing the sharing list of a dashboard
