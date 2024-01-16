@@ -19,12 +19,14 @@ interface RemoteProps {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 export const Remote = ({
   component,
   remoteEntry,
+  remoteUrl,
   moduleName,
   moduleFederationName,
   isFederatedComponent,
@@ -45,10 +47,10 @@ export const Remote = ({
               module: component,
               remoteEntryFileName: remoteEntry,
               scope: moduleFederationName,
-              url: `./${prefix}/${moduleName}/static`
+              url: remoteUrl ?? `./${prefix}/${moduleName}/static`
             })
       ),
-    [component, moduleName, remoteEntry, moduleFederationName]
+    [component, moduleName, remoteEntry, moduleFederationName, remoteUrl]
   );
 
   const fallback = isFederatedComponent ? (
