@@ -441,10 +441,14 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
-    public function findContactsWithAccessRightByACLGroupsAndRequestParameters(RequestParametersInterface $requestParameters, array $aclGroupIds): array
-    {
+    public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        array $aclGroupIds
+    ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
@@ -535,7 +539,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     private function findDashboardAdminWithRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
@@ -564,7 +570,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal($sqlTranslator->getRequestParameters()->getTotal() + (int) $total);
+            $sqlTranslator->getRequestParameters()->setTotal(
+                $sqlTranslator->getRequestParameters()->getTotal() + (int) $total
+            );
         }
 
         $dashboardContactRoles = [];
@@ -606,7 +614,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $roles[] = DashboardGlobalRole::Administrator;
         } else {
             $roles = array_map(
-                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString($topology),
+                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                    $topology
+                ),
                 $topologies
             );
         }
