@@ -2648,7 +2648,7 @@ function createHostTemplateService($hostId = null, $htm_id = null)
      */
     $submittedValues = $form->getSubmitValues();
     if (
-        (isset($submittedValues['dupSvTplAssoc']['dupSvTplAssoc']) && $submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
+        ! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
         || $isCloudPlatform === true
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
