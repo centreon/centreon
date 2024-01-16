@@ -68,7 +68,7 @@ final class FindDashboardContactsPresenter extends AbstractPresenter implements 
             'id' => $dto->id,
             'name' => $dto->name,
             'email' => $dto->email,
-            'most_permissive_role' => DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole)
+            'most_permissive_role' => DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole),
         ];
     }
 }

@@ -64,17 +64,15 @@ class DashboardContactRole
 
     /**
      * Compute the most permissive role,
-     * Administrator | Creator are most permissive than Viewer
+     * Administrator | Creator are most permissive than Viewer.
      *
      * @return DashboardGlobalRole
      */
     public function getMostPermissiveRole(): DashboardGlobalRole
     {
-        return in_array(DashboardGlobalRole::Administrator, $this->roles)
-            || in_array(DashboardGlobalRole::Creator, $this->roles)
+        return in_array(DashboardGlobalRole::Administrator, $this->roles, true)
+            || in_array(DashboardGlobalRole::Creator, $this->roles, true)
                 ? DashboardGlobalRole::Creator
                 : DashboardGlobalRole::Viewer;
     }
-
-
 }

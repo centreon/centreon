@@ -375,7 +375,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'c.contact_name',
         ]);
 
-        $query = <<<SQL
+        $query = <<<'SQL'
             SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
                 FROM `:db`.contact c
                     LEFT JOIN `:db`.contactgroup_contact_relation cgcr
@@ -398,12 +398,12 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             ? $searchRequest . ' AND '
             : ' WHERE ';
 
-        $query .= <<<SQL
-                topology.topology_page IN (10401,10402,10403)
-                AND acltr.access_right IS NOT NULL
-                    AND c.contact_oreon = '1'
-                GROUP BY c.contact_id
-                SQL;
+        $query .= <<<'SQL'
+            topology.topology_page IN (10401,10402,10403)
+            AND acltr.access_right IS NOT NULL
+                AND c.contact_oreon = '1'
+            GROUP BY c.contact_id
+            SQL;
 
         $query .= $sqlTranslator->translatePaginationToSql();
 
@@ -424,7 +424,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         }
 
         $dashboardContactRoles = [];
-        foreach($statement as $contactRole) {
+        foreach ($statement as $contactRole) {
             /** @var array{
              *     topologies: string,
              *     contact_name: string,
@@ -464,7 +464,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $bindTokenAsString = implode(', ', array_keys($bind));
 
-        $query = <<<SQL
+        $query = <<<'SQL'
             SELECT GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
                 FROM `:db`.contact c
                     LEFT JOIN `:db`.contactgroup_contact_relation cgcr
@@ -515,7 +515,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         }
 
         $dashboardContactRoles = [];
-        foreach($statement as $contactRole) {
+        foreach ($statement as $contactRole) {
             /** @var array{
              *     topologies: string,
              *     contact_name: string,
@@ -576,7 +576,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         }
 
         $dashboardContactRoles = [];
-        foreach($statement as $admin) {
+        foreach ($statement as $admin) {
             /** @var array{
              *     contact_admin: string,
              *     contact_name: string,
@@ -584,7 +584,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
              *     contact_email: string
              * } $admin
              */
-
             $dashboardContactRoles[] = $this->createDashboardContactRole($admin);
         }
 

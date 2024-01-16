@@ -138,8 +138,9 @@ interface ReadDashboardShareRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param int[] $aclGroupIds
      *
+     * @throws \Throwable|\UnexpectedValueException
+     *
      * @return DashboardContactRole[]
-     *@throws \Throwable|\UnexpectedValueException
      *
      */
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
