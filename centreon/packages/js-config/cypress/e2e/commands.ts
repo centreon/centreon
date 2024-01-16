@@ -274,7 +274,7 @@ Cypress.Commands.add(
   }: StartWebContainerProps = {}): Cypress.Chainable => {
     const slimSuffix = useSlim ? '-slim' : '';
 
-    const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
+    const image = 'docker.centreon.com/centreon/centreon-web-alma9:MON-33898'; // `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
 
     return cy
       .startContainer({
