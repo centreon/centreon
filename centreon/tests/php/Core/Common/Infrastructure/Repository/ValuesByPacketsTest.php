@@ -33,6 +33,7 @@ it('should divide the values according to the maxItemsByPackets limitation only'
     $values = range(1, 1000);
     $valuesByPackets = new ValuesByPackets($values, $maxItemsByPackets, $maxQueryStringLength);
     foreach ($valuesByPackets as $iterationNumber => $valuesToCheck) {
+        expect(count($valuesToCheck))->toBeLessThanOrEqual($maxItemsByPackets);
         for($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
             expect($values[$index + ($iterationNumber * $maxItemsByPackets)])->toEqual($valuesToCheck[$index]);
         }
@@ -57,6 +58,7 @@ it('should divide the values according to the all limitations', function(): void
     $valueSeparator = ',';
     $valuesByPackets = new ValuesByPackets($values, $maxItemsByPackets, $maxQueryStringLength, mb_strlen($valueSeparator));
     foreach ($valuesByPackets as $iterationNumber => $valuesToCheck) {
+        expect(count($valuesToCheck))->toBeLessThanOrEqual($maxItemsByPackets);
         expect(mb_strlen(implode($valueSeparator, $valuesToCheck)) <= $maxQueryStringLength)->toBeTrue();
         for($index = 0; $index < $maxItemsByPackets && array_key_exists($index, $valuesToCheck); $index++) {
             expect($values[$index + ($iterationNumber * $maxItemsByPackets)])->toEqual($valuesToCheck[$index]);
