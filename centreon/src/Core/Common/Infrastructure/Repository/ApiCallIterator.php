@@ -25,6 +25,7 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Repository\RepositoryException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -101,6 +102,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws RepositoryException
      */
     private function createCache(): void
     {
@@ -108,7 +110,8 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
             $fromPage = 1;
             $totalPage = 0;
             do {
-                $url = $this->url . sprintf('?limit=%d&page=%d', $this->maxItemsByRequest, $fromPage);
+                $separator = isset(parse_url($this->url)['query']) ? '&' : '?';
+                $url = $this->url . $separator . sprintf('limit=%d&page=%d', $this->maxItemsByRequest, $fromPage);
                 $this->logger->debug('Call API', ['url' => $this->url]);
                 /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
                 $response = $this->getResponseOrFail($this->httpClient->request('GET', $url, $this->options));
