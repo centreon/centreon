@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import './commands/configuration';
 import './commands/monitoring';
@@ -6,6 +8,9 @@ import './commands/monitoring';
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
 installLogsCollector({ enableExtendedCollector: true });
+
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFilePath);
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -318,7 +323,7 @@ interface StartContainersProps {
 Cypress.Commands.add(
   'startContainers',
   ({
-    composeFile = `${__dirname}/../../../../../.github/docker/docker-compose.yml`,
+    composeFile = `${currentDir}/../../../../../.github/docker/docker-compose.yml`,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
     moduleName = 'centreon-web',
     openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
