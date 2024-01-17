@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -40,7 +41,7 @@ trait ApiResponseTrait
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @throws \Exception
+     * @throws RepositoryException
      *
      * @return array<mixed>
      */
@@ -61,11 +62,11 @@ trait ApiResponseTrait
                 ]);
             }
 
-            throw new \Exception('Request error: ' . $errorMessage, $httpStatusCode);
+            throw new RepositoryException('Request error: ' . $errorMessage, $httpStatusCode);
         }
 
         if (! is_array($responseBody)) {
-            throw new \Exception();
+            throw new RepositoryException('No body response');
         }
 
         return $responseBody;
