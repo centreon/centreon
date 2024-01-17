@@ -304,6 +304,7 @@ Cypress.Commands.add(
 );
 
 interface StartContainersProps {
+  composeFile?: string;
   databaseImage?: string;
   moduleName?: string;
   openidImage?: string;
@@ -317,6 +318,7 @@ interface StartContainersProps {
 Cypress.Commands.add(
   'startContainers',
   ({
+    composeFile = `${__dirname}/../../../../../.github/docker/docker-compose.yml`,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
     moduleName = 'centreon-web',
     openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
@@ -339,7 +341,14 @@ Cypress.Commands.add(
     return cy
       .task(
         'startContainers',
-        { databaseImage, openidImage, profiles, samlImage, webImage },
+        {
+          composeFile,
+          databaseImage,
+          openidImage,
+          profiles,
+          samlImage,
+          webImage
+        },
         { timeout: 600000 } // 10 minutes because docker pull can be very slow
       )
       .then(() => {
@@ -680,6 +689,7 @@ declare global {
         portBindings
       }: StartContainerProps) => Cypress.Chainable;
       startContainers: ({
+        composeFile,
         databaseImage,
         moduleName,
         openidImage,

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
+import path from 'path';
 
 import tar from 'tar-fs';
 import {
@@ -167,7 +168,7 @@ export default (on: Cypress.PluginEvents): void => {
       return container;
     },
     startContainers: async ({
-      composeFilePath = `${__dirname}/../../../../../.github/docker/`,
+      composeFile,
       databaseImage,
       openidImage,
       profiles,
@@ -175,11 +176,12 @@ export default (on: Cypress.PluginEvents): void => {
       webImage
     }) => {
       try {
-        const composeFile = 'docker-compose.yml';
+        const composeFileDir = path.dirname(composeFile);
+        const composeFileName = path.basename(composeFile);
 
         dockerEnvironment = await new DockerComposeEnvironment(
-          composeFilePath,
-          composeFile
+          composeFileDir,
+          composeFileName
         )
           .withEnvironment({
             MYSQL_IMAGE: databaseImage,
