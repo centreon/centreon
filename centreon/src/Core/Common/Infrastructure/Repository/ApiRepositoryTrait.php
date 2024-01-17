@@ -44,7 +44,7 @@ trait ApiRepositoryTrait
 
     public function setUrl(string $url): void
     {
-        $this->url = rtrim($url, DIRECTORY_SEPARATOR);
+        $this->url = rtrim($url, '/');
         if (! str_starts_with($this->url, 'http')) {
             $this->url = 'https://' . $this->url;
         }
