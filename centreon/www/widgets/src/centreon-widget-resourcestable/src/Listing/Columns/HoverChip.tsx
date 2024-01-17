@@ -1,21 +1,12 @@
 import { useState, useEffect } from 'react';
 
 import { not } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-const useStyles = makeStyles()(() => ({
-  iconButton: {
-    padding: 0
-  },
-  tooltip: {
-    backgroundColor: 'transparent',
-    maxWidth: 'none'
-  }
-}));
+import { useHoverChiptStyles } from './Columns.styles';
 
 interface Props {
   Chip: () => JSX.Element;
@@ -32,7 +23,7 @@ const HoverChip = ({
   onClick,
   isHovered = false
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes } = useHoverChiptStyles();
 
   const [isChipHovered, setIsChipHovered] = useState<boolean>(false);
 

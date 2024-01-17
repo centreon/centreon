@@ -50,4 +50,56 @@ export const useStatusStyles = makeStyles<StylesProps>()((theme, { data }) => ({
   }
 }));
 
+export const useSeverityStyles = makeStyles()((theme) => ({
+  container: {
+    display: 'flex'
+  },
+  firstColumn: {
+    display: 'flex',
+    minWidth: theme.spacing(5)
+  },
+  root: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  rowContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    flexWrap: 'wrap'
+  },
+  text: {
+    display: 'flex'
+  }
+}));
+
+export const useTypeChipStyles = makeStyles()((theme) => ({
+  containerLabel: {
+    padding: theme.spacing(0.5)
+  },
+  label: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1
+  }
+}));
+
+export const useHoverChiptStyles = makeStyles()(() => ({
+  iconButton: {
+    padding: 0
+  },
+  tooltip: {
+    backgroundColor: 'transparent',
+    maxWidth: 'none'
+  }
+}));
+
+export const useStateStyles = makeStyles()({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gridGap: 2,
+    marginLeft: 2
+  }
+});
+
 export default useStyles;

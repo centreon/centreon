@@ -1,13 +1,13 @@
 import { FC } from 'react';
 
 import { path } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
 import { labelInDowntime, labelAcknowledged } from '../../translatedLabels';
 import { Resource } from '../../models';
 import HoverChip from '../HoverChip';
+import { useStateStyles } from '../Columns.styles';
 
 import DowntimeChip from './Chip/Downtime';
 import AcknowledgeChip from './Chip/Acknowledge';
@@ -20,15 +20,6 @@ interface StateChipProps {
   endpoint: string;
   label: string;
 }
-
-const useStyles = makeStyles()({
-  container: {
-    display: 'flex',
-    flexDirection: 'row',
-    gridGap: 2,
-    marginLeft: 2
-  }
-});
 
 const StateHoverChip = ({
   endpoint,
@@ -81,7 +72,7 @@ const AcknowledgeHoverChip = ({
 };
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes } = useStateStyles();
 
   return (
     <div className={classes.container}>
