@@ -8,10 +8,13 @@
     "pretty": true,
     "emitDeclarationOnly": true,
     "types": [],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"]
+    }
   },
   "include": [
-    "./cypress/e2e"
+    "./cypress/e2e/configuration.ts"
   ],
   "exclude": [
     "./node_modules",
