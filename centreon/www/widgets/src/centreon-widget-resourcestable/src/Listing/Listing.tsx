@@ -19,6 +19,8 @@ interface ListingProps {
   resources;
   selectedColumnIds;
   setPanelOptions;
+  sortField;
+  sortOrder;
   states;
   statuses;
 }
@@ -32,7 +34,9 @@ const Listing = ({
   statuses,
   setPanelOptions,
   limit,
-  selectedColumnIds
+  selectedColumnIds,
+  sortField,
+  sortOrder
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -45,8 +49,6 @@ const Listing = ({
     changePage,
     columns,
     page,
-    sortField,
-    sortOrder,
     isLoading,
     data
   } = useListing({
@@ -56,6 +58,8 @@ const Listing = ({
     refreshIntervalToUse,
     resources,
     setPanelOptions,
+    sortField,
+    sortOrder,
     states,
     statuses
   });

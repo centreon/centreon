@@ -10,6 +10,8 @@ export interface PanelOptions {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   selectedColumnIds?: Array<string>;
+  sortField?: string;
+  sortOrder?: string;
   states: Array<string>;
   statuses: Array<string>;
 }

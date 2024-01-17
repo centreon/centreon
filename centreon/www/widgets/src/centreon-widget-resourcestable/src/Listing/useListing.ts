@@ -12,9 +12,9 @@ import {
   useColumns
 } from './Columns';
 import useLoadResources from './useLoadResources';
-import { pageAtom, sortOrderAtom, sortFieldAtom } from './atom';
+import { pageAtom } from './atom';
 
-interface ListingState {
+interface UseListingState {
   areColumnsSortable;
   changeLimit;
   changePage;
@@ -25,17 +25,17 @@ interface ListingState {
   page;
   resetColumns;
   selectColumns;
-  sortField;
-  sortOrder;
 }
 
-interface UseListing {
+interface UseListingProps {
   displayType;
   limit;
   refreshCount;
   refreshIntervalToUse;
   resources;
   setPanelOptions;
+  sortField;
+  sortOrder;
   states;
   statuses;
 }
@@ -48,15 +48,14 @@ const useListing = ({
   refreshCount,
   refreshIntervalToUse,
   setPanelOptions,
-  limit
-}: UseListing): ListingState => {
+  limit,
+  sortField,
+  sortOrder
+}: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
   const [page, setPage] = useAtom(pageAtom);
-
-  const [sortField, setSortf] = useAtom(sortFieldAtom);
-  const [sortOrder, setSorto] = useAtom(sortOrderAtom);
 
   const { data, isLoading } = useLoadResources({
     displayType,
@@ -72,8 +71,8 @@ const useListing = ({
   });
 
   const changeSort = ({ sortOrder: sortO, sortField: sortF }): void => {
-    setSortf(sortF);
-    setSorto(sortO);
+    setPanelOptions?.('sortField', sortF);
+    setPanelOptions?.('sortOrder', sortO);
   };
 
   const changeLimit = (value): void => {
@@ -123,9 +122,7 @@ const useListing = ({
     isLoading,
     page,
     resetColumns,
-    selectColumns,
-    sortField,
-    sortOrder
+    selectColumns
   };
 };
 

@@ -17,6 +17,8 @@ const ResourceTable = ({
     states,
     statuses,
     limit,
+    sortField,
+    sortOrder,
     selectedColumnIds
   } = panelOptions;
   const { resources } = panelData;
@@ -37,6 +39,8 @@ const ResourceTable = ({
         resources={resources}
         selectedColumnIds={selectedColumnIds}
         setPanelOptions={setPanelOptions}
+        sortField={sortField}
+        sortOrder={sortOrder}
         states={states}
         statuses={statuses}
       />
