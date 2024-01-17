@@ -87,7 +87,7 @@ if ($o == ACL_MODIFY || $o == ACL_WATCH) {
     $DBRESULT->closeCursor();
 }
 
-$groups = array();
+$groups = [];
 $DBRESULT = $pearDB->query('SELECT acl_group_id, acl_group_name FROM acl_groups ORDER BY acl_group_name');
 while ($group = $DBRESULT->fetchRow()) {
     $groups[$group['acl_group_id']] = CentreonUtils::escapeSecure(
@@ -98,16 +98,16 @@ while ($group = $DBRESULT->fetchRow()) {
 $DBRESULT->closeCursor();
 
 if (!isset($acl['acl_topos'])) {
-    $acl['acl_topos'] = array();
+    $acl['acl_topos'] = [];
 }
 
 /*
  * Var information to format the element
  */
 
-$attrsText = array('size' => '30');
-$attrsAdvSelect = array('style' => 'width: 300px; height: 180px;');
-$attrsTextarea = array('rows' => '5', 'cols' => '80');
+$attrsText = ['size' => '30'];
+$attrsAdvSelect = ['style' => 'width: 300px; height: 180px;'];
+$attrsTextarea = ['rows' => '5', 'cols' => '80'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
     '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
@@ -134,25 +134,25 @@ $form->addElement('text', 'acl_topo_alias', _('Alias'), $attrsText);
 $ams1 = $form->addElement(
     'advmultiselect',
     'acl_groups',
-    array(
+    [
         _('Linked Groups'),
         _('Available'),
         _('Selected')
-    ),
+    ],
     $groups,
     $attrsAdvSelect,
     SORT_ASC
 );
-$ams1->setButtonAttributes('add', array('value' => _('Add'), 'class' => 'btc bt_success'));
-$ams1->setButtonAttributes('remove', array('value' => _('Remove'), 'class' => 'btc bt_danger'));
+$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
+$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
 $ams1->setElementTemplate($eTemplate);
 echo $ams1->getElementJs(false);
 
-$tab = array();
+$tab = [];
 $tab[] = $form->createElement('radio', 'acl_topo_activate', null, _('Enabled'), '1');
 $tab[] = $form->createElement('radio', 'acl_topo_activate', null, _('Disabled'), '0');
 $form->addGroup($tab, 'acl_topo_activate', _('Status'), '&nbsp;');
-$form->setDefaults(array('acl_topo_activate' => '1'));
+$form->setDefaults(['acl_topo_activate' => '1']);
 
 /*
  * Further informations
@@ -169,7 +169,7 @@ $query = 'SELECT topology_group, topology_name, topology_parent FROM `topology` 
 $DBRESULT = $pearDB->query($query);
 while ($group = $DBRESULT->fetchRow()) {
     if (!isset($groupMenus[$group['topology_group']])) {
-        $groupMenus[$group['topology_group']] = array();
+        $groupMenus[$group['topology_group']] = [];
     }
     $groupMenus[$group['topology_group']][$group['topology_parent']] = $group['topology_name'];
 }
@@ -184,12 +184,12 @@ $query = 'SELECT topology_id, topology_page, topology_name, topology_parent, rea
     'WHERE topology_parent IS NULL ORDER BY topology_order, topology_group';
 $DBRESULT1 = $pearDB->query($query);
 
-$acl_topos = array();
-$acl_topos2 = array();
+$acl_topos = [];
+$acl_topos2 = [];
 
 $a = 0;
 while ($topo1 = $DBRESULT1->fetchRow()) {
-    $acl_topos2[$a] = array();
+    $acl_topos2[$a] = [];
     $acl_topos2[$a]['name'] = _($topo1['topology_name']);
     $acl_topos2[$a]['id'] = $topo1['topology_id'];
     $acl_topos2[$a]['access'] = isset($acl['acl_topos'][$topo1['topology_id']])
@@ -197,14 +197,14 @@ while ($topo1 = $DBRESULT1->fetchRow()) {
         : 0;
     $acl_topos2[$a]['c_id'] = $a;
     $acl_topos2[$a]['readonly'] = $topo1['readonly'];
-    $acl_topos2[$a]['childs'] = array();
+    $acl_topos2[$a]['childs'] = [];
 
     $acl_topos[] = $form->createElement(
         'checkbox',
         $topo1['topology_id'],
         null,
         _($topo1['topology_name']),
-        array('style' => 'margin-top: 5px;', 'id' => $topo1['topology_id'])
+        ['style' => 'margin-top: 5px;', 'id' => $topo1['topology_id']]
     );
 
     $b = 0;
@@ -215,21 +215,21 @@ while ($topo1 = $DBRESULT1->fetchRow()) {
     $statement2->bindValue(':topology_parent', (int) $topo1['topology_page'], \PDO::PARAM_INT);
     $statement2->execute();
     while ($topo2 = $statement2->fetchRow()) {
-        $acl_topos2[$a]['childs'][$b] = array();
+        $acl_topos2[$a]['childs'][$b] = [];
         $acl_topos2[$a]['childs'][$b]['name'] = _($topo2['topology_name']);
         $acl_topos2[$a]['childs'][$b]['id'] = $topo2['topology_id'];
         $acl_topos2[$a]['childs'][$b]['access'] =
             isset($acl['acl_topos'][$topo2['topology_id']]) ? $acl['acl_topos'][$topo2['topology_id']] : 0;
         $acl_topos2[$a]['childs'][$b]['c_id'] = $a . '_' . $b;
         $acl_topos2[$a]['childs'][$b]['readonly'] = $topo2['readonly'];
-        $acl_topos2[$a]['childs'][$b]['childs'] = array();
+        $acl_topos2[$a]['childs'][$b]['childs'] = [];
 
         $acl_topos[] = $form->createElement(
             'checkbox',
             $topo2['topology_id'],
             null,
             _($topo2['topology_name']) . '<br />',
-            array('style' => 'margin-top: 5px; margin-left: 20px;')
+            ['style' => 'margin-top: 5px; margin-left: 20px;']
         );
 
         $c = 0;
@@ -242,7 +242,7 @@ while ($topo1 = $DBRESULT1->fetchRow()) {
         $statement3->execute();
 
         while ($topo3 = $statement3->fetchRow()) {
-            $acl_topos2[$a]['childs'][$b]['childs'][$c] = array();
+            $acl_topos2[$a]['childs'][$b]['childs'][$c] = [];
             $acl_topos2[$a]['childs'][$b]['childs'][$c]['name'] = _($topo3['topology_name']);
 
             if (isset($groupMenus[$topo3['topology_group']]) &&
@@ -259,14 +259,14 @@ while ($topo1 = $DBRESULT1->fetchRow()) {
                 isset($acl['acl_topos'][$topo3['topology_id']]) ? $acl['acl_topos'][$topo3['topology_id']] : 0;
             $acl_topos2[$a]['childs'][$b]['childs'][$c]['c_id'] = $a . '_' . $b . '_' . $c;
             $acl_topos2[$a]['childs'][$b]['childs'][$c]['readonly'] = $topo3['readonly'];
-            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'] = array();
+            $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'] = [];
 
             $acl_topos[] = $form->createElement(
                 'checkbox',
                 $topo3['topology_id'],
                 null,
                 _($topo3['topology_name']) . '<br />',
-                array('style' => 'margin-top: 5px; margin-left: 40px;')
+                ['style' => 'margin-top: 5px; margin-left: 40px;']
             );
 
             $d = 0;
@@ -277,14 +277,14 @@ while ($topo1 = $DBRESULT1->fetchRow()) {
             $statement4->execute();
 
             while ($topo4 = $statement4->fetchRow()) {
-                $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d] = array();
+                $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d] = [];
                 $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['name'] = _($topo4['topology_name']);
                 $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['id'] = $topo4['topology_id'];
                 $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['access'] =
                     isset($acl['acl_topos'][$topo4['topology_id']]) ? $acl['acl_topos'][$topo4['topology_id']] : 0;
                 $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['c_id'] = $a . '_' . $b . '_' . $c . '_' . $d;
                 $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['readonly'] = $topo4['readonly'];
-                $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['childs'] = array();
+                $acl_topos2[$a]['childs'][$b]['childs'][$c]['childs'][$d]['childs'] = [];
                 $d++;
             }
             $acl_topos2[$a]['childs'][$b]['childs'][$c]['childNumber'] =
@@ -325,21 +325,21 @@ $tpl = initSmartyTpl($path, $tpl);
  * Just watch a LCA information
  */
 if ($o == ACL_WATCH) {
-    $form->addElement('button', 'change', _('Modify'), array(
+    $form->addElement('button', 'change', _('Modify'), [
         'onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&acl_id=' . $aclTopologyId . "'",
         'class' => 'btc bt_success'
-    ));
+    ]);
     $form->setDefaults($acl);
     $form->freeze();
 } elseif ($o == ACL_MODIFY) { # Modify a LCA information
-    $subC = $form->addElement('submit', 'submitC', _('Save'), array('class' => 'btc bt_success'));
-    $res = $form->addElement('reset', 'reset', _('Delete'), array('class' => 'btc bt_danger'));
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
     $form->setDefaults($acl);
 } elseif ($o == ACL_ADD) {  # Add a LCA information
-    $subA = $form->addElement('submit', 'submitA', _('Save'), array('class' => 'btc bt_success'));
-    $res = $form->addElement('reset', 'reset', _('Delete'), array('class' => 'btc bt_danger'));
+    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
 }
-$tpl->assign('msg', array('changeL' => 'main.php?p=' . $p . '&o=c&lca_id=' . $aclTopologyId, 'changeT' => _('Modify')));
+$tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&lca_id=' . $aclTopologyId, 'changeT' => _('Modify')]);
 
 $tpl->assign('lca_topos2', $acl_topos2);
 $tpl->assign('sort1', _('General Information'));
