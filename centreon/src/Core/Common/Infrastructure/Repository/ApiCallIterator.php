@@ -78,6 +78,12 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
         }
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     public function count(): int
     {
         $this->createCache();
