@@ -3,7 +3,7 @@ import { equals, flatten, includes, map, pipe, pluck } from 'ramda';
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
-import { formatStatusFilter } from '../utils';
+import { formatStatusFilter } from '../Listing/utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';

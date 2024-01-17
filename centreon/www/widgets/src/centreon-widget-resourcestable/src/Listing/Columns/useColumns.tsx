@@ -29,7 +29,7 @@ import {
   labelServices,
   labelInformation
 } from '../translatedLabels';
-import { Visualization } from '../models';
+import { DisplayType } from '../models';
 
 import StateColumn from './State';
 import StatusColumn from './Status';
@@ -41,11 +41,11 @@ import useStyles from './Columns.styles';
 import truncate from './truncate';
 
 interface ColumnProps {
-  visualization?: Visualization;
+  displayType?: DisplayType;
 }
 
 const useColumns = ({
-  visualization = Visualization.All
+  displayType = DisplayType.All
 }: ColumnProps): Array<Column> => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -65,7 +65,7 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      Component: ResourceColumn({ classes, visualization }),
+      Component: ResourceColumn({ classes, displayType }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
       label: t(labelResource),
@@ -147,7 +147,7 @@ const useColumns = ({
     }
   ];
 
-  if (equals(visualization, Visualization.Service)) {
+  if (equals(displayType, DisplayType.Service)) {
     const changeResourceLabel = (column: Column): Column =>
       equals(column.label, labelResource)
         ? { ...column, label: t(labelService) }
@@ -166,7 +166,7 @@ const useColumns = ({
     return columnsForVisualizationByService;
   }
 
-  if (equals(visualization, Visualization.Host)) {
+  if (equals(displayType, DisplayType.Host)) {
     const subItemColumn = {
       Component: SubItem,
       displaySubItemsCaret: true,
@@ -182,7 +182,7 @@ const useColumns = ({
         : column;
 
     const columnsForVisualizationByHost = pipe(
-      // reject(propEq('parent_resource', 'id')),
+      reject(propEq('parent_resource', 'id')),
       insert(1, subItemColumn),
       map(changeResourceLabel)
     )(columns) as Array<Column>;

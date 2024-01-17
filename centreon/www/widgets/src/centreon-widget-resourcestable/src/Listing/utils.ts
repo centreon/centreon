@@ -1,6 +1,6 @@
 import { T, always, cond, equals, map } from 'ramda';
 
-import { ResourceListing, Visualization } from './Listing/models';
+import { ResourceListing, DisplayType } from './models';
 
 export const formatStatusFilter = cond([
   [equals('success'), always(['ok', 'up'])],
@@ -15,7 +15,7 @@ export const formatRessourcesResponse = ({
   data,
   displayType
 }): ResourceListing => {
-  if (!equals(displayType, Visualization.Host)) {
+  if (!equals(displayType, DisplayType.Host)) {
     return data;
   }
 

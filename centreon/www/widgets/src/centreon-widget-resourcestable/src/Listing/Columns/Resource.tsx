@@ -2,17 +2,17 @@ import { equals } from 'ramda';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { Visualization } from '../models';
+import { DisplayType } from '../models';
 
 import ShortTypeChip from './ShortTypeChip';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import { getStatus } from './ServiceSubItemColumn/SubItem';
 
 const ResourceColumn =
-  ({ visualization, classes }) =>
+  ({ displayType, classes }) =>
   ({ row, renderEllipsisTypography }: ComponentColumnProps): JSX.Element => {
-    const isViewByHostMode = equals(visualization, Visualization.Host);
-    const isViewByServiceMode = equals(visualization, Visualization.Service);
+    const isViewByHostMode = equals(displayType, DisplayType.Host);
+    const isViewByServiceMode = equals(displayType, DisplayType.Service);
     const status = row?.status.name;
 
     const resourceName = renderEllipsisTypography?.({

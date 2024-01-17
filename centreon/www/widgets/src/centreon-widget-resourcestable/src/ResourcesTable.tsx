@@ -3,18 +3,21 @@ import { useRefreshInterval } from '@centreon/ui';
 import { Listing } from './Listing';
 import { ResourcesTableProps } from './models';
 
-const StatusGrid = ({
+const ResourceTable = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
+  refreshCount,
+  setPanelOptions
 }: ResourcesTableProps): JSX.Element => {
   const {
     displayType,
     refreshInterval,
     refreshIntervalCustom,
     states,
-    statuses
+    statuses,
+    limit,
+    selectedColumnIds
   } = panelOptions;
   const { resources } = panelData;
 
@@ -28,9 +31,12 @@ const StatusGrid = ({
     <div style={{ height: '100%', width: '100%' }}>
       <Listing
         displayType={displayType}
+        limit={limit}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}
         resources={resources}
+        selectedColumnIds={selectedColumnIds}
+        setPanelOptions={setPanelOptions}
         states={states}
         statuses={statuses}
       />
@@ -38,4 +44,4 @@ const StatusGrid = ({
   );
 };
 
-export default StatusGrid;
+export default ResourceTable;

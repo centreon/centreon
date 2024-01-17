@@ -41,8 +41,12 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
 
   const panelConfigurations = getPanelConfigurations(id);
 
-  const changePanelOptions = (newPanelOptions): void => {
-    setPanelOptions({ id, options: newPanelOptions });
+  const changePanelOptions = (field, value): void => {
+    setPanelOptions({
+      data: panelOptionsAndData?.data,
+      id,
+      options: { ...panelOptionsAndData?.options, [field]: value }
+    });
   };
 
   const displayDescription =

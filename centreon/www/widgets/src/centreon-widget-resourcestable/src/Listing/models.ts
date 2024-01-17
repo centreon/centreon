@@ -5,7 +5,7 @@ export enum SortOrder {
   Desc = 'desc'
 }
 
-export enum Visualization {
+export enum DisplayType {
   All = 'all',
   Host = 'host',
   Service = 'service'

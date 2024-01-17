@@ -1,12 +1,10 @@
-import { useEffect } from 'react';
-
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
-import { Visualization } from './models';
+import { DisplayType } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import {
   defaultSelectedColumnIds,
@@ -14,13 +12,7 @@ import {
   useColumns
 } from './Columns';
 import useLoadResources from './useLoadResources';
-import {
-  limitAtom,
-  pageAtom,
-  selectedColumnIdsAtom,
-  sortOrderAtom,
-  sortFieldAtom
-} from './atom';
+import { pageAtom, sortOrderAtom, sortFieldAtom } from './atom';
 
 interface ListingState {
   areColumnsSortable;
@@ -33,16 +25,17 @@ interface ListingState {
   page;
   resetColumns;
   selectColumns;
-  selectedColumnIds;
   sortField;
   sortOrder;
 }
 
 interface UseListing {
   displayType;
+  limit;
   refreshCount;
   refreshIntervalToUse;
   resources;
+  setPanelOptions;
   states;
   statuses;
 }
@@ -53,20 +46,17 @@ const useListing = ({
   statuses,
   displayType,
   refreshCount,
-  refreshIntervalToUse
+  refreshIntervalToUse,
+  setPanelOptions,
+  limit
 }: UseListing): ListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
   const [page, setPage] = useAtom(pageAtom);
-  const [selectedColumnIds, setSelectedColumnIds] = useAtom(
-    selectedColumnIdsAtom
-  );
 
   const [sortField, setSortf] = useAtom(sortFieldAtom);
   const [sortOrder, setSorto] = useAtom(sortOrderAtom);
-  const limit = useAtomValue(limitAtom);
-  const setLimit = useSetAtom(limitAtom);
 
   const { data, isLoading } = useLoadResources({
     displayType,
@@ -87,7 +77,7 @@ const useListing = ({
   };
 
   const changeLimit = (value): void => {
-    setLimit(Number(value));
+    setPanelOptions?.('limit', value);
   };
 
   const changePage = (updatedPage): void => {
@@ -96,18 +86,19 @@ const useListing = ({
 
   const resetColumns = (): void => {
     if (equals(displayType, 'host')) {
-      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+      setPanelOptions?.(
+        'selectedColumnIds',
+        defaultSelectedColumnIdsforViewByHost
+      );
 
       return;
     }
 
-    setSelectedColumnIds(defaultSelectedColumnIds);
+    setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
   };
 
-  useEffect(() => resetColumns(), [displayType]);
-
   const columns = useColumns({
-    visualization: displayType
+    displayType
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
@@ -117,10 +108,10 @@ const useListing = ({
       return;
     }
 
-    setSelectedColumnIds(updatedColumnIds);
+    setPanelOptions?.('selectedColumnIds', updatedColumnIds);
   };
 
-  const areColumnsSortable = equals(displayType, Visualization.All);
+  const areColumnsSortable = equals(displayType, DisplayType.All);
 
   return {
     areColumnsSortable,
@@ -133,7 +124,6 @@ const useListing = ({
     page,
     resetColumns,
     selectColumns,
-    selectedColumnIds,
     sortField,
     sortOrder
   };

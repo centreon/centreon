@@ -6,12 +6,19 @@ import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from './Columns';
 
 interface ListingProps {
   displayType;
+  limit;
   refreshCount;
   refreshIntervalToUse;
   resources;
+  selectedColumnIds;
+  setPanelOptions;
   states;
   statuses;
 }
@@ -22,7 +29,10 @@ const Listing = ({
   refreshIntervalToUse,
   resources,
   states,
-  statuses
+  statuses,
+  setPanelOptions,
+  limit,
+  selectedColumnIds
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -34,7 +44,6 @@ const Listing = ({
     changeLimit,
     changePage,
     columns,
-    selectedColumnIds,
     page,
     sortField,
     sortOrder,
@@ -42,17 +51,23 @@ const Listing = ({
     data
   } = useListing({
     displayType,
+    limit,
     refreshCount,
     refreshIntervalToUse,
     resources,
+    setPanelOptions,
     states,
     statuses
   });
 
+  const initialSelectedColumnIds = equals(displayType, 'host')
+    ? defaultSelectedColumnIdsforViewByHost
+    : defaultSelectedColumnIds;
+
   return (
     <MemoizedListing
       columnConfiguration={{
-        selectedColumnIds,
+        selectedColumnIds: selectedColumnIds || initialSelectedColumnIds,
         sortable: areColumnsSortable
       }}
       columns={columns}
@@ -60,7 +75,7 @@ const Listing = ({
       getHighlightRowCondition={({ status }): boolean =>
         equals(status?.severity_code, SeverityCode.High)
       }
-      limit={data?.meta?.limit}
+      limit={limit}
       loading={isLoading}
       memoProps={[data, sortField, sortOrder, page, isLoading, columns]}
       rowColorConditions={rowColorConditions(theme)}

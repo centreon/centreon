@@ -6,8 +6,10 @@ export interface Data {
 
 export interface PanelOptions {
   displayType: string;
+  limit?: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
+  selectedColumnIds?: Array<string>;
   states: Array<string>;
   statuses: Array<string>;
 }
@@ -17,4 +19,5 @@ export interface ResourcesTableProps {
   panelData: Data;
   panelOptions: PanelOptions;
   refreshCount: number;
+  setPanelOptions: (panelOptions: PanelOptions) => void;
 }

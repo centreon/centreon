@@ -33,7 +33,7 @@ const Preview = (): JSX.Element | null => {
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 
-  const { values } = useFormikContext<Widget>();
+  const { values, setFieldValue } = useFormikContext<Widget>();
 
   if (isNil(values.id)) {
     return (
@@ -44,6 +44,10 @@ const Preview = (): JSX.Element | null => {
   }
 
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
+
+  const changePanelOptions = (field, value): void => {
+    setFieldValue(`options.${field}`, value);
+  };
 
   return (
     <div className={classes.previewPanelContainer} ref={previewRef}>
@@ -95,6 +99,7 @@ const Preview = (): JSX.Element | null => {
               panelData={values.data}
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
+              setPanelOptions={changePanelOptions}
             />
           </div>
         )}

@@ -1,8 +1,8 @@
 import { useFetchQuery } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../api/endpoints';
-import { formatRessourcesResponse } from '../utils';
 
+import { formatRessourcesResponse } from './utils';
 import { ResourceListing } from './models';
 
 interface LoadResourcesProps {
