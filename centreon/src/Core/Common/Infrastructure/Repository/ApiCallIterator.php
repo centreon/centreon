@@ -85,6 +85,12 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
         return $this->nbrElements;
     }
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     */
     private function createCache(): void
     {
         if (! $this->isCachedCreated) {
@@ -103,13 +109,13 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
                     );
                 }
                 foreach ($response['result'] as $result) {
-                    $temp = ($this->entityFactory)($result);
-                    if ($temp instanceof \Traversable) {
-                        foreach ($temp as $item) {
-                            $this->entitiesCache[] = $item;
+                    $entity = ($this->entityFactory)($result);
+                    if ($entity instanceof \Traversable) {
+                        foreach ($entity as $oneEntity) {
+                            $this->entitiesCache[] = $oneEntity;
                         }
                     } else {
-                        $this->entitiesCache[] = ($this->entityFactory)($result);
+                        $this->entitiesCache[] = $entity;
                     }
                 }
                 $fromPage++;
