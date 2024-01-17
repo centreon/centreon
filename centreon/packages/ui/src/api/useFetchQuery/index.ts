@@ -167,12 +167,6 @@ const useFetchQuery = <T extends object>({
 
   const errorData = queryData.data as ResponseError | undefined;
 
-  useEffect(() => {
-    return (): void => {
-      queryClient.cancelQueries({ queryKey: getQueryKey() });
-    };
-  }, []);
-
   useEffect(
     () => {
       manageError();
