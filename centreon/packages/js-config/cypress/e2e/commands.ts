@@ -305,6 +305,7 @@ Cypress.Commands.add(
 
 interface StartContainersProps {
   databaseImage?: string;
+  moduleName?: string;
   openidImage?: string;
   profiles?: Array<string>;
   samlImage?: string;
@@ -317,6 +318,7 @@ Cypress.Commands.add(
   'startContainers',
   ({
     databaseImage = Cypress.env('DATABASE_IMAGE'),
+    moduleName = 'centreon-web',
     openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
       'OPENID_IMAGE_VERSION'
     )}`,
@@ -332,7 +334,7 @@ Cypress.Commands.add(
 
     const slimSuffix = useSlim ? '-slim' : '';
 
-    const webImage = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${webOs}:${webVersion}`;
+    const webImage = `docker.centreon.com/centreon/${moduleName}-${slimSuffix}-${webOs}:${webVersion}`;
 
     return cy
       .task(
@@ -679,6 +681,7 @@ declare global {
       }: StartContainerProps) => Cypress.Chainable;
       startContainers: ({
         databaseImage,
+        moduleName,
         openidImage,
         profiles,
         useSlim,
