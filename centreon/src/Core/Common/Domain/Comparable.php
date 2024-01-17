@@ -25,7 +25,19 @@ namespace Core\Common\Domain;
 
 interface Comparable
 {
+    /**
+     * This method returns true if two objects are considered equal.
+     *
+     * @param object $object
+     *
+     * @return bool
+     */
     public function isEqual(object $object): bool;
 
+    /**
+     * Calculates a hash with the list of values used to validate equality between two objects.
+     *
+     * @return string
+     */
     public function getEqualityHash(): string;
 }
