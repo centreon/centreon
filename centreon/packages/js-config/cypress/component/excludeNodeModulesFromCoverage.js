@@ -9,7 +9,7 @@ try {
   const outFile = fs.readFileSync(path.resolve(filePath)).toString();
   const outFileJson = JSON.parse(outFile);
 
-  const finalOutJson = Object.entries(outFileJson)
+  const coveragesWithoutNodeModules = Object.entries(outFileJson)
     .map(([key, value]) => {
       if (key.includes('node_modules')) {
         return undefined;
@@ -17,14 +17,15 @@ try {
 
       return [key, value];
     })
-    .filter((v) => v)
-    .reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value
-      }),
-      {}
-    );
+    .filter((v) => v);
+
+  const finalOutJson = coveragesWithoutNodeModules.reduce(
+    (acc, [key, value]) => ({
+      ...acc,
+      [key]: value
+    }),
+    {}
+  );
 
   fs.writeFileSync(
     path.resolve(filePath),
