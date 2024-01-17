@@ -149,7 +149,6 @@
 									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
 									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
 									"\r",
-									"console.log(host.length);\r",
 									"if (host.length > 0) {\r",
 									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
 									"} else {\r",
@@ -206,7 +205,6 @@
 									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
 									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
 									"\r",
-									"console.log(host.length);\r",
 									"if (host.length > 0) {\r",
 									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
 									"} else if (HostTotal > 0) {\r",
@@ -930,6 +928,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"Service is in Warning state with correct informations.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.state).to.eql(1);\r",

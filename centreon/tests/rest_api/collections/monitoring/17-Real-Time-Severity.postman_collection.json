@@ -484,7 +484,6 @@
 							"script": {
 								"exec": [
 									"var response = pm.response.json();\r",
-									"console.log(response);\r",
 									"\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity2Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
@@ -498,7 +497,7 @@
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity2Alias\"),\r",
 									"        \"level\": 3,\r",
-									"        \"icon_id\": 7,\r",
+									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"});\r",
@@ -513,7 +512,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{ServiceSeverity2Name}}\",\r\n    \"alias\":\"{{ServiceSeverity2Alias}}\",\r\n    \"level\": 3,\r\n    \"icon_id\": 7\r\n}"
+							"raw": "{\r\n    \"name\":\"{{ServiceSeverity2Name}}\",\r\n    \"alias\":\"{{ServiceSeverity2Alias}}\",\r\n    \"level\": 3,\r\n    \"icon_id\": 1\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",

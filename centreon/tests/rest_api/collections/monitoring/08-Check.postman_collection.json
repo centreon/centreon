@@ -2793,7 +2793,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									"setTimeout(function(){}, 10000);"
 								],
 								"type": "text/javascript"
 							}
