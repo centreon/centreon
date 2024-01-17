@@ -1,6 +1,6 @@
 {
   "title": "Resources table",
-  "description": "To be defined later",
+  "description": "Display resources statuses an their relevent data in a table",
   "options": {
     "displayType": {
       "type": "displayType",
@@ -46,7 +46,7 @@
             "name": "Pending"
           }
         ],
-      "defaultValue": ["warning","malfunction"]
+      "defaultValue": ["warning","problem"]
     },
     "states": {
       "type": "checkbox",
