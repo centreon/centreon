@@ -16,6 +16,7 @@
         "url": "https://github.com/centreon/centreon-frontend/issues"
     },
     "homepage": "https://github.com/centreon/centreon-frontend#readme",
+    "type": "module",
     "files": [
         "eslint",
         "jest",

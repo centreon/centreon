@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig/index.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "declaration": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "emitDeclarationOnly": true,
+    "types": [],
+    "esModuleInterop": true
+  },
+  "include": [
+    "./cypress/e2e"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "../../node_modules"
+  ],
+}
