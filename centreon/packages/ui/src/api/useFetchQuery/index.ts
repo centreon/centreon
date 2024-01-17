@@ -174,7 +174,7 @@ const useFetchQuery = <T extends object>({
         return;
       }
 
-      queryClient.cancelQueries({ queryKey: getQueryKey() });
+      queryClient.cancelQueries(getQueryKey());
     };
   }, []);
 
