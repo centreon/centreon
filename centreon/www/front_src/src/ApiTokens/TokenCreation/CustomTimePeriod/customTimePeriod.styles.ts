@@ -15,10 +15,10 @@ export const useStyles = makeStyles<StyleProps>()(
         '& div:nth-child(1)': {
           '> div': {
             '& .MuiDateCalendar-root': {
-              height: theme.spacing(38)
+              height: theme.spacing(38.5)
             },
             '& .MuiMultiSectionDigitalClock-root': {
-              maxHeight: theme.spacing(38)
+              maxHeight: theme.spacing(38.5)
             }
           }
         }
