@@ -6,10 +6,7 @@ import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from './Columns';
+import { defaultSelectedColumnIds } from './Columns';
 import { DisplayType, Resource, SortOrder } from './models';
 
 interface ListingProps {
@@ -65,14 +62,10 @@ const Listing = ({
     statuses
   });
 
-  const initialSelectedColumnIds = equals(displayType, 'host')
-    ? defaultSelectedColumnIdsforViewByHost
-    : defaultSelectedColumnIds;
-
   return (
     <MemoizedListing
       columnConfiguration={{
-        selectedColumnIds: selectedColumnIds || initialSelectedColumnIds,
+        selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
         sortable: areColumnsSortable
       }}
       columns={columns}
@@ -90,7 +83,7 @@ const Listing = ({
       subItems={{
         canCheckSubItems: true,
         enable: true,
-        getRowProperty: (): string => 'children',
+        getRowProperty: (): string => 'parent_resource',
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}

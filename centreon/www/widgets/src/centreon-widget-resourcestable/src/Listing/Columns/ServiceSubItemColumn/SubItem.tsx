@@ -17,7 +17,8 @@ export const getStatus = cond([
 ]);
 
 const SubItem = ({ row }: ComponentColumnProps): JSX.Element => {
-  const statusCount = row?.childrenCount;
+  const { parent_resourceCount } = row;
+  const statusCount = parent_resourceCount;
   const { classes } = useStyles({});
 
   return (

@@ -6,11 +6,7 @@ import { Column, useSnackbar } from '@centreon/ui';
 
 import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost,
-  useColumns
-} from './Columns';
+import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 import { pageAtom } from './atom';
 
@@ -84,15 +80,6 @@ const useListing = ({
   };
 
   const resetColumns = (): void => {
-    if (equals(displayType, 'host')) {
-      setPanelOptions?.(
-        'selectedColumnIds',
-        defaultSelectedColumnIdsforViewByHost
-      );
-
-      return;
-    }
-
     setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
   };
 

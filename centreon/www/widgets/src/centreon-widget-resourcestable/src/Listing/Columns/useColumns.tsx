@@ -1,16 +1,4 @@
-import {
-  pipe,
-  T,
-  equals,
-  insert,
-  propEq,
-  reject,
-  head,
-  split,
-  propOr,
-  cond,
-  always
-} from 'ramda';
+import { pipe, T, equals, head, split, propOr, cond, always } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { ColumnType } from '@centreon/ui';
@@ -83,11 +71,15 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      Component: ParentResourceColumn,
+      Component: equals(displayType, DisplayType.Host)
+        ? SubItem
+        : ParentResourceColumn,
+      displaySubItemsCaret: !!equals(displayType, DisplayType.Host),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'parent_resource',
-      label: t(labelParent),
-      rowMemoProps: ['parent'],
+      label: equals(displayType, DisplayType.Host)
+        ? t(labelServices)
+        : t(labelParent),
       sortField: 'parent_name',
       sortable: true,
       type: ColumnType.component,
@@ -153,24 +145,6 @@ const useColumns = ({
       width: 'max-content'
     }
   ];
-
-  if (equals(displayType, DisplayType.Host)) {
-    const subItemColumn = {
-      Component: SubItem,
-      displaySubItemsCaret: true,
-      id: 'services',
-      label: t(labelServices),
-      type: ColumnType.component,
-      width: 'max-content'
-    };
-
-    const columnsForVisualizationByHost = pipe(
-      reject(propEq('parent_resource', 'id')),
-      insert(1, subItemColumn)
-    )(columns) as Array<Column>;
-
-    return columnsForVisualizationByHost;
-  }
 
   return columns;
 };

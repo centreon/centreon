@@ -27,8 +27,8 @@ export const formatRessources = ({
     (item) => {
       return {
         ...item,
-        children: item?.children?.resources,
-        childrenCount: item?.children?.status_count
+        parent_resource: item?.children?.resources,
+        parent_resourceCount: item?.children?.status_count
       };
     },
     data?.result || []
