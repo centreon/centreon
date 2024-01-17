@@ -110,7 +110,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
             $fromPage = 1;
             $totalPage = 0;
             do {
-                $separator = isset(parse_url($this->url)['query']) ? '&' : '?';
+                $separator = parse_url($this->url, PHP_URL_QUERY) ? '&' : '?';
                 $url = $this->url . $separator . sprintf('limit=%d&page=%d', $this->maxItemsByRequest, $fromPage);
                 $this->logger->debug('Call API', ['url' => $this->url]);
                 /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
