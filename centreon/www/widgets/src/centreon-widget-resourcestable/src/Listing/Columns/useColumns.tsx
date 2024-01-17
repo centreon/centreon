@@ -3,12 +3,13 @@ import {
   T,
   equals,
   insert,
-  map,
   propEq,
   reject,
   head,
   split,
-  propOr
+  propOr,
+  cond,
+  always
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -50,6 +51,12 @@ const useColumns = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  const resourceLabel = cond([
+    [equals(DisplayType.Host), always(labelHost)],
+    [equals(DisplayType.Service), always(labelService)],
+    [T, always(labelResource)]
+  ])(displayType);
+
   const columns = [
     {
       Component: StatusColumn,
@@ -68,7 +75,7 @@ const useColumns = ({
       Component: ResourceColumn({ classes, displayType }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
-      label: t(labelResource),
+      label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
       sortField: 'name',
       sortable: true,
@@ -147,25 +154,6 @@ const useColumns = ({
     }
   ];
 
-  if (equals(displayType, DisplayType.Service)) {
-    const changeResourceLabel = (column: Column): Column =>
-      equals(column.label, labelResource)
-        ? { ...column, label: t(labelService) }
-        : column;
-
-    const changeParentLabel = (column: Column): Column =>
-      equals(column.label, labelParent)
-        ? { ...column, label: t(labelHost) }
-        : column;
-
-    const columnsForVisualizationByService = pipe(
-      map(changeResourceLabel),
-      map(changeParentLabel)
-    )(columns);
-
-    return columnsForVisualizationByService;
-  }
-
   if (equals(displayType, DisplayType.Host)) {
     const subItemColumn = {
       Component: SubItem,
@@ -176,15 +164,9 @@ const useColumns = ({
       width: 'max-content'
     };
 
-    const changeResourceLabel = (column: Column): Column =>
-      equals(column.label, labelResource)
-        ? { ...column, label: t(labelHost) }
-        : column;
-
     const columnsForVisualizationByHost = pipe(
       reject(propEq('parent_resource', 'id')),
-      insert(1, subItemColumn),
-      map(changeResourceLabel)
+      insert(1, subItemColumn)
     )(columns) as Array<Column>;
 
     return columnsForVisualizationByHost;
