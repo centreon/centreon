@@ -4,7 +4,7 @@
 		"name": "15 - Resources by Parent Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6492fe6e-ec70-4797-b3b7-455eb9e6ce62?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6492fe6e-ec70-4797-b3b7-455eb9e6ce62?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -609,7 +609,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									"setTimeout(function(){}, 10000);"
 								],
 								"type": "text/javascript"
 							}
@@ -1484,6 +1484,57 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;All Resources\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
