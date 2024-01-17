@@ -67,8 +67,8 @@ const DatasetFilter = ({
             onDeleteItem={deleteResource(resourceIndex)}
           >
             <SelectField
+              aria-label={`${labelSelectResourceType}`}
               className={classes.resourceType}
-              dataTestId={labelSelectResourceType}
               label={t(labelSelectResourceType) as string}
               options={getResourceTypeOptions(resourceIndex)}
               selectedOptionId={resource.resourceType}
@@ -86,6 +86,7 @@ const DatasetFilter = ({
                   })
               }}
               className={classes.resources}
+              dataTestId={`${labelSelectResource}`}
               disabled={!resource.resourceType}
               field={getSearchField(resource.resourceType)}
               getEndpoint={getResourceBaseEndpoint(resource.resourceType)}

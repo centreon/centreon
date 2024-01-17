@@ -118,6 +118,50 @@ export const findServiceCategoriesResponse = {
   ]
 };
 
+export const findServicesResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 8
+  },
+  result: [
+    {
+      id: 19,
+      name: 'Disk-/'
+    },
+    {
+      id: 20,
+      name: 'Disk-/home'
+    },
+    {
+      id: 21,
+      name: 'Disk-/opt'
+    },
+    {
+      id: 22,
+      name: 'Disk-/usr'
+    },
+    {
+      id: 23,
+      name: 'Disk-/var'
+    },
+    {
+      id: 24,
+      name: 'Load'
+    },
+    {
+      id: 25,
+      name: 'Memory'
+    },
+    {
+      id: 26,
+      name: 'Ping'
+    }
+  ]
+};
+
 export const findMetaServicesResponse = {
   meta: {
     limit: 10,
@@ -184,4 +228,28 @@ export const findContactGroupsResponse = {
       name: 'Supervisors'
     }
   ]
+};
+
+export const formData = {
+  contact_groups: [5],
+  contacts: [4],
+  dataset_filters: [
+    {
+      dataset_filter: {
+        dataset_filter: null,
+        resources: [14],
+        type: 'host'
+      },
+      resources: [53],
+      type: 'hostgroup'
+    },
+    {
+      dataset_filter: null,
+      resources: [1],
+      type: 'service_category'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
 };

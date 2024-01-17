@@ -23,6 +23,7 @@ const AddDatasetButton = ({
 
   return (
     <Button
+      aria-label={labelAddNewDataset}
       className={classes.addDatasetButton}
       color="primary"
       data-testid={dataTestId}

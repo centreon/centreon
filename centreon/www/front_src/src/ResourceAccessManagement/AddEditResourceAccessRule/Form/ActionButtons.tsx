@@ -30,6 +30,7 @@ const ActionButtons = (): ReactElement => {
   return (
     <div className={classes.buttonContainer}>
       <Button
+        aria-label={labelExit}
         data-testid={exitDataTestId as string}
         variant="text"
         onClick={close}
@@ -40,6 +41,7 @@ const ActionButtons = (): ReactElement => {
         <CircularProgress color="primary" size={20} />
       ) : (
         <Button
+          aria-label={labelSave}
           data-testid={submitDataTestId as string}
           disabled={or(!isValid, !dirty) as boolean}
           variant="contained"
