@@ -2,8 +2,8 @@ import { equals, flatten, includes, map, pipe, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { Resource } from '../../../models';
 import { formatStatusFilter } from '../Listing/utils';
+import { DisplayType, Resource } from '../Listing/models';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -15,7 +15,7 @@ interface BuildResourcesEndpointProps {
   sort;
   states: Array<string>;
   statuses: Array<string>;
-  type: string;
+  type: DisplayType;
 }
 
 const resourceTypesCustomParameters = [
