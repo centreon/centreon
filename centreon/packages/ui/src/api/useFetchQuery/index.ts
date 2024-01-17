@@ -166,15 +166,12 @@ const useFetchQuery = <T extends object>({
 
   const errorData = queryData.data as ResponseError | undefined;
 
-  useEffect(() => {
-    return (): void => {
-      queryClient.cancelQueries(getQueryKey());
-    };
-  }, []);
-
-  useEffect(() => {
-    manageError();
-  }, useDeepCompare([queryData.data]));
+  useEffect(
+    () => {
+      manageError();
+    },
+    useDeepCompare([queryData.data])
+  );
 
   return {
     ...omit(['data', 'error'], queryData),
