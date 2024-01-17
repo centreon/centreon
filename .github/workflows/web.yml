@@ -448,7 +448,7 @@ jobs:
         run: |
           rm -rf centreon/www/front_src
           rm -rf centreon/www/widgets/src
-          find centreon/www/widgets/ -maxdepth 1 -type f -delete
+          find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
         shell: bash
 
       - name: Replace macros in source code
