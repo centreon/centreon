@@ -141,6 +141,14 @@ class Local implements ProviderAuthenticationInterface
     }
 
     /**
+     * @return \Centreon
+     */
+    public function setLegacySession(\Centreon $centreon): void
+    {
+        $this->provider->setLegacySession($centreon);
+    }
+
+    /**
      * @param ?string $token
      *
      * @return NewProviderToken

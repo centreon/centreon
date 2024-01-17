@@ -134,7 +134,6 @@ final class Login
                         $loginRequest->clientIp
                     );
                 }
-
             }
 
             $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);

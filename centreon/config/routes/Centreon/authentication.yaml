@@ -27,3 +27,9 @@ centreon_application_authentication_callback_sls:
     path: /saml/sls
     controller: 'Core\Security\Authentication\Infrastructure\Api\Login\SAML\SLSController'
     condition: "request.attributes.get('version') >= 23.04"
+
+centreon_application_authentication_autologin:
+    methods: GET
+    path: /autologin
+    controller: 'Core\Security\Authentication\Infrastructure\Api\Autologin\AutologinController'
+    condition: "request.attributes.get('version') >= 24.04"
