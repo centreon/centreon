@@ -31,6 +31,7 @@ import { CreatedToken, dataDuration } from './models';
 import useCreateTokenFormValues from './useTokenFormValues';
 import { isCreatingTokenAtom } from './atoms';
 import { useStyles } from './tokenCreation.styles';
+import useWindowMeasurement from './CustomTimePeriod/useWindowMeasurement';
 
 interface Props {
   data?: ResponseError | CreatedToken;
@@ -40,6 +41,8 @@ interface Props {
 const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const { height } = useWindowMeasurement();
+
   const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
@@ -147,6 +150,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
           anchorElDuration={{ anchorEl, setAnchorEl }}
           openPicker={{ open, setOpen }}
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
+          windowHeight={height}
         />
       )}
 
