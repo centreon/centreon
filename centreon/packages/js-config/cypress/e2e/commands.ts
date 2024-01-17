@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import './commands/configuration';
 import './commands/monitoring';
@@ -8,9 +7,6 @@ import './commands/monitoring';
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
 installLogsCollector({ enableExtendedCollector: true });
-
-const currentFilePath = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentFilePath);
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -323,7 +319,7 @@ interface StartContainersProps {
 Cypress.Commands.add(
   'startContainers',
   ({
-    composeFile = `${currentDir}/../../../../../.github/docker/docker-compose.yml`,
+    composeFile,
     databaseImage = Cypress.env('DATABASE_IMAGE'),
     moduleName = 'centreon-web',
     openidImage = `docker.centreon.com/centreon/keycloak:${Cypress.env(
@@ -339,6 +335,12 @@ Cypress.Commands.add(
   }: StartContainersProps = {}): Cypress.Chainable => {
     cy.log('Starting containers ...');
 
+    let composeFilePath = composeFile;
+    if (!composeFile) {
+      const currentDir = path.dirname(Cypress.spec.absolute);
+      composeFilePath = `${currentDir}/../../../../../.github/docker/docker-compose.yml`;
+    }
+
     const slimSuffix = useSlim ? '-slim' : '';
 
     const webImage = `docker.centreon.com/centreon/${moduleName}-${slimSuffix}-${webOs}:${webVersion}`;
@@ -347,7 +349,7 @@ Cypress.Commands.add(
       .task(
         'startContainers',
         {
-          composeFile,
+          composeFile: composeFilePath,
           databaseImage,
           openidImage,
           profiles,
