@@ -2,20 +2,20 @@ import { useFetchQuery } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../api/endpoints';
 
-import { formatRessourcesResponse } from './utils';
-import { ResourceListing } from './models';
+import { formatRessources } from './utils';
+import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
 
 interface LoadResourcesProps {
-  displayType;
-  limit;
-  page;
-  refreshCount;
-  refreshIntervalToUse;
-  resources;
-  sortField;
-  sortOrder;
-  states;
-  statuses;
+  displayType: DisplayType;
+  limit?: number;
+  page: number | undefined;
+  refreshCount: number;
+  refreshIntervalToUse: number | false;
+  resources: Array<Resource>;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  states: Array<string>;
+  statuses: Array<string>;
 }
 interface LoadResources {
   data?: ResourceListing;
@@ -34,7 +34,7 @@ const useLoadResources = ({
   sortField,
   sortOrder
 }: LoadResourcesProps): LoadResources => {
-  const sort = { [sortField]: sortOrder };
+  const sort = { [sortField as string]: sortOrder };
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () => {
@@ -66,7 +66,7 @@ const useLoadResources = ({
     }
   });
 
-  return { data: formatRessourcesResponse({ data, displayType }), isLoading };
+  return { data: formatRessources({ data, displayType }), isLoading };
 };
 
 export default useLoadResources;

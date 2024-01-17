@@ -2,9 +2,9 @@ import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { useSnackbar } from '@centreon/ui';
+import { Column, useSnackbar } from '@centreon/ui';
 
-import { DisplayType } from './models';
+import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import {
   defaultSelectedColumnIds,
@@ -15,29 +15,29 @@ import useLoadResources from './useLoadResources';
 import { pageAtom } from './atom';
 
 interface UseListingState {
-  areColumnsSortable;
-  changeLimit;
-  changePage;
-  changeSort;
-  columns;
-  data;
-  isLoading;
-  page;
-  resetColumns;
-  selectColumns;
+  areColumnsSortable: boolean;
+  changeLimit: (value) => void;
+  changePage: (updatedPage) => void;
+  changeSort: ({ sortOrder, sortField }) => void;
+  columns: Array<Column>;
+  data: ResourceListing | undefined;
+  isLoading: boolean;
+  page: number | undefined;
+  resetColumns: () => void;
+  selectColumns: (updatedColumnIds: Array<string>) => void;
 }
 
 interface UseListingProps {
-  displayType;
-  limit;
-  refreshCount;
-  refreshIntervalToUse;
-  resources;
-  setPanelOptions;
-  sortField;
-  sortOrder;
-  states;
-  statuses;
+  displayType: DisplayType;
+  limit?: number;
+  refreshCount: number;
+  refreshIntervalToUse: number | false;
+  resources: Array<Resource>;
+  setPanelOptions: (field, value) => void;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  states: Array<string>;
+  statuses: Array<string>;
 }
 
 const useListing = ({

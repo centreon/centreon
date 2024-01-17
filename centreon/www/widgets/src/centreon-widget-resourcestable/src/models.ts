@@ -1,17 +1,19 @@
-import { GlobalRefreshInterval, Resource as DataResource } from '../../models';
+import { GlobalRefreshInterval } from '../../models';
+
+import { DisplayType, Resource, SortOrder } from './Listing/models';
 
 export interface Data {
-  resources: Array<DataResource>;
+  resources: Array<Resource>;
 }
 
 export interface PanelOptions {
-  displayType: string;
+  displayType: DisplayType;
   limit?: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   selectedColumnIds?: Array<string>;
   sortField?: string;
-  sortOrder?: string;
+  sortOrder?: SortOrder;
   states: Array<string>;
   statuses: Array<string>;
 }

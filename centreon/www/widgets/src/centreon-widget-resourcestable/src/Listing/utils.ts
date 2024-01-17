@@ -11,12 +11,16 @@ export const formatStatusFilter = cond([
   [T, always([])]
 ]);
 
-export const formatRessourcesResponse = ({
+interface FormatRessourcesProps {
+  data?: ResourceListing;
+  displayType: DisplayType;
+}
+export const formatRessources = ({
   data,
   displayType
-}): ResourceListing => {
+}: FormatRessourcesProps): ResourceListing => {
   if (!equals(displayType, DisplayType.Host)) {
-    return data;
+    return data as ResourceListing;
   }
 
   const result = map(
@@ -30,7 +34,7 @@ export const formatRessourcesResponse = ({
     data?.result || []
   );
 
-  const hostsResponse = { ...data, result };
+  const hostsResponse = { ...data, result } as ResourceListing;
 
   return hostsResponse;
 };

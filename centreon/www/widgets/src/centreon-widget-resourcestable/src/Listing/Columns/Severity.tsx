@@ -7,7 +7,7 @@ import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { Severity } from '../../models';
+import { Severity } from '../models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

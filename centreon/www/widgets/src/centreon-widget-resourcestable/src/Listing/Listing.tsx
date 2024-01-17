@@ -10,19 +10,20 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from './Columns';
+import { DisplayType, Resource, SortOrder } from './models';
 
 interface ListingProps {
-  displayType;
-  limit;
-  refreshCount;
-  refreshIntervalToUse;
-  resources;
-  selectedColumnIds;
-  setPanelOptions;
-  sortField;
-  sortOrder;
-  states;
-  statuses;
+  displayType: DisplayType;
+  limit?: number;
+  refreshCount: number;
+  refreshIntervalToUse: number | false;
+  resources: Array<Resource>;
+  selectedColumnIds?: Array<string>;
+  setPanelOptions: (field, value) => void;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  states: Array<string>;
+  statuses: Array<string>;
 }
 
 const Listing = ({

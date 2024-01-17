@@ -38,6 +38,13 @@ export interface Icon {
   name: string;
   url: string;
 }
+export interface Severity {
+  icon: Icon;
+  id: number;
+  level: number;
+  name: string;
+  type: string;
+}
 
 export interface Notes {
   label?: string;
