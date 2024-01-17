@@ -489,18 +489,12 @@ importers:
       '@types/cypress-cucumber-preprocessor':
         specifier: ^4.0.5
         version: 4.0.5
-      '@types/dockerode':
-        specifier: ^3.3.23
-        version: 3.3.23
       cypress-multi-reporters:
         specifier: ^1.6.4
         version: 1.6.4(mocha@10.2.0)
       cypress-terminal-report:
         specifier: ^5.3.10
         version: 5.3.10(cypress@13.6.2)
-      dockerode:
-        specifier: ^4.0.2
-        version: 4.0.2
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
@@ -14526,35 +14520,12 @@ packages:
       - supports-color
     dev: false
 
-  /docker-modem@5.0.3:
-    resolution: {integrity: sha512-89zhop5YVhcPEt5FpUFGr3cDyceGhq/F9J+ZndQ4KfqNvfbJpPMfgeixFgUj5OjCYAboElqODxY5Z1EBsSa6sg==}
-    engines: {node: '>= 8.0'}
-    dependencies:
-      debug: 4.3.4(supports-color@8.1.1)
-      readable-stream: 3.6.2
-      split-ca: 1.0.1
-      ssh2: 1.15.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   /dockerode@3.3.5:
     resolution: {integrity: sha512-/0YNa3ZDNeLr/tSckmD69+Gq+qVNhvKfAHNeZJBnp7EOP6RGKV8ORrJHkUn20So5wU+xxT7+1n5u8PjHbfjbSA==}
     engines: {node: '>= 8.0'}
     dependencies:
       '@balena/dockerignore': 1.0.2
       docker-modem: 3.0.8
-      tar-fs: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
-  /dockerode@4.0.2:
-    resolution: {integrity: sha512-9wM1BVpVMFr2Pw3eJNXrYYt6DT9k0xMcsSCjtPvyQ+xa1iPg/Mo3T/gUcwI0B2cczqCeCYRPF8yFYDwtFXT0+w==}
-    engines: {node: '>= 8.0'}
-    dependencies:
-      '@balena/dockerignore': 1.0.2
-      docker-modem: 5.0.3
       tar-fs: 2.0.1
     transitivePeerDependencies:
       - supports-color
