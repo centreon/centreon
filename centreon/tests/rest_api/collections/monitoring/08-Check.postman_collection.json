@@ -2787,6 +2787,59 @@
 					"response": []
 				},
 				{
+					"name": "Compare last_check value for the service",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 10000);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"last_check value is different for the service.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Compare last_check value for the host",
 					"event": [
 						{
@@ -2832,59 +2885,6 @@
 								"monitoring",
 								"hosts",
 								"{{Host1Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Compare last_check value for the service",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"setTimeout(function(){}, 7500);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is different for the service.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"hosts",
-								"{{Host1Id}}",
-								"services",
-								"{{Service1Id}}"
 							]
 						}
 					},

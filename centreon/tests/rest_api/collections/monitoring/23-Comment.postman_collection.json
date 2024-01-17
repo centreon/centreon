@@ -537,7 +537,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									"setTimeout(function(){}, 10000);"
 								],
 								"type": "text/javascript"
 							}
@@ -559,7 +559,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Looks like there is a problem\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n        \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Looks like there is a problem\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -2382,7 +2382,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Hola\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n        \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Hola\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",

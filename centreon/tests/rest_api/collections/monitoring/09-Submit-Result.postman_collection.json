@@ -918,7 +918,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									"setTimeout(function(){}, 10000);"
 								],
 								"type": "text/javascript"
 							}
@@ -2762,7 +2762,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [{\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"status\": 2,\r\n        \"output\": \"Host Down !\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"status\": 3,\r\n        \"output\": \"Critical service\"\r\n    }]\r\n}"
+							"raw": "{\r\n    \"resources\": [{\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"status\": 2,\r\n        \"output\": \"Host Down !\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"status\": 3,\r\n        \"output\": \"Unknown service\"\r\n    }]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/submit",
@@ -2773,61 +2773,6 @@
 								"monitoring",
 								"resources",
 								"submit"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Wait for the result to be submitted to the service (successful)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"setTimeout(function(){}, 10000);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service is in Warning state with correct informations.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.state).to.eql(3);\r",
-									"    pm.expect(responseJson.output).to.eql(\"Critical service\\n\");\r",
-									"    pm.expect(responseJson.performance_data).to.eql(\"\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"hosts",
-								"{{Host1Id}}",
-								"services",
-								"{{Service1Id}}"
 							]
 						}
 					},
@@ -2880,6 +2825,61 @@
 								"monitoring",
 								"hosts",
 								"{{Host1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Wait for the result to be submitted to the service (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 10000);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Service is in Warning state with correct informations.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.state).to.eql(3);\r",
+									"    pm.expect(responseJson.output).to.eql(\"Unknown service\\n\");\r",
+									"    pm.expect(responseJson.performance_data).to.eql(\"\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
 							]
 						}
 					},
