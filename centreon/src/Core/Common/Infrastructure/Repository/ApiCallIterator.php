@@ -23,6 +23,8 @@ declare(strict_types = 1);
 
 namespace Core\Common\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -50,9 +52,11 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
      * @param HttpClientInterface $httpClient
      * @param string $url
      * @param array<string, mixed> $options
-     * @param int $maxItemsByRequest
+     * @param positive-int $maxItemsByRequest
      * @param \Closure $entityFactory
      * @param LoggerInterface $logger
+     *
+     * @throws AssertionFailedException
      */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -62,6 +66,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
         private readonly \Closure $entityFactory,
         private readonly LoggerInterface $logger,
     ) {
+       Assertion::positiveInt($this->maxItemsByRequest, 'maxItemsByRequest');
     }
 
     /**
