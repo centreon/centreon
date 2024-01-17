@@ -6,6 +6,7 @@ const container = document.getElementById('root') as HTMLElement;
 
 const createApp = async (): Promise<void> => {
   window.React = await import(/* webpackChunkName: "external" */ 'react');
+
   createRoot(container).render(<Provider />);
 };
 
