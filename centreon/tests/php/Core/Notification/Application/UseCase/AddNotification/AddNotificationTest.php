@@ -300,6 +300,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
+    $this->request->users = [10,12];
     $this->resourceRepositoryProvider
         ->expects($this->atLeast(1))
         ->method('getRepository')
