@@ -8,9 +8,52 @@ import installLogsCollector from 'cypress-terminal-report/src/installLogsCollect
 
 installLogsCollector({ enableExtendedCollector: true });
 
+const apiBase = '/centreon/api';
+const apiActionV1 = `${apiBase}/index.php`;
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
 const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
+
+export enum PatternType {
+  contains = '*',
+  endsWith = '$',
+  equals = '',
+  startsWith = '^'
+}
+
+interface GetByLabelProps {
+  label: string;
+  patternType?: PatternType;
+  tag?: string;
+}
+
+Cypress.Commands.add(
+  'getByLabel',
+  ({
+    tag = '',
+    patternType = PatternType.equals,
+    label
+  }: GetByLabelProps): Cypress.Chainable => {
+    return cy.get(`${tag}[aria-label${patternType}="${label}"]`);
+  }
+);
+
+interface GetByTestIdProps {
+  patternType?: PatternType;
+  tag?: string;
+  testId: string;
+}
+
+Cypress.Commands.add(
+  'getByTestId',
+  ({
+    tag = '',
+    patternType = PatternType.equals,
+    testId
+  }: GetByTestIdProps): Cypress.Chainable => {
+    return cy.get(`${tag}[data-testid${patternType}="${testId}"]`);
+  }
+);
 
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return cy
@@ -213,10 +256,6 @@ Cypress.Commands.add(
       .visit('/waiting-page')
 );
 
-Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
-  return cy.setUserTokenApiV1();
-});
-
 interface ExecInContainerProps {
   command: string | Array<string>;
   name: string;
@@ -271,6 +310,35 @@ Cypress.Commands.add(
   'requestOnDatabase',
   ({ database, query }: RequestOnDatabaseProps): Cypress.Chainable => {
     return cy.task('requestOnDatabase', { database, query });
+  }
+);
+
+interface SetUserTokenApiV1Props {
+  login?: string;
+  password?: string;
+}
+
+Cypress.Commands.add(
+  'setUserTokenApiV1',
+  ({
+    login = 'admin',
+    password = 'Centreon!2021'
+  }: SetUserTokenApiV1Props = {}): Cypress.Chainable => {
+    return cy
+      .request({
+        body: {
+          password,
+          username: login
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        url: `${apiActionV1}?action=authenticate`
+      })
+      .then(({ body }) =>
+        window.localStorage.setItem('userTokenApiV1', body.authToken)
+      );
   }
 );
 
@@ -657,6 +725,16 @@ declare global {
         command,
         name
       }: ExecInContainerProps) => Cypress.Chainable;
+      getByLabel: ({
+        patternType,
+        tag,
+        label
+      }: GetByLabelProps) => Cypress.Chainable;
+      getByTestId: ({
+        patternType,
+        tag,
+        testId
+      }: GetByTestIdProps) => Cypress.Chainable;
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
@@ -684,6 +762,10 @@ declare global {
         database,
         query
       }: RequestOnDatabaseProps) => Cypress.Chainable;
+      setUserTokenApiV1: ({
+        login,
+        password
+      }?: SetUserTokenApiV1Props) => Cypress.Chainable;
       shareDashboardToUser: ({
         dashboardName,
         userName,
@@ -708,7 +790,6 @@ declare global {
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopContainers: () => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
-      waitForContainerAndSetToken: () => Cypress.Chainable;
     }
   }
 }

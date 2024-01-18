@@ -3,30 +3,7 @@
 import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
-import { apiActionV1 } from '../commons';
 import '../features/Dashboards/commands';
-
-Cypress.Commands.add(
-  'getByLabel',
-  ({
-    tag = '',
-    patternType = PatternType.equals,
-    label
-  }: GetByLabelProps): Cypress.Chainable => {
-    return cy.get(`${tag}[aria-label${patternType}="${label}"]`);
-  }
-);
-
-Cypress.Commands.add(
-  'getByTestId',
-  ({
-    tag = '',
-    patternType = PatternType.equals,
-    testId
-  }: GetByTestIdProps): Cypress.Chainable => {
-    return cy.get(`${tag}[data-testid${patternType}="${testId}"]`);
-  }
-);
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -45,29 +22,6 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
     }
   });
 });
-
-Cypress.Commands.add(
-  'setUserTokenApiV1',
-  (fixtureFile = 'admin'): Cypress.Chainable => {
-    return cy.fixture(`users/${fixtureFile}.json`).then((userAdmin) => {
-      return cy
-        .request({
-          body: {
-            password: userAdmin.password,
-            username: userAdmin.login
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          method: 'POST',
-          url: `${apiActionV1}?action=authenticate`
-        })
-        .then(({ body }) =>
-          window.localStorage.setItem('userTokenApiV1', body.authToken)
-        );
-    });
-  }
-);
 
 Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
@@ -133,39 +87,10 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
-export enum PatternType {
-  contains = '*',
-  endsWith = '$',
-  equals = '',
-  startsWith = '^'
-}
-
-interface GetByLabelProps {
-  label: string;
-  patternType?: PatternType;
-  tag?: string;
-}
-
-interface GetByTestIdProps {
-  patternType?: PatternType;
-  tag?: string;
-  testId: string;
-}
-
 declare global {
   namespace Cypress {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
-      getByLabel: ({
-        patternType,
-        tag,
-        label
-      }: GetByLabelProps) => Cypress.Chainable;
-      getByTestId: ({
-        patternType,
-        tag,
-        testId
-      }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;
@@ -173,7 +98,6 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
-      setUserTokenApiV1: (fixtureFile?: string) => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }

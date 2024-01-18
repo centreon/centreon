@@ -419,7 +419,7 @@ Then('legacy services grid page should still work', () => {
 });
 
 Given('a successfully updated platform', () => {
-  cy.waitForContainerAndSetToken();
+  cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
     jsonName: 'admin'
