@@ -33,41 +33,45 @@ runs:
           ${{ inputs.artifact_files }}
         retention-days: 1
 
-    # - name: Delete ${{ matrix.type_of_report }} Artifacts
-    #   if: ${{ inputs.condition }}
-    #   run: |
-    #     artifact_pattern="${{ inputs.name }}-"
-    #     TOKEN="${{ inputs.github_token }}"
+    - name: Delete ${{ matrix.type_of_report }} Artifacts
+      if: ${{ inputs.condition }}
+      run: |
+        artifact_pattern="${{ inputs.name }}-"
+        TOKEN="${{ inputs.github_token }}"
 
-    #     artifact_exist=true
+        artifact_exist=true
 
-    #     while [ "$artifact_exist" = true ] ;do
-    #       artifact_exist=false
-    #       artifacts_response=$(curl -L \
-    #                     -H "Accept: application/vnd.github+json" \
-    #                     -H "Authorization: Bearer $TOKEN" \
-    #                     -H "X-GitHub-Api-Version: 2022-11-28" \
-    #                     "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+        while [ "$artifact_exist" = true ] ;do
+          artifact_exist=false
+          artifacts_response=$(curl -L \
+                        -H "Accept: application/vnd.github+json" \
+                        -H "Authorization: Bearer $TOKEN" \
+                        -H "X-GitHub-Api-Version: 2022-11-28" \
+                        "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
 
-    #       artifacts=$(echo $artifacts_response | jq -c '.artifacts[]') 
+          artifacts=$(echo $artifacts_response | jq -c '.artifacts[]') 
 
-    #       echo "Those are the artifacts : $artifacts"
+          echo "Those are the artifacts : $artifacts"
 
-    #       while read row; do
-    #         artifact_name=$(echo "$row" | jq -r '.name')
-    #         if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-    #           artifact_exist=true
-    #           echo "Deleting : $artifact_name"
-    #           artifact_id=$(echo "$row" | jq -r '.id')
-    #           curl -L \
-    #             -X DELETE \
-    #             -H "Accept: application/vnd.github+json" \
-    #             -H "Authorization: Bearer $TOKEN" \
-    #             -H "X-GitHub-Api-Version: 2022-11-28" \
-    #             "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-    #         fi
-    #       done <<< "$artifacts"
-    #     done
+          while read row; do
+            artifact_name=$(echo "$row" | jq -r '.name')
+            artifact_exist=true
+            echo "Deleting : $artifact_name"
+            echo "This is the pattern: $artifact_pattern "
+            echo "This is the if: [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]"
+            if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
+              artifact_exist=true
+              echo "Deleting : $artifact_name"
+              artifact_id=$(echo "$row" | jq -r '.id')
+              # curl -L \
+              #   -X DELETE \
+              #   -H "Accept: application/vnd.github+json" \
+              #   -H "Authorization: Bearer $TOKEN" \
+              #   -H "X-GitHub-Api-Version: 2022-11-28" \
+              #   "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
+            fi
+          done <<< "$artifacts"
+        done
 
-    #     echo "End of Deleting"
-    #   shell: bash
+        echo "End of Deleting"
+      shell: bash
