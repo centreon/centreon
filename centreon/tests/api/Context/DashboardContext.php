@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Test\Api\Context;
 
+use Centreon\Test\Api\Context\FeatureFlagContext;
 
 class DashboardContext extends FeatureFlagContext
 {
@@ -46,7 +47,7 @@ class DashboardContext extends FeatureFlagContext
             function() use ($count, $url, &$metricsCount) {
                 $response = $this->iSendARequestTo('GET', $url);
                 $response = json_decode($response->getBody()->__toString(), true);
-                $metricsCount = count($response["metrics"]);
+                $metricsCount = count($response[""]);
                 $this->theJsonNodeShouldHaveAtLeastElements('metrics', $count);
 
                 return true;
