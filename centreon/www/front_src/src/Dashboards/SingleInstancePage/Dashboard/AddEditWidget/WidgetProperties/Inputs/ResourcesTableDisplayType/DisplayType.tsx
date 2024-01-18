@@ -1,65 +1,79 @@
-import { useMemo } from 'react';
-
 import { useTranslation } from 'react-i18next';
-import { useFormikContext } from 'formik';
 
-import { Box } from '@mui/material';
+import { Image, LoadingSkeleton } from '@centreon/ui';
 
-import { Widget, WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
-import { getProperty } from '../utils';
+import {
+  labelDisplayType,
+  labelViewByHost,
+  labelViewByService,
+  labelAll
+} from '../../../../translatedLabels';
+import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 
-import Action from './Action';
+import useDisplayType from './useDisplayType';
+import Option from './Option';
 import { useStyles } from './DisplayType.styles';
 import { getIconbyView } from './icons/getIconByView';
 
-const DisplayType = ({
-  propertyName,
-  options,
-  label,
-  defaultValue
-}: WidgetPropertyProps): JSX.Element => {
+export const options = [
+  {
+    icon: (
+      <Image
+        alt={labelAll}
+        fallback={<LoadingSkeleton height={80} width={80} />}
+        imagePath={getIconbyView('all')}
+      />
+    ),
+    label: labelAll,
+    type: 'all'
+  },
+  {
+    icon: (
+      <Image
+        alt={labelAll}
+        fallback={<LoadingSkeleton height={80} width={80} />}
+        imagePath={getIconbyView('host')}
+      />
+    ),
+    label: labelViewByHost,
+    type: 'host'
+  },
+  {
+    icon: (
+      <Image
+        alt={labelAll}
+        fallback={<LoadingSkeleton height={80} width={80} />}
+        imagePath={getIconbyView('service')}
+      />
+    ),
+    label: labelViewByService,
+    type: 'service'
+  }
+];
+
+const DisplayType = (props: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
+
   const { t } = useTranslation();
 
-  const { values, setFieldValue, setFieldTouched } = useFormikContext<Widget>();
-
-  const value = useMemo<string | undefined>(
-    () => getProperty({ obj: values, propertyName }),
-    [getProperty({ obj: values, propertyName })]
-  );
-
-  const { canEditField } = editProperties.useCanEditProperties();
-
-  const change = (displayType): void => {
-    setFieldTouched(`options.${propertyName}`, true);
-    setFieldValue(`options.${propertyName}`, displayType);
-  };
-
-  const optionsToDisplay = options?.map((option) => ({
-    ...option,
-    iconPath: getIconbyView(option?.id)
-  }));
+  const { value, changeType } = useDisplayType(props);
 
   return (
     <div>
-      <Subtitle>{t(label)}</Subtitle>
-      <Box className={classes.items} data-testid="tree view">
-        {optionsToDisplay.map(({ id, name, iconPath }) => {
-          return (
-            <Action
-              disabled={!canEditField}
-              displayType={value || defaultValue}
-              iconPath={iconPath}
-              id={id}
-              key={name}
-              name={name}
-              selectDisplayType={() => change(id)}
-            />
-          );
-        })}
-      </Box>
+      <Subtitle>{t(labelDisplayType)}</Subtitle>
+      <div className={classes.container}>
+        {options.map(({ type, icon, label }) => (
+          <Option
+            changeType={changeType}
+            icon={icon}
+            key={type}
+            label={label}
+            type={type}
+            value={value}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -4,21 +4,6 @@
   "options": {
     "displayType": {
       "type": "displayType",
-      "label": "Display type",
-      "options": [
-        {
-          "name": "All",
-          "id": "all"
-        },
-        {
-          "name": "View by host",
-          "id": "host"
-        },
-        {
-          "name": "View by service",
-          "id": "service"
-        }
-      ],
       "defaultValue": "all"
     },
     "statuses": {
