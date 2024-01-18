@@ -31,6 +31,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationTokenRepositoryInterface;
+use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
 
 class AuthenticationRepository extends AbstractRepositoryDRB implements
     AuthenticationRepositoryInterface,
@@ -199,7 +200,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
     /**
      * @inheritDoc
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
+    public function updateAuthenticationTokens(SecurityAuthenticationTokens $authenticationTokens): void
     {
         /** @var ProviderToken $providerToken */
         $providerToken = $authenticationTokens->getProviderToken();

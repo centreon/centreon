@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Interfaces;
 
-use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
+use Security\Domain\Authentication\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 
