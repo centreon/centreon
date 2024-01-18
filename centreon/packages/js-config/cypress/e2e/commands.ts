@@ -343,7 +343,7 @@ Cypress.Commands.add(
 
     const slimSuffix = useSlim ? '-slim' : '';
 
-    const webImage = `docker.centreon.com/centreon/${moduleName}-${slimSuffix}-${webOs}:${webVersion}`;
+    const webImage = `docker.centreon.com/centreon/${moduleName}${slimSuffix}-${webOs}:${webVersion}`;
 
     return cy
       .task(
