@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "pretty": true,
     "emitDeclarationOnly": true,
-    "types": [],
+    "types": ["cypress", "cypress-wait-until"],
     "esModuleInterop": true,
     "paths": {
       "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"]

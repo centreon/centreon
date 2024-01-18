@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import path from 'path';
+import 'cypress-wait-until';
 
 import './commands/configuration';
 import './commands/monitoring';
@@ -103,7 +104,7 @@ interface NavigateToProps {
 
 Cypress.Commands.add(
   'navigateTo',
-  ({ rootItemNumber, subMenu, page }): void => {
+  ({ rootItemNumber, subMenu, page }: NavigateToProps): void => {
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
@@ -198,6 +199,17 @@ Cypress.Commands.add(
     return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
 );
+
+Cypress.Commands.add('loginAsAdminViaApiV2', (): Cypress.Chainable => {
+  return cy.request({
+    body: {
+      login: 'admin',
+      password: 'Centreon!2021'
+    },
+    method: 'POST',
+    url: apiLoginV2
+  });
+});
 
 interface LoginByTypeOfUserProps {
   jsonName?: string;
@@ -775,6 +787,7 @@ declare global {
         dashboard: Dashboard,
         patch: PatchDashboardBody
       ) => Cypress.Chainable;
+      loginAsAdminViaApiV2: () => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName,
         loginViaApi
