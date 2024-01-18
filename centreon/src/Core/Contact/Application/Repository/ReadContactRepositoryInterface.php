@@ -67,6 +67,8 @@ interface ReadContactRepositoryInterface
     public function findContactIdsByContactGroups(array $contactGroupIds): array;
 
     /**
+     * Check if in a user exists in given access groups.
+     *
      * @param int $contactId
      * @param int[] $accessGroupIds
      *

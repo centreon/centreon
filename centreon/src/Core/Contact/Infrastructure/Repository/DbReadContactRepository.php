@@ -158,6 +158,9 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
