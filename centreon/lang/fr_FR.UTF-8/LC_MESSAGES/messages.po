@@ -18572,3 +18572,18 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "Display resources statuses and their relevent data in a table"
+msgstr "Afficher les statuts des ressources et leurs données associées dans un tableau"
+
+msgid "Problem (Down & Critical)"
+msgstr "Problème (Indisponible et Critique)"
+
+msgid "Undefined (Unreachable & Unknown)"
+msgstr "Indéfini (Inaccessible et Inconnu)"
+
+msgid "Select all"
+msgstr "Sélectionner tout"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
