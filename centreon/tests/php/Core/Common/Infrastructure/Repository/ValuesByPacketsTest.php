@@ -51,7 +51,7 @@ it('should divide the values according to the maxQueryStringLength limitation on
     }
 });
 
-it('should divide the values according to the all limitations', function(): void {
+it('should divide the values according to all the limitations', function(): void {
     $maxItemsByPackets = 10;
     $maxQueryStringLength = 50;
     $values = range(1, 1000);
