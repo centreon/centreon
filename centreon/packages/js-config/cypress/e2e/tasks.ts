@@ -190,7 +190,13 @@ export default (on: Cypress.PluginEvents): void => {
             WEB_IMAGE: webImage
           })
           .withProfiles(...profiles)
-          .withWaitStrategy('web', Wait.forHealthCheck())
+          .withWaitStrategy(
+            'web-1',
+            Wait.forAll([
+              Wait.forHealthCheck(),
+              Wait.forLogMessage('Centreon is ready')
+            ])
+          )
           .up();
 
         return null;
