@@ -45,6 +45,12 @@ const useColumns = ({
     [T, always(labelResource)]
   ])(displayType);
 
+  const parentLabel = cond([
+    [equals(DisplayType.Host), always(labelServices)],
+    [equals(DisplayType.Service), always(labelHost)],
+    [T, always(labelParent)]
+  ])(displayType);
+
   const columns = [
     {
       Component: StatusColumn,
@@ -77,9 +83,7 @@ const useColumns = ({
       displaySubItemsCaret: !!equals(displayType, DisplayType.Host),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'parent_resource',
-      label: equals(displayType, DisplayType.Host)
-        ? t(labelServices)
-        : t(labelParent),
+      label: t(parentLabel),
       sortField: 'parent_name',
       sortable: true,
       type: ColumnType.component,
