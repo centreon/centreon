@@ -19,9 +19,9 @@ export const useDeleteDatasetButtonStyles = makeStyles()((theme) => ({
   },
   deleteIconChip: {
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark
+      backgroundColor: theme.palette.chip.color.error
     },
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.divider,
     position: 'relative',
     right: theme.spacing(0.6)
   }

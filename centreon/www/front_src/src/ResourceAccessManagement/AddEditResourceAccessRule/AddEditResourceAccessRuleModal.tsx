@@ -13,7 +13,7 @@ import {
 
 import useResourceAccessRuleModal from './useResourceAccessRuleModal';
 import useModalStyles from './Modal.styles';
-import Form from './Form/Form';
+import { Form } from './Form';
 
 const AddEditResourceAccessRuleModal = (): ReactElement => {
   const { t } = useTranslation();
