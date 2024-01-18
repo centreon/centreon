@@ -658,7 +658,8 @@ jobs:
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
-    needs: [get-version, changes, dockerize]
+    needs: [get-version, changes]
+    # needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
