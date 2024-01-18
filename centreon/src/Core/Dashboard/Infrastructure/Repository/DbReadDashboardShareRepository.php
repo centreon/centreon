@@ -314,8 +314,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 cg.`cg_name`,
                 dcgr.`dashboard_id`,
                 dcgr.`role`
-            FROM `centreon`.`dashboard_contactgroup_relation` dcgr
-                     INNER JOIN `centreon`.`contactgroup` cg ON cg.`cg_id`= dcgr.`contactgroup_id`
+            FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                     INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`= dcgr.`contactgroup_id`
             WHERE dcgr.`dashboard_id` IN (:dashboard_ids)
             SQL;
 
