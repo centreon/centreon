@@ -18,7 +18,7 @@ runs:
       run: |
         set -eux
         COMPONENTS_RELEASED=()
-        COMPONENTS=("centreon-awie", "centreon-dsm", "centreon-gorgone", "centreon-ha", "centreon-open-tickets", "centreon")
+        COMPONENTS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         NEW_STABLE_TAGS=()
         PREVIOUS_STABLE_TAGS=()
@@ -29,9 +29,11 @@ runs:
 
         # Get previous version tags for components
         for component in ${COMPONENTS[@]}; do
-          PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "centreon-$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
+          MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
+          PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
         done
-        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[@]}
+        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}
 
         # Get new version tags for components
         for component in ${COMPONENTS[@]}; do
@@ -41,7 +43,7 @@ runs:
           NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
         done
 
-        echo "New releases are: ${NEW_STABLE_TAGS[@]}"
+        echo "New releases are: ${NEW_STABLE_TAGS[*]}"
 
         # Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
         # re use the part from check version ??
