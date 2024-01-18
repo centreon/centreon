@@ -873,7 +873,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									"setTimeout(function(){}, 12500);"
 								],
 								"type": "text/javascript"
 							}
@@ -918,7 +918,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									"setTimeout(function(){}, 12500);"
 								],
 								"type": "text/javascript"
 							}
