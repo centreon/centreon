@@ -44,7 +44,7 @@ runs:
 
         artifact_exists=true
 
-        while [ "$artifact_exist" = true ] ;do
+        while [ "$artifact_exists" = true ]; do
           artifact_exist=false
           artifacts_response=$(curl -L \
                         -H "Accept: application/vnd.github+json" \
