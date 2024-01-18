@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Interfaces;
 
-use Security\Domain\Authentication\Model\AuthenticationTokens;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
+use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 
@@ -56,9 +57,9 @@ interface AuthenticationRepositoryInterface
     /**
      * Updates the provider authentication tokens.
      *
-     * @param AuthenticationTokens $authenticationTokens Provider tokens
+     * @param SecurityAuthenticationTokens $authenticationTokens Provider tokens
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void;
+    public function updateAuthenticationTokens(SecurityAuthenticationTokens $authenticationTokens): void;
 
     /**
      * Updates the provider token.
