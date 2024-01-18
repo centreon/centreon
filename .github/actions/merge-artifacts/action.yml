@@ -20,8 +20,8 @@ runs:
       run: |
         echo "This is the condition: ${{ inputs.condition }}"
         echo "This is the if: ${{ inputs.condition == true }}"
-        echo "This is the if with 3: ${{ inputs.condition === true }}"
         echo "This is the not if: ${{ inputs.condition != true }}"
+      shell: bash
 
     - name: Download ${{ matrix.type_of_report }} Artifacts
       if: ${{ inputs.condition == true }}
