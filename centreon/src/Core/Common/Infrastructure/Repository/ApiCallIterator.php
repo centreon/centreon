@@ -42,12 +42,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
 {
     use ApiResponseTrait;
 
-    private int $nbrElements = 0;
-
-    /** @var list<T> */
-    private array $entitiesCache = [];
-
-    private bool $isCachedCreated = false;
+    private int $nbrElements = -1;
 
     /**
      * @param HttpClientInterface $httpClient
@@ -75,26 +70,37 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
+     * @throws RepositoryException
      */
     public function getIterator(): \Traversable
     {
-        $this->createCache();
-        foreach ($this->entitiesCache as $entity) {
-            yield $entity;
-        }
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ClientExceptionInterface
-     */
-    public function count(): int
-    {
-        $this->createCache();
-
-        return $this->nbrElements;
+        $fromPage = 1;
+        $totalPage = 0;
+        do {
+            $separator = parse_url($this->url, PHP_URL_QUERY) ? '&' : '?';
+            $url = $this->url . $separator . sprintf('limit=%d&page=%d', $this->maxItemsByRequest, $fromPage);
+            $this->logger->debug('Call API', ['url' => $url]);
+            /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
+            $response = $this->getResponseOrFail($this->httpClient->request('GET', $url, $this->options));
+            if ($this->nbrElements === -1) {
+                $this->nbrElements = (int) $response['meta']['total'];
+                $totalPage = (int) ceil($this->nbrElements / $this->maxItemsByRequest);
+                $this->logger->debug(
+                    'First API call status', ['nbr_elements' => $this->nbrElements, 'nbr_page' => $totalPage]
+                );
+            }
+            foreach ($response['result'] as $result) {
+                $entity = ($this->entityFactory)($result);
+                if ($entity instanceof \Traversable) {
+                    foreach ($entity as $oneEntity) {
+                        yield $oneEntity;
+                    }
+                } else {
+                    yield $entity;
+                }
+            }
+            $fromPage++;
+        } while ($fromPage <= $totalPage);
     }
 
     /**
@@ -104,37 +110,16 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
      * @throws ClientExceptionInterface
      * @throws RepositoryException
      */
-    private function createCache(): void
+    public function count(): int
     {
-        if (! $this->isCachedCreated) {
-            $fromPage = 1;
-            $totalPage = 0;
-            do {
-                $separator = parse_url($this->url, PHP_URL_QUERY) ? '&' : '?';
-                $url = $this->url . $separator . sprintf('limit=%d&page=%d', $this->maxItemsByRequest, $fromPage);
-                $this->logger->debug('Call API', ['url' => $this->url]);
-                /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
-                $response = $this->getResponseOrFail($this->httpClient->request('GET', $url, $this->options));
-                if ($this->nbrElements === 0) {
-                    $this->nbrElements = (int) $response['meta']['total'];
-                    $totalPage = (int) ceil($this->nbrElements / $this->maxItemsByRequest);
-                    $this->logger->debug(
-                        'First API call status', ['nbr_elements' => $this->nbrElements, 'nbr_page' => $totalPage]
-                    );
-                }
-                foreach ($response['result'] as $result) {
-                    $entity = ($this->entityFactory)($result);
-                    if ($entity instanceof \Traversable) {
-                        foreach ($entity as $oneEntity) {
-                            $this->entitiesCache[] = $oneEntity;
-                        }
-                    } else {
-                        $this->entitiesCache[] = $entity;
-                    }
-                }
-                $fromPage++;
-            } while ($fromPage <= $totalPage);
-            $this->isCachedCreated = true;
+        if ($this->nbrElements === -1) {
+            $separator = parse_url($this->url, PHP_URL_QUERY) ? '&' : '?';
+            $url = $this->url . $separator . 'limit=1&page=1';
+            $this->logger->debug('Call API', ['url' => $this->url]);
+            /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
+            $response = $this->getResponseOrFail($this->httpClient->request('GET', $url, $this->options));
+            $this->nbrElements = (int) $response['meta']['total'];
         }
+        return $this->nbrElements;
     }
 }
