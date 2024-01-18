@@ -187,6 +187,6 @@ jobs:
           artifact_files: |
             ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
             ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
-          artifact_patter: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
+          artifact_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
           condition: ${{ contains(needs.behat-test-run.result, 'failure') }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
