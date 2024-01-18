@@ -16445,3 +16445,15 @@ msgstr "Erweiterter Modus"
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "Display data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down & Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable & Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""

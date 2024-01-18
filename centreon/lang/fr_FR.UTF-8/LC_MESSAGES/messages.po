@@ -18573,8 +18573,8 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
-msgid "Display resources statuses and their relevent data in a table"
-msgstr "Afficher les statuts des ressources et leurs données associées dans un tableau"
+msgid "Display data on resource status and events, centralized in a table."
+msgstr "Afficher les données sur l'état des ressources et les événements, centralisés dans un tableau."
 
 msgid "Problem (Down & Critical)"
 msgstr "Problème (Indisponible et Critique)"
