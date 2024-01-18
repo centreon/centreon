@@ -15,15 +15,15 @@ runs:
   using: "composite"
   steps:
     - name: Download ${{ matrix.type_of_report }} Artifacts
-        if: ${{ inputs.condition }}
-        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
-        with:
-          pattern: ${{ inputs.name }}-*
-          path: ${{ inputs.name }}
-          merge-multiple: true
+      if: ${{ inputs.condition == true }}
+      uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+      with:
+        pattern: ${{ inputs.name }}-*
+        path: ${{ inputs.name }}
+        merge-multiple: true
 
     - name: Upload the Regrouped Artifact
-      if: ${{ inputs.condition }}
+      if: ${{ inputs.condition == true }}
       uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
       with:
         name: ${{ inputs.name }}
@@ -32,7 +32,7 @@ runs:
         retention-days: 1
 
     - name: Delete ${{ matrix.type_of_report }} Artifacts
-      if: ${{ inputs.condition }}
+      if: ${{ inputs.condition == true }}
       run: |
         artifact_pattern="${{ inputs.name }}-"
         TOKEN=${{ secrets.GITHUB_TOKEN }}
