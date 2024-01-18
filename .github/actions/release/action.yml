@@ -31,7 +31,7 @@ runs:
         for component in ${COMPONENTS[@]}; do
           PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "centreon-$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
         done
-        echo "Previous releases were: $PREVIOUS_STABLE_TAGS"
+        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[@]}
 
         # Get new version tags for components
         for component in ${COMPONENTS[@]}; do
@@ -40,6 +40,8 @@ runs:
           NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
           NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
         done
+
+        echo "New releases are: ${NEW_STABLE_TAGS[@]}"
 
         # Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
         # re use the part from check version ??
@@ -52,10 +54,11 @@ runs:
         for tag in ${NEW_STABLE_TAGS[@]}; do
           git tag -a "$tag" -m "version $tag"
           git push --follow-tags
+          echo "Tagging branch with $tag."
         done
 
         # Create new JIRA versions
-        # TODO: add a future capacity to determine wether the release is hotfix or standard
+        # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
 
         JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
         curl --fail --request POST \
