@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Centreon\Test\Api\Context;
 
-use Centreon\Test\Api\Context\FeatureFlagContext;
 
 class DashboardContext extends FeatureFlagContext
 {

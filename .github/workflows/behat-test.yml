@@ -167,8 +167,7 @@ jobs:
       - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          path: "${{ inputs.name }}-xunit-reports/**/*.xml"
-
+          path: '${{ inputs.name }}-xunit-reports/**/*.xml'
 
   regroup-artifacts:
     needs: [behat-test-run, behat-test-report]
@@ -179,59 +178,11 @@ jobs:
       matrix:
         type_of_report: [test-logs, test-reports]
     steps:
-      - name: Download ${{ matrix.type_of_report }} Artifacts
-        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
-        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+      - name: Cypress e2e testing
+        uses: ./.github/actions/merge-artifacts
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          path: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          merge-multiple: true
-
-      - name: Upload the Regrouped Artifact
-        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
-        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          path: |
+          condition: ${{ contains(needs.behat-test-run.result, 'failure') }}
+          artifact_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          artifact_files:
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.xml
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.txt
-          retention-days: 1
-
-      - name: Delete ${{ matrix.type_of_report }} Artifacts
-        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
-        run: |
-          artifact_pattern="${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-"
-          TOKEN=${{ secrets.GITHUB_TOKEN }}
-
-          artifact_exist=true
-
-          while [ "$artifact_exist" = true ] ;do
-            artifact_exist=false
-            artifacts_response=$(curl -L \
-                          -H "Accept: application/vnd.github+json" \
-                          -H "Authorization: Bearer $TOKEN" \
-                          -H "X-GitHub-Api-Version: 2022-11-28" \
-                          "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100")
-
-            artifacts=$(echo $artifacts_response | jq -c '.artifacts[]')
-
-            echo "Those are the artifacts : $artifacts"
-
-            while read row; do
-              artifact_name=$(echo "$row" | jq -r '.name')
-              if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-                artifact_exist=true
-                echo "Deleting : $artifact_name"
-                artifact_id=$(echo "$row" | jq -r '.id')
-                curl -L \
-                  -X DELETE \
-                  -H "Accept: application/vnd.github+json" \
-                  -H "Authorization: Bearer $TOKEN" \
-                  -H "X-GitHub-Api-Version: 2022-11-28" \
-                  "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${artifact_id}"
-              fi
-            done <<< "$artifacts"
-          done
-
-          echo "End of Deleting"
-        shell: bash
