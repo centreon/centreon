@@ -322,6 +322,8 @@ Cypress.Commands.add(
           { timeout: 600000 }
         ).then((result) => {
           if (result.exitCode) {
+            cy.log(result.output);
+
             // output will not be truncated
             throw new Error(`
 Execution of "${runCommand}" failed
