@@ -1,6 +1,6 @@
 {
   "title": "Resources table",
-  "description": "Display resources statuses an their relevent data in a table",
+  "description": "Display resources statuses and their relevent data in a table",
   "options": {
     "displayType": {
       "type": "displayType",
