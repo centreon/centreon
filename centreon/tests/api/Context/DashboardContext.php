@@ -47,7 +47,7 @@ class DashboardContext extends FeatureFlagContext
             function() use ($count, $url, &$metricsCount) {
                 $response = $this->iSendARequestTo('GET', $url);
                 $response = json_decode($response->getBody()->__toString(), true);
-                $metricsCount = count($response[""]);
+                $metricsCount = count($response["metrics"]);
                 $this->theJsonNodeShouldHaveAtLeastElements('metrics', $count);
 
                 return true;

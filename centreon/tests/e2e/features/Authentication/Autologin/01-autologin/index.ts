@@ -50,7 +50,7 @@ When('the administrator activates autologin on the platform', () => {
 Then(
   'any user of the platform should be able to generate an autologin link',
   () => {
-    cy.isInProfileMenu('Edit profilee').click();
+    cy.isInProfileMenu('Edit profile').click();
 
     cy.visit('/centreon/main.php?p=50104&o=c')
       .wait('@getTimeZone')

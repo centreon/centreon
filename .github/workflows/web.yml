@@ -658,8 +658,7 @@ jobs:
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   api-integration-test:
-    needs: [get-version, changes]
-    # needs: [get-version, changes, dockerize]
+    needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     strategy:
       fail-fast: false
@@ -719,8 +718,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    # needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-    needs: [get-version, create-xray-test-plan-and-test-execution]
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
