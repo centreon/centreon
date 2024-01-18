@@ -13555,8 +13555,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -18581,9 +18581,6 @@ msgstr "Problème (Indisponible et Critique)"
 
 msgid "Undefined (Unreachable & Unknown)"
 msgstr "Indéfini (Inaccessible et Inconnu)"
-
-msgid "Select all"
-msgstr "Sélectionner tout"
 
 msgid "Add columns"
 msgstr "Ajouter des colonnes"
