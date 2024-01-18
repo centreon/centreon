@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Severity\RealTime\Application\UseCase\FindSeverity;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
@@ -34,8 +36,14 @@ final class FindSeverity
 
     /**
      * @param ReadSeverityRepositoryInterface $repository
+     * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      */
-    public function __construct(private ReadSeverityRepositoryInterface $repository)
+    public function __construct(
+        private readonly ReadSeverityRepositoryInterface $repository,
+        private readonly ContactInterface $user,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+    )
     {
     }
 
@@ -48,7 +56,12 @@ final class FindSeverity
         $this->info('Searching for severities in the realtime', ['typeId' => $severityTypeId]);
         $severities = [];
         try {
-            $severities = $this->repository->findAllByTypeId($severityTypeId);
+            if ($this->user->isAdmin()) {
+                $severities = $this->repository->findAllByTypeId($severityTypeId);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $severities = $this->repository->findAllByTypeIdAndAccessGroups($severityTypeId, $accessGroups);
+            }
         } catch (\Throwable $ex) {
             $this->error(
                 'An error occured while retrieving severities from real-time data',
