@@ -59,7 +59,7 @@ const useFormSubmit = (): UseFormState => {
         }
         showSuccessMessage(t(labelMessage));
         setModalState({ isOpen: false, mode: ModalMode.Create });
-        queryClient.invalidateQueries({ queryKey: ['resource_access_rules'] });
+        queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
       })
       .finally(() => setSubmitting(false));
   };
