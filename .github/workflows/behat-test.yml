@@ -184,7 +184,7 @@ jobs:
         uses: ./.github/actions/merge-artifacts
         with:
           artifact_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          artifact_files:
+          artifact_files: |
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.xml
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.txt
           condition: ${{ contains(needs.behat-test-run.result, 'failure') }}
