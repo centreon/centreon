@@ -7,6 +7,9 @@ inputs:
   artifact_files:
     type: string
     required: true
+  artifact_pattern:
+    type: string
+    required: true
   condition:
     type: boolean
     required: true
@@ -36,7 +39,7 @@ runs:
     - name: Delete ${{ matrix.type_of_report }} Artifacts
       if: ${{ inputs.condition }}
       run: |
-        artifact_pattern="${{ inputs.artifact_name }}-"
+        artifact_pattern="${{ inputs.artifact_pattern }}"
         TOKEN="${{ inputs.github_token }}"
 
         artifact_exist=true
