@@ -74,6 +74,22 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
+    copyToContainer: async ({ destination, serviceName, source }) => {
+      try {
+        const container = getContainer(serviceName);
+
+        await container.copyFilesToContainer([
+          {
+            source,
+            target: destination
+          }
+        ]);
+      } catch (error) {
+        console.error(error);
+      }
+
+      return null;
+    },
     createDirectory: async (directoryPath: string) => {
       if (!existsSync(directoryPath)) {
         mkdirSync(directoryPath, { recursive: true });
