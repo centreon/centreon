@@ -42,7 +42,7 @@ runs:
         artifact_pattern="${{ inputs.artifact_pattern }}"
         TOKEN="${{ inputs.github_token }}"
 
-        artifact_exist=true
+        artifact_exists=true
 
         while [ "$artifact_exist" = true ] ;do
           artifact_exist=false
