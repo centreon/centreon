@@ -16,6 +16,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Debugg
+      run: |
+        echo "This is the condition: ${{ inputs.condition }}"
+        echo "This is the if: ${{ inputs.condition == true }}"
+        echo "This is the if with 3: ${{ inputs.condition === true }}"
+        echo "This is the not if: ${{ inputs.condition != true }}"
+
     - name: Download ${{ matrix.type_of_report }} Artifacts
       if: ${{ inputs.condition == true }}
       uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
