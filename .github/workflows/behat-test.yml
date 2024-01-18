@@ -180,11 +180,12 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Cypress e2e testing
+      - name: Merging Artifacts
         uses: ./.github/actions/merge-artifacts
         with:
-          condition: ${{ contains(needs.behat-test-run.result, 'failure') }}
           artifact_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
           artifact_files:
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.xml
             ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.txt
+          condition: ${{ contains(needs.behat-test-run.result, 'failure') }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,14 +1,16 @@
 name: "Merge Artifacts"
 description: "Merge Artifacts"
 inputs:
-  condition:
-    type: boolean
-    required: true
   artifact_name:
     type: string
     required: true
   artifact_files:
     type: string
+    required: true
+  condition:
+    type: boolean
+    required: true
+  github_token:
     required: true
 
 runs:
@@ -35,7 +37,7 @@ runs:
       if: ${{ inputs.condition == true }}
       run: |
         artifact_pattern="${{ inputs.name }}-"
-        TOKEN=${{ secrets.GITHUB_TOKEN }}
+        TOKEN="${{ inputs.github_token }}"
 
         artifact_exist=true
 
