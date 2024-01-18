@@ -3,10 +3,10 @@ import { equals } from 'ramda';
 import type { ComponentColumnProps } from '@centreon/ui';
 
 import { DisplayType } from '../models';
+import { getStatus } from '../utils';
 
 import ShortTypeChip from './ShortTypeChip';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
-import { getStatus } from './ServiceSubItemColumn/SubItem';
 
 const ResourceColumn =
   ({ displayType, classes }) =>

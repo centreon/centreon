@@ -1,6 +1,7 @@
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { getStatus } from './ServiceSubItemColumn/SubItem';
+import { getStatus } from '../utils';
+
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 import useStyle from './Columns.styles';
 

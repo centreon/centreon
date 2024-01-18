@@ -1,7 +1,7 @@
 import { pipe, T, equals, head, split, propOr, cond, always } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ColumnType } from '@centreon/ui';
+import { ColumnType, useStyleTable } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 
 import {
@@ -26,7 +26,7 @@ import SeverityColumn from './Severity';
 import ResourceColumn from './Resource';
 import ParentResourceColumn from './Parent';
 import SubItem from './ServiceSubItemColumn/SubItem';
-import useStyles from './Columns.styles';
+import useStyles, { useStatusStyles } from './Columns.styles';
 import truncate from './truncate';
 
 interface ColumnProps {
@@ -38,6 +38,11 @@ const useColumns = ({
 }: ColumnProps): Array<Column> => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const { dataStyle } = useStyleTable({});
+  const { classes: statusClasses } = useStatusStyles({
+    data: dataStyle.statusColumnChip
+  });
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -53,7 +58,7 @@ const useColumns = ({
 
   const columns = [
     {
-      Component: StatusColumn,
+      Component: StatusColumn({ classes: statusClasses, displayType, t }),
       clickable: true,
       getRenderComponentOnRowUpdateCondition: T,
       hasHoverableComponent: true,

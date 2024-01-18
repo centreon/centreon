@@ -1,35 +1,37 @@
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { equals, isNil } from 'ramda';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-import { SeverityCode, StatusChip, useStyleTable } from '@centreon/ui';
+import { SeverityCode, StatusChip } from '@centreon/ui';
 
-import { useStatusStyles } from './Columns.styles';
+import { DisplayType } from '../models';
 
-const StatusColumn = ({ row }: ComponentColumnProps): JSX.Element => {
-  const { dataStyle } = useStyleTable({});
-  const { classes } = useStatusStyles({
-    data: dataStyle.statusColumnChip
-  });
-  const { t } = useTranslation();
+const StatusColumn =
+  ({ displayType, classes, t }) =>
+  ({ row }: ComponentColumnProps): JSX.Element => {
+    const statusName = row.status.name;
 
-  const statusName = row.status.name;
+    const isNestedRow =
+      equals(displayType, DisplayType.Host) && isNil(row?.isHeadRow);
 
-  const label = equals(SeverityCode[5], statusName) ? (
-    <>{t(statusName)}</>
-  ) : (
-    t(statusName)
-  );
+    if (isNestedRow) {
+      return <div />;
+    }
 
-  return (
-    <div className={classes.statusColumn}>
-      <StatusChip
-        className={classes.statusColumnChip}
-        label={label}
-        severityCode={row.status.severity_code}
-      />
-    </div>
-  );
-};
+    const label = equals(SeverityCode[5], statusName) ? (
+      <>{t(statusName)}</>
+    ) : (
+      t(statusName)
+    );
+
+    return (
+      <div className={classes.statusColumn}>
+        <StatusChip
+          className={classes.statusColumnChip}
+          label={label}
+          severityCode={row.status.severity_code}
+        />
+      </div>
+    );
+  };
 
 export default StatusColumn;

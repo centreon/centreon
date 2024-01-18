@@ -1,5 +1,7 @@
 import { T, always, cond, equals, map } from 'ramda';
 
+import { SeverityCode } from '@centreon/ui';
+
 import { ResourceListing, DisplayType } from './models';
 
 export const formatStatusFilter = cond([
@@ -27,8 +29,9 @@ export const formatRessources = ({
     (item) => {
       return {
         ...item,
+        isHeadRow: true,
         parent_resource: item?.children?.resources,
-        parent_resourceCount: item?.children?.status_count
+        resourceCount: item?.children?.status_count
       };
     },
     data?.result || []
@@ -38,3 +41,12 @@ export const formatRessources = ({
 
   return hostsResponse;
 };
+
+export const getStatus = cond([
+  [equals('ok'), () => ({ label: 'O', severity: SeverityCode.OK })],
+  [equals('up'), () => ({ label: 'U', severity: SeverityCode.OK })],
+  [equals('warning'), () => ({ label: 'W', severity: SeverityCode.Medium })],
+  [equals('critical'), () => ({ label: 'C', severity: SeverityCode.High })],
+  [equals('unknown'), () => ({ label: 'U', severity: SeverityCode.Low })],
+  [equals('pending'), () => ({ label: 'P', severity: SeverityCode.Pending })]
+]);
