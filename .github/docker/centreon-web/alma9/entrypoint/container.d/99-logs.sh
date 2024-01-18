@@ -1,4 +1,7 @@
 # Print logs.
+
+echo "Centreon is ready"
+
 if [ -e /opt/rh/httpd24/root/etc/httpd/logs/error_log ] ; then
   tail -f \
   /opt/rh/httpd24/root/etc/httpd/logs/error_log \
