@@ -1,5 +1,4 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
 
 import { ModalMode, ResourceAccessRuleType } from './models';
 

@@ -18,8 +18,6 @@ import {
 import {
   labelChooseAtLeastOneContactOrContactGroup,
   labelNameAlreadyExists,
-  labelPleaseConfigureDatasetFilter,
-  labelPleaseSelectAResource,
   labelRequired
 } from '../../translatedLabels';
 
