@@ -45,7 +45,7 @@ runs:
         artifact_exists=true
 
         while [ "$artifact_exists" = true ]; do
-          artifact_exist=false
+          artifact_exists=false
           artifacts_response=$(curl -L \
                         -H "Accept: application/vnd.github+json" \
                         -H "Authorization: Bearer $TOKEN" \
