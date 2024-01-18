@@ -18572,3 +18572,36 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+msgid "Edit resource access rule"
+msgstr "Modifier une règle d'accès aux ressources"
+
+msgid "Rule properties"
+msgstr "Propriétés d'une règle"
+
+msgid "Resource selection"
+msgstr "Sélection des ressources"
+
+msgid "Contacts / Contact groups"
+msgstr "Contacts / Groupes de contacts"
+
+msgid "The resource access rule was successfully added"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifée avec succès"
+
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+msgid "Metaservice"
+msgstr "Méta-Service"
+
+msgid "Select resource type"
+msgstr "Sélectionnez le type de ressource"
