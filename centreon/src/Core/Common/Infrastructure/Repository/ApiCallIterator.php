@@ -86,7 +86,8 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
                 $this->nbrElements = (int) $response['meta']['total'];
                 $totalPage = (int) ceil($this->nbrElements / $this->maxItemsByRequest);
                 $this->logger->debug(
-                    'First API call status', ['nbr_elements' => $this->nbrElements, 'nbr_page' => $totalPage]
+                    'API call status',
+                    ['url' => $url, 'nbr_elements' => $this->nbrElements, 'nbr_page' => $totalPage]
                 );
             }
             foreach ($response['result'] as $result) {
@@ -113,12 +114,13 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
     public function count(): int
     {
         if ($this->nbrElements === -1) {
+            $this->logger->debug('Counting elements before recovery', ['url' => $this->url]);
             $separator = parse_url($this->url, PHP_URL_QUERY) ? '&' : '?';
             $url = $this->url . $separator . 'limit=1&page=1';
-            $this->logger->debug('Call API', ['url' => $this->url]);
             /** @var array{meta: array{total: int}, result: array<string, mixed>} $response */
             $response = $this->getResponseOrFail($this->httpClient->request('GET', $url, $this->options));
             $this->nbrElements = (int) $response['meta']['total'];
+            $this->logger->debug('API call status', ['url' => $this->url, 'nbr_elements' => $this->nbrElements]);
         }
         return $this->nbrElements;
     }
