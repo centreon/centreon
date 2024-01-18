@@ -444,8 +444,8 @@ Cypress.Commands.add(
 
     let composeFilePath = composeFile;
     if (!composeFile) {
-      const currentDir = path.dirname(Cypress.spec.absolute);
-      composeFilePath = `${currentDir}/../../../../../.github/docker/docker-compose.yml`;
+      const cypressDir = path.dirname(Cypress.config('configFile'));
+      composeFilePath = `${cypressDir}/../../../.github/docker/docker-compose.yml`;
     }
 
     const slimSuffix = useSlim ? '-slim' : '';
