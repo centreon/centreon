@@ -245,6 +245,33 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('logout', (): void => {
+  cy.getByLabel({ label: 'Profile' }).should('exist').click();
+
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/authentication/logout'
+  }).as('logout');
+
+  cy.contains(/^Logout$/).click();
+
+  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+
+  // https://github.com/cypress-io/cypress/issues/25841
+  cy.clearAllCookies();
+});
+
+Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/authentication/logout'
+    })
+    .visit('/')
+    .getByLabel({ label: 'Alias', tag: 'input' });
+});
+
 Cypress.Commands.add(
   'visitEmptyPage',
   (): Cypress.Chainable =>
@@ -752,6 +779,8 @@ declare global {
         jsonName,
         loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
+      logout: () => void;
+      logoutViaAPI: () => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
         page,
