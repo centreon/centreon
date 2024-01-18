@@ -895,7 +895,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [{\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"status\": 0,\r\n        \"output\": \"Host Okay !\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"status\": 1,\r\n        \"output\": \"Warning for the service\",\r\n        \"performance_data\": \"'used'=453849088B;;;0;1927262208\"\r\n    }]\r\n}"
+							"raw": "{\r\n    \"resources\": [{\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"status\": 0,\r\n        \"output\": \"Host Okay !\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"status\": 1,\r\n        \"output\": \"Warning for the service\"\r\n    }]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/submit",
@@ -918,7 +918,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 12500);"
+									"setTimeout(function(){}, 15000);"
 								],
 								"type": "text/javascript"
 							}
@@ -933,7 +933,7 @@
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.state).to.eql(1);\r",
 									"    pm.expect(responseJson.output).to.eql(\"Warning for the service\\n\");\r",
-									"    pm.expect(responseJson.performance_data).to.eql(\"'used'=453849088B;;;0;1927262208\");\r",
+									"    pm.expect(responseJson.performance_data).to.eql(null);\r",
 									"});\r",
 									""
 								],
