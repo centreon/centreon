@@ -34,6 +34,7 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
 
 class AuthenticationService implements AuthenticationServiceInterface
 {
@@ -143,7 +144,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @inheritDoc
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
+    public function updateAuthenticationTokens(SecurityAuthenticationTokens|AuthenticationTokens $authenticationTokens): void
     {
         try {
             $this->authenticationRepository->updateAuthenticationTokens($authenticationTokens);
