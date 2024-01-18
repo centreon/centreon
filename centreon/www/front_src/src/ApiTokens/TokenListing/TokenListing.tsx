@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
@@ -16,11 +16,13 @@ import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
+import { clickedRowAtom } from './atoms';
 
 const TokenListing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const isCreatingToken = useAtomValue(isCreatingTokenAtom);
+  const setClickedRow = useSetAtom(clickedRowAtom);
 
   const {
     dataListing,
@@ -63,6 +65,7 @@ const TokenListing = (): JSX.Element | null => {
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={onResetColumns}
+        onRowClick={setClickedRow}
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />

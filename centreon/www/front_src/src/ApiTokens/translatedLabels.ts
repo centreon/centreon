@@ -21,3 +21,8 @@ export const labelCancel = 'Cancel';
 export const labelTokenCreated = 'Token has been created';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Store it carefully.';
+export const labelMsgConfirmationDeletionToken =
+  'You are about to delete the token Github. This is an irreversible action. If you process ,all requests made with this token will be rejected.Do you want to process anyway ?';
+export const labelDeleteToken = 'Delete Token';
+
+export const labelTokenDeletedSuccessfully = 'Token deleted successfully';
