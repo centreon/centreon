@@ -20,15 +20,15 @@ runs:
       if: ${{ inputs.condition }}
       uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
       with:
-        pattern: ${{ inputs.name }}-*
-        path: ${{ inputs.name }}
+        pattern: ${{ inputs.artifact_name }}-*
+        path: ${{ inputs.artifact_name }}
         merge-multiple: true
 
     - name: Upload the Regrouped Artifact
       if: ${{ inputs.condition }}
       uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
       with:
-        name: ${{ inputs.name }}
+        name: ${{ inputs.artifact_name }}
         path: |
           ${{ inputs.artifact_files }}
         retention-days: 1
@@ -36,7 +36,7 @@ runs:
     - name: Delete ${{ matrix.type_of_report }} Artifacts
       if: ${{ inputs.condition }}
       run: |
-        artifact_pattern="${{ inputs.name }}-"
+        artifact_pattern="${{ inputs.artifact_name }}-"
         TOKEN="${{ inputs.github_token }}"
 
         artifact_exist=true
