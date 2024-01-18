@@ -35,6 +35,7 @@ use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
+use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
 
 /**
  * @package Tests\Security\Domain\Authentication
@@ -103,6 +104,8 @@ class AuthenticationServiceTest extends TestCase
         $this->readConfigurationFactory = $this->createMock(ReadConfigurationRepositoryInterface::class);
         $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
         $this->readTokenRepository = $this->createMock(ReadTokenRepositoryInterface::class);
+        $this->SecurityAuthenticationTokens = $this->createMock(SecurityAuthenticationTokens::class);
+
     }
 
     /**
@@ -388,13 +391,13 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationRepository
             ->expects($this->once())
             ->method('updateAuthenticationTokens')
-            ->with($this->authenticationTokens)
+            ->with($this->SecurityAuthenticationTokens)
             ->willThrowException(new \Exception());
 
         $this->expectException(AuthenticationException::class);
         $this->expectExceptionMessage('Error while updating authentication tokens');
 
-        $authenticationService->updateAuthenticationTokens($this->authenticationTokens);
+        $authenticationService->updateAuthenticationTokens($this->SecurityAuthenticationTokens);
     }
 
     /**
@@ -407,9 +410,9 @@ class AuthenticationServiceTest extends TestCase
         $this->authenticationRepository
             ->expects($this->once())
             ->method('updateAuthenticationTokens')
-            ->with($this->authenticationTokens);
+            ->with($this->SecurityAuthenticationTokens);
 
-        $authenticationService->updateAuthenticationTokens($this->authenticationTokens);
+        $authenticationService->updateAuthenticationTokens($this->SecurityAuthenticationTokens);
     }
 
     /**
