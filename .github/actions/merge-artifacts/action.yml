@@ -59,7 +59,7 @@ runs:
           while read row; do
             artifact_name=$(echo "$row" | jq -r '.name')
             if [[ "$artifact_name" =~ ^.*"$artifact_pattern".* ]]; then
-              artifact_exist=true
+              artifact_exists=true
               echo "Deleting : $artifact_name"
               artifact_id=$(echo "$row" | jq -r '.id')
               curl -L \
