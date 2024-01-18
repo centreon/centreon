@@ -91,8 +91,11 @@ jobs:
               echo "release=1" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
-              if [[ "$GITHUB_BASE_REF" == "master" ]]; then
-                # This case is specific to cloud release
+              # Handle workflow_dispatch run triggers
+              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view -q .baseRefName --json headRefName,baseRefName,state)"
+              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view -q .state --json headRefName,baseRefName,state)"
+              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
+              # This case is specific to cloud release
                 echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
