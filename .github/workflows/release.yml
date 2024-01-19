@@ -18,9 +18,6 @@ on:
       - "centreon/**"
   workflow_dispatch:
 
-env:
-  module: "awie"
-
 jobs:
   release:
     if: github.event.pull_request.merged == true && (github.base_ref == "master" || github.base_ref == "[2-9][0-9].[0-9][0-9].x")
