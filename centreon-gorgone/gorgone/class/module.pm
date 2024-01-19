@@ -267,7 +267,11 @@ sub send_internal_action {
             "[$self->{module_id}]$self->{container} Cannot send message: " . $socket->last_strerror
         );
     }
-    $self->event(socket => $socket);
+    #For now we don't know why this call is needed.
+    # If we remove it, Gorgone start without error, but any discovery launched by the api won't work.
+    # if we always run it, the autodiscovery::service::class will launch this function,
+    # and eat some message that are destinated to the autodiscovery::class object.
+    $self->event('socket' => $socket) if !$options->{no_event_call};
 }
 
 sub send_log_msg_error {

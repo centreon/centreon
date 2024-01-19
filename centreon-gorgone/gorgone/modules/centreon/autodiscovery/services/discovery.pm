@@ -181,6 +181,7 @@ sub restart_pollers {
     foreach my $poller_id (keys %{$self->{discovery}->{pollers_reload}}) {
         $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} generate poller config '" . $poller_id . "'");
         $self->send_internal_action({
+            no_event_call => 1,
             action => 'COMMAND',
             token => $self->{discovery}->{token} . ':config',
             data => {
@@ -761,6 +762,7 @@ sub service_execute_commands {
                 );
 
                 $self->send_internal_action({
+                    no_event_call => 1,
                     action => 'ADDLISTENER',
                     data => [
                         {
@@ -775,6 +777,7 @@ sub service_execute_commands {
                 });
 
                 $self->send_internal_action({
+                    no_event_call => 1,
                     action => 'COMMAND',
                     target => $poller_id,
                     token => 'svc-disco-' . $self->{uuid} . '-' . $rule_id . '-' . $host_id,
