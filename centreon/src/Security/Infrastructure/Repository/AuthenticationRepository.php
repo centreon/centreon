@@ -201,10 +201,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
      */
     public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
     {
-        /** @var ProviderToken $providerToken */
         $providerToken = $authenticationTokens->getProviderToken();
-
-        /** @var ProviderToken $providerRefreshToken */
         $providerRefreshToken = $authenticationTokens->getProviderRefreshToken();
         $updateTokenStatement = $this->db->prepare(
             $this->translateDbName(

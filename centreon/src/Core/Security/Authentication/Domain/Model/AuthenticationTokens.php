@@ -70,17 +70,17 @@ class AuthenticationTokens
     }
 
     /**
-     * @return NewProviderToken
+     * @return NewProviderToken|ProviderToken
      */
-    public function getProviderToken(): NewProviderToken
+    public function getProviderToken(): NewProviderToken|ProviderToken
     {
         return $this->providerToken;
     }
 
     /**
-     * @return NewProviderToken|null
+     * @return NewProviderToken|ProviderToken|null
      */
-    public function getProviderRefreshToken(): ?NewProviderToken
+    public function getProviderRefreshToken(): NewProviderToken|ProviderToken|null
     {
         return $this->providerRefreshToken;
     }
