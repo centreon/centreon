@@ -16446,7 +16446,7 @@ msgstr "Erweiterter Modus"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "Display data on resource status and events, centralized in a table."
+# msgid "Displays data on resource status and events, centralized in a table."
 # msgstr ""
 
 # msgid "Problem (Down & Critical)"
@@ -16456,4 +16456,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Add columns"
+# msgstr ""
+
+# msgid "Resources table"
 # msgstr ""
