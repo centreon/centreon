@@ -32,6 +32,20 @@ use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterfac
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Utility\SqlConcatenator;
 
+/**
+ *  @phpstan-type _severity array{
+ *      severity_id: int,
+ *      id: int,
+ *      name: string,
+ *      type: int,
+ *      level: int,
+ *      icon_id: int,
+ *      icon_id: int,
+ *      icon_name: string,
+ *      icon_path: string,
+ *      icon_directory: string|null
+ * }
+ */
 class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeverityRepositoryInterface
 {
     use LoggerTrait;
@@ -119,6 +133,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
 
         $severities = [];
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _severity $record */
             $severities[] = DbSeverityFactory::createFromRecord($record);
         }
 
@@ -249,6 +264,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
 
         $severities = [];
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _severity $record */
             $severities[] = DbSeverityFactory::createFromRecord($record);
         }
 
@@ -291,6 +307,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         $statement->execute();
 
         if (($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _severity $record */
             return DbSeverityFactory::createFromRecord($record);
         }
 
@@ -371,5 +388,5 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
-}
+    }
 }
