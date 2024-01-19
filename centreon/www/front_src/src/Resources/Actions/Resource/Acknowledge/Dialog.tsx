@@ -87,6 +87,7 @@ const DialogAcknowledge = ({
           <TextField
             fullWidth
             multiline
+            dataTestId={labelComment}
             error={errors?.comment}
             label={t(labelComment)}
             rows={3}
