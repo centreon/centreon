@@ -46,12 +46,13 @@ jobs:
 
       - name: install gh cli on self-hosted runner
         run: |
-          if [[ $(gh) -ne 0 ]]; then
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GH CLI."
             type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-            sudo apt update \
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
             sudo apt install gh -y
           else
             echo "GH CLI is already installed."
@@ -100,14 +101,18 @@ jobs:
             BRANCHNAME="$GITHUB_HEAD_REF"
           fi
 
+          echo "BRANCHNAME is: $BRANCHNAME"
+
           case "$BRANCHNAME" in
             master | [2-9][0-9].[0-9][0-9].x)
               echo "release=1" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
               # Handle workflow_dispatch run triggers
-              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view -q .baseRefName --json headRefName,baseRefName,state)"
-              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view -q .state --json headRefName,baseRefName,state)"
+              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+              echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
+              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
               if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
               # This case is specific to cloud release
                 echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
@@ -151,3 +156,4 @@ jobs:
           fi
           echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
+        GH_TOKEN: ${{ github.token }}
