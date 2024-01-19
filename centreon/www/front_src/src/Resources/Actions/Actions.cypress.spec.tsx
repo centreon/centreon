@@ -28,14 +28,12 @@ import {
   labelFixed,
   labelForcedCheck,
   labelForcedCheckCommandSent,
-  labelMinutes,
   labelMoreActions,
   labelNotify,
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelSticky,
   labelSubmitStatus,
-  labelUnit,
   labelUnreachable,
   labelUp
 } from '../translatedLabels';
@@ -63,7 +61,7 @@ const mockDowntime = {
   fixed: true,
   with_services: false
 };
-const mockAcl = (canPerformActions = true) => ({
+const mockAcl = (canPerformActions = true): object => ({
   actions: {
     host: {
       acknowledgement: canPerformActions,
@@ -219,7 +217,7 @@ describe('Actions', () => {
       cy.findAllByLabelText(labelDisacknowledge).eq(1).click();
 
       cy.waitForRequest('@disacknowledgeResources').then(({ request }) => {
-        expect(request.body.disacknowledgement.with_services).to.be.true;
+        expect(request.body.disacknowledgement.with_services).to.equal(true);
       });
 
       cy.contains(labelDisacknowledgementCommandSent).should('be.visible');
@@ -240,7 +238,7 @@ describe('Actions', () => {
       cy.findAllByLabelText(labelDisacknowledge).eq(1).click();
 
       cy.waitForRequest('@disacknowledgeResources').then(({ request }) => {
-        expect(request.body.disacknowledgement.with_services).to.be.false;
+        expect(request.body.disacknowledgement.with_services).to.equal(false);
       });
 
       cy.contains(labelDisacknowledgementCommandSent).should('be.visible');
@@ -258,7 +256,7 @@ describe('Actions', () => {
       cy.findAllByLabelText(labelDisacknowledge).eq(1).click();
 
       cy.waitForRequest('@disacknowledgeResources').then(({ request }) => {
-        expect(request.body.disacknowledgement.with_services).to.be.true;
+        expect(request.body.disacknowledgement.with_services).to.equal(true);
         expect(request.body.resources).to.deep.equal([
           {
             id: 0,
@@ -315,10 +313,12 @@ describe('Actions', () => {
         expect(request.body.acknowledgement.comment).to.equal(
           'Acknowledged by admin'
         );
-        expect(request.body.acknowledgement.with_services).to.be.true;
-        expect(request.body.acknowledgement.is_notify_contacts).to.be.false;
-        expect(request.body.acknowledgement.is_persistent_comment).to.be.true;
-        expect(request.body.acknowledgement.is_sticky).to.be.true;
+        expect(request.body.acknowledgement.with_services).to.equal(true);
+        expect(request.body.acknowledgement.is_notify_contacts).to.equal(false);
+        expect(request.body.acknowledgement.is_persistent_comment).to.equal(
+          true
+        );
+        expect(request.body.acknowledgement.is_sticky).to.equal(true);
       });
 
       cy.contains(labelAcknowledgeCommandSent).should('be.visible');
@@ -341,10 +341,12 @@ describe('Actions', () => {
 
       cy.waitForRequest('@acknowledgeResources').then(({ request }) => {
         expect(request.body.acknowledgement.comment).to.equal('Acknowledged');
-        expect(request.body.acknowledgement.with_services).to.be.false;
-        expect(request.body.acknowledgement.is_notify_contacts).to.be.true;
-        expect(request.body.acknowledgement.is_persistent_comment).to.be.true;
-        expect(request.body.acknowledgement.is_sticky).to.be.false;
+        expect(request.body.acknowledgement.with_services).to.equal(false);
+        expect(request.body.acknowledgement.is_notify_contacts).to.equal(true);
+        expect(request.body.acknowledgement.is_persistent_comment).to.equal(
+          true
+        );
+        expect(request.body.acknowledgement.is_sticky).to.equal(false);
       });
 
       cy.contains(labelAcknowledgeCommandSent).should('be.visible');
@@ -416,8 +418,8 @@ describe('Actions', () => {
       cy.waitForRequest('@sendDowntime').then(({ request }) => {
         expect(request.body.downtime.comment).to.equal('Downtime set by admin');
         expect(request.body.downtime.duration).to.equal(7200);
-        expect(request.body.downtime.is_fixed).to.be.true;
-        expect(request.body.downtime.with_services).to.be.false;
+        expect(request.body.downtime.is_fixed).to.equal(true);
+        expect(request.body.downtime.with_services).to.equal(false);
         expect(request.body.downtime.end_time).to.equal('2020-02-01T01:00:00Z');
         expect(request.body.downtime.start_time).to.equal(
           '2020-01-31T23:00:00Z'
@@ -444,8 +446,8 @@ describe('Actions', () => {
       cy.waitForRequest('@sendDowntime').then(({ request }) => {
         expect(request.body.downtime.comment).to.equal('Downtime set by admin');
         expect(request.body.downtime.duration).to.equal(10000);
-        expect(request.body.downtime.is_fixed).to.be.false;
-        expect(request.body.downtime.with_services).to.be.true;
+        expect(request.body.downtime.is_fixed).to.equal(false);
+        expect(request.body.downtime.with_services).to.equal(true);
         expect(request.body.downtime.end_time).to.equal('2020-02-01T01:00:00Z');
         expect(request.body.downtime.start_time).to.equal(
           '2020-01-31T23:00:00Z'
