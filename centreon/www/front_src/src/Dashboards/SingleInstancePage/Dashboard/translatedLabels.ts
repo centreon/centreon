@@ -123,6 +123,7 @@ export const labelUnsavedChanges =
   'If you leave without saving your dashboard, changes will be permanently lost.';
 export const labelIsTheSelectedResource =
   'is the selected metric by default. Refine filters to select another specific resource.';
+export const labelSeeMore = 'See more in the Resources Status page';
 export const labelViewByHost = 'View by host';
 export const labelViewByService = 'View by service';
 export const labelAll = 'All';

@@ -1,6 +1,7 @@
-import { inc } from 'ramda';
+import { equals, inc } from 'ramda';
+import { Link } from 'react-router-dom';
 
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
 
@@ -9,10 +10,12 @@ import { FormThreshold } from '../../models';
 
 import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
+import useGoToResourceStatus from './useLinkToResourceStatus';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
   index: number;
+  isEditingDashboard: boolean;
   metricTop: Resource;
   showLabels: boolean;
   thresholds: FormThreshold;
@@ -25,7 +28,8 @@ const MetricTop = ({
   unit,
   thresholds,
   displayAsRaw,
-  showLabels
+  showLabels,
+  isEditingDashboard
 }: MetricTopProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
   const formattedData: LineChartData = {
@@ -49,6 +53,7 @@ const MetricTop = ({
     ],
     times: []
   };
+  const { getResourcesStatusUrl } = useGoToResourceStatus();
 
   const formattedThresholds = useThresholds({
     data: formattedData,
@@ -60,19 +65,39 @@ const MetricTop = ({
   return (
     <>
       <Typography className={classes.resourceLabel}>
-        <strong>
-          #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-        </strong>
+        <Link
+          data-testid={`link to ${metricTop?.name}`}
+          style={{ all: 'unset' }}
+          target="_blank"
+          to={getResourcesStatusUrl(metricTop)}
+          onClick={(e) =>
+            equals(isEditingDashboard, undefined) && e.preventDefault()
+          }
+        >
+          <strong>
+            #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
+          </strong>
+        </Link>
       </Typography>
-      <div style={{ height: 50 }}>
-        <SingleBar
-          data={formattedData}
-          displayAsRaw={displayAsRaw}
-          showLabels={showLabels}
-          size="small"
-          thresholds={formattedThresholds}
-        />
-      </div>
+      <Box className={classes.singleBarContainer} style={{ height: 50 }}>
+        <Link
+          data-testid={`link to ${metricTop?.name}`}
+          style={{ all: 'unset' }}
+          target="_blank"
+          to={getResourcesStatusUrl(metricTop)}
+          onClick={(e) =>
+            equals(isEditingDashboard, undefined) && e.preventDefault()
+          }
+        >
+          <SingleBar
+            data={formattedData}
+            displayAsRaw={displayAsRaw}
+            showLabels={showLabels}
+            size="small"
+            thresholds={formattedThresholds}
+          />
+        </Link>
+      </Box>
     </>
   );
 };
