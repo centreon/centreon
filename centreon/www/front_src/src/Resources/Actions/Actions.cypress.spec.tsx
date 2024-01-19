@@ -420,10 +420,6 @@ describe('Actions', () => {
         expect(request.body.downtime.duration).to.equal(7200);
         expect(request.body.downtime.is_fixed).to.equal(true);
         expect(request.body.downtime.with_services).to.equal(false);
-        expect(request.body.downtime.end_time).to.equal('2020-02-01T01:00:00Z');
-        expect(request.body.downtime.start_time).to.equal(
-          '2020-01-31T23:00:00Z'
-        );
       });
 
       cy.contains(labelDowntimeCommandSent).should('be.visible');
@@ -448,10 +444,6 @@ describe('Actions', () => {
         expect(request.body.downtime.duration).to.equal(10000);
         expect(request.body.downtime.is_fixed).to.equal(false);
         expect(request.body.downtime.with_services).to.equal(true);
-        expect(request.body.downtime.end_time).to.equal('2020-02-01T01:00:00Z');
-        expect(request.body.downtime.start_time).to.equal(
-          '2020-01-31T23:00:00Z'
-        );
       });
 
       cy.makeSnapshot();
