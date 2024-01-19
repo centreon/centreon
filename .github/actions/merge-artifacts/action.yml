@@ -1,45 +1,43 @@
 name: "Merge Artifacts"
 description: "Merge Artifacts"
 inputs:
-  artifact_name:
-    type: string
+  target_name:
+    description: "The name of the result artifact"
     required: true
-  artifact_files:
-    type: string
+  source_paths:
+    description: "The path to the files that will be uplaoded"
     required: true
-  artifact_pattern:
-    type: string
+  source_name_pattern:
+    description: "Artifact's pattern to be merged"
     required: true
   condition:
-    type: boolean
+    description: "The run depends on this condition"
     required: true
   github_token:
+    description: "The Github Token to use"
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Download ${{ matrix.type_of_report }} Artifacts
-      if: ${{ inputs.condition }}
       uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
       with:
-        pattern: ${{ inputs.artifact_pattern }}*
-        path: ${{ inputs.artifact_name }}
+        pattern: ${{ inputs.source_name_pattern }}*
+        path: ${{ inputs.target_name }}
         merge-multiple: true
 
     - name: Upload the Regrouped Artifact
-      if: ${{ inputs.condition }}
       uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
       with:
-        name: ${{ inputs.artifact_name }}
+        name: ${{ inputs.target_name }}
         path: |
-          ${{ inputs.artifact_files }}
+          ${{ inputs.source_paths }}
         retention-days: 1
 
     - name: Delete ${{ matrix.type_of_report }} Artifacts
-      if: ${{ inputs.condition }}
       run: |
-        artifact_pattern="${{ inputs.artifact_pattern }}"
+        artifact_pattern="${{ inputs.source_name_pattern }}"
         TOKEN="${{ inputs.github_token }}"
 
         artifact_exists=true

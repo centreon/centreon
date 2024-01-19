@@ -544,8 +544,8 @@ jobs:
       - name: Merging Artifacts
         uses: ./.github/actions/merge-artifacts
         with:
-          artifact_name: postman-html-reports
-          artifact_files: postman-html-reports/**/*.html
-          artifact_pattern: postman-html-reports-
+          target_name: postman-html-reports
+          source_paths: postman-html-reports/**/*.html
+          source_name_pattern: postman-html-reports-
           condition: ${{ contains(needs.newman-test-run.result, 'failure') }}
           github_token: ${{ secrets.GITHUB_TOKEN }}

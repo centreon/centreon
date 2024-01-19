@@ -23,8 +23,8 @@ inputs:
     description: "The frontend dependencies lock file path"
     required: true
   test_execution_key:
+    description: "The TE's key"
     required: true
-    type: string
 
 runs:
   using: "composite"
