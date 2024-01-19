@@ -16299,7 +16299,7 @@ msgstr "Erweiterter Modus"
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more in the Resources Status page"
+# msgid "See more on the Resources Status page"
 # msgstr ""
 
 # msgid "You are not allowed to log in"
