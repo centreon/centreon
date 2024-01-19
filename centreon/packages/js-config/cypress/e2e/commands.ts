@@ -182,21 +182,28 @@ Cypress.Commands.add(
   }
 );
 
+export enum CopyToContainerContentType {
+  Directory = 'directory',
+  File = 'file'
+}
+
 interface CopyToContainerProps {
   destination: string;
   name?: string;
   source: string;
+  type: CopyToContainerContentType;
 }
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({ name = 'web', source, destination }: CopyFromContainerProps) => {
+  ({ name = 'web', source, destination, type }: CopyToContainerProps) => {
     cy.log(`Copy content from ${source} to ${name}:${destination}`);
 
     return cy.task('copyToContainer', {
       destination,
       serviceName: name,
-      source
+      source,
+      type
     });
   }
 );

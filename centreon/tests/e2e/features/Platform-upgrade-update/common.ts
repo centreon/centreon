@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -227,7 +229,8 @@ const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
       destination: '/tmp/packages-update-centreon',
-      source: './fixtures/packages'
+      source: './fixtures/packages',
+      type: CopyToContainerContentType.Directory
     })
     .getWebVersion()
     .then(({ major_version }) => {

@@ -74,18 +74,23 @@ export default (on: Cypress.PluginEvents): void => {
 
       return null;
     },
-    copyToContainer: async ({ destination, serviceName, source }) => {
-      try {
-        const container = getContainer(serviceName);
+    copyToContainer: async ({ destination, serviceName, source, type }) => {
+      const container = getContainer(serviceName);
 
+      if (type === 'directory') {
+        await container.copyDirectoriesToContainer([
+          {
+            source,
+            target: destination
+          }
+        ]);
+      } else if (type === 'file') {
         await container.copyFilesToContainer([
           {
             source,
             target: destination
           }
         ]);
-      } catch (error) {
-        console.error(error);
       }
 
       return null;
