@@ -28,7 +28,6 @@ use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
 
-
 interface AuthenticationServiceInterface
 {
     /**
