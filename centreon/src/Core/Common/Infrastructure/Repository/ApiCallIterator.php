@@ -122,6 +122,7 @@ class ApiCallIterator implements \IteratorAggregate, \Countable
             $this->nbrElements = (int) $response['meta']['total'];
             $this->logger->debug('API call status', ['url' => $this->url, 'nbr_elements' => $this->nbrElements]);
         }
+
         return $this->nbrElements;
     }
 }
