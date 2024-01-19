@@ -44,15 +44,15 @@ class AuthenticationTokens
      * @param int $userId
      * @param int $configurationProviderId
      * @param string $sessionToken
-     * @param NewProviderToken $providerToken
-     * @param NewProviderToken|null $providerRefreshToken
+     * @param NewProviderToken|ProviderToken $providerToken
+     * @param NewProviderToken|ProviderToken|null $providerRefreshToken
      */
     public function __construct(
         int $userId,
         int $configurationProviderId,
         string $sessionToken,
-        NewProviderToken $providerToken,
-        ?NewProviderToken $providerRefreshToken
+        NewProviderToken|ProviderToken $providerToken,
+        NewProviderToken|ProviderToken|null $providerRefreshToken
     ) {
         $this->userId = $userId;
         $this->configurationProviderId = $configurationProviderId;
