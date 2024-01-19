@@ -35,7 +35,7 @@ interface AuthenticationRepositoryInterface
      * @param int $providerConfigurationId Provider configuration id
      * @param int $contactId Contact id
      * @param ProviderToken $providerToken Provider token
-     * @param ProviderToken $providerRefreshToken Provider refresh token
+     * @param ProviderToken|null $providerRefreshToken Provider refresh token
      */
     public function addAuthenticationTokens(
         string $sessionToken,

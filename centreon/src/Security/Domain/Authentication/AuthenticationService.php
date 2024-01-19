@@ -144,7 +144,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @inheritDoc
      */
-    public function updateAuthenticationTokens(SecurityAuthenticationTokens|AuthenticationTokens $authenticationTokens): void
+    public function updateAuthenticationTokens(SecurityAuthenticationTokens $authenticationTokens): void
     {
         try {
             $this->authenticationRepository->updateAuthenticationTokens($authenticationTokens);

@@ -26,6 +26,8 @@ namespace Security\Domain\Authentication\Interfaces;
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Security\Domain\Authentication\Exceptions\ProviderException;
+use Security\Domain\Authentication\Model\AuthenticationTokens as SecurityAuthenticationTokens;
+
 
 interface AuthenticationServiceInterface
 {
@@ -58,11 +60,11 @@ interface AuthenticationServiceInterface
     public function deleteExpiredSecurityTokens(): void;
 
     /**
-     * @param AuthenticationTokens $authenticationToken
+     * @param SecurityAuthenticationTokens $authenticationToken
      *
      * @throws AuthenticationException
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationToken): void;
+    public function updateAuthenticationTokens(SecurityAuthenticationTokens $authenticationToken): void;
 
     /**
      * @param string $token
