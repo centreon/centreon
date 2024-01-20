@@ -1,3 +1,5 @@
+import { centreonBaseURL } from '@centreon/ui';
+
 interface UseLinkToResourceStatus {
   getResourcesStatusUrl: (data) => string;
 }
@@ -8,7 +10,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     const hostId = uuid?.split('-')[0]?.slice(1);
     const serviceId = uuid?.split('-')[1]?.slice(1);
 
-    const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+    const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
     const queryParameters = {
       id: serviceId,

@@ -9,6 +9,8 @@ import {
   uniq
 } from 'ramda';
 
+import { centreonBaseURL } from '@centreon/ui';
+
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
   const state = JSON.parse(editorState);
@@ -22,7 +24,7 @@ export const getDetailsPanelQueriers = (data): object => {
   const hostId = uuid?.split('-')[0]?.slice(1);
   const serviceId = uuid?.split('-')[1]?.slice(1);
 
-  const resourcesDetailsEndpoint = `/centreon/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+  const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
   const queryParameters = {
     id: parseInt(serviceId, 10),
@@ -83,7 +85,7 @@ export const getResourcesUrlForMetricsWidgets = ({
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
-export const getResourcesUrlForStatusGrid = ({
+export const getUrlForResourcesOnlyWidgets = ({
   type,
   statuses,
   states,

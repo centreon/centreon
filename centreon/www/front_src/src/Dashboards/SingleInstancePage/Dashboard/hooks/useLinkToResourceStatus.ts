@@ -1,8 +1,8 @@
-import { equals, includes } from 'ramda';
+import { includes } from 'ramda';
 
 import {
   getResourcesUrlForMetricsWidgets,
-  getResourcesUrlForStatusGrid,
+  getUrlForResourcesOnlyWidgets,
   resourceBasedWidgets
 } from '../utils';
 
@@ -16,11 +16,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       return '';
     }
 
-    if (equals(name, 'centreon-widget-statusgrid')) {
+    if (options?.statuses && options?.states && data?.resources) {
       const { resourceType: type, statuses, states } = options;
       const { resources } = data;
 
-      const linkToResourceStatus = getResourcesUrlForStatusGrid({
+      const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources,
         states,
         statuses,
