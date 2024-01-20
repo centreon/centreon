@@ -13,7 +13,7 @@ import {
   labelStartTime,
   labelEndTime,
   labelComment
-} from '../../../../translatedLabels';
+} from '../../../translatedLabels';
 
 import DetailsTable, { getYesNoLabel } from '.';
 

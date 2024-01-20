@@ -20,7 +20,7 @@ import {
   labelSomethingWentWrong,
   labelYes,
   labelNo
-} from '../../../../translatedLabels';
+} from '../../../translatedLabels';
 
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);
 

@@ -1,17 +1,15 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
+import { useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
-import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
+import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
 import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
-import { pageAtom } from './atom';
 
 interface UseListingState {
-  areColumnsSortable: boolean;
   changeLimit: (value) => void;
   changePage: (updatedPage) => void;
   changeSort: ({ sortOrder, sortField }) => void;
@@ -51,7 +49,7 @@ const useListing = ({
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
 
-  const [page, setPage] = useAtom(pageAtom);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useLoadResources({
     displayType,
@@ -79,10 +77,6 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const resetColumns = (): void => {
-    setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
-  };
-
   const columns = useColumns({
     displayType
   });
@@ -97,10 +91,11 @@ const useListing = ({
     setPanelOptions?.('selectedColumnIds', updatedColumnIds);
   };
 
-  const areColumnsSortable = equals(displayType, DisplayType.All);
+  const resetColumns = (): void => {
+    setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
+  };
 
   return {
-    areColumnsSortable,
     changeLimit,
     changePage,
     changeSort,

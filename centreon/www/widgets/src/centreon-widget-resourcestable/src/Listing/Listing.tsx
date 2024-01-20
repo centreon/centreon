@@ -39,7 +39,6 @@ const Listing = ({
   const theme = useTheme();
 
   const {
-    areColumnsSortable,
     selectColumns,
     resetColumns,
     changeSort,
@@ -66,7 +65,7 @@ const Listing = ({
     <MemoizedListing
       columnConfiguration={{
         selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
-        sortable: areColumnsSortable
+        sortable: true
       }}
       columns={columns}
       currentPage={(page || 1) - 1}

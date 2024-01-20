@@ -14,3 +14,15 @@ export const labelAcknowledged = 'Acknowledged';
 export const labelSelectAtLeastThreeColumns =
   'At least three columns must be selected';
 export const labelInformation = 'Information';
+
+export const labelAuthor = 'Author';
+export const labelStartTime = 'Start time';
+export const labelFixed = 'Fixed';
+export const labelEndTime = 'End time';
+export const labelComment = 'Comment';
+export const labelEntryTime = 'Entry time';
+export const labelPersistent = 'Persistent';
+export const labelSticky = 'Sticky';
+export const labelSomethingWentWrong = 'Oops, something went wrong';
+export const labelYes = 'Yes';
+export const labelNo = 'No';

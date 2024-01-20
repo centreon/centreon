@@ -10,6 +10,8 @@ const ResourceTable = ({
   refreshCount,
   setPanelOptions
 }: ResourcesTableProps): JSX.Element => {
+  const { resources } = panelData;
+
   const {
     displayType,
     refreshInterval,
@@ -21,7 +23,6 @@ const ResourceTable = ({
     sortOrder,
     selectedColumnIds
   } = panelOptions;
-  const { resources } = panelData;
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,

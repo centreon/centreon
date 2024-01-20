@@ -17,6 +17,7 @@ interface LoadResourcesProps {
   states: Array<string>;
   statuses: Array<string>;
 }
+
 interface LoadResources {
   data?: ResourceListing;
   isLoading: boolean;

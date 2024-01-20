@@ -14,7 +14,7 @@ import {
   labelEntryTime,
   labelPersistent,
   labelSticky
-} from '../../../../translatedLabels';
+} from '../../../translatedLabels';
 
 import DetailsTable, { DetailsTableProps, getYesNoLabel } from '.';
 
