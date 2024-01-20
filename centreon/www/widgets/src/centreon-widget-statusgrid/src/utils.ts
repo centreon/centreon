@@ -18,7 +18,7 @@ import {
 
 import { Theme } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL, getStatusColors } from '@centreon/ui';
 
 import { Resource } from '../../models';
 
@@ -135,8 +135,8 @@ export const getDetailsPanelQueriers = ({ resource, type }): object => {
   const { id, parentId, uuid } = resource;
 
   const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `/centreon/api/latest/monitoring/resources/hosts/${id}`
-    : `/centreon/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+    ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
+    : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
