@@ -119,7 +119,8 @@
   "data": {
     "resources": {
       "type": "resources",
-      "defaultValue": []
+      "defaultValue": [],
+      "required" : true
     }
   },
   "moduleName": "centreon-widget-statusgrid"
