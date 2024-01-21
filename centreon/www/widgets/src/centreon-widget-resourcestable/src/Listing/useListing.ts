@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
+import { Resource } from '../../../models';
+
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
+import { DisplayType, ResourceListing, SortOrder } from './models';
 import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 

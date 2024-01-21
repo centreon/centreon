@@ -1,9 +1,10 @@
 import { useFetchQuery } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../api/endpoints';
+import { Resource } from '../../../models';
 
 import { formatRessources } from './utils';
-import { DisplayType, Resource, ResourceListing, SortOrder } from './models';
+import { DisplayType, ResourceListing, SortOrder } from './models';
 
 interface LoadResourcesProps {
   displayType: DisplayType;
