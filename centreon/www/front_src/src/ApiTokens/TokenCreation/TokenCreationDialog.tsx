@@ -1,16 +1,33 @@
+import { ReactNode } from 'react';
+
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
 
+import { ResponseError } from '@centreon/ui';
+
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
+import useRefetch from '../useRefetch';
 
-import FormCreation from './Form';
+import { CreatedToken } from './models';
 import useCreateToken from './useCreateToken';
 
-const TokenCreationDialog = (): JSX.Element => {
+interface Parameters {
+  data?: ResponseError | CreatedToken | undefined;
+  isMutating: boolean;
+  isRefetching: boolean;
+}
+
+interface Props {
+  renderFormCreation: (params: Parameters) => ReactNode;
+}
+
+const TokenCreationDialog = ({ renderFormCreation }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
+  const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
+
   const msgError = t(labelFieldRequired);
 
   const validationForm = object({
@@ -42,7 +59,7 @@ const TokenCreationDialog = (): JSX.Element => {
       validationSchema={validationForm}
       onSubmit={submit}
     >
-      <FormCreation data={data} isMutating={isMutating} />
+      {renderFormCreation({ data, isMutating, isRefetching })}
     </Formik>
   );
 };

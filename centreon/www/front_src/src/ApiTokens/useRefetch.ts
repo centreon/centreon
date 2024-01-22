@@ -2,15 +2,27 @@ import { useEffect } from 'react';
 
 import { useTokenListing } from './TokenListing/useTokenListing';
 
-const useRefetch = (key: unknown): void => {
-  const { refetch } = useTokenListing();
+interface UseRefetch {
+  isRefetching: boolean;
+}
+interface Props {
+  key: unknown;
+  onSuccess?: () => void;
+}
+
+const useRefetch = ({ key, onSuccess }: Props): UseRefetch => {
+  const { refetch, isRefetching } = useTokenListing({ enabled: false });
 
   useEffect(() => {
     if (!key) {
       return;
     }
-    refetch();
+    refetch().then(() => {
+      onSuccess?.();
+    });
   }, [key]);
+
+  return { isRefetching };
 };
 
 export default useRefetch;

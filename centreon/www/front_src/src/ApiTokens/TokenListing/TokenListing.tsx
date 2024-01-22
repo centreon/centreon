@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
@@ -6,22 +6,19 @@ import Divider from '@mui/material/Divider';
 import { MemoizedListing as Listing } from '@centreon/ui';
 
 import TokenCreationButton from '../TokenCreation';
-import CreateTokenDialog from '../TokenCreation/TokenCreationDialog';
-import { isCreatingTokenAtom } from '../TokenCreation/atoms';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
+import { clickedRowAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
-import { clickedRowAtom } from './atoms';
 
 const TokenListing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const isCreatingToken = useAtomValue(isCreatingTokenAtom);
   const setClickedRow = useSetAtom(clickedRowAtom);
 
   const {
@@ -32,7 +29,7 @@ const TokenListing = (): JSX.Element | null => {
     sortedField,
     sortOrder,
     refetch
-  } = useTokenListing();
+  } = useTokenListing({});
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
@@ -69,7 +66,6 @@ const TokenListing = (): JSX.Element | null => {
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />
-      {isCreatingToken && <CreateTokenDialog />}
     </div>
   );
 };

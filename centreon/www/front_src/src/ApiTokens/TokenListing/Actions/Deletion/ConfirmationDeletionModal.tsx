@@ -1,5 +1,7 @@
+import { useState } from 'react';
+
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useAtom, useAtomValue } from 'jotai';
 
 import {
   ConfirmDialog,
@@ -8,37 +10,48 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { deleteTokenEndpoint } from '../../../api/endpoints';
 import {
+  labelDelete,
   labelDeleteToken,
   labelMsgConfirmationDeletionToken,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
+import useRefetch from '../../../useRefetch';
 import { clickedRowAtom } from '../../atoms';
-import { deleteTokenEndpoint } from '../../../api/endpoints';
 
 import { useStyles } from './deletion.styles';
-import { displayConfirmationModalAtom } from './atoms';
 
 interface Meta {
   name: string;
 }
 
-const ConfirmationDeletionModal = (): JSX.Element => {
+interface Props {
+  close: () => void;
+  open: boolean;
+}
+
+const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
+  const [isRetrievingData, setIsRetrievingData] = useState(false);
+  const { isRefetching } = useRefetch({
+    key: isRetrievingData,
+    onSuccess: () => close()
+  });
 
-  const [displayConfirmationModal, setDisplayConfirmationModal] = useAtom(
-    displayConfirmationModalAtom
-  );
   const clickedRow = useAtomValue(clickedRowAtom);
+
+  const success = (): void => {
+    showSuccessMessage(t(labelTokenDeletedSuccessfully));
+    setIsRetrievingData(true);
+  };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
     getEndpoint: ({ name }) => deleteTokenEndpoint(name),
     method: Method.DELETE,
-    onSuccess: () => {
-      showSuccessMessage(t(labelTokenDeletedSuccessfully));
-    }
+    onSuccess: success
   });
 
   const deleteToken = (): void => {
@@ -47,18 +60,18 @@ const ConfirmationDeletionModal = (): JSX.Element => {
     });
   };
 
-  const cancel = (): void => {
-    setDisplayConfirmationModal(false);
-  };
-
   return (
     <ConfirmDialog
+      cancelDisabled={isMutating || isRefetching}
+      confirmDisabled={isMutating || isRefetching}
+      data-testid="deleteDialog"
       dialogConfirmButtonClassName={classes.confirmButton}
+      labelConfirm={t(labelDelete)}
       labelMessage={t(labelMsgConfirmationDeletionToken)}
       labelTitle={t(labelDeleteToken)}
-      open={displayConfirmationModal}
+      open={open}
       submitting={isMutating}
-      onCancel={cancel}
+      onCancel={close}
       onConfirm={deleteToken}
     />
   );

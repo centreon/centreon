@@ -1,4 +1,5 @@
-import { useAtom } from 'jotai';
+import { useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,18 +8,20 @@ import { IconButton } from '@centreon/ui';
 
 import { labelDelete } from '../../../translatedLabels';
 
-import { displayConfirmationModalAtom } from './atoms';
 import ConfirmationDeletionModal from './ConfirmationDeletionModal';
 
 const Deletion = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const [displayConfirmationModal, setDisplayConfirmationModal] = useAtom(
-    displayConfirmationModalAtom
-  );
+  const [displayConfirmationModal, setDisplayConfirmationModal] =
+    useState(false);
 
   const displayModal = (): void => {
     setDisplayConfirmationModal(true);
+  };
+
+  const close = (): void => {
+    setDisplayConfirmationModal(false);
   };
 
   return (
@@ -34,7 +37,12 @@ const Deletion = (): JSX.Element => {
         <DeleteIcon />
       </IconButton>
 
-      {displayConfirmationModal && <ConfirmationDeletionModal />}
+      {displayConfirmationModal && (
+        <ConfirmationDeletionModal
+          close={close}
+          open={displayConfirmationModal}
+        />
+      )}
     </>
   );
 };
