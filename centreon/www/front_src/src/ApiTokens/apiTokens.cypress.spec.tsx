@@ -467,7 +467,7 @@ describe('Api-token', () => {
       cy.contains(labelDeleteToken);
       cy.contains(labelMsgConfirmationDeletionToken);
       cy.contains(labelCancel).should('be.enabled');
-      cy.contains(labelDelete).should('be.enabled').click();
+      cy.contains(labelDelete).parent().should('be.enabled').click();
       cy.makeSnapshot('displays the modal when clicking the Delete icon');
       cy.waitForRequest('@deleteToken');
       cy.getRequestCalls('@deleteToken').then((calls) => {
@@ -491,7 +491,7 @@ describe('Api-token', () => {
       cy.contains(labelDeleteToken);
       cy.contains(labelMsgConfirmationDeletionToken);
       cy.contains(labelDelete).should('be.enabled');
-      cy.contains(labelCancel).should('be.enabled').click();
+      cy.contains(labelCancel).parent().should('be.enabled').click();
     });
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
