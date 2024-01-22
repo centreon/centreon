@@ -12,6 +12,7 @@ import {
   pluck,
   includes
 } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -31,6 +32,7 @@ import {
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { getDataProperty } from '../utils';
+import { singleMetricSelectionAtom } from '../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -48,6 +50,7 @@ interface UseResourcesState {
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
+  getResourceStatic: (resourceType: string) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: string) => string;
   value: Array<WidgetDataResource>;
@@ -123,8 +126,20 @@ const useResources = (propertyName: string): UseResourcesState => {
     [getDataProperty({ obj: touched, propertyName })]
   );
 
+  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
+
   const errorToDisplay =
     isTouched && isEmpty(value) ? labelPleaseSelectAResource : null;
+
+  const getResourceStatic = (
+    resourceType: WidgetResourceType
+  ): boolean | undefined => {
+    return (
+      singleMetricSelection &&
+      (equals(resourceType, WidgetResourceType.host) ||
+        equals(resourceType, WidgetResourceType.service))
+    );
+  };
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -209,6 +224,21 @@ const useResources = (propertyName: string): UseResourcesState => {
       return;
     }
 
+    if (singleMetricSelection) {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          resourceType: WidgetResourceType.host,
+          resources: []
+        },
+        {
+          resourceType: WidgetResourceType.service,
+          resources: []
+        }
+      ]);
+
+      return;
+    }
+
     setFieldValue(`data.${propertyName}`, [
       {
         resourceType: '',
@@ -226,6 +256,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     deleteResourceItem,
     error: errorToDisplay,
     getResourceResourceBaseEndpoint,
+    getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
     value: value || []

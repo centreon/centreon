@@ -9,7 +9,7 @@ import {
   split
 } from 'ramda';
 import * as Yup from 'yup';
-import { TFunction } from 'i18next';
+import { Resource, TFunction } from 'i18next';
 import { FormikValues } from 'formik';
 
 import { FederatedWidgetOptionType } from '../../../../../../federatedModules/models';
@@ -146,14 +146,6 @@ export const buildValidationSchema = ({
     : yupValidator;
 };
 
-export const areResourcesFullfilled = (
-  value: Array<WidgetDataResource>
-): boolean =>
-  value?.every(
-    ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
-  );
-
 export const isAtLeastOneResourceFullfilled = (
   value: Array<WidgetDataResource>
 ): boolean =>
@@ -198,3 +190,11 @@ export const showInput = ({
 
   return true;
 };
+
+export const areResourcesFullfilled = (
+  value: Array<WidgetDataResource> = []
+): boolean =>
+  value.every(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );

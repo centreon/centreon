@@ -19,7 +19,10 @@ import {
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { isAtLeastOneResourceFullfilled } from '../utils';
+import {
+  areResourcesFullfilled,
+  isAtLeastOneResourceFullfilled
+} from '../utils';
 import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import { singleMetricSelectionAtom } from '../../../atoms';
 
@@ -53,7 +56,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
 
   const canDisplayMetricsSelection =
-    isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
+    areResourcesFullfilled(resources) && !hasTooManyMetrics;
 
   const title =
     metricCount && isAtLeastOneResourceFullfilled(resources)
@@ -92,10 +95,12 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <div className={classes.resourcesContainer}>
       {header}
       <div>
-        {canDisplayMetricsSelection && singleMetricSelection && (
+        {singleMetricSelection && (
           <SingleAutocompleteField
             className={classes.resources}
-            disabled={!canEditField || isLoadingMetrics}
+            disabled={
+              !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
+            }
             getOptionItemLabel={getOptionLabel}
             getOptionLabel={getOptionLabel}
             isOptionEqualToValue={(option, selectedValue) =>
@@ -107,14 +112,16 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             onChange={changeMetric}
           />
         )}
-        {canDisplayMetricsSelection && !singleMetricSelection && (
+        {!singleMetricSelection && (
           <MultiAutocompleteField
             chipProps={{
               color: 'primary',
               onDelete: (_, option): void => deleteMetricItem(option)
             }}
             className={classes.resources}
-            disabled={!canEditField || isLoadingMetrics}
+            disabled={
+              !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
+            }
             getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}

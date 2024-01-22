@@ -1,6 +1,13 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useItemCompositionStyles = makeStyles()((theme) => ({
+  buttonAndSecondaryLabel: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
   itemCompositionContainer: {
     alignItems: 'flex-start',
     display: 'flex',
@@ -24,6 +31,6 @@ export const useItemStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   visibilityHiden: {
-    visibility: 'hidden'
+    display: 'none'
   }
 }));

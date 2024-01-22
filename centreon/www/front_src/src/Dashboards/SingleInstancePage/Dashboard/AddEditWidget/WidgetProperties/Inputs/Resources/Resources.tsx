@@ -9,7 +9,8 @@ import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelRefineFilter,
+  labelAddFilter,
+  labelAddFiltersToNarrowDownResources,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -42,7 +43,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    deleteResourceItem
+    deleteResourceItem,
+    getResourceStatic
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -65,13 +67,16 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           IconAdd={<FilterIcon />}
           addButtonHidden={!canEditField}
           addbuttonDisabled={!areResourcesFullfilled(value)}
-          labelAdd={t(labelRefineFilter)}
+          labelAdd={t(labelAddFilter)}
+          secondaryLabel={t(labelAddFiltersToNarrowDownResources)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
-              deleteButtonHidden={deleteButtonHidden}
+              deleteButtonHidden={
+                deleteButtonHidden || getResourceStatic(resource.resourceType)
+              }
               key={`${index}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
@@ -79,7 +84,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               <SelectField
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
-                disabled={!canEditField}
+                disabled={
+                  !canEditField || getResourceStatic(resource.resourceType)
+                }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(resource)}
                 selectedOptionId={resource.resourceType}

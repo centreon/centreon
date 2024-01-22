@@ -2,44 +2,26 @@ import { useMemo, useEffect } from 'react';
 
 import { useFormikContext } from 'formik';
 import {
-  all,
   equals,
-  flatten,
-  gt,
   includes,
   innerJoin,
   isEmpty,
   isNil,
-  length,
-  pipe,
   pluck,
   propEq,
-  reject,
-  uniq,
-  uniqBy
+  reject
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
-import {
-  ListingModel,
-  SelectEntry,
-  buildListingEndpoint,
-  useDeepCompare,
-  useFetchQuery
-} from '@centreon/ui';
+import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
-import {
-  Metric,
-  ServiceMetric,
-  Widget,
-  WidgetDataResource
-} from '../../../models';
-import { serviceMetricsDecoder } from '../../../api/decoders';
-import { metricsEndpoint } from '../../../api/endpoints';
-import { getDataProperty, resourceTypeQueryParameter } from '../utils';
+import { Metric, Widget, WidgetDataResource } from '../../../models';
+import { getDataProperty } from '../utils';
 import { labelIncludesXHost } from '../../../../translatedLabels';
 import { singleHostPerMetricAtom } from '../../../atoms';
+
+import { useListMetrics } from './useListMetrics';
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
@@ -86,51 +68,15 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     [getDataProperty({ obj: touched, propertyName })]
   );
 
-  const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
-    ListingModel<ServiceMetric>
-  >({
-    decoder: serviceMetricsDecoder,
-    getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: metricsEndpoint,
-        parameters: {
-          limit: 1000,
-          search: {
-            lists: resources.map((resource) => ({
-              field: resourceTypeQueryParameter[resource.resourceType],
-              values: equals(resource.resourceType, 'service')
-                ? pluck('name', resource.resources)
-                : pluck('id', resource.resources)
-            }))
-          }
-        }
-      }),
-    getQueryKey: () => ['metrics', JSON.stringify(resources)],
-    queryOptions: {
-      enabled:
-        !isEmpty(resources) &&
-        all((resource) => !isEmpty(resource.resources), resources),
-      suspense: false
-    }
-  });
-
-  const hasTooManyMetrics = gt(servicesMetrics?.meta?.total || 0, 1000);
-
-  const metricCount = servicesMetrics?.meta?.total;
-
-  const unitsFromSelectedMetrics = pipe(
-    flatten,
-    pluck('unit'),
-    uniq
-  )([value] || []);
-
-  const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
-
-  const metrics: Array<Metric> = pipe(
-    pluck('metrics'),
-    flatten,
-    uniqBy(({ name }) => name)
-  )(servicesMetrics?.result || []);
+  const {
+    hasReachedTheLimitOfUnits,
+    hasTooManyMetrics,
+    isLoadingMetrics,
+    metrics,
+    metricCount,
+    unitsFromSelectedMetrics,
+    servicesMetrics
+  } = useListMetrics({ resources, selectedMetrics: value });
 
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
     setFieldValue(`data.${propertyName}`, [newMetric]);
