@@ -17,7 +17,7 @@ import {
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
 import useRefetch from '../../../useRefetch';
-import { clickedRowAtom } from '../../atoms';
+import { selectedRowAtom } from '../../atoms';
 
 import Message from './Message';
 import Title from './Title';
@@ -42,7 +42,7 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
     onSuccess: () => close()
   });
 
-  const clickedRow = useAtomValue(clickedRowAtom);
+  const selectedRow = useAtomValue(selectedRowAtom);
 
   const success = (): void => {
     showSuccessMessage(t(labelTokenDeletedSuccessfully));
@@ -57,7 +57,7 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
 
   const deleteToken = (): void => {
     mutateAsync({
-      _meta: { name: clickedRow?.name }
+      _meta: { name: selectedRow?.name }
     });
   };
 

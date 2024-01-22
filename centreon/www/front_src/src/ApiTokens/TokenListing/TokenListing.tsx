@@ -12,14 +12,14 @@ import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
-import { clickedRowAtom } from './atoms';
+import { selectedRowAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
 
 const TokenListing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const setClickedRow = useSetAtom(clickedRowAtom);
+  const setSelectRow = useSetAtom(selectedRowAtom);
 
   const {
     dataListing,
@@ -33,6 +33,10 @@ const TokenListing = (): JSX.Element | null => {
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
+
+  const selectRow = (row): void => {
+    setSelectRow(row);
+  };
 
   return (
     <div className={classes.container}>
@@ -62,7 +66,7 @@ const TokenListing = (): JSX.Element | null => {
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={onResetColumns}
-        onRowClick={setClickedRow}
+        onRowClick={selectRow}
         onSelectColumns={onSelectColumns}
         onSort={onSort}
       />

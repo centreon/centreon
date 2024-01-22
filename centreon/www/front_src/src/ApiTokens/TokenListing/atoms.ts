@@ -11,4 +11,4 @@ export const selectedColumnIdsAtom = atomWithStorage(
   defaultSelectedColumnIds
 );
 
-export const clickedRowAtom = atom<Token | null>(null);
+export const selectedRowAtom = atom<Token | null>(null);

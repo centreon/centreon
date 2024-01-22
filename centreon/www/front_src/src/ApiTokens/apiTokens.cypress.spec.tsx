@@ -9,7 +9,8 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import {
   Method,
   TestQueryProvider,
-  useLocaleDateTimeFormat
+  useLocaleDateTimeFormat,
+  SnackbarProvider
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
@@ -30,7 +31,6 @@ import {
   labelDeleteToken,
   labelDuration,
   labelGenerateNewToken,
-  labelMsgConfirmationDeletionToken,
   labelName,
   labelSecurityToken,
   labelTokenCreated,
@@ -178,7 +178,7 @@ const interceptListTokens = ({
     cy.interceptAPIRequest({
       alias,
       method,
-      path: `./api/latest${endpoint}`,
+      path: `./api/latest${endpoint}**`,
       response: data
     });
   });
@@ -189,6 +189,11 @@ const firstPageParameter = 'page=1&limit=10';
 const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+const msgConfirmationDeletion = 'You are about to delete the token';
+const githubToken = 'Github';
+const irreversibleMsg =
+  'This is an irreversible action. If you process, all requests made with this token will be rejected.Do you want to process anyway ?';
 
 describe('Api-token', () => {
   beforeEach(() => {
@@ -202,9 +207,11 @@ describe('Api-token', () => {
     cy.mount({
       Component: (
         <Router>
-          <TestQueryProvider>
-            <TokenListing />
-          </TestQueryProvider>
+          <SnackbarProvider>
+            <TestQueryProvider>
+              <TokenListing />
+            </TestQueryProvider>
+          </SnackbarProvider>
         </Router>
       )
     });
@@ -448,20 +455,23 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
-  it.only('deletes the token when clicking on Delete button', () => {
-    interceptListTokens({
-      alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listing/listPage2.json',
-      parameters: { ...DefaultParameters, page: 2 }
-    });
+  it('deletes the token when clicking on Delete button', () => {
+    cy.waitForRequest('@getListTokens');
+    const tokenToDelete = 'a-token';
 
-    const deleteToken = deleteTokenEndpoint('k-token');
+    const deleteToken = deleteTokenEndpoint(tokenToDelete);
     cy.interceptAPIRequest({
       alias: 'deleteToken',
       method: Method.DELETE,
       path: `./api/latest${deleteToken}**`,
       statusCode: 204
     });
+
+    interceptListTokens({
+      alias: 'getListTokensAfterDeletion',
+      dataPath: 'apiTokens/listing/listAfterDelete.json'
+    });
+
     cy.findAllByTestId('DeleteIcon')
       .eq(0)
       .parent()
@@ -469,9 +479,12 @@ describe('Api-token', () => {
       .click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
-      cy.contains(labelMsgConfirmationDeletionToken);
+      cy.contains(msgConfirmationDeletion);
+      cy.contains(githubToken);
+      cy.contains(irreversibleMsg);
+
       cy.contains(labelCancel).should('be.enabled');
-      cy.contains(labelDelete).parent().should('be.enabled').click();
+      cy.findByTestId('Confirm').should('be.enabled').click();
       cy.makeSnapshot('displays the modal when clicking the Delete icon');
       cy.waitForRequest('@deleteToken');
       cy.getRequestCalls('@deleteToken').then((calls) => {
@@ -479,16 +492,14 @@ describe('Api-token', () => {
       });
     });
     cy.contains(labelTokenDeletedSuccessfully);
-    cy.makeSnapshot('deletes the token when clicking the Delete icon');
+    cy.waitForRequest('@getListTokensAfterDeletion');
     cy.findAllByTestId('deleteDialog').should('not.exist');
+    cy.contains(tokenToDelete).should('not.exist');
+    cy.makeSnapshot('deletes the token when clicking the Delete icon');
   });
 
   it('hides the modal when clicking on Cancel button', () => {
-    interceptListTokens({
-      alias: 'getListTokensPage2',
-      dataPath: 'apiTokens/listing/listPage2.json',
-      parameters: { ...DefaultParameters, page: 2 }
-    });
+    cy.waitForRequest('@getListTokens');
 
     cy.findAllByTestId('DeleteIcon')
       .eq(0)
@@ -497,9 +508,11 @@ describe('Api-token', () => {
       .click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
-      cy.contains(labelMsgConfirmationDeletionToken);
-      cy.contains(labelDelete).should('be.enabled');
-      cy.contains(labelCancel).parent().should('be.enabled').click();
+      cy.contains(msgConfirmationDeletion);
+      cy.contains(githubToken);
+      cy.contains(irreversibleMsg);
+      cy.findByTestId('Confirm').should('be.enabled');
+      cy.contains(labelCancel).should('be.enabled').click();
     });
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
