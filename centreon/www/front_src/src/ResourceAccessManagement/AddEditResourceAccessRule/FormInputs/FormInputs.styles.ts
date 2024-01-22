@@ -18,7 +18,7 @@ export const useFormInputStyles = makeStyles()((theme) => ({
   },
   ruleProperties: {
     backgroundColor: theme.palette.background.default,
-    borderRadius: theme.spacing(.5),
+    borderRadius: theme.spacing(0.5),
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
