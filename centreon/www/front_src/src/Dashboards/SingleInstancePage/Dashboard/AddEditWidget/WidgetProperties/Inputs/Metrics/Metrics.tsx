@@ -116,6 +116,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           />
         ) : (
           <MultiAutocompleteField
+            disableSortedOptions
+            open
             chipProps={{
               color: 'primary',
               onDelete: (_, option): void => deleteMetricItem(option)

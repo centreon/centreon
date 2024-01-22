@@ -86,8 +86,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
-  const { renderOptionsForSingleMetric } = useRenderOptions();
-
   const getResourcesByMetricName = (
     metricName: string
   ): Array<{ metricId?: number } & Omit<ServiceMetric, 'metrics'>> => {
@@ -108,6 +106,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       { metricId?: number } & Omit<ServiceMetric, 'metrics'>
     >;
   };
+
+  const { renderOptionsForSingleMetric } = useRenderOptions({
+    getResourcesByMetricName,
+    propertyName,
+    value: value || []
+  });
 
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
     setFieldValue(`data.${propertyName}`, [

@@ -230,7 +230,7 @@ const useResources = (propertyName: string): UseResourcesState => {
       return;
     }
 
-    if (singleMetricSelection) {
+    if (singleMetricSelection && singleHostPerMetric) {
       setFieldValue(`data.${propertyName}`, [
         {
           resourceType: WidgetResourceType.host,
