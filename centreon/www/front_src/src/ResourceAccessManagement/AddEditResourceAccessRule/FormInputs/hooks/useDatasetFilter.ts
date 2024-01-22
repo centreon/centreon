@@ -6,10 +6,12 @@ import {
   always,
   cond,
   equals,
+  flatten,
   isEmpty,
   isNil,
   last,
   path,
+  pluck,
   propEq,
   reject
 } from 'ramda';
@@ -51,30 +53,59 @@ type UseDatasetFilterState = {
 
 const resourceTypeOptions = [
   {
+    availableResourceTypeOptions: [
+      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
+    ],
     id: ResourceTypeEnum.Host,
     name: labelHost
   },
   {
+    availableResourceTypeOptions: [
+      { id: ResourceTypeEnum.HostGroup, name: labelHostGroup },
+      { id: ResourceTypeEnum.Host, name: labelHost },
+      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
+    ],
     id: ResourceTypeEnum.HostCategory,
     name: labelHostCategory
   },
   {
+    availableResourceTypeOptions: [
+      { id: ResourceTypeEnum.HostCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.Host, name: labelHost },
+      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
+    ],
     id: ResourceTypeEnum.HostGroup,
     name: labelHostGroup
   },
   {
+    availableResourceTypeOptions: [],
     id: ResourceTypeEnum.MetaService,
     name: labelMetaService
   },
   {
+    availableResourceTypeOptions: [],
     id: ResourceTypeEnum.Service,
     name: labelService
   },
   {
+    availableResourceTypeOptions: [
+      { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
+      { id: ResourceTypeEnum.Service, name: labelService }
+    ],
     id: ResourceTypeEnum.ServiceCategory,
     name: labelServiceCategory
   },
   {
+    availableResourceTypeOptions: [
+      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.Service, name: labelService }
+    ],
     id: ResourceTypeEnum.ServiceGroup,
     name: labelServiceGroup
   }
@@ -127,58 +158,17 @@ const useDatasetFilter = (
       return resourceTypeOptions;
     }
 
-    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.HostCategory)) {
-      return [
-        { id: ResourceTypeEnum.Host, name: labelHost },
-        { id: ResourceTypeEnum.HostGroup, name: labelHostGroup },
-        { id: ResourceTypeEnum.Service, name: labelService },
-        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
-        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
-      ];
-    }
+    const filteredResourceTypeOptions = flatten(
+      pluck('availableResourceTypeOptions')(
+        resourceTypeOptions.filter((option) =>
+          equals(option.id, value[index - 1]?.resourceType)
+        )
+      )
+    );
 
-    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.HostGroup)) {
-      return [
-        { id: ResourceTypeEnum.Host, name: labelHost },
-        { id: ResourceTypeEnum.HostCategory, name: labelHostCategory },
-        { id: ResourceTypeEnum.Service, name: labelService },
-        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
-        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
-      ];
-    }
-
-    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.Host)) {
-      return [
-        { id: ResourceTypeEnum.Service, name: labelService },
-        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
-        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
-      ];
-    }
-
-    if (
-      equals(value[index - 1]?.resourceType, ResourceTypeEnum.ServiceCategory)
-    ) {
-      return [
-        { id: ResourceTypeEnum.Service, name: labelService },
-        { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup }
-      ];
-    }
-
-    if (equals(value[index - 1]?.resourceType, ResourceTypeEnum.ServiceGroup)) {
-      return [
-        { id: ResourceTypeEnum.Service, name: labelService },
-        { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory }
-      ];
-    }
-
-    if (
-      equals(value[index - 1]?.resourceType, ResourceTypeEnum.MetaService) ||
-      equals(value[index - 1]?.resourceType, ResourceTypeEnum.Service)
-    ) {
-      return [];
-    }
-
-    return resourceTypeOptions;
+    return isEmpty(filteredResourceTypeOptions)
+      ? resourceTypeOptions
+      : filteredResourceTypeOptions;
   };
 
   const isTouched = useMemo<boolean | undefined>(

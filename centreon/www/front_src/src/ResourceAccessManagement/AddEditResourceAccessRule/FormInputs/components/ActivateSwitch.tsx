@@ -1,32 +1,18 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { styled } from '@mui/material/styles';
-import { FormControlLabel, Switch as MUISwitch, Tooltip } from '@mui/material';
+import { FormControlLabel, Switch, Tooltip } from '@mui/material';
 
 import {
   labelActiveOrInactive,
   labelDisabled,
   labelEnabled
 } from '../../../translatedLabels';
-
-const Switch = styled(MUISwitch)(({ theme }) => ({
-  '& .MuiSwitch-switchBase': {
-    '&.Mui-checked': {
-      '& + .MuiSwitch-track': {
-        backgroundColor: theme.palette.success.main,
-        opacity: 1
-      },
-      color: theme.palette.common.white
-    }
-  },
-  '& .MuiSwitch-thumb': {
-    backgroundColor: theme.palette.common.white
-  }
-}));
+import { useActivateSwitchStyles } from '../styles/ActivateSwitch.styles';
 
 const ActivateSwitch = (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useActivateSwitchStyles();
 
   const { setFieldValue, values } = useFormikContext<FormikValues>();
 
@@ -42,6 +28,7 @@ const ActivateSwitch = (): JSX.Element => {
           <Switch
             aria-label={t(labelActiveOrInactive) as string}
             checked={values?.isActivated}
+            className={classes.switch}
             color="success"
             name="isActivated"
             size="medium"

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { equals, isEmpty, isNil, last } from 'ramda';
+import { equals, flatten, isEmpty } from 'ramda';
 
 import useDatasetFilters from '../hooks/useDatasetFilters';
 import { Dataset } from '../../../models';
@@ -22,26 +22,6 @@ const DatasetFilters = (): ReactElement => {
       ({ resourceType, resources }) =>
         !isEmpty(resourceType) && !isEmpty(resources)
     );
-
-  const areAddDatasetButtonDisabled = (
-    datasetFiltersArray: Array<Array<Dataset>>
-  ): boolean => {
-    if (isNil(datasetFiltersArray)) {
-      return false;
-    }
-
-    const lastDatasetFilter = last(datasetFiltersArray);
-    if (isNil(lastDatasetFilter)) {
-      return false;
-    }
-
-    const lastDataset = last(lastDatasetFilter);
-    if (isNil(lastDataset)) {
-      return false;
-    }
-
-    return isEmpty(lastDataset.resourceType) || isEmpty(lastDataset.resources);
-  };
 
   return (
     <div>
@@ -66,7 +46,14 @@ const DatasetFilters = (): ReactElement => {
         </div>
       ))}
       <AddDatasetButton
-        addButtonDisabled={areAddDatasetButtonDisabled(datasetFilters)}
+        addButtonDisabled={
+          !isEmpty(
+            flatten(datasetFilters).filter(
+              (dataset) =>
+                isEmpty(dataset.resourceType) || isEmpty(dataset.resources)
+            )
+          )
+        }
         onAddItem={addDatasetFilter}
       />
     </div>
