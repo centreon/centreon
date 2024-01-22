@@ -1,16 +1,10 @@
-import {
-  ButtonProps,
-  DialogContentText,
-  Typography,
-  TypographyProps
-} from '@mui/material';
+import { ButtonProps, DialogContentText, Typography } from '@mui/material';
 
 import Dialog, { Props as DialogProps } from '..';
 
 type Props = DialogProps & {
   children?: JSX.Element;
   labelMessage?: string | null;
-  labelMessageProps?: TypographyProps;
   labelSecondMessage?: string | null;
   restCancelButtonProps?: ButtonProps;
   restConfirmButtonProps?: ButtonProps;
@@ -22,7 +16,6 @@ const Confirm = ({
   children,
   restCancelButtonProps,
   restConfirmButtonProps,
-  labelMessageProps,
   ...rest
 }: Props): JSX.Element => (
   <Dialog
@@ -31,9 +24,7 @@ const Confirm = ({
     {...rest}
   >
     <DialogContentText>
-      {labelMessage && (
-        <Typography {...labelMessageProps}>{labelMessage}</Typography>
-      )}
+      {labelMessage && <Typography>{labelMessage}</Typography>}
       {labelSecondMessage && <Typography>{labelSecondMessage}</Typography>}
       {children}
     </DialogContentText>

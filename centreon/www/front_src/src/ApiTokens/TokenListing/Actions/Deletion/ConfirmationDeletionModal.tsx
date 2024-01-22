@@ -14,14 +14,14 @@ import { deleteTokenEndpoint } from '../../../api/endpoints';
 import {
   labelCancel,
   labelDelete,
-  labelMsgConfirmationDeletionToken,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
 import useRefetch from '../../../useRefetch';
 import { clickedRowAtom } from '../../atoms';
 
-import { useStyles } from './deletion.styles';
+import Message from './Message';
 import Title from './Title';
+import { useStyles } from './deletion.styles';
 
 interface Meta {
   name: string;
@@ -69,11 +69,6 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
       dialogTitleClassName={classes.title}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelMessage={t(labelMsgConfirmationDeletionToken)}
-      labelMessageProps={{
-        className: classes.labelMessage,
-        variant: 'subtitle1'
-      }}
       labelTitle={<Title />}
       open={open}
       restCancelButtonProps={{ variant: 'outlined' }}
@@ -85,7 +80,9 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
       submitting={isMutating}
       onCancel={close}
       onConfirm={deleteToken}
-    />
+    >
+      <Message />
+    </ConfirmDialog>
   );
 };
 
