@@ -32,7 +32,10 @@ import {
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { getDataProperty } from '../utils';
-import { singleMetricSelectionAtom } from '../../../atoms';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -53,6 +56,7 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
+  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
@@ -128,6 +132,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   );
 
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
+  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 
   const errorToDisplay =
     isTouched && isEmpty(value) ? labelPleaseSelectAResource : null;
@@ -260,6 +265,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    singleHostPerMetric,
     singleMetricSelection,
     value: value || []
   };

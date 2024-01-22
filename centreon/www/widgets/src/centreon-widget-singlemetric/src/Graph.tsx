@@ -12,7 +12,7 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
+import { Resource, GlobalRefreshInterval, NewMetric } from '../../models';
 
 import { FormThreshold, ValueFormat } from './models';
 import {
@@ -26,7 +26,7 @@ import { useGraphStyles } from './Graph.styles';
 
 interface Props {
   globalRefreshInterval: GlobalRefreshInterval;
-  metrics: Array<ServiceMetric>;
+  metrics: Array<NewMetric>;
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
@@ -63,7 +63,8 @@ const Graph = ({
 
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
-    metrics: [metricName],
+    bypassMetricsExclusion: true,
+    metrics,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources

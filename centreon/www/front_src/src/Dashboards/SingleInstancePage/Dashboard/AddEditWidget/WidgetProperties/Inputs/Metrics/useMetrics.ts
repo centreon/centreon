@@ -3,10 +3,12 @@ import { useMemo, useEffect } from 'react';
 import { useFormikContext } from 'formik';
 import {
   equals,
+  identity,
   includes,
   innerJoin,
   isEmpty,
   isNil,
+  omit,
   pluck,
   propEq,
   reject
@@ -16,12 +18,18 @@ import { useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
-import { Metric, Widget, WidgetDataResource } from '../../../models';
+import {
+  FormMetric,
+  Metric,
+  ServiceMetric,
+  Widget,
+  WidgetDataResource
+} from '../../../models';
 import { getDataProperty } from '../utils';
-import { labelIncludesXHost } from '../../../../translatedLabels';
 import { singleHostPerMetricAtom } from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
+import { useRenderOptions } from './useRenderOptions';
 
 interface UseMetricsOnlyState {
   changeMetric: (_, newMetric: SelectEntry | null) => void;
@@ -38,6 +46,7 @@ interface UseMetricsOnlyState {
   metricCount?: number;
   metricWithSeveralResources?: false | string;
   metrics: Array<Metric>;
+  renderOptionsForSingleMetric: (props, option) => JSX.Element;
   resources: Array<WidgetDataResource>;
   selectedMetrics?: Array<Metric>;
 }
@@ -52,7 +61,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
-  const value = useMemo<Array<Metric> | undefined>(
+  const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
@@ -77,8 +86,37 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
+  const { renderOptionsForSingleMetric } = useRenderOptions();
+
+  const getResourcesByMetricName = (
+    metricName: string
+  ): Array<{ metricId?: number } & Omit<ServiceMetric, 'metrics'>> => {
+    const resourcesByMetricName = (servicesMetrics?.result || []).map(
+      (service) =>
+        service.metrics.find((metric) => equals(metric.name, metricName))
+          ? {
+              ...omit(['metrics'], service),
+              metricId: service.metrics.find((metric) =>
+                equals(metric.name, metricName)
+              )?.id
+            }
+          : null,
+      []
+    );
+
+    return resourcesByMetricName.filter(identity) as Array<
+      { metricId?: number } & Omit<ServiceMetric, 'metrics'>
+    >;
+  };
+
   const changeMetric = (_, newMetric: SelectEntry | null): void => {
-    setFieldValue(`data.${propertyName}`, [newMetric]);
+    setFieldValue(`data.${propertyName}`, [
+      {
+        ...newMetric,
+        excludedMetrics: [],
+        includeAllMetrics: true
+      }
+    ]);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
@@ -192,6 +230,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     metricCount,
     metricWithSeveralResources,
     metrics,
+    renderOptionsForSingleMetric,
     resources,
     selectedMetrics: value
   };

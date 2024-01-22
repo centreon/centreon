@@ -1,7 +1,7 @@
-import { Resource, ServiceMetric } from '../../models';
+import { NewMetric, Resource } from '../../models';
 
 export interface Data {
-  metrics: Array<ServiceMetric>;
+  metrics: Array<NewMetric>;
   resources: Array<Resource>;
 }
 

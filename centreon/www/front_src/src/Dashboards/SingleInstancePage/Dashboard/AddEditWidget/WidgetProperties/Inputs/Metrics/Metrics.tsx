@@ -24,7 +24,10 @@ import {
   isAtLeastOneResourceFullfilled
 } from '../utils';
 import { editProperties } from '../../../../hooks/useCanEditDashboard';
-import { singleMetricSelectionAtom } from '../../../atoms';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
 
 import useMetrics from './useMetrics';
 
@@ -42,17 +45,18 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     resources,
     selectedMetrics,
     getOptionLabel,
-    changeMetrics,
     getMetricOptionDisabled,
     deleteMetricItem,
     error,
     isTouched,
     hasReachedTheLimitOfUnits,
-    metricWithSeveralResources
+    metricWithSeveralResources,
+    renderOptionsForSingleMetric
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
+  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 
   const canDisplayMetricsSelection =
     areResourcesFullfilled(resources) && !hasTooManyMetrics;
@@ -93,8 +97,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      <div>
-        {singleMetricSelection && (
+      <div className={classes.resourceComposition}>
+        {singleMetricSelection && singleHostPerMetric ? (
           <SingleAutocompleteField
             className={classes.resources}
             disabled={
@@ -110,8 +114,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             value={head(selectedMetrics || []) || undefined}
             onChange={changeMetric}
           />
-        )}
-        {!singleMetricSelection && (
+        ) : (
           <MultiAutocompleteField
             chipProps={{
               color: 'primary',
@@ -127,8 +130,14 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             getTagLabel={getOptionLabel}
             label={t(labelSelectMetric)}
             options={metrics}
+            renderOption={
+              singleMetricSelection ? renderOptionsForSingleMetric : undefined
+            }
             value={selectedMetrics || []}
-            onChange={changeMetrics}
+            onChange={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
           />
         )}
         {hasTooManyMetrics && (

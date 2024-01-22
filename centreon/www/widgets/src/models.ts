@@ -36,3 +36,22 @@ export interface Metric extends NamedEntity {
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
 }
+
+export interface NewMetricResource {
+  id: number;
+  name: string;
+  parentName: string;
+  uuid: string;
+}
+
+export interface NewMetric {
+  criticalHighThreshold: number | null;
+  criticalLowThreshold: number | null;
+  excludedMetrics: Array<number>;
+  id: number;
+  includeAllResources?: boolean;
+  name: string;
+  unit: string;
+  warningHighThreshold: number | null;
+  warningLowThreshold: number | null;
+}

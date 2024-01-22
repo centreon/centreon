@@ -50,7 +50,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleMetricSelection
+    singleMetricSelection,
+    singleHostPerMetric
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -98,7 +99,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleMetricSelection ? (
+              {singleMetricSelection && singleHostPerMetric ? (
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{

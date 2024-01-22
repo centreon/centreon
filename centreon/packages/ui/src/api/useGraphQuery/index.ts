@@ -1,11 +1,20 @@
 import { useRef } from 'react';
 
-import { equals, has, isEmpty, pluck } from 'ramda';
+import {
+  equals,
+  flatten,
+  has,
+  includes,
+  isEmpty,
+  not,
+  pipe,
+  pluck
+} from 'ramda';
 import dayjs from 'dayjs';
 
 import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
 
-import { Resource, WidgetResourceType } from './models';
+import { Metric, Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -14,7 +23,9 @@ interface CustomTimePeriod {
 
 interface UseMetricsQueryProps {
   baseEndpoint: string;
-  metrics: Array<string>;
+  bypassMetricsExclusion?: boolean;
+  includeAllResources?: boolean;
+  metrics: Array<Metric>;
   refreshCount?: number;
   refreshInterval?: number | false;
   resources?: Array<Resource>;
@@ -71,6 +82,7 @@ const areResourcesFullfilled = (value: Array<Resource>): boolean =>
   );
 
 const useGraphQuery = ({
+  bypassMetricsExclusion,
   metrics,
   resources = [],
   baseEndpoint,
@@ -93,7 +105,7 @@ const useGraphQuery = ({
 
   const definedMetrics = metrics.filter((metric) => metric);
   const formattedDefinedMetrics = definedMetrics.map((metric) =>
-    encodeURIComponent(metric)
+    encodeURIComponent(metric.name)
   );
 
   const {
@@ -145,7 +157,16 @@ const useGraphQuery = ({
           base: data.current.base,
           title: ''
         },
-        metrics: data.current.metrics,
+        metrics: bypassMetricsExclusion
+          ? data.current.metrics
+          : data.current.metrics.filter(({ metric_id }) => {
+              return pipe(
+                pluck('excludedMetrics'),
+                flatten,
+                includes(metric_id),
+                not
+              )(metrics);
+            }),
         times: data.current.times
       }
     : undefined;

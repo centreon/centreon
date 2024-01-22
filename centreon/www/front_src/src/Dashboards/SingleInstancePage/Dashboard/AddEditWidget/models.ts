@@ -68,8 +68,17 @@ export interface Metric extends NamedEntity {
   warningLowThreshold: number | null;
 }
 
+export interface FormMetric extends Metric {
+  excludedMetrics: Array<number>;
+  includeAllMetrics?: boolean;
+}
+
 export interface ServiceMetric extends NamedEntity {
+  id: number;
   metrics: Array<Metric>;
+  name: string;
+  parentName: string;
+  uuid: string;
 }
 
 export enum WidgetResourceType {
