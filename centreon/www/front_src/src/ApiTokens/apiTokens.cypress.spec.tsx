@@ -19,17 +19,22 @@ import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
+  deleteTokenEndpoint,
   listConfiguredUser,
   listTokensEndpoint
 } from './api/endpoints';
 import {
   labelCancel,
   labelCreateNewToken,
+  labelDelete,
+  labelDeleteToken,
   labelDuration,
   labelGenerateNewToken,
+  labelMsgConfirmationDeletionToken,
   labelName,
   labelSecurityToken,
   labelTokenCreated,
+  labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
 
@@ -442,5 +447,52 @@ describe('Api-token', () => {
     });
 
     cy.makeSnapshot();
+  });
+  it.only('deletes the token when clicking on Delete button', () => {
+    interceptListTokens({
+      alias: 'getListTokensPage2',
+      dataPath: 'apiTokens/listing/listPage2.json',
+      parameters: { ...DefaultParameters, page: 2 }
+    });
+
+    const deleteToken = deleteTokenEndpoint('k-token');
+    cy.interceptAPIRequest({
+      alias: 'deleteToken',
+      method: Method.DELETE,
+      path: `./api/latest${deleteToken}**`,
+      statusCode: 204
+    });
+    cy.findAllByTestId('DeleteIcon').eq(0).should('be.enabled').click();
+    cy.findByTestId('deleteDialog').within(() => {
+      cy.contains(labelDeleteToken);
+      cy.contains(labelMsgConfirmationDeletionToken);
+      cy.contains(labelCancel).should('be.enabled');
+      cy.contains(labelDelete).should('be.enabled').click();
+      cy.makeSnapshot('displays the modal when clicking the Delete icon');
+      cy.waitForRequest('@deleteToken');
+      cy.getRequestCalls('@deleteToken').then((calls) => {
+        expect(calls).to.have.length(1);
+      });
+    });
+    cy.contains(labelTokenDeletedSuccessfully);
+    cy.makeSnapshot('deletes the token when clicking the Delete icon');
+    cy.findAllByTestId('deleteDialog').should('not.exist');
+  });
+
+  it('hides the modal when clicking on Cancel button', () => {
+    interceptListTokens({
+      alias: 'getListTokensPage2',
+      dataPath: 'apiTokens/listing/listPage2.json',
+      parameters: { ...DefaultParameters, page: 2 }
+    });
+
+    cy.findAllByTestId('DeleteIcon').eq(0).should('be.enabled').click();
+    cy.findByTestId('deleteDialog').within(() => {
+      cy.contains(labelDeleteToken);
+      cy.contains(labelMsgConfirmationDeletionToken);
+      cy.contains(labelDelete).should('be.enabled');
+      cy.contains(labelCancel).should('be.enabled').click();
+    });
+    cy.findAllByTestId('deleteDialog').should('not.exist');
   });
 });

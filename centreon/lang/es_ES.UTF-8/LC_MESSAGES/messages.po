@@ -16774,7 +16774,7 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "'You are about to delete the token <b> Github </b>. This is an irreversible <br> action. If you process, all requests made with this token will be <br> rejected.Do you want to process anyway ?"
+# msgid "You are about to delete the token <b> Github </b>. This is an irreversible <br> action. If you process, all requests made with this token will be <br> rejected.Do you want to process anyway ?"
 # msgstr ""
 
 # msgid "Delete Token"
