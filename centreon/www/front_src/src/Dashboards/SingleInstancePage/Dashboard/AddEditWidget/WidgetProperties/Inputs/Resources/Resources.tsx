@@ -6,7 +6,11 @@ import { Divider, FormHelperText, Typography } from '@mui/material';
 import FilterIcon from '@mui/icons-material/Tune';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  SelectField,
+  SingleConnectedAutocompleteField
+} from '@centreon/ui';
 
 import {
   labelAddFilter,
@@ -44,7 +48,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getSearchField,
     error,
     deleteResourceItem,
-    getResourceStatic
+    getResourceStatic,
+    changeResource,
+    singleMetricSelection
   } = useResources(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -92,29 +98,55 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              <MultiConnectedAutocompleteField
-                allowUniqOption
-                chipProps={{
-                  color: 'primary',
-                  onDelete: (_, option): void =>
-                    deleteResourceItem({
-                      index,
-                      option,
-                      resources: resource.resources
-                    })
-                }}
-                className={classes.resources}
-                disabled={!canEditField || !resource.resourceType}
-                field={getSearchField(resource.resourceType)}
-                getEndpoint={getResourceResourceBaseEndpoint(
-                  resource.resourceType
-                )}
-                label={t(labelSelectAResource)}
-                limitTags={2}
-                queryKey={`${resource.resourceType}-${index}`}
-                value={resource.resources || []}
-                onChange={changeResources(index)}
-              />
+              {singleMetricSelection ? (
+                <SingleConnectedAutocompleteField
+                  allowUniqOption
+                  chipProps={{
+                    color: 'primary',
+                    onDelete: (_, option): void =>
+                      deleteResourceItem({
+                        index,
+                        option,
+                        resources: resource.resources
+                      })
+                  }}
+                  className={classes.resources}
+                  disabled={!canEditField || !resource.resourceType}
+                  field={getSearchField(resource.resourceType)}
+                  getEndpoint={getResourceResourceBaseEndpoint(
+                    resource.resourceType
+                  )}
+                  label={t(labelSelectAResource)}
+                  limitTags={2}
+                  queryKey={`${resource.resourceType}-${index}`}
+                  value={resource.resources[0] || undefined}
+                  onChange={changeResource(index)}
+                />
+              ) : (
+                <MultiConnectedAutocompleteField
+                  allowUniqOption
+                  chipProps={{
+                    color: 'primary',
+                    onDelete: (_, option): void =>
+                      deleteResourceItem({
+                        index,
+                        option,
+                        resources: resource.resources
+                      })
+                  }}
+                  className={classes.resources}
+                  disabled={!canEditField || !resource.resourceType}
+                  field={getSearchField(resource.resourceType)}
+                  getEndpoint={getResourceResourceBaseEndpoint(
+                    resource.resourceType
+                  )}
+                  label={t(labelSelectAResource)}
+                  limitTags={2}
+                  queryKey={`${resource.resourceType}-${index}`}
+                  value={resource.resources || []}
+                  onChange={changeResources(index)}
+                />
+              )}
             </ItemComposition.Item>
           ))}
         </ItemComposition>

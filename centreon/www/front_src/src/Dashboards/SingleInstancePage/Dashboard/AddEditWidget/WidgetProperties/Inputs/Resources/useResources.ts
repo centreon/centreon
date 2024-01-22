@@ -50,9 +50,10 @@ interface UseResourcesState {
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
-  getResourceStatic: (resourceType: string) => boolean | undefined;
+  getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
-  getSearchField: (resourceType: string) => string;
+  getSearchField: (resourceType: WidgetResourceType) => string;
+  singleMetricSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
 
@@ -259,6 +260,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
+    singleMetricSelection,
     value: value || []
   };
 };
