@@ -18572,3 +18572,9 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "You are about to delete the token Github. This is an irreversible action. If you process, all requests made with this token will be rejected.Do you want to process anyway ?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> GitHub </b>. Il s'agit d'une action irréversible. Si vous procédez, toutes les demandes effectuées avec ce jeton seront rejetées. Voulez-vous tout de même procéder ?"
+
+msgid "Delete Token"
+msgstr "Supprimer le jeton"

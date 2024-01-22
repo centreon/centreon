@@ -12,8 +12,8 @@ import {
 
 import { deleteTokenEndpoint } from '../../../api/endpoints';
 import {
+  labelCancel,
   labelDelete,
-  labelDeleteToken,
   labelMsgConfirmationDeletionToken,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
@@ -21,6 +21,7 @@ import useRefetch from '../../../useRefetch';
 import { clickedRowAtom } from '../../atoms';
 
 import { useStyles } from './deletion.styles';
+import Title from './Title';
 
 interface Meta {
   name: string;
@@ -65,11 +66,22 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
       cancelDisabled={isMutating || isRefetching}
       confirmDisabled={isMutating || isRefetching}
       data-testid="deleteDialog"
-      dialogConfirmButtonClassName={classes.confirmButton}
+      dialogTitleClassName={classes.title}
+      labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
       labelMessage={t(labelMsgConfirmationDeletionToken)}
-      labelTitle={t(labelDeleteToken)}
+      labelMessageProps={{
+        className: classes.labelMessage,
+        variant: 'subtitle1'
+      }}
+      labelTitle={<Title />}
       open={open}
+      restCancelButtonProps={{ variant: 'outlined' }}
+      restConfirmButtonProps={{
+        classes: { root: classes.confirmButton },
+        color: 'error',
+        variant: 'contained'
+      }}
       submitting={isMutating}
       onCancel={close}
       onConfirm={deleteToken}

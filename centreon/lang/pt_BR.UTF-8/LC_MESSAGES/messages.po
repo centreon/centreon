@@ -17239,3 +17239,9 @@ msgstr ""
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "You are about to delete the token Github. This is an irreversible action. If you process, all requests made with this token will be rejected.Do you want to process anyway ?"
+# msgstr ""
+
+# msgid "Delete Token"
+# msgstr ""
