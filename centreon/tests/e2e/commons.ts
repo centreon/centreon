@@ -49,10 +49,24 @@ const getStatusNumberFromString = (status: string): number => {
   throw new Error(`Status ${status} does not exist`);
 };
 
+const getStatusTypeNumberFromString = (statusType: string): number => {
+  const statusesType = {
+    hard: '1',
+    soft: '0'
+  };
+
+  if (statusType in statusesType) {
+    return statusesType[statusType];
+  }
+
+  throw new Error(`Status type ${statusType} does not exist`);
+};
+
 interface MonitoredHost {
   name: string;
   output?: string;
   status?: string;
+  statusType?: string;
 }
 
 const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
@@ -60,13 +74,18 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
 
   let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1 AND (';
   const conditions: Array<string> = [];
-  hosts.forEach(({ name, output = '', status = '' }) => {
+  hosts.forEach(({ name, output = '', status = '', statusType = '' }) => {
     let condition = `(h.name = '${name}'`;
     if (output !== '') {
       condition += ` AND h.output LIKE '%${output}%'`;
     }
     if (status !== '') {
       condition += ` AND h.state = ${getStatusNumberFromString(status)}`;
+    }
+    if (statusType !== '') {
+      condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
+        statusType
+      )}`;
     }
     condition += ')';
     conditions.push(condition);
@@ -112,6 +131,7 @@ interface MonitoredService {
   name: string;
   output?: string;
   status?: string;
+  statusType?: string;
 }
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
@@ -126,7 +146,8 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
       name,
       output = '',
       status = '',
-      inDowntime = null
+      inDowntime = null,
+      statusType = ''
     }) => {
       let condition = `(s.description = '${name}'`;
       if (output !== '') {
@@ -142,6 +163,11 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
         condition += ` AND s.scheduled_downtime_depth = ${
           inDowntime === true ? 1 : 0
         }`;
+      }
+      if (statusType !== '') {
+        condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
+          statusType
+        )}`;
       }
       condition += ')';
       conditions.push(condition);
