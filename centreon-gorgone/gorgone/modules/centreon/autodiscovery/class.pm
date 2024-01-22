@@ -1128,7 +1128,7 @@ sub event {
 }
 
 sub periodic_exec {
-    $connector->is_module_installed();
+#    $connector->is_module_installed();
     $connector->hdisco_sync();
 
     if ($connector->{stop} == 1) {

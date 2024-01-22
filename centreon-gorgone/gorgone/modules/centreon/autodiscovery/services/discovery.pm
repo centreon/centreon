@@ -20,7 +20,7 @@
 
 package gorgone::modules::centreon::autodiscovery::services::discovery;
 
-use base qw(gorgone::class::module);
+use base qw(gorgone::modules::centreon::autodiscovery::class);
 
 use strict;
 use warnings;
@@ -696,6 +696,7 @@ sub discoverylistener {
     if ($div > $self->{discovery}->{progress_div}) {
         $self->{discovery}->{progress_div} = $div;
         $self->send_log(
+            no_event_call => 1,
             code => GORGONE_MODULE_CENTREON_AUTODISCO_SVC_PROGRESS,
             token => $self->{discovery}->{token},
             instant => 1,
@@ -712,6 +713,7 @@ sub discoverylistener {
         $self->{finished} = 1;
 
         $self->send_log(
+            no_event_call => 1,
             code => GORGONE_ACTION_FINISH_OK,
             token => $self->{discovery}->{token},
             data => {
@@ -795,7 +797,14 @@ sub service_execute_commands {
         }
     }
 }
-
+sub send_log_msg_error_no_event {
+    my $self = shift;
+    $self->send_log_msg_error(
+            no_event_call => 1,
+            subname => 'servicediscovery',
+            @_
+        );
+}
 sub launchdiscovery {
     my ($self, %options) = @_;
 
@@ -805,6 +814,7 @@ sub launchdiscovery {
 
     $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} discovery start");
     $self->send_log(
+        no_event_call => $options{no_event_call},
         code => GORGONE_ACTION_BEGIN,
         token => $options{token},
         data => { message => 'servicediscovery start' }
@@ -818,7 +828,11 @@ sub launchdiscovery {
         class_object_centreon => $self->{class_object_centreon}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        $self->send_log_msg_error_no_event(
+            token => $options{token},
+            number => $self->{uuid},
+            message => $message
+        );
         return -1;
     }
     $self->{service_pollers} = $pollers;
@@ -832,12 +846,12 @@ sub launchdiscovery {
         class_object_centstorage => $self->{class_object_centstorage}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => $message);
         return -1;
     }
 
     if (!defined($self->{tpapi_clapi}->get_username())) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => 'clapi ' . $self->{tpapi_clapi}->error());
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => 'clapi ' . $self->{tpapi_clapi}->error());
         return -1;
     }
     ($status, $message, my $user_id) = gorgone::modules::centreon::autodiscovery::services::resources::get_audit_user_id(
@@ -845,7 +859,7 @@ sub launchdiscovery {
         clapi_user => $self->{tpapi_clapi}->get_username()
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => $message);
         return -1;
     }
     $self->{audit_user_id} = $user_id;
@@ -857,7 +871,7 @@ sub launchdiscovery {
         class_object_centreon => $self->{class_object_centreon}
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => $message);
         return -1;
     }
 
@@ -872,7 +886,7 @@ sub launchdiscovery {
         force_rule => (defined($data->{content}->{force_rule}) && $data->{content}->{force_rule} =~ /^1$/) ? 1 : 0
     );
     if ($status < 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => $message);
         return -1;
     }
 
@@ -893,7 +907,7 @@ sub launchdiscovery {
             vault_count => $vault_count
         );
         if ($status < 0) {
-            $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+            $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => $message);
             return -1;
         }
         
@@ -915,7 +929,7 @@ sub launchdiscovery {
     }
 
     if ($total == 0) {
-        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => 'no hosts found');
+        $self->send_log_msg_error_no_event(token => $options{token}, number => $self->{uuid}, message => 'no hosts found');
         return -1;
     }
 

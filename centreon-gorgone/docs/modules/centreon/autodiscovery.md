@@ -316,3 +316,28 @@ curl --request POST "https://hostname:8443/api/centreon/autodiscovery/services" 
     \"dry_run\": 1
 }"
 ```
+
+### Developer manual
+
+This module heavily use the gorgone-action module to work.
+here is a diagram of how these module interact : 
+
+![image](./centreon-gorgone-autodiscovery-archi.png)
+
+
+dotted line mean a ZMQ message is send, direct line mean the function is called normally.
+
+Each column represent a linux thread, as Gorgone is multi-threaded.
+
+For each ZMQ message, names are described in the [events section](#events) of each module,
+and for putlog the second part is the 'code' used by gorgone-autodiscovery 
+and defined as constant in the [class.pm](../../../gorgone/modules/centreon/autodiscovery/class.pm) file
+
+
+
+
+s
+
+s
+
+s
