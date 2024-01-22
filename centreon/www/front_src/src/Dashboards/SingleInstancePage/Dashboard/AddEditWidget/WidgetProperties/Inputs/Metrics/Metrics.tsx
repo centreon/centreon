@@ -44,7 +44,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getOptionLabel,
     changeMetrics,
     getMetricOptionDisabled,
-    getMultipleOptionLabel,
     deleteMetricItem,
     error,
     isTouched,
@@ -125,7 +124,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
-            getTagLabel={getMultipleOptionLabel}
+            getTagLabel={getOptionLabel}
             label={t(labelSelectMetric)}
             options={metrics}
             value={selectedMetrics || []}

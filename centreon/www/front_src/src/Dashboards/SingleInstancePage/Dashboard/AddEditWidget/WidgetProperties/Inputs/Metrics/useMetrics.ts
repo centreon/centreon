@@ -29,7 +29,6 @@ interface UseMetricsOnlyState {
   deleteMetricItem: (index) => void;
   error?: string;
   getMetricOptionDisabled: (metricOption) => boolean;
-  getMultipleOptionLabel: (metric) => string;
   getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
   hasReachedTheLimitOfUnits: boolean;
@@ -116,17 +115,16 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       return '';
     }
 
-    return `${metric.name} (${metric.unit}) / ${t(labelIncludesXHost, {
-      count: getNumberOfResourcesRelatedToTheMetric(metric.name)
-    })}`;
+    return `${metric.name} (${metric.unit})`;
   };
 
   const getNumberOfResourcesRelatedToTheMetric = (metricName: string): number =>
     (servicesMetrics?.result || []).reduce(
       (acc, service) =>
         acc +
-        service.metrics.filter((metric) => equals(metric.name, metricName))
-          .length,
+        (service.metrics.find((metric) => equals(metric.name, metricName))
+          ? 1
+          : 0),
       0
     );
 
@@ -140,16 +138,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     return (servicesMetrics?.result || []).filter((service) =>
       service.metrics.filter((metric) => equals(metric.name, metricName))
     )[0].name;
-  };
-
-  const getMultipleOptionLabel = (metric): string => {
-    if (isNil(metric)) {
-      return '';
-    }
-
-    return `${metric.name} (${
-      metric.unit
-    }) / ${getNumberOfResourcesRelatedToTheMetric(metric.name)}`;
   };
 
   const metricWithSeveralResources =
@@ -171,12 +159,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         return;
       }
 
-      const baseMetricIds = pluck('id', metrics);
+      const baseMetricNames = pluck('name', metrics);
 
       const intersectionBetweenMetricsIdsAndValues = innerJoin(
-        (metric, id) => equals(metric.id, id),
+        (metric, name) => equals(metric.name, name),
         value || [],
-        baseMetricIds
+        baseMetricNames
       );
 
       setFieldValue(
@@ -195,7 +183,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     deleteMetricItem,
     error,
     getMetricOptionDisabled,
-    getMultipleOptionLabel,
     getOptionLabel,
     hasNoResources,
     hasReachedTheLimitOfUnits,
