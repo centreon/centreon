@@ -13,7 +13,7 @@ on:
       dependencies_lock_file:
         required: true
         type: string
-        description: "The frontend dependencies lock file path"
+        description: 'The frontend dependencies lock file path'
 
 jobs:
   cypress-component-test-list:
@@ -166,9 +166,9 @@ jobs:
 
       - name: Merging Artifacts
         uses: ./.github/actions/merge-artifacts
+        if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
         with:
           target_name: ${{ inputs.name }}-${{ matrix.type_of_report }}
           source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
           source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
-          condition: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -10,9 +10,6 @@ inputs:
   source_name_pattern:
     description: "Artifact's pattern to be merged"
     required: true
-  condition:
-    description: "The run depends on this condition"
-    required: true
   github_token:
     description: "The Github Token to use"
     required: true
