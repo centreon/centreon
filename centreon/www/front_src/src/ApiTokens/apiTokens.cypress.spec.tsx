@@ -462,7 +462,11 @@ describe('Api-token', () => {
       path: `./api/latest${deleteToken}**`,
       statusCode: 204
     });
-    cy.findAllByTestId('DeleteIcon').eq(0).should('be.enabled').click();
+    cy.findAllByTestId('DeleteIcon')
+      .eq(0)
+      .parent()
+      .should('be.enabled')
+      .click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(labelMsgConfirmationDeletionToken);
@@ -486,7 +490,11 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, page: 2 }
     });
 
-    cy.findAllByTestId('DeleteIcon').eq(0).should('be.enabled').click();
+    cy.findAllByTestId('DeleteIcon')
+      .eq(0)
+      .parent()
+      .should('be.enabled')
+      .click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(labelMsgConfirmationDeletionToken);
