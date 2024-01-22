@@ -86,7 +86,7 @@ const DatasetFilter = ({
                   })
               }}
               className={classes.resources}
-              dataTestId={`${labelSelectResource}`}
+              dataTestId={labelSelectResource}
               disabled={!resource.resourceType}
               field={getSearchField(resource.resourceType)}
               getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
