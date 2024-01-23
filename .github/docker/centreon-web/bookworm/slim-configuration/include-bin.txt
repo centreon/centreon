@@ -1,0 +1,6 @@
+/lib/x86_64-linux-gnu/libprocps.so.8
+/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
+/usr/lib/x86_64-linux-gnu/libbrotlienc.so.1
+/usr/lib/x86_64-linux-gnu/libbrotlienc.so.1.0.9
+/usr/lib/x86_64-linux-gnu/liblua5.3.so.0
+/usr/lib/x86_64-linux-gnu/libldap-2.4.so.2
