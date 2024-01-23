@@ -5,6 +5,56 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 var globalResourceType = '';
 var globalContactSettings = '';
 
+const hostGroups = {
+  hostGroup1: {
+    name: 'host_group_1'
+  },
+  hostGroup2: {
+    name: 'host_group_2'
+  }
+};
+
+const services = {
+  service1: {
+    name: 'service_1'
+  },
+  service2: {
+    name: 'service_2'
+  }
+};
+
+const hosts = {
+  host1: {
+    name: 'host_1',
+    hostGroup: hostGroups.hostGroup1.name
+  },
+  host2: {
+    name: 'host_2',
+    hostGroup: hostGroups.hostGroup1.name
+  },
+  host3: {
+    name: 'host_3',
+    hostGroup: hostGroups.hostGroup2.name
+  },
+  host4: {
+    name: 'host_4',
+    hostGroup: hostGroups.hostGroup2.name
+  }
+};
+
+const contacts = {
+  contact1: {
+    name: 'contact_1',
+    email: 'contact1@localhost',
+    password: 'myPassword@1'
+  },
+  contact2: {
+    name: 'contact_2',
+    email: 'contact2@localhost',
+    password: 'myPassword@2'
+  }
+};
+
 before(() => {
   cy.startWebContainer();
   enableNotificationFeature();
@@ -48,16 +98,16 @@ Given(
     switch (contactSettings) {
       case 'a single contact':
         cy.addContact({
-          name: 'contact_1',
-          email: 'contact1@localhost',
-          password: 'myPassword@1'
+          name: contacts.contact1.name,
+          email: contacts.contact1.email,
+          password: contacts.contact1.password
         });
         break;
       case 'two contacts':
         cy.addContact({
-          name: 'contact_2',
-          email: 'contact2@localhost',
-          password: 'myPassword@2'
+          name: contacts.contact2.name,
+          email: contacts.contact2.email,
+          password: contacts.contact2.password
         });
         break;
     }
@@ -65,52 +115,52 @@ Given(
     switch (resourceType) {
       case 'host group':
         cy.addHostGroup({
-          name: 'host_group_1'
+          name: hostGroups.hostGroup1.name
         });
 
         cy.addHost({
           activeCheckEnabled: false,
           checkCommand: 'check_centreon_cpu',
-          hostGroup: 'host_group_1',
-          name: 'host_1',
+          hostGroup: hostGroups.hostGroup1.name,
+          name: hosts.host1.name,
           template: 'generic-host'
         }).applyPollerConfiguration();
 
         cy.addHost({
           activeCheckEnabled: false,
           checkCommand: 'check_centreon_cpu',
-          hostGroup: 'host_group_1',
-          name: 'host_2',
+          hostGroup: hostGroups.hostGroup1.name,
+          name: hosts.host2.name,
           template: 'generic-host'
         }).applyPollerConfiguration();
 
         checkHostsAreMonitored([
           {
-            name: 'host_1'
+            name: hosts.host1.name
           },
           {
-            name: 'host_2'
+            name: hosts.host2.name
           }
         ]);
         break;
 
       case 'host group and services for these hosts':
         cy.addHostGroup({
-          name: 'host_group_2'
+          name: hostGroups.hostGroup2.name
         });
 
         cy.addHost({
           activeCheckEnabled: false,
           checkCommand: 'check_centreon_cpu',
-          hostGroup: 'host_group_2',
-          name: 'host_3',
+          hostGroup: hostGroups.hostGroup2.name,
+          name: hosts.host3.name,
           template: 'generic-host'
         })
           .addService({
             activeCheckEnabled: false,
-            host: 'host_3',
+            host: hosts.host3.name,
             maxCheckAttempts: 1,
-            name: 'service_1',
+            name: services.service1.name,
             template: 'Ping-LAN'
           })
           .applyPollerConfiguration();
@@ -118,13 +168,13 @@ Given(
         cy.addHost({
           activeCheckEnabled: false,
           checkCommand: 'check_centreon_cpu',
-          hostGroup: 'host_group_2',
-          name: 'host_4',
+          hostGroup: hostGroups.hostGroup2.name,
+          name: hosts.host4.name,
           template: 'generic-host'
         })
           .addService({
             activeCheckEnabled: false,
-            host: 'host_4',
+            host: hosts.host4.name,
             maxCheckAttempts: 1,
             name: 'service_2',
             template: 'Ping-LAN'
@@ -133,19 +183,19 @@ Given(
 
         checkHostsAreMonitored([
           {
-            name: 'host_3'
+            name: hosts.host3.name
           },
           {
-            name: 'host_4'
+            name: hosts.host4.name
           }
         ]);
 
         checkServicesAreMonitored([
           {
-            name: 'service_1'
+            name: services.service1.name
           },
           {
-            name: 'service_2'
+            name: services.service2.name
           }
         ]);
         break;
@@ -168,27 +218,18 @@ When(
     switch (resourceType) {
       case 'host group':
         cy.get('#Searchhostgroups').click();
-        cy.contains('host_group_1').click();
+        cy.contains(hostGroups.hostGroup1.name).click();
         cy.get('#Recovery').click();
         cy.get('#Down').click();
         cy.get('#Unreachable').click();
         break;
       case 'host group and services for these hosts':
         cy.get('#Searchhostgroups').click();
-        cy.contains('host_group_2').click();
+        cy.contains(hostGroups.hostGroup2.name).click();
         cy.contains('Include services for these hosts').click({ force: true });
-        cy.get(
-          '[data-testid="Extra events services"] > :nth-child(1) > .MuiFormControlLabel-root'
-        ).click();
-        cy.get(
-          '[data-testid="Extra events services"] > :nth-child(2) > .MuiFormControlLabel-root'
-        ).click();
-        cy.get(
-          '[data-testid="Extra events services"] > :nth-child(3) > .MuiFormControlLabel-root'
-        ).click();
-        cy.get(
-          '[data-testid="Extra events services"] > :nth-child(4) > .MuiFormControlLabel-root'
-        ).click();
+        cy.get('[data-testid="Extra events services"] >').each(($el) => {
+          cy.wrap($el).click();
+        });
         break;
     }
   }
@@ -198,12 +239,12 @@ When('the user selects the {string}', (contactSettings: string) => {
   switch (contactSettings) {
     case 'a single contact':
       cy.get('#Searchcontacts').click();
-      cy.contains('contact_1').click();
+      cy.contains(contacts.contact1.name).click();
       break;
     case 'two contacts':
       cy.get('#Searchcontacts').click();
-      cy.contains('contact_1').click();
-      cy.contains('contact_2').click();
+      cy.contains(contacts.contact1.name).click();
+      cy.contains(contacts.contact2.name).click();
       break;
   }
 });
@@ -250,12 +291,12 @@ When(
       case 'host group':
         cy.submitResults([
           {
-            host: 'host_1',
+            host: hosts.host1.name,
             output: 'submit_status_1',
             status: 'down'
           },
           {
-            host: 'host_2',
+            host: hosts.host2.name,
             output: 'submit_status_1',
             status: 'down'
           }
@@ -263,7 +304,7 @@ When(
 
         checkHostsAreMonitored([
           {
-            name: 'host_1',
+            name: hosts.host1.name,
             status: 'down'
           },
           {
@@ -275,26 +316,26 @@ When(
       case 'host group and services for these hosts':
         cy.submitResults([
           {
-            host: 'host_3',
+            host: hosts.host3.name,
             output: 'submit_status_2',
-            service: 'service_1',
+            service: services.service1.name,
             status: 'critical'
           },
           {
-            host: 'host_4',
+            host: hosts.host4.name,
             output: 'submit_status_2',
-            service: 'service_2',
+            service: services.service2.name,
             status: 'critical'
           }
         ]);
 
         checkServicesAreMonitored([
           {
-            name: 'service_1',
+            name: services.service1.name,
             status: 'critical'
           },
           {
-            name: 'service_2',
+            name: services.service2.name,
             status: 'critical'
           }
         ]);
@@ -308,12 +349,12 @@ When('the hard state has been reached', () => {
     case 'host group':
       checkHostsAreMonitored([
         {
-          name: 'host_1',
+          name: hosts.host1.name,
           status: 'down',
           statusType: 'hard'
         },
         {
-          name: 'host_2',
+          name: hosts.host2.name,
           status: 'down',
           statusType: 'hard'
         }
@@ -322,12 +363,12 @@ When('the hard state has been reached', () => {
     case 'host group and services for these hosts':
       checkServicesAreMonitored([
         {
-          name: 'service_1',
+          name: services.service1.name,
           status: 'critical',
           statusType: 'hard'
         },
         {
-          name: 'service_2',
+          name: services.service2.name,
           status: 'critical',
           statusType: 'hard'
         }
