@@ -9,6 +9,7 @@ import {
   gte,
   head,
   identity,
+  includes,
   isEmpty,
   isNil,
   length,
@@ -190,7 +191,9 @@ export const getResourcesUrl = ({
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
             return subResources.map(({ name: resourceName }) => ({
-              id: `\\b${resourceName}\\b`,
+              id: includes(resourceName, ['name', 'parent_name'])
+                ? `\\b${resourceName}\\b`
+                : resourceName,
               name: resourceName
             }));
           })
