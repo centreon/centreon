@@ -226,7 +226,8 @@ When(
       case 'host group and services for these hosts':
         cy.get('#Searchhostgroups').click();
         cy.contains(hostGroups.hostGroup2.name).click();
-        cy.contains('Include services for these hosts').click({ force: true });
+        cy.get('#Searchhostgroups').blur();
+        cy.contains('Include services for these hosts').click();
         cy.get('[data-testid="Extra events services"] >').each(($el) => {
           cy.wrap($el).click();
         });
