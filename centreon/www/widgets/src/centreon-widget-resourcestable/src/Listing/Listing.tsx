@@ -4,10 +4,12 @@ import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
+import { Resource } from '../../../models';
+
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
 import { defaultSelectedColumnIds } from './Columns';
-import { DisplayType, Resource, SortOrder } from './models';
+import { DisplayType, SortOrder } from './models';
 
 interface ListingProps {
   displayType: DisplayType;
@@ -16,7 +18,7 @@ interface ListingProps {
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
   selectedColumnIds?: Array<string>;
-  setPanelOptions: (field, value) => void;
+  setPanelOptions?: (field, value) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;

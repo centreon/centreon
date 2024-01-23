@@ -29,7 +29,7 @@ interface UseListingProps {
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
-  setPanelOptions: (field, value) => void;
+  setPanelOptions?: (field, value) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;

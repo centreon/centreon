@@ -1,6 +1,6 @@
-import { GlobalRefreshInterval } from '../../models';
+import { GlobalRefreshInterval, Resource } from '../../models';
 
-import { DisplayType, Resource, SortOrder } from './Listing/models';
+import { DisplayType, SortOrder } from './Listing/models';
 
 export interface Data {
   resources: Array<Resource>;
@@ -23,5 +23,5 @@ export interface ResourcesTableProps {
   panelData: Data;
   panelOptions: PanelOptions;
   refreshCount: number;
-  setPanelOptions: (panelOptions: PanelOptions) => void;
+  setPanelOptions?: (panelOptions: PanelOptions) => void;
 }
