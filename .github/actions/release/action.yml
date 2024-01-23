@@ -17,7 +17,7 @@ runs:
     - name: Checkout sources
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-    - name: Get released versions
+    - name: Get released versions for components
       run: |
         set -eux
         COMPONENTS_RELEASED=()
@@ -52,16 +52,6 @@ runs:
         # re use the part from check version ??
         # or use the check-version action after turning this release action into a real workflow ?
 
-        # Add new stable tags to stable branch
-        git config --global user.email "release@centreon.com"
-        git config --global user.name "Centreon"
-
-        for tag in ${NEW_STABLE_TAGS[@]}; do
-          git tag -a "$tag" -m "version $tag"
-          git push --follow-tags
-          echo "Tagging branch with $tag."
-        done
-
         # Create new JIRA versions (old way of doing it)
         # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
 
@@ -77,11 +67,16 @@ runs:
 
     - name: Add new release tags to stable branch
       run: |
+        # Add new stable tags to stable branch
+        git config --global user.email "release@centreon.com"
+        git config --global user.name "Centreon"
+
         # Create release tags on git for each release components
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
+            echo "::notice::Tagging branch with $tag."
           else
             echo "::error::Release tag $TAG already exists, exiting."
             exit 1
@@ -110,9 +105,30 @@ runs:
     - name: Create stable JIRA versions from new release tags
       run: |
         set -eux
-        # Fetch ID of release JIRA issue
 
         # Call JIRA to provide new jira versions to create
+        # Webhook url
+        JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
+
+        # Build JSON structure with released versions
+        RELEASE_JSON=$(jq -nc '{componentList: $ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+
+        # Create new JIRA versions (old way of doing it)
+        # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
+
+        JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+        curl --fail --request POST \
+          --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          --header 'Accept: application/json' \
+          --header 'Content-Type: application/json' \
+          --data ''$VERSION_DATA''
+
+      shell: bash
+
+    - name: Trigger release communication for new releases
+      run: |
+        set -eux
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
@@ -126,10 +142,5 @@ runs:
           -X POST \
           -H 'Content-type: application/json' \
           --data $RELEASE_JSON
-      shell: bash
-
-    - name: Trigger release communication for new releases
-      run: |
-
 
       shell: bash
