@@ -142,6 +142,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   ): boolean | undefined => {
     return (
       singleMetricSelection &&
+      singleHostPerMetric &&
       (equals(resourceType, WidgetResourceType.host) ||
         equals(resourceType, WidgetResourceType.service))
     );

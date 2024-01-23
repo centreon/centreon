@@ -60,7 +60,7 @@ const TopBottom = ({
         <MetricTop
           displayAsRaw={equals('raw', valueFormat)}
           index={index}
-          key={metricTop.name}
+          key={`${metricTop.name}_${metricTop.id}`}
           metricTop={metricTop}
           showLabels={topBottomSettings.showLabels}
           thresholds={threshold}
