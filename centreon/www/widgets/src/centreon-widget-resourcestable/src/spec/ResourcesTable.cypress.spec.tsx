@@ -95,9 +95,7 @@ const verifyListingRows = (): void => {
 };
 
 describe('View by all', () => {
-  beforeEach(() => {
-    resourcesRequests();
-  });
+  beforeEach(resourcesRequests);
 
   it('retrieves resources', () => {
     render({ data: { resources }, options: resourcesOptions });
