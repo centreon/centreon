@@ -47,5 +47,12 @@ tags:
   - name: Resource Access Management
 paths:
   /administration/resource-access/rules:
-    $ref: "./latest/Cloud/ResourceAccessManagement/AddAndFindRules.yaml"
-
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/AddAndFindRules.yaml"
+  /configuration/hosts:
+    $ref: './latest/Cloud/Configuration/Host/AddAndFindHosts.yaml'
+  /configuration/hosts/{host_id}:
+    $ref: './latest/Cloud/Configuration/Host/PartialUpdateHost.yaml'
+  /configuration/hosts/templates:
+    $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
+  /configuration/hosts/templates/{host_template_id}:
+    $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
