@@ -67,7 +67,6 @@ const CriteriasContent = ({
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
-  const [isUpdatingFilter, setIsUpdatingFilter] = useState(false);
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
   const canOpenPopover = isNil(hoveredNavigationItem);
@@ -123,10 +122,6 @@ const CriteriasContent = ({
     setIsCreatingFilter(boolean);
   };
 
-  const getIsUpdateFilter = (boolean: boolean): void => {
-    setIsUpdatingFilter(boolean);
-  };
-
   const getPopoverData = (data: PopoverData): void => {
     const { anchorEl } = data;
     if (anchorEl) {
@@ -179,7 +174,6 @@ const CriteriasContent = ({
                         canSaveFilterAsNew={canSaveFilterAsNew}
                         closePopover={closePopover}
                         getIsCreateFilter={getIsCreateFilter}
-                        getIsUpdateFilter={getIsUpdateFilter}
                       />
                     }
                     onClear={clearFilters}
@@ -199,7 +193,6 @@ const CriteriasContent = ({
 
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
-        dataUpdateFilter={{ isUpdatingFilter, setIsUpdatingFilter }}
         loadFiltersAndUpdateCurrent={loadFiltersAndUpdateCurrent}
       />
     </>

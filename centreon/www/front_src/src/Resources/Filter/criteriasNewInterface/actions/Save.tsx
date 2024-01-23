@@ -1,18 +1,19 @@
-import { equals, isEmpty, omit, propEq, reject } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, isEmpty, omit, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import Button from '@mui/material/Button';
-import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import Button from '@mui/material/Button';
 
+import { Criteria } from '../../Criterias/models';
+import useActionFilter from '../../Edit/EditButton/useActionFilter';
 import { currentFilterAtom, customFiltersAtom } from '../../filterAtoms';
 import {
   allFilter,
   resourceProblemsFilter,
   unhandledProblemsFilter
 } from '../../models';
-import { Criteria } from '../../Criterias/models';
 import { labelSaveAs, labelUpdate } from '../translatedLabels';
 
 interface Save {
@@ -20,7 +21,6 @@ interface Save {
   canSaveFilterAsNew: boolean;
   closePopover?: () => void;
   getIsCreateFilter: (value: boolean) => void;
-  getIsUpdateFilter: (value: boolean) => void;
 }
 
 const getSelectableCriterias = (
@@ -35,13 +35,13 @@ const Save = ({
   canSaveFilterAsNew,
   canSaveFilter,
   getIsCreateFilter,
-  getIsUpdateFilter,
   closePopover
 }: Save): JSX.Element => {
   const { t } = useTranslation();
 
   const currentFilter = useAtomValue(currentFilterAtom);
   const customFilters = useAtomValue(customFiltersAtom);
+  const { updateFilter } = useActionFilter();
 
   const baseFilters = [
     unhandledProblemsFilter,
@@ -70,7 +70,7 @@ const Save = ({
   };
 
   const saveAs = (): void => {
-    getIsUpdateFilter(true);
+    updateFilter();
     closePopover?.();
   };
 
