@@ -1,6 +1,6 @@
 {
   "contactgroups": [],
-  "is_activated": true,
+  "is_activated": false,
   "messages": [
     {
       "channel": "Email",

@@ -19,10 +19,10 @@ Feature: Editing Notification Rule configuration
 
   Scenario Outline: Editing a Notification Rule users configuration
     When the user selects the edit action on a Notification Rule
-    And the user changes the <user_type> configuration
+    And the user changes the '<user_type>' configuration
     And the user saves to confirm the changes
     And the notification refresh delay has been reached
-    Then the notifications for status changes are sent only to the updated <user_type>
+    Then the notifications for status changes are sent only to the updated '<user_type>'
 
     Examples:
       | user_type      |
@@ -30,9 +30,9 @@ Feature: Editing Notification Rule configuration
       | contact groups |
 
   Scenario Outline: Toggling Notification Rule status on listing
-    When the user selects the <action> action on a Notification Rule line
+    When the user selects the '<action>' action on a Notification Rule line
     And the notification refresh delay has been reached
-    Then <prefix> notification is sent for this rule once
+    Then '<prefix>' notification is sent for this rule once
 
     Examples:
       | action  | prefix  |
@@ -41,7 +41,7 @@ Feature: Editing Notification Rule configuration
 
   Scenario Outline: Toggling Notification Rule status on edition
     When the user selects the edit action on a Notification Rule
-    And the user <action> the Notification Rule
+    And the user '<action>' the Notification Rule
     And the user saves to confirm the changes
     And the notification refresh delay has been reached
     Then only notifications for status changes of the updated resource parameters are sent

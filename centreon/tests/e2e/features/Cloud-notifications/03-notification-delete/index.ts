@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-delete.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 
 beforeEach(() => {
   cy.startWebContainer();

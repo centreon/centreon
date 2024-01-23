@@ -17,4 +17,16 @@ const createNotification = (body): Cypress.Chainable => {
     });
 };
 
-export { enableNotificationFeature, createNotification };
+const editNotification = (body): Cypress.Chainable => {
+  return cy
+    .request({
+      method: 'PUT',
+      url: 'centreon/api/latest/configuration/notifications/1',
+      body: body
+    })
+    .then((response) => {
+      cy.wrap(response);
+    });
+};
+
+export { enableNotificationFeature, createNotification, editNotification };
