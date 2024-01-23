@@ -14,7 +14,7 @@ Feature:
     CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;1;1;en_US;local
     """
 
-    When I send a GET request to '/api/v22.04/configuration/users?search={"alias":"kev"}'
+    When I send a GET request to '/api/latest/configuration/users?search={"alias":"kev"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -22,8 +22,8 @@ Feature:
         "result": [
             {
                 "id": 20,
-                "alias": "kev",
                 "name": "kev",
+                "alias": "kev",
                 "email": "kev@localhost",
                 "is_admin": true
             }
@@ -41,4 +41,3 @@ Feature:
         }
     }
     """
-
