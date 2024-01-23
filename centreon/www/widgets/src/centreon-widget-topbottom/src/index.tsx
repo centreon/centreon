@@ -2,9 +2,9 @@ import { createStore } from 'jotai';
 
 import { Module } from '@centreon/ui';
 
-import { FormThreshold, GlobalRefreshInterval } from '../../models';
+import { Data, FormThreshold, GlobalRefreshInterval } from '../../models';
 
-import { Data, ValueFormat, TopBottomSettings } from './models';
+import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
 
 interface Props {

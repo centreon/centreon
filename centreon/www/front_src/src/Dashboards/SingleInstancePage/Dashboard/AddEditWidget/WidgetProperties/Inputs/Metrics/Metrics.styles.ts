@@ -1,11 +1,14 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useMetricsStyles = makeStyles()((theme) => ({
+  listBox: {
+    maxHeight: '280px'
+  },
   radioCheckbox: {
     padding: theme.spacing(0.5)
   },
   resourceOption: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderTop: `1px solid ${theme.palette.divider}`,
     padding: theme.spacing(1, 0, 1, 6)
   },
   resourcesOptionContainer: {

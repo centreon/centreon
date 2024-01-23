@@ -1,10 +1,3 @@
-import { NewMetric, Resource } from '../../models';
-
-export interface Data {
-  metrics: Array<NewMetric>;
-  resources: Array<Resource>;
-}
-
 export interface FormThreshold {
   baseColor?: string;
   criticalType: 'default' | 'custom';

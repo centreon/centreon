@@ -7,10 +7,10 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import { GlobalRefreshInterval, Metric } from '../../models';
+import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 
 import { metricsTopEndpoint } from './api/endpoint';
-import { MetricsTop, TopBottomSettings, WidgetDataResource } from './models';
+import { MetricsTop, TopBottomSettings } from './models';
 import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
@@ -19,7 +19,7 @@ interface UseTopBottomProps {
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
-  resources: Array<WidgetDataResource>;
+  resources: Array<Resource>;
   topBottomSettings: TopBottomSettings;
 }
 
@@ -28,9 +28,7 @@ interface UseTopBottomState {
   metricsTop?: MetricsTop;
 }
 
-export const areResourcesFullfilled = (
-  value: Array<WidgetDataResource>
-): boolean =>
+export const areResourcesFullfilled = (value: Array<Resource>): boolean =>
   value?.every(
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
@@ -85,7 +83,6 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled: areResourcesFullfilled(resources) && !!metricName,
-      keepPreviousData: true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }

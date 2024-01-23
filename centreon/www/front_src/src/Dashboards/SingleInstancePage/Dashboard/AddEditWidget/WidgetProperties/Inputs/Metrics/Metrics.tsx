@@ -30,10 +30,12 @@ import {
 } from '../../../atoms';
 
 import useMetrics from './useMetrics';
+import { useMetricsStyles } from './Metrics.styles';
 
 const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
+  const { classes: metricsClasses } = useMetricsStyles();
   const { t } = useTranslation();
 
   const {
@@ -45,13 +47,15 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     resources,
     selectedMetrics,
     getOptionLabel,
+    getTagLabel,
     getMetricOptionDisabled,
     deleteMetricItem,
     error,
     isTouched,
     hasReachedTheLimitOfUnits,
     metricWithSeveralResources,
-    renderOptionsForSingleMetric
+    renderOptionsForSingleMetric,
+    renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
   const { canEditField } = editProperties.useCanEditProperties();
@@ -117,6 +121,9 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         ) : (
           <MultiAutocompleteField
             disableSortedOptions
+            ListboxProps={{
+              className: metricsClasses.listBox
+            }}
             chipProps={{
               color: 'primary',
               onDelete: (_, option): void => deleteMetricItem(option)
@@ -128,11 +135,13 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
-            getTagLabel={getOptionLabel}
+            getTagLabel={getTagLabel}
             label={t(labelSelectMetric)}
             options={metrics}
             renderOption={
-              singleMetricSelection ? renderOptionsForSingleMetric : undefined
+              singleMetricSelection
+                ? renderOptionsForSingleMetric
+                : renderOptionsForMultipleMetricsAndResources
             }
             value={selectedMetrics || []}
             onChange={(event) => {

@@ -13,7 +13,6 @@ import {
   propEq,
   reject
 } from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
@@ -37,7 +36,8 @@ interface UseMetricsOnlyState {
   deleteMetricItem: (index) => void;
   error?: string;
   getMetricOptionDisabled: (metricOption) => boolean;
-  getOptionLabel: (metric) => string;
+  getOptionLabel: (metric: FormMetric) => string;
+  getTagLabel: (metric: FormMetric) => string;
   hasNoResources: () => boolean;
   hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
@@ -46,14 +46,16 @@ interface UseMetricsOnlyState {
   metricCount?: number;
   metricWithSeveralResources?: false | string;
   metrics: Array<Metric>;
-  renderOptionsForSingleMetric: (props, option) => JSX.Element;
+  renderOptionsForMultipleMetricsAndResources: (
+    _,
+    option: FormMetric
+  ) => JSX.Element;
+  renderOptionsForSingleMetric: (_, option: FormMetric) => JSX.Element;
   resources: Array<WidgetDataResource>;
   selectedMetrics?: Array<Metric>;
 }
 
 const useMetrics = (propertyName: string): UseMetricsOnlyState => {
-  const { t } = useTranslation();
-
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<Widget>();
 
@@ -107,7 +109,10 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     >;
   };
 
-  const { renderOptionsForSingleMetric } = useRenderOptions({
+  const {
+    renderOptionsForSingleMetric,
+    renderOptionsForMultipleMetricsAndResources
+  } = useRenderOptions({
     getResourcesByMetricName,
     propertyName,
     value: value || []
@@ -152,7 +157,22 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     return resources.every((resource) => !resource.resources.length);
   };
 
-  const getOptionLabel = (metric): string => {
+  const getTagLabel = (metric: FormMetric): string => {
+    if (isNil(metric)) {
+      return '';
+    }
+
+    const metricResources = getResourcesByMetricName(metric.name);
+
+    const resourcesWithoutExcludedMetrics = reject(
+      ({ metricId }) => metric.excludedMetrics.includes(metricId),
+      metricResources
+    );
+
+    return `${metric.name} (${metric.unit})/${resourcesWithoutExcludedMetrics.length}`;
+  };
+
+  const getOptionLabel = (metric: FormMetric): string => {
     if (isNil(metric)) {
       return '';
     }
@@ -202,6 +222,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       }
 
       const baseMetricNames = pluck('name', metrics);
+      const baseMetricIds = pluck('id', servicesMetrics?.result || []);
 
       const intersectionBetweenMetricsIdsAndValues = innerJoin(
         (metric, name) => equals(metric.name, name),
@@ -209,14 +230,23 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         baseMetricNames
       );
 
+      const finalIntersection = intersectionBetweenMetricsIdsAndValues.map(
+        (item) => {
+          return {
+            ...item,
+            excludedMetrics: item.excludedMetrics.filter((metric) =>
+              baseMetricIds.includes(metric)
+            )
+          };
+        }
+      );
+
       setFieldValue(
         `data.${propertyName}`,
-        isEmpty(intersectionBetweenMetricsIdsAndValues)
-          ? []
-          : intersectionBetweenMetricsIdsAndValues
+        isEmpty(finalIntersection) ? [] : finalIntersection
       );
     },
-    useDeepCompare([servicesMetrics, resources])
+    useDeepCompare([servicesMetrics])
   );
 
   return {
@@ -226,6 +256,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     error,
     getMetricOptionDisabled,
     getOptionLabel,
+    getTagLabel,
     hasNoResources,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
@@ -234,6 +265,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     metricCount,
     metricWithSeveralResources,
     metrics,
+    renderOptionsForMultipleMetricsAndResources,
     renderOptionsForSingleMetric,
     resources,
     selectedMetrics: value

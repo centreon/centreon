@@ -4,10 +4,10 @@ import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
-import { GlobalRefreshInterval } from '../../models';
+import { Data, GlobalRefreshInterval } from '../../models';
 
 import LineChart from './LineChart';
-import { Data, PanelOptions } from './models';
+import { PanelOptions } from './models';
 
 extend(duration);
 
