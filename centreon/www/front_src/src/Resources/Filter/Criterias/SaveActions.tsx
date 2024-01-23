@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 
+import { omit } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -35,7 +36,8 @@ const SaveActions = ({
   const createFilterCallback = (result): void => {
     setIsCreatingFilter(false);
     showSuccessMessage(t(labelFilterCreated));
-    loadFiltersAndUpdateCurrent({ ...result });
+
+    loadFiltersAndUpdateCurrent(omit(['order'], result));
   };
 
   const cancelCreateFilter = (): void => {

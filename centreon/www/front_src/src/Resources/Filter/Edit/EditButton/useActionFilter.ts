@@ -35,7 +35,7 @@ interface UseActionFilter {
   loadFiltersAndUpdateCurrent: (data: Filter) => void;
   sendingListCustomFiltersRequest: boolean;
   sendingUpdateFilterRequest: boolean;
-  updateFilter: () => void;
+  updateFilter: () => Promise<void>;
 }
 
 const useActionFilter = (): UseActionFilter => {
@@ -69,9 +69,9 @@ const useActionFilter = (): UseActionFilter => {
     ) => boolean;
     const retrievedFilter = find(propEq(currentFilter.id, 'id'), filters);
 
-    const criteriasCurrentFilter = currentFilter.criterias?.map((element) => ({
-      ...element
-    }));
+    const criteriasCurrentFilter = currentFilter.criterias?.map((element) =>
+      omit(['search_data'], element)
+    );
     const criteriasFilters = (retrievedFilter?.criterias || [])?.map(
       (element) => element
     );
@@ -85,7 +85,7 @@ const useActionFilter = (): UseActionFilter => {
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
-      setCustomFilters(result.map(omit(['order'])));
+      setCustomFilters(result.map(omit(['order', 'search_data'])));
 
       return result;
     });
@@ -97,8 +97,8 @@ const useActionFilter = (): UseActionFilter => {
     });
   };
 
-  const updateFilter = (): void => {
-    sendUpdateFilterRequest({
+  const updateFilter = (): Promise<void> => {
+    return sendUpdateFilterRequest({
       filter: omit(['id'], currentFilter),
       id: currentFilter.id
     }).then((savedFilter) => {

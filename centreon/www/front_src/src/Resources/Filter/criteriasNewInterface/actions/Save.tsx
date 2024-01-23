@@ -17,8 +17,6 @@ import {
 import { labelSaveAs, labelUpdate } from '../translatedLabels';
 
 interface Save {
-  canSaveFilter: boolean;
-  canSaveFilterAsNew: boolean;
   closePopover?: () => void;
   getIsCreateFilter: (value: boolean) => void;
 }
@@ -28,20 +26,15 @@ const getSelectableCriterias = (
 ): Array<Criteria> => {
   const filteredCriterias = reject<Criteria>(propEq('name', 'sort'))(criterias);
 
-  return filteredCriterias.map(omit(['search_data']));
+  return filteredCriterias;
 };
 
-const Save = ({
-  canSaveFilterAsNew,
-  canSaveFilter,
-  getIsCreateFilter,
-  closePopover
-}: Save): JSX.Element => {
+const Save = ({ getIsCreateFilter, closePopover }: Save): JSX.Element => {
   const { t } = useTranslation();
 
   const currentFilter = useAtomValue(currentFilterAtom);
   const customFilters = useAtomValue(customFiltersAtom);
-  const { updateFilter } = useActionFilter();
+  const { updateFilter, canSaveFilterAsNew, canSaveFilter } = useActionFilter();
 
   const baseFilters = [
     unhandledProblemsFilter,
@@ -70,8 +63,10 @@ const Save = ({
   };
 
   const saveAs = (): void => {
-    updateFilter();
-    closePopover?.();
+    updateFilter().then(() => {
+      console.log('work??');
+      // closePopover?.();
+    });
   };
 
   return (
@@ -85,7 +80,7 @@ const Save = ({
         {t(labelSaveAs)}
       </Button>
       <Button
-        disabled={saveButtonDisabled || !canSaveFilter}
+        disabled={!canSaveFilter}
         startIcon={<EditIcon fontSize="small" />}
         variant="outlined"
         onClick={saveAs}

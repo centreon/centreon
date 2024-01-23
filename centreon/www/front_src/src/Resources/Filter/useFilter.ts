@@ -57,7 +57,7 @@ const useFilter = (): void => {
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
-      setCustomFilters(result.map(omit(['order'])));
+      setCustomFilters(result.map(omit(['order', 'search_data'])));
 
       return result;
     });
