@@ -29,10 +29,10 @@ systemctl stop php8.1-fpm
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web/bullseye/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/entrypoint/container.d/* /usr/share/centreon/container.d/
+COPY --chmod=755 ./.github/docker/centreon-web/bookworm/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=www-data:www-data ./.github/docker/centreon-web/bookworm/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
