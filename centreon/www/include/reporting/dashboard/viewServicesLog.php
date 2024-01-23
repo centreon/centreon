@@ -73,6 +73,7 @@ $select = $formPeriod->addElement(
         "onChange" => "this.form.submit();"
     ]
 );
+$select->setSelected((string) $serviceId);
 $form->addElement(
     'hidden',
     'period',
