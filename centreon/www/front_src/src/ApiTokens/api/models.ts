@@ -5,3 +5,8 @@ export interface BuildListEndpoint {
   endpoint: string;
   parameters: ListingParameters;
 }
+
+export interface DeleteTokenEndpoint {
+  tokenName: string;
+  userId: number;
+}

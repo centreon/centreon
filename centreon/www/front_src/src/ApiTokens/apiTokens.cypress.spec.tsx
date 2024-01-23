@@ -459,7 +459,10 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
     const tokenToDelete = 'a-token';
 
-    const deleteToken = deleteTokenEndpoint(tokenToDelete);
+    const deleteToken = deleteTokenEndpoint({
+      tokenName: tokenToDelete,
+      userId: 23
+    });
     cy.interceptAPIRequest({
       alias: 'deleteToken',
       method: Method.DELETE,

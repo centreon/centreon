@@ -25,6 +25,7 @@ import { useStyles } from './deletion.styles';
 
 interface Meta {
   name: string;
+  userId: number;
 }
 
 interface Props {
@@ -50,14 +51,15 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
-    getEndpoint: ({ name }) => deleteTokenEndpoint(name),
+    getEndpoint: ({ name, userId }) =>
+      deleteTokenEndpoint({ tokenName: name, userId }),
     method: Method.DELETE,
     onSuccess: success
   });
 
   const deleteToken = (): void => {
     mutateAsync({
-      _meta: { name: selectedRow?.name }
+      _meta: { name: selectedRow?.name, userId: selectedRow?.user?.id }
     });
   };
 
