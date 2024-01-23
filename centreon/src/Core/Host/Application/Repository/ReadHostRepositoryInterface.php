@@ -152,11 +152,11 @@ interface ReadHostRepositoryInterface
     /**
      * Find host names by their IDs.
      *
-     * @param int[] $hostGroupIds
+     * @param int[] $hostIds
      *
      * @throws \Throwable
      *
      * @return HostNamesById
      */
-    public function findNames(array $hostGroupIds): HostNamesById;
+    public function findNames(array $hostIds): HostNamesById;
 }

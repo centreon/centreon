@@ -21,35 +21,31 @@
 
 declare(strict_types = 1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\HostCategory\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
 
-class HostNamesById
+class HostCategoryNamesById
 {
     /** @var array<int,TrimmedString> */
     private array $names = [];
 
-    public function __construct()
-    {
-    }
-
     /**
-     * @param int $hostId
-     * @param TrimmedString $hostName
+     * @param int $hostCategoryId
+     * @param TrimmedString $hostCategoryName
      */
-    public function addName(int $hostId, TrimmedString $hostName): void
+    public function addName(int $hostCategoryId, TrimmedString $hostCategoryName): void
     {
-        $this->names[$hostId] = $hostName;
+        $this->names[$hostCategoryId] = $hostCategoryName;
     }
 
     /**
-     * @param int $hostId
+     * @param int $hostCategoryId
      *
      * @return null|string
      */
-    public function getName(int $hostId): ?string {
-        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
+    public function getName(int $hostCategoryId): ?string {
+        return isset($this->names[$hostCategoryId]) ? $this->names[$hostCategoryId]->value: null;
     }
 
     /**
@@ -60,3 +56,4 @@ class HostNamesById
         return $this->names;
     }
 }
+
