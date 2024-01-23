@@ -83,7 +83,7 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
       condition += ` AND h.state = ${getStatusNumberFromString(status)}`;
     }
     if (statusType !== '') {
-      condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
+      condition += ` AND h.state_type = ${getStatusTypeNumberFromString(
         statusType
       )}`;
     }
