@@ -487,8 +487,9 @@ describe('Api-token', () => {
       cy.contains(irreversibleMsg);
 
       cy.contains(labelCancel).should('be.enabled');
-      cy.findByTestId('Confirm').should('be.enabled').click();
+      cy.findByTestId('Confirm').should('be.enabled');
       cy.makeSnapshot('displays the modal when clicking the Delete icon');
+      cy.findByTestId('Confirm').should('be.enabled').click();
       cy.waitForRequest('@deleteToken');
       cy.getRequestCalls('@deleteToken').then((calls) => {
         expect(calls).to.have.length(1);
@@ -498,7 +499,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensAfterDeletion');
     cy.findAllByTestId('deleteDialog').should('not.exist');
     cy.contains(tokenToDelete).should('not.exist');
-    cy.makeSnapshot('deletes the token when clicking the Delete icon');
+    cy.makeSnapshot('deletes the token when clicking the Delete Button');
   });
 
   it('hides the modal when clicking on Cancel button', () => {
