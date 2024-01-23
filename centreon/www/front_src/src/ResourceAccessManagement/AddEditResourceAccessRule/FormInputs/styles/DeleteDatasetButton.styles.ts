@@ -11,11 +11,11 @@ export const useDeleteDatasetButtonStyles = makeStyles()((theme) => ({
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4),
     marginTop: theme.spacing(1),
-    width: theme.spacing(0.75)
+    width: theme.spacing(1)
   },
   deleteIcon: {
     color: theme.palette.common.white,
-    margin: '0px'
+    margin: theme.spacing(0)
   },
   deleteIconChip: {
     '&:hover': {
@@ -23,6 +23,6 @@ export const useDeleteDatasetButtonStyles = makeStyles()((theme) => ({
     },
     backgroundColor: theme.palette.divider,
     position: 'relative',
-    right: theme.spacing(0.6)
+    right: theme.spacing(0.5)
   }
 }));
