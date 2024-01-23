@@ -5,4 +5,16 @@ const enableNotificationFeature = (): Cypress.Chainable => {
   });
 };
 
-export { enableNotificationFeature };
+const createNotification = (body): Cypress.Chainable => {
+  return cy
+    .request({
+      method: 'POST',
+      url: 'centreon/api/latest/configuration/notifications',
+      body: body
+    })
+    .then((response) => {
+      cy.wrap(response);
+    });
+};
+
+export { enableNotificationFeature, createNotification };

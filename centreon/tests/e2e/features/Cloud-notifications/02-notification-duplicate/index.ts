@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { enableNotificationFeature } from '../common';
+import { createNotification, enableNotificationFeature } from '../common';
 
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 
@@ -16,7 +16,6 @@ const notificationProperties = [
 beforeEach(() => {
   cy.startWebContainer();
   enableNotificationFeature();
-  cy.setUserTokenApiV1();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -26,10 +25,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
   }).as('getNotifications');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/configuration/notifications'
-  }).as('postNotification');
 });
 
 afterEach(() => {
@@ -49,13 +44,7 @@ Given('the user is on the Notification Rules page', () => {
 });
 
 Given('a Notification Rule is already created', () => {
-  cy.request({
-    method: 'POST',
-    url: 'centreon/api/latest/configuration/notifications',
-    body: notificationBody
-  }).then((response) => {
-    cy.wrap(response);
-  });
+  createNotification(notificationBody);
 });
 
 When('the user selects the duplication action on a Notification Rule', () => {
@@ -114,7 +103,7 @@ Then('the duplication action is cancelled', () => {
 });
 
 When('the user enters a name that is already taken', () => {
-  cy.get('#Newnotificationname').type(notificationBody.name).blur();;
+  cy.get('#Newnotificationname').type(notificationBody.name).blur();
 });
 
 Then(
