@@ -20,17 +20,17 @@ dayjs.extend(localizedFormatPlugin);
 const data = [
   {
     locale: 'en_US',
-    resolution: { height: 720, width: 500 },
+    resolution: { height: 590, width: 500 },
     timezone: 'Europe/Paris'
   },
   {
     locale: 'en_US',
-    resolution: { height: 720, width: 200 },
+    resolution: { height: 590, width: 200 },
     timezone: 'Europe/Paris'
   },
   {
     locale: 'en_US',
-    resolution: { height: 720, width: 1024 },
+    resolution: { height: 590, width: 1024 },
     timezone: 'Europe/Paris'
   }
 ];
