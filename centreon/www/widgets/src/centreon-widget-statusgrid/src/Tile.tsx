@@ -8,11 +8,12 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import { EllipsisTypography } from '@centreon/ui';
 
 import { Resource } from '../../models';
+import { getResourcesUrl } from '../../utils';
 
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor, getResourcesUrl } from './utils';
+import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
