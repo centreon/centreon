@@ -5,9 +5,10 @@ import {
   enableNotificationFeature
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import editNotificationBody from '../../../fixtures/notifications/notification-edit.json';
 
 const contactAfterEdit = 'Guest';
+
+const editNotificationBody = { ...notificationBody };
 
 beforeEach(() => {
   cy.startWebContainer();
@@ -91,6 +92,7 @@ When(
       switch (action) {
         case 'enable':
           // Firstly Deactivate the Notification
+          editNotificationBody.is_activated = false;
           editNotification(editNotificationBody);
           cy.reload();
           cy.wait('@getNotifications');
@@ -123,6 +125,7 @@ When('the user {string} the Notification Rule', (action) => {
       switch (action) {
         case 'enable':
           // Firstly Deactivate the Notification
+          editNotificationBody.is_activated = false;
           editNotification(editNotificationBody);
           cy.reload();
           cy.wait('@getNavigationList');
