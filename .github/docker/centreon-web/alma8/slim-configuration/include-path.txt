@@ -36,3 +36,4 @@
 /var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/share/centreon-broker
