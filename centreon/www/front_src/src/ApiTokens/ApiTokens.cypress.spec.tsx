@@ -5,6 +5,8 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useAtomValue } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
 import {
   Method,
@@ -192,10 +194,14 @@ const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const tokenToDelete = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
-  'This is an irreversible action. If you process, all requests made with this token will be rejected.Do you want to process anyway ?';
+  'This is an irreversible action. If you process, all requests made with this token will be rejected. Do you want to process anyway ?';
 
 describe('Api-token', () => {
   beforeEach(() => {
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
     const userData = renderHook(() => useAtomValue(userAtom));
 
     userData.result.current.timezone = 'Europe/Paris';
