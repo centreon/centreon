@@ -7,7 +7,7 @@ import { Button } from '..';
 
 import { useItemCompositionStyles } from './ItemComposition.styles';
 
-type Props = {
+export type Props = {
   IconAdd?;
   addButtonHidden?: boolean;
   addbuttonDisabled?: boolean;

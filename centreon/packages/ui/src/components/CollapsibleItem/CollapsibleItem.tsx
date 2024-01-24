@@ -12,7 +12,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
 
-interface Props {
+export interface Props {
   children: ReactNode;
   compact?: boolean;
   defaultExpanded?: boolean;

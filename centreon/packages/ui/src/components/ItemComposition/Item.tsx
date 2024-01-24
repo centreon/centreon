@@ -7,7 +7,7 @@ import { IconButton } from '..';
 import { useItemStyles } from './ItemComposition.styles';
 
 type Props = {
-  children: Array<ReactElement>;
+  children: ReactElement | Array<ReactElement>;
   className?: string;
   deleteButtonHidden?: boolean;
   labelDelete: string;
