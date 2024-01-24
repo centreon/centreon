@@ -16445,3 +16445,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "Open more filters"
+# msgstr ""
+
+# msgid "Close more filters"
+# msgstr ""
