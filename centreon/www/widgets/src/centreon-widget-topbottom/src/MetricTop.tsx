@@ -7,7 +7,7 @@ import { LineChartData, SingleBar } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
 import { FormThreshold } from '../../models';
-import useLinkToResourceStatus from '../../useLinkToResourceStatus';
+import { getResourcesUrlForMetricsWidgets } from '../../utils';
 
 import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
@@ -53,7 +53,6 @@ const MetricTop = ({
     ],
     times: []
   };
-  const { getResourcesStatusUrl } = useLinkToResourceStatus();
 
   const formattedThresholds = useThresholds({
     data: formattedData,
@@ -69,7 +68,7 @@ const MetricTop = ({
           className={classes.linkToResourcesStatus}
           data-testid={`link to ${metricTop?.name}`}
           target="_blank"
-          to={getResourcesStatusUrl(metricTop)}
+          to={getResourcesUrlForMetricsWidgets(metricTop)}
           onClick={(e) => isFromPreview && e.preventDefault()}
         >
           <strong>
@@ -82,7 +81,7 @@ const MetricTop = ({
           className={classes.linkToResourcesStatus}
           data-testid={`link to ${metricTop?.name}`}
           target="_blank"
-          to={getResourcesStatusUrl(metricTop)}
+          to={getResourcesUrlForMetricsWidgets(metricTop)}
           onClick={(e) => isFromPreview && e.preventDefault()}
         >
           <SingleBar
