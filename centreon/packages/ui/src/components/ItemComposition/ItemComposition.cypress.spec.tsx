@@ -99,7 +99,7 @@ describe('ItemComposition', () => {
     cy.findByTestId('Add')
       .click()
       .then(() => {
-        expect(addItem).to.have.been.called;
+        expect(addItem).to.have.been.calledWith();
       });
   });
 
@@ -110,7 +110,7 @@ describe('ItemComposition', () => {
       .eq(1)
       .click()
       .then(() => {
-        expect(deleteItem).to.have.been.called;
+        expect(deleteItem).to.have.been.calledWith();
       });
   });
 });
