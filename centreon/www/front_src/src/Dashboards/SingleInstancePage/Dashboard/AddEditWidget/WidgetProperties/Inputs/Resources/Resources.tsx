@@ -13,8 +13,8 @@ import {
 } from '@centreon/ui';
 
 import {
-  labelAddFilter,
-  labelAddFiltersToNarrowDownResources,
+  labelRefineFilter,
+  labelRefineFiltersToNarrowDownResources,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -74,8 +74,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           IconAdd={<FilterIcon />}
           addButtonHidden={!canEditField}
           addbuttonDisabled={!areResourcesFullfilled(value)}
-          labelAdd={t(labelAddFilter)}
-          secondaryLabel={t(labelAddFiltersToNarrowDownResources)}
+          labelAdd={t(labelRefineFilter)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => (
