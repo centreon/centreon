@@ -9,7 +9,7 @@ import TopBottom from './TopBottom';
 
 interface Props {
   globalRefreshInterval: GlobalRefreshInterval;
-  isEditingDashboard: boolean;
+  isFromPreview?: boolean;
   panelData: Data;
   panelOptions: {
     refreshInterval: 'default' | 'custom';
@@ -28,13 +28,13 @@ const Widget = ({
   panelData,
   panelOptions,
   refreshCount,
-  isEditingDashboard
+  isFromPreview
 }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
       <TopBottom
         globalRefreshInterval={globalRefreshInterval}
-        isEditingDashboard={isEditingDashboard}
+        isFromPreview={isFromPreview}
         metrics={panelData.metrics}
         refreshCount={refreshCount}
         refreshInterval={panelOptions.refreshInterval}
