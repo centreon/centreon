@@ -52,17 +52,6 @@ runs:
         # re use the part from check version ??
         # or use the check-version action after turning this release action into a real workflow ?
 
-        # Create new JIRA versions (old way of doing it)
-        # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
-
-        JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
-        curl --fail --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/version' \
-          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
-          --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' \
-          --data ''$VERSION_DATA''
-
       shell: bash
 
     - name: Add new release tags to stable branch
