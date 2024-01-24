@@ -8,9 +8,9 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
   Method,
+  SnackbarProvider,
   TestQueryProvider,
-  useLocaleDateTimeFormat,
-  SnackbarProvider
+  useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
@@ -27,7 +27,6 @@ import {
 import {
   labelCancel,
   labelCreateNewToken,
-  labelDelete,
   labelDeleteToken,
   labelDuration,
   labelGenerateNewToken,
@@ -190,8 +189,8 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
+const tokenToDelete = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
-const githubToken = 'Github';
 const irreversibleMsg =
   'This is an irreversible action. If you process, all requests made with this token will be rejected.Do you want to process anyway ?';
 
@@ -457,7 +456,6 @@ describe('Api-token', () => {
   });
   it('deletes the token when clicking on Delete button', () => {
     cy.waitForRequest('@getListTokens');
-    const tokenToDelete = 'a-token';
 
     const deleteToken = deleteTokenEndpoint({
       tokenName: tokenToDelete,
@@ -483,7 +481,7 @@ describe('Api-token', () => {
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
-      cy.contains(githubToken);
+      cy.contains(tokenToDelete);
       cy.contains(irreversibleMsg);
 
       cy.contains(labelCancel).should('be.enabled');
@@ -513,7 +511,7 @@ describe('Api-token', () => {
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
-      cy.contains(githubToken);
+      cy.contains(tokenToDelete);
       cy.contains(irreversibleMsg);
       cy.findByTestId('Confirm').should('be.enabled');
       cy.contains(labelCancel).should('be.enabled').click();
