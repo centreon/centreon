@@ -7,7 +7,6 @@ import { Box, alpha, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { maxLinesDisplayedLegend } from '../common';
 import { formatMetricValue } from '../../common/timeSeries';
 import { Line, TimeValue } from '../../common/timeSeries/models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
@@ -24,7 +23,7 @@ import LegendContent from './LegendContent';
 interface Props {
   base: number;
   displayAnchor?: boolean;
-  limitLegendRows?: boolean;
+  limitLegend?: false | number;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
@@ -39,14 +38,14 @@ const MainLegend = ({
   timeSeries,
   base,
   toggable = true,
-  limitLegendRows = true,
+  limitLegend = false,
   renderExtraComponent,
   displayAnchor = true,
   setLinesGraph,
   xScale,
   shouldDisplayLegendInCompactMode
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ limitLegendRows });
+  const { classes, cx } = useStyles({ limitLegendRows: Boolean(limitLegend) });
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
@@ -61,8 +60,8 @@ const MainLegend = ({
 
   const sortedData = sortBy(prop('metric_id'), lines);
 
-  const displayedLines = limitLegendRows
-    ? slice(0, maxLinesDisplayedLegend, sortedData)
+  const displayedLines = limitLegend
+    ? slice(0, limitLegend, sortedData)
     : sortedData;
 
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
@@ -174,7 +173,7 @@ const MainLegend = ({
 const Legend = (props: Props): JSX.Element => {
   const {
     toggable,
-    limitLegendRows,
+    limitLegend,
     timeSeries,
     lines,
     base,
@@ -191,7 +190,7 @@ const Legend = (props: Props): JSX.Element => {
       lines,
       base,
       toggable,
-      limitLegendRows,
+      limitLegend,
       displayAnchor,
       shouldDisplayLegendInCompactMode
     ]

@@ -28,6 +28,7 @@ interface Props extends Partial<LineChartProps> {
   data?: LineChartData;
   end: string;
   legend: LegendModel;
+  limitLegend?: false | number;
   loading: boolean;
   marginBottom?: number;
   shapeLines?: GlobalAreaLines;
@@ -55,7 +56,8 @@ const WrapperLineChart = ({
   curve = Curve.curveLinear,
   marginBottom = 0,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  limitLegend
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -95,6 +97,7 @@ const WrapperLineChart = ({
               header={header}
               height={height || responsiveHeight}
               legend={legend}
+              limitLegend={limitLegend}
               loading={loading}
               marginBottom={marginBottom}
               shapeLines={shapeLines}
