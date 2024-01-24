@@ -9,7 +9,7 @@ export const useMetricsStyles = makeStyles()((theme) => ({
   },
   resourceOption: {
     borderTop: `1px solid ${theme.palette.divider}`,
-    padding: theme.spacing(1, 0, 1, 6)
+    paddingLeft: theme.spacing(4)
   },
   resourcesOptionContainer: {
     backgroundColor: theme.palette.background.paper,

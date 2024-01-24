@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 
 import { useFormikContext } from 'formik';
 import {
@@ -118,96 +118,126 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     value: value || []
   });
 
-  const changeMetric = (_, newMetric: SelectEntry | null): void => {
-    setFieldValue(`data.${propertyName}`, [
-      {
-        ...newMetric,
-        excludedMetrics: [],
-        includeAllMetrics: true
+  const changeMetric = useCallback(
+    (_, newMetric: SelectEntry | null): void => {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          ...newMetric,
+          excludedMetrics: [],
+          includeAllMetrics: true
+        }
+      ]);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    },
+    [propertyName]
+  );
+
+  const deleteMetricItem = useCallback(
+    (option): void => {
+      const newMetrics = reject(propEq(option.id, 'id'), value || []);
+
+      setFieldValue(`data.${propertyName}`, newMetrics);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    },
+    [propertyName, value]
+  );
+
+  const changeMetrics = useCallback(
+    (_, newMetrics: Array<SelectEntry> | null): void => {
+      setFieldValue(`data.${propertyName}`, newMetrics || []);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    },
+    [propertyName]
+  );
+
+  const getMetricOptionDisabled = useCallback(
+    (metricOption): boolean => {
+      if (!hasReachedTheLimitOfUnits) {
+        return false;
       }
-    ]);
-    setFieldTouched(`data.${propertyName}`, true, false);
-  };
 
-  const deleteMetricItem = (option): void => {
-    const newMetrics = reject(propEq(option.id, 'id'), value || []);
+      return !includes(metricOption.unit, unitsFromSelectedMetrics);
+    },
+    useDeepCompare([hasReachedTheLimitOfUnits, unitsFromSelectedMetrics])
+  );
 
-    setFieldValue(`data.${propertyName}`, newMetrics);
-    setFieldTouched(`data.${propertyName}`, true, false);
-  };
+  const hasNoResources = useCallback(
+    (): boolean => {
+      if (!resources.length) {
+        return true;
+      }
 
-  const changeMetrics = (_, newMetrics: Array<SelectEntry> | null): void => {
-    setFieldValue(`data.${propertyName}`, newMetrics || []);
-    setFieldTouched(`data.${propertyName}`, true, false);
-  };
+      return resources.every((resource) => !resource.resources.length);
+    },
+    useDeepCompare([resources])
+  );
 
-  const getMetricOptionDisabled = (metricOption): boolean => {
-    if (!hasReachedTheLimitOfUnits) {
-      return false;
-    }
+  const getTagLabel = useCallback(
+    (metric: FormMetric): string => {
+      if (isNil(metric)) {
+        return '';
+      }
 
-    return !includes(metricOption.unit, unitsFromSelectedMetrics);
-  };
+      const metricResources = getResourcesByMetricName(metric.name);
 
-  const hasNoResources = (): boolean => {
-    if (!resources.length) {
-      return true;
-    }
+      const resourcesWithoutExcludedMetrics = reject(
+        ({ metricId }) => metric.excludedMetrics.includes(metricId),
+        metricResources
+      );
 
-    return resources.every((resource) => !resource.resources.length);
-  };
+      return `${metric.name} (${metric.unit})/${resourcesWithoutExcludedMetrics.length}`;
+    },
+    [getResourcesByMetricName]
+  );
 
-  const getTagLabel = (metric: FormMetric): string => {
-    if (isNil(metric)) {
-      return '';
-    }
-
-    const metricResources = getResourcesByMetricName(metric.name);
-
-    const resourcesWithoutExcludedMetrics = reject(
-      ({ metricId }) => metric.excludedMetrics.includes(metricId),
-      metricResources
-    );
-
-    return `${metric.name} (${metric.unit})/${resourcesWithoutExcludedMetrics.length}`;
-  };
-
-  const getOptionLabel = (metric: FormMetric): string => {
+  const getOptionLabel = useCallback((metric: FormMetric): string => {
     if (isNil(metric)) {
       return '';
     }
 
     return `${metric.name} (${metric.unit})`;
-  };
+  }, []);
 
-  const getNumberOfResourcesRelatedToTheMetric = (metricName: string): number =>
-    (servicesMetrics?.result || []).reduce(
-      (acc, service) =>
-        acc +
-        (service.metrics.find((metric) => equals(metric.name, metricName))
-          ? 1
-          : 0),
-      0
-    );
+  const getNumberOfResourcesRelatedToTheMetric = useCallback(
+    (metricName: string): number =>
+      (servicesMetrics?.result || []).reduce(
+        (acc, service) =>
+          acc +
+          (service.metrics.find((metric) => equals(metric.name, metricName))
+            ? 1
+            : 0),
+        0
+      ),
+    useDeepCompare([servicesMetrics])
+  );
 
-  const getFirstUsedResourceForMetric = (
-    metricName?: string
-  ): string | undefined => {
-    if (!metricName) {
-      return undefined;
-    }
+  const getFirstUsedResourceForMetric = useCallback(
+    (metricName?: string): string | undefined => {
+      if (!metricName) {
+        return undefined;
+      }
 
-    return (servicesMetrics?.result || []).filter((service) =>
-      service.metrics.filter((metric) => equals(metric.name, metricName))
-    )[0].name;
-  };
+      return (servicesMetrics?.result || []).filter((service) =>
+        service.metrics.filter((metric) => equals(metric.name, metricName))
+      )[0].name;
+    },
+    useDeepCompare([servicesMetrics])
+  );
 
-  const metricWithSeveralResources =
-    singleHostPerMetric &&
-    value?.some(
-      ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
-    ) &&
-    getFirstUsedResourceForMetric(value[0].name);
+  const metricWithSeveralResources = useMemo(
+    () =>
+      singleHostPerMetric &&
+      value?.some(
+        ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
+      ) &&
+      getFirstUsedResourceForMetric(value[0].name),
+    useDeepCompare([
+      singleHostPerMetric,
+      value,
+      getNumberOfResourcesRelatedToTheMetric,
+      getFirstUsedResourceForMetric
+    ])
+  );
 
   useEffect(
     () => {

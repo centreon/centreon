@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import {
   equals,
   gt,
@@ -13,6 +15,7 @@ import { useFormikContext } from 'formik';
 import { ListItem, Typography, Radio, Checkbox } from '@mui/material';
 
 import { CollapsibleItem } from '@centreon/ui/components';
+import { useDeepCompare } from '@centreon/ui';
 
 import { FormMetric, ServiceMetric } from '../../../models';
 
@@ -50,70 +53,78 @@ export const useRenderOptions = ({
 
   const { setFieldValue, setFieldTouched } = useFormikContext();
 
-  const getSelectedMetricByMetricName = (
-    metricName: string
-  ): FormMetric | undefined => {
-    return value.find(({ name }) => equals(name, metricName));
-  };
+  const getSelectedMetricByMetricName = useCallback(
+    (metricName: string): FormMetric | undefined => {
+      return value.find(({ name }) => equals(name, metricName));
+    },
+    useDeepCompare([value])
+  );
 
-  const selectMetric = (newMetric: FormMetric) => () => {
-    setFieldValue(`data.${propertyName}`, [
-      {
-        ...newMetric,
-        excludedMetrics: [],
-        includeAllMetrics: true
-      }
-    ]);
-    setFieldTouched(`data.${propertyName}`, true, false);
-  };
-
-  const changeExcludedMetrics = ({
-    currentExcludedMetrics,
-    excludedMetricIndex,
-    metricId,
-    shouldRemove
-  }: ChangeExcludedMetricsProps): Array<number> => {
-    if (shouldRemove) {
-      return remove(excludedMetricIndex, 1, currentExcludedMetrics);
-    }
-
-    return [...(currentExcludedMetrics || []), metricId];
-  };
-
-  const getAreAllMetricsExcluded = ({
-    metric,
-    newExcludedMetrics
-  }): boolean => {
-    return equals(
-      pluck('metricId', getResourcesByMetricName(metric.name)).sort(),
-      newExcludedMetrics.sort()
-    );
-  };
-
-  const selectMetricsWithAllResources = (newMetric: FormMetric) => () => {
-    const metricIndex = value.findIndex(({ name }) =>
-      equals(name, newMetric.name)
-    );
-
-    if (gt(metricIndex, -1)) {
-      setFieldValue(`data.${propertyName}`, remove(metricIndex, 1, value));
+  const selectMetric = useCallback(
+    (newMetric: FormMetric) => () => {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          ...newMetric,
+          excludedMetrics: [],
+          includeAllMetrics: true
+        }
+      ]);
       setFieldTouched(`data.${propertyName}`, true, false);
+    },
+    [propertyName]
+  );
 
-      return;
-    }
-
-    setFieldValue(`data.${propertyName}`, [
-      ...value,
-      {
-        ...newMetric,
-        excludedMetrics: [],
-        includeAllMetrics: true
+  const changeExcludedMetrics = useCallback(
+    ({
+      currentExcludedMetrics,
+      excludedMetricIndex,
+      metricId,
+      shouldRemove
+    }: ChangeExcludedMetricsProps): Array<number> => {
+      if (shouldRemove) {
+        return remove(excludedMetricIndex, 1, currentExcludedMetrics);
       }
-    ]);
-    setFieldTouched(`data.${propertyName}`, true, false);
-  };
 
-  console.log(value);
+      return [...(currentExcludedMetrics || []), metricId];
+    },
+    []
+  );
+
+  const getAreAllMetricsExcluded = useCallback(
+    ({ metric, newExcludedMetrics }): boolean => {
+      return equals(
+        pluck('metricId', getResourcesByMetricName(metric.name)).sort(),
+        newExcludedMetrics.sort()
+      );
+    },
+    [getResourcesByMetricName]
+  );
+
+  const selectMetricsWithAllResources = useCallback(
+    (newMetric: FormMetric) => () => {
+      const metricIndex = value.findIndex(({ name }) =>
+        equals(name, newMetric.name)
+      );
+
+      if (gt(metricIndex, -1)) {
+        setFieldValue(`data.${propertyName}`, remove(metricIndex, 1, value));
+        setFieldTouched(`data.${propertyName}`, true, false);
+
+        return;
+      }
+
+      setFieldValue(`data.${propertyName}`, [
+        ...value,
+        {
+          ...newMetric,
+          excludedMetrics: [],
+          includeAllMetrics: true
+        }
+      ]);
+      setFieldTouched(`data.${propertyName}`, true, false);
+    },
+    useDeepCompare([value, propertyName])
+  );
 
   const resourceChange =
     ({ metric, metricId }) =>
@@ -268,7 +279,7 @@ export const useRenderOptions = ({
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
-  const isResourceExcluded = ({ metricName, metricId }) => {
+  const isResourceExcluded = ({ metricName, metricId }): boolean => {
     const metric = getSelectedMetricByMetricName(metricName);
 
     return includes(metricId, metric?.excludedMetrics || []);
