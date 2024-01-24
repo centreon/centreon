@@ -6,6 +6,7 @@ import {
   flatten,
   groupBy,
   identity,
+  includes,
   uniq
 } from 'ramda';
 
@@ -133,7 +134,9 @@ export const getUrlForResourcesOnlyWidgets = ({
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
             return subResources?.map(({ name: resourceName }) => ({
-              id: `\\b${resourceName}\\b`,
+              id: includes(name, ['name', 'parent_name'])
+                ? `\\b${resourceName}\\b`
+                : resourceName,
               name: resourceName
             }));
           })

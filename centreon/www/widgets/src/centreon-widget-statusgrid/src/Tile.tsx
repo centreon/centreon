@@ -1,4 +1,4 @@
-import { equals, isNil } from 'ramda';
+import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ import { getColor, getResourcesUrl } from './utils';
 
 interface Props {
   data: ResourceData | null;
-  isEditingDashboard: boolean;
+  isFromPreview?: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   states: Array<string>;
@@ -35,7 +35,7 @@ const Tile = ({
   states,
   statuses,
   resources,
-  isEditingDashboard
+  isFromPreview
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
@@ -58,9 +58,7 @@ const Tile = ({
         className={classes.link}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: false })}
-        onClick={(e) =>
-          equals(isEditingDashboard, undefined) && e.preventDefault()
-        }
+        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <CardActionArea
           className={classes.seeMoreContainer}
@@ -85,9 +83,7 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) =>
-          equals(isEditingDashboard, undefined) && e.preventDefault()
-        }
+        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <Box className={classes.container}>
           {displayStatusTile ? (
@@ -111,9 +107,7 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) =>
-          equals(isEditingDashboard, undefined) && e.preventDefault()
-        }
+        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         {displayStatusTile && (
           <Box

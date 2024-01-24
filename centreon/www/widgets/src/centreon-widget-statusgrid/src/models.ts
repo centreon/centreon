@@ -16,7 +16,7 @@ export interface PanelOptions {
 
 export interface StatusGridProps {
   globalRefreshInterval: GlobalRefreshInterval;
-  isEditingDashboard: boolean;
+  isFromPreview?: boolean;
   panelData: Data;
   panelOptions: PanelOptions;
   refreshCount: number;
