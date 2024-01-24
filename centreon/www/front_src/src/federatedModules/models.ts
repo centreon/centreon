@@ -20,6 +20,7 @@ export interface FederatedModule {
 interface PageComponent {
   children?: string;
   component: string;
+  featureFlag?: string;
   route: string;
 }
 
