@@ -266,14 +266,23 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       );
 
       const intersectionFilteredExcludedMetrics =
-        intersectionBetweenMetricsIdsAndValues.map((item) => {
-          return {
-            ...item,
-            excludedMetrics: item.excludedMetrics.filter((metric) =>
-              baseMetricIds.includes(metric)
-            )
-          };
-        });
+        intersectionBetweenMetricsIdsAndValues
+          .filter((item) => {
+            const resourcesByMetricName = getResourcesByMetricName(item.name);
+
+            return !equals(
+              item.excludedMetrics.sort(),
+              pluck('metricId', resourcesByMetricName).sort()
+            );
+          })
+          .map((item) => {
+            return {
+              ...item,
+              excludedMetrics: item.excludedMetrics.filter((metric) =>
+                baseMetricIds.includes(metric)
+              )
+            };
+          });
 
       setFieldValue(
         `data.${propertyName}`,
