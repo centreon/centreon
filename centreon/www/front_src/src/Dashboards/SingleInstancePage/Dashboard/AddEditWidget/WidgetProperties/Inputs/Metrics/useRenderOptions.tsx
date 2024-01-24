@@ -1,5 +1,4 @@
 import {
-  append,
   equals,
   gt,
   includes,
@@ -113,6 +112,8 @@ export const useRenderOptions = ({
     ]);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
+
+  console.log(value);
 
   const resourceChange =
     ({ metric, metricId }) =>

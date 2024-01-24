@@ -222,7 +222,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       }
 
       const baseMetricNames = pluck('name', metrics);
-      const baseMetricIds = pluck('id', servicesMetrics?.result || []);
+      const baseMetricIds = (servicesMetrics?.result || []).reduce(
+        (acc, service) => {
+          return [...acc, ...pluck('id', service.metrics)];
+        },
+        []
+      );
 
       const intersectionBetweenMetricsIdsAndValues = innerJoin(
         (metric, name) => equals(metric.name, name),
@@ -230,23 +235,24 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         baseMetricNames
       );
 
-      const finalIntersection = intersectionBetweenMetricsIdsAndValues.map(
-        (item) => {
+      const intersectionFilteredExcludedMetrics =
+        intersectionBetweenMetricsIdsAndValues.map((item) => {
           return {
             ...item,
             excludedMetrics: item.excludedMetrics.filter((metric) =>
               baseMetricIds.includes(metric)
             )
           };
-        }
-      );
+        });
 
       setFieldValue(
         `data.${propertyName}`,
-        isEmpty(finalIntersection) ? [] : finalIntersection
+        isEmpty(intersectionFilteredExcludedMetrics)
+          ? []
+          : intersectionFilteredExcludedMetrics
       );
     },
-    useDeepCompare([servicesMetrics])
+    useDeepCompare([servicesMetrics, resources])
   );
 
   return {
