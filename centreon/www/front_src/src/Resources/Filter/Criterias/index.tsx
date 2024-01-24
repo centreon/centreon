@@ -69,12 +69,8 @@ const CriteriasContent = ({
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
-  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
-
-  const { canSaveFilter, loadFiltersAndUpdateCurrent, canSaveFilterAsNew } =
-    useActionFilter();
 
   const filterByInstalledModulesWithParsedSearch = useAtomValue(
     filterByInstalledModulesWithParsedSearchDerivedAtom
@@ -88,6 +84,7 @@ const CriteriasContent = ({
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -170,8 +167,6 @@ const CriteriasContent = ({
                   <Actions
                     save={
                       <Save
-                        canSaveFilter={canSaveFilter}
-                        canSaveFilterAsNew={canSaveFilterAsNew}
                         closePopover={closePopover}
                         getIsCreateFilter={getIsCreateFilter}
                       />
@@ -193,7 +188,6 @@ const CriteriasContent = ({
 
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
-        loadFiltersAndUpdateCurrent={loadFiltersAndUpdateCurrent}
       />
     </>
   );

@@ -1,16 +1,16 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { omit } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
 
 import { labelFilterCreated } from '../../translatedLabels';
+import useActionFilter from '../Edit/EditButton/useActionFilter';
 import CreateFilterDialog from '../Save/CreateFilterDialog';
 import { createFilter } from '../api';
 import { currentFilterAtom } from '../filterAtoms';
-import { Filter } from '../models';
 
 interface DataCreateFilter {
   isCreatingFilter: boolean;
@@ -19,17 +19,14 @@ interface DataCreateFilter {
 
 interface Props {
   dataCreateFilter: DataCreateFilter;
-  loadFiltersAndUpdateCurrent: (data: Filter) => void;
 }
 
-const SaveActions = ({
-  dataCreateFilter,
-  loadFiltersAndUpdateCurrent
-}: Props): JSX.Element => {
+const SaveActions = ({ dataCreateFilter }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
   const currentFilter = useAtomValue(currentFilterAtom);
+  const { loadFiltersAndUpdateCurrent } = useActionFilter();
 
   const { isCreatingFilter, setIsCreatingFilter } = dataCreateFilter;
 

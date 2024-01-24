@@ -64,7 +64,6 @@ const Save = ({ getIsCreateFilter, closePopover }: Save): JSX.Element => {
 
   const saveAs = (): void => {
     updateFilter().then(() => {
-      console.log('work??');
       // closePopover?.();
     });
   };
