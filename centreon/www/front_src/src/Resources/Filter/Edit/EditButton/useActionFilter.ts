@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   and,
@@ -31,15 +33,17 @@ import { Filter } from '../../models';
 interface UseActionFilter {
   canSaveFilter: boolean;
   canSaveFilterAsNew: boolean;
+  isFilterUpdated: boolean;
   isNewFilter: boolean;
   loadFiltersAndUpdateCurrent: (data: Filter) => void;
   sendingListCustomFiltersRequest: boolean;
   sendingUpdateFilterRequest: boolean;
-  updateFilter: () => Promise<void>;
+  updateFilter: () => void;
 }
 
 const useActionFilter = (): UseActionFilter => {
   const { t } = useTranslation();
+  const [isFilterUpdated, setIsFilterUpdated] = useState(false);
   const {
     sendRequest: sendUpdateFilterRequest,
     sending: sendingUpdateFilterRequest
@@ -94,11 +98,13 @@ const useActionFilter = (): UseActionFilter => {
   const loadFiltersAndUpdateCurrent = (newFilter: Filter): void => {
     loadCustomFilters?.().then(() => {
       applyFilter(newFilter);
+      setIsFilterUpdated(true);
     });
   };
 
-  const updateFilter = (): Promise<void> => {
-    return sendUpdateFilterRequest({
+  const updateFilter = (): void => {
+    setIsFilterUpdated(false);
+    sendUpdateFilterRequest({
       filter: omit(['id'], currentFilter),
       id: currentFilter.id
     }).then((savedFilter) => {
@@ -110,6 +116,7 @@ const useActionFilter = (): UseActionFilter => {
   return {
     canSaveFilter,
     canSaveFilterAsNew,
+    isFilterUpdated,
     isNewFilter,
     loadFiltersAndUpdateCurrent,
     sendingListCustomFiltersRequest,

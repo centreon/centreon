@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
+
 import { useAtomValue } from 'jotai';
-import { equals, isEmpty, omit, propEq, reject } from 'ramda';
+import { equals, isEmpty, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -34,7 +36,8 @@ const Save = ({ getIsCreateFilter, closePopover }: Save): JSX.Element => {
 
   const currentFilter = useAtomValue(currentFilterAtom);
   const customFilters = useAtomValue(customFiltersAtom);
-  const { updateFilter, canSaveFilterAsNew, canSaveFilter } = useActionFilter();
+  const { updateFilter, canSaveFilterAsNew, canSaveFilter, isFilterUpdated } =
+    useActionFilter();
 
   const baseFilters = [
     unhandledProblemsFilter,
@@ -63,10 +66,15 @@ const Save = ({ getIsCreateFilter, closePopover }: Save): JSX.Element => {
   };
 
   const saveAs = (): void => {
-    updateFilter().then(() => {
-      // closePopover?.();
-    });
+    updateFilter();
   };
+
+  useEffect(() => {
+    if (!isFilterUpdated) {
+      return;
+    }
+    closePopover?.();
+  }, [isFilterUpdated]);
 
   return (
     <>
