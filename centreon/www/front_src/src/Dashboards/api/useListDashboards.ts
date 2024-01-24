@@ -40,6 +40,7 @@ const useListDashboards = (
 
   const { data, ...queryData } = useFetchQuery<List<Dashboard>>({
     decoder: dashboardListDecoder,
+    doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsEndpoint,
