@@ -48,6 +48,9 @@ jobs:
             dockerfile: packaging-bookworm
             image: packaging-bookworm
           - runner: ubuntu-22.04
+            dockerfile: packaging-nfpm-jammy
+            image: packaging-nfpm-jammy
+          - runner: ubuntu-22.04
             dockerfile: packaging-nfpm-bullseye
             image: packaging-nfpm-bullseye
           - runner: ubuntu-22.04
