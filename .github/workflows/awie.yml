@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
         include:
           - package_extension: rpm
             image: packaging-alma8
@@ -59,6 +59,9 @@ jobs:
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-bookworm
+            distrib: bookworm
 
     runs-on: ubuntu-22.04
 
@@ -141,7 +144,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -163,7 +166,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources
