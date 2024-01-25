@@ -15,6 +15,7 @@ import { useCollapsibleItemStyles } from './useCollapsibleItemStyles';
 export interface Props {
   children: ReactNode;
   compact?: boolean;
+  dataTestId?: string;
   defaultExpanded?: boolean;
   title: string | JSX.Element;
 }
@@ -23,7 +24,8 @@ export const CollapsibleItem = ({
   title,
   children,
   defaultExpanded,
-  compact = false
+  compact = false,
+  dataTestId = ''
 }: Props): JSX.Element => {
   const { classes, cx } = useCollapsibleItemStyles();
 
@@ -34,6 +36,7 @@ export const CollapsibleItem = ({
       disableGutters
       className={classes.accordion}
       data-compact={compact}
+      data-testid={`${dataTestId}-accordion`}
       defaultExpanded={defaultExpanded}
     >
       <div className={classes.summaryContainer}>
@@ -51,6 +54,7 @@ export const CollapsibleItem = ({
                 : classes.accordionSummaryRoot
             )
           }}
+          data-testid={`${dataTestId}-summary`}
           expandIcon={<ExpandMoreIcon color="primary" />}
         >
           {isStringTitle && (

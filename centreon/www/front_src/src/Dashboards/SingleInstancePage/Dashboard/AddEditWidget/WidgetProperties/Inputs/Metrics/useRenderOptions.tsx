@@ -292,11 +292,16 @@ export const useRenderOptions = ({
       <ListItem disableGutters>
         <CollapsibleItem
           compact
+          dataTestId={option.name}
           title={
             <div className={classes.resourcesOptionRadioCheckbox}>
               <Radio
                 checked={Boolean(getSelectedMetricByMetricName(option.name))}
                 className={classes.radioCheckbox}
+                data-checked={Boolean(
+                  getSelectedMetricByMetricName(option.name)
+                )}
+                data-testid={option.name}
                 size="small"
                 onChange={selectMetric(option)}
               />
@@ -343,11 +348,13 @@ export const useRenderOptions = ({
       <ListItem disableGutters>
         <CollapsibleItem
           compact
+          dataTestId={option.name}
           title={
             <div className={classes.resourcesOptionRadioCheckbox}>
               <Checkbox
                 checked={isMetricChecked}
                 className={classes.radioCheckbox}
+                data-testid={option.name}
                 indeterminate={isMetricIndeterminate}
                 size="small"
                 onChange={selectMetricsWithAllResources(option)}
@@ -374,6 +381,7 @@ export const useRenderOptions = ({
                     })
                   }
                   className={classes.radioCheckbox}
+                  data-testid={`${option.name}_${parentName}:${name}`}
                   size="small"
                   onChange={resourceChange({ metric: option, metricId })}
                 />

@@ -35,7 +35,6 @@ interface UseMetricsOnlyState {
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
   deleteMetricItem: (index) => void;
   error?: string;
-  getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
   hasNoResources: () => boolean;
@@ -84,7 +83,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     metrics,
     metricCount,
-    unitsFromSelectedMetrics,
     servicesMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
@@ -150,17 +148,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     [propertyName]
   );
 
-  const getMetricOptionDisabled = useCallback(
-    (metricOption): boolean => {
-      if (!hasReachedTheLimitOfUnits) {
-        return false;
-      }
-
-      return !includes(metricOption.unit, unitsFromSelectedMetrics);
-    },
-    useDeepCompare([hasReachedTheLimitOfUnits, unitsFromSelectedMetrics])
-  );
-
   const hasNoResources = useCallback(
     (): boolean => {
       if (!resources.length) {
@@ -217,9 +204,11 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
         return undefined;
       }
 
-      return (servicesMetrics?.result || []).filter((service) =>
+      const resource = (servicesMetrics?.result || []).filter((service) =>
         service.metrics.filter((metric) => equals(metric.name, metricName))
-      )[0].name;
+      )[0];
+
+      return `${resource.parentName}:${resource.name}`;
     },
     useDeepCompare([servicesMetrics])
   );
@@ -299,7 +288,6 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     changeMetrics,
     deleteMetricItem,
     error,
-    getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
     hasNoResources,

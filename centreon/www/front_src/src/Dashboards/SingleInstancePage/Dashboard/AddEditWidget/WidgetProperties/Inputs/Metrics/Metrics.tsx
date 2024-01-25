@@ -48,7 +48,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     selectedMetrics,
     getOptionLabel,
     getTagLabel,
-    getMetricOptionDisabled,
     deleteMetricItem,
     error,
     isTouched,
@@ -132,7 +131,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
-            getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
