@@ -1,13 +1,12 @@
-from robot.api import logger
-
-
 def is_gorgone_finished(http_data):
-    with open('/tmp/output.txt', 'a') as f:
-        f.write('Hi\n')
 
+    if 'error' in http_data.keys() and http_data["error"]:
+        raise Exception("Found an error in gorgone response : " + http_data["error"])
     for elem in http_data["data"]:
-        with open('/tmp/output.txt', 'a') as f:
-            f.write('DATA : ' + elem["data"] + "\n")
-        if "discovery finished" in elem["data"]:
-            return 1
+
+        if 'data' in elem.keys():
+            if 'cannot launch discovery' in elem['data']:
+                raise Exception("gorgone can't launch discovery : " + http_data["data"])
+            if elem["data"] and "discovery finished" in elem["data"]:
+                return 1
     return 0
