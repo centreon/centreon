@@ -102,10 +102,8 @@ class PerformanceMetricsDataFactory
             $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
-        $base = PerformanceMetricsData::DEFAULT_BASE;
-        if (! empty($metricBases)) {
-            $base = $this->getHighestBase($metricBases);
-        }
+
+        $base = !empty($metricBases)  ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
         $metricsInfo = !empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
         $times = !empty($times) ? $this->getTimes($times) : [];
 
