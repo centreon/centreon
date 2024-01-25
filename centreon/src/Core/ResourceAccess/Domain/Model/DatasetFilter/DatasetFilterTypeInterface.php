@@ -21,34 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\Repository;
+namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\ResourceAccess\Domain\Model\Rule;
-use Core\ResourceAccess\Domain\Model\TinyRule;
-
-interface ReadRuleRepositoryInterface
+interface DatasetFilterTypeInterface
 {
     /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return TinyRule[]
+     * @return string
      */
-    public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function getName(): string;
 
     /**
-     * Checks if the rule name provided as been already used for a rule.
-     *
      * @param string $name
      *
      * @return bool
      */
-    public function existsByName(string $name): bool;
+    public function isValidFor(string $name): bool;
 
     /**
-     * @param int $ruleId
-     *
-     * @return null|Rule
+     * @return string[]|array{}
      */
-    public function findById(int $ruleId): ?Rule;
+    public function getPossibleChildren(): array;
 }
+
