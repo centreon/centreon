@@ -332,7 +332,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
 
         $query .= " LEFT JOIN `customvariables` cv ";
         $query .= " ON (cv.host_id = h.host_id ";
-        $query .= " AND cv.service_id IS NULL ";
+        $query .= " AND (cv.service_id IS NULL OR cv.service_id = '')";
         $query .= " AND cv.name = 'CRITICALITY_LEVEL') ";
 
         $query .= " WHERE h.name NOT LIKE '\_Module\_%'";
@@ -341,7 +341,7 @@ class CentreonRealtimeHosts extends CentreonRealtimeBase
         if ($this->criticality) {
             $query .= " AND h.host_id = cvs.host_id ";
             $query .= " AND cvs.name = 'CRITICALITY_LEVEL' ";
-            $query .= " AND cvs.service_id IS NULL ";
+            $query .= " AND (cvs.service_id IS NULL OR csv.service_id = '')";
             $query .= " AND cvs.value = :criticality ";
             $queryValues['criticality'] = (string)$this->criticality;
         }
