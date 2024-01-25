@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "f080db3a-ba7a-4e67-9de9-0dbef0dfe1d0",
-		"name": "08 - Check",
+		"name": "08 - NEED FIXES - Check",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f080db3a-ba7a-4e67-9de9-0dbef0dfe1d0?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f080db3a-ba7a-4e67-9de9-0dbef0dfe1d0?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -531,13 +531,13 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve last_check value for the host",
+					"name": "Retrieve last_check value for the host by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -546,12 +546,29 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is retrieved for the host.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
-									"});\r",
-									""
+									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the host by the admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -582,13 +599,13 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve last_check value for the service",
+					"name": "Retrieve last_check value for the service by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -597,12 +614,25 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is retrieved for the service.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
-									"});\r",
-									""
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the service by the admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -641,7 +671,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -680,13 +710,13 @@
 					"response": []
 				},
 				{
-					"name": "Compare last_check value for the host",
+					"name": "Compare last_check value for the host by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -696,10 +726,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is different for the host.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
-									"});\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckHost\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the host by the admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
+									"    });\r",
+									"\r",
+									"}\r",
 									""
 								],
 								"type": "text/javascript"
@@ -731,13 +776,13 @@
 					"response": []
 				},
 				{
-					"name": "Compare last_check value for the service",
+					"name": "Compare last_check value for the service by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -747,11 +792,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is different for the service.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckService\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the service by the admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -855,7 +914,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -906,7 +965,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -957,7 +1016,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1008,7 +1067,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1059,7 +1118,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1110,7 +1169,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1161,7 +1220,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1212,7 +1271,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL action has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1263,7 +1322,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL action has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1436,7 +1495,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1448,6 +1507,7 @@
 									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
 									"});\r",
+									"\r",
 									""
 								],
 								"type": "text/javascript"
@@ -1485,7 +1545,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1581,7 +1641,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1630,7 +1690,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1806,7 +1866,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant acknowledgement action in Action-non-admin (successful)",
+					"name": "Grant check scheduling action in Action-non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1821,7 +1881,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The check scheduling right has successfully been grant.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2040,7 +2100,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2089,7 +2149,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2185,7 +2245,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2234,7 +2294,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2425,7 +2485,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2638,13 +2698,13 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve last_check value for the host",
+					"name": "Retrieve last_check value for the host by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2653,12 +2713,25 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is retrieved for the host.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
-									"});\r",
-									""
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the host by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2689,13 +2762,13 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve last_check value for the service",
+					"name": "Retrieve last_check value for the service by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2704,12 +2777,25 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is retrieved for the service.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
-									"});\r",
-									""
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the service by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2748,7 +2834,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2787,13 +2873,13 @@
 					"response": []
 				},
 				{
-					"name": "Compare last_check value for the service",
+					"name": "Compare last_check value for the service by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 15000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2803,11 +2889,26 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is different for the service.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckHost\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the service by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
+									"    });\r",
+									"\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2840,13 +2941,13 @@
 					"response": []
 				},
 				{
-					"name": "Compare last_check value for the host",
+					"name": "Compare last_check value for the host by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2856,11 +2957,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"last_check value is different for the host.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckService\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the host by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -3004,72 +3119,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Service1Name",
-			"value": ""
-		},
-		{
-			"key": "Service1Id",
-			"value": ""
-		},
-		{
-			"key": "lastCheckHost",
-			"value": ""
-		},
-		{
-			"key": "lastCheckService",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }

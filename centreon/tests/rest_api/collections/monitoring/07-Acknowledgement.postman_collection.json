@@ -4,7 +4,7 @@
 		"name": "07 - NEED FIXES - Acknowledgement",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -867,13 +867,13 @@
 					"response": []
 				},
 				{
-					"name": "Scheduled a check on a host",
+					"name": "Schedule a check on a host",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -882,9 +882,26 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Schedule a check on a host\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The check has been successfully sent\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -913,13 +930,13 @@
 					"response": []
 				},
 				{
-					"name": "Scheduled a check on a service",
+					"name": "Schedule a check on a service",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -928,9 +945,22 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Schedule a check on a host\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The check has been successfully sent\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -967,7 +997,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -976,13 +1006,25 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service is in HARD state.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"    pm.expect(responseJson.state).not.to.eql(0);\r",
-									"});\r",
-									""
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Wait for the service to be in HARD state\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The service is in Hard state\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1021,7 +1063,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1030,12 +1072,25 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Host is in HARD state.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"    pm.expect(responseJson.state).not.to.eql(0);\r",
-									"});"
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != 200) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Wait for the host to be in HARD state\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The host is in Hard state\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
+									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1066,7 +1121,7 @@
 					"response": []
 				},
 				{
-					"name": "1 - Acknowledge all resources",
+					"name": "Acknowledge all resources by admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1111,13 +1166,13 @@
 					"response": []
 				},
 				{
-					"name": "List acknowledged resources",
+					"name": "List acknowledged resources by admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1127,38 +1182,52 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Acknowledgements have been listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
 									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"deletion_time\": null,\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((responseJson.result.length == 0) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"List acknowledged resources by admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        \r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"deletion_time\": null,\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"deletion_time\": null,\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"\r",
 									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"deletion_time\": null,\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"\r",
-									"});"
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1188,7 +1257,7 @@
 					"response": []
 				},
 				{
-					"name": "Disacknowledgement",
+					"name": "Disacknowledge all resources by admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1233,13 +1302,13 @@
 					"response": []
 				},
 				{
-					"name": "List disacknowledged resources",
+					"name": "List disacknowledged resources by admin",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1249,39 +1318,53 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Acknowledgements have been listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
 									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null) && (responseJson.result[1].deletion_time == null)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"List disacknowledged resources by admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Disacknowledgements have been listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            //\"deletion_time\": null,\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
+									"\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        //\"deletion_time\": null,\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"});"
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1374,7 +1457,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"pm.test(\"The user ID has been successfully retrieved.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"  for(let i=0; i < responseJson.result.length; i++){\r",
 									"    if(responseJson.result[i].alias === pm.collectionVariables.get('api_login_user_non_admin')){\r",
@@ -1439,7 +1522,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1490,7 +1573,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1541,7 +1624,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1592,7 +1675,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1643,7 +1726,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1694,7 +1777,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1745,7 +1828,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1796,7 +1879,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL action has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1847,7 +1930,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL action has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2014,7 +2097,7 @@
 					"response": []
 				},
 				{
-					"name": "1 - Acknowledge all resources",
+					"name": "Acknowledge all resources by user non-admin without rights",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2059,13 +2142,13 @@
 					"response": []
 				},
 				{
-					"name": "List acknowledged resources (none found)",
+					"name": "List acknowledged resources by user non-admin without rights",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 5000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2109,7 +2192,7 @@
 					"response": []
 				},
 				{
-					"name": "Disacknowledgement",
+					"name": "Disacknowledge all resources by user non-admin without rights",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2301,7 +2384,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Acknowledgement right has successfully been grant.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2514,7 +2597,7 @@
 					"response": []
 				},
 				{
-					"name": "1 - Acknowledge all resources",
+					"name": "Acknowledge all resources by user non-admin without access to resources",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2559,7 +2642,7 @@
 					"response": []
 				},
 				{
-					"name": "List acknowledged resources (none found)",
+					"name": "List acknowledged resources by user non-admin without access to resources",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2609,7 +2692,7 @@
 					"response": []
 				},
 				{
-					"name": "Disacknowledgement",
+					"name": "Disacknowledge all resources by user non-admin without access to resources",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2801,7 +2884,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -3014,7 +3097,7 @@
 					"response": []
 				},
 				{
-					"name": "1 - Acknowledge all resources",
+					"name": "Acknowledge all resources by user non-admin with correct rights",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3059,13 +3142,13 @@
 					"response": []
 				},
 				{
-					"name": "List acknowledged resources",
+					"name": "List acknowledged resources by user non-admin with correct rights",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -3075,66 +3158,79 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Acknowledgements have been listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
 									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"        \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"        \"comment\": \"Acknowledged by user non admin\",\r",
-									"        \"deletion_time\": null,\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result.length != 4)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"List acknowledged resources by user non-admin with correct rights\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
+									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
+									"            \"comment\": \"Acknowledged by user non admin\",\r",
+									"            \"deletion_time\": null,\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
+									"\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
+									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
+									"            \"comment\": \"Acknowledged by user non admin\",\r",
+									"            \"deletion_time\": null,\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[3]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
+									"\r",
 									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"        \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"        \"comment\": \"Acknowledged by user non admin\",\r",
-									"        \"deletion_time\": null,\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[3]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"});"
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -3164,7 +3260,7 @@
 					"response": []
 				},
 				{
-					"name": "Disacknowledgement",
+					"name": "Disacknowledge by user non-admin with correct rights",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3209,13 +3305,13 @@
 					"response": []
 				},
 				{
-					"name": "List disacknowledged resources",
+					"name": "List disacknowledged resources by user non-admin with correct rights",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -3225,65 +3321,80 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Acknowledgements have been listed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"        \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"        \"comment\": \"Acknowledged by user non admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": 0,\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"        \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"        \"comment\": \"Acknowledged by user non admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 1,\r",
-									"        \"type\": 0\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[2].deletion_time).not.to.equal(null);\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result.length != 4) && (responseJson.result[0].deletion_time == null) && (responseJson.result[2].deletion_time == null)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"List disacknowledged resources by user non-admin with correct rights\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.expect(responseJson.result[3]).to.include({\r",
-									"        \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"        \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"        \"author_id\": 1,\r",
-									"        \"author_name\": \"admin\",\r",
-									"        \"comment\": \"Acknowledged by admin\",\r",
-									"        \"is_notify_contacts\": false,\r",
-									"        \"is_persistent_comment\": false,\r",
-									"        \"is_sticky\": false,\r",
-									"        \"state\": 3,\r",
-									"        \"type\": 1\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
+									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        \r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
+									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
+									"            \"comment\": \"Acknowledged by user non admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
-									"});"
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": 0,\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
+									"\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
+									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
+									"            \"comment\": \"Acknowledged by user non admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[2].deletion_time).not.to.equal(null);\r",
+									"\r",
+									"        pm.expect(responseJson.result[3]).to.include({\r",
+									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
+									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
+									"            \"author_id\": 1,\r",
+									"            \"author_name\": \"admin\",\r",
+									"            \"comment\": \"Acknowledged by admin\",\r",
+									"            \"is_notify_contacts\": false,\r",
+									"            \"is_persistent_comment\": false,\r",
+									"            \"is_sticky\": false,\r",
+									"            \"state\": 3,\r",
+									"            \"type\": 1\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
+									"\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
