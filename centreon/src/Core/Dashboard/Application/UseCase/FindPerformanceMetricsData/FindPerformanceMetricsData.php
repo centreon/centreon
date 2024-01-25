@@ -108,23 +108,7 @@ final class FindPerformanceMetricsData
             $request->metricNames,
             $this->requestParameters
         );
-        $metricsData = [];
-        $this->metricRepositoryLegacy->setContact($this->user);
-        foreach ($services as $service) {
-            /** @var _MetricData $data */
-            $data = $this->metricRepositoryLegacy->findMetricsByService(
-                $service,
-                $request->startDate,
-                $request->endDate
-            );
-            $metricsData[] = $data;
-        }
-        if (empty($metricsData)) {
-            throw MetricException::metricsNotFound();
-        }
-
-        return (new PerformanceMetricsDataFactory())
-            ->createFromRecords($metricsData, $request->metricNames);
+        return $this->createPerformanceMetricsData($services, $request);
     }
 
     /**
@@ -147,6 +131,24 @@ final class FindPerformanceMetricsData
             $accessGroups,
             $this->requestParameters
         );
+        return $this->createPerformanceMetricsData($services, $request);
+
+    }
+
+    private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
+    {
+        $response = new FindPerformanceMetricsDataResponse();
+        $response->base = $performanceMetricsData->getBase();
+        $response->metricsInformation = $performanceMetricsData->getMetricsInformation();
+        $response->times = $performanceMetricsData->getTimes();
+
+        return $response;
+    }
+
+    private function createPerformanceMetricsData(
+        array $services,
+        FindPerformanceMetricsDataRequest $request
+    ): PerformanceMetricsData {
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
@@ -158,21 +160,8 @@ final class FindPerformanceMetricsData
             );
             $metricsData[] = $data;
         }
-        if ([] === $metricsData) {
-            throw MetricException::metricsNotFound();
-        }
 
         return (new PerformanceMetricsDataFactory())
             ->createFromRecords($metricsData, $request->metricNames);
-    }
-
-    private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
-    {
-        $response = new FindPerformanceMetricsDataResponse();
-        $response->base = $performanceMetricsData->getBase();
-        $response->metricsInformation = $performanceMetricsData->getMetricsInformation();
-        $response->times = $performanceMetricsData->getTimes();
-
-        return $response;
     }
 }

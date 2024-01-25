@@ -233,6 +233,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 id.`service_id`
             FROM `:dbstg`.`index_data` AS id
                 INNER JOIN `:dbstg`.`metrics` AS m ON m.`index_id` = id.`id`
+                INNER JOIN `:dbstg`.`resources` AS r on r.`parent_id` = id.`host_id`
             SQL;
 
         $accessGroupIds = \array_map(
@@ -267,6 +268,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $metricNamesQuery = implode(', ', \array_keys($bindValues));
         $request .= <<<SQL
                 WHERE m.metric_name IN ({$metricNamesQuery})
+                AND r.enabled = 1
             SQL;
 
         return $request;

@@ -102,9 +102,12 @@ class PerformanceMetricsDataFactory
             $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
-        $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->createMetricInformations($metrics, $metricNames);
-        $times = $this->getTimes($times);
+        $base = PerformanceMetricsData::DEFAULT_BASE;
+        if (! empty($metricBases)) {
+            $base = $this->getHighestBase($metricBases);
+        }
+        $metricsInfo = !empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = !empty($times) ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }
