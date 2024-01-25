@@ -13,35 +13,39 @@ const {
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  jscTransformConfiguration
+  jscTransformConfiguration,
+  enableCoverage
 }) => ({
   cache,
-  module: getModuleConfiguration(jscTransformConfiguration),
+  module: getModuleConfiguration(jscTransformConfiguration, enableCoverage),
   optimization,
-  output,
+  output: {
+    ...output,
+    library: moduleName,
+    uniqueName: moduleName
+  },
   plugins: [
     new CleanWebpackPlugin(),
     moduleName &&
       new ModuleFederationPlugin({
         filename: 'remoteEntry.[chunkhash:8].js',
-        library: { name: moduleName, type: 'var' },
+        library: { name: moduleName, type: 'umd' },
         name: moduleName,
         shared: [
           {
             '@centreon/ui-context': {
-              requiredVersion: '22.10.0',
+              requiredVersion: '24.x',
               singleton: true
             }
           },
           {
             jotai: {
-              requiredVersion: '1.x',
+              requiredVersion: '2.x',
               singleton: true
             }
           },
           {
             'jotai-suspense': {
-              requiredVersion: '0.1.x',
               singleton: true
             }
           },
@@ -75,10 +79,10 @@ const getBaseConfiguration = ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      react: path.resolve('./node_modules/react'),
       '@centreon/ui/fonts': path.resolve(
         './node_modules/@centreon/ui/public/fonts'
-      )
+      ),
+      react: path.resolve('./node_modules/react')
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   }

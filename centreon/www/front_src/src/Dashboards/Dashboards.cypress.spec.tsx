@@ -24,6 +24,8 @@ import {
   labelName,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
+import { routerHooks } from './routerHooks';
+import { DashboardLayout } from './models';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -31,6 +33,7 @@ interface InitializeAndMountProps {
   canViewDashboard?: boolean;
   emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
+  layout?: DashboardLayout;
   ownRole?: DashboardRole;
 }
 
@@ -39,7 +42,8 @@ const initializeAndMount = ({
   canCreateDashboard = true,
   canViewDashboard = true,
   canAdministrateDashboard = true,
-  emptyList
+  emptyList,
+  layout = DashboardLayout.Library
 }: InitializeAndMountProps): ReturnType<typeof createStore> => {
   const store = createStore();
 
@@ -118,6 +122,10 @@ const initializeAndMount = ({
     method: Method.DELETE,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
+  });
+
+  cy.stub(routerHooks, 'useParams').returns({
+    layout
   });
 
   cy.mount({
@@ -258,7 +266,7 @@ describe('Dashboards', () => {
     cy.waitForRequest('@postDashboards');
     cy.url().should(
       'equal',
-      'http://localhost:9092/home/dashboards/1?edit=true'
+      'http://localhost:9092/home/dashboards/library/1?edit=true'
     );
   });
 

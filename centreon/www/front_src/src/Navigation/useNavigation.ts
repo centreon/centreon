@@ -43,7 +43,7 @@ const propExists = <T>(property: string): ((obj: T) => boolean) =>
 const getAllowedPages = ({ page, newAccumulator }): Array<string> => {
   return cond([
     [
-      propEq('is_react', true) as (obj: Page) => boolean,
+      propEq(true, 'is_react') as (obj: Page) => boolean,
       always(append<string>(page.url as string, newAccumulator))
     ],
     [

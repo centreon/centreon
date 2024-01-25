@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const fetch = require('node-fetch');
+const { compareVersions } = require('compare-versions');
 
 const getPackageInformations = async () => {
   const package = core.getInput('package');
@@ -14,7 +14,14 @@ try {
   const tag = gitBranchName === 'develop' ? 'latest' : gitBranchName;
 
   getPackageInformations().then((package) => {
-    core.setOutput("package_version", package['dist-tags'][tag] || '')
+    const latestPackageVersion = package['dist-tags'][tag];
+
+    if (latestPackageVersion && compareVersions(latestPackageVersion, core.getInput('current_package_version')) === -1) {
+      core.setOutput("package_version", core.getInput('current_package_version'));
+      return;
+    }
+
+    core.setOutput("package_version", latestPackageVersion || '')
   });
 } catch (error) {
   core.setFailed(error.message);

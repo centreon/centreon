@@ -98,39 +98,48 @@ class CentreonConfigPoller
     }
 
     /**
-     * Get dynamic centcore pipe file when possible
+     * Write command to centcore pipe, using the dynamic centcore pipe file
+     * when possible
      *
-     * @return string
+     * @param string $cmd
+     * @param int $id
+     * @return int
      */
-    private function getCentcorePipe(): string
+    private function writeToCentcorePipe($cmd, $id): int
     {
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            return _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+            $pipe = _CENTREON_VARLIB_ . '/centcore/' . hrtime(true) . '-externalcommand.cmd';
+        } else {
+            $pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
-
-        return _CENTREON_VARLIB_ . '/centcore.cmd';
+        $fullCommand = sprintf("%s:%d" . PHP_EOL, $cmd, $id);
+        $result = file_put_contents($pipe, $fullCommand, FILE_APPEND);
+        return ($result !== false) ? 0 : 1;
     }
 
     /**
+     * Check for the existence of poller with ID or name $poller, and return
+     * the ID of that poller. If the poller does not exist, raise an exception.
      *
-     * @param type $poller
-     * @return type
+     * @param string|int $poller
+     * @return int
      */
-    private function testPollerId($poller)
+    private function ensurePollerId($poller)
     {
         if (is_numeric($poller)) {
-            $sQuery = "SELECT id FROM nagios_server WHERE `id` = '" . $this->DB->escape($poller) . "'";
+            $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE id = :poller");
+            $statement->bindValue(':poller', $poller, \PDO::PARAM_INT);
         } else {
-            $sQuery = "SELECT id FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
+            $statement = $this->DB->prepare("SELECT id FROM nagios_server WHERE name = :poller");
+            $statement->bindValue(':poller', $poller, \PDO::PARAM_STR);
         }
 
-        $DBRESULT = $this->DB->query($sQuery);
-        if ($DBRESULT->rowCount() != 0) {
-            return;
+        $statement->execute();
+        if ($statement->rowCount() > 0) {
+            $row = $statement->fetchRow();
+            return $row['id'];
         } else {
-            print "ERROR: Unknown poller...\n";
-            $this->getPollerList('');
-            exit(1);
+            throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
         }
     }
 
@@ -164,8 +173,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $poller_id = $this->getPollerId($variables);
-        $this->testPollerId($poller_id);
+        $poller_id = $this->ensurePollerId($variables);
 
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
@@ -177,12 +185,8 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $reloadCommand = $this->commandGenerator->getEngineCommand('RELOAD');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $reloadCommand, $host["id"], $this->getCentcorePipe()),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
+        $return_code = $this->writeToCentcorePipe($reloadCommand, $host["id"]);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         $msg_restart = _("OK: A reload signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -202,15 +206,13 @@ class CentreonConfigPoller
      */
     public function execCmd($pollerId)
     {
-        $this->testPollerId($pollerId);
-
         $instanceClassFile = $this->centreon_path . 'www/class/centreonInstance.class.php';
         if (!is_file($instanceClassFile)) {
             throw new CentreonClapiException('This action is not available in the version of Centreon you are using');
         }
         require_once $instanceClassFile;
 
-        $pollerId = $this->getPollerId($pollerId);
+        $pollerId = $this->ensurePollerId($pollerId);
 
         $instanceObj = new \CentreonInstance($this->DB);
         $cmds = $instanceObj->getCommandData($pollerId);
@@ -242,8 +244,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $this->testPollerId($variables);
-        $poller_id = $this->getPollerId($variables);
+        $poller_id = $this->ensurePollerId($variables);
 
         $statement = $this->DB->prepare(
             "SELECT * FROM `nagios_server` WHERE `id` = :poller_id  LIMIT 1"
@@ -255,12 +256,8 @@ class CentreonConfigPoller
 
         $this->commandGenerator = $this->container->get(EngineCommandGenerator::class);
         $restartCommand = $this->commandGenerator->getEngineCommand('RESTART');
-        exec(
-            sprintf("echo '%s:%d' >> %s", $restartCommand, $host["id"], $this->getCentcorePipe()),
-            $stdout,
-            $return_code
-        );
-        exec("echo 'RELOADBROKER:" . $host["id"] . "' >> " . $this->getCentcorePipe(), $stdout, $return_code);
+        $return_code = $this->writeToCentcorePipe($restartCommand, $host["id"]);
+        $return_code = $this->writeToCentcorePipe('RELOADBROKER', $host["id"]);
         $msg_restart = _("OK: A restart signal has been sent to '" . $host["name"] . "'");
         print $msg_restart . "\n";
         $statement = $this->DB->prepare(
@@ -285,9 +282,7 @@ class CentreonConfigPoller
             exit(1);
         }
 
-        $this->testPollerId($variables);
-
-        $idPoller = $this->getPollerId($variables);
+        $idPoller = $this->ensurePollerId($variables);
 
         /**
          * Get Nagios Bin
@@ -378,18 +373,14 @@ class CentreonConfigPoller
 
         $config_generate = new \Generate($this->dependencyInjector);
 
-        $this->testPollerId($variables);
-
-        $poller_id = $this->getPollerId($variables);
-        //sanitize poller id against traversal path vulnerability
-        $poller_id = basename($poller_id);
+        $poller_id = $this->ensurePollerId($variables);
         $config_generate->configPollerFromId($poller_id, $login);
 
         /* Change files owner */
         $apacheUser = $this->getApacheUser();
 
         $setFilesOwner = 1;
-        if ($apacheUser != "") {
+        if (posix_getuid() === 0 && $apacheUser != "") {
             /* Change engine Path mod */
             chown($this->engineCachePath . "/$poller_id", $apacheUser);
             chgrp($this->engineCachePath . "/$poller_id", $apacheUser);
@@ -447,12 +438,7 @@ class CentreonConfigPoller
 
         $return = 0;
 
-        /**
-         * Check poller existence
-         */
-        $this->testPollerId($variables);
-
-        $pollerId = (int) $this->getPollerId($variables);
+        $pollerId = $this->ensurePollerId($variables);
 
         $statement = $pearDB->prepare("SELECT * FROM `nagios_server` WHERE `id` = :pollerId");
         $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
@@ -491,16 +477,20 @@ class CentreonConfigPoller
                     if (strpos($file, '..') !== false) {
                         throw new \Exception('Path traversal found');
                     }
-                    @chown($file, $apacheUser);
-                    @chgrp($file, $apacheUser);
+                    if (posix_getuid() === 0) {
+                        @chown($file, $apacheUser);
+                        @chgrp($file, $apacheUser);
+                    }
                 }
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
                     if (strpos($file, '..') !== false) {
                         throw new \Exception('Path traversal found');
                     }
-                    @chown($file, $apacheUser);
-                    @chgrp($file, $apacheUser);
+                    if (posix_getuid() === 0) {
+                        @chown($file, $apacheUser);
+                        @chgrp($file, $apacheUser);
+                    }
                 }
             } else {
                 print "Please check that files in the followings directory are writable by apache user : "
@@ -622,7 +612,7 @@ class CentreonConfigPoller
                     ['params' => $exportParams]
                 );
             }
-            exec("echo 'SENDCFGFILE:" . $host['id'] . "' >> " . $this->getCentcorePipe(), $stdout, $return);
+            $return = $this->writeToCentcorePipe('SENDCFGFILE', $host["id"]);
 
             $msg_copy .= _(
                 "OK: All configuration will be send to '"
@@ -672,11 +662,14 @@ class CentreonConfigPoller
         if (is_null($pollerId)) {
             throw new CentreonClapiException(self::MISSING_POLLER_ID);
         }
-        $this->testPollerId($pollerId);
+        $pollerId = $this->ensurePollerId($pollerId);
+
         $centreonDir = $this->centreon_path;
         $pearDB = $this->dependencyInjector['configuration_db'];
-        $res = $pearDB->query("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = '" . $pollerId . "'");
-        $row = $res->fetchRow();
+        $statement = $pearDB->prepare("SELECT snmp_trapd_path_conf FROM nagios_server WHERE id = :pollerId");
+        $statement->bindValue(':pollerId', $pollerId, \PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetchRow();
         $trapdPath = $row['snmp_trapd_path_conf'];
         if (!is_dir("{$trapdPath}/{$pollerId}")) {
             mkdir("{$trapdPath}/{$pollerId}");
@@ -686,8 +679,12 @@ class CentreonConfigPoller
         if (strpos($filename, '..') !== false) {
             throw new \Exception('Path traversal found');
         }
-        passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
-        exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->getCentcorePipe(), $stdout, $return);
+        $cmd = sprintf('%s %d %s 2>&1',
+                       escapeshellarg($centreonDir . '/bin/generateSqlLite'),
+                       $pollerId,
+                       escapeshellarg($filename));
+        passthru($cmd);
+        $return = $this->writeToCentcorePipe('SYNCTRAP', $pollerId);
         return $return;
     }
 
@@ -705,27 +702,6 @@ class CentreonConfigPoller
         }
         $str = "- " . $filename . " -> " . $status . "\n";
         return $str;
-    }
-
-    /**
-     *
-     * @param string $poller
-     * @return int
-     */
-    private function getPollerId($poller)
-    {
-        if (is_numeric($poller)) {
-            return $poller;
-        }
-
-        $sQuery = "SELECT id FROM nagios_server WHERE `name` = '" . $this->DB->escape($poller) . "'";
-        $DBRESULT = $this->DB->query($sQuery);
-        if ($DBRESULT->rowCount() > 0) {
-            $row = $DBRESULT->fetchRow();
-            return $row['id'];
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_POLLER_ID);
-        }
     }
 
     public function getPollerState()

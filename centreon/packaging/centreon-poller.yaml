@@ -1,0 +1,156 @@
+name: "centreon-poller"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  This package add rights and default directories for a poller
+  managed by Centreon. This includes the default central poller.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+  - dst: /var/log/centreon
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0774
+
+  - dst: /var/lib/centreon
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: /var/lib/centreon/centplugins
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: /var/run/centreon
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate}"
+    dst: "/usr/share/centreon/bin/"
+    file_info:
+      mode: 0755
+
+  - src: ./src/conf.pm
+    dst: /etc/centreon/conf.pm
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0660
+
+  - src: ./src/centreontrapd.pm
+    dst: /etc/centreon/centreontrapd.pm
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
+
+  - src: ./src/sudoersCentreon
+    dst: /etc/sudoers.d/centreon
+    file_info:
+      mode: 0600
+
+scripts:
+  postinstall: ./scripts/centreon-poller-postinstall.sh
+
+overrides:
+  rpm:
+    depends:
+      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - centreon-trap = ${VERSION}-${RELEASE}${DIST}
+      - centreon-engine >= ${MAJOR_VERSION}
+      - centreon-engine < ${NEXT_MAJOR_VERSION}
+      - centreon-broker-cbmod >= ${MAJOR_VERSION}
+      - centreon-broker-cbmod < ${NEXT_MAJOR_VERSION}
+      - centreon-connector >= ${MAJOR_VERSION}
+      - centreon-connector < ${NEXT_MAJOR_VERSION}
+      - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
+      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
+      - perl-DBD-MySQL
+      - perl-DBD-SQLite
+      - centreon-plugin-Applications-Databases-Mysql
+      - centreon-plugin-Applications-Monitoring-Centreon-Central
+      - centreon-plugin-Applications-Monitoring-Centreon-Database
+      - centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx
+      - centreon-plugin-Applications-Monitoring-Centreon-Poller
+      - centreon-plugin-Applications-Protocol-Dns
+      - centreon-plugin-Applications-Protocol-Ftp
+      - centreon-plugin-Applications-Protocol-Http
+      - centreon-plugin-Applications-Protocol-Ldap
+      - centreon-plugin-Applications-Databases-Mysql
+      - centreon-plugin-Hardware-Printers-Generic-Snmp
+      - centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp
+      - centreon-plugin-Network-Cisco-Standard-Snmp
+      - centreon-plugin-Operatingsystems-Linux-Snmp
+      - centreon-plugin-Operatingsystems-Windows-Snmp
+      - nagios-plugins-dhcp >= 2.0.0
+      - nagios-plugins-icmp >= 2.0.0
+    provides:
+      - centreon-poller
+      - centreon-poller-centreon-engine
+    replaces:
+      - centreon-plugins
+      - centreon-poller-centreon-engine
+    conflicts:
+      - centreon-poller-nagios
+  deb:
+    depends:
+      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-trap (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-engine (>= ${MAJOR_VERSION}~)"
+      - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-broker-cbmod (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-cbmod (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-connector (>= ${MAJOR_VERSION}~)"
+      - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
+      - libdbd-mysql-perl
+      - libdbd-sqlite3-perl
+      - centreon-plugin-applications-databases-mysql
+      - centreon-plugin-applications-monitoring-centreon-central
+      - centreon-plugin-applications-monitoring-centreon-database
+      - centreon-plugin-applications-monitoring-centreon-map4-jmx
+      - centreon-plugin-applications-monitoring-centreon-poller
+      - centreon-plugin-applications-protocol-dns
+      - centreon-plugin-applications-protocol-ftp
+      - centreon-plugin-applications-protocol-http
+      - centreon-plugin-applications-protocol-ldap
+      - centreon-plugin-applications-databases-mysql
+      - centreon-plugin-hardware-printers-generic-snmp
+      - centreon-plugin-hardware-ups-standard-rfc1628-snmp
+      - centreon-plugin-network-cisco-standard-snmp
+      - centreon-plugin-operatingsystems-linux-snmp
+      - centreon-plugin-operatingsystems-windows-snmp
+      - monitoring-plugins-basic
+    provides:
+      - centreon-poller-centreon-engine
+    replaces:
+      - centreon-poller-centreon-engine
+    conflicts:
+      - centreon-poller-centreon-engine
+
+rpm:
+  summary: Rights and file for pollers (including central)
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

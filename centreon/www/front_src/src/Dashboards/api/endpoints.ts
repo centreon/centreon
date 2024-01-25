@@ -37,3 +37,8 @@ export const getDashboardAccessRightsContactGroupEndpoint = (
 export const dashboardsContactsEndpoint = `${baseEndpoint}/configuration/dashboards/contacts`;
 
 export const dashboardsContactGroupsEndpoint = `${baseEndpoint}/configuration/dashboards/contactgroups`;
+
+export const playlistsEndpoint = `/configuration/dashboards/playlists`;
+
+export const playlistEndpoint = (id: number | string): string =>
+  `/configuration/dashboards/playlists/${id}`;

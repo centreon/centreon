@@ -23,20 +23,20 @@ namespace CentreonLegacy\Core\Menu;
 
 class Menu
 {
-    /** @var CentreonDB The configuration database connection */
+    /** @var \CentreonDB The configuration database connection */
     protected $db;
 
-    /** @var string The query filter for ACL */
+    /** @var string|null The query filter for ACL */
     protected $acl = null;
 
-    /** @var int The current topology page */
+    /** @var int|null The current topology page */
     protected $currentPage = null;
 
     /**
      * Constructor.
      *
-     * @param CentreonDB $db The configuration database connection
-     * @param CentreonUser $user The current user
+     * @param \CentreonDB $db The configuration database connection
+     * @param \CentreonUser $user The current user
      */
     public function __construct($db, $user = null)
     {

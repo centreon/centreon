@@ -332,12 +332,9 @@ sub routing {
             action => $action,
             raw_data_ref => $raw_data_ref,
             token => $options{token},
-            target => $target_complete,
-            nosync => 1
+            target => $target_complete
         );
     }
-
-    $options{gorgone}->router_internal_event();
 }
 
 sub gently {

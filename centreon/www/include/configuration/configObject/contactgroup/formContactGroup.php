@@ -137,7 +137,6 @@ $attrAclgroup1 = array_merge(
 );
 $form->addElement('select2', 'cg_acl_groups', _("Linked ACL groups"), array(), $attrAclgroup1);
 
-
 /*
  * Further informations
  */

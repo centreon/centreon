@@ -128,8 +128,8 @@ class FilterController extends AbstractController
     }
 
     /**
-     * @param array<mixed> $data 
-     * @return FilterCriteria[] 
+     * @param array<mixed> $data
+     * @return FilterCriteria[]
      */
     private function createFilterCriterias(array $data): array
     {
@@ -139,11 +139,11 @@ class FilterController extends AbstractController
                 ->setName($criteria['name'])
                 ->setType($criteria['type'])
                 ->setValue($criteria['value'])
-                ->setObjectType($criteria['object_type'])
-                ->setSearchData($criteria['search_data']);
+                ->setObjectType($criteria['object_type'] ?? null)
+                ->setSearchData($criteria['search_data'] ?? null);
         }
 
-        return $filterCriterias;    
+        return $filterCriterias;
     }
 
     /**
@@ -179,9 +179,6 @@ class FilterController extends AbstractController
          */
         $filterCriterias = $this->createFilterCriterias($payload);
 
-        /**
-         * @var Filter $filter    
-         */
         $filter = $this->filterService->findFilterByUserId($user->getId(), $pageName, $filterId);
         if ($filter === null) {
             throw new EntityNotFoundException(

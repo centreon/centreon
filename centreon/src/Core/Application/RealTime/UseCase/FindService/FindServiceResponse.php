@@ -34,7 +34,10 @@ use Core\Domain\RealTime\Model\ServiceStatus;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
-class FindServiceResponse
+/**
+ * @phpstan-import-type _severityArray from RealTimeResponseTrait
+ */
+final class FindServiceResponse
 {
     use RealTimeResponseTrait;
 
@@ -119,7 +122,7 @@ class FindServiceResponse
     /** @var bool */
     public $hasGraphData;
 
-    /** @var array<string, mixed>|null */
+    /** @var _severityArray|null */
     public ?array $severity = null;
 
     // @var string
@@ -158,7 +161,7 @@ class FindServiceResponse
         $this->acknowledgement = $this->acknowledgementToArray($acknowledgement);
         $this->host = $this->hostToArray($host);
         $this->categories = $this->tagsToArray($serviceCategories);
-        $this->severity = is_null($severity) ? $severity : $this->severityToArray($severity);
+        $this->severity = null === $severity ? $severity : $this->severityToArray($severity);
     }
 
     /**

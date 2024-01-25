@@ -1,49 +1,29 @@
 import { useRef } from 'react';
 
-import {
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
-import {
-  buildListingEndpoint,
-  ResponseError,
-  useFetchQuery
-} from '@centreon/ui';
+import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 import { DashboardAccessRightsContact, NamedEntity, resource } from './models';
 import { getDashboardAccessRightsContactsEndpoint } from './endpoints';
 import { List, ListQueryParams } from './meta.models';
 import { dashboardAccessRightsContactListDecoder } from './decoders';
 
-type UseListAccessRightsContactsProps<
-  TQueryFnData extends List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>,
-  TError = ResponseError,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = {
+type UseListAccessRightsContactsProps = {
   dashboardId: NamedEntity['id'] | null;
-  options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
-  >;
   params?: ListQueryParams;
 };
 
-type UseListAccessRightsContacts<
-  TError = ResponseError,
-  TData extends List<DashboardAccessRightsContact> = List<DashboardAccessRightsContact>
-> = UseQueryResult<TData | TError, TError>;
+type UseListAccessRightsContacts = {
+  data?: List<DashboardAccessRightsContact>;
+  isFetching: boolean;
+};
 
 const useListAccessRightsContacts = ({
   params,
-  dashboardId,
-  options
+  dashboardId
 }: UseListAccessRightsContactsProps): UseListAccessRightsContacts => {
   const dashboardResourceIdRef = useRef(dashboardId);
 
-  const { data, ...queryData } = useFetchQuery<
+  const { data, isFetching } = useFetchQuery<
     List<DashboardAccessRightsContact>
   >({
     decoder: dashboardAccessRightsContactListDecoder,
@@ -60,13 +40,13 @@ const useListAccessRightsContacts = ({
     ],
     queryOptions: {
       enabled: !!dashboardResourceIdRef.current,
-      ...options
+      suspense: false
     }
   });
 
   return {
-    ...queryData,
-    data
+    data,
+    isFetching
   };
 };
 

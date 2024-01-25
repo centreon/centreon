@@ -80,6 +80,7 @@ export type Props = {
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
   className?: string;
+  containerClassName?: string;
   dataTestId: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
@@ -112,6 +113,7 @@ const TextField = forwardRef(
       autoSizeCustomPadding,
       defaultValue,
       required = false,
+      containerClassName,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -142,7 +144,10 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <Box sx={{ width: autoSize ? 'auto' : '100%' }}>
+      <Box
+        className={containerClassName}
+        sx={{ width: autoSize ? 'auto' : '100%' }}
+      >
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
@@ -150,9 +155,9 @@ const TextField = forwardRef(
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
             inputProps={{
-              ...rest.inputProps,
               'aria-label': ariaLabel,
-              'data-testid': dataTestId
+              'data-testid': dataTestId,
+              ...rest.inputProps
             }}
             label={label}
             ref={ref}

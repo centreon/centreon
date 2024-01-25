@@ -55,7 +55,7 @@ const Details = (): JSX.Element | null => {
     }
 
     const isOpenTabActive = tabs
-      .find(propEq('id', openDetailsTabId))
+      .find(propEq(openDetailsTabId, 'id'))
       ?.getIsActive(details);
 
     if (!isOpenTabActive) {
@@ -72,7 +72,7 @@ const Details = (): JSX.Element | null => {
   };
 
   const getTabIndex = (tabId: TabId): number => {
-    const index = findIndex(propEq('id', tabId), getVisibleTabs());
+    const index = findIndex(propEq(tabId, 'id'), getVisibleTabs());
 
     return index > 0 ? index : 0;
   };

@@ -26,7 +26,7 @@ export const Item = ({
   return (
     <div className={classes.itemContainer}>
       <div className={cx(classes.itemContent, className)}>{children}</div>
-      {!deleteButtonHidden && (
+      <div className={cx({ [classes.visibilityHiden]: deleteButtonHidden })}>
         <IconButton
           aria-label={labelDelete}
           data-testid={labelDelete}
@@ -35,7 +35,7 @@ export const Item = ({
           variant="ghost"
           onClick={onDeleteItem}
         />
-      )}
+      </div>
     </div>
   );
 };

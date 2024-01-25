@@ -415,7 +415,7 @@ class CentreonCommand
 
     /**
      * @param $name
-     * @return null
+     * @return int|null
      * @throws Exception
      */
     public function getCommandIdByName($name)

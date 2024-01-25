@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": [{
+    "path": "/widgets/statusgrid",
+    "federatedComponents": [
+      "./statusgrid"
+    ]
+  }],
+  "moduleFederationName": "widgetstatusgrid",
+  "moduleName": "centreon-widget-statusgrid"
+}

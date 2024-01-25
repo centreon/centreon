@@ -83,6 +83,11 @@ $pearDBO = new CentreonDB("centstorage");
 require_once $path . "DB-Func.php";
 require_once "./include/common/common-Func.php";
 
+global $isCloudPlatform;
+
+$isCloudPlatform = isCloudPlatform();
+
+
 $select = filter_var_array(
     getSelectOption(),
     FILTER_VALIDATE_INT

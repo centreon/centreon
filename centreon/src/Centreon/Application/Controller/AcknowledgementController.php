@@ -701,7 +701,6 @@ class AcknowledgementController extends AbstractController
      * Entry point to bulk acknowledge resources (hosts and services).
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      *
      * @throws \Exception
      *

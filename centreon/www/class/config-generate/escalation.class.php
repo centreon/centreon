@@ -250,7 +250,7 @@ class Escalation extends AbstractObject
             if (isset($this->escalation_cache[$escalation_id]['host_inheritance_to_services']) &&
                 $this->escalation_cache[$escalation_id]['host_inheritance_to_services'] == 1
             ) {
-                $services = &$this->service_instance->getGeneratedServices();
+                $services = $this->service_instance->getGeneratedServices();
                 // host without services
                 if (!isset($services[$host_id])) {
                     continue;
@@ -288,7 +288,7 @@ class Escalation extends AbstractObject
             if (isset($this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services']) &&
                 $this->escalation_cache[$escalation_id]['hostgroup_inheritance_to_services'] == 1
             ) {
-                $services = &$this->service_instance->getGeneratedServices();
+                $services = $this->service_instance->getGeneratedServices();
 
                 foreach ($hostgroup['members'] as $host_name) {
                     $host_id = $this->host_instance->getHostIdByHostName($host_name);

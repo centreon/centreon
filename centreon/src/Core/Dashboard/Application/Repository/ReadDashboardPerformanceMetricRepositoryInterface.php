@@ -50,7 +50,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      *
      * @return ResourceMetric[]
      */
-    public function FindByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
 
     /**
      * Get metrics filtered by request parameters.

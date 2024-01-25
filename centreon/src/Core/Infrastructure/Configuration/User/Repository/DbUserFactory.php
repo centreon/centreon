@@ -25,10 +25,13 @@ namespace Core\Infrastructure\Configuration\User\Repository;
 
 use Core\Domain\Configuration\User\Model\User;
 
+/**
+ * @phpstan-import-type _UserRecord from DbReadUserRepository
+ */
 class DbUserFactory
 {
     /**
-     * @param array<string, string> $user
+     * @param _UserRecord $user
      *
      * @throws \Assert\AssertionFailedException
      *
@@ -43,7 +46,8 @@ class DbUserFactory
             $user['contact_email'],
             $user['contact_admin'] === '1',
             $user['contact_theme'],
-            $user['user_interface_density']
+            $user['user_interface_density'],
+            $user['user_can_reach_frontend'] === '1'
         );
     }
 }

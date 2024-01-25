@@ -33,6 +33,8 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 /**
  * Database repository for the access groups.
+ *
+ * @phpstan-import-type _AccessGroupRecord from DbAccessGroupFactory
  */
 final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements ReadAccessGroupRepositoryInterface
 {
@@ -98,6 +100,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         $accessGroups = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
 
@@ -110,35 +113,34 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     public function findByContact(ContactInterface $contact): array
     {
         $accessGroups = [];
-        if (! is_null($contactId = $contact->getId())) {
-            /**
-             * Retrieve all access group from contact
-             * and contact groups linked to contact.
-             */
-            $statement = $this->db->prepare(
-                "SELECT * FROM acl_groups
-                WHERE acl_group_activate = '1'
-                AND (
-                  acl_group_id IN (
-                    SELECT acl_group_id FROM acl_group_contacts_relations
-                    WHERE contact_contact_id = :contact_id
-                  )
-                  OR acl_group_id IN (
-                    SELECT acl_group_id FROM acl_group_contactgroups_relations agcr
-                    INNER JOIN contactgroup_contact_relation cgcr
-                      ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
-                    WHERE cgcr.contact_contact_id = :contact_id
-                  )
-                )"
-            );
-            $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
-            if ($statement->execute()) {
-                while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                    $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
-                }
-
-                return $accessGroups;
+        /**
+         * Retrieve all access group from contact
+         * and contact groups linked to contact.
+         */
+        $statement = $this->db->prepare(
+            "SELECT * FROM acl_groups
+            WHERE acl_group_activate = '1'
+            AND (
+              acl_group_id IN (
+                SELECT acl_group_id FROM acl_group_contacts_relations
+                WHERE contact_contact_id = :contact_id
+              )
+              OR acl_group_id IN (
+                SELECT acl_group_id FROM acl_group_contactgroups_relations agcr
+                INNER JOIN contactgroup_contact_relation cgcr
+                  ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
+                WHERE cgcr.contact_contact_id = :contact_id
+              )
+            )"
+        );
+        $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
+        if ($statement->execute()) {
+            while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                /** @var _AccessGroupRecord $result */
+                $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
             }
+
+            return $accessGroups;
         }
 
         return $accessGroups;
@@ -198,6 +200,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         $accessGroups = [];
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
 
@@ -231,6 +234,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $statement->execute();
 
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _AccessGroupRecord $result */
             $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
         }
         $this->debug('Access group found: ' . count($accessGroups));

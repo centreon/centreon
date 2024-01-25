@@ -38,7 +38,7 @@ const getListingEndpoint = ({
   page = 1,
   limit = 30,
   sort = {
-    status_severity_code: SortOrder.asc,
+    status_severity_code: SortOrder.desc,
     ...defaultSecondSortCriteria
   },
   statuses = defaultStatuses,
@@ -87,7 +87,7 @@ const getCriteriaValue = ({
   filter,
   name
 }: CriteriaValueProps): CriteriaValue | undefined => {
-  return filter.criterias.find(propEq('name', name))?.value;
+  return filter.criterias.find(propEq(name, 'name'))?.value;
 };
 
 interface FilterAndCriteriaToUpdate {
@@ -101,7 +101,7 @@ const getFilterWithUpdatedCriteria = ({
   criteriaName,
   criteriaValue
 }: FilterAndCriteriaToUpdate): Filter => {
-  const index = findIndex(propEq('name', criteriaName))(filter.criterias);
+  const index = findIndex(propEq(criteriaName, 'name'))(filter.criterias);
   const lens = lensPath(['criterias', index, 'value']);
 
   return set(lens, criteriaValue, filter);

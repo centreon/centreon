@@ -23,17 +23,27 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class MonitoringServer
 {
     public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
 
     public function __construct(
-        private int $id,
+        private readonly int $id,
+        private string $name,
     ){
+        $this->name = trim($name);
+        Assertion::notEmptyString($this->name, 'MonitoringServer::name');
     }
 
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

@@ -30,15 +30,15 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\UseCase\AddServiceSeverity\AddServiceSeverity;
 use Core\ServiceSeverity\Application\UseCase\AddServiceSeverity\AddServiceSeverityRequest;
-use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
@@ -194,7 +194,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(ServiceSeverityException::errorWhileRetrievingJustCreated(new \Exception())->getMessage());
+        ->toBe(ServiceSeverityException::errorWhileRetrievingJustCreated()->getMessage());
 });
 
 it('should return created object on success', function (): void {

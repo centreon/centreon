@@ -75,9 +75,7 @@
                     {/if}
                 {/if}
             </td>
-            {php}
-               include('./include/common/pagination.php');
-            {/php}
+            {pagination}
         </tr>
     </table>
     <table class="ListTable">
@@ -150,9 +148,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-               include('./include/common/pagination.php');
-            {/php}
+            {pagination}
         </tr>
         <tr>
             <td colspan='3' style='text-align:right;vertical-align:bottom; height: 50px;'><font color='red'>*</font>&nbsp;{$notice}</td>

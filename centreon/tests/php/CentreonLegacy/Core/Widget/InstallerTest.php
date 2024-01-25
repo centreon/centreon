@@ -150,9 +150,9 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
     public function testInstall()
     {
         $query = 'INSERT INTO widget_models ' .
-            '(title, description, url, version, directory, author, ' .
+            '(title, description, url, version, is_internal, directory, author, ' .
             'email, website, keywords, thumbnail, autoRefresh) ' .
-            'VALUES (:title, :description, :url, :version, :directory, :author, ' .
+            'VALUES (:title, :description, :url, :version, :is_internal, :directory, :author, ' .
             ':email, :website, :keywords, :thumbnail, :autoRefresh) ';
         $this->db->addResultSet(
             $query,

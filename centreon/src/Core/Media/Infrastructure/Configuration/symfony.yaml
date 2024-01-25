@@ -1,0 +1,53 @@
+parameters:
+    max_filesize: 2M
+    max_file: 20
+    post_max: 8M
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    _instanceof:
+        Symfony\Component\Console\Command\Command:
+            tags: ['script.command']
+
+    Core\Media\:
+        resource: '../../../../Core/Media/*'
+        bind:
+            $maxFilesize: '%max_filesize%'
+            $maxFile: '%max_file%'
+            $postMax: '%post_max%'
+
+    Core\Media\Infrastructure\Repository\DbReadMediaRepository:
+        arguments:
+            $logger: '@Centreon\Domain\Log\Logger'
+
+    Core\Media\Application\Repository\WriteMediaRepositoryInterface:
+        class: Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository
+
+    Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMedias:
+        arguments:
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\ApiWriteMediaRepository'
+
+    Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository:
+        class: Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository
+        arguments:
+            $absoluteMediaPath: '%media_full_path%'
+
+    Core\Media\Application\UseCase\AddMedia\AddMedia:
+        arguments:
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
+            $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+
+    Core\Media\Infrastructure\Repository\ApiWriteMediaRepository:
+        calls:
+        - method: setApiTimeOut
+          arguments: [ '%curl.timeout%' ]
+
+
+    Core\Media\Application\UseCase\FindMedias\FindMedias:
+        arguments:
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'

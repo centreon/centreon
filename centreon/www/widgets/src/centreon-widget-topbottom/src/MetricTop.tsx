@@ -53,7 +53,7 @@ const MetricTop = ({
   const formattedThresholds = useThresholds({
     data: formattedData,
     displayAsRaw,
-    metricName: metricTop.name,
+    metricName: `${metricTop.parentName}_${metricTop.name}`,
     thresholds
   });
 
@@ -61,7 +61,7 @@ const MetricTop = ({
     <>
       <Typography className={classes.resourceLabel}>
         <strong>
-          #{inc(index)} {metricTop.name}
+          #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
         </strong>
       </Typography>
       <div style={{ height: 50 }}>

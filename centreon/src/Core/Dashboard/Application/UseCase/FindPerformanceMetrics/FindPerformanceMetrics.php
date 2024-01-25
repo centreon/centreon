@@ -76,7 +76,7 @@ final class FindPerformanceMetrics
                 $this->info('find metrics for non-admin user');
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
-                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroups(
+                $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersAndAccessGroups(
                     $this->requestParameters,
                     $accessGroups
                 );
@@ -107,6 +107,8 @@ final class FindPerformanceMetrics
             $resourceMetricDto = new ResourceMetricDto();
             $resourceMetricDto->serviceId = $resourceMetric->getServiceId();
             $resourceMetricDto->resourceName = $resourceMetric->getResourceName();
+            $resourceMetricDto->parentName = $resourceMetric->getParentName();
+            $resourceMetricDto->parentId = $resourceMetric->getParentId();
             $resourceMetricDto->metrics = array_map(
                 fn (PerformanceMetric $metric) => [
                     'id' => $metric->getId(),

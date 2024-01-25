@@ -32,9 +32,13 @@ use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
+/**
+ * @phpstan-import-type _EndpointArray from Endpoint
+ */
 class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
 {
     use LoggerTrait;
@@ -233,14 +237,21 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     /**
      * @param AuthenticationConditions $authenticationConditions
      *
-     * @return array<string,array<string|null>|bool|string>
+     * @return array{
+     *     is_enabled: bool,
+     *     attribute_path: string,
+     *     endpoint: _EndpointArray|null,
+     *     authorized_values: array<string>,
+     *     trusted_client_addresses: array<string>,
+     *     blacklist_client_addresses: array<string>,
+     * }
      */
     private function authenticationConditionsToArray(AuthenticationConditions $authenticationConditions): array
     {
         return [
             'is_enabled' => $authenticationConditions->isEnabled(),
             'attribute_path' => $authenticationConditions->getAttributePath(),
-            'endpoint' => $authenticationConditions->getEndpoint()->toArray(),
+            'endpoint' => $authenticationConditions->getEndpoint()?->toArray(),
             'authorized_values' => $authenticationConditions->getAuthorizedValues(),
             'trusted_client_addresses' => $authenticationConditions->getTrustedClientAddresses(),
             'blacklist_client_addresses' => $authenticationConditions->getBlacklistClientAddresses(),
@@ -250,21 +261,30 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     /**
      * @param GroupsMapping $groupsMapping
      *
-     * @return array<string,bool|string|array<string,string|null>>
+     * @return array{
+     *     is_enabled: bool,
+     *     attribute_path: string,
+     *     endpoint: _EndpointArray|null,
+     * }
      */
     private function groupsMappingToArray(GroupsMapping $groupsMapping): array
     {
         return [
             'is_enabled' => $groupsMapping->isEnabled(),
             'attribute_path' => $groupsMapping->getAttributePath(),
-            'endpoint' => $groupsMapping->getEndpoint()->toArray(),
+            'endpoint' => $groupsMapping->getEndpoint()?->toArray(),
         ];
     }
 
     /**
      * @param ACLConditions $aclConditions
      *
-     * @return array<string,bool|string|array<string,string|null>>
+     * @return array{
+     *     is_enabled: bool,
+     *     apply_only_first_role: bool,
+     *     attribute_path: string,
+     *     endpoint: _EndpointArray|null,
+     * }
      */
     private function aclConditionsToArray(ACLConditions $aclConditions): array
     {
@@ -272,7 +292,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
             'is_enabled' => $aclConditions->isEnabled(),
             'apply_only_first_role' => $aclConditions->onlyFirstRoleIsApplied(),
             'attribute_path' => $aclConditions->getAttributePath(),
-            'endpoint' => $aclConditions->getEndpoint()->toArray(),
+            'endpoint' => $aclConditions->getEndpoint()?->toArray(),
         ];
     }
 }

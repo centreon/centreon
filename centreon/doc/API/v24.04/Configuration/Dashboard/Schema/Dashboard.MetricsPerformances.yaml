@@ -1,0 +1,56 @@
+type: object
+properties:
+  id:
+    type: number
+    description: service id
+    example: 26
+  name:
+    type: string
+    description: name of the resource
+    example: Ping
+  parent_name:
+    type: string
+    description: name of the resource's parent
+    example: Printers
+  uuid:
+    type: string
+    description: UUID of the resource
+    example: h24-s16
+  metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id of the metric
+          example: 1
+        name:
+          type: string
+          description: name of the metric
+          example: rta
+        unit:
+          type: string
+          description: unit of the metric
+          example: '%'
+          nullable: true
+        warning_high_threshold:
+          type: number
+          description: warning high threshold
+          example: 200
+          nullable: true
+        critical_high_threshold:
+          type: number
+          description: critical high threshold
+          example: 400
+          nullable: true
+        warning_low_threshold:
+          type: number
+          description: warning low threshold
+          example: 200
+          nullable: true
+        critical_low_threshold:
+          type: number
+          description: critical low threshold
+          example: 400
+          nullable: true

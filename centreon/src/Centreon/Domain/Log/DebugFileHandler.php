@@ -36,7 +36,6 @@ class DebugFileHandler extends StreamHandler
     /**
      * @param FormatterInterface $formatter Monolog formatter
      * @param string|resource $stream Resource or Log filename
-     * @param bool $isActivate Whether the messages can be processed
      * @param int|null $filePermission Optional file permissions (default (0644) are only for owner read/write)
      * @param mixed $level The minimum logging level at which this handler will be triggered
      * @param bool $useLocking Try to lock log file before doing any writes

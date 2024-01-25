@@ -9,10 +9,7 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
@@ -72,7 +69,7 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.logout();
 });
 
@@ -84,7 +81,7 @@ Given('an admin user is logged in on a platform with dashboards', () => {
 });
 
 When('the admin user accesses the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -190,7 +187,7 @@ Given('an admin user on the dashboards library', () => {
 });
 
 When('the admin user creates a new dashboard', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -227,7 +224,7 @@ Given('an admin user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 
   cy.getByLabel({
     label: 'view',
@@ -270,7 +267,7 @@ Given(
 );
 
 When('the dashboard administrator user accesses the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -384,7 +381,7 @@ Given(
 );
 
 When('the dashboard administrator user creates a new dashboard', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -421,7 +418,7 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 
   cy.getByLabel({
     label: 'view',
@@ -467,7 +464,7 @@ Given(
 );
 
 When('the dashboard editor user accesses the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -579,7 +576,7 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -616,7 +613,7 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 
   cy.getByLabel({
     label: 'view',
@@ -655,7 +652,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -666,7 +663,9 @@ Given(
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.logoutViaAPI();
     cy.loginByTypeOfUser({
       jsonName: dashboardViewerUser.login,
@@ -676,7 +675,7 @@ Given(
 );
 
 When('the dashboard viewer user accesses the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -753,7 +752,7 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then('the option to create a new dashboard is not displayed', () => {
@@ -766,7 +765,7 @@ Given('a dashboard viewer user who could not create a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When('the dashboard viewer user tries to delete a dashboard', () => {

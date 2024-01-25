@@ -83,4 +83,38 @@ interface ReadDashboardShareRepositoryInterface
      * @return array<int, DashboardSharingRoles>
      */
     public function getMultipleSharingRoles(ContactInterface $contact, Dashboard ...$dashboards): array;
+
+    /**
+     * Retrieve all the contacts shares for several dashboards.
+     *
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactShare>>
+     */
+    public function findDashboardsContactShares(Dashboard ...$dashboards): array;
+
+    /**
+     * Retrieve all the contact groups shares for several dashboards.
+     *
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactGroupShare>>
+     */
+    public function findDashboardsContactGroupShares(Dashboard ...$dashboards): array;
+
+    /**
+     * Retrieve the contact groups shares for several dashboards member of contact contactgroups.
+     *
+     * @param ContactInterface $contact
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactGroupShare>>
+     */
+    public function findDashboardsContactGroupSharesByContact(ContactInterface $contact, Dashboard ...$dashboards): array;
 }

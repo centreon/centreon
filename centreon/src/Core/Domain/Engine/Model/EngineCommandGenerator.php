@@ -47,8 +47,12 @@ class EngineCommandGenerator
      */
     public function addHandler(HandlerInterface $handler): void
     {
-        $lastHandler = (! empty($this->handlers)) ? $this->handlers[count($this->handlers) - 1] : null;
-        $this->handlers[] = isset($lastHandler) ? $lastHandler->setNext($handler) : $handler;
+        if ([] === $this->handlers) {
+            $this->handlers[] = $handler;
+        } else {
+            $lastHandler = $this->handlers[array_key_last($this->handlers)];
+            $this->handlers[] = $lastHandler->setNext($handler);
+        }
     }
 
     /**
@@ -60,6 +64,13 @@ class EngineCommandGenerator
      */
     public function getEngineCommand(string $command): string
     {
-        return ! empty($this->handlers) ? (string) $this->handlers[0]->handle($command) : $command;
+        if ([] === $this->handlers) {
+            return $command;
+        }
+
+        /** @var string|null $result */
+        $result = $this->handlers[0]->handle($command);
+
+        return (string) $result;
     }
 }

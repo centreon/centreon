@@ -28,7 +28,7 @@ class AttributePathFetcherNotFoundException extends \DomainException
     /**
      * @param string $type
      *
-     * @return static
+     * @return self
      */
     public static function create(string $type): self
     {

@@ -43,12 +43,14 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class UpdateSAMLConfiguration
+/**
+ * @phpstan-import-type _RolesMapping from UpdateSAMLConfigurationRequest
+ */
+final class UpdateSAMLConfiguration
 {
     use LoggerTrait;
 
@@ -179,7 +181,7 @@ class UpdateSAMLConfiguration
     }
 
     /**
-     * @param array<string,bool|string|string[]|array<array{claim_value: string, access_group_id: int}>> $rolesMapping
+     * @param _RolesMapping $rolesMapping
      *
      * @throws \Throwable
      *
@@ -296,10 +298,6 @@ class UpdateSAMLConfiguration
      *  "authorized_values": string[],
      *  "trusted_client_addresses": string[],
      *  "blacklist_client_addresses": string[],
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  }
      * } $authenticationConditionsParameters
      *
      * @throws ConfigurationException
@@ -322,10 +320,6 @@ class UpdateSAMLConfiguration
      * @param array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  },
      *  "relations":array<array{
      *      "group_value": string,
      *      "contact_group_id": int
@@ -391,10 +385,11 @@ class UpdateSAMLConfiguration
         foreach ($foundContactGroups as $foundAccessGroup) {
             $foundContactGroupsId[] = $foundAccessGroup->getId();
         }
-        $nonExistentAccessGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
-        if (! empty($nonExistentAccessGroupsIds)) {
-            $this->error('Access groups not found', [
-                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
+        $nonExistentContactGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
+
+        if (! empty($nonExistentContactGroupsIds)) {
+            $this->error('Contact groups not found', [
+                'contact_group_ids' => implode(', ', $nonExistentContactGroupsIds),
             ]);
         }
     }

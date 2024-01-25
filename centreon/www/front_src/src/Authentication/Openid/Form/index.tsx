@@ -35,11 +35,13 @@ const OpenidForm = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { mutateAsync } = useMutationQuery<OpenidConfigurationToAPI>({
-    defaultFailureMessage: t(labelFailedToSaveOpenidConfiguration),
-    getEndpoint: () => authenticationProvidersEndpoint(Provider.Openid),
-    method: Method.PUT
-  });
+  const { mutateAsync } = useMutationQuery<OpenidConfigurationToAPI, undefined>(
+    {
+      defaultFailureMessage: t(labelFailedToSaveOpenidConfiguration),
+      getEndpoint: () => authenticationProvidersEndpoint(Provider.Openid),
+      method: Method.PUT
+    }
+  );
   const queryClient = useQueryClient();
 
   const { showSuccessMessage } = useSnackbar();
@@ -52,7 +54,7 @@ const OpenidForm = ({
   ): Promise<void> =>
     mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
       .then(() => {
-        queryClient.invalidateQueries([Provider.Openid]);
+        queryClient.invalidateQueries({ queryKey: [Provider.Openid] });
         loadOpenidConfiguration();
         showSuccessMessage(t(labelOpenIDConnectConfigurationSaved));
       })

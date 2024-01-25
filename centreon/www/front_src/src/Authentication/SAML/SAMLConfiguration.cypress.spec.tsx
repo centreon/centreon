@@ -323,7 +323,8 @@ describe('SAMLConfiguration', () => {
 
     cy.moveSortableElement({
       direction: 'up',
-      element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent()
+      element: cy.findAllByTestId('UnfoldMoreIcon').eq(1).parent(),
+      times: 2
     });
 
     cy.findAllByLabelText(labelRoleValue).eq(0).should('have.value', 'A role');

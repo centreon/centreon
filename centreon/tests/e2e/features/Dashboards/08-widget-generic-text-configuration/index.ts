@@ -1,16 +1,13 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { patternInfo } from '../../../support/commands';
+import { PatternType } from '../../../support/commands';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
@@ -104,17 +101,17 @@ Then(
 When(
   "the dashboard administrator user gives a title to the widget and types some text in the properties' description field",
   () => {
-    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidget.default.title);
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
-      .type(genericTextWidgets.default.description);
+      .type(genericTextWidget.default.description);
   }
 );
 
 Then("the same text is displayed in the widget's preview", () => {
   cy.getByLabel({ label: 'RichTextEditor' })
     .eq(1)
-    .should('contain.text', genericTextWidgets.default.description);
+    .should('contain.text', genericTextWidget.default.description);
 });
 
 When('the user saves the widget containing the Generic text', () => {
@@ -125,18 +122,18 @@ Then("the Generic text widget is added in the dashboard's layout", () => {
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains('Your widget has been created successfully!').should('exist');
   cy.getByTestId({
-    patternInfo: patternInfo.startsWith,
+    patternType: PatternType.startsWith,
     testId: 'panel_/widgets/generictext'
   }).should('exist');
 });
 
 Then('its title and description are displayed', () => {
-  cy.contains(genericTextWidgets.default.title).should('exist');
-  cy.contains(genericTextWidgets.default.description).should('exist');
+  cy.contains(genericTextWidget.default.title).should('exist');
+  cy.contains(genericTextWidget.default.description).should('exist');
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
-  cy.contains(genericTextWidgets.default.title).should('exist');
-  cy.contains(genericTextWidgets.default.description).should('exist');
+  cy.contains(genericTextWidget.default.title).should('exist');
+  cy.contains(genericTextWidget.default.description).should('exist');
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
@@ -148,16 +145,16 @@ Given('a dashboard featuring a single Generic text widget', () => {
     .contains(dashboards.default.name)
     .click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
-  cy.contains(genericTextWidgets.default.title).should('exist');
-  cy.contains(genericTextWidgets.default.description).should('exist');
+  cy.contains(genericTextWidget.default.title).should('exist');
+  cy.contains(genericTextWidget.default.description).should('exist');
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByLabel({ label: 'Duplicate' }).click();
-  cy.getByLabel({ label: 'Refresh' }).click();
-  cy.getByTestId({ testId: 'save_dashboard' }).click();
+  cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
+  cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
+  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+  cy.getByTestId({ testId: 'save_dashboard' }).click({ force: true });
   cy.wait('@updateDashboard');
 });
 
@@ -168,19 +165,19 @@ Then(
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
-      .should('contain.text', genericTextWidgets.default.title);
+      .should('contain.text', genericTextWidget.default.title);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
-      .should('contain.text', genericTextWidgets.default.description);
+      .should('contain.text', genericTextWidget.default.description);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
-      .should('contain.text', genericTextWidgets.default.title);
+      .should('contain.text', genericTextWidget.default.title);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
-      .should('contain.text', genericTextWidgets.default.description);
+      .should('contain.text', genericTextWidget.default.description);
   }
 );
 
@@ -200,11 +197,11 @@ Given('a dashboard featuring two Generic text widgets', () => {
 When(
   'the dashboard administrator user updates the contents of one of these widgets',
   () => {
-    cy.getByLabel({ label: 'More actions' }).eq(1).click();
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
     cy.getByLabel({ label: 'Title' }).clear();
     cy.getByLabel({ label: 'Title' }).type(
-      `${genericTextWidgets.default.title}-edited`
+      `${genericTextWidget.default.title}-edited`
     );
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
@@ -214,7 +211,7 @@ When(
       .clear({ force: true });
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
-      .type(`${genericTextWidgets.default.description}-edited`, {
+      .type(`${genericTextWidget.default.description}-edited`, {
         force: true
       });
     cy.getByTestId({ testId: 'confirm' }).click();
@@ -229,32 +226,32 @@ Then(
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
-      .should('not.contain.text', `${genericTextWidgets.default.title}-edited`);
+      .should('not.contain.text', `${genericTextWidget.default.title}-edited`);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
       .should(
         'not.contain.text',
-        `${genericTextWidgets.default.description}-edited`
+        `${genericTextWidget.default.description}-edited`
       );
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
-      .should('contain.text', `${genericTextWidgets.default.title}-edited`);
+      .should('contain.text', `${genericTextWidget.default.title}-edited`);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
       .should(
         'contain.text',
-        `${genericTextWidgets.default.description}-edited`
+        `${genericTextWidget.default.description}-edited`
       );
   }
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(1).click();
-  cy.getByLabel({ label: 'Delete widget' }).click();
-  cy.getByLabel({ label: 'Delete' }).click();
+  cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
+  cy.getByLabel({ label: 'Delete widget' }).trigger('click');
+  cy.getByLabel({ label: 'Delete' }).trigger('click');
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
 });
@@ -263,21 +260,21 @@ Then('only the contents of the other widget are displayed', () => {
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
-    .should('not.contain.text', `${genericTextWidgets.default.title}-edited`);
+    .should('not.contain.text', `${genericTextWidget.default.title}-edited`);
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
     .should(
       'not.contain.text',
-      `${genericTextWidgets.default.description}-edited`
+      `${genericTextWidget.default.description}-edited`
     );
 });
 
 When(
   'the dashboard administrator user hides the description of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).click();
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).trigger('click');
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
     cy.getByLabel({ label: 'Show description' }).click({ force: true });
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -289,15 +286,15 @@ Then('the description is hidden and only the title is displayed', () => {
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
-    .should('contain.text', `${genericTextWidgets.default.title}`);
+    .should('contain.text', `${genericTextWidget.default.title}`);
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
-    .should('not.contain.text', `${genericTextWidgets.default.description}`);
+    .should('not.contain.text', `${genericTextWidget.default.description}`);
 
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.getByLabel({ label: 'More actions' }).click({ force: true });
-  cy.getByLabel({ label: 'Edit widget' }).click();
+  cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
+  cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
   cy.getByLabel({ label: 'Show description' }).click({ force: true });
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -307,20 +304,20 @@ Then('the description is hidden and only the title is displayed', () => {
 When(
   'the dashboard administrator user adds a clickable link in the contents of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).click({ force: true });
-    cy.getByLabel({ label: 'Edit widget' }).click();
+    cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
+    cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
-      .type('Link to Centreon website{selectall}', { force: true });
+      .type('Link to google website{selectall}', { force: true });
     cy.getByTestId({ testId: 'LinkIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'EditIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'InputLinkField' })
       .eq(1)
-      .type('www.centreon.com{enter}', { force: true });
-    cy.contains('www.centreon.com').should('be.visible');
+      .type('www.google.com{enter}', { force: true });
+    cy.contains('www.google.com').should('be.visible');
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
   }
@@ -329,15 +326,14 @@ When(
 Then(
   'the link is clickable on the dashboard view page and redirects to the proper website',
   () => {
-    cy.contains('Link to Centreon website')
+    cy.contains('Link to google website')
       .should('have.attr', 'href')
-      .and('equal', 'https://www.centreon.com');
-    cy.contains('Link to Centreon website')
+      .and('equal', 'https://www.google.com');
+    cy.contains('Link to google website')
       .should('have.attr', 'target')
       .and('equal', '_blank');
-    cy.contains('Link to Centreon website').invoke('attr', 'target', '_self');
-    cy.contains('Link to Centreon website').click({ force: true });
-    cy.url().should('equal', 'https://www.centreon.com/');
-    cy.go('back');
+    cy.contains('Link to google website').invoke('attr', 'target', '_self');
+    cy.contains('Link to google website').click({ force: true });
+    cy.url().should('equal', 'https://www.google.com/');
   }
 );

@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
-import { includes } from 'ramda';
+import { includes, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
@@ -23,6 +23,7 @@ export enum Method {
 }
 
 export type UseMutationQueryProps<T, TMeta> = {
+  baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -30,14 +31,33 @@ export type UseMutationQueryProps<T, TMeta> = {
   getEndpoint: (_meta: TMeta) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
-} & Omit<UseMutationOptions<T & { _meta?: TMeta }>, 'mutationFn'>;
+  onError?: (
+    error: ResponseError,
+    variables: T & { _meta: TMeta },
+    context: unknown
+  ) => unknown;
+  onMutate?: (variables: T & { _meta: TMeta }) => Promise<unknown> | unknown;
+  onSuccess?: (
+    data: ResponseError | T,
+    variables: T & {
+      _meta: TMeta;
+    },
+    context: unknown
+  ) => unknown;
+} & Omit<
+  UseMutationOptions<T & { _meta?: TMeta }>,
+  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess'
+>;
 
 const log = anylogger('API Request');
 
-export type UseMutationQueryState<T> = {
+export type UseMutationQueryState<T> = Omit<
+  UseMutationResult<T | ResponseError>,
+  'isError'
+> & {
   isError: boolean;
   isMutating: boolean;
-} & UseMutationResult<T | ResponseError>;
+};
 
 const useMutationQuery = <T extends object, TMeta>({
   getEndpoint,
@@ -49,7 +69,9 @@ const useMutationQuery = <T extends object, TMeta>({
   method,
   onMutate,
   onError,
-  onSuccess
+  onSuccess,
+  onSettled,
+  baseEndpoint
 }: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -57,11 +79,14 @@ const useMutationQuery = <T extends object, TMeta>({
     T | ResponseError,
     ResponseError,
     T & { _meta: TMeta }
-  >(
-    (_payload: T & { _meta: TMeta }): Promise<T | ResponseError> => {
+  >({
+    mutationFn: (
+      _payload: T & { _meta: TMeta }
+    ): Promise<T | ResponseError> => {
       const { _meta, ...payload } = _payload || {};
 
       return customFetch<T>({
+        baseEndpoint,
         catchError,
         decoder,
         defaultFailureMessage,
@@ -75,12 +100,18 @@ const useMutationQuery = <T extends object, TMeta>({
         payload
       });
     },
-    {
-      onError,
-      onMutate,
-      onSuccess
+    onError,
+    onMutate,
+    onSettled,
+    onSuccess: (data, variables, context) => {
+      if (data?.isError) {
+        onError?.(data, variables, context);
+
+        return;
+      }
+      onSuccess?.(data, variables, context);
     }
-  );
+  });
 
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
@@ -97,14 +128,17 @@ const useMutationQuery = <T extends object, TMeta>({
     }
   };
 
-  useEffect(() => {
-    manageError();
-  }, useDeepCompare([queryData.data]));
+  useEffect(
+    () => {
+      manageError();
+    },
+    useDeepCompare([queryData.data])
+  );
 
   return {
-    ...queryData,
+    ...omit(['isError'], queryData),
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
-    isMutating: queryData.isLoading
+    isMutating: queryData.isPending
   };
 };
 

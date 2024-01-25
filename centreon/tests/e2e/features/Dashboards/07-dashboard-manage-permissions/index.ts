@@ -6,10 +6,7 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 
@@ -30,11 +27,11 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -58,7 +55,9 @@ Given(
     cy.getByTestId({ testId: 'role-input' })
       .eq(2)
       .should('contain.text', 'editor');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
   }
@@ -71,7 +70,9 @@ When(
     cy.getByTestId({ testId: 'role-input' }).eq(2).contains('viewer').click();
     cy.get('[role="listbox"]').contains('editor').click();
     cy.get('[data-state="updated"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -83,14 +84,14 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
   }
@@ -115,7 +116,9 @@ When(
     cy.getByTestId({ testId: 'role-input' }).eq(2).click();
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.get('[data-state="updated"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -127,7 +130,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -135,7 +138,7 @@ Then(
       .contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
-    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
@@ -159,7 +162,9 @@ When(
   () => {
     cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
   }
 );
 
@@ -171,7 +176,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -198,7 +203,9 @@ Given(
     cy.getByTestId({ testId: 'role-input' })
       .eq(2)
       .should('contain.text', 'editor');
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
     cy.wait('@addContactToDashboardShareList');
     cy.waitUntilForDashboardRoles('edit-access-rights', 3);
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
@@ -225,7 +232,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -233,7 +240,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     .contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();
-  cy.url().should('match', /\/dashboards\/\d+$/);
+  cy.url().should('match', /\/dashboards\/library\/\d+$/);
   cy.getByTestId({ testId: 'edit' }).should('not.exist');
   cy.getByTestId({ testId: 'share' }).should('not.exist');
 });

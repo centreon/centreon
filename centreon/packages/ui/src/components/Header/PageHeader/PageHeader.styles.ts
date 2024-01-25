@@ -1,5 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
+import { alpha } from '@mui/system';
+
 const useStyles = makeStyles()((theme) => ({
   header: {
     alignItems: 'flex-start',
@@ -22,7 +24,7 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 0, 1.5, 0)
   },
   pageHeader: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.header.page.border}`,
     display: 'flex',
     gap: theme.spacing(4),
@@ -52,6 +54,31 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     position: 'relative',
     transform: `translateY(-${theme.spacing(0.25)})`
+  },
+  pageHeaderMessage: {
+    alignItems: 'center',
+    color: theme.palette.warning.main,
+    display: 'flex',
+    gap: theme.spacing(1)
+  },
+  pageHeaderMessageIcon: {
+    alignItems: 'center',
+    background: theme.palette.warning.main,
+    borderRadius: '50%',
+    color: theme.palette.common.white,
+    display: 'flex',
+    height: theme.spacing(2.5),
+    justifyContent: 'center',
+    width: theme.spacing(2.5)
+  },
+  pageHeaderMessageIconWrapper: {
+    alignItems: 'center',
+    backgroundColor: alpha(theme.palette.warning.main, 0.7),
+    borderRadius: '50%',
+    display: 'flex',
+    height: theme.spacing(3.5),
+    justifyContent: 'center',
+    width: theme.spacing(3.5)
   },
   pageHeaderTitle: {
     '& > *': {

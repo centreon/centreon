@@ -20,9 +20,7 @@ import {
   labelTimePeriod,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelContactsGroups,
   labelContacts,
-  labelSearchContactsGroups,
   labelSearchContacts,
   labelSearchBusinessViews,
   labelBusinessViews,
@@ -31,7 +29,6 @@ import {
 import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
-  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
@@ -102,7 +99,8 @@ const useFormInputs = ({
               additionalConditionParameters: [],
               endpoint: hostsGroupsEndpoint
             },
-            dataTestId: t(labelSearchHostGroups),
+            dataTestId: labelSearchHostGroups,
+            disableSortedOptions: true,
             fieldName: 'hostGroups.ids',
             label: t(labelSearchHostGroups),
             required: true,
@@ -157,6 +155,7 @@ const useFormInputs = ({
     {
       additionalLabel: t(labelServiceGroups),
       additionalLabelClassName: classes.additionalLabel,
+
       fieldName: '',
       grid: {
         alignItems: 'center',
@@ -166,7 +165,8 @@ const useFormInputs = ({
               additionalConditionParameters: [],
               endpoint: serviceGroupsEndpoint
             },
-            dataTestId: t(labelSearchServiceGroups),
+            dataTestId: labelSearchServiceGroups,
+            disableSortedOptions: true,
             fieldName: 'serviceGroups.ids',
             label: t(labelSearchServiceGroups),
             required: true,
@@ -197,6 +197,7 @@ const useFormInputs = ({
           {
             additionalLabel: t(labelBusinessViews),
             additionalLabelClassName: classes.additionalLabel,
+
             fieldName: '',
             grid: {
               alignItems: 'center',
@@ -207,6 +208,7 @@ const useFormInputs = ({
                     endpoint: businessViewsEndpoint
                   },
                   dataTestId: labelSearchBusinessViews,
+                  disableSortedOptions: true,
                   fieldName: 'businessviews.ids',
                   label: t(labelSearchBusinessViews),
                   required: true,
@@ -306,39 +308,6 @@ const useFormInputs = ({
             dataTestId: 'Search contacts',
             fieldName: 'users',
             label: t(labelSearchContacts),
-            required: true,
-            type: InputType.MultiConnectedAutocomplete
-          },
-          {
-            custom: {
-              Component: Box
-            },
-            fieldName: '',
-            label: '',
-            type: InputType.Custom
-          }
-        ],
-        gridTemplateColumns: handleGridTemplate(panelWidth)
-      },
-      group: basicFormGroups[1].name,
-      inputClassName: classes.input,
-      label: '',
-      type: InputType.Grid
-    },
-    {
-      additionalLabel: t(labelContactsGroups),
-      additionalLabelClassName: classes.additionalLabel,
-      fieldName: '',
-      grid: {
-        columns: [
-          {
-            connectedAutocomplete: {
-              additionalConditionParameters: [],
-              endpoint: contactGroupsEndpoint
-            },
-            dataTestId: 'Search contact groups',
-            fieldName: 'contactgroups',
-            label: t(labelSearchContactsGroups),
             required: true,
             type: InputType.MultiConnectedAutocomplete
           },
