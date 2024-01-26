@@ -17126,3 +17126,12 @@ msgstr ""
 
 # msgid "Edit properties"
 # msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+# msgstr ""

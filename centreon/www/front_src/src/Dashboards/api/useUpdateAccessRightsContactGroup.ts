@@ -42,13 +42,18 @@ const useUpdateAccessRightsContactGroup =
     });
 
     const queryClient = useQueryClient();
-    const invalidateQueries = ({ _meta }): Promise<void> =>
+    const invalidateQueries = ({ _meta }): void => {
       queryClient.invalidateQueries({
         queryKey: [
           resource.dashboardAccessRightsContactGroups,
           _meta?.dashboardId
         ]
       });
+
+      queryClient.invalidateQueries({
+        queryKey: [resource.dashboards]
+      });
+    };
 
     const mutate = async (
       variables: UpdateAccessRightDto,
@@ -86,7 +91,11 @@ const useUpdateAccessRightsContactGroup =
           onSettled: onSettledWithInvalidateQueries,
           ...restOptions
         }
-      );
+      ).then(() => {
+        queryClient.invalidateQueries({
+          queryKey: [resource.dashboards]
+        });
+      });
     };
 
     return {

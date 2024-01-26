@@ -9,6 +9,8 @@ import {
   labelCreator,
   labelDescription,
   labelName,
+  labelRole,
+  labelShares,
   labelLastUpdate
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
@@ -16,6 +18,8 @@ import useIsViewerUser from '../useIsViewerUser';
 import Actions from './Actions/Actions';
 import Description from './Decription';
 import Name from './Name';
+import Share from './Share';
+import Role from './Role';
 
 const useColumns = (): {
   columns: Array<Column>;
@@ -35,6 +39,26 @@ const useColumns = (): {
       sortable: true,
       type: ColumnType.component
     },
+    ...(isViewer
+      ? []
+      : [
+          {
+            Component: Share,
+            disablePadding: false,
+            displaySubItemsCaret: true,
+            id: 'shares',
+            label: t(labelShares),
+            type: ColumnType.component,
+            width: 'max-content'
+          },
+          {
+            Component: Role,
+            disablePadding: false,
+            id: 'role',
+            label: t(labelRole),
+            type: ColumnType.component
+          }
+        ]),
     ...(isViewer
       ? [
           {

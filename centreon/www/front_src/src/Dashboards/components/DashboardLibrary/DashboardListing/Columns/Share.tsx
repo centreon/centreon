@@ -14,7 +14,7 @@ import { useColumnStyles } from './useColumnStyles';
 const Share = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useColumnStyles();
   const { t } = useTranslation();
-  const { shares, role, shareName, type, ownRole } = row;
+  const { shares, role, name, type, ownRole } = row;
 
   if (equals(ownRole, DashboardRole.viewer)) {
     return <Box className={classes.line}>-</Box>;
@@ -32,12 +32,12 @@ const Share = ({ row }: ComponentColumnProps): JSX.Element => {
     return (
       <Box>
         <Icon className={classes.icon} />
-        <Box className={classes.contactGroups}>{shareName}</Box>
+        <Box className={classes.contactGroups}>{name}</Box>
       </Box>
     );
   }
 
-  return <Box>{shareName}</Box>;
+  return <Box>{name}</Box>;
 };
 
 export default Share;
