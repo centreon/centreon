@@ -29,7 +29,7 @@ $result = [
 $selected_values = explode(',', $get_information['form']['selection']);
 $forced = $get_information['form']['forced'];
 $isService = $get_information['form']['isService'];
-$db_storage = new centreonDBManager('centstorage');
+$db_storage = new CentreonDBManager('centstorage');
 
 $problems = [];
 
@@ -95,7 +95,7 @@ try {
     #fwrite($fp, print_r($problems, true) . "===\n");
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
     $oreon = $_SESSION['centreon'];
-    $external_cmd = new CentreonExternalCommand($oreon);
+    $external_cmd = new CentreonExternalCommand();
     $method_external_name = 'set_process_command';
     if (method_exists($external_cmd, $method_external_name) == false) {
         $method_external_name = 'setProcessCommand';

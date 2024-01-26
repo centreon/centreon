@@ -323,32 +323,34 @@ function removeRelationLastHostDependency(int $hostId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
         FROM dependency_serviceParent_relation
         WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
-        WHERE service_service_id =  :service_service_id)';
+        WHERE service_service_id =  :service_service_id) GROUP BY dependency_dep_id';
+
     $countStatement = $pearDB->prepare($query);
     $deleteStatement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
     while ($row = $res->fetch()) {
         $countStatement->bindValue(':service_service_id', (int) $row['service_service_id'], \PDO::PARAM_INT);
         $countStatement->execute();
-        $result = $countStatement->fetch(\PDO::FETCH_ASSOC);
-
-        //is last service parent
-        if ($result['nb_dependency'] == 1) {
-            $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
-            $deleteStatement->execute();
+        if (false !== ($result = $countStatement->fetch(\PDO::FETCH_ASSOC))) {;
+            //is last service parent
+            if ($result['nb_dependency'] == 1) {
+                $deleteStatement->bindValue(':dep_id', (int) $result['id'], \PDO::PARAM_INT);
+                $deleteStatement->execute();
+            }
         }
     }
 
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_hostParent_relation
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
-                                         WHERE host_host_id =  ' . $hostId . ')';
+                                         WHERE host_host_id =  ' . $hostId . ') GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
 
-    //is last parent
-    if ($result['nb_dependency'] == 1) {
-        $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
-    }
+    if (false !== ($result = $dbResult->fetch())) {
+        //is last parent
+        if ($result['nb_dependency'] == 1) {
+            $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+        }
+    };
 }
 
 function deleteHostInDB($hosts = array())
@@ -1019,7 +1021,11 @@ function insertHostInDB($ret = array(), $onDemandMacro = null)
     updateNagiosServerRelation($hostId, $ret);
 
     $ret = $form->getSubmitValues();
-    if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+
+    if (
+        ! empty($ret['dupSvTplAssoc']['dupSvTplAssoc'])
+        || $isCloudPlatform === true
+    ) {
         createHostTemplateService($hostId);
     }
 
@@ -2631,7 +2637,7 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
 
 function createHostTemplateService($hostId = null, $htm_id = null)
 {
-    global $pearDB, $path, $centreon, $form;
+    global $pearDB, $path, $centreon, $form, $isCloudPlatform;
 
     if (! $hostId) {
         return;
@@ -2643,8 +2649,8 @@ function createHostTemplateService($hostId = null, $htm_id = null)
      */
     $submittedValues = $form->getSubmitValues();
     if (
-        isset($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
-        && $submittedValues['dupSvTplAssoc']['dupSvTplAssoc']
+        ! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
+        || $isCloudPlatform === true
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
     }

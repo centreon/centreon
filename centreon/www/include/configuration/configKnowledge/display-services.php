@@ -112,7 +112,6 @@ try {
         0 => "<font color='orange'> " . _("No wiki page defined") . " </font>",
         1 => "<font color='green'> " . _("Wiki page defined") . " </font>"
     ];
-    $line = [0 => "list_one", 1 => "list_two"];
 
     $proc = new procedures($pearDB);
     $proc->fetchProcedures();
@@ -305,7 +304,7 @@ try {
     $tpl->assign("template_trans", _("Template"));
 
     // Template
-    $tpl->assign("lineTemplate", $line);
+    $tpl->registerObject("lineTemplate", getLineTemplate('list_one', 'list_two'));
     $tpl->assign('limit', $limit);
 
     $tpl->assign('order', $order);

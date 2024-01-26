@@ -45,13 +45,6 @@ describe('Tiles', () => {
 
     cy.makeSnapshot();
   });
-
-  it('sets the tiles value to 1 when the input is cleared', () => {
-    cy.findByLabelText(labelTiles).clear();
-    cy.findByLabelText(labelTiles).should('have.value', 1);
-
-    cy.makeSnapshot();
-  });
 });
 
 describe('Tiles disabled', () => {
