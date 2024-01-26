@@ -1,0 +1,55 @@
+parameters:
+    level: max
+    scanFiles:
+        - phpstan.stub
+        - vendor/centreon/centreon/www/include/common/common-Func.php
+    paths:
+        - www
+    ignoreErrors:
+        -   # Apparently, the PHPMailer project was partially copied in this project, but the missing dependecies are not used.
+            path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+            messages:
+                - "#^Instantiated class PHPMailer\\\\PHPMailer\\\\SMTP not found\\.$#"
+                - "#^Parameter \\$oauth of method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:setOAuth\\(\\) has invalid type PHPMailer\\\\PHPMailer\\\\OAuthTokenProvider\\.$#"
+                - "#^Parameter \\$smtp of method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:setSMTPInstance\\(\\) has invalid type PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Variable \\$_SERVER in isset\\(\\) always exists and is not nullable.$#"
+                - "#^Call to method authenticate\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method close\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method connect\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method connected\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method data\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method getError\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method getLastTransactionID\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method getServerExt\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method hello\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method mail\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method quit\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method recipient\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method reset\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method setDebugLevel\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method setDebugOutput\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method setTimeout\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method setVerp\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Call to method startTLS\\(\\) on an unknown class PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:getOAuth\\(\\) has invalid return type PHPMailer\\\\PHPMailer\\\\OAuthTokenProvider\\.$#"
+                - "#^Method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:getSMTPInstance\\(\\) has invalid return type PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:setSMTPInstance\\(\\) has invalid return type PHPMailer\\\\PHPMailer\\\\SMTP\\.$#"
+                - "#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$oauth has unknown class PHPMailer\\\\PHPMailer\\\\OAuthTokenProvider as its type\\.$#"
+                - "#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$smtp has unknown class PHPMailer\\\\PHPMailer\\\\SMTP as its type\\.$#"
+
+        -   # We cannot deal easily with global variables with PHPStan.
+            paths:
+                - www/modules/centreon-open-tickets/views
+                - www/modules/centreon-open-tickets/providers/EasyVistaRest/ajax/call.php
+                - www/modules/centreon-open-tickets/providers/Itop/ajax/call.php
+            message: "#^Variable \\$\\w+ might not be defined.$#"
+
+        -
+            message: "#^Variable \\$centreon_path might not be defined\\.$#"
+            count: 1
+            path: www/modules/centreon-open-tickets/class/centreonDBManager.class.php
+
+        -
+            message: "#^Variable \\$read in empty\\(\\) always exists and is not falsy\\.$#"
+            count: 1
+            path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php

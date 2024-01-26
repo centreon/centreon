@@ -19,14 +19,25 @@
 class ClapiObject
 {
 
-    protected $dbConfigCentreon = array();
-    protected $dbConfigCentreonStorage = array();
+    /** @var array<mixed> */
+    protected $dbConfigCentreon = [];
+    /** @var array<mixed> */
+    protected $dbConfigCentreonStorage = [];
+    /** @var mixed */
     protected $db;
+    /** @var mixed */
     protected $dbMon;
-    protected $clapiParameters = array();
+    /** @var array<mixed> */
+    protected $clapiParameters = [];
+    /** @var \CentreonClapi\CentreonAPI */
     protected $clapiConnector;
+    /** @var \Pimple\Container */
     protected $dependencyInjector;
 
+    /**
+     * @param \Pimple\Container $dependencyInjector
+     * @param array<mixed> $clapiParameters
+     */
     public function __construct($dependencyInjector, $clapiParameters)
     {
         $this->dependencyInjector = $dependencyInjector;
@@ -35,8 +46,9 @@ class ClapiObject
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param string $value
+     * @return void
      */
     public function addClapiParameter($key, $value)
     {
@@ -44,12 +56,10 @@ class ClapiObject
     }
 
     /**
-     *
+     * @return void
      */
     private function connectToClapi()
     {
-
-
         \CentreonClapi\CentreonUtils::setUserName($this->clapiParameters['username']);
         $this->clapiConnector = \CentreonClapi\CentreonAPI::getInstance(
             '',
@@ -64,7 +74,7 @@ class ClapiObject
     /**
      * Export
      *
-     * @param $withoutClose boolean disable using of PHP exit function (default: false)
+     * @param bool $withoutClose boolean disable using of PHP exit function (default: false)
      * @return mixed
      */
     public function export($withoutClose = false)
@@ -76,6 +86,7 @@ class ClapiObject
     }
 
     /**
+     * @param string $fileName
      * @return mixed
      */
     public function import($fileName)

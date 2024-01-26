@@ -18605,3 +18605,6 @@ msgstr "La sauvegarde des partages a échoué"
 
 msgid "Shares saved"
 msgstr "Partages sauvegardés"
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
