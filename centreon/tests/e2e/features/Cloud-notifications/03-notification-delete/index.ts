@@ -1,10 +1,23 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import { createNotification, enableNotificationFeature } from '../common';
+import {
+  createNotification,
+  enableNotificationFeature,
+  notificationSentCheck,
+  setBrokerNotificationsOutput
+} from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+
+import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
   cy.startWebContainer();
   enableNotificationFeature();
+  setBrokerNotificationsOutput({
+    name: 'central-cloud-notifications-output',
+    configName: 'central-broker-master'
+  });
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -14,6 +27,38 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
   }).as('getNotifications');
+
+  cy.addHostGroup({
+    name: data.hostGroups.hostGroup1.name
+  });
+
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: data.hostGroups.hostGroup1.name,
+    name: data.hosts.host1.name,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: data.hosts.host1.name,
+      maxCheckAttempts: 1,
+      name: data.services.service1.name,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
+
+  checkHostsAreMonitored([
+    {
+      name: data.hosts.host1.name
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: data.services.service1.name
+    }
+  ]);
 });
 
 afterEach(() => {
@@ -59,7 +104,27 @@ Then(
 Then(
   'the configured users are no longer notified of status changes for the associated resources once the notification refresh delay has been reached',
   () => {
-    // WIP
+    cy.submitResults([
+      {
+        host: data.hosts.host1.name,
+        output: 'submit_status_1',
+        status: 'down'
+      }
+    ]);
+
+    checkHostsAreMonitored([
+      {
+        name: data.hosts.host1.name,
+        status: 'down',
+        statusType: 'hard'
+      }
+    ]);
+
+    cy.wait(5000);
+
+    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
+      expect(stdout).to.not.contain('Notification on host 15');
+    });
   }
 );
 
