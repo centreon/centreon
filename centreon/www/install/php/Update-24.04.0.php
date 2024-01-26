@@ -163,7 +163,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
         CREATE TABLE `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
-            `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service', 'business_view') DEFAULT NULL,
+            `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
             `acl_resource_id` int(11) DEFAULT NULL,
             `acl_group_id` int(11) DEFAULT NULL,
             `resource_ids` varchar(255) DEFAULT NULL,
