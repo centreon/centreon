@@ -271,7 +271,7 @@ sub send_internal_action {
     # If we remove it, Gorgone start without error, but any discovery launched by the api won't work.
     # if we always run it, the autodiscovery::service::discovery will launch this function,
     # and eat some message that are destined to the autodiscovery::class object.
-    $self->event('socket' => $socket) if !$options->{no_event_call};
+    $self->event(socket => $socket);
 }
 
 sub send_log_msg_error {
@@ -285,8 +285,7 @@ sub send_log_msg_error {
         action => 'PUTLOG',
         token => $options{token},
         data => { code => GORGONE_ACTION_FINISH_KO, etime => time(), instant => $options{instant}, token => $options{token}, data => { message => $options{message} } },
-        json_encode => 1,
-        no_event_call => $options{no_event_call},
+        json_encode => 1
     });
 }
 
@@ -302,8 +301,7 @@ sub send_log {
         action => 'PUTLOG',
         token => $options{token},
         data => { code => $options{code}, etime => time(), instant => $options{instant}, token => $options{token}, data => $options{data} },
-        json_encode => 1,
-        no_event_call => $options{no_event_call},
+        json_encode => 1
 
     });
 }

@@ -1,9 +1,6 @@
 
 *** Settings ***
 Documentation     centreon gorgone auto discovery tests
-Library            Process
-Library            DateTime
-Library            Examples
 Library            OperatingSystem
 Library            RequestsLibrary
 Library            gorgone-api.py
