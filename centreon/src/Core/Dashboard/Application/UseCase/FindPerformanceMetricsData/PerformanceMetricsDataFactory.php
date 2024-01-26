@@ -87,8 +87,10 @@ class PerformanceMetricsDataFactory
     /**
      * @param array<_MetricData> $metricsData
      * @param string[] $metricNames
-     * @return PerformanceMetricsData
+     *
      * @throws MetricException
+     *
+     * @return PerformanceMetricsData
      */
     public function createFromRecords(array $metricsData, array $metricNames): PerformanceMetricsData
     {
