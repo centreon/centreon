@@ -25,11 +25,11 @@ namespace Core\Dashboard\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardPanel;
-use Core\Infrastructure\Common\Repository\RepositoryException;
 
 /**
  * @phpstan-type DashboardPanelResultSet array{

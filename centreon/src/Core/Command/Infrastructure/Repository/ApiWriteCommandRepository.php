@@ -29,6 +29,7 @@ use Core\Command\Domain\Model\Argument;
 use Core\Command\Domain\Model\NewCommand;
 use Core\Command\Infrastructure\Model\CommandTypeConverter;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
+use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -36,40 +37,10 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
 {
     use LoggerTrait;
     use RepositoryTrait;
-
-    private ?string $proxy = null;
-
-    private ?string $url = null;
-
-    private string $authenticationToken = '';
-
-    private int $timeout = 60; // Default timeout
+    use ApiRepositoryTrait;
 
     public function __construct(readonly private HttpClientInterface $httpClient)
     {
-    }
-
-    public function setProxy(string $proxy): void
-    {
-        $this->proxy = $proxy;
-    }
-
-    public function setUrl(string $url): void
-    {
-        $this->url = rtrim($url, DIRECTORY_SEPARATOR);
-        if (! str_starts_with($this->url, 'http')) {
-            $this->url = 'https://' . $this->url;
-        }
-    }
-
-    public function setAuthenticationToken(string $token): void
-    {
-        $this->authenticationToken = $token;
-    }
-
-    public function setApiTimeOut(int $timeout): void
-    {
-        $this->timeout = $timeout;
     }
 
     /**
