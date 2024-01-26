@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-19626
 Feature: Deleting a Notification Rule
   As a Centreon user with access to the Notification Rules page

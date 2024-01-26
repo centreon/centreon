@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-16473
 Feature: Listing Notification Rules
   As a Centreon user with access to the Notification Rules page

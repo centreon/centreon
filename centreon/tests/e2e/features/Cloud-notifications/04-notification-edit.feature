@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-19625
 Feature: Editing Notification Rule configuration
   As a Centreon user with access to the Notification Rules page
@@ -17,17 +16,12 @@ Feature: Editing Notification Rule configuration
     And the notification refresh delay has been reached
     Then only notifications for status changes of the updated resource parameters are sent
 
-  Scenario Outline: Editing a Notification Rule users configuration
+  Scenario: Editing a Notification Rule users configuration
     When the user selects the edit action on a Notification Rule
-    And the user changes the '<user_type>' configuration
+    And the user changes the contact configuration
     And the user saves to confirm the changes
     And the notification refresh delay has been reached
-    Then the notifications for status changes are sent only to the updated '<user_type>'
-
-    Examples:
-      | user_type      |
-      | contact        |
-      | contact groups |
+    Then the notifications for status changes are sent only to the updated contact
 
   Scenario Outline: Toggling Notification Rule status on listing
     When the user selects the '<action>' action on a Notification Rule line

@@ -2,17 +2,29 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import {
   createNotification,
   editNotification,
-  enableNotificationFeature
+  enableNotificationFeature,
+  notificationSentCheck,
+  setBrokerNotificationsOutput
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const contactAfterEdit = 'Guest';
 
 const editNotificationBody = { ...notificationBody };
 
+let notificationWithServices = true;
+let notificationEnabled = true;
+
 beforeEach(() => {
   cy.startWebContainer();
   enableNotificationFeature();
+  setBrokerNotificationsOutput({
+    name: 'central-cloud-notifications-output',
+    configName: 'central-broker-master'
+  });
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -30,6 +42,41 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications/*'
   }).as('getNotification');
+
+  cy.addHostGroup({
+    name: data.hostGroups.hostGroup1.name
+  });
+
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: data.hostGroups.hostGroup1.name,
+    name: data.hosts.host1.name,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: data.hosts.host1.name,
+      maxCheckAttempts: 1,
+      name: data.services.service1.name,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
+
+  checkHostsAreMonitored([
+    {
+      name: data.hosts.host1.name
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: data.services.service1.name
+    }
+  ]);
+
+  notificationEnabled = true;
+  notificationWithServices = true;
 });
 
 afterEach(() => {
@@ -60,6 +107,7 @@ When(
   'the user changes the resources selection and corresponding status change parameters',
   () => {
     cy.contains('Include services for these hosts').click();
+    notificationWithServices = false;
   }
 );
 
@@ -68,17 +116,75 @@ When('the user saves to confirm the changes', () => {
 });
 
 When('the notification refresh delay has been reached', () => {
+  cy.submitResults([
+    {
+      host: data.hosts.host1.name,
+      output: 'submit_status_1',
+      status: 'down'
+    },
+    {
+      host: data.hosts.host1.name,
+      output: 'submit_status_2',
+      service: data.services.service1.name,
+      status: 'critical'
+    }
+  ]);
+
+  checkHostsAreMonitored([
+    {
+      name: data.hosts.host1.name,
+      status: 'down',
+      statusType: 'hard'
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: data.services.service1.name,
+      status: 'critical'
+    }
+  ]);
+
   cy.wait(5000);
 });
 
 Then(
   'only notifications for status changes of the updated resource parameters are sent',
   () => {
-    // WIP
+    if (!notificationEnabled) {
+      notificationSentCheck('Notification on host 15').then(({ stdout }) => {
+        expect(stdout).to.not.contain('Notification on host 15');
+      });
+      notificationSentCheck('Notification on service (15,27)').then(
+        ({ stdout }) => {
+          expect(stdout).to.not.contain('Notification on service (15,27)');
+        }
+      );
+      return;
+    }
+
+    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
+      expect(stdout).to.contain('Notification on host 15');
+    });
+
+    if (!notificationWithServices) {
+      notificationSentCheck('Notification on service (15,27)').then(
+        ({ stdout }) => {
+          expect(stdout).to.not.contain('Notification on service (15,27)');
+        }
+      );
+      return;
+    }
+
+    notificationSentCheck('Notification on service (15,27)').then(
+      ({ stdout }) => {
+        expect(stdout).to.contain('Notification on service (15,27)');
+      }
+    );
   }
 );
 
-When('the user changes the {string} configuration', (userType) => {
+When('the user changes the contact configuration', () => {
   cy.get('#Searchcontacts').click();
   cy.wait('@getUsers');
   cy.get('li > div > span.MuiButtonBase-root').eq(0).click();
@@ -98,9 +204,11 @@ When(
           cy.wait('@getNotifications');
           // Reactivate the notification
           cy.get('input.MuiSwitch-input').click().should('be.checked');
+          notificationEnabled = true;
           break;
         case 'disable':
           cy.wrap($checkbox).click().should('not.be.checked');
+          notificationEnabled = false;
           break;
       }
     });
@@ -108,14 +216,46 @@ When(
 );
 
 Then(
-  'the notifications for status changes are sent only to the updated {string}',
-  (userType) => {
-    // WIP
+  'the notifications for status changes are sent only to the updated contact',
+  () => {
+    notificationSentCheck(
+      '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
+    ).then(({ stdout }) => {
+      expect(stdout).to.not.contain(
+        '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
+      );
+    });
+    notificationSentCheck(
+      '[{"email_address":"guest@localhost","full_name":"Guest"}]'
+    ).then(({ stdout }) => {
+      expect(stdout).to.contain(
+        '[{"email_address":"guest@localhost","full_name":"Guest"}]'
+      );
+    });
   }
 );
 
 Then('{string} notification is sent for this rule once', (prefix) => {
-  // WIP
+  if (!notificationEnabled) {
+    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
+      expect(stdout).to.not.contain('Notification on host 15');
+    });
+    notificationSentCheck('Notification on service (15,27)').then(
+      ({ stdout }) => {
+        expect(stdout).to.not.contain('Notification on service (15,27)');
+      }
+    );
+    return;
+  }
+
+  notificationSentCheck('Notification on host 15').then(({ stdout }) => {
+    expect(stdout).to.contain('Notification on host 15');
+  });
+  notificationSentCheck('Notification on service (15,27)').then(
+    ({ stdout }) => {
+      expect(stdout).to.contain('Notification on service (15,27)');
+    }
+  );
 });
 
 When('the user {string} the Notification Rule', (action) => {
@@ -134,9 +274,11 @@ When('the user {string} the Notification Rule', (action) => {
           cy.contains(notificationBody.name).click();
           cy.wait('@getNotification');
           cy.get('input.MuiSwitch-input').eq(1).click().should('be.checked');
+          notificationEnabled = true;
           break;
         case 'disable':
           cy.wrap($checkbox).click().should('not.be.checked');
+          notificationEnabled = false;
           break;
       }
     });
