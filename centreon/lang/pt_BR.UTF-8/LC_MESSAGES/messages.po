@@ -17240,6 +17240,9 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Not yet implemented"
+# msgstr ""
+
 # msgid "View as list"
 # msgstr ""
 
@@ -17247,7 +17250,4 @@ msgstr ""
 # msgstr ""
 
 # msgid "Edit properties"
-# msgstr ""
-
-# msgid "Not yet implemented"
 # msgstr ""
