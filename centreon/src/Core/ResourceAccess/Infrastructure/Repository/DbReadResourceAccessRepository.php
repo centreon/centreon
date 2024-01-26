@@ -28,24 +28,17 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 
 /**
  * @phpstan-type _TinyRule array{
- *     acl_group_id: int,
- *     acl_group_name: string,
- *     cloud_description: string|null,
- *     acl_group_activate: int
- * }
- * @phpstan-type _Rule array{
  *     id: int,
  *     name: string,
  *     description: string|null,
- *     contact_ids: string,
- *     contact_group_ids: string,
- *     status: int
+ *     is_enabled: int
  * }
  * @phpstan-type _DatasetFilter array{
  *     dataset_name: string,
@@ -57,14 +50,18 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  *     rule_id: int
  * }
  */
-final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRuleRepositoryInterface
+final class DbReadResourceAccessRepository extends AbstractRepositoryRDB implements ReadResourceAccessRepositoryInterface
 {
     use LoggerTrait;
 
     /**
      * @param DatabaseConnection $db
+     * @param DatasetFilterValidator $datasetValidator
      */
-    public function __construct(DatabaseConnection $db) {
+    public function __construct(
+        DatabaseConnection $db,
+        private readonly DatasetFilterValidator $datasetValidator
+    ) {
         $this->db = $db;
     }
 
@@ -74,8 +71,8 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
     public function findById(int $ruleId): ?Rule
     {
         $this->info('Find rule information', ['rule_id' => $ruleId]);
-
         $this->debug('Find basic information for rule', ['rule_id' => $ruleId]);
+
         $basicInformation = $this->findBasicInformation($ruleId);
 
         if ($basicInformation === null) {
@@ -83,6 +80,12 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
 
             return null;
         }
+
+        $this->debug('Find contacts linked to the rule', ['rule_id' => $ruleId]);
+        $linkedContactIds = $this->findLinkedContactsToRule($ruleId);
+
+        $this->debug('Find contact groups linked to the rule', ['rule_id' => $ruleId]);
+        $linkedContactGroupIds = $this->findLinkedContactGroupsToRule($ruleId);
 
         $this->debug('Find dataset filters linked to the rule', ['rule_id' => $ruleId]);
         $datasets = $this->findDatasetsByRuleId($ruleId);
@@ -93,7 +96,13 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
             return null;
         }
 
-        return DbRuleFactory::createFromRecord($basicInformation, $datasets);
+        return DbRuleFactory::createFromRecord(
+            $basicInformation,
+            $linkedContactIds,
+            $linkedContactGroupIds,
+            $datasets,
+            $this->datasetValidator
+        );
     }
 
     /**
@@ -132,10 +141,10 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
 
         $request = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS
-                    acl_group_id,
-                    acl_group_name,
-                    cloud_description,
-                    acl_group_activate
+                    acl_group_id AS `id`,
+                    acl_group_name AS `name`,
+                    cloud_description AS `description`,
+                    acl_group_activate AS `is_enabled`
                 FROM `:db`.acl_groups
             SQL;
 
@@ -191,6 +200,42 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
     /**
      * @param int $ruleId
      *
+     * @return int[]
+     */
+    private function findLinkedContactsToRule(int $ruleId): array
+    {
+        $request = <<<'SQL'
+            SELECT contact_contact_id FROM `:db`.acl_group_contacts_relations WHERE acl_group_id = :ruleId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $ruleId
+     *
+     * @return int[]
+     */
+    private function findLinkedContactGroupsToRule(int $ruleId): array
+    {
+        $request = <<<'SQL'
+                SELECT cg_cg_id FROM `:db`.acl_group_contactgroups_relations WHERE acl_group_id = :ruleId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $ruleId
+     *
      * @throws \PDOException
      *
      * @return non-empty-list<_DatasetFilter>|null
@@ -232,7 +277,7 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
      *
      * @throws \PDOException
      *
-     * @return _Rule|null
+     * @return _TinyRule|null
      */
     private function findBasicInformation(int $ruleId): ?array
     {
@@ -242,15 +287,10 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
                         acl_groups.acl_group_id AS `id`,
                         acl_group_name AS `name`,
                         cloud_description AS `description`,
-                        GROUP_CONCAT(DISTINCT agcr.contact_contact_id) AS contact_ids,
-                        GROUP_CONCAT(DISTINCT agcgr.cg_cg_id) AS contact_group_ids,
-                        acl_group_activate AS `status`
+                        acl_group_activate AS `is_enabled`
                     FROM `:db`.acl_groups
-                    INNER JOIN `:db`.acl_group_contacts_relations agcr
-                        ON agcr.acl_group_id = acl_groups.acl_group_id
-                    INNER JOIN `:db`.acl_group_contactgroups_relations agcgr
-                        ON agcgr.acl_group_id = acl_groups.acl_group_id
-                    WHERE acl_groups.acl_group_id = :ruleId AND cloud_specific = 1
+                    WHERE acl_groups.acl_group_id = :ruleId
+                        AND cloud_specific = 1
                 SQL
         );
 
@@ -259,7 +299,7 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
         $statement->execute();
 
         if ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /** @var _Rule $record */
+            /** @var _TinyRule $record */
             return $record;
         }
 
@@ -274,10 +314,10 @@ final class DbReadRuleRepository extends AbstractRepositoryRDB implements ReadRu
     private function createTinyRuleFromArray(array $data): TinyRule
     {
         return new TinyRule(
-            id: (int) $data['acl_group_id'],
-            name: $data['acl_group_name'],
-            description: (string) $data['cloud_description'],
-            isEnabled: (bool) $data['acl_group_activate']
+            id: (int) $data['id'],
+            name: $data['name'],
+            description: (string) $data['description'],
+            isEnabled: (bool) $data['is_enabled']
         );
     }
 }

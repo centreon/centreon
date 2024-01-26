@@ -21,15 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\ResourceAccess\Domain\Model;
+namespace Core\ResourceAccess\Domain\Model\DatasetFilter\Providers;
 
-enum DatasetFilterType
+use Core\ResourceAccess\Domain\Model\DatasetFilter\AbstractDatasetFilterType;
+
+class ServiceFilterType extends AbstractDatasetFilterType
 {
-    case Host;
-    case Hostgroup;
-    case HostCategory;
-    case Service;
-    case Servicegroup;
-    case ServiceCategory;
-    case MetaService;
+    public const TYPE_NAME = 'service';
+
+    protected string $name = self::TYPE_NAME;
 }
+

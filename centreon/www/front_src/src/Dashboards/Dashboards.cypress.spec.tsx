@@ -29,6 +29,10 @@ import {
 } from './translatedLabels';
 import { routerHooks } from './routerHooks';
 import { DashboardLayout } from './models';
+import {
+  labelCardsView,
+  labelListView
+} from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -167,14 +171,92 @@ const administratorRole = {
   globalRole: DashboardGlobalRole.administrator
 };
 
+const columns = [
+  'Name',
+  'Description',
+  'Creation date',
+  'Last update',
+  'Actions'
+];
+
 describe('Dashboards', () => {
+  describe('View mode', () => {
+    it('displays the dashboards in "View By cards" by default', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelCardsView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'false'
+      );
+
+      cy.get('[data-item-title="My Dashboard"]').should('be.visible');
+      cy.get('[data-item-title="My Dashboard 2"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the dashboards in "View as list" when the corresponding button is clicked', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+
+      cy.get('[data-item-title="My Dashboard"]').should('not.exist');
+      cy.get('[data-item-title="My Dashboard 2"]').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays pagination in both view modes', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('Listing Pagination').should('be.visible');
+
+      cy.findByTestId(labelCardsView).click();
+
+      cy.findByTestId('Listing Pagination').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays column configuration button only in "View as list"', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('be.visible');
+
+      cy.findByTestId(labelCardsView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  });
   describe('Roles', () => {
     it('displays the dashboard actions on the corresponding dashboard when the user has editor roles', () => {
       initializeAndMount(editorRole);
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByTestId('create-dashboard').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -218,7 +300,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByTestId('create-dashboard').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -232,6 +314,34 @@ describe('Dashboards', () => {
       cy.get('[data-item-title="My Dashboard 2"]')
         .findByLabelText('delete')
         .should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays all dashboard columns in the "View as list" when the user has editor global roles', () => {
+      initializeAndMount(editorRole);
+
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      columns.forEach((column) => {
+        cy.findByText(column);
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not display actions in the "View as list" when the user has viewer global role', () => {
+      initializeAndMount(viewerRole);
+
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByText('Actions').should('not.exist');
+
+      cy.findByTestId('create-dashboard').should('not.exist');
 
       cy.makeSnapshot();
     });

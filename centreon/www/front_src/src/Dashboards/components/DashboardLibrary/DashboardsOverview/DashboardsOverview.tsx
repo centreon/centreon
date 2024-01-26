@@ -2,7 +2,8 @@ import { ReactElement, useMemo, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 
 import AddIcon from '@mui/icons-material/Add';
 
@@ -22,13 +23,21 @@ import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../../models';
 import { isSharesOpenAtom } from '../../../atoms';
+import { DashboardListing } from '../DashboardListing';
+import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
+import { ViewMode } from '../DashboardListing/models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
+import { useStyles } from './DashboardsOverview.styles';
 
 const DashboardsOverview = (): ReactElement => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const { isEmptyList, dashboards } = useDashboardsOverview();
+  const viewMode = useAtomValue(viewModeAtom);
+  const search = useAtomValue(searchAtom);
+
+  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
   const deleteDashboard = useDashboardDelete();
   const { hasEditPermission, canCreateOrManageDashboards } =
@@ -78,6 +87,39 @@ const DashboardsOverview = (): ReactElement => {
     []
   );
 
+  const GridTable = (
+    <DataTable isEmpty={isEmptyList} variant="grid">
+      {dashboards.map((dashboard) => (
+        <DataTable.Item
+          hasCardAction
+          description={dashboard.description ?? undefined}
+          hasActions={hasEditPermission(dashboard)}
+          key={dashboard.id}
+          labelsDelete={getLabelsDelete(dashboard)}
+          title={dashboard.name}
+          onClick={navigateToDashboard(dashboard)}
+          onDelete={deleteDashboard(dashboard)}
+          onEdit={editDashboard(dashboard)}
+          onEditAccessRights={editAccessRights(dashboard)}
+        />
+      ))}
+    </DataTable>
+  );
+
+  if (isEmptyList && !search) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={labels.emptyState}
+          onCreate={createDashboard}
+        />
+      </DataTable>
+    );
+  }
+
   return (
     <>
       <PageLayout.Actions>
@@ -93,33 +135,15 @@ const DashboardsOverview = (): ReactElement => {
           </Button>
         )}
       </PageLayout.Actions>
-
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        {isEmptyList ? (
-          <DataTable.EmptyState
-            aria-label="create"
-            canCreate={canCreateOrManageDashboards}
-            data-testid="create-dashboard"
-            labels={labels.emptyState}
-            onCreate={createDashboard}
-          />
-        ) : (
-          dashboards.map((dashboard) => (
-            <DataTable.Item
-              hasCardAction
-              description={dashboard.description ?? undefined}
-              hasActions={hasEditPermission(dashboard)}
-              key={dashboard.id}
-              labelsDelete={getLabelsDelete(dashboard)}
-              title={dashboard.name}
-              onClick={navigateToDashboard(dashboard)}
-              onDelete={deleteDashboard(dashboard)}
-              onEdit={editDashboard(dashboard)}
-              onEditAccessRights={editAccessRights(dashboard)}
-            />
-          ))
-        )}
-      </DataTable>
+      <div className={classes.container}>
+        <DashboardListing
+          customListingComponent={GridTable}
+          data={data}
+          displayCustomListing={equals(viewMode, ViewMode.Cards)}
+          loading={isLoading}
+          openConfig={createDashboard}
+        />
+      </div>
     </>
   );
 };
