@@ -83,7 +83,7 @@ it(
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(false);
+            ->method('canCreate')->willReturn(false);
 
         ($this->useCase)($this->testedDashboardId, $this->presenter);
 
@@ -115,7 +115,7 @@ it(
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(true);
+            ->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())
             ->method('canDelete')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
@@ -135,7 +135,7 @@ it(
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(true);
+            ->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())
             ->method('canDelete')->willReturn(false);
         $this->readDashboardRepository->expects($this->once())
@@ -155,7 +155,7 @@ it(
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(true);
+            ->method('canCreate')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn(null);
 
