@@ -113,6 +113,7 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     dashboard: JsonDecoder.optional(JsonDecoder.boolean),
+    dashboard_playlist: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),

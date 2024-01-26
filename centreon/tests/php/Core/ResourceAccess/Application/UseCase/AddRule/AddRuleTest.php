@@ -30,13 +30,21 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
-use Core\ResourceAccess\Application\Repository\WriteRuleRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRule;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleRequest;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleResponse;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleValidation;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\ResourceAccess\Infrastructure\API\AddRule\AddRulePresenterStub;
@@ -44,13 +52,28 @@ use Tests\Core\ResourceAccess\Infrastructure\API\AddRule\AddRulePresenterStub;
 beforeEach(closure: function (): void {
     $this->presenter = new AddRulePresenterStub($this->createMock(PresenterFormatterInterface::class));
 
+    foreach ([
+        HostFilterType::class,
+        HostGroupFilterType::class,
+        HostCategoryFilterType::class,
+        ServiceFilterType::class,
+        ServiceGroupFilterType::class,
+        ServiceCategoryFilterType::class,
+        MetaServiceFilterType::class,
+    ] as $className) {
+        $this->filterTypes[] = new $className();
+    }
+
+    $this->datasetValidator = new DatasetFilterValidator(new \ArrayObject($this->filterTypes));
+
     $this->useCase = new AddRule(
-        readRepository: $this->readRepository = $this->createMock(ReadRuleRepositoryInterface::class),
-        writeRepository: $this->writeRepository = $this->createMock(WriteRuleRepositoryInterface::class),
+        readRepository: $this->readRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
+        writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
         validator: $this->validator = $this->createMock(AddRuleValidation::class),
-        accessGroupRepository: $this->createMock(ReadAccessGroupRepositoryInterface::class)
+        accessGroupRepository: $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        datasetValidator: $this->datasetValidator
     );
 
     $this->request = new AddRuleRequest();
@@ -78,15 +101,25 @@ beforeEach(closure: function (): void {
 
     $this->request->datasetFilters = [$datasetFilterData0, $datasetFilterData1];
 
-    $datasetFilter0 = (new DatasetFilter($datasetFilterData0['type'], $datasetFilterData0['resources']));
+    $datasetFilter0 = new DatasetFilter(
+        $datasetFilterData0['type'],
+        $datasetFilterData0['resources'],
+        $this->datasetValidator
+    );
+
     $datasetFilter0->setDatasetFilter(
         new DatasetFilter(
             $datasetFilterData0['dataset_filter']['type'],
-            $datasetFilterData0['dataset_filter']['resources']
+            $datasetFilterData0['dataset_filter']['resources'],
+            $this->datasetValidator
         )
     );
 
-    $datasetFilter1 = new DatasetFilter($datasetFilterData1['type'], $datasetFilterData1['resources']);
+    $datasetFilter1 = new DatasetFilter(
+        $datasetFilterData1['type'],
+        $datasetFilterData1['resources'],
+        $this->datasetValidator
+    );
 
     $this->datasetFilters = [$datasetFilter0, $datasetFilter1];
 
@@ -307,7 +340,7 @@ it('should return created object on success', function (): void {
 
     $this->writeRepository
         ->expects($this->any())
-        ->method('linkHostsToDataset');
+        ->method('linkResourcesToDataset');
 
     $this->readRepository
         ->expects($this->once())

@@ -43,6 +43,7 @@ const useListDashboards = (): UseListDashboards => {
     List<Omit<Dashboard, 'refresh'>>
   >({
     decoder: dashboardListDecoder,
+    doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsEndpoint,
