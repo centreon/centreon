@@ -354,6 +354,7 @@ export const useRenderOptions = ({
               <Checkbox
                 checked={isMetricChecked}
                 className={classes.radioCheckbox}
+                data-checked={isMetricChecked}
                 data-testid={option.name}
                 indeterminate={isMetricIndeterminate}
                 size="small"
@@ -381,6 +382,13 @@ export const useRenderOptions = ({
                     })
                   }
                   className={classes.radioCheckbox}
+                  data-checked={
+                    isMetricSelected &&
+                    !isResourceExcluded({
+                      metricId,
+                      metricName: option.name
+                    })
+                  }
                   data-testid={`${option.name}_${parentName}:${name}`}
                   size="small"
                   onChange={resourceChange({ metric: option, metricId })}

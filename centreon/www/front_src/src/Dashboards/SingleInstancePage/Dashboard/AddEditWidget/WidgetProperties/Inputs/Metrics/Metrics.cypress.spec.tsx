@@ -209,7 +209,7 @@ describe('Metrics', () => {
     });
   });
 
-  describe.only('Single metric selection with several resources', () => {
+  describe('Single metric selection with several resources', () => {
     beforeEach(() => {
       store.set(singleHostPerMetricAtom, false);
       store.set(singleMetricSelectionAtom, true);
@@ -263,6 +263,140 @@ describe('Metrics', () => {
       store.set(singleMetricSelectionAtom, false);
 
       initializeComponent({});
+    });
+
+    it('displays the metrics and their own resources when the selector is clicked and metrics option are clicked', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.contains('rtmax (ms)').should('be.visible');
+      cy.findByTestId('rtmax').should('not.be.checked');
+      cy.contains('pl (%)').should('be.visible');
+      cy.findByTestId('pl').should('not.be.checked');
+
+      cy.findByTestId('rtmax-summary').click();
+      cy.get('[data-testid="rtmax-accordion"]')
+        .contains('Centreon-1:Ping')
+        .should('be.visible');
+      cy.get('[data-testid="rtmax-accordion"]')
+        .contains('Centreon-2:Ping')
+        .should('be.visible');
+
+      cy.findByTestId('pl-summary').click();
+      cy.get('[data-testid="pl-accordion"]')
+        .contains('Centreon-1:Ping')
+        .should('be.visible');
+      cy.get('[data-testid="pl-accordion"]')
+        .contains('Centreon-2:Ping')
+        .should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('selects all the resources related to the selected metric when a metric is selected', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('rtmax').click();
+
+      cy.findByTestId('rtmax').should('have.attr', 'data-checked', 'true');
+      cy.findByTestId('pl').should('have.attr', 'data-checked', 'false');
+
+      cy.findByTestId('rtmax-summary').click();
+
+      cy.findByTestId('rtmax_Centreon-1:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+      cy.findByTestId('rtmax_Centreon-2:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+
+      cy.contains('rtmax (ms)/2').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('excludes a resource when a metric is selected and a resource is unchecked', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('pl').click();
+
+      cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+
+      cy.findByTestId('pl-summary').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').should(
+        'have.attr',
+        'data-checked',
+        'false'
+      );
+      cy.findByTestId('pl_Centreon-2:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+      cy.contains('pl (%)/1').should('be.visible');
+      cy.findByTestId('pl')
+        .find('input')
+        .should('have.attr', 'data-indeterminate', 'true');
+
+      cy.makeSnapshot();
+    });
+
+    it('selects only the resource when a resource is selected', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('pl-summary').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+      cy.findByTestId('pl_Centreon-2:Ping').should(
+        'have.attr',
+        'data-checked',
+        'false'
+      );
+      cy.contains('pl (%)/1').should('be.visible');
+      cy.findByTestId('pl')
+        .find('input')
+        .should('have.attr', 'data-indeterminate', 'true');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the metric as completly selected when all the related resources are selected', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('pl-summary').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').click();
+      cy.findByTestId('pl_Centreon-2:Ping').click();
+
+      cy.findByTestId('pl_Centreon-1:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+      cy.findByTestId('pl_Centreon-2:Ping').should(
+        'have.attr',
+        'data-checked',
+        'true'
+      );
+      cy.contains('pl (%)/2').should('be.visible');
+      cy.findByTestId('pl')
+        .find('input')
+        .should('have.attr', 'data-indeterminate', 'false');
+      cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+
+      cy.makeSnapshot();
     });
   });
 });
