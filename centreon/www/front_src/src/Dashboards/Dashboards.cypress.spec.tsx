@@ -14,7 +14,8 @@ import { DashboardsPage } from './DashboardsPage';
 import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  dashboardSharesEndpoint
+  dashboardSharesEndpoint,
+  getDashboardAccessRightsContactGroupEndpoint
 } from './api/endpoints';
 import {
   labelAddAContact,
@@ -22,16 +23,20 @@ import {
   labelCreate,
   labelDashboardDeleted,
   labelDelete,
+  labelDeleteUser,
   labelName,
   labelSave,
   labelSharesSaved,
+  labelUserDeleted,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
 import { routerHooks } from './routerHooks';
 import { DashboardLayout } from './models';
 import {
   labelCardsView,
-  labelListView
+  labelEditor,
+  labelListView,
+  labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
 interface InitializeAndMountProps {
@@ -127,6 +132,11 @@ const initializeAndMount = ({
     method: Method.PUT,
     path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
+  });
+  cy.interceptAPIRequest({
+    alias: 'revokeUser',
+    method: Method.DELETE,
+    path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
 
   cy.stub(routerHooks, 'useParams').returns({
@@ -250,13 +260,14 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
   });
+
   describe('Roles', () => {
     it('displays the dashboard actions on the corresponding dashboard when the user has editor roles', () => {
       initializeAndMount(editorRole);
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId('create-dashboard').should('be.visible');
+      cy.findByLabelText('create').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -300,7 +311,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId('create-dashboard').should('be.visible');
+      cy.findByLabelText('create').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -341,7 +352,48 @@ describe('Dashboards', () => {
 
       cy.findByText('Actions').should('not.exist');
 
-      cy.findByTestId('create-dashboard').should('not.exist');
+      cy.findByLabelText('create').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Shares', () => {
+    it('displays shares when a row is expanded', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.contains('2 shares').should('be.visible');
+
+      cy.findByTestId('ExpandMoreIcon').click();
+      cy.contains('Kevin').should('be.visible');
+      cy.findByLabelText(labelViewer).should('be.visible');
+      cy.findByLabelText(labelEditor).should('be.visible');
+      cy.findByTestId('PeopleIcon').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('revokes the access right when a row is expanded and the corresponding action is clicked ', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.contains('2 shares').should('be.visible');
+
+      cy.findByTestId('ExpandMoreIcon').click();
+
+      cy.findAllByTestId('PersonRemoveIcon').eq(1).click();
+
+      cy.contains(labelDeleteUser).should('be.visible');
+      cy.get(`[aria-label="${labelDelete}"][data-is-danger="true"]`).click();
+
+      cy.waitForRequest('@revokeUser');
+
+      cy.contains(labelUserDeleted).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -381,7 +433,7 @@ describe('Dashboards', () => {
     );
   });
 
-  it.only('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+  it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByLabelText('delete').eq(0).click();
