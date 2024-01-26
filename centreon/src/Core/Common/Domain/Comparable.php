@@ -19,33 +19,25 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Infrastructure\Common\Repository;
+namespace Core\Common\Domain;
 
-use Centreon\Domain\Repository\RepositoryException;
-use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
-
-class SystemReadSessionRepository implements ReadSessionRepositoryInterface
+interface Comparable
 {
     /**
-     * @inheritDoc
+     * This method returns true if two objects are considered equal.
+     *
+     * @param object $object
+     *
+     * @return bool
      */
-    public function findSessionIdsByUserId(int $userId): array
-    {
-        throw RepositoryException::notYetImplemented();
-    }
+    public function isEqual(object $object): bool;
 
     /**
-     * @inheritDoc
+     * Calculates a hash with the list of values used to validate equality between two objects.
+     *
+     * @return string
      */
-    public function getValueFromSession(string $sessionId, string $key): mixed
-    {
-        session_id($sessionId);
-        session_start();
-        $value = $_SESSION[$key];
-        session_write_close();
-
-        return $value;
-    }
+    public function getEqualityHash(): string;
 }
