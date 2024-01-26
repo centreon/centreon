@@ -11,6 +11,7 @@ export interface Resource {
   min: number | null;
   name: string;
   parentName: string;
+  uuid: string | null;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
 }
