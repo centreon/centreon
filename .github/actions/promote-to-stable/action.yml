@@ -19,6 +19,9 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
+  github_base_ref:
+    description: "Release base ref"
+    required: true
 
 runs:
   using: "composite"
@@ -38,7 +41,7 @@ runs:
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if base branch is master
-        if [[ $GITHUB_BASE_REF == "master" ]]; then
+        if [[ ${{ inputs.github_base_ref }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
