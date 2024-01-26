@@ -17106,3 +17106,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Add at least 1 contact"
 # msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""

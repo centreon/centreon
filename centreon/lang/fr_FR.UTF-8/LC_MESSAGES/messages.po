@@ -18373,3 +18373,12 @@ msgstr "Vous n'êtes pas autorisé à vous connecter"
 
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
