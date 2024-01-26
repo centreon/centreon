@@ -30,6 +30,7 @@ const useServiceTooltipContent = (
     decoder: metricsDecoder,
     getEndpoint: () => data.metricsEndpoint as string,
     getQueryKey: () => ['statusgrid', 'metrics', data.metricsEndpoint],
+    httpCodesBypassErrorSnackbar: [404],
     queryOptions: {
       enabled: isQueryEnabled,
       suspense: false

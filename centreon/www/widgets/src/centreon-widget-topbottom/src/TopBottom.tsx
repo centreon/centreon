@@ -13,6 +13,7 @@ import { useTopBottomStyles } from './TopBottom.styles';
 
 interface TopBottomProps {
   globalRefreshInterval: GlobalRefreshInterval;
+  isFromPreview?: boolean;
   metrics: Array<Metric>;
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
@@ -32,7 +33,8 @@ const TopBottom = ({
   resources,
   valueFormat,
   threshold,
-  refreshCount
+  refreshCount,
+  isFromPreview
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
@@ -68,6 +70,7 @@ const TopBottom = ({
         <MetricTop
           displayAsRaw={equals('raw', valueFormat)}
           index={index}
+          isFromPreview={isFromPreview}
           key={metricTop.name}
           metricTop={metricTop}
           showLabels={topBottomSettings.showLabels}
