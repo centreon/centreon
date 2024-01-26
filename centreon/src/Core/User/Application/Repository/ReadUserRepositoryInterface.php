@@ -54,4 +54,13 @@ interface ReadUserRepositoryInterface
         array $accessGroups,
         RequestParametersInterface $requestParameters
     ): array;
+
+    /**
+     * Find a user by its ID.
+     *
+     * @param int $userId
+     *
+     * @throws \Throwable
+     */
+    public function find(int $userId): ?User;
 }
