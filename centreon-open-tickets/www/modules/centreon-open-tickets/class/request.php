@@ -44,16 +44,12 @@ class CentreonOpenTicketsRequest
         $this->postVar = array();
         $this->getVar = array();
 
-        if (isset($_POST)) {
-            foreach ($_POST as $key => $value) {
-                $this->postVar[$key] = $value;
-            }
+        foreach ($_POST as $key => $value) {
+            $this->postVar[$key] = $value;
         }
 
-        if (isset($_GET)) {
-            foreach ($_GET as $key => $value) {
-                $this->getVar[$key] = $value;
-            }
+        foreach ($_GET as $key => $value) {
+            $this->getVar[$key] = $value;
         }
     }
 

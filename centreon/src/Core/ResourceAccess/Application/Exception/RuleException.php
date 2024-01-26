@@ -83,4 +83,9 @@ class RuleException extends \Exception
             )
         );
     }
+
+    public static function noLinkToContactsOrContactGroups(): self
+    {
+        return new self(_('At least one contact or contactgroup should be linked to the rule'));
+    }
 }
