@@ -29,9 +29,13 @@ require_once CENTREON_OPENTICKET_PATH . '/class/automatic.class.php';
 
 class CentreonOpenticket extends CentreonWebService
 {
+    /** @var Centreon  */
+    public $centreon;
+    /** @var CentreonDB  */
+    public $pearDBMonitoring;
+
     /**
-     *
-     * @global type $centreon
+     * @global Centreon $centreon
      */
     public function __construct()
     {

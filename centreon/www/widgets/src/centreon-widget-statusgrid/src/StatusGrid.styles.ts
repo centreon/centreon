@@ -2,9 +2,16 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useTileStyles = makeStyles()((theme) => ({
   container: {
+    cursor: 'pointer',
+    height: '100%',
     paddingTop: theme.spacing(1.5),
     position: 'relative',
     width: '100%'
+  },
+  link: {
+    all: 'unset',
+    display: 'block',
+    height: '100%'
   },
   resourceName: {
     fontWeight: theme.typography.fontWeightMedium

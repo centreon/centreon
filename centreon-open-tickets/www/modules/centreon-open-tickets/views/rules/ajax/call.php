@@ -33,6 +33,7 @@ $db = $dependencyInjector['configuration_db'];
 $rule = new Centreon_OpenTickets_Rule($db);
 
 if (isset($_SESSION['centreon'])) {
+    /** @var \Centreon $centreon */
     $centreon = $_SESSION['centreon'];
 } else {
     exit;
