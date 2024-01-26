@@ -5,3 +5,7 @@
 /usr/lib64/libbrotlienc.so.1.0.9
 /usr/lib64/liblua-5.4.so
 /usr/lib64/libldap-2.4.so.2
+/usr/bin/rpm
+/usr/bin/python3.9
+/usr/bin/python3
+/usr/bin/dnf
