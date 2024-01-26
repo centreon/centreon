@@ -21,34 +21,36 @@
 
 declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\Repository;
+namespace Core\ResourceAccess\Application\Providers;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\ResourceAccess\Domain\Model\Rule;
-use Core\ResourceAccess\Domain\Model\TinyRule;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
 
-interface ReadRuleRepositoryInterface
+final class HostProvider implements DatasetProviderInterface
 {
-    /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return TinyRule[]
-     */
-    public function findAllByRequestParameters(RequestParametersInterface $requestParameters): array;
+    use LoggerTrait;
 
     /**
-     * Checks if the rule name provided as been already used for a rule.
-     *
-     * @param string $name
-     *
-     * @return bool
+     * @param ReadHostRepositoryInterface $repository
      */
-    public function existsByName(string $name): bool;
+    public function __construct(private readonly ReadHostRepositoryInterface $repository)
+    {
+    }
 
     /**
-     * @param int $ruleId
-     *
-     * @return null|Rule
+     * @inheritDoc
      */
-    public function findById(int $ruleId): ?Rule;
+    public function isValidFor(string $type): bool
+    {
+        return HostFilterType::TYPE_NAME === $type;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function areResourcesValid(array $resourceIds): array
+    {
+        return $this->repository->exist($resourceIds);
+    }
 }

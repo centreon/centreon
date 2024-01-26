@@ -16773,3 +16773,15 @@ msgstr "Modo avanzado"
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""
