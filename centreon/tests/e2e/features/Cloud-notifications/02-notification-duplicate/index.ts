@@ -2,6 +2,9 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { createNotification, enableNotificationFeature } from '../common';
 
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+
+import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const duplicatedNotificationName = 'Duplicated Notification';
 
@@ -25,6 +28,38 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
   }).as('getNotifications');
+
+  cy.addHostGroup({
+    name: data.hostGroups.hostGroup1.name
+  });
+
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: data.hostGroups.hostGroup1.name,
+    name: data.hosts.host1.name,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: data.hosts.host1.name,
+      maxCheckAttempts: 1,
+      name: data.services.service1.name,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
+
+  checkHostsAreMonitored([
+    {
+      name: data.hosts.host1.name
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: data.services.service1.name
+    }
+  ]);
 });
 
 afterEach(() => {
