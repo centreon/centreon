@@ -18572,3 +18572,6 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
