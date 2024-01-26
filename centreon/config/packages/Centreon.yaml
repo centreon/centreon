@@ -38,6 +38,7 @@ services:
         exclude:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
+            - '../../src/Core/ResourceAccess/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
