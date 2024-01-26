@@ -41,6 +41,7 @@ const useListDashboards = (): UseListDashboards => {
 
   const { data, isLoading } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
     decoder: dashboardListDecoder,
+    doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsEndpoint,

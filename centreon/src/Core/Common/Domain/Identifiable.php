@@ -19,19 +19,11 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Infrastructure\Common\Repository;
+namespace Core\Common\Domain;
 
-class RepositoryException extends \Exception
+interface Identifiable
 {
-    /**
-     * @param string $method
-     *
-     * @return self
-     */
-    public static function notImplemented(string $method): self
-    {
-        return new self($method . ' not implemented');
-    }
+    public function getId(): int;
 }

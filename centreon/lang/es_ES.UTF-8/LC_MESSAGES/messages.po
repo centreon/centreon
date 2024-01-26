@@ -16774,8 +16774,6 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgstr ""
-
 # msgid "View as list"
 # msgstr ""
 
@@ -16783,4 +16781,7 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Edit properties"
+# msgstr ""
+
+# msgid "Not yet implemented"
 # msgstr ""

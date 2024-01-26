@@ -17248,3 +17248,6 @@ msgstr ""
 
 # msgid "Edit properties"
 # msgstr ""
+
+# msgid "Not yet implemented"
+# msgstr ""

@@ -18581,3 +18581,7 @@ msgstr "Vue en cartes"
 
 msgid "Edit properties"
 msgstr "Éditer les propriétés"
+
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"

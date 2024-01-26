@@ -82,14 +82,19 @@ class BmcItsmProvider extends AbstractProvider
         'Assigned Group' => array('id' => 13, 'soap' => 'Assigned_Group'),
     );
 
-    function __destruct()
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $otrs_call_response;
+    /** @var string */
+    protected $_ticket_number;
+
+    public function __destruct()
     {
     }
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -139,8 +144,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -165,8 +168,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -219,8 +220,6 @@ class BmcItsmProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -309,10 +308,12 @@ class BmcItsmProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * REST API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {

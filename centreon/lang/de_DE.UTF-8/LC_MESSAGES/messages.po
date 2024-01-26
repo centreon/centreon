@@ -16445,6 +16445,7 @@ msgstr "Erweiterter Modus"
 
 # msgid "Token has been created"
 # msgstr ""
+
 # msgid "View as list"
 # msgstr ""
 
@@ -16452,4 +16453,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Edit properties"
+# msgstr ""
+
+# msgid "Not yet implemented"
 # msgstr ""
