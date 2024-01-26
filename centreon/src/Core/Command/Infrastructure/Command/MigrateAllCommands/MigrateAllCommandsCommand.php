@@ -31,6 +31,7 @@ use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MigrateAllCommandsCommand extends AbstractMigrationCommand
 {
@@ -44,6 +45,7 @@ class MigrateAllCommandsCommand extends AbstractMigrationCommand
         ReadProxyRepositoryInterface $readProxyRepository,
         readonly private ApiWriteCommandRepository $apiWriteCommandRepository,
         readonly private MigrateAllCommands $useCase,
+        private readonly ContainerInterface $container,
     ) {
         parent::__construct($readProxyRepository);
     }
@@ -65,6 +67,12 @@ class MigrateAllCommandsCommand extends AbstractMigrationCommand
     {
         try {
             $this->setStyle($output);
+            $apiTimeout = $this->container->hasParameter('curl.timeout') && is_int($this->container->getParameter('curl.timeout'))
+                ? $this->container->getParameter('curl.timeout')
+                : 60; // In seconds
+
+            $this->apiWriteCommandRepository->setTimeout($apiTimeout);
+
             $proxy = $this->getProxy();
             if ($proxy !== null && $proxy !== '') {
                 $this->apiWriteCommandRepository->setProxy($proxy);

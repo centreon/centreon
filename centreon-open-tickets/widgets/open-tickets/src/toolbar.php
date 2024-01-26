@@ -48,6 +48,7 @@ $path = $centreon_path . "www/widgets/open-tickets/src/";
 $template = new Smarty();
 $template = initSmartyTplForPopup($path . 'templates/', $template, "./", $centreon_path);
 
+/** @var \Centreon $centreon */
 $centreon = $_SESSION['centreon'];
 $widgetId = $_POST['widgetId'];
 $db = new CentreonDB();
