@@ -21,17 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\Common\Repository;
+namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 
-class RepositoryException extends \Exception
+interface DatasetFilterTypeInterface
 {
     /**
-     * @param string $method
-     *
-     * @return self
+     * @return string
      */
-    public static function notImplemented(string $method): self
-    {
-        return new self($method . ' not implemented');
-    }
+    public function getName(): string;
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function isValidFor(string $name): bool;
+
+    /**
+     * @return string[]|array{}
+     */
+    public function getPossibleChildren(): array;
 }
+

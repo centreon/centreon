@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Repository;
 
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\NewRule;
 
-interface WriteRuleRepositoryInterface
+interface WriteResourceAccessRepositoryInterface
 {
     /**
      * @param NewRule $rule
@@ -46,49 +46,6 @@ interface WriteRuleRepositoryInterface
      * @param int[] $contactGroupIds
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $hostIds
-     */
-    public function linkHostsToDataset(int $datasetId, array $hostIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $hostgroupIds
-     */
-    public function linkHostgroupsToDataset(int $datasetId, array $hostgroupIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $hostCategoryIds
-     */
-    public function linkHostCategoriesToDataset(int $datasetId, array $hostCategoryIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $servicegroupIds
-     */
-    public function linkServicegroupsToDataset(int $datasetId, array $servicegroupIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $serviceCategoryIds
-     */
-    public function linkServiceCategoriesToDataset(int $datasetId, array $serviceCategoryIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $serviceIds
-     * @param array $metaServiceIds
-     */
-    // public function linkServicesToDataset(int $datasetId, array $serviceIds): void;
-
-    /**
-     * @param int $datasetId
-     * @param int[] $metaServiceIds
-     */
-    public function linkMetaServicesToDataset(int $datasetId, array $metaServiceIds): void;
 
     /**
      * @param string $name
@@ -112,5 +69,13 @@ interface WriteRuleRepositoryInterface
      * @return int
      */
     public function addDatasetFilter(int $ruleId, int $datasetId, DatasetFilter $filter, ?int $parentFilterId): int;
+
+    /**
+     * @param int $datasetId
+     * @param int[] $resourceIds
+     * @param string $resourceType
+     * @param int $ruleId
+     */
+    public function linkResourcesToDataset(int $ruleId, int $datasetId, string $resourceType, array $resourceIds): void;
 }
 
