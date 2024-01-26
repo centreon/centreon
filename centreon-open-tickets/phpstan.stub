@@ -1,0 +1,3 @@
+<?php
+
+define('_CENTREON_PATH_', 'defined_for_phpstan_stub');

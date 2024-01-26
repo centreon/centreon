@@ -23,6 +23,10 @@ class GlpiProvider extends AbstractProvider
 {
     protected $glpi_connected = 0;
     protected $glpi_session = null;
+    /** @var null|array */
+    protected $glpi_call_response;
+    /** @var string */
+    protected $rpc_error;
 
     public const GPLI_ENTITIES_TYPE = 10;
     public const GPLI_GROUPS_TYPE = 11;
@@ -39,6 +43,7 @@ class GlpiProvider extends AbstractProvider
     public const ARG_GROUP_ASSIGN = 9;
     public const ARG_TITLE = 10;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_CONTENT => 'content',
         self::ARG_ENTITY => 'entity',
@@ -52,15 +57,13 @@ class GlpiProvider extends AbstractProvider
         self::ARG_TITLE => 'title',
     );
 
-    function __destruct()
+    public function __destruct()
     {
         $this->logoutGlpi();
     }
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -143,8 +146,6 @@ class GlpiProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -167,8 +168,6 @@ class GlpiProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -232,8 +231,6 @@ class GlpiProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -478,10 +475,12 @@ class GlpiProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * XML-RPC Calls
      *
+     * @param string $error
+     * @return void
      */
     protected function setRpcError($error)
     {

@@ -30,11 +30,11 @@ define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
 set_include_path(
     implode(
         PATH_SEPARATOR,
-        array(
+        [
             realpath(_CLAPI_LIB_),
             realpath(_CLAPI_CLASS_),
             get_include_path()
-        )
+        ]
     )
 );
 require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
@@ -44,14 +44,15 @@ require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
 $centreonSession = new CentreonSession();
 $centreonSession->start();
 $username = $_SESSION['centreon']->user->alias;
-$clapiConnector = new \ClapiObject($dependencyInjector, array('username' => $username));
-$importReturn = array();
+/** @var Pimple\Container $dependencyInjector */
+$clapiConnector = new \ClapiObject($dependencyInjector, ['username' => $username]);
+$importReturn = [];
 
 /**
  * Upload file
  */
 
-if (!isset($_FILES['clapiImport']) || is_null($_FILES['clapiImport'])) {
+if (!isset($_FILES['clapiImport'])) {
     $importReturn['error'] = "File is empty";
     echo json_encode($importReturn);
     exit;
@@ -76,15 +77,14 @@ if (!$moveFile) {
 $zip = new ZipArchive();
 $confPath = _CENTREON_CACHEDIR_ . '/filesUpload/';
 
-if ($zip->open($uploadFile) === true) {
+$openResult = $zip->open($uploadFile);
+if ($openResult === true) {
     $zip->extractTo($confPath);
     $zip->close();
-} else {
-    if ($zip->open($uploadFile) === false) {
-        $importReturn['error'] = "Unzip failed";
-        echo json_encode($importReturn);
-        exit;
-    }
+} elseif ($openResult !== 0 /** {@see ZipArchive::ER_OK} */) {
+    $importReturn['error'] = "Unzip failed";
+    echo json_encode($importReturn);
+    exit;
 }
 
 /**

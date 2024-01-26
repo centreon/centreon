@@ -25,6 +25,7 @@ namespace Core\ResourceAccess\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 
 class NewRule
 {
@@ -54,11 +55,18 @@ class NewRule
 
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
-        Assertion::notEmpty($this->linkedContactIds, "{$shortName}::linkedContactIds");
-        Assertion::arrayOfTypeOrNull('int', $this->linkedContactIds, "{$shortName}::linkedContactIds");
-        Assertion::notEmpty($this->linkedContactGroupIds, "{$shortName}::linkedContactGroupIds");
-        Assertion::arrayOfTypeOrNull('int', $this->linkedContactGroupIds, "{$shortName}::linkedContactGroupIds");
+
+        if ([] !== $linkedContactIds) {
+            Assertion::arrayOfTypeOrNull('int', $this->linkedContactIds, "{$shortName}::linkedContactIds");
+        }
+
+        if ([] !== $linkedContactGroupIds) {
+            Assertion::arrayOfTypeOrNull('int', $this->linkedContactGroupIds, "{$shortName}::linkedContactGroupIds");
+        }
+
         Assertion::notEmpty($this->datasetFilters, "{$shortName}::datasetFilters");
+
+        $this->assertContactAndOrContactGroup();
     }
 
     /**
@@ -117,6 +125,19 @@ class NewRule
     public function getDatasetFilters(): array
     {
         return $this->datasetFilters;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    private function assertContactAndOrContactGroup(): void
+    {
+        if (
+            $this->linkedContactIds === []
+            && $this->linkedContactGroupIds === []
+        ) {
+            throw new \InvalidArgumentException('At least one contact or contactgroup should be linked to the rule');
+        }
     }
 }
 
