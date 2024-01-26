@@ -49,7 +49,7 @@ export const usePollerData = (): UsePollerDataResult => {
       isAllowed: Boolean(data && isNil(error)),
       isLoading
     }),
-    [isLoading, data]
+    [isLoading, data, error]
   );
 };
 
