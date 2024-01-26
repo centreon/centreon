@@ -31,8 +31,12 @@ properties:
           example: 1
         name:
           type: string
-          description: concatenation of host name and service name
-          example: Printers_Ping
+          description: name of the resource
+          example: Ping
+        parent_name:
+          type: string
+          description: name of the resource's parent
+          example: Printers
         current_value:
           type: number
           description: "Current value of the metrics, use to sort the resources"
