@@ -362,7 +362,7 @@ jobs:
         frontend-widgets-build,
         frontend-widgets-lint,
         frontend-unit-test,
-        # frontend-component-test,
+        frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
