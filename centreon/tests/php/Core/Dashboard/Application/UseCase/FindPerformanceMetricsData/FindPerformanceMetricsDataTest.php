@@ -104,7 +104,7 @@ it('should present an ErrorResponse when an error occurs', function () {
 
     $this->expect($presenter->data)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->data->getMessage())->toBe('An error occured while retrieving metrics data');
+        ->and($presenter->data->getMessage())->toBe('An error occurred while retrieving metrics data');
 });
 
 it('should get the metrics with access group management when the user is not admin', function () {
