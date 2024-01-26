@@ -22,4 +22,7 @@ service mysql stop
 
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
-sleep 5
+dnf search vim
+dnf clean all
+
+sleep 2

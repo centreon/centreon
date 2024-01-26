@@ -247,7 +247,7 @@ $aclFrom = '';
 $aclCond = '';
 if (!$centreon->user->admin) {
     $aclFrom = ", `{$aclDbName}`.centreon_acl acl";
-    $aclGroupIds = implode(',', array_map(CentreonUtils::quote(...), $acl->getAccessGroups()));
+    $aclGroupIds = $acl->getAccessGroupsString('ID');
     $aclCond
         = ' AND h.host_id = acl.host_id AND acl.service_id IS NULL '
         . 'AND acl.group_id IN (' . ($aclGroupIds ?: '0') . ') ';
@@ -286,12 +286,13 @@ if ($hostgroup) {
             AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . " $sqlFilterCase $aclCond
             ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
     } else {
-        $dbResult = $pearDB->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
+        $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit;
+
+        $dbResult = $pearDB->prepare($request);
     }
 }
 $dbResult->execute($mainQueryParameters);

@@ -77,7 +77,7 @@ it(
     'should present a ForbiddenResponse when the user has no rights',
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(false);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(false);
 
         ($this->useCase)(
             $this->testedDashboard->getId(),
@@ -204,7 +204,7 @@ it(
     function (string $roleString): void {
         $role = DashboardSharingRoleConverter::fromString($roleString);
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canCreateShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
@@ -249,7 +249,7 @@ it(
     function (string $roleString): void {
         $role = DashboardSharingRoleConverter::fromString($roleString);
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canCreateShare')->willReturn(false);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
