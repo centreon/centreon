@@ -44,8 +44,32 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  package:
+  backend-lint:
+    runs-on: ubuntu-22.04
     needs: [get-version]
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon-open-tickets
+        shell: bash
+
+      - name: Run of phpstan on /www at level 2
+        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+        working-directory: centreon-open-tickets
+
+  package:
+    needs: [get-version, backend-lint]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
