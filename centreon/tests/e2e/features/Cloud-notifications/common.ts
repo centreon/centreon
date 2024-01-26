@@ -101,8 +101,8 @@ const setBrokerNotificationsOutput = ({ name, configName }: Broker) => {
 };
 
 const notificationSentCheck = (log: string) => {
-  cy.execInContainer({
-    command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}"`,
+  return cy.execInContainer({
+    command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
     name: Cypress.env('dockerName')
   });
 };

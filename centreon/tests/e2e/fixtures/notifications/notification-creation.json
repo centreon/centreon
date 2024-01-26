@@ -14,7 +14,7 @@
     {
       "events": 7,
       "extra": { "event_services": 15 },
-      "ids": [58],
+      "ids": [62],
       "type": "hostgroup"
     },
     { "events": 0, "ids": [], "type": "servicegroup" }
