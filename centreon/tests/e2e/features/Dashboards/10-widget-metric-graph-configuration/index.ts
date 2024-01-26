@@ -186,7 +186,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -281,7 +281,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -357,7 +357,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
