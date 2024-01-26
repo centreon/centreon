@@ -72,7 +72,7 @@ export type Dashboard = NamedEntity & {
 
 export interface FormattedShare {
   id: number | string;
-  role: UserRole;
+  role: DashboardRole;
   name: string;
   dashboardId: number | string;
   type: ShareType;

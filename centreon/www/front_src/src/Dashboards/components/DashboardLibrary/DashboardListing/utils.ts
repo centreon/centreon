@@ -4,7 +4,7 @@ import {
   Dashboard,
   FormattedDashboard,
   FormattedShare,
-  Share,
+  Shares,
   ShareType
 } from '../../../api/models';
 
@@ -13,7 +13,7 @@ const formatShares = ({
   dashboardId
 }: {
   dashboardId: string | number;
-  shares: Share;
+  shares: Shares;
 }): Array<FormattedShare> => {
   const contacts =
     shares?.contacts?.map((contact) => ({

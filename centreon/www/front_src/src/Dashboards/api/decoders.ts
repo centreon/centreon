@@ -1,7 +1,6 @@
 /* eslint-disable typescript-sort-keys/interface */
 
 import { JsonDecoder } from 'ts.data.json';
-import { omit } from 'ramda';
 
 import { buildListingDecoder } from '@centreon/ui';
 
@@ -99,9 +98,9 @@ export const dashboardEntityDecoder = {
   updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
 };
 
-export const dashboardDecoder = JsonDecoder.object<Omit<Dashboard, 'shares'>>(
+export const dashboardDecoder = JsonDecoder.object<Dashboard>(
   {
-    ...omit(['shares'], dashboardEntityDecoder),
+    ...dashboardEntityDecoder,
     refresh: JsonDecoder.object<Dashboard['refresh']>(
       {
         interval: JsonDecoder.nullable(JsonDecoder.number),
