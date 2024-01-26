@@ -18575,3 +18575,12 @@ msgstr "Le jeton a été créé"
 
 msgid "Not yet implemented"
 msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
