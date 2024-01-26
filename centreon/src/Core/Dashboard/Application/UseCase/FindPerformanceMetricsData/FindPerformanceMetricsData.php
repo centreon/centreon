@@ -109,6 +109,7 @@ final class FindPerformanceMetricsData
             $request->metricNames,
             $this->requestParameters
         );
+
         return $this->createPerformanceMetricsData($services, $request);
     }
 
@@ -149,8 +150,10 @@ final class FindPerformanceMetricsData
     /**
      * @param Service[] $services
      * @param FindPerformanceMetricsDataRequest $request
-     * @return PerformanceMetricsData
+     *
      * @throws MetricException|\Exception
+     *
+     * @return PerformanceMetricsData
      */
     private function createPerformanceMetricsData(
         array $services,
