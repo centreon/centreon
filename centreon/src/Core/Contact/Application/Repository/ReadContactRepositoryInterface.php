@@ -65,4 +65,16 @@ interface ReadContactRepositoryInterface
      * @return int[]
      */
     public function findContactIdsByContactGroups(array $contactGroupIds): array;
+
+    /**
+     * Checks if in an user exists in given access groups.
+     *
+     * @param int $contactId
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existInAccessGroups(int $contactId, array $accessGroupIds): bool;
 }
