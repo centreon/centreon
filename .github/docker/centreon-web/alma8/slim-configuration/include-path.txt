@@ -10,6 +10,7 @@
 /etc/profile.d
 /etc/inputrc
 /etc/httpd
+/etc/ld.so.conf
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
@@ -36,3 +37,8 @@
 /var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/lib/rpm
+/usr/lib/python3.6
+/usr/lib64/python3.6
+/etc/yum.repos.d
+/usr/lib64/libdnf

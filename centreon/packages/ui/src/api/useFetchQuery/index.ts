@@ -21,6 +21,7 @@ export interface UseFetchQueryProps<T> {
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
+  doNotCancelCallsOnUnmount?: boolean;
   fetchHeaders?: HeadersInit;
   getEndpoint: (params?: PrefetchEndpointParams) => string;
   getQueryKey: () => QueryKey;
@@ -59,7 +60,8 @@ const useFetchQuery = <T extends object>({
   isPaginated,
   queryOptions,
   httpCodesBypassErrorSnackbar = [],
-  baseEndpoint
+  baseEndpoint,
+  doNotCancelCallsOnUnmount = false
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
@@ -169,6 +171,10 @@ const useFetchQuery = <T extends object>({
 
   useEffect(() => {
     return (): void => {
+      if (doNotCancelCallsOnUnmount) {
+        return;
+      }
+
       queryClient.cancelQueries({ queryKey: getQueryKey() });
     };
   }, []);
