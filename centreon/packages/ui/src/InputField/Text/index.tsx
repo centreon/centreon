@@ -154,9 +154,9 @@ const TextField = forwardRef(
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
             inputProps={{
-              ...rest.inputProps,
               'aria-label': ariaLabel,
-              'data-testid': dataTestId
+              'data-testid': dataTestId,
+              ...rest.inputProps
             }}
             label={label}
             ref={ref}

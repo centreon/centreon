@@ -16421,3 +16421,39 @@ msgstr "Erweiterter Modus"
 
 # msgid "Revoked"
 # msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Store it carefully."
+# msgstr ""
+
+# msgid "Generate new token"
+# msgstr ""
+
+# msgid "Token copied to the clipboard"
+# msgstr ""
+
+# msgid "Token could not be copied"
+# msgstr ""
+
+# msgid "The end date must be greater than the current date by at least one day"
+# msgstr ""
+
+# msgid "This field is required"
+# msgstr ""
+
+# msgid "Token"
+# msgstr ""
+
+# msgid "Token has been created"
+# msgstr ""
+
+# msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""

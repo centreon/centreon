@@ -37,7 +37,7 @@ class Formatter
     /**
      * @var string[]
      */
-    private array $serviceStatuses = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN'];
+    private array $serviceStatuses = ['0' => 'OK', '1' => 'WARNING', '2' => 'CRITICAL', '3' => 'UNKNOWN', '5' => 'ACKNOWLEDGEMENT'];
     /**
      * @var string[]
      */
@@ -58,6 +58,7 @@ class Formatter
     private string $warning = '';
     private string $critical = '';
     private string $unknown = '';
+    private string $acknowledgement = '';
 
     /**
      * @param int $start
@@ -168,6 +169,15 @@ class Formatter
     }
 
     /**
+     * @param string $acknowledgement
+     * @return void
+     */
+    public function setAcknowledgement(string $acknowledgement): void
+    {
+        $this->acknowledgement = $acknowledgement;
+    }
+
+    /**
      * @param string[] $hosts
      * @return void
      */
@@ -192,8 +202,8 @@ class Formatter
             ['Host', 'Up', 'Down', 'Unreachable'],
             ['', $this->up, $this->down, $this->unreachable],
             [],
-            ['Service', 'Ok', 'Warning', 'Critical', 'Unknown'],
-            ['', $this->ok, $this->warning, $this->critical, $this->unknown],
+            ['Service', 'Ok', 'Warning', 'Critical', 'Unknown', 'Acknowledgement'],
+            ['', $this->ok, $this->warning, $this->critical, $this->unknown, $this->acknowledgement],
             [],
         ];
     }

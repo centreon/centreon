@@ -85,7 +85,7 @@ class DbServiceFactory
             ->setCommandLine($data['command_line'])
             ->setIsFlapping((int) $data['flapping'] === 1)
             ->setIsAcknowledged((int) $data['acknowledged'] === 1)
-            ->setIsInDowntime((int) $data['in_downtime'] === 1)
+            ->setIsInDowntime((int) $data['in_downtime'] > 0)
             ->setPassiveChecks((int) $data['passive_checks'] === 1)
             ->setActiveChecks((int) $data['active_checks'] === 1)
             ->setLatency(self::getFloatOrNull($data['latency']))

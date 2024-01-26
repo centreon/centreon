@@ -18548,3 +18548,39 @@ msgstr "Paramètres"
 
 msgid "Revoked"
 msgstr "Révoqué"
+
+msgid "For security reasons, the token can only be displayed once. Store it carefully."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
+
+msgid "Generate new token"
+msgstr "Générer un nouveau jeton"
+
+msgid "Token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
+
+msgid "This field is required"
+msgstr "Ce champ est obligatoire"
+
+msgid "Token"
+msgstr "Jeton"
+
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
