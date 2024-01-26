@@ -333,11 +333,9 @@ For each ZMQ message, names are described in the [events section](#events) of ea
 and for putlog the second part is the 'code' used by gorgone-autodiscovery 
 and defined as constant in the [class.pm](../../../gorgone/modules/centreon/autodiscovery/class.pm) file
 
+gorgone-action module don't directly send the result to the calling module. Instead it send a putlog message, processed by core.\
+core keep track  of every module waiting for a particular event (use library.pm::addlistener to show interest in an event)\
+and dispatch another message to the waiting module.
 
+gorgone-core also store the log in a local sqlite database.
 
-
-s
-
-s
-
-s

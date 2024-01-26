@@ -743,16 +743,14 @@ sub discovery_command_result {
                     return 1 if ($rv);
                 }
                 $duration = $obj->{duration};
-            }
-            elsif (ref($obj) eq 'ARRAY') {
+            } elsif (ref($obj) eq 'ARRAY') {
                 foreach my $host (@$obj) {
                     my $rv = $self->discovery_add_host_result(host => $host, job_id => $job_id, uuid_parameters => $uuid_parameters, builder => $builder);
                     return 1 if ($rv);
                 }
             }
         }
-    }
-    catch {
+    } catch {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to decode discovery plugin response job '$job_id'");
         $self->update_job_status(
             job_id  => $job_id,
@@ -863,8 +861,7 @@ sub action_deletehostdiscoveryjob {
             delete $self->{hdisco_jobs_tokens}->{$discovery_token};
         }
         delete $self->{hdisco_jobs_ids}->{$job_id};
-    }
-    else {
+    } else {
         $self->hdisco_addupdate_job(job => $job);
     }
 
@@ -986,8 +983,7 @@ sub action_hostdiscoverycronlistener {
     if ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - job '" . $job_id . "' add cron error");
         $self->{hdisco_jobs_ids}->{$job_id}->{extra_infos}->{cron_added} = CRON_ADDED_KO;
-    }
-    elsif ($data->{code} == GORGONE_ACTION_FINISH_OK) {
+    } elsif ($data->{code} == GORGONE_ACTION_FINISH_OK) {
         $self->{logger}->writeLogInfo("[autodiscovery] -class- host discovery - job '" . $job_id . "' add cron ok");
         $self->{hdisco_jobs_ids}->{$job_id}->{extra_infos}->{cron_added} = CRON_ADDED_OK;
     }
@@ -1052,7 +1048,6 @@ sub action_servicediscoverylistener {
 
     if ($self->is_finished($uuid)) {
         delete $self->{service_discoveries}->{ $uuid };
-        delete $self->{service_discoveries}->{ $uuid };
     }
 }
 
@@ -1080,7 +1075,6 @@ sub action_launchservicediscovery {
     );
     $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
 
-
     my $status = $svc_discovery->launchdiscovery(
         token => $options{token},
         frame => $options{frame}
@@ -1091,9 +1085,6 @@ sub action_launchservicediscovery {
             token => $options{token},
             data  => { message => 'cannot launch discovery' }
         );
-    }
-    elsif ($status == 0) {
-        $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
     }
 }
 
