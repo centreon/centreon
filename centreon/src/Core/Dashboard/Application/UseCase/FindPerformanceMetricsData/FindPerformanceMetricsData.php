@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -86,8 +87,8 @@ final class FindPerformanceMetricsData
             $this->error('Metric from RRD are not correctly formatted', ['trace' => (string) $ex]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving metrics data', ['trace' => (string) $ex]);
-            $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics data'));
+            $this->error('An error occurred while retrieving metrics data', ['trace' => (string) $ex]);
+            $presenter->presentResponse(new ErrorResponse('An error occurred while retrieving metrics data'));
         }
     }
 
@@ -131,8 +132,8 @@ final class FindPerformanceMetricsData
             $accessGroups,
             $this->requestParameters
         );
-        return $this->createPerformanceMetricsData($services, $request);
 
+        return $this->createPerformanceMetricsData($services, $request);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
@@ -145,6 +146,12 @@ final class FindPerformanceMetricsData
         return $response;
     }
 
+    /**
+     * @param Service[] $services
+     * @param FindPerformanceMetricsDataRequest $request
+     * @return PerformanceMetricsData
+     * @throws MetricException|\Exception
+     */
     private function createPerformanceMetricsData(
         array $services,
         FindPerformanceMetricsDataRequest $request
