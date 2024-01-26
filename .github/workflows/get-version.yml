@@ -130,7 +130,7 @@ jobs:
               STABILITY="unstable"
               ENV="development"
               ;;
-            release* | hotfix* | MON-34415*)
+            release* | hotfix*)
               STABILITY="testing"
               ENV="testing"
               ;;
