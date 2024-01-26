@@ -82,14 +82,14 @@ const DataTableItem = forwardRef(
                   labels={labelsDelete}
                   onConfirm={onDelete}
                 >
-                  {(openTooltip) => (
+                  {({ toggleTooltip }) => (
                     <IconButton
                       aria-label="delete"
                       data-testid="delete"
                       icon={<DeleteIcon />}
                       size="small"
                       variant="ghost"
-                      onClick={openTooltip}
+                      onClick={toggleTooltip}
                     />
                   )}
                 </ConfirmationTooltip>

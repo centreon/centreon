@@ -38,3 +38,12 @@
 /usr/lib/centreon/plugins
 /usr/share/perl
 /usr/share/perl5
+/etc/apt
+/usr/share/dpkg
+/var/lib/apt
+/var/lib/dpkg
+/usr/lib/apt
+/usr/lib/dpkg
+/var/cache/apt
+/var/log/apt
+/usr/lib/x86_64-linux-gnu/perl-base/

@@ -25,7 +25,8 @@ const StatusGrid = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
+  refreshCount,
+  isFromPreview
 }: StatusGridProps): JSX.Element => {
   const theme = useTheme();
 
@@ -82,6 +83,7 @@ const StatusGrid = ({
     () =>
       (data?.result || []).map(
         ({
+          id,
           uuid,
           name,
           parent,
@@ -103,15 +105,18 @@ const StatusGrid = ({
             data: {
               acknowledgementEndpoint: links?.endpoints.acknowledgement,
               downtimeEndpoint: links?.endpoints.downtime,
+              id,
               information,
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name,
+              parentId: parent?.id,
               parentName: parent?.name,
               parentStatus: parent?.status?.severity_code,
               status: status?.severity_code,
-              statusName: status?.name.toLocaleLowerCase()
+              statusName: status?.name.toLocaleLowerCase(),
+              uuid
             },
             id: uuid
           };
@@ -145,6 +150,7 @@ const StatusGrid = ({
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
           data={resourceData}
+          isFromPreview={isFromPreview}
           isSmallestSize={isSmallestSize}
           resources={resources}
           states={states}

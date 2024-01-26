@@ -26,6 +26,7 @@ namespace Core\Dashboard\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -38,7 +39,6 @@ use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
-use Core\Infrastructure\Common\Repository\RepositoryException;
 use Utility\SqlConcatenator;
 
 class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements ReadDashboardShareRepositoryInterface
@@ -314,8 +314,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 cg.`cg_name`,
                 dcgr.`dashboard_id`,
                 dcgr.`role`
-            FROM `centreon`.`dashboard_contactgroup_relation` dcgr
-                     INNER JOIN `centreon`.`contactgroup` cg ON cg.`cg_id`= dcgr.`contactgroup_id`
+            FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                     INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`= dcgr.`contactgroup_id`
             WHERE dcgr.`dashboard_id` IN (:dashboard_ids)
             SQL;
 
