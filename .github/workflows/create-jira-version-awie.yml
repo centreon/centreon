@@ -25,10 +25,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Release
-        id: release
+      - name: Get major version
+        run: |
+          # Get major version from .env file from repository
+          VERSION=$(cat .env)
+        shell: bash
+
+      - name: Create sync pull request
+        id: sync-release
         uses: ./.github/actions/release
         with:
           module_name: ${{ env.module }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          gh_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

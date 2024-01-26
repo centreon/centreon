@@ -1,5 +1,5 @@
-name: "tag version"
-description: "Tag package"
+name: "Release component"
+description: "Release component with tag"
 inputs:
   module_name:
     description: "The package module name"
@@ -10,9 +10,27 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+
 runs:
   using: "composite"
   steps:
+    - name: Checkout sources
+      uses: actions/checkout@v4
+
+    - name: Create release tag
+      run: |
+        set -eux
+
+        # Get release commit
+        git log --format=short --grep="Jira release"
+      shell: bash
+
+    - name: Create git release
+
+    - name: Create component JIRA version
+
+    - name: Open sync pull request
+
     - name: Publish RPMS to Repositories
       run: |
         NEW_VERSION=""
