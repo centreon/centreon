@@ -50,18 +50,11 @@ const useResourceCounters: UseRessourceCounters = ({
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
-
   const refetchInterval = useAtomValue(refreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
 
-  const { isLoading, data } = useFetchQuery({
-    catchError: ({ statusCode }): void => {
-      if (equals(statusCode, 401)) {
-        setIsAllowed(false);
-      }
-    },
+  const { isLoading, data, error } = useFetchQuery({
     decoder,
     getEndpoint: () => endPoint,
     getQueryKey: () => [endPoint, queryName],
@@ -71,8 +64,8 @@ const useResourceCounters: UseRessourceCounters = ({
     }
   });
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    return {
       data: !isNil(data)
         ? adapter({
             applyFilter,
@@ -82,11 +75,10 @@ const useResourceCounters: UseRessourceCounters = ({
             useDeprecatedPages: use_deprecated_pages
           })
         : null,
-      isAllowed,
+      isAllowed: Boolean(data && isNil(error)),
       isLoading
-    }),
-    [isLoading, data]
-  );
+    };
+  }, [isLoading, data, error]);
 };
 
 export default useResourceCounters;
