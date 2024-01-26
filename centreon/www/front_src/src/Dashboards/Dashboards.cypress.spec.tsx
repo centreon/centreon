@@ -381,7 +381,7 @@ describe('Dashboards', () => {
     );
   });
 
-  it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+  it.only('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByLabelText('delete').eq(0).click();

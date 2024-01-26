@@ -87,6 +87,20 @@ const DashboardsOverview = (): ReactElement => {
     []
   );
 
+  if (isEmptyList && !search) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={labels.emptyState}
+          onCreate={createDashboard}
+        />
+      </DataTable>
+    );
+  }
+
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
@@ -105,20 +119,6 @@ const DashboardsOverview = (): ReactElement => {
       ))}
     </DataTable>
   );
-
-  if (isEmptyList && !search) {
-    return (
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        <DataTable.EmptyState
-          aria-label="create"
-          canCreate={canCreateOrManageDashboards}
-          data-testid="create-dashboard"
-          labels={labels.emptyState}
-          onCreate={createDashboard}
-        />
-      </DataTable>
-    );
-  }
 
   return (
     <>
