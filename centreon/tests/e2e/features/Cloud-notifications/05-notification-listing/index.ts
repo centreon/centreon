@@ -8,7 +8,7 @@ const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({ useSlim: false });
   enableNotificationFeature();
   cy.intercept({
     method: 'GET',

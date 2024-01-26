@@ -11,7 +11,7 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({ useSlim: false });
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     name: 'central-cloud-notifications-output',

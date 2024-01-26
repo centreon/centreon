@@ -18,7 +18,7 @@ let notificationWithServices = true;
 let notificationEnabled = true;
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({ useSlim: false });
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     name: 'central-cloud-notifications-output',

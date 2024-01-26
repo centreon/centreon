@@ -269,7 +269,7 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName'),
     os = Cypress.env('WEB_IMAGE_OS'),
-    useSlim = false,
+    useSlim = true,
     version = Cypress.env('WEB_IMAGE_VERSION')
   }: StartWebContainerProps = {}): Cypress.Chainable => {
     const slimSuffix = useSlim ? '-slim' : '';

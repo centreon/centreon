@@ -12,7 +12,7 @@ var globalResourceType = '';
 var globalContactSettings = '';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({ useSlim: false });
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     name: 'central-cloud-notifications-output',
