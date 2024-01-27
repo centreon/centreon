@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { isNil } from 'ramda';
 
-import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
 import { useDashboardDelete } from '../../../../../hooks/useDashboardDelete';
-import { useDashboardAccessRights } from '../../../DashboardAccessRights/useDashboardAccessRights';
+import { useDashboardConfig } from '../../../../DashboardConfig/useDashboardConfig';
+import { useDashboardAccessRights } from '../../../../DashboardAccessRights/useDashboardAccessRights';
 
 interface UseActionsState {
   closeMoreActions: () => void;

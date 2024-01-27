@@ -15,25 +15,12 @@ import {
 import { Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
 import { dashboardListDecoder } from './decoders';
-import { List, ListQueryParams } from './meta.models';
+import { List } from './meta.models';
 
-type UseListDashboardProps<
-  TQueryFnData extends List<Dashboard> = List<Dashboard>,
-  TError = ResponseError,
-  TData = TQueryFnData,
-  TQueryKey extends QueryKey = QueryKey
-> = {
-  options?: Omit<
-    UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
-    'queryKey' | 'queryFn' | 'initialData'
-  >;
-  params: ListQueryParams;
+type UseListDashboards = {
+  data?: List<Dashboard>;
+  isLoading: boolean;
 };
-
-type UseListDashboards<
-  TError = ResponseError,
-  TData extends List<Dashboard> = List<Dashboard>
-> = UseQueryResult<TData | TError, TError>;
 
 const useListDashboards = (): UseListDashboards => {
   const isMounted = useRef(true);
@@ -52,7 +39,9 @@ const useListDashboards = (): UseListDashboards => {
     }
   };
 
-  const { data, isLoading } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
+  const { data, isLoading, isFetching } = useFetchQuery<
+    List<Omit<Dashboard, 'refresh'>>
+  >({
     decoder: dashboardListDecoder,
     doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
@@ -83,8 +72,8 @@ const useListDashboards = (): UseListDashboards => {
   }
 
   return {
-    ...queryData,
-    data
+    data,
+    isLoading: isLoading || isFetching
   };
 };
 

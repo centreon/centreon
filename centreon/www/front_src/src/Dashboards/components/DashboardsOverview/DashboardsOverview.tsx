@@ -20,10 +20,13 @@ import {
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-import { DashboardLayout } from '../../../models';
-import { DashboardListing } from '../DashboardListing';
-import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
-import { ViewMode } from '../DashboardListing/models';
+import { DashboardLayout } from '../../models';
+import { DashboardListing } from '../DashboardLibrary/DashboardListing';
+import {
+  viewModeAtom,
+  searchAtom
+} from '../DashboardLibrary/DashboardListing/atom';
+import { ViewMode } from '../DashboardLibrary/DashboardListing/models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
