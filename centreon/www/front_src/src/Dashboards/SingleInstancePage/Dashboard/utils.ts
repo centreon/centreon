@@ -7,6 +7,8 @@ import {
   groupBy,
   identity,
   includes,
+  map,
+  pipe,
   uniq
 } from 'ramda';
 
@@ -92,22 +94,38 @@ export const getUrlForResourcesOnlyWidgets = ({
   states,
   resources
 }): string => {
-  const hostCriterias = {
-    name: 'resource_types',
-    value: [{ id: 'host', name: 'Host' }]
-  };
+  const resourcesCriterias = equals(type, 'all')
+    ? {
+        name: 'resource_types',
+        value: [
+          { id: 'service', name: 'Service' },
+          { id: 'host', name: 'Host' }
+        ]
+      }
+    : {
+        name: 'resource_types',
+        value: [
+          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+        ]
+      };
 
-  const serviceCriteria = {
-    name: 'resource_types',
-    value: [{ id: 'service', name: 'Service' }]
-  };
+  const formatStatusFilter = cond([
+    [equals('success'), always(['ok', 'up'])],
+    [equals('problem'), always(['down', 'critical'])],
+    [equals('undefined'), always(['unreachable', 'unknown'])],
+    [T, identity]
+  ]);
 
-  const formattedStatuses = statuses?.map((status) => {
-    return {
-      id: status.toLocaleUpperCase(),
-      name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-    };
-  });
+  const formattedStatuses = pipe(
+    map((status) => formatStatusFilter(status)),
+    flatten,
+    map((status: string) => {
+      return {
+        id: status.toLocaleUpperCase(),
+        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+      };
+    })
+  )(statuses);
 
   const formattedStates = states?.map((state) => {
     return {
@@ -147,7 +165,7 @@ export const getUrlForResourcesOnlyWidgets = ({
 
   const filterQueryParameter = {
     criterias: [
-      equals(type, 'host') ? hostCriterias : serviceCriteria,
+      resourcesCriterias,
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: formattedStates },
       ...resourcesFilters,
@@ -164,5 +182,6 @@ export const resourceBasedWidgets = [
   'centreon-widget-singlemetric',
   'centreon-widget-statusgrid',
   'centreon-widget-topbottom',
-  'centreon-widget-graph'
+  'centreon-widget-graph',
+  'centreon-widget-resourcestable'
 ];

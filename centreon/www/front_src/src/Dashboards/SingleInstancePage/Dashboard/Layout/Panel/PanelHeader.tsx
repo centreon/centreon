@@ -23,6 +23,7 @@ import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
 
 interface PanelHeaderProps {
+  changeViewMode?: (options) => void;
   displayMoreActions: boolean;
   id: string;
   linkToResourceStatus?: string;
@@ -35,7 +36,8 @@ const PanelHeader = ({
   setRefreshCount,
   linkToResourceStatus,
   displayMoreActions,
-  widgetName
+  widgetName,
+  changeViewMode
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -77,7 +79,7 @@ const PanelHeader = ({
                 <IconButton
                   ariaLabel={t(labelSeeMore)}
                   title={t(labelSeeMore)}
-                  onClick={() => undefined}
+                  onClick={changeViewMode}
                 >
                   <DvrIcon fontSize="small" />
                 </IconButton>

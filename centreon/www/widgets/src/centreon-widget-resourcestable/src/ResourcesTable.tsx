@@ -8,7 +8,9 @@ const ResourceTable = ({
   panelData,
   panelOptions,
   refreshCount,
-  setPanelOptions
+  setPanelOptions,
+  changeViewMode,
+  isFromPreview
 }: ResourcesTableProps): JSX.Element => {
   const { resources } = panelData;
 
@@ -33,7 +35,9 @@ const ResourceTable = ({
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <Listing
+        changeViewMode={changeViewMode}
         displayType={displayType}
+        isFromPreview={isFromPreview}
         limit={limit}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}

@@ -87,7 +87,8 @@ const DashboardPageLayout = (): JSX.Element => {
         };
       });
 
-  const { getLinkToResourceStatusPage } = useLinkToResourceStatus();
+  const { getLinkToResourceStatusPage, changeViewMode } =
+    useLinkToResourceStatus();
 
   return (
     <>
@@ -95,6 +96,7 @@ const DashboardPageLayout = (): JSX.Element => {
         displayMoreActions
         canEdit={canEdit}
         changeLayout={changeLayout}
+        changeViewMode={changeViewMode}
         getLinkToResourceStatusPage={getLinkToResourceStatusPage}
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}

@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Column, useSnackbar } from '@centreon/ui';
+import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
 
 import { Resource } from '../../../models';
+import { getResourcesUrl } from '../../../utils';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import { DisplayType, ResourceListing, SortOrder } from './models';
@@ -17,6 +18,7 @@ interface UseListingState {
   changeSort: ({ sortOrder, sortField }) => void;
   columns: Array<Column>;
   data: ResourceListing | undefined;
+  goToResourceStatusPage?: (row) => void;
   isLoading: boolean;
   page: number | undefined;
   resetColumns: () => void;
@@ -24,7 +26,9 @@ interface UseListingState {
 }
 
 interface UseListingProps {
+  changeViewMode?: () => void;
   displayType: DisplayType;
+  isFromPreview?: boolean;
   limit?: number;
   refreshCount: number;
   refreshIntervalToUse: number | false;
@@ -46,7 +50,9 @@ const useListing = ({
   setPanelOptions,
   limit,
   sortField,
-  sortOrder
+  sortOrder,
+  changeViewMode,
+  isFromPreview
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -65,6 +71,27 @@ const useListing = ({
     states,
     statuses
   });
+
+  const goToResourceStatusPage = (row): void => {
+    if (isFromPreview) {
+      return;
+    }
+
+    const linkToResourceStatus = getResourcesUrl({
+      allResources: resources,
+      isForOneResource: true,
+      resource: { ...row, parentId: row?.parent?.id },
+      states,
+      statuses,
+      type: displayType
+    });
+
+    const mainUrl = window.location.origin + centreonBaseURL;
+    const url = mainUrl + linkToResourceStatus;
+
+    changeViewMode?.();
+    window.open(url);
+  };
 
   const changeSort = ({ sortOrder: sortO, sortField: sortF }): void => {
     setPanelOptions?.('sortField', sortF);
@@ -103,6 +130,7 @@ const useListing = ({
     changeSort,
     columns,
     data,
+    goToResourceStatusPage,
     isLoading,
     page,
     resetColumns,

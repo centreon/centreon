@@ -12,7 +12,9 @@ import { defaultSelectedColumnIds } from './Columns';
 import { DisplayType, SortOrder } from './models';
 
 interface ListingProps {
+  changeViewMode?: () => void;
   displayType: DisplayType;
+  isFromPreview?: boolean;
   limit?: number;
   refreshCount: number;
   refreshIntervalToUse: number | false;
@@ -36,7 +38,9 @@ const Listing = ({
   limit,
   selectedColumnIds,
   sortField,
-  sortOrder
+  sortOrder,
+  changeViewMode,
+  isFromPreview
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -49,9 +53,12 @@ const Listing = ({
     columns,
     page,
     isLoading,
-    data
+    data,
+    goToResourceStatusPage
   } = useListing({
+    changeViewMode,
     displayType,
+    isFromPreview,
     limit,
     refreshCount,
     refreshIntervalToUse,
@@ -92,6 +99,7 @@ const Listing = ({
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
+      onRowClick={goToResourceStatusPage}
       onSelectColumns={selectColumns}
       onSort={changeSort}
     />

@@ -11,6 +11,7 @@ import PanelHeader from './Panel/PanelHeader';
 interface Props {
   canEdit?: boolean;
   changeLayout?: (newLayout: Array<Layout>) => void;
+  changeViewMode: (options) => void;
   displayMoreActions?: boolean;
   getLinkToResourceStatusPage: (data, name, options) => string;
   isEditing?: boolean;
@@ -27,7 +28,8 @@ const PanelsLayout = ({
   canEdit,
   setRefreshCount,
   displayMoreActions = true,
-  getLinkToResourceStatusPage
+  getLinkToResourceStatusPage,
+  changeViewMode
 }: Props): JSX.Element => {
   return (
     <DashboardLayout.Layout
@@ -46,6 +48,7 @@ const PanelsLayout = ({
             header={
               !panelConfiguration?.isAddWidgetPanel ? (
                 <PanelHeader
+                  changeViewMode={() => changeViewMode(options)}
                   displayMoreActions={displayMoreActions}
                   id={i}
                   linkToResourceStatus={getLinkToResourceStatusPage(

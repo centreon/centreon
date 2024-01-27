@@ -13,6 +13,7 @@ import FederatedComponent from '../../../../../components/FederatedComponents';
 import { editProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
+import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -23,6 +24,8 @@ interface Props {
 
 const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const { classes, cx } = usePanelHeaderStyles();
+
+  const { changeViewMode } = useLinkToResourceStatus();
 
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
@@ -76,6 +79,9 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
             <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}
+              changeViewMode={() =>
+                changeViewMode(panelOptionsAndData?.options)
+              }
               globalRefreshInterval={refreshInterval}
               id={id}
               isEditingDashboard={isEditing}

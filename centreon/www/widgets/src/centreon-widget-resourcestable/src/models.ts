@@ -19,7 +19,9 @@ export interface PanelOptions {
 }
 
 export interface ResourcesTableProps {
+  changeViewMode?: () => void;
   globalRefreshInterval: GlobalRefreshInterval;
+  isFromPreview?: boolean;
   panelData: Data;
   panelOptions: PanelOptions;
   refreshCount: number;
