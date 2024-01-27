@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
@@ -64,6 +65,6 @@ class DbReadSessionRepository extends AbstractRepositoryDRB implements ReadSessi
      */
     public function getValueFromSession(string $sessionId, string $key): mixed
     {
-        throw RepositoryException::notImplemented(__METHOD__);
+        throw RepositoryException::notYetImplemented();
     }
 }

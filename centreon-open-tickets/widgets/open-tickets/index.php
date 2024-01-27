@@ -33,6 +33,7 @@ session_start();
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
     exit;
 }
+/** @var \Centreon $centreon */
 $centreon = $_SESSION['centreon'];
 $widgetId = $_REQUEST['widgetId'];
 

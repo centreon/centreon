@@ -24,24 +24,33 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Infrastructure\Repository;
 
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 
 /**
- * @phpstan-import-type _DatasetFilter from DbReadRuleRepository
- * @phpstan-import-type _Rule from DbReadRuleRepository
+ * @phpstan-import-type _DatasetFilter from DbReadResourceAccessRepository
+ * @phpstan-import-type _TinyRule from DbReadResourceAccessRepository
  */
 class DbRuleFactory
 {
     use DbFactoryUtilitiesTrait;
 
     /**
-     * @param _Rule $record
+     * @param _TinyRule $record
+     * @param int[] $linkedContactIds
+     * @param int[] $linkedContactGroupIds
      * @param non-empty-array<_DatasetFilter> $datasetFiltersRecord
+     * @param DatasetFilterValidator $datasetValidator
      *
      * @return Rule
      */
-    public static function createFromRecord(array $record, array $datasetFiltersRecord): Rule
-    {
+    public static function createFromRecord(
+        array $record,
+        array $linkedContactIds,
+        array $linkedContactGroupIds,
+        array $datasetFiltersRecord,
+        DatasetFilterValidator $datasetValidator
+    ): Rule {
         $datasets = [];
 
         // gather filters by dataset
@@ -54,17 +63,17 @@ class DbRuleFactory
 
         $datasetFilters = [];
         foreach ($datasets as $dataset) {
-            $datasetFilters[] = DbDatasetFilterFactory::createFromRecord($dataset);
+            $datasetFilters[] = DbDatasetFilterFactory::createFromRecord($dataset, $datasetValidator);
         }
 
         return new Rule(
             id: $record['id'],
             name: $record['name'],
             description: (string) $record['description'],
-            linkedContacts: self::fromStringToArrayOfInts($record['contact_ids']),
-            linkedContactGroups: self::fromStringToArrayOfInts($record['contact_group_ids']),
+            linkedContacts: $linkedContactIds,
+            linkedContactGroups: $linkedContactGroupIds,
             datasets: $datasetFilters,
-            isEnabled: (bool) $record['status']
+            isEnabled: (bool) $record['is_enabled']
         );
     }
 }
