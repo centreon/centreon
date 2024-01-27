@@ -133,12 +133,10 @@ const MorePanelActions = ({
         labels={confirmationLabels}
         onConfirm={deleteWidget(id)}
       >
-        {(openConfirmationTooltip) => (
+        {({ toggleTooltip }) => (
           <ActionsList
             actions={
-              displayEditButtons
-                ? editActions(openConfirmationTooltip)
-                : viewActions
+              displayEditButtons ? editActions(toggleTooltip) : viewActions
             }
           />
         )}
