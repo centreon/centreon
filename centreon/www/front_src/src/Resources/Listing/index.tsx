@@ -280,9 +280,9 @@ const ResourceListing = (): JSX.Element => {
       subItems={{
         canCheckSubItems: true,
         enable: true,
+        getRowProperty: () => 'children',
         labelCollapse: 'Collapse',
-        labelExpand: 'Expand',
-        getRowProperty: () => 'children'
+        labelExpand: 'Expand'
       }}
       totalRows={listing?.meta.total}
       viewerModeConfiguration={{
