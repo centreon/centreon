@@ -123,9 +123,9 @@ export interface Props<TRow> {
   subItems?: {
     canCheckSubItems: boolean;
     enable: boolean;
+    getRowProperty: (row?) => string;
     labelCollapse: string;
     labelExpand: string;
-    getRowProperty: (row?) => string;
   };
   totalRows?: number;
   viewerModeConfiguration?: ViewerModeConfiguration;
@@ -180,9 +180,9 @@ const Listing = <TRow extends { id: RowId }>({
   subItems = {
     canCheckSubItems: false,
     enable: false,
-    labelCollapse: 'Collapse',
-    labelExpand: 'Expand',
     getRowProperty: () => '',
+    labelCollapse: 'Collapse',
+    labelExpand: 'Expand'
   }
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
@@ -632,7 +632,9 @@ const Listing = <TRow extends { id: RowId }>({
                               listingVariant={listingVariant}
                               row={row}
                               rowColorConditions={rowColorConditions}
-                              subItemsRowProperty={subItems?.getRowProperty(row)}
+                              subItemsRowProperty={subItems?.getRowProperty(
+                                row
+                              )}
                             />
                           ))}
                         </ListingRow>
