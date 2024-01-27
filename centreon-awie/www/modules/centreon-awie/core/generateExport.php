@@ -30,15 +30,15 @@ require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.ph
 define('_CLAPI_LIB_', _CENTREON_PATH_ . "/lib");
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . "/www/class/centreon-clapi");
 
-set_include_path(implode(PATH_SEPARATOR, array(
+set_include_path(implode(PATH_SEPARATOR, [
     realpath(_CLAPI_LIB_),
     realpath(_CLAPI_CLASS_),
     get_include_path()
-)));
+]));
 require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
 require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
 
-$formValue = array(
+$formValue = [
     'export_cmd',
     'TP',
     'CONTACT',
@@ -54,20 +54,21 @@ $formValue = array(
     'ACL',
     'LDAP',
     'export_INSTANCE'
-);
+];
 
 $centreonSession = new CentreonSession();
 $centreonSession->start();
 $username = $_SESSION['centreon']->user->alias;
-$clapiConnector = new \ClapiObject($dependencyInjector, array('username' => $username));
+/** @var Pimple\Container $dependencyInjector */
+$clapiConnector = new \ClapiObject($dependencyInjector, ['username' => $username]);
 
 /*
 * Set log_contact
 */
 \CentreonClapi\CentreonUtils::setUserName($username);
 
-$scriptContent = array();
-$ajaxReturn = array();
+$scriptContent = [];
+$ajaxReturn = [];
 
 $oExport = new \Export($clapiConnector, $dependencyInjector);
 
@@ -86,13 +87,11 @@ foreach ($_POST as $object => $value) {
             }
         } elseif ($type[0] != 'submitC') {
             $generateContent = $oExport->generateObject($type[0]);
-            if (!empty($generateContent)) {
-                if (!empty($generateContent['error'])) {
-                    $ajaxReturn['error'][] = $generateContent['error'];
-                }
-                if (!is_null($generateContent['result'])) {
-                    $scriptContent[] = $generateContent['result'];
-                }
+            if (!empty($generateContent['error'])) {
+                $ajaxReturn['error'][] = $generateContent['error'];
+            }
+            if (!is_null($generateContent['result'])) {
+                $scriptContent[] = $generateContent['result'];
             }
         }
     } else {

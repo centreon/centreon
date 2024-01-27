@@ -23,6 +23,9 @@ require_once __DIR__ . "/../../../../../class/centreonWidget/Params/List.class.p
 
 class CentreonWidgetParamsConnectorOpenTicketsRule extends CentreonWidgetParamsList
 {
+    /**
+     * @param HTML_QuickForm $quickform
+     */
     public function __construct($db, $quickform, $userId)
     {
         parent::__construct($db, $quickform, $userId);

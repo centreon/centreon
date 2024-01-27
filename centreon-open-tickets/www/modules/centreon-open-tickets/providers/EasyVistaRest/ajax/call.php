@@ -26,10 +26,11 @@ $centreon_open_tickets_path = $centreon_path . "www/modules/centreon-open-ticket
 require_once $centreon_open_tickets_path . 'providers/Abstract/AbstractProvider.class.php';
 
 session_start();
-$db = new centreonDBManager();
+$db = new CentreonDBManager();
 $rule = new Centreon_OpenTickets_Rule($db);
 
 if (isset($_SESSION['centreon'])) {
+    /** @var \Centreon $centreon */
     $centreon = $_SESSION['centreon'];
 } else {
     exit;

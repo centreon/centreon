@@ -23,6 +23,8 @@ class GlpiRestApiProvider extends AbstractProvider
 {
     protected $close_advanced = 1;
     protected $proxy_enabled = 1;
+    /** @var null|array */
+    protected $glpiCallResult;
 
     public const GLPI_ENTITY_TYPE = 14;
     public const GLPI_GROUP_TYPE = 15;
@@ -65,8 +67,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Set default values for our rule form options
-    *
-    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -137,7 +137,7 @@ class GlpiRestApiProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return {void}
+    * @return void
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -352,8 +352,6 @@ class GlpiRestApiProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
-    * @return {void}
-    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -377,8 +375,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and let Smarty display it in the rule form
-    *
-    * @return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -481,8 +477,6 @@ class GlpiRestApiProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
-    *
-    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -521,7 +515,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     */
     protected function assignOthers($entry, &$groups_order, &$groups)
     {
@@ -547,7 +541,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get entities from glpi
     */
@@ -576,7 +570,7 @@ class GlpiRestApiProvider extends AbstractProvider
         }
         $result = array();
 
-        foreach ($listEntities['myentities'] as $entity) {
+        foreach ($listEntities['myentities'] ?? [] as $entity) {
             // foreach entity found, if we don't have any filter configured,
             // we just put the id and the name of the entity inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -601,7 +595,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get requesters from glpi
     */
@@ -630,7 +624,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listRequesters as $requester) {
+        foreach ($listRequesters ?? [] as $requester) {
             // foreach requester found, if we don't have any filter configured,
             // we just put the id and the name of the requester inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -655,7 +649,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get users from glpi
     */
@@ -684,7 +678,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listUsers as $user) {
+        foreach ($listUsers ?? [] as $user) {
             // foreach user found, if we don't have any filter configured,
             // we just put the id and the name of the user inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -709,7 +703,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get groups from glpi
     */
@@ -739,7 +733,7 @@ class GlpiRestApiProvider extends AbstractProvider
         $result = array();
 
         // using $glpiGroup to avoid confusion with $groups and $groups_order
-        foreach ($listGroups as $glpiGroup) {
+        foreach ($listGroups ?? [] as $glpiGroup) {
             // foreach group found, if we don't have any filter configured,
             // we just put the id and the name of the group inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -764,7 +758,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get suppliers from glpi
     */
@@ -793,7 +787,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listSuppliers as $supplier) {
+        foreach ($listSuppliers ?? [] as $supplier) {
             // foreach supplier found, if we don't have any filter configured,
             // we just put the id and the name of the supplier inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -818,7 +812,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @param {array} $groups_order order of the ticket arguments
     * @param {array} $groups store the data gathered from glpi
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't get suppliers from glpi
     */
@@ -847,7 +841,7 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $result = array();
 
-        foreach ($listCategories as $category) {
+        foreach ($listCategories ?? [] as $category) {
             // foreach category found, if we don't have any filter configured,
             // we just put the id and the name of the category inside the result array
             if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
@@ -1446,7 +1440,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a user
     */
@@ -1482,7 +1476,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a group
     */
@@ -1518,7 +1512,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a supplier
     */
@@ -1554,7 +1548,7 @@ class GlpiRestApiProvider extends AbstractProvider
     * @params {string} $ticketId id of the tickets
     * @params {array} $ticketArguments contains all the ticket arguments
     *
-    * @return {void}
+    * @return void
     *
     * throw \Exception if we can't assign the ticket to a requester
     */
@@ -1626,7 +1620,7 @@ class GlpiRestApiProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return {void}
+    * @return void
     */
     public function closeTicket(&$tickets)
     {
