@@ -282,7 +282,7 @@ const ResourceListing = (): JSX.Element => {
         enable: true,
         labelCollapse: 'Collapse',
         labelExpand: 'Expand',
-        rowProperty: 'children'
+        rowProperty: () => 'children'
       }}
       totalRows={listing?.meta.total}
       viewerModeConfiguration={{
