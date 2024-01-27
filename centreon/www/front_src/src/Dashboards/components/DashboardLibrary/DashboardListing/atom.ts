@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
-import { Dashboard } from '../../../api/models';
+import { Dashboard, ShareType } from '../../../api/models';
 
 import { ViewMode } from './models';
 
@@ -18,3 +18,12 @@ export const viewModeAtom = atomWithStorage<ViewMode>(
   'dashboards-view-mode',
   ViewMode.Cards
 );
+
+export const askBeforeRevokeAtom = atom<{
+  dashboardId: string | number;
+  user: {
+    id: string | number;
+    name: string;
+    type: ShareType;
+  };
+} | null>(null);

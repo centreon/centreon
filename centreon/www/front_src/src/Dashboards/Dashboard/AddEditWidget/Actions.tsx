@@ -25,6 +25,7 @@ const Actions = ({ closeModal }: Props): JSX.Element | null => {
 
   return (
     <Modal.Actions
+      isFixed
       disabled={isDisabled}
       labels={{
         cancel: t(labelCancel),

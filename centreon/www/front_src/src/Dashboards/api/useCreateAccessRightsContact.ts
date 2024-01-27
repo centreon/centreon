@@ -83,7 +83,11 @@ const useCreateAccessRightsContact = (): UseCreateAccessRightsContact => {
         onSettled: onSettledWithInvalidateQueries,
         ...restOptions
       }
-    );
+    ).then(() => {
+      queryClient.invalidateQueries({
+        queryKey: [resource.dashboards]
+      });
+    });
   };
 
   return {

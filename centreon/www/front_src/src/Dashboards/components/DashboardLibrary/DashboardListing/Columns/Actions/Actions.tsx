@@ -25,8 +25,13 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
   const { name: dashboardName, ownRole } = row;
-  const { editDashboard, isNestedRow, deleteDashboard, editAccessRights } =
-    useActions(row);
+  const {
+    editDashboard,
+    isNestedRow,
+    deleteDashboard,
+    editAccessRights,
+    openAskBeforeRevoke
+  } = useActions(row);
 
   const actions = [
     {
@@ -43,7 +48,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   if (isNestedRow) {
     return (
-      <IconButton title={t(labelUnshare)} onClick={() => undefined}>
+      <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
         <UnShareIcon className={classes.icon} />
       </IconButton>
     );
