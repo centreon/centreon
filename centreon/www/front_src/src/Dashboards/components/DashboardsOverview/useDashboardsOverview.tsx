@@ -6,6 +6,7 @@ import { List } from '../../api/meta.models';
 
 type UseDashboardsOverview = {
   dashboards: Array<Dashboard>;
+  data?: List<Dashboard>;
   isEmptyList: boolean;
   isLoading: boolean;
 };
@@ -17,6 +18,7 @@ const useDashboardsOverview = (): UseDashboardsOverview => {
 
   return {
     dashboards: (data as List<Dashboard>)?.result || [],
+    data,
     isEmptyList,
     isLoading
   };
