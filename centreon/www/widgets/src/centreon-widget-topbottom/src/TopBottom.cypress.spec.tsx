@@ -146,7 +146,6 @@ describe('TopBottom', () => {
         showLabels: false
       }
     });
-    
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
     cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
     cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
