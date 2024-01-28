@@ -78,8 +78,7 @@ const useColumns = ({
       rowMemoProps: ['icon', 'short_type', 'name'],
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component,
-      width: 'max-content'
+      type: ColumnType.component
     },
     {
       Component: equals(displayType, DisplayType.Host)
@@ -91,8 +90,7 @@ const useColumns = ({
       label: t(parentLabel),
       sortField: 'parent_name',
       sortable: true,
-      type: ColumnType.component,
-      width: 'max-content'
+      type: ColumnType.component
     },
     {
       getFormattedString: ({ duration }): string => duration,
@@ -100,24 +98,21 @@ const useColumns = ({
       label: t(labelDuration),
       sortField: 'last_status_change',
       sortable: true,
-      type: ColumnType.string,
-      width: 'max-content'
+      type: ColumnType.string
     },
     {
       getFormattedString: ({ tries }): string => tries,
       id: 'tries',
       label: t(labelTries),
       sortable: true,
-      type: ColumnType.string,
-      width: 'max-content'
+      type: ColumnType.string
     },
     {
       getFormattedString: ({ last_check }): string => last_check,
       id: 'last_check',
       label: t(labelLastCheck),
       sortable: true,
-      type: ColumnType.string,
-      width: 'max-content'
+      type: ColumnType.string
     },
     {
       getFormattedString: pipe(
@@ -150,8 +145,7 @@ const useColumns = ({
       label: t(labelState),
       rowMemoProps: ['is_in_downtime', 'is_acknowledged', 'name', 'links'],
       sortable: false,
-      type: ColumnType.component,
-      width: 'max-content'
+      type: ColumnType.component
     }
   ];
 

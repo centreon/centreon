@@ -12,7 +12,7 @@ import { defaultSelectedColumnIds } from './Columns';
 import { DisplayType, SortOrder } from './models';
 
 interface ListingProps {
-  changeViewMode?: () => void;
+  changeViewMode?: (displayType) => void;
   displayType: DisplayType;
   isFromPreview?: boolean;
   limit?: number;

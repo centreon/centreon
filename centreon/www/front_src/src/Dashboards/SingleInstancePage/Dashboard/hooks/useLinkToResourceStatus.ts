@@ -49,23 +49,24 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
   };
 
-  const changeViewMode = (options): void => {
-    if (!options?.displayType) {
+  const changeViewMode = (displayType): void => {
+    if (!displayType) {
       return;
     }
 
-    if (equals(options?.displayType, 'all')) {
+    if (equals(displayType, 'all')) {
       selectedVisualization(Visualization.All);
 
       setSelectedColumnIds(defaultSelectedColumnIds);
     }
-    if (equals(options?.displayType, 'service')) {
+
+    if (equals(displayType, 'service')) {
       selectedVisualization(Visualization.Service);
 
       setSelectedColumnIds(defaultSelectedColumnIds);
     }
 
-    if (equals(options?.displayType, 'host')) {
+    if (equals(displayType, 'host')) {
       setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
 
       selectedVisualization(Visualization.Host);

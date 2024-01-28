@@ -48,7 +48,7 @@ const PanelsLayout = ({
             header={
               !panelConfiguration?.isAddWidgetPanel ? (
                 <PanelHeader
-                  changeViewMode={() => changeViewMode(options)}
+                  changeViewMode={() => changeViewMode(options?.displayType)}
                   displayMoreActions={displayMoreActions}
                   id={i}
                   linkToResourceStatus={getLinkToResourceStatusPage(

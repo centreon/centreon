@@ -79,9 +79,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
             <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}
-              changeViewMode={() =>
-                changeViewMode(panelOptionsAndData?.options)
-              }
+              changeViewMode={changeViewMode}
               globalRefreshInterval={refreshInterval}
               id={id}
               isEditingDashboard={isEditing}

@@ -23,7 +23,7 @@ import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
 
 interface PanelHeaderProps {
-  changeViewMode?: (options) => void;
+  changeViewMode: (displayType) => void;
   displayMoreActions: boolean;
   id: string;
   linkToResourceStatus?: string;

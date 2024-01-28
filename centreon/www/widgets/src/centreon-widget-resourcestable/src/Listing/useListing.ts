@@ -26,7 +26,7 @@ interface UseListingState {
 }
 
 interface UseListingProps {
-  changeViewMode?: () => void;
+  changeViewMode?: (displayType) => void;
   displayType: DisplayType;
   isFromPreview?: boolean;
   limit?: number;
@@ -89,7 +89,7 @@ const useListing = ({
     const mainUrl = window.location.origin + centreonBaseURL;
     const url = mainUrl + linkToResourceStatus;
 
-    changeViewMode?.();
+    changeViewMode?.(displayType);
     window.open(url);
   };
 
