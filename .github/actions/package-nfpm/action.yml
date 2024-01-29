@@ -37,6 +37,9 @@ inputs:
   rpm_gpg_signing_passphrase:
     description: The rpm gpg signing passphrase
     required: true
+  stability:
+    description: "branch stability (stable, testing, unstable, canary)"
+    required: true
 
 runs:
   using: composite
