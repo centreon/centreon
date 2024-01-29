@@ -17251,5 +17251,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 
-# msgid "Your comment has been sent!"
+# msgid "Your comment has been saved."
 # msgstr ""
