@@ -18577,7 +18577,7 @@ msgid "Open more filters"
 msgstr "Ouvrir plus de filtres"
 
 msgid "Close more filters"
-msgstr "Fermer plus de filtres"
+msgstr "Afficher moins de filtres"
 
 msgid "Not yet implemented"
 msgstr "Pas encore implémenté"
