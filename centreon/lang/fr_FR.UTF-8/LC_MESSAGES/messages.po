@@ -18591,7 +18591,7 @@ msgstr "Supprimer un utilisateur"
 msgid "User deleted"
 msgstr "Utilisateur supprimé"
 
-msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
 msgid "Create a new resource access rule"
