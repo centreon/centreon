@@ -14,7 +14,7 @@ export const labelContacts = 'Contacts';
 export const labelContactGroups = 'Contact Groups';
 export const labelContactsAndContactGroups = 'Contacts / Contact groups';
 export const labelResourceAccessRuleAddedSuccess =
-  'The resource access rule was successfully added';
+  'The resource access rule was successfully created';
 export const labelResourceAccessRuleEditedSuccess =
   'The resource access rule was successfully updated';
 export const labelRequired = 'Required';
