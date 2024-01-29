@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { gt, isEmpty, isNil } from 'ramda';
+import { gt, isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -12,11 +12,11 @@ import {
 } from '@centreon/ui';
 
 import { areResourcesFullfilled } from '../../utils';
+import NoResources from '../../NoResources';
 
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
 import { buildResourcesEndpoint } from './api/endpoints';
 import Tile from './Tile';
-import NoResources from './NoResources';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
 import Tooltip from './Tooltip/Tooltip';
@@ -46,8 +46,7 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
-  const areResourcesOk =
-    !isEmpty(resources) && areResourcesFullfilled(resources);
+  const areResourcesOk = areResourcesFullfilled(resources);
 
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>

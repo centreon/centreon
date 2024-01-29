@@ -1,8 +1,10 @@
 import { createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
 import { FormThreshold } from '../../models';
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 
 import { metricsTopEndpoint } from './api/endpoint';
 import { Data, TopBottomSettings } from './models';
@@ -76,24 +78,68 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget
-          globalRefreshInterval={30}
-          panelData={data}
-          panelOptions={{
-            refreshInterval: 'custom',
-            refreshIntervalCustom: 30,
-            threshold: defaultThreshold,
-            topBottomSettings,
-            valueFormat: 'human'
-          }}
-          store={store}
-        />
+        <BrowserRouter>
+          <Widget
+            globalRefreshInterval={{
+              interval: 30,
+              type: 'global'
+            }}
+            panelData={data}
+            panelOptions={{
+              refreshInterval: 'custom',
+              refreshIntervalCustom: 30,
+              threshold: defaultThreshold,
+              topBottomSettings,
+              valueFormat: 'human'
+            }}
+            refreshCount={0}
+            store={store}
+          />
+        </BrowserRouter>
+      </div>
+    )
+  });
+};
+
+const initializeEmptyComponent = (): void => {
+  const store = createStore();
+
+  cy.viewport('macbook-13');
+
+  cy.mount({
+    Component: (
+      <div style={{ height: '400px', width: '100%' }}>
+        <BrowserRouter>
+          <Widget
+            globalRefreshInterval={{
+              interval: 30,
+              type: 'global'
+            }}
+            panelData={{}}
+            panelOptions={{
+              refreshInterval: 'custom',
+              refreshIntervalCustom: 30,
+              threshold: defaultThreshold,
+              topBottomSettings: defaultSettings,
+              valueFormat: 'human'
+            }}
+            refreshCount={0}
+            store={store}
+          />
+        </BrowserRouter>
       </div>
     )
   });
 };
 
 describe('TopBottom', () => {
+  it('displays a message when the dataset is empty', () => {
+    initializeEmptyComponent();
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('displays the widget', () => {
     initializeComponent({});
 

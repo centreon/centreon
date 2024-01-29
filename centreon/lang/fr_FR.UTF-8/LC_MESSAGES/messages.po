@@ -18374,6 +18374,93 @@ msgstr "Vous n'êtes pas autorisé à vous connecter"
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
 
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+msgid "Shares"
+msgstr "Partages"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "Public link"
+msgstr "Lien public"
+
+msgid "Private/Public"
+msgstr "Privé/Public"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
+
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
+
+msgid "Link has been copied!"
+msgstr "Lien copié!"
+
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Revoked"
+msgstr "Révoqué"
+
+msgid "For security reasons, the token can only be displayed once. Store it carefully."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
+
+msgid "Generate new token"
+msgstr "Générer un nouveau jeton"
+
+msgid "Token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
+
+msgid "This field is required"
+msgstr "Ce champ est obligatoire"
+
+msgid "Token"
+msgstr "Jeton"
+
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
 msgid "View as list"
 msgstr "Vue en liste"
 
