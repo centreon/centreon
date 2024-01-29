@@ -3,6 +3,8 @@ import { equals } from 'ramda';
 import { LoadingSkeleton } from '@centreon/ui';
 
 import { FormThreshold, GlobalRefreshInterval, Metric } from '../../models';
+import NoResources from '../../NoResources';
+import { areResourcesFullfilled } from '../../utils';
 
 import { TopBottomSettings, WidgetDataResource } from './models';
 import useTopBottom from './useTopBottom';
@@ -36,7 +38,9 @@ const TopBottom = ({
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
-  const { isLoading, metricsTop } = useTopBottom({
+  const areResourcesOk = areResourcesFullfilled(resources);
+
+  const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     globalRefreshInterval,
     metrics,
     refreshCount,
@@ -45,6 +49,10 @@ const TopBottom = ({
     resources,
     topBottomSettings
   });
+
+  if (!areResourcesOk || isMetricEmpty) {
+    return <NoResources />;
+  }
 
   if (isLoading && !metricsTop) {
     return (

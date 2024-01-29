@@ -18573,6 +18573,9 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
 msgid "Not yet implemented"
 msgstr "Pas encore implémenté"
 
