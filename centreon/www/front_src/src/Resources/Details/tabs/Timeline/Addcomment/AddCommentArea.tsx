@@ -47,7 +47,8 @@ const AddCommentArea = ({
 
   const { mutateAsync, isMutating, data } = useMutationQuery({
     getEndpoint: () => commentEndpoint,
-    method: Method.POST
+    method: Method.POST,
+    onSuccess: displaySnackbarAndClose
   });
 
   const changeComment = (event: ChangeEvent<HTMLInputElement>): void => {
