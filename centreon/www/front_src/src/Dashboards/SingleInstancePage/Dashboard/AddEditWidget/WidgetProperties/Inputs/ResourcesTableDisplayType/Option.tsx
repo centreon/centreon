@@ -8,7 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import { useStyles } from './DisplayType.styles';
 
@@ -32,7 +32,7 @@ const OptionCard = ({
 
   const isSelected = equals(value, type);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   return (
     <Tooltip followCursor={false} label={t(label)} position="top">
