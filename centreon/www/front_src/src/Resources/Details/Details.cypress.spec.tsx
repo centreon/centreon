@@ -384,7 +384,8 @@ describe('Details', () => {
 
     cy.makeSnapshot();
   });
-  it('displays the comment area when clicking on "Add a comment" button', () => {
+
+  it('displays the comment area when the corresponding button is clicked', () => {
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
     cy.waitForRequest('@getTimeLine');
