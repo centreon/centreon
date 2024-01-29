@@ -39,12 +39,12 @@ const DeleteDashboard = ({
       labels={labelsDelete}
       onConfirm={deleteDashboard}
     >
-      {(openTooltip) => (
+      {({ toggleTooltip }) => (
         <IconButton
           ariaLabel={t(labelDelete)}
           key={labelDelete}
           title={t(labelDelete)}
-          onClick={openTooltip}
+          onClick={toggleTooltip}
         >
           <DeleteIcon className={classes.icon} />
         </IconButton>

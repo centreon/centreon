@@ -1,35 +1,42 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import { labelDisplayType } from '../../../../translatedLabels';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import SingleMetricGraphType from './SingleMetricGraphType';
 
-const initializeComponent = (): void => {
+const initializeComponent = (canEdit = true): void => {
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEdit);
+  store.set(isEditingAtom, canEdit);
+
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            singleMetricGraphType: 'text'
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <SingleMetricGraphType label="" propertyName="singleMetricGraphType" />
-      </Formik>
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              singleMetricGraphType: 'text'
+            }
+          }}
+          onSubmit={cy.stub()}
+        >
+          <SingleMetricGraphType
+            label=""
+            propertyName="singleMetricGraphType"
+          />
+        </Formik>
+      </Provider>
     )
   });
 };
 
 describe('Single metric graph type', () => {
   beforeEach(() => {
-    cy.stub(editProperties, 'useCanEditProperties').returns({
-      canEdit: true,
-      canEditField: true
-    });
-    initializeComponent();
+    initializeComponent(true);
   });
 
   it('displays the text option as pre-selected', () => {
@@ -55,11 +62,7 @@ describe('Single metric graph type', () => {
 
 describe('Disabled Graph type', () => {
   beforeEach(() => {
-    cy.stub(editProperties, 'useCanEditProperties').returns({
-      canEdit: true,
-      canEditField: false
-    });
-    initializeComponent();
+    initializeComponent(false);
   });
 
   it('displays the graph types as disabled', () => {

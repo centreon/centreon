@@ -1,4 +1,5 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import {
   labelCriticalThreshold,
@@ -7,7 +8,7 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Threshold from './Threshold';
 
@@ -54,43 +55,45 @@ const selectedMetrics: Array<ServiceMetric> = [
   }
 ];
 
-const initializeComponent = ({ metrics, enabled = false }): void => {
+const initializeComponent = ({
+  metrics,
+  enabled = false,
+  canEdit = true
+}): void => {
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEdit);
+  store.set(isEditingAtom, canEdit);
+
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          data: {
-            metrics
-          },
-          moduleName: 'widget',
-          options: {
-            threshold: {
-              criticalType: 'default',
-              customCritical: null,
-              customWarning: null,
-              enabled,
-              warningType: 'default'
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            data: {
+              metrics
+            },
+            moduleName: 'widget',
+            options: {
+              threshold: {
+                criticalType: 'default',
+                customCritical: null,
+                customWarning: null,
+                enabled,
+                warningType: 'default'
+              }
             }
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <Threshold label="" propertyName="threshold" />
-      </Formik>
+          }}
+          onSubmit={cy.stub()}
+        >
+          <Threshold label="" propertyName="threshold" />
+        </Formik>
+      </Provider>
     )
   });
 };
 
-const editMode = (edit): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit: true,
-    canEditField: edit
-  });
-};
-
 describe('Threshold', () => {
-  beforeEach(() => editMode(true));
-
   it('does not display any default threshold values when no metrics are passed', () => {
     initializeComponent({ enabled: true, metrics: emptyMetrics });
 
@@ -142,11 +145,15 @@ describe('Threshold', () => {
 });
 
 describe('Disabled threshold', () => {
-  beforeEach(() => editMode(false));
+  beforeEach(() => {
+    initializeComponent({
+      canEdit: false,
+      enabled: true,
+      metrics: selectedMetrics
+    });
+  });
 
   it('displays fields as disabled', () => {
-    initializeComponent({ enabled: true, metrics: selectedMetrics });
-
     cy.findByLabelText(labelShowThresholds).should('be.disabled');
     cy.findAllByTestId('default').eq(0).children().eq(0).should('be.disabled');
     cy.findAllByTestId('default').eq(1).children().eq(0).should('be.disabled');
