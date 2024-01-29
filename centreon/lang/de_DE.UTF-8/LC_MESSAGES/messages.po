@@ -16452,6 +16452,12 @@ msgstr "Erweiterter Modus"
 # msgid "Delete Token"
 # msgstr ""
 
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
 # msgid "Select a dataset to display the preview."
 # msgstr ""
 

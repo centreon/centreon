@@ -34,7 +34,7 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
     
   await startTimespan('Display basic filters');
   await page.click('button[aria-label="Filter options"]')
-  await getByText($document,'Open more filters')
+  await getByText($document,'Show more filters')
   await endTimespan();
     
   await snapshot('Resource Status with basic filters Snapshot');

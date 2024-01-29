@@ -18579,6 +18579,12 @@ msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Il 
 msgid "Delete Token"
 msgstr "Supprimer le jeton"
 
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
 msgid "Select a dataset to display the preview."
 msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
 
