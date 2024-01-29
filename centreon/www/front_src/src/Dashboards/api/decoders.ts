@@ -1,6 +1,7 @@
 /* eslint-disable typescript-sort-keys/interface */
 
 import { JsonDecoder } from 'ts.data.json';
+import { omit } from 'ramda';
 
 import { buildListingDecoder } from '@centreon/ui';
 
@@ -13,7 +14,9 @@ import {
   DashboardRole,
   DashboardsContact,
   DashboardsContactGroup,
-  NamedEntity
+  NamedEntity,
+  Role,
+  Share
 } from './models';
 
 const namedEntityDecoder = {
@@ -69,13 +72,41 @@ export const dashboardEntityDecoder = {
   panels: JsonDecoder.optional(
     JsonDecoder.array(dashboardPanelDecoder, 'Panels')
   ),
+  shares: JsonDecoder.object<Share>(
+    {
+      contactGroups: JsonDecoder.array(
+        JsonDecoder.object(
+          {
+            ...namedEntityDecoder,
+            role: JsonDecoder.enumeration<Role>(Role, 'role')
+          },
+          'contactGroup'
+        ),
+        'contactGroups'
+      ),
+      contacts: JsonDecoder.array(
+        JsonDecoder.object(
+          {
+            ...namedEntityDecoder,
+            role: JsonDecoder.enumeration<Role>(Role, 'role')
+          },
+          'contact'
+        ),
+        'contacts'
+      )
+    },
+    'shares',
+    {
+      contactGroups: 'contact_groups'
+    }
+  ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
 };
 
-export const dashboardDecoder = JsonDecoder.object<Dashboard>(
+export const dashboardDecoder = JsonDecoder.object<Omit<Dashboard, 'shares'>>(
   {
-    ...dashboardEntityDecoder,
+    ...omit(['shares'], dashboardEntityDecoder),
     refresh: JsonDecoder.object<Dashboard['refresh']>(
       {
         interval: JsonDecoder.nullable(JsonDecoder.number),

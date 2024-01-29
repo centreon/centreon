@@ -18,6 +18,8 @@ parameters:
     curl.timeout: 60
     debug_level: "%env(int:DEBUG_LEVEL)%"
     env(DEBUG_CONTACT): null
+    api.max_items_by_request: 100
+    api.max_query_string_length: 2048
 
 services:
     _defaults:
@@ -36,6 +38,7 @@ services:
         exclude:
             - '../../src/Core/Media/*'
             - '../../src/Core/Command/*'
+            - '../../src/Core/ResourceAccess/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 

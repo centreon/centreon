@@ -72,7 +72,7 @@ final class PartialUpdateDashboard
         try {
             if ($this->rights->hasAdminRole()) {
                 $response = $this->partialUpdateDashboardAsAdmin($dashboardId, $request);
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 $response = $this->partialUpdateDashboardAsContact($dashboardId, $request);
             } else {
                 $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
