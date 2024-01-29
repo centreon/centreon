@@ -16,8 +16,11 @@ import { centreonBaseURL } from '@centreon/ui';
 
 import { Resource } from './models';
 
-export const areResourcesFullfilled = (value: Array<Resource>): boolean =>
-  value?.every(
+export const areResourcesFullfilled = (
+  resourcesDataset: Array<Resource>
+): boolean =>
+  !isEmpty(resourcesDataset) &&
+  resourcesDataset?.every(
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
