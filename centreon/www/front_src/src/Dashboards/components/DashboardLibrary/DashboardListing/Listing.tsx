@@ -1,11 +1,22 @@
-import { MemoizedListing } from '@centreon/ui';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
+import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
 
 import { Dashboard } from '../../../api/models';
 import { List } from '../../../api/meta.models';
+import {
+  labelCancel,
+  labelDelete,
+  labelDeleteUser,
+  labelYouAreGoingToDeleteUser
+} from '../../../translatedLabels';
 
 import useColumns from './Columns/useColumns';
 import { Actions } from './Actions';
 import useListing from './useListing';
+import { askBeforeRevokeAtom } from './atom';
 
 interface ListingProp {
   customListingComponent?: JSX.Element;
@@ -22,7 +33,10 @@ const Listing = ({
   customListingComponent,
   displayCustomListing
 }: ListingProp): JSX.Element => {
+  const { t } = useTranslation();
   const { columns, defaultColumnsIds } = useColumns();
+
+  const askingBeforRevoke = useAtomValue(askBeforeRevokeAtom);
 
   const {
     changePage,
@@ -36,42 +50,76 @@ const Listing = ({
     setSelectedRows,
     sortf,
     sorto,
-    getRowProperty
-  } = useListing({ defaultColumnsIds });
+    getRowProperty,
+    formattedRows,
+    closeAskRevokeAccessRight,
+    confirmRevokeAccessRight
+  } = useListing({ defaultColumnsIds, rows: listingData?.result });
 
   return (
-    <MemoizedListing
-      actions={<Actions openConfig={openConfig} />}
-      columnConfiguration={{
-        selectedColumnIds: displayCustomListing ? undefined : selectedColumnIds,
-        sortable: true
-      }}
-      columns={columns}
-      currentPage={(page || 1) - 1}
-      customListingComponent={customListingComponent}
-      displayCustomListing={displayCustomListing}
-      limit={listingData?.meta.limit}
-      loading={loading}
-      memoProps={[columns, page, sorto, sortf, selectedRows]}
-      rows={listingData?.result}
-      selectedRows={selectedRows}
-      sortField={sortf}
-      sortOrder={sorto}
-      subItems={{
-        canCheckSubItems: false,
-        enable: true,
-        getRowProperty,
-        labelCollapse: 'Collapse',
-        labelExpand: 'Expand'
-      }}
-      totalRows={listingData?.meta.total}
-      onLimitChange={setLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onSelectColumns={setSelectedColumnIds}
-      onSelectRows={setSelectedRows}
-      onSort={changeSort}
-    />
+    <>
+      <MemoizedListing
+        actions={<Actions openConfig={openConfig} />}
+        columnConfiguration={{
+          selectedColumnIds: displayCustomListing
+            ? undefined
+            : selectedColumnIds,
+          sortable: true
+        }}
+        columns={columns}
+        currentPage={(page || 1) - 1}
+        customListingComponent={customListingComponent}
+        displayCustomListing={displayCustomListing}
+        limit={listingData?.meta.limit}
+        loading={loading}
+        memoProps={[columns, page, sorto, sortf, selectedRows]}
+        rows={formattedRows}
+        selectedRows={selectedRows}
+        sortField={sortf}
+        sortOrder={sorto}
+        subItems={{
+          canCheckSubItems: false,
+          enable: true,
+          getRowProperty,
+          labelCollapse: 'Collapse',
+          labelExpand: 'Expand'
+        }}
+        totalRows={listingData?.meta.total}
+        onLimitChange={setLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onSelectColumns={setSelectedColumnIds}
+        onSelectRows={setSelectedRows}
+        onSort={changeSort}
+      />
+      <Modal open={!!askingBeforRevoke} onClose={closeAskRevokeAccessRight}>
+        <Modal.Header>{t(labelDeleteUser)}</Modal.Header>
+        <Modal.Body>
+          {sanitizedHTML({
+            initialContent: t(labelYouAreGoingToDeleteUser, {
+              name: askingBeforRevoke?.user.name
+            })
+          })}
+        </Modal.Body>
+        <Modal.Actions
+          isDanger
+          labels={{
+            cancel: t(labelCancel),
+            confirm: t(labelDelete)
+          }}
+          onCancel={closeAskRevokeAccessRight}
+          onConfirm={
+            askingBeforRevoke
+              ? confirmRevokeAccessRight({
+                  dashboardId: askingBeforRevoke?.dashboardId,
+                  id: askingBeforRevoke?.user.id,
+                  type: askingBeforRevoke?.user.type
+                })
+              : undefined
+          }
+        />
+      </Modal>
+    </>
   );
 };
 

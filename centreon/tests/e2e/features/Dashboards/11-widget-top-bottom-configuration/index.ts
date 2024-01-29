@@ -252,9 +252,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
