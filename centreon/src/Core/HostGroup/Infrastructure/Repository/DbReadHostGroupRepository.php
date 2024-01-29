@@ -323,7 +323,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
