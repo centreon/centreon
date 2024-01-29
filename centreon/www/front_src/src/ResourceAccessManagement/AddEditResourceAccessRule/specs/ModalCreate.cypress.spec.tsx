@@ -294,7 +294,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Delete dataset filters button is visible when at least two dataset filters are setup', () => {
+  it('confirms that the Delete dataset filters button is visible when at least two dataset filters are selected', () => {
     fillFormRequiredFields();
 
     cy.findAllByTestId('DeleteOutlineIcon').should('be.visible');
