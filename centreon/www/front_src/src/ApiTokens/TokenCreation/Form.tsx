@@ -9,7 +9,8 @@ import {
   ResponseError,
   SingleAutocompleteField,
   SingleConnectedAutocompleteField,
-  TextField
+  TextField,
+  useResizeObserver
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
@@ -47,6 +48,11 @@ const FormCreation = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const { height = 0 } = useResizeObserver<HTMLElement>({
+    ref: document.getElementById('root')
+  });
+
   const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
@@ -154,6 +160,7 @@ const FormCreation = ({
           anchorElDuration={{ anchorEl, setAnchorEl }}
           openPicker={{ open, setOpen }}
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
+          windowHeight={height}
         />
       )}
 
