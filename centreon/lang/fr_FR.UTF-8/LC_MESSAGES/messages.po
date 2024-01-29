@@ -18606,7 +18606,7 @@ msgstr "Propriétés d'une règle"
 msgid "Resource selection"
 msgstr "Sélection des ressources"
 
-msgid "Contacts / Contact groups"
+msgid "Contacts/Contact groups"
 msgstr "Contacts/Groupes de contacts"
 
 msgid "The resource access rule was successfully created"
