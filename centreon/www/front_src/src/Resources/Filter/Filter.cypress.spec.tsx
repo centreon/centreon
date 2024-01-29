@@ -30,7 +30,7 @@ import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Visualization } from '../models';
 import { resourcesEndpoint } from '../api/endpoint';
 
-import { labelOpenMoreFilters } from './criteriasNewInterface/translatedLabels';
+import { labelShowMoreFilters } from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
 
 import Filter from '.';
@@ -570,7 +570,7 @@ describe('Criterias', () => {
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByText(labelOpenMoreFilters).click();
+    cy.findByText(labelShowMoreFilters).click();
 
     cy.makeSnapshot();
 
