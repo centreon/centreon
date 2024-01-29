@@ -10,6 +10,14 @@ import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-gen
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import widgetSingleDataConfiguration from 'centreon-widgets/centreon-widget-singledata/moduleFederation.json';
 import widgetSingleDataProperties from 'centreon-widgets/centreon-widget-singledata/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
+import widgetGraphConfiguration from 'centreon-widgets/centreon-widget-graph/moduleFederation.json';
+import widgetGraphProperties from 'centreon-widgets/centreon-widget-graph/properties.json';
+import widgetStatusGridConfiguration from 'centreon-widgets/centreon-widget-statusgrid/moduleFederation.json';
+import widgetStatusGridProperties from 'centreon-widgets/centreon-widget-statusgrid/properties.json';
+import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbottom/moduleFederation.json';
+import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -35,8 +43,7 @@ import {
   labelRefineFilter,
   labelAddMetric
 } from '../translatedLabels';
-import { dashboardAtom } from '../atoms';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
 import { widgetFormInitialDataAtom } from './atoms';
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
@@ -44,6 +51,18 @@ import { WidgetResourceType } from './models';
 import { metricsEndpoint } from './api/endpoints';
 
 import { AddEditWidgetModal } from '.';
+
+const widgetsProperties = [
+  widgetTextProperties,
+  widgetInputProperties,
+  widgetDataProperties,
+  widgetGenericTextProperties,
+  widgetSingleDataProperties,
+  widgetStatusGridProperties,
+  widgetSingleMetricProperties,
+  widgetGraphProperties,
+  widgetTopBottomProperties
+];
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -66,18 +85,28 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
     {
       ...widgetSingleDataConfiguration,
       moduleFederationName: 'centreon-widget-singledata/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
+    },
+    {
+      ...widgetStatusGridConfiguration,
+      moduleFederationName: 'centreon-widget-statusgrid/src'
+    },
+    {
+      ...widgetGraphConfiguration,
+      moduleFederationName: 'centreon-widget-graph/src'
+    },
+    {
+      ...widgetTopBottomConfiguration,
+      moduleFederationName: 'centreon-widget-topbottom/src'
     }
   ];
 
   const store = defaultStore || createStore();
   store.set(federatedWidgetsAtom, federatedWidgets);
-  store.set(federatedWidgetsPropertiesAtom, [
-    widgetTextProperties,
-    widgetInputProperties,
-    widgetDataProperties,
-    widgetGenericTextProperties,
-    widgetSingleDataProperties
-  ]);
+  store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
 
   return store;
 };
@@ -174,13 +203,11 @@ const store = createStore();
 describe('AddEditWidgetModal', () => {
   describe('Properties', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: true
-      });
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
 
       cy.viewport('macbook-13');
 
@@ -200,6 +227,8 @@ describe('AddEditWidgetModal', () => {
         const jotaiStore = initializeWidgets();
 
         jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        jotaiStore.set(hasEditPermissionAtom, true);
+        jotaiStore.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -296,6 +325,8 @@ describe('AddEditWidgetModal', () => {
         const jotaiStore = initializeWidgets();
 
         jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
+        jotaiStore.set(hasEditPermissionAtom, true);
+        jotaiStore.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -401,18 +432,29 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays widgets icon when widget type field is expanded', () => {
+      cy.findByLabelText(labelWidgetType).click();
+
+      widgetsProperties.forEach(({ title, description, icon }) => {
+        cy.get(`[data-icon="${icon ? '' : 'default-'}${title}"]`).should(
+          'exist'
+        );
+        cy.contains(title).should('exist');
+        cy.contains(description).should('exist');
+      });
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: false
-      });
-
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, false);
 
       cy.viewport('macbook-13');
 
@@ -459,13 +501,11 @@ describe('AddEditWidgetModal', () => {
   describe('Data', () => {
     describe('Resources and metrics', () => {
       beforeEach(() => {
-        cy.stub(editProperties, 'useCanEditProperties').returns({
-          canEdit: true,
-          canEditField: true
-        });
         initializeWidgets(store);
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        store.set(hasEditPermissionAtom, true);
+        store.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -669,13 +709,11 @@ describe('AddEditWidgetModal', () => {
 
     describe('With one service metrics', () => {
       beforeEach(() => {
-        cy.stub(editProperties, 'useCanEditProperties').returns({
-          canEdit: true,
-          canEditField: true
-        });
         initializeWidgets(store);
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        store.set(hasEditPermissionAtom, true);
+        store.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -731,14 +769,11 @@ describe('AddEditWidgetModal', () => {
 
   describe('Disabled data', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: false
-      });
-
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormData);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, false);
 
       cy.viewport('macbook-13');
 

@@ -24,12 +24,12 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\NewDashboardPanel;
-use Core\Infrastructure\Common\Repository\RepositoryException;
 
 class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements WriteDashboardPanelRepositoryInterface
 {

@@ -20,6 +20,7 @@ export interface FederatedModule {
 interface PageComponent {
   children?: string;
   component: string;
+  featureFlag?: string;
   route: string;
 }
 
@@ -74,6 +75,7 @@ export interface FederatedWidgetProperties {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
   description: string;
+  icon?: string;
   moduleName: string;
   options: {
     [key: string]: FederatedWidgetOption;
