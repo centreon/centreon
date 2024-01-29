@@ -18,7 +18,7 @@ import { dashboardListDecoder } from './decoders';
 import { List } from './meta.models';
 
 type UseListDashboards = {
-  data?: List<Dashboard>;
+  data?: List<Omit<Dashboard, 'refresh'>>;
   isLoading: boolean;
 };
 
