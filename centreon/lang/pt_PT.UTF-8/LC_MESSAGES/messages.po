@@ -17229,6 +17229,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
 # msgid "Select a dataset to display the preview."
 # msgstr ""
 

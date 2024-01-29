@@ -18573,6 +18573,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
 msgid "Select a dataset to display the preview."
 msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
 
