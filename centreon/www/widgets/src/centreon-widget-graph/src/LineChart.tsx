@@ -1,16 +1,13 @@
-import { head, isNil, pluck } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
-import { Typography } from '@mui/material';
+import { head, pluck } from 'ramda';
 
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
 import { GlobalRefreshInterval } from '../../models';
+import NoResources from '../../NoResources';
+import { areResourcesFullfilled } from '../../utils';
 
 import { Data, PanelOptions } from './models';
-import { labelNoDataFound } from './translatedLabels';
-import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
@@ -26,9 +23,6 @@ const WidgetLineChart = ({
   globalRefreshInterval,
   refreshCount
 }: Props): JSX.Element => {
-  const { classes } = useNoDataFoundStyles();
-  const { t } = useTranslation();
-
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval: panelOptions.refreshInterval,
@@ -36,6 +30,8 @@ const WidgetLineChart = ({
   });
 
   const metricNames = pluck('name', panelData.metrics);
+
+  const areResourcesOk = areResourcesFullfilled(panelData.resources);
 
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
@@ -53,12 +49,8 @@ const WidgetLineChart = ({
     thresholds: panelOptions.threshold
   });
 
-  if (isNil(graphData) || isMetricsEmpty) {
-    return (
-      <Typography className={classes.noDataFound} variant="h5">
-        {t(labelNoDataFound)}
-      </Typography>
-    );
+  if (!areResourcesOk || isMetricsEmpty) {
+    return <NoResources />;
   }
 
   return (

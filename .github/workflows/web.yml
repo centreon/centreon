@@ -49,7 +49,7 @@ jobs:
           filters: |
             has_frontend_changes:
               - '**/*.[jt]sx?'
-              - '**/www/front_src/**'
+              - '**/www/(front_src|widgets)/**'
               - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
@@ -72,7 +72,7 @@ jobs:
               - '**/tests/api/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
-              - '**/www/!(front_src)/**'
+              - '**/www/!(front_src|widgets)/**'
               - '**/doc/API/**'
             has_features_changes:
               - '**/tests/e2e/**/*.feature'
