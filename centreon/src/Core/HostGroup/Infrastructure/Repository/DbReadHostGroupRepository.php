@@ -344,6 +344,18 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         `:db`.`hostgroup` hg
                     SQL
             )
+            ->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hg.hg_id = hgr.hostgroup_hg_id
+                    LEFT JOIN `:db`.host h
+                        ON hgr.host_host_id = h.host_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON h.host_id = hcr.host_host_id
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON hcr.hostcategories_hc_id = hc.hc_id
+                    SQL
+            )
             ->defineOrderBy(
                 <<<'SQL'
                     ORDER BY hg.hg_name ASC
@@ -411,6 +423,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'alias' => 'hg.hg_alias',
             'name' => 'hg.hg_name',
             'is_activated' => 'hg.hg_activate',
+            'hostcategories_id' => 'hc.hc_id',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
