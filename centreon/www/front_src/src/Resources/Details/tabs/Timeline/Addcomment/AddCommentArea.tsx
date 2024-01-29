@@ -40,7 +40,7 @@ const AddCommentArea = ({
 
   const [comment, setComment] = useState('');
 
-  const success = (): void => {
+  const displaySnackbarAndClose = (): void => {
     showSuccessMessage(t(labelYourCommentSent));
     closeCommentArea();
   };
