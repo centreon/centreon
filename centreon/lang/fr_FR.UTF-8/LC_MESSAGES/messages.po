@@ -18574,7 +18574,7 @@ msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
 msgid "Show more filters"
-msgstr "Ouvrir plus de filtres"
+msgstr "Afficher plus de filtres"
 
 msgid "Close more filters"
 msgstr "Afficher moins de filtres"
