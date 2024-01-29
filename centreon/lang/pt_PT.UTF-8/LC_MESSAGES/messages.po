@@ -17232,7 +17232,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Open more filters"
 # msgstr ""
 
-# msgid "Close more filters"
+# msgid "Show fewer filters"
 # msgstr ""
 
 # msgid "Not yet implemented"
