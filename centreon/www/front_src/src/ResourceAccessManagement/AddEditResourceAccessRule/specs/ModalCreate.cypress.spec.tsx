@@ -246,7 +246,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Refine filter and Add new dataset buttons are enabled when a dataset is filled', () => {
+  it('confirms that the Refine filter and Add new dataset buttons are enabled when a dataset is selected', () => {
     cy.findByText(labelRefineFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
