@@ -64,6 +64,11 @@ runs:
           export APACHE_GROUP="apache"
         else
           export DIST=""
+          if [ "${{ inputs.stability }}" = "unstable" ] || [ "${{ inputs.stability }}" = "canary" ]; then
+            export RELEASE="$RELEASE~${{ inputs.distrib }}"
+          elif [ "${{ inputs.stability }}" = "testing" ]; then
+            export RELEASE="1~${{ inputs.distrib }}"
+          fi
           export APACHE_USER="www-data"
           export APACHE_GROUP="www-data"
         fi
