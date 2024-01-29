@@ -1,12 +1,10 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
-import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
   SaveButton as Button,
   Method,
-  ResponseError,
   TextField,
   useLocaleDateTimeFormat,
   useMutationQuery,
@@ -45,7 +43,7 @@ const AddCommentArea = ({
     closeCommentArea();
   };
 
-  const { mutateAsync, isMutating, data } = useMutationQuery({
+  const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint: () => commentEndpoint,
     method: Method.POST,
     onSuccess: displaySnackbarAndClose
@@ -78,7 +76,6 @@ const AddCommentArea = ({
       resources: payload
     });
   };
-
 
   return (
     <>
