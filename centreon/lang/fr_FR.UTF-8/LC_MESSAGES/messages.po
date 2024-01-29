@@ -18601,7 +18601,7 @@ msgid "Create a new resource access rule"
 msgstr "Créer une nouvelle règle d'accès aux ressources"
 
 msgid "Edit resource access rule"
-msgstr "Modifier une règle d'accès aux ressources"
+msgstr "Modifier la règle d'accès aux ressources"
 
 msgid "Rule properties"
 msgstr "Propriétés de la règle"
