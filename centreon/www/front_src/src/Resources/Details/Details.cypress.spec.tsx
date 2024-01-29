@@ -372,7 +372,8 @@ describe('Details', () => {
     cy.contains(labelCommand).should('exist');
     cy.contains('base_host_alive').should('exist');
   });
-  it('displays the timeLine tab when clicking on TimeLine title', () => {
+
+  it('displays the timeLine tab when the corresponding tab is clicked', () => {
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
     cy.waitForRequest('@getTimeLine');
