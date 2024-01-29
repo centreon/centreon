@@ -224,7 +224,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Refine filter and Add new dataset buttons is disabled when resource type and/or resources in dataset are not selected', () => {
+  it('confirms that the Refine filter and Add new dataset buttons are disabled when resource type and/or resources in dataset are not selected', () => {
     cy.findByText(labelRefineFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
