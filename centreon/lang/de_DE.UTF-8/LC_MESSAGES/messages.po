@@ -16452,6 +16452,9 @@ msgstr "Erweiterter Modus"
 # msgid "Show fewer filters"
 # msgstr ""
 
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
 # msgid "Not yet implemented"
 # msgstr ""
 
@@ -16471,4 +16474,5 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+
 # msgstr ""

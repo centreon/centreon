@@ -16780,6 +16780,9 @@ msgstr "Modo avanzado"
 # msgid "Show fewer filters"
 # msgstr ""
 
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
 # msgid "Not yet implemented"
 # msgstr ""
 
