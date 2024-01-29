@@ -16446,7 +16446,7 @@ msgstr "Erweiterter Modus"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "The preview remains empty until you select a data set."
+# msgid "Select a dataset to display the preview."
 # msgstr ""
 
 # msgid "Not yet implemented"
