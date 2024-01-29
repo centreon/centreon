@@ -9,7 +9,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { labelTimePeriod } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useTimePeriod from './useTimePeriod';
 import { useTimePeriodStyles } from './TimePeriod.styles';
@@ -28,7 +28,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const { timezone } = useAtomValue(userAtom);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const translatedOptions = options.map(({ id, name }) => ({
     id,

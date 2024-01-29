@@ -18552,3 +18552,66 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
+
+msgid "Delete user"
+msgstr "Supprimer un utilisateur"
+
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
+msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+msgid "Edit resource access rule"
+msgstr "Modifier la règle d'accès aux ressources"
+
+msgid "Rule properties"
+msgstr "Propriétés de la règle"
+
+msgid "Resource selection"
+msgstr "Sélection des ressources"
+
+msgid "Contacts/Contact groups"
+msgstr "Contacts/Groupes de contacts"
+
+msgid "The resource access rule was successfully created"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+msgid "Metaservice"
+msgstr "Métaservice"
+
+msgid "Select resource type"
+msgstr "Sélectionnez un type de ressource"

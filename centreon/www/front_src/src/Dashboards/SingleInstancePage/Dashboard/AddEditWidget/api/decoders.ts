@@ -28,9 +28,12 @@ const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
       ),
       'Metrics'
     ),
-    name: JsonDecoder.string
+    name: JsonDecoder.string,
+    parentName: JsonDecoder.string,
+    uuid: JsonDecoder.string
   },
-  'Service Metric'
+  'Service Metric',
+  { parentName: 'parent_name' }
 );
 
 export const serviceMetricsDecoder = buildListingDecoder({
