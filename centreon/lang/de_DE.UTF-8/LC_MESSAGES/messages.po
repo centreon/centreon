@@ -16460,7 +16460,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Edit properties"
 # msgstr ""
-# msgstr ""
 
 # msgid "Delete user"
 # msgstr ""
@@ -16469,4 +16468,5 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+
 # msgstr ""
