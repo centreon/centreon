@@ -15,12 +15,12 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
   const datasetFilters = useMemo<Array<Array<Dataset>> | undefined>(
-    () => values.data.datasetFilters,
-    [values.data.datasetFilters]
+    () => values.datasetFilters,
+    [values.datasetFilters]
   );
 
   const addDatasetFilter = (): void => {
-    setFieldValue('data.datasetFilters', [
+    setFieldValue('datasetFilters', [
       ...(datasetFilters || []),
       [
         {
@@ -33,7 +33,7 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
 
   const deleteDatasetFilter = (index: number) => (): void => {
     setFieldValue(
-      'data.datasetFilters',
+      'datasetFilters',
       (datasetFilters || []).filter((_, i) => !equals(i, index))
     );
   };

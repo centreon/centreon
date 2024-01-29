@@ -60,14 +60,14 @@ const adaptDatasetFilters = (
 export const adaptResourceAccessRule = ({
   contactGroups,
   contacts,
-  data,
+  datasetFilters,
   description,
   isActivated,
   name
 }): object => ({
   contact_groups: map(prop('id'), contactGroups),
   contacts: map(prop('id'), contacts),
-  dataset_filters: adaptDatasetFilters(data.datasetFilters),
+  dataset_filters: adaptDatasetFilters(datasetFilters),
   description,
   is_enabled: isActivated,
   name

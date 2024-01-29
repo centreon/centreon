@@ -19,7 +19,7 @@ export const resourceAccessRuleDecoder = JsonDecoder.object<ResourceAccessRule>(
   {
     contactGroups: JsonDecoder.array(JsonDecoder.number, 'Contact groups'),
     contacts: JsonDecoder.array(JsonDecoder.number, 'Contacts'),
-    datasets: JsonDecoder.array(datasetsFilters, 'Datasets filters'),
+    datasetFilters: JsonDecoder.array(datasetsFilters, 'Datasets filters'),
     description: JsonDecoder.string,
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
@@ -27,7 +27,7 @@ export const resourceAccessRuleDecoder = JsonDecoder.object<ResourceAccessRule>(
   },
   'Resource access rule',
   {
-    datasets: 'datasets_filters',
+    datasetFilters: 'datasets_filters',
     isActivated: 'is_enabled'
   }
 );

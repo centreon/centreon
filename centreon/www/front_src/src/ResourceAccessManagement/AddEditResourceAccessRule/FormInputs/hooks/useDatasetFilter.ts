@@ -55,7 +55,7 @@ const resourceTypeOptions = [
   {
     availableResourceTypeOptions: [
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
       { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.Host,
@@ -138,12 +138,12 @@ const useDatasetFilter = (
   const value = useMemo<Array<Dataset> | undefined>(
     () =>
       path<Array<Dataset> | undefined>(
-        ['data', 'datasetFilters', datasetFilterIndex],
+        ['datasetFilters', datasetFilterIndex],
         values
       ),
     [
       path<Array<Dataset> | undefined>(
-        ['data', 'datasetFilters', datasetFilterIndex],
+        ['datasetFilters', datasetFilterIndex],
         values
       )
     ]
@@ -174,22 +174,17 @@ const useDatasetFilter = (
   const isTouched = useMemo<boolean | undefined>(
     () =>
       path<boolean | undefined>(
-        ['data', 'datasetFilters', datasetFilterIndex],
+        ['datasetFilters', datasetFilterIndex],
         touched
       ),
-    [
-      path<boolean | undefined>(
-        ['data', 'datasetFilters', datasetFilterIndex],
-        touched
-      )
-    ]
+    [path<boolean | undefined>(['datasetFilters', datasetFilterIndex], touched)]
   );
 
   const errorToDisplay =
     isTouched && isEmpty(datasetFilter) ? labelPleaseSelectAResource : null;
 
   const addResource = (): void => {
-    setFieldValue(`data.datasetFilters.${datasetFilterIndex}`, [
+    setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
       ...(datasetFilter || []),
       {
         resourceType: '',
@@ -200,49 +195,49 @@ const useDatasetFilter = (
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
     setFieldValue(
-      `data.datasetFilters.${datasetFilterIndex}.${index}.resources`,
-      [resource]
+      `datasetFilters.${datasetFilterIndex}.${index}.resources`,
+      resource
     );
-    setFieldTouched(`data.datasetFilters.${datasetFilterIndex}`, true, false);
+    setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
   };
 
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
       setFieldValue(
-        `data.datasetFilters.${datasetFilterIndex}.${index}.resources`,
+        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
         resources
       );
-      setFieldTouched(`data.datasetFilters.${datasetFilterIndex}`, true, false);
+      setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
     };
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
       setFieldValue(
-        `data.datasetFilters.${datasetFilterIndex}.${index}.resourceType`,
+        `datasetFilters.${datasetFilterIndex}.${index}.resourceType`,
         e.target.value
       );
       setFieldValue(
-        `data.datasetFilters.${datasetFilterIndex}.${index}.resources`,
+        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
         []
       );
     };
 
   const deleteResource = (index: number) => (): void => {
     setFieldValue(
-      `data.datasetFilters.${datasetFilterIndex}`,
+      `datasetFilters.${datasetFilterIndex}`,
       (datasetFilter || []).filter((_, i) => !equals(i, index))
     );
-    setFieldTouched(`data.datasetFilters.${datasetFilterIndex}`, true, false);
+    setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
     const newResource = reject(propEq(option.id, 'id'), resources);
 
     setFieldValue(
-      `data.datasetFilters.${datasetFilterIndex}.${index}.resources`,
+      `datasetFilters.${datasetFilterIndex}.${index}.resources`,
       newResource
     );
-    setFieldTouched(`data.dataset.${datasetFilterIndex}`, true, false);
+    setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
   };
 
   const getResourceBaseEndpoint =

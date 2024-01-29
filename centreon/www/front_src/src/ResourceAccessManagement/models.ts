@@ -57,20 +57,20 @@ export interface ResourceAccessRuleListingType {
 
 export type ResourceAccessRuleType = {
   description: string;
-  id: number;
+  id?: number;
   isActivated: boolean;
   name: string;
 };
 
 export type Dataset = {
-  resourceType: ResourceTypeEnum;
+  resourceType: ResourceTypeEnum | undefined;
   resources: Array<number>;
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
   contactGroups: Array<number>;
   contacts: Array<number>;
-  datasets: Array<Array<Dataset>>;
+  datasetFilters: Array<Array<Dataset>>;
 };
 
 export type SortOrder = 'asc' | 'desc';

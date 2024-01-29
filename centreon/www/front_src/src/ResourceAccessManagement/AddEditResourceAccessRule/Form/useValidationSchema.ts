@@ -66,7 +66,7 @@ const useValidationSchema = (): UseValidationSchemaState => {
     {
       contactGroups: contactsSchema('contacts'),
       contacts: contactsSchema('contactGroups'),
-      data: object().shape({ datasetFilters: datasetFiltersSchema() }),
+      datasetFilters: datasetFiltersSchema(),
       name: validateName
     },
     [['contacts', 'contactGroups']]

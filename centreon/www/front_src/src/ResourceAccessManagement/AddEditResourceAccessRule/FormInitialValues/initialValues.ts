@@ -1,7 +1,9 @@
-export const getEmptyInitialValues = (): object => ({
+import { ResourceAccessRule } from '../../models';
+
+export const getEmptyInitialValues = (): ResourceAccessRule => ({
   contactGroups: [],
   contacts: [],
-  data: { datasetFilters: [[{ resourceType: '', resources: [] }]] },
+  datasetFilters: [[{ resourceType: undefined, resources: [] }]],
   description: '',
   isActivated: true,
   name: ''
@@ -10,14 +12,14 @@ export const getEmptyInitialValues = (): object => ({
 export const getInitialValues = ({
   contactGroups,
   contacts,
-  data,
+  datasetFilters,
   description,
   isActivated,
   name
-}): object => ({
+}): ResourceAccessRule => ({
   contactGroups,
   contacts,
-  data,
+  datasetFilters,
   description,
   isActivated,
   name
