@@ -78,16 +78,6 @@ const AddCommentArea = ({
     });
   };
 
-  useEffect(() => {
-    if (
-      equals((data as ResponseError)?.isError, true) ||
-      isNil((data as ResponseError)?.isError)
-    ) {
-      return;
-    }
-
-    success();
-  }, [(data as ResponseError)?.isError]);
 
   return (
     <>
