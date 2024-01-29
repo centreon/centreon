@@ -439,7 +439,7 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('hides the comment area when clicking on "Cancel" button', () => {
+  it('hides the comment area when the cancel button is clicked', () => {
     initialize();
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
