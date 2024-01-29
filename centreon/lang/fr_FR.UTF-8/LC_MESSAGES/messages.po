@@ -18622,7 +18622,7 @@ msgid "Choose at least one contact or contact group"
 msgstr "Choisissez au moins un contact ou groupe de contacts"
 
 msgid "Metaservice"
-msgstr "Méta-Service"
+msgstr "Métaservice"
 
 msgid "Select resource type"
 msgstr "Sélectionnez le type de ressource"
