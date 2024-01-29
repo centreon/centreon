@@ -134,7 +134,7 @@ When('the user clicks on the discard action', () => {
 });
 
 Then('the duplication action is cancelled', () => {
-  cy.get('.MuiTableRow-root.css-1b36c9s-row').should('have.length', 1);
+  cy.get('.MuiTableRow-root').eq(1).should('have.length', 1);
 });
 
 When('the user enters a name that is already taken', () => {
