@@ -18595,5 +18595,5 @@ msgid "You are going to delete <strong>{{name}}</strong> from the user list. Thi
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
 
-# msgid "Your comment has been sent!"
+# msgid "Your comment has been saved."
 # msgstr "Votre commentaire a été envoyé !"
