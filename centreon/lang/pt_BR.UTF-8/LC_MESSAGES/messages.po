@@ -17243,7 +17243,7 @@ msgstr ""
 # msgid "Open more filters"
 # msgstr ""
 
-# msgid "Close more filters"
+# msgid "Show fewer filters"
 # msgstr ""
 
 # msgid "Not yet implemented"
