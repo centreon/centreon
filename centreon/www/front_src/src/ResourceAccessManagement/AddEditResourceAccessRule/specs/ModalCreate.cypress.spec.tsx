@@ -278,7 +278,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that the Refine filter button is disabled and Add new dataset button is enabled when a dataset for service is setup', () => {
+  it('confirms that the Refine filter button is disabled and the Add new dataset button is enabled when a dataset for a service is selected', () => {
     cy.findByText(labelRefineFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
