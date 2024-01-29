@@ -600,7 +600,7 @@ describe('Criterias', () => {
         cy.get('[data-testid="Filter options"]').click();
 
         if (equals(label, 'Extended criterias')) {
-          cy.findByText(labelOpenMoreFilters).click();
+          cy.findByText(labelShowMoreFilters).click();
         }
 
         if (equals(type, Type.select)) {
