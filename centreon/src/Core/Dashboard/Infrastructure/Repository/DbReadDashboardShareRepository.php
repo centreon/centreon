@@ -483,6 +483,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON acltr.acl_topo_id = agtr.acl_topology_id
                     INNER JOIN `:db`.topology
                         ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
             SQL;
 
         $searchRequest = $sqlTranslator->translateSearchParameterToSql();
@@ -491,7 +493,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             : ' WHERE ';
 
         $query .= <<<SQL
-            topology.topology_page IN (10401,10402,10403)
+            parent.topology_name = 'Dashboards'
+                AND topology.topology_name IN ('Viewer','Editor','Creator')
                 AND gcr.acl_group_id IN ({$bindTokenAsString})
                 AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
