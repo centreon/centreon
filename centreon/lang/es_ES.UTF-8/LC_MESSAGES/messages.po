@@ -16774,7 +16774,7 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "Your comment has been sent!"
+# msgid "Your comment has been saved."
 # msgstr ""
 
 # msgid "Not yet implemented"
