@@ -2,7 +2,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   enableNotificationFeature,
   notificationSentCheck,
-  setBrokerNotificationsOutput
+  setBrokerNotificationsOutput,
+  waitUntilLogFileChange
 } from '../common';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
@@ -285,7 +286,7 @@ When('the hard state has been reached', () => {
 });
 
 When('the notification refresh_delay has been reached', () => {
-  cy.wait(5000);
+  waitUntilLogFileChange();
 });
 
 Then(

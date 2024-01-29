@@ -1,3 +1,5 @@
+import notificationBody from '../../fixtures/notifications/notification-creation.json';
+
 const enableNotificationFeature = (): Cypress.Chainable => {
   return cy.execInContainer({
     command: `sed -i 's@"notification" : 2@"notification" : 3@' /usr/share/centreon/config/features.json`,
@@ -5,7 +7,9 @@ const enableNotificationFeature = (): Cypress.Chainable => {
   });
 };
 
-const createNotification = (body): Cypress.Chainable => {
+const createNotification = (
+  body: typeof notificationBody
+): Cypress.Chainable => {
   return cy
     .request({
       method: 'POST',
@@ -17,7 +21,7 @@ const createNotification = (body): Cypress.Chainable => {
     });
 };
 
-const editNotification = (body): Cypress.Chainable => {
+const editNotification = (body: typeof notificationBody): Cypress.Chainable => {
   return cy
     .request({
       method: 'PUT',
@@ -34,7 +38,10 @@ interface Broker {
   configName: string;
 }
 
-const setBrokerNotificationsOutput = ({ name, configName }: Broker) => {
+const setBrokerNotificationsOutput = ({
+  name,
+  configName
+}: Broker): Cypress.Chainable => {
   // modify the content of the lua script
   const modifyLuaFileCommands = [
     `sed -i 's/aws_region = "eu-west-1"/aws_region = "us-east-1"/' /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`,
@@ -67,40 +74,48 @@ const setBrokerNotificationsOutput = ({ name, configName }: Broker) => {
     object: 'CENTBROKERCFG',
     values: `${configName}`
   };
-  cy.executeActionViaClapi({
-    bodyContent: getBrokerIOIdByNameBody
-  }).then((response) => {
-    const listBrokersIO = response.body.result;
-    const brokerIO = listBrokersIO.find((brokerIO) => brokerIO.name == name);
-    if (brokerIO) {
-      brokerIOID = brokerIO.id;
+  return cy
+    .executeActionViaClapi({
+      bodyContent: getBrokerIOIdByNameBody
+    })
+    .then((response) => {
+      const listBrokersIO = response.body.result;
+      const brokerIO = listBrokersIO.find((brokerIO) => brokerIO.name == name);
+      if (brokerIO) {
+        brokerIOID = brokerIO.id;
 
-      const setOutputPathBody = {
-        action: 'SETOUTPUT',
-        object: 'CENTBROKERCFG',
-        values: `${configName};${brokerIOID};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
-      };
-      cy.executeActionViaClapi({
-        bodyContent: setOutputPathBody
-      });
+        const setOutputPathBody = {
+          action: 'SETOUTPUT',
+          object: 'CENTBROKERCFG',
+          values: `${configName};${brokerIOID};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
+        };
+        cy.executeActionViaClapi({
+          bodyContent: setOutputPathBody
+        });
 
-      const setOutputCategoryBody = {
-        action: 'SETOUTPUT',
-        object: 'CENTBROKERCFG',
-        values: `${configName};${brokerIOID};category;neb`
-      };
-      cy.executeActionViaClapi({
-        bodyContent: setOutputCategoryBody
-      });
-    } else {
-      throw new Error(
-        `No input/output named ${name} found among config ${configName}`
-      );
-    }
-  });
+        const setOutputCategoryBody = {
+          action: 'SETOUTPUT',
+          object: 'CENTBROKERCFG',
+          values: `${configName};${brokerIOID};category;neb`
+        };
+        cy.executeActionViaClapi({
+          bodyContent: setOutputCategoryBody
+        });
+      } else {
+        throw new Error(
+          `No input/output named ${name} found among config ${configName}`
+        );
+      }
+    });
 };
 
-const notificationSentCheck = ({ log, contain = true }) => {
+const notificationSentCheck = ({
+  log,
+  contain = true
+}: {
+  log: string;
+  contain?: boolean;
+}): Cypress.Chainable => {
   return cy
     .execInContainer({
       command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
@@ -113,10 +128,39 @@ const notificationSentCheck = ({ log, contain = true }) => {
     });
 };
 
+const waitUntilLogFileChange = (): Cypress.Chainable => {
+  let initialContent;
+
+  return cy
+    .execInContainer({
+      command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
+      name: Cypress.env('dockerName')
+    })
+    .then((result) => {
+      initialContent = result.stdout.trim();
+
+      return cy.waitUntil(
+        () => {
+          return cy
+            .execInContainer({
+              command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
+              name: Cypress.env('dockerName')
+            })
+            .then((result) => {
+              const currentContent = result.stdout.trim();
+              return cy.wrap(currentContent !== initialContent);
+            });
+        },
+        { timeout: 40000, interval: 5000 }
+      );
+    });
+};
+
 export {
   createNotification,
   editNotification,
   enableNotificationFeature,
   notificationSentCheck,
-  setBrokerNotificationsOutput
+  setBrokerNotificationsOutput,
+  waitUntilLogFileChange
 };

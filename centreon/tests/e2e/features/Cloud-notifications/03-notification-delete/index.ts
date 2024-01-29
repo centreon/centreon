@@ -3,7 +3,8 @@ import {
   createNotification,
   enableNotificationFeature,
   notificationSentCheck,
-  setBrokerNotificationsOutput
+  setBrokerNotificationsOutput,
+  waitUntilLogFileChange
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
@@ -120,7 +121,7 @@ Then(
       }
     ]);
 
-    cy.wait(5000);
+    waitUntilLogFileChange();
 
     notificationSentCheck({ log: 'Notification on host 15', contain: false });
   }

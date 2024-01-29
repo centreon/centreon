@@ -4,7 +4,8 @@ import {
   editNotification,
   enableNotificationFeature,
   notificationSentCheck,
-  setBrokerNotificationsOutput
+  setBrokerNotificationsOutput,
+  waitUntilLogFileChange
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
@@ -145,7 +146,7 @@ When('the notification refresh delay has been reached', () => {
     }
   ]);
 
-  cy.wait(5000);
+  waitUntilLogFileChange();
 });
 
 Then(
