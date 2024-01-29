@@ -403,7 +403,7 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('submits the comment when the comment textfield is typed and the corresponding button is clicked', () => {
+  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
     cy.interceptAPIRequest({
       alias: 'sendsCommentRequest',
       method: Method.POST,
