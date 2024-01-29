@@ -84,6 +84,8 @@ const useColumns = (): {
       getFormattedString: ({ createdBy }): string => createdBy?.name,
       id: 'created_by',
       label: t(labelCreator),
+      sortField: 'created_by',
+      sortable: true,
       type: ColumnType.string
     },
     {
@@ -91,6 +93,8 @@ const useColumns = (): {
       getFormattedString: ({ createdAt }): string => createdAt?.slice(0, 10),
       id: 'created_at',
       label: t(labelCreationDate),
+      sortField: 'created_at',
+      sortable: true,
       type: ColumnType.string
     },
     {
@@ -98,6 +102,8 @@ const useColumns = (): {
       getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
       id: 'updated_at',
       label: t(labelLastUpdate),
+      sortField: 'updated_at',
+      sortable: true,
       type: ColumnType.string
     },
     ...(isViewer

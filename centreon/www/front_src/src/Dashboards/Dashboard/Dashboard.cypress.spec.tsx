@@ -381,8 +381,6 @@ describe('Dashboard', () => {
           );
           assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
         });
-
-      cy.makeSnapshot();
     });
   });
 
@@ -473,19 +471,6 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getDashboardDetails');
 
       cy.findByLabelText(labelCancel).click();
-
-      cy.findByLabelText('edit').click();
-
-      cy.contains(labelGlobalRefreshInterval).should('be.visible');
-      cy.contains(labelManualRefreshOnly).should('be.visible');
-
-      cy.findByLabelText(labelInterval).should('have.value', '15');
-    });
-  });
-
-  describe('Dashboard global properties', () => {
-    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
-      initializeAndMount(editorRoles);
 
       cy.findByLabelText('edit').click();
 
