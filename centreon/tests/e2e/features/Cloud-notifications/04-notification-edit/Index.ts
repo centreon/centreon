@@ -152,35 +152,28 @@ Then(
   'only notifications for status changes of the updated resource parameters are sent',
   () => {
     if (!notificationEnabled) {
-      notificationSentCheck('Notification on host 15').then(({ stdout }) => {
-        expect(stdout).to.not.contain('Notification on host 15');
+      notificationSentCheck({
+        log: 'Notification on host 15',
+        contain: false
       });
-      notificationSentCheck('Notification on service (15,27)').then(
-        ({ stdout }) => {
-          expect(stdout).to.not.contain('Notification on service (15,27)');
-        }
-      );
+      notificationSentCheck({
+        log: 'Notification on service (15,27)',
+        contain: false
+      });
       return;
     }
 
-    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
-      expect(stdout).to.contain('Notification on host 15');
-    });
+    notificationSentCheck({ log: 'Notification on host 15' });
 
     if (!notificationWithServices) {
-      notificationSentCheck('Notification on service (15,27)').then(
-        ({ stdout }) => {
-          expect(stdout).to.not.contain('Notification on service (15,27)');
-        }
-      );
+      notificationSentCheck({
+        log: 'Notification on service (15,27)',
+        contain: false
+      });
       return;
     }
 
-    notificationSentCheck('Notification on service (15,27)').then(
-      ({ stdout }) => {
-        expect(stdout).to.contain('Notification on service (15,27)');
-      }
-    );
+    notificationSentCheck({ log: 'Notification on service (15,27)' });
   }
 );
 
@@ -218,44 +211,31 @@ When(
 Then(
   'the notifications for status changes are sent only to the updated contact',
   () => {
-    notificationSentCheck(
-      '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
-    ).then(({ stdout }) => {
-      expect(stdout).to.not.contain(
-        '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
-      );
+    notificationSentCheck({
+      log: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]',
+      contain: false
     });
-    notificationSentCheck(
-      '[{"email_address":"guest@localhost","full_name":"Guest"}]'
-    ).then(({ stdout }) => {
-      expect(stdout).to.contain(
-        '[{"email_address":"guest@localhost","full_name":"Guest"}]'
-      );
+    notificationSentCheck({
+      log: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
     });
   }
 );
 
 Then('{string} notification is sent for this rule once', (prefix) => {
   if (!notificationEnabled) {
-    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
-      expect(stdout).to.not.contain('Notification on host 15');
+    notificationSentCheck({
+      log: 'Notification on host 15',
+      contain: false
     });
-    notificationSentCheck('Notification on service (15,27)').then(
-      ({ stdout }) => {
-        expect(stdout).to.not.contain('Notification on service (15,27)');
-      }
-    );
+    notificationSentCheck({
+      log: 'Notification on service (15,27)',
+      contain: false
+    });
     return;
   }
 
-  notificationSentCheck('Notification on host 15').then(({ stdout }) => {
-    expect(stdout).to.contain('Notification on host 15');
-  });
-  notificationSentCheck('Notification on service (15,27)').then(
-    ({ stdout }) => {
-      expect(stdout).to.contain('Notification on service (15,27)');
-    }
-  );
+  notificationSentCheck({ log: 'Notification on host 15' });
+  notificationSentCheck({ log: 'Notification on service (15,27)' });
 });
 
 When('the user {string} the Notification Rule', (action) => {

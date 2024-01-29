@@ -293,29 +293,15 @@ Then(
   (contactSettings) => {
     switch (contactSettings) {
       case 'a single contact':
-        notificationSentCheck('Notification on host 16').then(({ stdout }) => {
-          expect(stdout).to.contain('Notification on host 16');
-        });
-        notificationSentCheck(
-          `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
-        ).then(({ stdout }) => {
-          expect(stdout).to.contain(
-            `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
-          );
+        notificationSentCheck({ log: 'Notification on host 16' });
+        notificationSentCheck({
+          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
         });
         break;
       case 'two contacts':
-        notificationSentCheck('Notification on service (15,27)').then(
-          ({ stdout }) => {
-            expect(stdout).to.contain('Notification on service (15,27)');
-          }
-        );
-        notificationSentCheck(
-          `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
-        ).then(({ stdout }) => {
-          expect(stdout).to.contain(
-            `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
-          );
+        notificationSentCheck({ log: 'Notification on service (15,27)' });
+        notificationSentCheck({
+          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
     }

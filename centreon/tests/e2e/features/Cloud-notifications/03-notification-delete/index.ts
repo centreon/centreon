@@ -122,9 +122,7 @@ Then(
 
     cy.wait(5000);
 
-    notificationSentCheck('Notification on host 15').then(({ stdout }) => {
-      expect(stdout).to.not.contain('Notification on host 15');
-    });
+    notificationSentCheck({ log: 'Notification on host 15', contain: false });
   }
 );
 
