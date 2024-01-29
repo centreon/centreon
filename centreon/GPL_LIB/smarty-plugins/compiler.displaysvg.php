@@ -20,16 +20,10 @@
  */
 
 /**
- * This plugin exists to avoid using the deprecated {php} tag
- * when we use it only for the {@see displaySvg()} function.
+ * This plugin is a wrapper around the function {@see displaySvg()}
+ * which cannot be called directly from the templates.
  *
- * Before <pre>
- *     {php}
- *     displaySvg('SVG-PATH', '#COLOR', 200.0, 300.0);
- *     {/php}
- * </pre>
- *
- * After <pre>
+ * Usage: <pre>
  *     {displaysvg svgPath='SVG-PATH' color='#COLOR' height=200.0 width=300.0}
  * </pre>
  */

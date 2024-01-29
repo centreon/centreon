@@ -24,16 +24,7 @@
             ],
             "properties": {
                 "type": {
-                    "type": "string",
-                    "enum": [
-                        "host",
-                        "hostgroup",
-                        "host_category",
-                        "service",
-                        "servicegroup",
-                        "service_category",
-                        "meta_service"
-                    ]
+                    "type": "string"
                 },
                 "resources": {
                     "type": "array",
@@ -62,15 +53,13 @@
             "type": "array",
             "items": {
                 "type": "integer"
-            },
-            "minItems": 1
+            }
         },
         "contact_groups": {
             "type": "array",
             "items": {
                 "type": "integer"
-            },
-            "minItems": 1
+            }
         },
         "dataset_filters": {
             "type": "array",

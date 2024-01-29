@@ -1,6 +1,7 @@
 {
   "title": "Status grid",
   "description": "Displays a status overview for selected resources.",
+  "icon": "<rect x=\"6.51\" y=\"6\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"6.51\" y=\"32\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"32.51\" y=\"32\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect><rect x=\"32.51\" y=\"6\" width=\"22\" height=\"22\" rx=\"4\" ry=\"4\"></rect>",
   "options": {
     "resourceType": {
       "type": "radio",

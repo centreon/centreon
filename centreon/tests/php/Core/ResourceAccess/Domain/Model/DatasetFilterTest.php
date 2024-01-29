@@ -25,18 +25,38 @@ namespace Tests\Core\ResourceAccess\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
-use Core\ResourceAccess\Domain\Model\DatasetFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilterTypeConverter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 
 beforeEach(function (): void {
-    $this->datasetFilter = new DatasetFilter(type: 'host', resourceIds: [1, 2]);
+    foreach ([
+        HostFilterType::class,
+        HostGroupFilterType::class,
+        HostCategoryFilterType::class,
+        ServiceFilterType::class,
+        ServiceGroupFilterType::class,
+        ServiceCategoryFilterType::class,
+        MetaServiceFilterType::class,
+    ] as $className) {
+        $this->filterTypes[] = new $className();
+    }
+
+    $this->validator = new DatasetFilterValidator(new \ArrayObject($this->filterTypes));
+    $this->datasetFilter = new DatasetFilter(type: 'host', resourceIds: [1, 2], validator: $this->validator);
 });
 
 it('should return properly set DatasetFilter instance (all properties)', function (): void {
     $datasetFilter = new DatasetFilter(
         type: 'hostgroup',
-        resourceIds: [1]
+        resourceIds: [1],
+        validator: $this->validator
     );
 
     $datasetFilter->setDatasetFilter($this->datasetFilter);
@@ -51,7 +71,8 @@ it('should return properly set DatasetFilter instance (all properties)', functio
 it('should throw an exception when dataset type is not an empty string', function (): void {
     new DatasetFilter(
         type: '',
-        resourceIds: [1]
+        resourceIds: [1],
+        validator: $this->validator
     );
 })->throws(
     InvalidArgumentException::class,
@@ -61,17 +82,19 @@ it('should throw an exception when dataset type is not an empty string', functio
 it('should throw an exception when dataset type is not part of allowed types', function (): void {
     new DatasetFilter(
         type: 'typo',
-        resourceIds: [1]
+        resourceIds: [1],
+        validator: $this->validator
     );
 })->throws(
     \InvalidArgumentException::class,
-    '"typo" is not a valid string for enum DatasetFilterType'
+    'Value provided is not supported for dataset filter type (was: typo)'
 );
 
 it('should throw an exception when resources is an empty array', function (): void {
     new DatasetFilter(
         type: 'host',
-        resourceIds: []
+        resourceIds: [],
+        validator: $this->validator
     );
 })->throws(
     InvalidArgumentException::class,
@@ -81,7 +104,8 @@ it('should throw an exception when resources is an empty array', function (): vo
 it('should throw an exception when resources is an array of not integers', function (): void {
     new DatasetFilter(
         type: 'host',
-        resourceIds: ['resource1', 'resource2']
+        resourceIds: ['resource1', 'resource2'],
+        validator: $this->validator
     );
 })->throws(
     InvalidArgumentException::class,
@@ -91,18 +115,18 @@ it('should throw an exception when resources is an array of not integers', funct
 // Host hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Host),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostCategoryFilterType::TYPE_NAME,
+        HostGroupFilterType::TYPE_NAME,
+        HostFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for host parent filter with {$type} as child",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('host', [1, 2]);
+            $datasetFilter = new DatasetFilter('host', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
@@ -114,16 +138,16 @@ foreach (
 // Hostgroups hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostGroupFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for hostgroup parent filter with {$type} as child",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('hostgroup', [1, 2]);
+            $datasetFilter = new DatasetFilter('hostgroup', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
@@ -135,16 +159,16 @@ foreach (
 // HostCategory hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostCategoryFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for host_category parent filter with {$type} as child",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('host_category', [1, 2]);
+            $datasetFilter = new DatasetFilter('host_category', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
@@ -156,71 +180,71 @@ foreach (
 // Service hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Host),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Servicegroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::ServiceCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Service),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostGroupFilterType::TYPE_NAME,
+        HostFilterType::TYPE_NAME,
+        HostCategoryFilterType::TYPE_NAME,
+        ServiceGroupFilterType::TYPE_NAME,
+        ServiceCategoryFilterType::TYPE_NAME,
+        ServiceFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for service parent filter with {$type} as child (no sub-filter possible)",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('service', [1, 2]);
+            $datasetFilter = new DatasetFilter('service', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
         \InvalidArgumentException::class,
-        'service filter type cannot have sub-filter set'
+        "Dataset filter hierarchy assertion failed ({$type} not a sub-filter of service)"
     );
 }
 
 // MetaService hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Host),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Servicegroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::ServiceCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Service),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostGroupFilterType::TYPE_NAME,
+        HostFilterType::TYPE_NAME,
+        HostCategoryFilterType::TYPE_NAME,
+        ServiceGroupFilterType::TYPE_NAME,
+        ServiceCategoryFilterType::TYPE_NAME,
+        ServiceFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for meta_service parent filter with {$type} as child (no sub-filter possible)",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('meta_service', [1, 2]);
+            $datasetFilter = new DatasetFilter('meta_service', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
         \InvalidArgumentException::class,
-        'service filter type cannot have sub-filter set'
+        "Dataset filter hierarchy assertion failed ({$type} not a sub-filter of meta_service)"
     );
 }
 
 // Servicegroup hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Host),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Servicegroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostGroupFilterType::TYPE_NAME,
+        HostFilterType::TYPE_NAME,
+        HostCategoryFilterType::TYPE_NAME,
+        ServiceGroupFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for servicegroup parent filter with {$type} as child",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('servicegroup', [1, 2]);
+            $datasetFilter = new DatasetFilter('servicegroup', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
@@ -232,19 +256,19 @@ foreach (
 // ServiceCategory hierarchy validation
 foreach (
     [
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Hostgroup),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::Host),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::HostCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::ServiceCategory),
-        DatasetFilterTypeConverter::toString(DatasetFilterType::MetaService),
+        HostGroupFilterType::TYPE_NAME,
+        HostFilterType::TYPE_NAME,
+        HostCategoryFilterType::TYPE_NAME,
+        ServiceCategoryFilterType::TYPE_NAME,
+        MetaServiceFilterType::TYPE_NAME,
     ] as $type
 ) {
     it(
         "should throw an exception for service_category parent filter with {$type} as child",
         function () use ($type): void {
-            $datasetFilter = new DatasetFilter('service_category', [1, 2]);
+            $datasetFilter = new DatasetFilter('service_category', [1, 2], $this->validator);
             $datasetFilter->setDatasetFilter(
-                new DatasetFilter($type, [3, 4])
+                new DatasetFilter($type, [3, 4], $this->validator)
             );
         }
     )->throws(
