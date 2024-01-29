@@ -12,7 +12,7 @@ export const labelRuleProperies = 'Rule properties';
 export const labelResourceSelection = 'Resource selection';
 export const labelContacts = 'Contacts';
 export const labelContactGroups = 'Contact Groups';
-export const labelContactsAndContactGroups = 'Contacts / Contact groups';
+export const labelContactsAndContactGroups = 'Contacts/Contact groups';
 export const labelResourceAccessRuleAddedSuccess =
   'The resource access rule was successfully created';
 export const labelResourceAccessRuleEditedSuccess =
