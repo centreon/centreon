@@ -44,7 +44,7 @@ const useLoadResources = ({
         limit: limit || 10,
         page: page || 1,
         resources,
-        sort,
+        sort: sort || { status_severity_code: SortOrder.Desc },
         states,
         statuses,
         type: displayType
