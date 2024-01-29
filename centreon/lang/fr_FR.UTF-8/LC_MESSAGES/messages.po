@@ -18596,4 +18596,4 @@ msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la lis
 
 
 # msgid "Your comment has been saved."
-# msgstr "Votre commentaire a été envoyé !"
+# msgstr "Votre commentaire a été enregistré."
