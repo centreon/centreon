@@ -18625,4 +18625,4 @@ msgid "Metaservice"
 msgstr "Métaservice"
 
 msgid "Select resource type"
-msgstr "Sélectionnez le type de ressource"
+msgstr "Sélectionnez un type de ressource"
