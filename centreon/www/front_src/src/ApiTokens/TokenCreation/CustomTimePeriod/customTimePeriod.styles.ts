@@ -4,10 +4,12 @@ interface StyleProps {
   windowHeight: number;
 }
 
+const actionsHeight = 36;
+
 export const useStyles = makeStyles<StyleProps>()(
   (theme, { windowHeight }) => ({
     popper: {
-      height: windowHeight / 2,
+      height: (windowHeight - actionsHeight) / 2,
       overflow: 'auto'
     },
     root: {
