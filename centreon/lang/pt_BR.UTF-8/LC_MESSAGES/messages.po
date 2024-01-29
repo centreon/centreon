@@ -17273,7 +17273,7 @@ msgstr ""
 # msgid "Resource selection"
 # msgstr ""
 
-# msgid "Contacts / Contact groups"
+# msgid "Contacts/Contact groups"
 # msgstr ""
 
 # msgid "The resource access rule was successfully added"
