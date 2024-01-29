@@ -16774,6 +16774,10 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
+# msgid "Not yet implemented"
 # msgstr ""
 
 # msgid "View as list"
@@ -16783,4 +16787,13 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Edit properties"
+# msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""

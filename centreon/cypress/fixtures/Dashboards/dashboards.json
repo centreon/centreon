@@ -14,7 +14,23 @@
         "id": 1,
         "name": "Arnaud"
       },
-      "own_role": "editor"
+      "own_role": "editor",
+      "shares": {
+        "contacts": [
+          {
+            "id": 1,
+            "name": "Kevin",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 3,
+            "name": "Developers",
+            "role": "editor"
+          }
+        ]
+      }
     },
     {
       "id": 2,
@@ -30,7 +46,11 @@
         "id": 2,
         "name": "Tom"
       },
-      "own_role": "viewer"
+      "own_role": "viewer",
+      "shares": {
+        "contacts": [],
+        "contact_groups": []
+      }
     }
   ],
   "meta": {

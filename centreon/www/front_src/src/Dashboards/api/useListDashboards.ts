@@ -18,7 +18,7 @@ import { dashboardListDecoder } from './decoders';
 import { List } from './meta.models';
 
 type UseListDashboards = {
-  data?: List<Dashboard>;
+  data?: List<Omit<Dashboard, 'refresh'>>;
   isLoading: boolean;
 };
 
@@ -39,8 +39,11 @@ const useListDashboards = (): UseListDashboards => {
     }
   };
 
-  const { data, isLoading } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
+  const { data, isLoading, isFetching } = useFetchQuery<
+    List<Omit<Dashboard, 'refresh'>>
+  >({
     decoder: dashboardListDecoder,
+    doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsEndpoint,
@@ -70,7 +73,7 @@ const useListDashboards = (): UseListDashboards => {
 
   return {
     data,
-    isLoading
+    isLoading: isLoading || isFetching
   };
 };
 
