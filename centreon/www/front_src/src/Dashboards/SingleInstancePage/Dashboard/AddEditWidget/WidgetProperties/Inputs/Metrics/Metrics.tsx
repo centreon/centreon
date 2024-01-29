@@ -20,7 +20,7 @@ import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { singleMetricSelectionAtom } from '../../../atoms';
 
 import useMetrics from './useMetrics';
@@ -49,7 +49,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     metricWithSeveralResources
   } = useMetrics(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
 
   const canDisplayMetricsSelection =

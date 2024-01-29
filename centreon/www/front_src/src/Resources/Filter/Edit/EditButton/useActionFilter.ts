@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   and,
@@ -31,6 +33,7 @@ import { Filter } from '../../models';
 interface UseActionFilter {
   canSaveFilter: boolean;
   canSaveFilterAsNew: boolean;
+  isFilterUpdated: boolean;
   isNewFilter: boolean;
   loadFiltersAndUpdateCurrent: (data: Filter) => void;
   sendingListCustomFiltersRequest: boolean;
@@ -40,6 +43,7 @@ interface UseActionFilter {
 
 const useActionFilter = (): UseActionFilter => {
   const { t } = useTranslation();
+  const [isFilterUpdated, setIsFilterUpdated] = useState(false);
   const {
     sendRequest: sendUpdateFilterRequest,
     sending: sendingUpdateFilterRequest
@@ -69,9 +73,9 @@ const useActionFilter = (): UseActionFilter => {
     ) => boolean;
     const retrievedFilter = find(propEq(currentFilter.id, 'id'), filters);
 
-    const criteriasCurrentFilter = currentFilter.criterias?.map((element) => ({
-      ...element
-    }));
+    const criteriasCurrentFilter = currentFilter.criterias?.map((element) =>
+      omit(['search_data'], element)
+    );
     const criteriasFilters = (retrievedFilter?.criterias || [])?.map(
       (element) => element
     );
@@ -85,7 +89,7 @@ const useActionFilter = (): UseActionFilter => {
 
   const loadCustomFilters = (): Promise<Array<Filter>> => {
     return sendListCustomFiltersRequest().then(({ result }) => {
-      setCustomFilters(result.map(omit(['order'])));
+      setCustomFilters(result.map(omit(['order', 'search_data'])));
 
       return result;
     });
@@ -94,10 +98,12 @@ const useActionFilter = (): UseActionFilter => {
   const loadFiltersAndUpdateCurrent = (newFilter: Filter): void => {
     loadCustomFilters?.().then(() => {
       applyFilter(newFilter);
+      setIsFilterUpdated(true);
     });
   };
 
   const updateFilter = (): void => {
+    setIsFilterUpdated(false);
     sendUpdateFilterRequest({
       filter: omit(['id'], currentFilter),
       id: currentFilter.id
@@ -110,6 +116,7 @@ const useActionFilter = (): UseActionFilter => {
   return {
     canSaveFilter,
     canSaveFilterAsNew,
+    isFilterUpdated,
     isNewFilter,
     loadFiltersAndUpdateCurrent,
     sendingListCustomFiltersRequest,

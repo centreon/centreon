@@ -24,7 +24,7 @@ import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
-import { editProperties } from './hooks/useCanEditDashboard';
+import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
 
@@ -44,7 +44,7 @@ const Dashboard = (): ReactElement => {
   const setRefreshCounts = useSetAtom(refreshCountsAtom);
   const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const refreshAllWidgets = (): void => {
     setRefreshCounts((prev) => {

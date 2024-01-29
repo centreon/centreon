@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { find, propEq } from 'ramda';
+import parse from 'html-react-parser';
 
-import { Box, ListItemText } from '@mui/material';
+import { Box, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
+import WidgetsIcon from '@mui/icons-material/Widgets';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { Avatar } from '@centreon/ui/components';
 
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 
 import useWidgetSelection from './useWidgetSelection';
@@ -22,7 +24,7 @@ const WidgetSelection = (): JSX.Element => {
   const { options, widgets, searchWidgets, selectWidget, selectedWidget } =
     useWidgetSelection();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const renderOption = (renderProps, option): JSX.Element => {
     const widget = find(
@@ -32,6 +34,23 @@ const WidgetSelection = (): JSX.Element => {
 
     return (
       <li {...renderProps}>
+        <ListItemIcon>
+          {widget.icon ? (
+            <SvgIcon
+              className={classes.widgetIcon}
+              color="inherit"
+              data-icon={widget.title}
+              viewBox="0 0 60 60"
+            >
+              {parse(widget.icon)}
+            </SvgIcon>
+          ) : (
+            <WidgetsIcon
+              className={classes.widgetIcon}
+              data-icon={`default-${widget.title}`}
+            />
+          )}
+        </ListItemIcon>
         <ListItemText
           primary={t(widget.title)}
           secondary={t(widget.description)}
