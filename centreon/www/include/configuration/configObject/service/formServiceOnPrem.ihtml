@@ -106,7 +106,7 @@
                 <img class="helpTooltip" name="check_command_args">{$form.command_command_id_arg.label}
             </td>
             <td class="FormRowValue">
-                {if isset($form.hiddenArg) && isset($argChecker)}
+                {if isset($argChecker)}
                     {$form.hiddenArg.html}{$argChecker}
                 {/if}
                 <div id='dynamicDiv'></div>
