@@ -18609,7 +18609,7 @@ msgstr "Sélection des ressources"
 msgid "Contacts / Contact groups"
 msgstr "Contacts / Groupes de contacts"
 
-msgid "The resource access rule was successfully added"
+msgid "The resource access rule was successfully created"
 msgstr "La règle d'accès aux ressources a été créée avec succès"
 
 msgid "The resource access rule was successfully updated"
