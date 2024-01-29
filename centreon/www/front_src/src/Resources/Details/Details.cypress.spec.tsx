@@ -403,7 +403,7 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('Submit the comment by typing in the comment area and clicking the "Save" button.', () => {
+  it('submits the comment when the comment textfield is typed and the corresponding button is clicked', () => {
     cy.interceptAPIRequest({
       alias: 'sendsCommentRequest',
       method: Method.POST,
