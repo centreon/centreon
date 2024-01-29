@@ -18572,3 +18572,27 @@ msgstr "Jeton"
 
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
+
+msgid "Delete user"
+msgstr "Supprimer un utilisateur"
+
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
