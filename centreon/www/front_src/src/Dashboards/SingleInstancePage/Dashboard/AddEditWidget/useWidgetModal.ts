@@ -16,7 +16,7 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 
 import {
   customBaseColorAtom,
@@ -42,7 +42,7 @@ interface useWidgetModalState {
 const useWidgetModal = (): useWidgetModalState => {
   const { t } = useTranslation();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const [askingBeforeCloseModal, setAskingBeforeCloseModal] = useState(false);
 
