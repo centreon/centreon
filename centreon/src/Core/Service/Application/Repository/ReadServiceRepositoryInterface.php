@@ -112,7 +112,7 @@ interface ReadServiceRepositoryInterface
     public function findById(int $serviceId): ?Service;
 
     /**
-     * Find services based on given IDs
+     * Find services based on given IDs.
      *
      * @param int ...$serviceIds
      *
@@ -123,7 +123,7 @@ interface ReadServiceRepositoryInterface
     public function findByIds(int ...$serviceIds): array;
 
     /**
-     * Find all services
+     * Find all services.
      *
      * @throws \Throwable
      *
