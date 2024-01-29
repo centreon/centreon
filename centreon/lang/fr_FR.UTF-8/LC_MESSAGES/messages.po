@@ -18576,7 +18576,7 @@ msgstr "Le jeton a été créé"
 msgid "Show more filters"
 msgstr "Afficher plus de filtres"
 
-msgid "Close more filters"
+msgid "Show fewer filters"
 msgstr "Afficher moins de filtres"
 
 msgid "Not yet implemented"
