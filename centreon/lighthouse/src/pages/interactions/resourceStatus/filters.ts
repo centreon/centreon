@@ -40,8 +40,8 @@ export const generateReportForResourceStatusPageFilterInteraction = async ({
   await snapshot('Resource Status with basic filters Snapshot');
 
   await startTimespan('Display extended filters');
-  const openMoreFiltersButton = await getByText($document,/Open more filters/i)
-  openMoreFiltersButton.click()
+  const showMoreFiltersButton = await getByText($document,/Show more filters/i)
+  showMoreFiltersButton.click()
   await endTimespan();
 
   await snapshot('Resource Status with basic and extended filters Snapshot');
