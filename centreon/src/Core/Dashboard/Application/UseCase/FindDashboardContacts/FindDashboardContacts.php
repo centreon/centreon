@@ -64,11 +64,9 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $this->contact->isAdmin()
-                    ? $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
-                        $this->requestParameters
-                    )
-                    : $users = $this->findContactsAsNonAdmin();
+                $users = $this->contact->isAdmin()
+                    ? $this->findContactAsAdmin()
+                    : $this->findContactsAsNonAdmin();
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(
@@ -104,6 +102,25 @@ final class FindDashboardContacts
         }
 
         return $response;
+    }
+
+    /**
+     * Find contacts with their Dashboards roles.
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactRole[]
+     */
+    private function findContactAsAdmin(): array
+    {
+        $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
+            $this->requestParameters
+        );
+        $admins = $this->readDashboardShareRepository->findDashboardAdminWithRequestParameters(
+            $this->requestParameters
+        );
+
+        return [...$users, ...$admins];
     }
 
     /**
