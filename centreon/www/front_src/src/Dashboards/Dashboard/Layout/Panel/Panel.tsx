@@ -10,7 +10,7 @@ import {
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 
@@ -34,7 +34,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const isEditing = useAtomValue(isEditingAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
   const { saveDashboard } = useSaveDashboard();
 
   const panelOptionsAndData = getPanelOptionsAndData(id);

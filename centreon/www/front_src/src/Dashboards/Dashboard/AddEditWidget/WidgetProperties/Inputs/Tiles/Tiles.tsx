@@ -9,7 +9,7 @@ import { NumberField } from '@centreon/ui';
 
 import { getProperty } from '../utils';
 import { Widget, WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
@@ -20,7 +20,7 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const { values, setFieldValue } = useFormikContext<Widget>();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const value = useMemo<number | undefined>(
     () => getProperty({ obj: values, propertyName }),

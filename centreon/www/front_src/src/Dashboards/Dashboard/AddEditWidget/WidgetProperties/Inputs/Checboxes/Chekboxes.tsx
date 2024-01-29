@@ -5,7 +5,7 @@ import { FormControlLabel, FormGroup, Checkbox } from '@mui/material';
 import { Button } from '@centreon/ui/components';
 
 import { WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
 
 import { useCheckboxes } from './useCheckboxes';
@@ -20,7 +20,7 @@ const WidgetCheckboxes = ({
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const {
     isChecked,
