@@ -1,5 +1,4 @@
 import { head, pluck } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
@@ -24,8 +23,6 @@ const WidgetLineChart = ({
   globalRefreshInterval,
   refreshCount
 }: Props): JSX.Element => {
-  const { t } = useTranslation();
-
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval: panelOptions.refreshInterval,

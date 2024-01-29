@@ -17,7 +17,7 @@ interface Props {
     displayAsRaw?: boolean;
     thresholds;
   };
-  singleMetricGraphyType: SingleMetricGraphyType;
+  singleMetricGraphType: SingleMetricGraphyType;
 }
 
 const SingleMetricRenderer = ({
