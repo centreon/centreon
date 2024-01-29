@@ -78,7 +78,8 @@ const useColumns = ({
       rowMemoProps: ['icon', 'short_type', 'name'],
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'max-content'
     },
     {
       Component: equals(displayType, DisplayType.Host)
