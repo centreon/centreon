@@ -152,10 +152,10 @@ describe('TopBottom', () => {
       );
     });
 
-    cy.contains('#1 Centreon_server_1_Ping').should('be.visible');
-    cy.contains('#2 Centreon_server_2_Ping').should('be.visible');
-    cy.contains('#3 Centreon_server_3_Ping').should('be.visible');
-    cy.contains('#4 Centreon_server_4_Ping').should('be.visible');
+    cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+    cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
+    cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
+    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
 
     cy.contains('10 B').should('be.visible');
     cy.contains('20 B').should('be.visible');
@@ -190,10 +190,10 @@ describe('TopBottom', () => {
       }
     });
 
-    cy.contains('#1 Centreon_server_1_Ping').should('be.visible');
-    cy.contains('#2 Centreon_server_2_Ping').should('be.visible');
-    cy.contains('#3 Centreon_server_3_Ping').should('be.visible');
-    cy.contains('#4 Centreon_server_4_Ping').should('be.visible');
+    cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+    cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
+    cy.contains('#3 Centreon_server_Ping_3').should('be.visible');
+    cy.contains('#4 Centreon_server_Ping_4').should('be.visible');
 
     cy.contains('10 B').should('not.exist');
     cy.contains('20 B').should('not.exist');
