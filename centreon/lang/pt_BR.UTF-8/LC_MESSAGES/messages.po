@@ -17240,6 +17240,12 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
 # msgid "Select a dataset to display the preview."
 # msgstr ""
 
@@ -17263,3 +17269,4 @@ msgstr ""
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""
+

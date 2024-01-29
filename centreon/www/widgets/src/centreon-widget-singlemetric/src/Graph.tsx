@@ -11,7 +11,7 @@ import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
-import { FormThreshold, SingleMetricGraphyType, ValueFormat } from './models';
+import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
@@ -23,7 +23,7 @@ interface Props {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
-  singleMetricGraphType: SingleMetricGraphyType;
+  singleMetricGraphType: SingleMetricGraphType;
   threshold: FormThreshold;
   valueFormat: ValueFormat;
 }
