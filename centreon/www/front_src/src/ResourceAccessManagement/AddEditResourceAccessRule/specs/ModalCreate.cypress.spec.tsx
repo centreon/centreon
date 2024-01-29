@@ -322,7 +322,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('confirms that on click of Delete dataset icon when two datasets are setup, the icon dissappears', () => {
+  it('confirms that on click of Delete dataset icon when two datasets are selected, the icon disappears', () => {
     fillFormRequiredFields();
 
     cy.findAllByTestId('Delete').should('be.visible');
