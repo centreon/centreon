@@ -391,7 +391,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         ON acltr.acl_topo_id = agtr.acl_topology_id
                     INNER JOIN `:db`.topology
                         ON topology.topology_id = acltr.topology_topology_id
-                    INNER JOIN `:db`.topology parent 
+                    INNER JOIN `:db`.topology parent
                         ON topology.topology_parent = parent.topology_page
             SQL;
 
