@@ -16774,6 +16774,27 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+# msgstr ""
+
 # msgid "Create a new resource access rule"
 # msgstr ""
 

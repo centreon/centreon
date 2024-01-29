@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Application\Common\Session\Repository\ReadSessionRepositoryInterface;
 
 class SystemReadSessionRepository implements ReadSessionRepositoryInterface
@@ -32,7 +33,7 @@ class SystemReadSessionRepository implements ReadSessionRepositoryInterface
      */
     public function findSessionIdsByUserId(int $userId): array
     {
-        throw RepositoryException::notImplemented(__METHOD__);
+        throw RepositoryException::notYetImplemented();
     }
 
     /**

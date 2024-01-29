@@ -19,6 +19,9 @@ import { router } from '../Tile';
 
 import {
   hostOptions,
+  linkToAllRessource,
+  linkToResourceCentreonPass,
+  linkToResourcePing,
   noResources,
   resources,
   seeMoreOptions,
@@ -383,7 +386,7 @@ const initializeSeeMore = (): void => {
   });
 };
 
-describe('See more', () => {
+describe('Link to resource status page', () => {
   beforeEach(initializeSeeMore);
 
   it('displays a see more tile when not all resources are displayed', () => {
@@ -393,13 +396,29 @@ describe('See more', () => {
     cy.makeSnapshot();
   });
 
+  it('navigates to the resource with predefined filters when resource tile is clicked', () => {
+    cy.contains('Ping').should('be.visible');
+
+    cy.findByTestId('link to Ping').should(
+      'have.attr',
+      'href',
+      linkToResourcePing
+    );
+
+    cy.findByTestId('link to Centreon_Pass').should(
+      'have.attr',
+      'href',
+      linkToResourceCentreonPass
+    );
+  });
+
   it('navigates to resources with predefined filters when the see more tile is clicked', () => {
     cy.contains('Ping').should('be.visible');
-    cy.contains(labelSeeMore).click();
 
-    cy.get('@navigate').should(
-      'be.calledWith',
-      '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"OK","name":"Ok"},{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[{"id":"acknowledged","name":"Acknowledged"}]},{"name":"parent_name","value":[{"id":"Host","name":"Host"}]},{"name":"host_group","value":[{"id":"HG1","name":"HG1"},{"id":"HG2","name":"HG2"}]},{"name":"search","value":""}]}&fromTopCounter=true'
+    cy.findByLabelText(labelSeeMore).should(
+      'have.attr',
+      'href',
+      linkToAllRessource
     );
   });
 });
