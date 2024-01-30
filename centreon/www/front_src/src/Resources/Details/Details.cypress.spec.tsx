@@ -580,7 +580,7 @@ describe('Details', () => {
     cy.findByTestId('commentArea').should('be.visible');
     cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
     cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
-    cy.findByTestId('addComment').scrollIntoView();
+    cy.findByTestId('headerWrapper').scrollIntoView();
 
     cy.makeSnapshot();
   });
@@ -618,7 +618,7 @@ describe('Details', () => {
     });
 
     cy.contains(labelYourCommentSent);
-    cy.findByTestId('addComment').scrollIntoView();
+    cy.findByTestId('headerWrapper').scrollIntoView();
 
     cy.makeSnapshot();
   });
@@ -645,7 +645,7 @@ describe('Details', () => {
       .click();
 
     cy.findByTestId('commentArea').should('not.exist');
-    cy.findByTestId('addComment').scrollIntoView();
+    cy.findByTestId('headerWrapper').scrollIntoView();
 
     cy.makeSnapshot();
   });
