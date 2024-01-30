@@ -138,7 +138,7 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
     <InfiniteScroll
       details={details}
       filter={
-        <Stack spacing={0.5}>
+        <Stack data-testid="headerWrapper" spacing={0.5}>
           <Paper className={classes.filterHeader}>
             <TimePeriodButtonGroup disableGraphOptions disablePaper />
             <MultiAutocompleteField

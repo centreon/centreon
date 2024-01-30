@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
-import { all, head, pathEq } from 'ramda';
+import { all, equals, head, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import IconDisacknowledge from '@mui/icons-material/ConfirmationNumber';
 import IconMore from '@mui/icons-material/MoreHoriz';
 import IconAcknowledge from '@mui/icons-material/Person';
 
@@ -24,9 +25,14 @@ import {
 import {
   resourcesToAcknowledgeAtom,
   resourcesToDisacknowledgeAtom,
-  resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
+  resourcesToSetDowntimeAtom
 } from '../actionsAtoms';
+import {
+  Action,
+  CheckActionModel,
+  ExtraActionsInformation,
+  ResourceActions
+} from '../model';
 
 import AcknowledgeForm from './Acknowledge';
 import useAclQuery from './aclQuery';
@@ -47,18 +53,75 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ResourceActions = (): JSX.Element => {
-  const { classes } = useStyles();
+const ResourceActions = ({
+  resources,
+  success,
+  mainActions,
+  secondaryActions,
+  displayCondensed = false
+}: ResourceActions): JSX.Element => {
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
+
+  const extractActionsInformation = ({
+    key,
+    arrayActions
+  }: ExtraActionsInformation):
+    | Record<string, boolean | undefined>
+    | Record<string, never> => {
+    const item = arrayActions.find(({ action }) => action === key);
+
+    return item
+      ? {
+          [`extraDisabled${key}`]: item.extraRules?.disabled,
+          [`display${key}`]: true,
+          [`extraPermitted${key}`]: item.extraRules?.permitted
+        }
+      : {};
+  };
+
+  const {
+    displayAcknowledge,
+    extraDisabledAcknowledge,
+    extraPermittedAcknowledge
+  } = extractActionsInformation({
+    arrayActions: mainActions.actions,
+    key: Action.Acknowledge
+  });
+
+  const { displayCheck } = extractActionsInformation({
+    arrayActions: mainActions.actions,
+    key: Action.Check
+  });
+
+  const extraCheckData = (
+    mainActions.actions.find(({ action }) =>
+      equals(action, Action.Check)
+    ) as CheckActionModel
+  )?.data;
+
+  const {
+    displayDisacknowledge,
+    extraDisabledDisacknowledge,
+    extraPermittedDisacknowledge
+  } = extractActionsInformation({
+    arrayActions: mainActions.actions,
+    key: Action.Disacknowledge
+  });
+
+  const { displayDowntime, extraDisabledDowntime, extraPermittedDowntime } =
+    extractActionsInformation({
+      arrayActions: mainActions.actions,
+      key: Action.Downtime
+    });
+
+  const moreActions = secondaryActions?.length > 0;
 
   const [resourceToSubmitStatus, setResourceToSubmitStatus] =
     useState<Resource | null>();
   const [resourceToComment, setResourceToComment] = useState<Resource | null>();
 
-  const [selectedResources, setSelectedResources] = useAtom(
-    selectedResourcesAtom
-  );
   const [resourcesToAcknowledge, setResourcesToAcknowledge] = useAtom(
     resourcesToAcknowledgeAtom
   );
@@ -78,22 +141,22 @@ const ResourceActions = (): JSX.Element => {
   } = useAclQuery();
 
   const confirmAction = (): void => {
-    setSelectedResources([]);
     setResourcesToAcknowledge([]);
     setResourcesToSetDowntime([]);
     setResourceToSubmitStatus(null);
     setResourcesToDisacknowledge([]);
     setResourceToComment(null);
+    success?.();
   };
 
   useEffect(() => (): void => cancel(), []);
 
   const prepareToAcknowledge = (): void => {
-    setResourcesToAcknowledge(selectedResources);
+    setResourcesToAcknowledge(resources);
   };
 
   const prepareToSetDowntime = (): void => {
-    setResourcesToSetDowntime(selectedResources);
+    setResourcesToSetDowntime(resources);
   };
 
   const cancelAcknowledge = (): void => {
@@ -105,7 +168,7 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const prepareToDisacknowledge = (): void => {
-    setResourcesToDisacknowledge(selectedResources);
+    setResourcesToDisacknowledge(resources);
   };
 
   const cancelDisacknowledge = (): void => {
@@ -113,7 +176,7 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const prepareToSubmitStatus = (): void => {
-    const [selectedResource] = selectedResources;
+    const [selectedResource] = resources;
 
     setResourceToSubmitStatus(selectedResource);
   };
@@ -123,7 +186,7 @@ const ResourceActions = (): JSX.Element => {
   };
 
   const prepareToAddComment = (): void => {
-    const [selectedResource] = selectedResources;
+    const [selectedResource] = resources;
 
     setResourceToComment(selectedResource);
   };
@@ -134,66 +197,111 @@ const ResourceActions = (): JSX.Element => {
 
   const areSelectedResourcesOk = all(
     pathEq(SeverityCode.OK, ['status', 'severity_code']),
-    selectedResources
+    resources
   );
 
-  const disableAcknowledge =
-    !canAcknowledge(selectedResources) || areSelectedResourcesOk;
-  const disableDowntime = !canDowntime(selectedResources);
-  const disableDisacknowledge = !canDisacknowledge(selectedResources);
+  const defaultDisableAcknowledge =
+    !canAcknowledge(resources) || areSelectedResourcesOk;
 
-  const hasSelectedResources = selectedResources.length > 0;
-  const hasOneResourceSelected = selectedResources.length === 1;
+  const disableAcknowledge =
+    extraDisabledAcknowledge || defaultDisableAcknowledge;
+
+  const defaultDisableDowntime = !canDowntime(resources);
+
+  const disableDowntime = extraDisabledDowntime || defaultDisableDowntime;
+
+  const defaultDisableDisacknowledge = !canDisacknowledge(resources);
+
+  const disableDisacknowledge =
+    extraDisabledDisacknowledge || defaultDisableDisacknowledge;
+
+  const hasSelectedResources = resources.length > 0;
+  const hasOneResourceSelected = resources.length === 1;
 
   const disableSubmitStatus =
     !hasOneResourceSelected ||
-    !canSubmitStatus(selectedResources) ||
-    !head(selectedResources)?.has_passive_checks_enabled;
+    !canSubmitStatus(resources) ||
+    !head(resources)?.has_passive_checks_enabled;
 
-  const disableAddComment =
-    !hasOneResourceSelected || !canComment(selectedResources);
+  const disableAddComment = !hasOneResourceSelected || !canComment(resources);
 
-  const isAcknowledgePermitted =
-    canAcknowledge(selectedResources) || !hasSelectedResources;
-  const isDowntimePermitted =
-    canDowntime(selectedResources) || !hasSelectedResources;
-  const isDisacknowledgePermitted =
-    canDisacknowledge(selectedResources) || !hasSelectedResources;
+  const defaultIsAcknowledgePermitted =
+    canAcknowledge(resources) || !hasSelectedResources;
+
+  const isAcknowledgePermitted = !defaultIsAcknowledgePermitted
+    ? defaultIsAcknowledgePermitted
+    : extraPermittedAcknowledge;
+
+  const defaultIsDowntimePermitted =
+    canDowntime(resources) || !hasSelectedResources;
+  const isDowntimePermitted = !defaultIsDowntimePermitted
+    ? defaultIsDowntimePermitted
+    : extraPermittedDowntime;
+
+  const defaultIsDisacknowledgePermitted =
+    canDisacknowledge(resources) || !hasSelectedResources;
+
+  const isDisacknowledgePermitted = !defaultIsDisacknowledgePermitted
+    ? defaultIsDisacknowledgePermitted
+    : extraPermittedDisacknowledge;
+
   const isSubmitStatusPermitted =
-    canSubmitStatus(selectedResources) || !hasSelectedResources;
-  const isAddCommentPermitted =
-    canComment(selectedResources) || !hasSelectedResources;
+    canSubmitStatus(resources) || !hasSelectedResources;
+  const isAddCommentPermitted = canComment(resources) || !hasSelectedResources;
 
   return (
     <div className={classes.flex}>
-      <div className={classes.flex}>
-        <div className={classes.action}>
-          <ResourceActionButton
-            disabled={disableAcknowledge}
-            icon={<IconAcknowledge />}
-            label={t(labelAcknowledge)}
-            permitted={isAcknowledgePermitted}
-            testId="Multiple Acknowledge"
-            onClick={prepareToAcknowledge}
-          />
-        </div>
-        <div className={classes.action}>
-          <ResourceActionButton
-            disabled={disableDowntime}
-            icon={<IconDowntime />}
-            label={t(labelSetDowntime)}
-            permitted={isDowntimePermitted}
-            testId="Multiple Set Downtime"
-            onClick={prepareToSetDowntime}
-          />
-        </div>
-        <div className={classes.action}>
-          <CheckActionButton
-            selectedResources={selectedResources}
-            setSelectedResources={setSelectedResources}
-            testId="Multiple Check"
-          />
-        </div>
+      <div className={cx(classes.flex, mainActions?.style)}>
+        {displayAcknowledge && (
+          <div className={classes.action}>
+            <ResourceActionButton
+              disabled={disableAcknowledge}
+              displayCondensed={displayCondensed}
+              icon={<IconAcknowledge />}
+              label={t(labelAcknowledge)}
+              permitted={isAcknowledgePermitted}
+              testId="mainAcknowledge"
+              onClick={prepareToAcknowledge}
+            />
+          </div>
+        )}
+        {displayDisacknowledge && (
+          <div className={classes.action}>
+            <ResourceActionButton
+              disabled={disableDisacknowledge}
+              displayCondensed={displayCondensed}
+              icon={<IconDisacknowledge />}
+              label={t(labelDisacknowledge)}
+              permitted={isDisacknowledgePermitted}
+              testId="mainDisacknowledge"
+              onClick={prepareToDisacknowledge}
+            />
+          </div>
+        )}
+
+        {displayDowntime && (
+          <div className={classes.action}>
+            <ResourceActionButton
+              disabled={disableDowntime}
+              displayCondensed={displayCondensed}
+              icon={<IconDowntime />}
+              label={t(labelSetDowntime)}
+              permitted={isDowntimePermitted}
+              testId="mainSetDowntime"
+              onClick={prepareToSetDowntime}
+            />
+          </div>
+        )}
+        {displayCheck && (
+          <div className={classes.action}>
+            <CheckActionButton
+              displayCondensed={displayCondensed}
+              resources={resources}
+              testId="mainCheck"
+              {...extraCheckData}
+            />
+          </div>
+        )}
         {resourcesToAcknowledge.length > 0 && (
           <AcknowledgeForm
             resources={resourcesToAcknowledge}
@@ -232,46 +340,49 @@ const ResourceActions = (): JSX.Element => {
         )}
       </div>
 
-      <PopoverMenu
-        icon={<IconMore color="primary" fontSize="small" />}
-        title={t(labelMoreActions) as string}
-      >
-        {({ close }): JSX.Element => (
-          <>
-            <ActionMenuItem
-              disabled={disableDisacknowledge}
-              label={labelDisacknowledge}
-              permitted={isDisacknowledgePermitted}
-              testId="Multiple Disacknowledge"
-              onClick={(): void => {
-                close();
-                prepareToDisacknowledge();
-              }}
-            />
-            <ActionMenuItem
-              disabled={disableSubmitStatus}
-              label={labelSubmitStatus}
-              permitted={isSubmitStatusPermitted}
-              testId="Submit a status"
-              onClick={(): void => {
-                close();
-                prepareToSubmitStatus();
-              }}
-            />
+      {moreActions && (
+        <PopoverMenu
+          icon={<IconMore color="primary" fontSize="small" />}
+          title={t(labelMoreActions) as string}
+        >
+          {({ close }): JSX.Element => (
+            <>
+              <ActionMenuItem
+                disabled={defaultDisableDisacknowledge}
+                label={labelDisacknowledge}
+                permitted={defaultIsDisacknowledgePermitted}
+                testId="Multiple Disacknowledge"
+                onClick={(): void => {
+                  close();
+                  prepareToDisacknowledge();
+                }}
+              />
 
-            <ActionMenuItem
-              disabled={disableAddComment}
-              label={labelAddComment}
-              permitted={isAddCommentPermitted}
-              testId="Add a comment"
-              onClick={(): void => {
-                close();
-                prepareToAddComment();
-              }}
-            />
-          </>
-        )}
-      </PopoverMenu>
+              <ActionMenuItem
+                disabled={disableSubmitStatus}
+                label={labelSubmitStatus}
+                permitted={isSubmitStatusPermitted}
+                testId="Submit a status"
+                onClick={(): void => {
+                  close();
+                  prepareToSubmitStatus();
+                }}
+              />
+
+              <ActionMenuItem
+                disabled={disableAddComment}
+                label={labelAddComment}
+                permitted={isAddCommentPermitted}
+                testId="Add a comment"
+                onClick={(): void => {
+                  close();
+                  prepareToAddComment();
+                }}
+              />
+            </>
+          )}
+        </PopoverMenu>
+      )}
     </div>
   );
 };
