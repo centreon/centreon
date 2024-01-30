@@ -1,7 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { useSnackbar } from '@centreon/ui';
 
@@ -21,18 +20,7 @@ import { panelWidthStorageAtom } from '../../detailsAtoms';
 import { ResourceDetails } from '../../models';
 
 import { checkActionDetailsAtom } from './atoms';
-
-const useStyles = makeStyles()((theme) => ({
-  condensed: {
-    justifyContent: 'space-evenly'
-  },
-  container: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing(2),
-    width: '100%'
-  }
-}));
+import { useStyles } from './details.styles';
 
 interface Props {
   details: ResourceDetails;
