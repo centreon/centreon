@@ -154,27 +154,29 @@ Then(
   () => {
     if (!notificationEnabled) {
       notificationSentCheck({
-        log: 'Notification on host 15',
+        log: `<<${data.hosts.host1.name}>>`,
         contain: false
       });
       notificationSentCheck({
-        log: 'Notification on service (15,27)',
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
         contain: false
       });
       return;
     }
 
-    notificationSentCheck({ log: 'Notification on host 15' });
+    notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
 
     if (!notificationWithServices) {
       notificationSentCheck({
-        log: 'Notification on service (15,27)',
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
         contain: false
       });
       return;
     }
 
-    notificationSentCheck({ log: 'Notification on service (15,27)' });
+    notificationSentCheck({
+      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+    });
   }
 );
 
@@ -225,18 +227,20 @@ Then(
 Then('{string} notification is sent for this rule once', (prefix) => {
   if (!notificationEnabled) {
     notificationSentCheck({
-      log: 'Notification on host 15',
+      log: `<<${data.hosts.host1.name}>>`,
       contain: false
     });
     notificationSentCheck({
-      log: 'Notification on service (15,27)',
+      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
       contain: false
     });
     return;
   }
 
-  notificationSentCheck({ log: 'Notification on host 15' });
-  notificationSentCheck({ log: 'Notification on service (15,27)' });
+  notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
+  notificationSentCheck({
+    log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+  });
 });
 
 When('the user {string} the Notification Rule', (action) => {

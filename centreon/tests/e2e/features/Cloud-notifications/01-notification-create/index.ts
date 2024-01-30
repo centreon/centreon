@@ -294,13 +294,15 @@ Then(
   (contactSettings) => {
     switch (contactSettings) {
       case 'a single contact':
-        notificationSentCheck({ log: 'Notification on host 16' });
+        notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
         notificationSentCheck({
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
         });
         break;
       case 'two contacts':
-        notificationSentCheck({ log: 'Notification on service (15,27)' });
+        notificationSentCheck({
+          log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
+        });
         notificationSentCheck({
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });

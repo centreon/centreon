@@ -123,7 +123,10 @@ Then(
 
     waitUntilLogFileChange();
 
-    notificationSentCheck({ log: 'Notification on host 15', contain: false });
+    notificationSentCheck({
+      log: `<<${data.hosts.host1.name}>>`,
+      contain: false
+    });
   }
 );
 
