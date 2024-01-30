@@ -30,7 +30,7 @@ class AbstractRepositoryRDB
 {
     use LoggerTrait;
 
-    /** @var int Maximum number of elements an SQL query can return */
+    /** @var positive-int Maximum number of elements an SQL query can return */
     protected int $maxItemsByRequest = 5000;
 
     protected DatabaseConnection $db;
