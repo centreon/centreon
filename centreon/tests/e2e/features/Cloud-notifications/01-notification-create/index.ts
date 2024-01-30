@@ -12,21 +12,14 @@ import data from '../../../fixtures/notifications/data-for-notification.json';
 var globalResourceType = '';
 var globalContactSettings = '';
 
-before(() => {
+beforeEach(() => {
   cy.startWebContainer({ useSlim: false });
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     name: 'central-cloud-notifications-output',
     configName: 'central-broker-master'
   });
-});
 
-after(() => {
-  cy.stopWebContainer();
-});
-
-beforeEach(() => {
-  cy.setUserTokenApiV1();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -40,6 +33,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/users?page=1*'
   }).as('getUsers');
+});
+
+afterEach(() => {
+  cy.stopWebContainer();
 });
 
 Given('a user with access to the Notification Rules page', () => {
@@ -70,6 +67,11 @@ Given(
         break;
       case 'two contacts':
         cy.addContact({
+          name: data.contacts.contact1.name,
+          email: data.contacts.contact1.email,
+          password: data.contacts.contact1.password
+        });
+        cy.addContact({
           name: data.contacts.contact2.name,
           email: data.contacts.contact2.email,
           password: data.contacts.contact2.password
@@ -77,63 +79,59 @@ Given(
         break;
     }
 
-    switch (resourceType) {
-      case 'host group':
-        cy.addHostGroup({
-          name: data.hostGroups.hostGroup1.name
-        });
+    cy.addHostGroup({
+      name: data.hostGroups.hostGroup1.name
+    });
 
-        cy.addHost({
-          activeCheckEnabled: false,
-          checkCommand: 'check_centreon_cpu',
-          hostGroup: data.hostGroups.hostGroup1.name,
-          name: data.hosts.host1.name,
-          template: 'generic-host'
-        })
-          .addService({
-            activeCheckEnabled: false,
-            host: data.hosts.host1.name,
-            maxCheckAttempts: 1,
-            name: data.services.service1.name,
-            template: 'Ping-LAN'
-          })
-          .applyPollerConfiguration();
+    cy.addHost({
+      activeCheckEnabled: false,
+      checkCommand: 'check_centreon_cpu',
+      hostGroup: data.hostGroups.hostGroup1.name,
+      name: data.hosts.host1.name,
+      template: 'generic-host'
+    })
+      .addService({
+        activeCheckEnabled: false,
+        host: data.hosts.host1.name,
+        maxCheckAttempts: 1,
+        name: data.services.service1.name,
+        template: 'Ping-LAN'
+      })
+      .applyPollerConfiguration();
 
-        cy.addHost({
-          activeCheckEnabled: false,
-          checkCommand: 'check_centreon_cpu',
-          hostGroup: data.hostGroups.hostGroup1.name,
-          name: data.hosts.host2.name,
-          template: 'generic-host'
-        })
-          .addService({
-            activeCheckEnabled: false,
-            host: data.hosts.host2.name,
-            maxCheckAttempts: 1,
-            name: data.services.service2.name,
-            template: 'Ping-LAN'
-          })
-          .applyPollerConfiguration();
+    cy.addHost({
+      activeCheckEnabled: false,
+      checkCommand: 'check_centreon_cpu',
+      hostGroup: data.hostGroups.hostGroup1.name,
+      name: data.hosts.host2.name,
+      template: 'generic-host'
+    })
+      .addService({
+        activeCheckEnabled: false,
+        host: data.hosts.host2.name,
+        maxCheckAttempts: 1,
+        name: data.services.service2.name,
+        template: 'Ping-LAN'
+      })
+      .applyPollerConfiguration();
 
-        checkHostsAreMonitored([
-          {
-            name: data.hosts.host1.name
-          },
-          {
-            name: data.hosts.host2.name
-          }
-        ]);
+    checkHostsAreMonitored([
+      {
+        name: data.hosts.host1.name
+      },
+      {
+        name: data.hosts.host2.name
+      }
+    ]);
 
-        checkServicesAreMonitored([
-          {
-            name: data.services.service1.name
-          },
-          {
-            name: data.services.service2.name
-          }
-        ]);
-        break;
-    }
+    checkServicesAreMonitored([
+      {
+        name: data.services.service1.name
+      },
+      {
+        name: data.services.service2.name
+      }
+    ]);
   }
 );
 
@@ -162,7 +160,7 @@ When(
         cy.contains(data.hostGroups.hostGroup1.name).click();
         cy.get('#Searchhostgroups').blur();
         cy.contains('Include services for these hosts').click();
-        cy.getByTestId({ testId: 'Extra events services' }).each(($el) => {
+        cy.get('[data-testid="Extra events services"] >').each(($el) => {
           cy.wrap($el).click();
         });
         break;
