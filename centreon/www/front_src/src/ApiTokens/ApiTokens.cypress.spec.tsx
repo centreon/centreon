@@ -506,7 +506,7 @@ describe('Api-token', () => {
     cy.makeSnapshot('deletes the token when clicking the Delete Button');
   });
 
-  it('hides the modal when clicking on Cancel button', () => {
+  it('hides the modal when clicking on the Cancel button', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.findAllByTestId('DeleteIcon')
