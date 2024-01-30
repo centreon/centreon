@@ -71,7 +71,7 @@ runs:
         # or use the check-version action after turning this release action into a real workflow ?
 
         # Make NEW_STABLE_TAGS available for other steps
-        echo "NEW_STABLE_TAGS=$NEW_STABLE_TAGS" >> "$GITHUB_ENV"
+        echo "${NEW_STABLE_TAGS[*]}=$NEW_STABLE_TAGS" >> "$GITHUB_ENV"
         echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
       shell: bash
