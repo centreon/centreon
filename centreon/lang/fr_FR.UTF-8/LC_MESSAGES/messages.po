@@ -18603,6 +18603,10 @@ msgstr "Utilisateur supprimé"
 msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
+
+msgid "Your comment has been saved."
+msgstr "Votre commentaire a été enregistré."
+
 msgid "Create a new resource access rule"
 msgstr "Créer une nouvelle règle d'accès aux ressources"
 
