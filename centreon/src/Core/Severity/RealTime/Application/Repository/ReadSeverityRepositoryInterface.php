@@ -23,18 +23,33 @@ declare(strict_types=1);
 
 namespace Core\Severity\RealTime\Application\Repository;
 
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
 interface ReadSeverityRepositoryInterface
 {
     /**
-     * Returns all the severities from the RealTime of provided type id.
+     * Returns all the severities from the RealTime of provided type id (without ACls).
      *
      * @param int $typeId
+     *
+     * @throws \Throwable
      *
      * @return Severity[]
      */
     public function findAllByTypeId(int $typeId): array;
+
+    /**
+     * Returns all the severities from the RealTime of provided type id (with ACLs).
+     *
+     * @param int $typeId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return Severity[]
+     */
+    public function findAllByTypeIdAndAccessGroups(int $typeId, array $accessGroups): array;
 
     /**
      * Finds a Severity by id, parentId and typeId.
@@ -42,6 +57,8 @@ interface ReadSeverityRepositoryInterface
      * @param int $resourceId
      * @param int $parentResourceId
      * @param int $typeId
+     *
+     * @throws \Throwable
      *
      * @return Severity|null
      */
