@@ -46,7 +46,7 @@ runs:
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
-          PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
+          PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
         done
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}
 
@@ -59,8 +59,9 @@ runs:
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
-          NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
-          NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
+          # NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
+          # NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
+          NEW_STABLE_TAGS+=(centreon-$component-$MAJOR_VERSION-$MINOR_VERSION)
         done
 
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
