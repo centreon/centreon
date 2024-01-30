@@ -1,0 +1,23 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+
+    Core\Host\:
+        resource: '../../../../Core/Host/*'
+        bind:
+          $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+    Core\Host\Infrastructure\Repository\DbReadHostRepository:
+        calls:
+            - method: setMaxItemsByRequest
+              arguments: [ '%db.max_items_by_request%' ]
+
+    Core\Host\Application\Repository\ReadHostRepositoryInterface:
+        class: Core\Host\Infrastructure\Repository\DbReadHostRepository
+
+    Core\Host\Infrastructure\Repository\ApiReadHostRepository:
+        arguments:
+            $logger: '@Centreon\Domain\Log\Logger'
