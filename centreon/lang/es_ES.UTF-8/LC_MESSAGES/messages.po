@@ -16810,3 +16810,35 @@ msgstr "Modo avanzado"
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""
 
+# msgid "Create a new resource access rule"
+# msgstr ""
+
+# msgid "Edit resource access rule"
+# msgstr ""
+
+# msgid "Rule properties"
+# msgstr ""
+
+# msgid "Resource selection"
+# msgstr ""
+
+# msgid "Contacts/Contact groups"
+# msgstr ""
+
+# msgid "The resource access rule was successfully added"
+# msgstr ""
+
+# msgid "The resource access rule was successfully updated"
+# msgstr ""
+
+# msgid "Add new dataset"
+# msgstr ""
+
+# msgid "Choose at least one contact or contact group"
+# msgstr ""
+
+# msgid "Metaservice"
+# msgstr ""
+
+# msgid "Select resource type"
+# msgstr ""
