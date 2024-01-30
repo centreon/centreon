@@ -39,8 +39,8 @@ runs:
 
         # Get previous version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
-          if [[ component == "centreon" ]]; then
-            component="centreon-web"
+          if [[ component == "centreon-web" ]]; then
+            component="centreon"
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
