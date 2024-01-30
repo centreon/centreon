@@ -13,6 +13,7 @@ extend(duration);
 
 interface Props {
   globalRefreshInterval: GlobalRefreshInterval;
+  isFromPreview?: boolean;
   panelData: Data;
   panelOptions: {
     refreshInterval: 'default' | 'custom';
@@ -30,13 +31,15 @@ const SingleMetric = ({
   panelData,
   panelOptions,
   globalRefreshInterval,
-  refreshCount
+  refreshCount,
+  isFromPreview
 }: Props): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
     <Graph
       {...panelData}
       {...panelOptions}
       globalRefreshInterval={globalRefreshInterval}
+      isFromPreview={isFromPreview}
       refreshCount={refreshCount}
     />
   </Module>

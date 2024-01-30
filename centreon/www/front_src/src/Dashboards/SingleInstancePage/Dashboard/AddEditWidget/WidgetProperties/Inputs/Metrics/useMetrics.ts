@@ -9,6 +9,10 @@ import {
   isEmpty,
   isNil,
   omit,
+  length,
+  map,
+  pick,
+  pipe,
   pluck,
   propEq,
   reject

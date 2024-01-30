@@ -23,11 +23,11 @@ import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   singleHostPerMetricAtom,
   singleMetricSelectionAtom
 } from '../../../atoms';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
@@ -57,7 +57,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
   const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 

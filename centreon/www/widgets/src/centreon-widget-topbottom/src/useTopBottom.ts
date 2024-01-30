@@ -1,4 +1,4 @@
-import { equals, isEmpty, pluck } from 'ramda';
+import { equals, isNil, pluck } from 'ramda';
 
 import {
   buildListingEndpoint,
@@ -8,6 +8,7 @@ import {
 } from '@centreon/ui';
 
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import { areResourcesFullfilled } from '../../utils';
 
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
@@ -25,14 +26,9 @@ interface UseTopBottomProps {
 
 interface UseTopBottomState {
   isLoading: boolean;
+  isMetricEmpty: boolean;
   metricsTop?: MetricsTop;
 }
-
-export const areResourcesFullfilled = (value: Array<Resource>): boolean =>
-  value?.every(
-    ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
-  );
 
 const useTopBottom = ({
   globalRefreshInterval,
@@ -90,6 +86,7 @@ const useTopBottom = ({
 
   return {
     isLoading: isFetching && !metricsTop,
+    isMetricEmpty: isNil(metricName),
     metricsTop
   };
 };

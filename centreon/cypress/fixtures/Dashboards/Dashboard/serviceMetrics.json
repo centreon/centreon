@@ -4,7 +4,7 @@
         "id": 1,
         "name": "Ping",
         "parent_name": "Centreon-1",
-        "uuid": "h11-s1",
+        "uuid": "h1-s1",
         "metrics": [
             {
               "id": 1,
@@ -30,7 +30,7 @@
         "id": 2,
         "name": "Ping",
         "parent_name": "Centreon-2",
-        "uuid": "h11-s2",
+        "uuid": "h1-s2",
         "metrics": [
             {
               "id": 3,

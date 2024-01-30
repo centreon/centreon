@@ -8,3 +8,5 @@ export interface FormThreshold {
 }
 
 export type ValueFormat = 'human' | 'raw';
+
+export type SingleMetricGraphType = 'text' | 'gauge' | 'bar';
