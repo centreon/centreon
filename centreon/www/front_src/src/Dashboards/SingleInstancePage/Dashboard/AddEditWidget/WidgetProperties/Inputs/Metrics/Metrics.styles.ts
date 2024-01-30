@@ -13,12 +13,14 @@ export const useMetricsStyles = makeStyles()((theme) => ({
   },
   resourcesOptionContainer: {
     backgroundColor: theme.palette.background.paper,
+    paddingLeft: theme.spacing(1),
     width: '100%'
   },
   resourcesOptionRadioCheckbox: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    paddingLeft: theme.spacing(1)
   }
 }));
