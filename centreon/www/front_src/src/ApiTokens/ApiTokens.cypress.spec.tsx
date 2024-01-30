@@ -194,7 +194,7 @@ const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const tokenToDelete = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
-  'This is an irreversible action. If you process, all requests made with this token will be rejected. Do you want to process anyway ?';
+  'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
 
 describe('Api-token', () => {
   beforeEach(() => {
