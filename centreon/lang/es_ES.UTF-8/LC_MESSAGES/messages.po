@@ -16842,3 +16842,5 @@ msgstr "Modo avanzado"
 
 # msgid "Select resource type"
 # msgstr ""
+# msgid "Your comment has been saved."
+# msgstr ""

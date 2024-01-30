@@ -17297,3 +17297,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Select resource type"
 # msgstr ""
+
+# msgid "Your comment has been saved."
+# msgstr ""

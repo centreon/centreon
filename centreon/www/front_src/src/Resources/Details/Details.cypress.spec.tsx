@@ -1,14 +1,20 @@
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method, setUrlQueryParameters } from '@centreon/ui';
-import { userAtom, refreshIntervalAtom } from '@centreon/ui-context';
+import {
+  Method,
+  setUrlQueryParameters,
+  SnackbarProvider,
+  TestQueryProvider
+} from '@centreon/ui';
+import { userAtom, refreshIntervalAtom, aclAtom } from '@centreon/ui-context';
 
 import { ResourceType } from '../models';
 import {
   labelAcknowledgedBy,
   labelAlias,
   labelAt,
+  labelCancel,
   labelCategories,
   labelCheck,
   labelCheckDuration,
@@ -17,6 +23,7 @@ import {
   labelCurrentNotificationNumber,
   labelCurrentStatusDuration,
   labelDowntimeDuration,
+  labelExportToCSV,
   labelFqdn,
   labelFrom,
   labelGroups,
@@ -28,11 +35,14 @@ import {
   labelMore,
   labelNextCheck,
   labelPerformanceData,
+  labelSave,
   labelStatusChangePercentage,
   labelStatusInformation,
   labelTimezone,
-  labelTo
+  labelTo,
+  labelYourCommentSent
 } from '../translatedLabels';
+import { commentEndpoint } from '../Actions/api/endpoint';
 
 import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
@@ -65,10 +75,11 @@ const categories = [
 ];
 
 const selectedResource = {
-  parentResourceId: resourceHostId,
-  parentResourceType: resourceHostType,
+  parentResourceId: undefined,
+  parentResourceType: undefined,
   resourceId: resourceServiceId,
-  resourcesDetailsEndpoint: '/centreon/api/latest/monitoring/resources/hosts/1'
+  resourcesDetailsEndpoint:
+    '/api/latest/monitoring/resources/hosts/1/services/1'
 };
 
 const retrievedDetails = {
@@ -193,6 +204,28 @@ const serviceDetailsUrlParameters = {
 };
 
 const mockRefreshInterval = 60;
+const mockAcl = {
+  actions: {
+    host: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
+    service: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    }
+  }
+};
 
 const DetailsTest = (): JSX.Element => {
   useDetails();
@@ -210,6 +243,7 @@ const initialize = (): void => {
 
   const store = createStore();
   store.set(userAtom, retrievedUser);
+  store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
 
@@ -227,25 +261,39 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'getDetails',
     method: Method.GET,
-    path: selectedResourceDetailsEndpoint,
+    path: `**/${selectedResourceDetailsEndpoint}`,
     response: retrievedDetails
+  });
+
+  cy.fixture('resources/details/tabs/timeLine/timeLine.json').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'getTimeLine',
+      method: Method.GET,
+      path: `**/timeline**`,
+      response: data
+    });
   });
 
   cy.mount({
     Component: (
-      <Provider store={store}>
-        <BrowserRouter>
-          <DetailsTest />
-        </BrowserRouter>
-      </Provider>
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <DetailsTest />
+            </BrowserRouter>
+          </Provider>
+        </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 };
 
 describe('Details', () => {
-  it('displays resource details information', () => {
+  beforeEach(() => {
     initialize();
-
+  });
+  it('displays resource details information', () => {
     cy.waitForRequest('@getDetails');
 
     cy.contains('Critical').should('be.visible');
@@ -323,5 +371,97 @@ describe('Details', () => {
 
     cy.contains(labelCommand).should('exist');
     cy.contains('base_host_alive').should('exist');
+  });
+
+  it('displays the Timeline tab when the corresponding tab is clicked', () => {
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment').should('be.visible').should('be.enabled');
+    cy.findByTestId(labelExportToCSV).should('be.visible').should('be.enabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the comment area when the corresponding button is clicked', () => {
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('be.visible');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
+    cy.interceptAPIRequest({
+      alias: 'sendsCommentRequest',
+      method: Method.POST,
+      path: commentEndpoint,
+      statusCode: 204
+    });
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').type('comment from centreon web');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.waitForRequest('@sendsCommentRequest');
+
+    cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelYourCommentSent);
+
+    cy.makeSnapshot();
+  });
+
+  it('hides the comment area when the cancel button is clicked', () => {
+    initialize();
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('exist');
+
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+    cy.findByTestId(labelCancel)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('not.exist');
+
+    cy.makeSnapshot();
   });
 });
