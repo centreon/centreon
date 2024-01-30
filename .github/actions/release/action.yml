@@ -99,7 +99,7 @@ runs:
     - name: Create GITHUB releases from new release tags
       run: |
         # Install gh cli
-        echp "::notice::Installing GH CLI."
+        echo "::notice::Installing GH CLI."
         if ! command -v gh &> /dev/null; then
           echo "Installing GH CLI."
           type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
