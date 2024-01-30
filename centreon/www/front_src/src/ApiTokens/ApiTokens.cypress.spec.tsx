@@ -460,7 +460,7 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
-  it('deletes the token when clicking on Delete button', () => {
+  it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
     const deleteToken = deleteTokenEndpoint({
