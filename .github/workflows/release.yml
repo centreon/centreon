@@ -1,5 +1,5 @@
 ---
-name: Release version
+name: Release
 
 on:
   pull_request_target:
@@ -22,7 +22,7 @@ on:
 jobs:
   release:
     # DO UNCOMMENT LINE BELOW BEFORE MERGING
-    #if: github.event.pull_request.merged == true && (github.base_ref == "master" || github.base_ref == "[2-9][0-9].[0-9][0-9].x")
+    # if: github.event.pull_request.merged == true && (github.base_ref == "master" || github.base_ref == "[2-9][0-9].[0-9][0-9].x")
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
