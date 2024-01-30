@@ -64,7 +64,7 @@ runs:
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # NEW_STABLE_TAG="$component-$MAJOR_VERSION-$MINOR_VERSION"
           # NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
-          NEW_STABLE_TAGS+=("${component-$MAJOR_VERSION.$MINOR_VERSION}")
+          NEW_STABLE_TAGS+=("${=component-$MAJOR_VERSION.$MINOR_VERSION}")
         done
 
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
