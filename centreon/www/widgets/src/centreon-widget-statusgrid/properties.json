@@ -21,7 +21,6 @@
     "statuses": {
       "type": "checkbox",
       "label": "Display resources with this status",
-      "secondaryLabel": ["For a host, the status displayed in the tile is the worst among its own status and the statuses of its services.", "For a service, the service status is displayed."],
       "options": {
         "when": "resourceType",
         "is": "host",

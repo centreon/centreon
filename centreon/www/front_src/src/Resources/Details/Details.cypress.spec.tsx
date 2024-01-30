@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -14,6 +11,7 @@ import {
 } from '@centreon/ui';
 import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
 
+import { commentEndpoint } from '../Actions/api/endpoint';
 import { resourcesEndpoint } from '../api/endpoint';
 import {
   labelAcknowledge,
@@ -54,12 +52,14 @@ import {
   labelResourceDetailsCheckDescription,
   labelResourceDetailsForcedCheckCommandSent,
   labelResourceDetailsForcedCheckDescription,
+  labelSave,
   labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
   labelSticky,
   labelTimezone,
-  labelTo
+  labelTo,
+  labelYourCommentSent
 } from '../translatedLabels';
 
 import {
@@ -71,10 +71,6 @@ import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(localizedFormat);
 
 const resourceServiceId = 1;
 
@@ -135,11 +131,9 @@ const DetailsTest = (): JSX.Element => {
   useLoadDetails();
 
   return (
-    <TestQueryProvider>
-      <div style={{ height: '100vh' }}>
-        <Details />
-      </div>
-    </TestQueryProvider>
+    <div style={{ height: '100vh' }}>
+      <Details />
+    </div>
   );
 };
 
@@ -181,14 +175,36 @@ const initialize = (store): void => {
   cy.mount({
     Component: (
       <SnackbarProvider>
-        <Provider store={store}>
-          <BrowserRouter>
-            <DetailsTest />
-          </BrowserRouter>
-        </Provider>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <DetailsTest />
+            </BrowserRouter>
+          </Provider>
+        </TestQueryProvider>
       </SnackbarProvider>
     )
   });
+};
+
+const initializeTimeLine = (): void => {
+  const store = getStore();
+  interceptDetailsRequest({
+    alias: 'getDetails',
+    dataPath: 'resources/details/tabs/details/details.json',
+    store
+  });
+
+  cy.fixture('resources/details/tabs/timeLine/timeLine.json').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'getTimeLine',
+      method: Method.GET,
+      path: `**/timeline**`,
+      response: data
+    });
+  });
+
+  initialize(store);
 };
 
 const checkActionsButton = (): void => {
@@ -205,7 +221,7 @@ describe('Details', () => {
     const store = getStore();
     interceptDetailsRequest({
       alias: 'getDetails',
-      dataPath: 'resources/details/details.json',
+      dataPath: 'resources/details/tabs/details/details.json',
       store
     });
     initialize(store);
@@ -293,7 +309,7 @@ describe('Details', () => {
     const store = getStore();
     interceptDetailsRequest({
       alias: 'getDetails',
-      dataPath: 'resources/details/details.json',
+      dataPath: 'resources/details/tabs/details/details.json',
       store
     });
     initialize(store);
@@ -308,7 +324,7 @@ describe('Details', () => {
     store.set(panelWidthStorageAtom, 800);
     interceptDetailsRequest({
       alias: 'getDetails',
-      dataPath: 'resources/details/details.json',
+      dataPath: 'resources/details/tabs/details/details.json',
       store
     });
     initialize(store);
@@ -324,7 +340,8 @@ describe('Details', () => {
 
     interceptDetailsRequest({
       alias: 'getDetailsWithoutAcknowledgement',
-      dataPath: 'resources/details/detailsWithoutAcknowledgment.json',
+      dataPath:
+        'resources/details/tabs/details/detailsWithoutAcknowledgment.json',
       store
     });
     initialize(store);
@@ -375,7 +392,7 @@ describe('Details', () => {
 
     interceptDetailsRequest({
       alias: 'getDetailsWithAcknowledgement',
-      dataPath: 'resources/details/detailsWithAcknowledgment.json',
+      dataPath: 'resources/details/tabs/details/detailsWithAcknowledgment.json',
       store
     });
     initialize(store);
@@ -424,7 +441,7 @@ describe('Details', () => {
 
     interceptDetailsRequest({
       alias: 'getDetailsWithoutDowntime',
-      dataPath: 'resources/details/detailsWithoutDownTime.json',
+      dataPath: 'resources/details/tabs/details/detailsWithoutDownTime.json',
       store
     });
 
@@ -482,7 +499,7 @@ describe('Details', () => {
 
     interceptDetailsRequest({
       alias: 'getDetails',
-      dataPath: 'resources/details/details.json',
+      dataPath: 'resources/details/tabs/details/details.json',
       store
     });
 
@@ -546,5 +563,87 @@ describe('Details', () => {
 
     cy.contains(labelResourceDetailsCheckCommandSent);
     cy.makeSnapshot('sends check command');
+  });
+
+  it('displays the comment area when the corresponding button is clicked', () => {
+    initializeTimeLine();
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('be.visible');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
+    initializeTimeLine();
+    cy.interceptAPIRequest({
+      alias: 'sendsCommentRequest',
+      method: Method.POST,
+      path: commentEndpoint,
+      statusCode: 204
+    });
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').type('comment from centreon web');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.waitForRequest('@sendsCommentRequest');
+
+    cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelYourCommentSent);
+
+    cy.makeSnapshot();
+  });
+
+  it('hides the comment area when the cancel button is clicked', () => {
+    initializeTimeLine();
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('exist');
+
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+    cy.findByTestId(labelCancel)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('not.exist');
+
+    cy.makeSnapshot();
   });
 });

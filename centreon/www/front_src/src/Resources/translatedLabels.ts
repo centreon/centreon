@@ -308,4 +308,4 @@ export const labelResourceDetailsCheckDescription =
 export const labelResourceDetailsForcedCheckDescription =
   'Check this resource even outside configured check period';
 
-export const labelYourCommentSent = 'Your comment has been sent!';
+export const labelYourCommentSent = 'Your comment has been saved.';
