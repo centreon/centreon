@@ -10,7 +10,6 @@ import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import { AddEditWidgetModal } from '../AddEditWidget';
-import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 
 import PanelsLayout from './Layout';
 
