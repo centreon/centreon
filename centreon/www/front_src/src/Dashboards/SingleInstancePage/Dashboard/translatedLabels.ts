@@ -54,8 +54,6 @@ export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
   'By turning off this option, all links included in the widget will be opened in the same tab.';
 export const labelRefineFilter = 'Refine filter';
-export const labelRefineFiltersToNarrowDownResources =
-  'Add filters to narrow down your selection of resources';
 export const labelAddMetric = 'Add metric';
 export const labelAvailable = 'available';
 export const labelYourWidgetHasBeenModified =
