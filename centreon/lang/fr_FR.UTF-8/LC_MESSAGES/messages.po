@@ -18576,7 +18576,7 @@ msgstr "Le jeton a été créé"
 # msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
 
-msgid "Delete Token"
+msgid "Delete token"
 msgstr "Supprimer le jeton"
 
 msgid "Show more filters"
