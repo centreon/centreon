@@ -32,7 +32,8 @@ runs:
         SCOPE_VERSION="OSS"
 
         # Get current stable branch name
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
+        #CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
+        CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} |cut -d '.' -f1,2)
         echo "Curent stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
         # Get previous version tags for components
