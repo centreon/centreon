@@ -94,7 +94,7 @@ configuration:
         dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centstorage_db}"
         username: "$centreon_config->{db_user}"
         password: "$centreon_config->{db_passwd}"
-  gorgone:      
+  gorgone:
     gorgonecore:
       hostname:
       id:
@@ -121,6 +121,13 @@ configuration:
       - name: action
         package: gorgone::modules::core::action::hooks
         enable: true
+        command_timeout: 30
+        whitelist_cmds: true
+        allowed_cmds:
+          - ^sudo\s+(/bin/)?systemctl\s+(reload|restart)\s+(centengine|centreontrapd|cbd)\s*$
+          - ^sudo\s+(/usr/bin/)?service\s+(centengine|centreontrapd|cbd)\s+(reload|restart)\s*$
+          - ^/usr/sbin/centenginestats\s+-c\s+/etc/centreon-engine/centengine.cfg\s*$
+          - ^cat\s+/var/lib/centreon-engine/[a-zA-Z0-9\-]+-stats.json\s*$
 
       - name: proxy
         package: gorgone::modules::core::proxy::hooks
