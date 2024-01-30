@@ -256,6 +256,9 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       const intersectionFilteredExcludedMetrics =
         intersectionBetweenMetricsIdsAndValues
           .filter((item) => {
+            if (isNil(item.excludedMetrics)) {
+              return true;
+            }
             const resourcesByMetricName = getResourcesByMetricName(item.name);
 
             return !equals(
@@ -266,7 +269,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           .map((item) => {
             return {
               ...item,
-              excludedMetrics: item.excludedMetrics.filter((metric) =>
+              excludedMetrics: item.excludedMetrics?.filter((metric) =>
                 baseMetricIds.includes(metric)
               )
             };
