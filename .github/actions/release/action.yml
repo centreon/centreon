@@ -72,6 +72,8 @@ runs:
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=$NEW_STABLE_TAGS" >> "$GITHUB_ENV"
+        echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
+        echo "SCOPE_VERSION=$SCOPE_VERSION"
       shell: bash
 
     - name: Add new release tags to stable branch
@@ -149,11 +151,21 @@ runs:
     - name: Trigger release communication for new releases
       run: |
         set -eux
+        MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Build JSON structure with released versions
-        RELEASE_JSON=$(jq -nc '{componentList: $ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+        JSON_MAJOR_VERSION=$(jq -n --arg majorVersion "$MAJOR_VERSION" '{"majorVersion":$majorVersion}')
+        JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
+        RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
+
+        # DEBUG
+        echo "JSON_TAGS: $JSON_TAGS"
+        #echo "JSON_MAJOR_VERSION: $JSON_MAJOR_VERSION"
+        echo "JSON_VERSION_INFO: $JSON_VERSION_INFO"
+        echo "Sending $RELEASE_JSON"
 
         # Call jira webhook to trigger the communication workflow
         # and provide versions data for communication
