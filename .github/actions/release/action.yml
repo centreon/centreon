@@ -48,7 +48,7 @@ runs:
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
         done
-        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}
+        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
 
         # Get new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
