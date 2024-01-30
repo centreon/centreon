@@ -161,7 +161,7 @@ runs:
 
         # Build JSON structure with released versions
         JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
-        JSON_MAJOR_VERSION=$(jq -n --arg majorVersion "$MAJOR_VERSION" '{"majorVersion":$majorVersion}')
+        #JSON_MAJOR_VERSION=$(jq -n --arg majorVersion "$MAJOR_VERSION" '{"majorVersion":$majorVersion}')
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
 
@@ -174,7 +174,7 @@ runs:
         # Call jira webhook to trigger the communication workflow
         # and provide versions data for communication
         curl \
-          $JIRA_INCOMING_WEBHOOK \
+          "$JIRA_INCOMING_WEBHOOK" \
           -X POST \
           -H 'Content-type: application/json' \
           --data $RELEASE_JSON
