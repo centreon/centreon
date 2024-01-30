@@ -16,6 +16,7 @@ on:
       - "centreon-ha/**"
       - "centreon-open-tickets/**"
       - "centreon/**"
+      - ".github/workflows/release.yml"
   workflow_dispatch:
 
 jobs:

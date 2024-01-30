@@ -29,6 +29,7 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         NEW_STABLE_TAGS=()
         PREVIOUS_STABLE_TAGS=()
+        SCOPE_VERSION="OSS"
 
         # Get current stable branch name
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
@@ -64,8 +65,8 @@ runs:
       run: |
         # Add new stable tags to stable branch
         echo "::notice::Configuring git."
-        #git config --global user.email "release@centreon.com"
-        #git config --global user.name "Centreon"
+        # git config --global user.email "release@centreon.com"
+        # git config --global user.name "Centreon"
 
         # Create release tags on git for each release components
         echo "::notice::Creating release tags."
