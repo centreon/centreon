@@ -16446,7 +16446,7 @@ msgstr "Erweiterter Modus"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This is an irreversible <br> action. If you process, all requests made with this token will be <br> rejected. Do you want to process anyway ?"
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 # msgstr ""
 
 # msgid "Delete Token"
