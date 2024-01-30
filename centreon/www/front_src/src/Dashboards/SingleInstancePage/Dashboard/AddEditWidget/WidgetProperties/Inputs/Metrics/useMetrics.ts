@@ -167,7 +167,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
       const metricResources = getResourcesByMetricName(metric.name);
 
       const resourcesWithoutExcludedMetrics = reject(
-        ({ metricId }) => metric.excludedMetrics.includes(metricId),
+        ({ metricId }) => (metric.excludedMetrics || []).includes(metricId),
         metricResources
       );
 
@@ -269,9 +269,10 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
           .map((item) => {
             return {
               ...item,
-              excludedMetrics: item.excludedMetrics?.filter((metric) =>
-                baseMetricIds.includes(metric)
-              )
+              excludedMetrics:
+                item.excludedMetrics?.filter((metric) =>
+                  baseMetricIds.includes(metric)
+                ) || []
             };
           });
 
