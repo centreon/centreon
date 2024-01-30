@@ -113,7 +113,7 @@ runs:
         fi
 
         # Create GITHUB release for each release components
-        echo "::Creating GITHUB releases."
+        echo "::notice::Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "Creating release with title $TAG for tag $TAG."
         #  gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
@@ -133,9 +133,10 @@ runs:
 
         # Create new JIRA versions (old way of doing it)
         # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
+        # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
 
-        JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
-        echo "$JIRA_VERSION_DATA"
+        # JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+        # echo "$JIRA_VERSION_DATA"
         # curl --fail --request POST \
         #   --url 'https://centreon.atlassian.net/rest/api/3/version' \
         #   --header 'Authorization: Basic ${{ inputs.jira_token }}' \
