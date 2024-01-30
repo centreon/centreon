@@ -177,6 +177,6 @@ runs:
           "$JIRA_INCOMING_WEBHOOK" \
           -X POST \
           -H 'Content-type: application/json' \
-          --data $RELEASE_JSON
+          --data "$RELEASE_JSON"
 
       shell: bash
