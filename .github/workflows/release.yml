@@ -16,6 +16,10 @@ on:
       - "centreon-ha/**"
       - "centreon-open-tickets/**"
       - "centreon/**"
+  pull_request:
+    branches:
+      - "MON-34069-rework-release-communications"
+    paths:
       - ".github/workflows/release.yml"
   workflow_dispatch:
 
