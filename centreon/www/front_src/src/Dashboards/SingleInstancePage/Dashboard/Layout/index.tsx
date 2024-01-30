@@ -87,15 +87,12 @@ const DashboardPageLayout = (): JSX.Element => {
         };
       });
 
-  const { getLinkToResourceStatusPage } = useLinkToResourceStatus();
-
   return (
     <>
       <PanelsLayout
         displayMoreActions
         canEdit={canEdit}
         changeLayout={changeLayout}
-        getLinkToResourceStatusPage={getLinkToResourceStatusPage}
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
         panels={panels}
