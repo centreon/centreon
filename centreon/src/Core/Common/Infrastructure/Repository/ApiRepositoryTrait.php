@@ -31,10 +31,13 @@ trait ApiRepositoryTrait
 
     protected string $authenticationToken = '';
 
+    /** @var positive-int */
     protected int $timeout = 60; // Default timeout
 
+    /** @var positive-int */
     protected int $maxItemsByRequest = 100;
 
+    /** @var positive-int */
     protected int $maxQueryStringLength = 2048;
 
     public function setProxy(string $proxy): void
@@ -57,16 +60,22 @@ trait ApiRepositoryTrait
 
     public function setTimeout(int $timeout): void
     {
-        $this->timeout = $timeout;
+        if ($timeout > 1) {
+            $this->timeout = $timeout;
+        }
     }
 
     public function setMaxItemsByRequest(int $maxItemsByRequest): void
     {
-        $this->maxItemsByRequest = $maxItemsByRequest;
+        if ($maxItemsByRequest > 1) {
+            $this->maxItemsByRequest = $maxItemsByRequest;
+        }
     }
 
     public function setMaxQueryStringLength(int $maxQueryStringLength): void
     {
-        $this->maxQueryStringLength = $maxQueryStringLength;
+        if ($maxQueryStringLength > 1) {
+            $this->maxQueryStringLength = $maxQueryStringLength;
+        }
     }
 }
