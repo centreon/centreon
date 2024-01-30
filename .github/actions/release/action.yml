@@ -13,6 +13,9 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+  jira_webhook_url:
+    description: "Jira release webhook"
+    required: true
 
 runs:
   using: "composite"
