@@ -28,11 +28,13 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -46,13 +48,15 @@ final class FindDashboardContacts
      * @param ContactInterface $contact
      * @param ReadDashboardShareRepositoryInterface $readDashboardShareRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadContactRepositoryInterface $readContactRepository
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository
     ) {
     }
 
@@ -116,11 +120,20 @@ final class FindDashboardContacts
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
             $this->requestParameters
         );
-        $admins = $this->readDashboardShareRepository->findDashboardAdminWithRequestParameters(
+        $admins = $this->readContactRepository->findAdminWithRequestParameters(
             $this->requestParameters
         );
+        $adminContactRoles = [];
+        foreach ($admins as $admin) {
+            $adminContactRoles[] = new DashboardContactRole(
+                $admin->getId(),
+                $admin->getName(),
+                $admin->getEmail(),
+                [DashboardGlobalRole::Administrator]
+            );
+        }
 
-        return [...$users, ...$admins];
+        return [...$users, ...$adminContactRoles];
     }
 
     /**

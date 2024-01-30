@@ -146,13 +146,4 @@ interface ReadDashboardShareRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $aclGroupIds
     ): array;
-
-    /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @throws \Throwable
-     *
-     * @return DashboardContactRole[]
-     */
-    public function findDashboardAdminWithRequestParameters(RequestParametersInterface $requestParameters): array;
 }

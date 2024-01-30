@@ -536,68 +536,6 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findDashboardAdminWithRequestParameters(RequestParametersInterface $requestParameters): array
-    {
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
-        $sqlTranslator->setConcordanceArray([
-            'name' => 'c.contact_name',
-        ]);
-        $query = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS
-                c.contact_id,
-                c.contact_name,
-                c.contact_email,
-                c.contact_admin
-            FROM `:db`.contact c
-            SQL;
-
-        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
-        $query .= $searchRequest !== null
-            ? $searchRequest . ' AND '
-            : ' WHERE ';
-
-        $query .= "c.contact_admin = '1' AND c.contact_oreon = '1'";
-
-        $query .= $sqlTranslator->translatePaginationToSql();
-        $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-        $statement->execute();
-
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal(
-                $sqlTranslator->getRequestParameters()->getTotal() + (int) $total
-            );
-        }
-
-        $dashboardContactRoles = [];
-        foreach ($statement as $admin) {
-            /** @var array{
-             *     contact_admin: string,
-             *     contact_name: string,
-             *     contact_id: int,
-             *     contact_email: string
-             * } $admin
-             */
-            $dashboardContactRoles[] = $this->createDashboardContactRole($admin);
-        }
-
-        return $dashboardContactRoles;
-    }
-
-    /**
      * @param array{
      *      contact_name: string,
      *      contact_id: int,
@@ -615,17 +553,12 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $topologies = array_key_exists('topologies', $contactRole)
             ? explode(',', $contactRole['topologies'])
             : [];
-        $roles = [];
-        if (array_key_exists('contact_admin', $contactRole)) {
-            $roles[] = DashboardGlobalRole::Administrator;
-        } else {
-            $roles = array_map(
-                static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
-                    $topology
-                ),
-                $topologies
-            );
-        }
+        $roles = array_map(
+            static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
+                $topology
+            ),
+            $topologies
+        );
 
         return new DashboardContactRole(
             $contactRole['contact_id'],
