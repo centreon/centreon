@@ -91,7 +91,7 @@ When('the user enters a new Notification Rule name', () => {
 });
 
 When('the user confirms to duplicate', () => {
-  cy.get('[data-testid="Confirm"]').click();
+  cy.getByTestId({ testId: 'Confirm' }).click();
 });
 
 Then('a success message is displayed', () => {
@@ -130,7 +130,7 @@ Then(
 );
 
 When('the user clicks on the discard action', () => {
-  cy.get('[data-testid="Cancel"]').click();
+  cy.getByTestId({ testId: 'Cancel' }).click();
 });
 
 Then('the duplication action is cancelled', () => {
@@ -149,5 +149,5 @@ Then(
 );
 
 Then('the duplicate button is disabled', () => {
-  cy.get('[data-testid="Confirm"]').should('be.disabled');
+  cy.getByTestId({ testId: 'Confirm' }).should('be.disabled');
 });

@@ -162,7 +162,7 @@ When(
         cy.contains(data.hostGroups.hostGroup1.name).click();
         cy.get('#Searchhostgroups').blur();
         cy.contains('Include services for these hosts').click();
-        cy.get('[data-testid="Extra events services"] >').each(($el) => {
+        cy.getByTestId({ testId: 'Extra events services' }).each(($el) => {
           cy.wrap($el).click();
         });
         break;

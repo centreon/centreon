@@ -113,7 +113,7 @@ When(
 );
 
 When('the user saves to confirm the changes', () => {
-  cy.get('[data-testid="Save"]').click();
+  cy.getByTestId({ testId: 'Save' }).click();
 });
 
 When('the notification refresh delay has been reached', () => {
@@ -183,7 +183,7 @@ Then(
 When('the user changes the contact configuration', () => {
   cy.get('#Searchcontacts').click();
   cy.wait('@getUsers');
-  cy.get('li > div > span.MuiButtonBase-root').eq(0).click();
+  cy.get('.MuiAutocomplete-option').eq(0).click();
   cy.contains(contactAfterEdit).click();
 });
 

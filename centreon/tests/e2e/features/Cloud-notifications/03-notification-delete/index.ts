@@ -87,7 +87,7 @@ When('the user selects the delete action on a Notification Rule', () => {
 });
 
 When('the user confirms the deletion', () => {
-  cy.get('[data-testid="Confirm"]').click();
+  cy.getByTestId({ testId: 'Confirm' }).click();
 });
 
 Then(
@@ -131,7 +131,7 @@ Then(
 );
 
 When('the user clicks on the discard action', () => {
-  cy.get('[data-testid="Cancel"]').click();
+  cy.getByTestId({ testId: 'Cancel' }).click();
 });
 
 Then('the deletion is cancelled', () => {
