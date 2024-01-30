@@ -14,7 +14,6 @@ import {
 
 import {
   labelRefineFilter,
-  labelRefineFiltersToNarrowDownResources,
   labelDelete,
   labelResourceType,
   labelResources,

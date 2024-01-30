@@ -9,7 +9,7 @@ import {
   split
 } from 'ramda';
 import * as Yup from 'yup';
-import { Resource, TFunction } from 'i18next';
+import { TFunction } from 'i18next';
 import { FormikValues } from 'formik';
 
 import { FederatedWidgetOptionType } from '../../../../../../federatedModules/models';
