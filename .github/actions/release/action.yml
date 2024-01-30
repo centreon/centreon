@@ -24,7 +24,7 @@ runs:
       run: |
         set -eux
         COMPONENTS_RELEASED=()
-        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon")
+        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
         # COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         NEW_STABLE_TAGS=()
@@ -40,18 +40,25 @@ runs:
         # Get previous version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
           if [[ component == "centreon-web" ]]; then
-            component="centreon"
+            COMPONENT_DIR="centreon"
+          else
+            COMPONENT_DIR=$component
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
-          MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
+          MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
         done
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}
 
         # Get new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
+          if [[ component == "centreon-web" ]]; then
+            COMPONENT_DIR="centreon"
+          else
+            COMPONENT_DIR=$component
+          fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
-          MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
+          MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
           NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
         done
