@@ -18,6 +18,7 @@ parameters:
     curl.timeout: 60
     debug_level: "%env(int:DEBUG_LEVEL)%"
     env(DEBUG_CONTACT): null
+    db.max_items_by_request: 1000
     api.max_items_by_request: 100
     api.max_query_string_length: 2048
 
@@ -41,6 +42,7 @@ services:
             - '../../src/Core/ResourceAccess/*'
             - '../../src/Core/Service/*'
             - '../../src/Core/ServiceGroup/*'
+            - '../../src/Core/Host/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
