@@ -192,6 +192,7 @@ When(
     cy.contains(hostName)
       .parent()
       .getByTestId({ testId: 'CancelIcon' })
+      .eq(0)
       .click();
   }
 );
