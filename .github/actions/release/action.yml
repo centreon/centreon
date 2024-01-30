@@ -24,12 +24,13 @@ runs:
       run: |
         set -eux
         COMPONENTS_RELEASED=()
-        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
+        COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon")
         # COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         NEW_STABLE_TAGS=()
         PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
+        MINOR_VERSION_FILE_PATH=".version"
 
         # Get current stable branch name
         # CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(git rev-parse --abbrev-ref HEAD | cut -d '.' -f1,2)
@@ -38,6 +39,9 @@ runs:
 
         # Get previous version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
+          if [[ component == "centreon" ]]; then
+            component="centreon-web"
+          fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $component/.version | cut -d '=' -f2)
           PREVIOUS_STABLE_TAGS+=$(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1)
