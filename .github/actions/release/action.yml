@@ -39,7 +39,7 @@ runs:
 
         # Get previous version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
-          if [[ component == "centreon-web" ]]; then
+          if [[ $component == "centreon-web" ]]; then
             COMPONENT_DIR="centreon"
           else
             COMPONENT_DIR=$component
@@ -52,7 +52,7 @@ runs:
 
         # Get new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
-          if [[ component == "centreon-web" ]]; then
+          if [[ $component == "centreon-web" ]]; then
             COMPONENT_DIR="centreon"
           else
             COMPONENT_DIR=$component
