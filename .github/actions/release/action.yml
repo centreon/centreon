@@ -59,9 +59,9 @@ runs:
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
-          # NEW_STABLE_TAG="centreon-$component-$MAJOR_VERSION-$MINOR_VERSION"
+          # NEW_STABLE_TAG="$component-$MAJOR_VERSION-$MINOR_VERSION"
           # NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
-          NEW_STABLE_TAGS+=(centreon-$component-$MAJOR_VERSION-$MINOR_VERSION)
+          NEW_STABLE_TAGS+=($component-$MAJOR_VERSION-$MINOR_VERSION)
         done
 
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
@@ -152,6 +152,7 @@ runs:
       run: |
         set -eux
         MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
+        NEW_STABLE_TAGS=$NEW_STABLE_TAGS
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
