@@ -67,7 +67,7 @@ interface ReadHostRepositoryInterface
     public function findByIds(array $hostIds): array;
 
     /**
-     * Find hosts by their id.
+     * Find hosts by their names.
      *
      * @param list<string> $hostNames
      *
