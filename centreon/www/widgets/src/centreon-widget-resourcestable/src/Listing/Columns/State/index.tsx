@@ -1,5 +1,3 @@
-import { FC } from 'react';
-
 import { path } from 'ramda';
 
 import type { ComponentColumnProps } from '@centreon/ui';
@@ -16,7 +14,7 @@ import DowntimeDetailsTable from './DetailsTable/Downtime';
 
 interface StateChipProps {
   Chip: () => JSX.Element;
-  DetailsTable: FC<{ endpoint: string }>;
+  DetailsTable: (props) => JSX.Element;
   endpoint: string;
   label: string;
 }
