@@ -105,7 +105,7 @@ When(
 
 When('the user sets current page to {int}', (currentPage: number) => {
   for (let i = 1; i < currentPage; i++) {
-    cy.get(`[aria-label="${nextPageLabel}"]`).click();
+    cy.getByLabel({ label: `${nextPageLabel}` }).click();
   }
 });
 
@@ -121,7 +121,7 @@ Then('the user sees the total results as {int}', (count: number) => {
 Then(
   'the user sees the link to the previous page status as {string}',
   (previousPageStatus) => {
-    cy.get(`[aria-label="${previousPageLabel}"]`).should(
+    cy.getByLabel({ label: `${previousPageLabel}` }).should(
       `be.${previousPageStatus}`
     );
   }
@@ -130,7 +130,7 @@ Then(
 Then(
   'the user clicks on the link to navigate to the previous page with status enabled',
   () => {
-    cy.get(`[aria-label="${previousPageLabel}"]`).then(($button) => {
+    cy.getByLabel({ label: `${previousPageLabel}` }).then(($button) => {
       if (!$button.prop('disabled')) {
         cy.wrap($button).click();
       } else {
@@ -143,14 +143,14 @@ Then(
 Then(
   'the user sees the link to the next page status as {string}',
   (nextPageStatus) => {
-    cy.get(`[aria-label="${nextPageLabel}"]`).should(`be.${nextPageStatus}`);
+    cy.getByLabel({ label: `${nextPageLabel}` }).should(`be.${nextPageStatus}`);
   }
 );
 
 Then(
   'the user clicks on the link to navigate to the next page with status enabled',
   () => {
-    cy.get(`[aria-label="${nextPageLabel}"]`).then(($button) => {
+    cy.getByLabel({ label: `${nextPageLabel}` }).then(($button) => {
       if (!$button.prop('disabled')) {
         cy.wrap($button).click();
       } else {
