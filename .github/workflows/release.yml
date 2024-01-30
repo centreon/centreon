@@ -36,6 +36,7 @@ jobs:
         uses: ./.github/actions/release
         with:
           github_ref_name: ${{ github.ref_name }}
-          module_name: ${{ env.module }}
-          jira_token: ${{ secrets.JIRA_TOKEN }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          jira_token: ${{ secrets.JIRA_TOKEN }}
+          jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
+          module_name: ${{ env.module }}

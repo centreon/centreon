@@ -170,10 +170,10 @@ runs:
 
         # Call jira webhook to trigger the communication workflow
         # and provide versions data for communication
-        # curl \
-        #   $JIRA_INCOMING_WEBHOOK \
-        #   -X POST \
-        #   -H 'Content-type: application/json' \
-        #   --data $RELEASE_JSON
+        curl \
+          $JIRA_INCOMING_WEBHOOK \
+          -X POST \
+          -H 'Content-type: application/json' \
+          --data $RELEASE_JSON
 
       shell: bash
