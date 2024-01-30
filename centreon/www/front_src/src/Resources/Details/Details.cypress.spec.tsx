@@ -643,5 +643,6 @@ describe('Details', () => {
       .should('be.visible')
       .should('be.enabled')
       .click();
+    cy.findByTestId('commentArea').should('not.exist');
   });
 });
