@@ -34,18 +34,16 @@ export enum ContactType {
   contactGroup = 'contact_group'
 }
 
-export enum Role {
-  Editor = 'editor',
-  Viewer = 'viewer'
+export interface UserRole {
+  id: number;
+  name: string;
+  email?: string | null;
+  role: DashboardRole;
 }
 
-export interface Contact extends NamedEntity {
-  role: Role;
-}
-
-export interface Share {
-  contactGroups?: Array<Contact>;
-  contacts?: Array<Contact>;
+export interface Shares {
+  contacts: Array<UserRole>;
+  contactGroups: Array<UserRole>;
 }
 
 export enum ShareType {
@@ -65,7 +63,7 @@ export type Dashboard = NamedEntity & {
   updatedBy: NamedEntity;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
-  shares: Share;
+  shares: Shares;
   refresh: {
     type: 'global' | 'manual';
     interval: number | null;
@@ -74,7 +72,7 @@ export type Dashboard = NamedEntity & {
 
 export interface FormattedShare {
   id: number | string;
-  role: Role;
+  role: DashboardRole;
   name: string;
   dashboardId: number | string;
   type: ShareType;

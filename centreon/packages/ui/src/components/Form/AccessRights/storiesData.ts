@@ -88,6 +88,7 @@ const buildEntities = (from, isGroup): Array<SelectEntry> => {
     .map((_, index) => ({
       email: isGroup ? undefined : faker.internet.email(),
       id: 1000 + index,
+      most_permissive_role: index % 3 === 0 ? 'editor' : 'viewer',
       name: `Entity ${isGroup ? 'Group' : ''} ${from + index}`
     }));
 };
