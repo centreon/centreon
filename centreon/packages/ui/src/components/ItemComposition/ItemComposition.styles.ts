@@ -1,6 +1,13 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useItemCompositionStyles = makeStyles()((theme) => ({
+  buttonAndSecondaryLabel: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
   itemCompositionContainer: {
     alignItems: 'flex-start',
     display: 'flex',
@@ -29,7 +36,7 @@ export const useItemCompositionStyles = makeStyles()((theme) => ({
     border: `1px solid ${theme.palette.divider}`,
     borderRight: 'none',
     display: 'flex',
-    margin: theme.spacing(2, 0),
+    margin: theme.spacing(2, 0, 2, 1),
     minHeight: '100%',
     position: 'relative',
     width: theme.spacing(1)
@@ -50,6 +57,6 @@ export const useItemStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   visibilityHiden: {
-    visibility: 'hidden'
+    display: 'none'
   }
 }));

@@ -7,11 +7,11 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import { GlobalRefreshInterval, Metric } from '../../models';
+import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import { areResourcesFullfilled } from '../../utils';
 
 import { metricsTopEndpoint } from './api/endpoint';
-import { MetricsTop, TopBottomSettings, WidgetDataResource } from './models';
+import { MetricsTop, TopBottomSettings } from './models';
 import { metricsTopDecoder } from './api/decoder';
 
 interface UseTopBottomProps {
@@ -20,7 +20,7 @@ interface UseTopBottomProps {
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
-  resources: Array<WidgetDataResource>;
+  resources: Array<Resource>;
   topBottomSettings: TopBottomSettings;
 }
 

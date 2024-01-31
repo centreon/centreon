@@ -2,8 +2,8 @@
   "result": [
       {
         "id": 1,
-        "parent_name": "Centreon-server",
         "name": "Ping",
+        "parent_name": "Centreon-1",
         "uuid": "h1-s1",
         "metrics": [
             {
@@ -28,8 +28,8 @@
       },
       {
         "id": 2,
-        "parent_name": "Centreon-server",
-        "name": "Ping-copy",
+        "name": "Ping",
+        "parent_name": "Centreon-2",
         "uuid": "h1-s2",
         "metrics": [
             {
@@ -54,7 +54,7 @@
       }
     ],
   "meta": {
-    "total": 2,
+    "total": 4,
     "page": 1,
     "limit": 10
   }
