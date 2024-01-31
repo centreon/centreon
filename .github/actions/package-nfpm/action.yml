@@ -48,6 +48,23 @@ runs:
       run: echo -n "$RPM_GPG_SIGNING_KEY" > key.gpg
       shell: bash
 
+    - name: install nfpm
+      run: |
+        if  [ "${{ inputs.package_extension }}" = "rpm" ]; then
+          dnf remove -y nfpm
+        else
+          apt-get update
+          apt-get remove -y nfpm
+        fi
+        curl -O https://dl.google.com/go/go1.21.6.linux-amd64.tar.gz
+        tar zxf go1.21.6.linux-amd64.tar.gz
+        mv ./go /usr/local
+        export PATH=$PATH:/usr/local/go/bin
+        go install github.com/goreleaser/nfpm/v2/cmd/nfpm@fix-perms
+        mv /root/go/bin/nfpm /bin/nfpm
+        nfpm -v
+      shell: bash
+
     - name: Build ${{ inputs.package_extension }} files
       env:
         RPM_GPG_SIGNING_KEY_ID: ${{ inputs.rpm_gpg_signing_key_id }}
