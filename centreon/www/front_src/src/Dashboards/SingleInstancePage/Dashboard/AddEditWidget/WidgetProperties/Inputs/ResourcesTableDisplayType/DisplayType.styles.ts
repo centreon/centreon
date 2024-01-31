@@ -6,15 +6,23 @@ export const useStyles = makeStyles()((theme) => ({
     flexDirection: 'row',
     gap: theme.spacing(2)
   },
+  icon: {
+    backgroundColor: 'transparent',
+    borderRadius: theme.shape.borderRadius,
+    fill: 'white',
+    height: theme.spacing(8),
+    width: theme.spacing(8)
+  },
   iconSelected: {
     backgroundColor: theme.palette.background.paper,
     borderRadius: '50%'
   },
-  typeIcon: {
+  iconWrapper: {
     alignItems: 'center',
     display: 'flex',
     height: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '100%'
   },
   typeOption: {
     '&[data-disabled="true"]': {
@@ -22,6 +30,7 @@ export const useStyles = makeStyles()((theme) => ({
     },
     backgroundColor: 'transparent',
     height: theme.spacing(10),
+    marginRight: theme.spacing(1),
     width: theme.spacing(10)
   },
   typeSelected: {

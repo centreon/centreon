@@ -1,9 +1,8 @@
-import { ReactNode } from 'react';
-
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import parse from 'html-react-parser';
 
-import { Card, CardActionArea } from '@mui/material';
+import { Card, CardActionArea, SvgIcon } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { Tooltip } from '@centreon/ui/components';
@@ -14,7 +13,7 @@ import { useStyles } from './DisplayType.styles';
 
 interface Props {
   changeType: (type: string) => () => void;
-  icon: ReactNode;
+  icon: string;
   label: string;
   type: string;
   value: string;
@@ -48,7 +47,16 @@ const OptionCard = ({
           disabled={!canEditField}
           onClick={changeType(type)}
         >
-          <div className={classes.typeIcon}>{icon}</div>
+          <div className={classes.iconWrapper}>
+            <SvgIcon
+              className={classes.icon}
+              color="inherit"
+              data-icon={label}
+              viewBox="0 0 60 60"
+            >
+              {parse(icon)}
+            </SvgIcon>
+          </div>
           {isSelected && (
             <div className={classes.typeSelected}>
               <CheckCircleIcon
