@@ -1,5 +1,3 @@
-import parse from 'html-react-parser';
-import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
@@ -13,6 +11,8 @@ import {
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
 
+import Comment from './Comment';
+
 import DetailsTable, { DetailsTableProps, getYesNoLabel } from '.';
 
 interface AcknowledgementDetails {
@@ -24,21 +24,10 @@ interface AcknowledgementDetails {
   is_sticky: boolean;
 }
 
-const Comment = ({
-  comment
-}: Pick<AcknowledgementDetails, 'comment'>): JSX.Element => {
-  const { classes } = useStyles();
-
-  return (
-    <span className={classes.comment}>
-      {parse(DOMPurify.sanitize(comment))}
-    </span>
-  );
-};
-
 const AcknowledgementDetailsTable = ({
   endpoint
 }: Pick<DetailsTableProps, 'endpoint'>): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const { toDateTime } = useLocaleDateTimeFormat();
@@ -73,9 +62,8 @@ const AcknowledgementDetailsTable = ({
       type: ColumnType.string,
       width: 100
     },
-
     {
-      getContent: Comment,
+      getContent: Comment(classes),
       id: 'comment',
       label: t(labelComment),
       type: ColumnType.string,

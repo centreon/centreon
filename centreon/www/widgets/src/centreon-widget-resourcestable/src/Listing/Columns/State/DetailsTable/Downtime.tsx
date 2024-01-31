@@ -1,5 +1,3 @@
-import parse from 'html-react-parser';
-import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
@@ -13,6 +11,8 @@ import {
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
 
+import Comment from './Comment';
+
 import DetailsTable, { getYesNoLabel } from '.';
 
 interface DowntimeDetails {
@@ -23,26 +23,6 @@ interface DowntimeDetails {
   is_fixed: boolean;
   start_time: Date | string;
 }
-
-const Comment = ({
-  comment
-}: Pick<DowntimeDetails, 'comment'>): JSX.Element => {
-  const { classes } = useStyles();
-
-  return (
-    <span className={classes.comment}>
-      {parse(DOMPurify.sanitize(comment))}
-    </span>
-  );
-};
-
-const EndTime = ({
-  end_time
-}: Pick<DowntimeDetails, 'end_time'>): JSX.Element => {
-  const { toDateTime } = useLocaleDateTimeFormat();
-
-  return <span>{toDateTime(end_time)}</span>;
-};
 
 interface Props {
   endpoint: string;
@@ -77,16 +57,15 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
       width: 150
     },
     {
-      getContent: EndTime,
+      getContent: ({ end_time }): string => toDateTime(end_time),
       id: 'end_time',
       label: t(labelEndTime),
       type: ColumnType.string,
       width: 150
     },
-
     {
       className: classes.comment,
-      getContent: Comment,
+      getContent: Comment(classes),
       id: 'comment',
       label: t(labelComment),
       type: ColumnType.component,
