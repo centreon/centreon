@@ -30,8 +30,8 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
-use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
@@ -52,6 +52,8 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements ReadServiceGroupRepositoryInterface
 {
+    use SqlMultipleBindTrait;
+
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
@@ -60,20 +62,20 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array
+    public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable
     {
         $concatenator = $this->getFindServiceGroupConcatenator();
 
-        return $this->retrieveServiceGroups($concatenator, $requestParameters);
+        return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
 
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array
+    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable
     {
         if ([] === $accessGroups) {
-            return [];
+            return new \ArrayIterator([]);
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
@@ -83,7 +85,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
-        return $this->retrieveServiceGroups($concatenator, $requestParameters);
+        return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
 
     /**
@@ -254,6 +256,46 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByIds(int ...$serviceGroupIds): array
+    {
+        if ($serviceGroupIds === []) {
+            return [];
+        }
+
+        [$bindValues, $serviceGroupIdsQuery] = $this->createMultipleBindQuery($serviceGroupIds, ':id_');
+        $request = <<<SQL
+            SELECT
+                sg_id,
+                sg_name,
+                sg_alias,
+                geo_coords,
+                sg_comment,
+                sg_activate
+            FROM `:db`.`servicegroup`
+            WHERE sg_id IN ({$serviceGroupIdsQuery})
+            ORDER BY sg_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $bindKey => $serviceGroupId) {
+            $statement->bindValue($bindKey, $serviceGroupId, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $serviceGroups = [];
+
+        /** @var ServiceGroupResultSet $result */
+        foreach ($statement as $result) {
+            $serviceGroups[] = ServiceGroupFactory::createFromDb($result);
+        }
+
+        return $serviceGroups;
+    }
+
+    /**
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
@@ -365,7 +407,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $serviceGroups = [];
         foreach ($statement as $result) {
             /** @var ServiceGroupResultSet $result */
-            $serviceGroups[] = $this->createServiceGroupFromArray($result);
+            $serviceGroups[] = ServiceGroupFactory::createFromDb($result);
         }
 
         return $serviceGroups;
@@ -464,7 +506,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         /** @var null|false|ServiceGroupResultSet $data */
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        return $data ? $this->createServiceGroupFromArray($data) : null;
+        return $data ? ServiceGroupFactory::createFromDb($data) : null;
     }
 
     /**
@@ -519,7 +561,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     serviceId: $serviceId,
                     hostId: $result['host_host_id'],
                 ),
-                'serviceGroup' => $this->createServiceGroupFromArray($result),
+                'serviceGroup' => ServiceGroupFactory::createFromDb($result),
             ];
         }
 
@@ -567,30 +609,5 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         return false;
-    }
-
-    /**
-     * @param array $result
-     *
-     * @phpstan-param ServiceGroupResultSet $result
-     *
-     * @throws AssertionFailedException
-     * @throws InvalidGeoCoordException
-     *
-     * @return ServiceGroup
-     */
-    private function createServiceGroupFromArray(array $result): ServiceGroup
-    {
-        return new ServiceGroup(
-            $result['sg_id'],
-            $result['sg_name'],
-            $result['sg_alias'],
-            match ($geoCoords = $result['geo_coords']) {
-                null, '' => null,
-                default => GeoCoords::fromString($geoCoords),
-            },
-            (string) $result['sg_comment'],
-            (bool) $result['sg_activate'],
-        );
     }
 }
