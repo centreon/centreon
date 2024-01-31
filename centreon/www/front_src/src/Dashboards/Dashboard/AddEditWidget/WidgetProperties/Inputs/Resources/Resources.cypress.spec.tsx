@@ -89,9 +89,9 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource)
       .eq(0)
-      .should('have.value', 'Resource 0');
+      .should('have.value', 'Resource 1');
     cy.findAllByTestId(labelSelectAResource)
       .eq(1)
-      .should('have.value', 'Resource 1');
+      .should('have.value', 'Resource 0');
   });
 });
