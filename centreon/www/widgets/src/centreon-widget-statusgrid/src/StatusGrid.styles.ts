@@ -39,15 +39,6 @@ export const useTileStyles = makeStyles()((theme) => ({
   }
 }));
 
-export const useNoResourcesStyles = makeStyles()({
-  noDataFound: {
-    alignItems: 'center',
-    display: 'flex',
-    height: '100%',
-    justifyContent: 'center'
-  }
-});
-
 export const useHostTooltipContentStyles = makeStyles()((theme) => ({
   body: {
     padding: theme.spacing(1),
