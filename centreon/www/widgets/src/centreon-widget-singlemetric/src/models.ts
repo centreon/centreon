@@ -1,10 +1,3 @@
-import { Resource, ServiceMetric } from '../../models';
-
-export interface Data {
-  metrics: Array<ServiceMetric>;
-  resources: Array<Resource>;
-}
-
 export interface FormThreshold {
   baseColor?: string;
   criticalType: 'default' | 'custom';

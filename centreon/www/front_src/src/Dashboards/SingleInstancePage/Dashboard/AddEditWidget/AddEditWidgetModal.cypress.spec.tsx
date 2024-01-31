@@ -605,11 +605,11 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('rtmax').click();
         cy.findByTestId(labelSelectMetric).click();
 
-        cy.contains('Metrics (2 available)').should('be.visible');
+        cy.contains('Metrics (4 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findByLabelText(labelSave).should('be.enabled');
@@ -635,14 +635,53 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('rtmax').click();
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
         cy.findAllByLabelText(labelDelete).eq(0).should('not.be.visible');
 
         cy.makeSnapshot();
+      });
+
+      it('stores the data with an excluded resource when a resource is selected, a metric is selected, a resource is unchecked and the Add button is clicked', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 0$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('pl-summary').click();
+        cy.findByTestId('pl_Centreon-1:Ping').click();
+        cy.findByTestId(labelSelectMetric).click();
+
+        cy.findByLabelText(labelSave)
+          .click()
+          .then(() => {
+            const dashboard = store.get(dashboardAtom);
+            expect(dashboard.layout[0].data.metrics[0]).to.deep.equal({
+              criticalHighThreshold: 1000,
+              criticalLowThreshold: null,
+              excludedMetrics: [2],
+              id: 2,
+              includeAllMetrics: true,
+              name: 'pl',
+              unit: '%',
+              warningHighThreshold: null,
+              warningLowThreshold: null
+            });
+          });
       });
 
       it('stores the data when a resource is selected, a metric is selected and the Add button is clicked', () => {
@@ -663,25 +702,25 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('rtmax').click();
+        cy.findByTestId(labelSelectMetric).click();
 
         cy.findByLabelText(labelSave)
           .click()
           .then(() => {
             const dashboard = store.get(dashboardAtom);
 
-            assert.equal(dashboard.layout.length, 1);
-            assert.equal(dashboard.layout[0].data.resources.length, 1);
+            assert.equal(dashboard.layout.length, 2);
+            assert.equal(dashboard.layout[1].data.resources.length, 1);
             assert.equal(
-              dashboard.layout[0].data.resources[0].resourceType,
+              dashboard.layout[1].data.resources[0].resourceType,
               'host'
             );
             assert.equal(
-              dashboard.layout[0].data.resources[0].resources.length,
+              dashboard.layout[1].data.resources[0].resources.length,
               1
             );
-            assert.equal(dashboard.layout[0].data.metrics.length, 2);
+            assert.equal(dashboard.layout[1].data.metrics.length, 1);
           });
       });
 
@@ -701,9 +740,62 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
+        cy.findByTestId('pl').click();
 
         cy.makeSnapshot();
+      });
+
+      it('removes the selected resource from the metric selector when the corresponding resource is removed from the resource selector', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelTitle).type('Generic data');
+
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 1$/).click();
+        cy.findByTestId(labelSelectAResource).click();
+        cy.contains(/^Host 2$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.fixture('Dashboards/Dashboard/serviceMetric.json').then(
+          (serviceMetric) => {
+            cy.interceptAPIRequest({
+              alias: 'getServiceMetric',
+              method: Method.GET,
+              path: `${metricsEndpoint}**`,
+              response: serviceMetric
+            });
+          }
+        );
+
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId(labelSelectMetric).click();
+
+        cy.contains('pl (%)/2').should('be.visible');
+
+        cy.contains(/^Host 2$/)
+          .parent()
+          .findByTestId('CancelIcon')
+          .click();
+
+        cy.waitForRequest('@getServiceMetric');
+        cy.contains('pl (%)/1').should('be.visible');
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl-summary').click();
+        cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+        cy.findByTestId('pl_Centreon-1:Ping').should(
+          'have.attr',
+          'data-checked',
+          'true'
+        );
       });
     });
 
