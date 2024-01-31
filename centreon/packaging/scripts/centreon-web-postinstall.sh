@@ -14,6 +14,12 @@ manageUsersAndGroups() {
   fi
 }
 
+fixIndexFileRights() {
+  # https://github.com/goreleaser/nfpm/issues/738
+  echo "Forcing rights of centreon index.html file ..."
+  chmod 0775 /usr/share/centreon/www/index.html
+}
+
 updateConfigurationFiles() {
   export MIN=$(awk 'BEGIN{srand(); print int(rand()*60)}')
   export HOUR=$(awk 'BEGIN{srand(); print int(rand()*24)}')
@@ -112,6 +118,7 @@ fi
 case "$action" in
   "1" | "install")
     manageUsersAndGroups $package_type
+    fixIndexFileRights
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
@@ -119,6 +126,7 @@ case "$action" in
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
+    fixIndexFileRights
     updateConfigurationFiles
     updateGorgoneConfiguration
     manageLocales $package_type
