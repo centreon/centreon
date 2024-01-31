@@ -25,19 +25,20 @@ import {
 } from '../../federatedModules/atoms';
 import { DashboardRole } from '../api/models';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  getDashboardAccessRightsEndpoint,
+  dashboardSharesEndpoint,
   getDashboardEndpoint
 } from '../api/endpoints';
-import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
-import { labelDelete } from '../translatedLabels';
+import {
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
+} from '../translatedLabels';
 
 import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
-  labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
@@ -151,26 +152,6 @@ const initializeAndMount = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
-  store.set(dialogStateAtom, {
-    dashboard: {
-      createdAt: '',
-      createdBy: {
-        id: 1,
-        name: 'Joe'
-      },
-      description: null,
-      id: 1,
-      name: 'Dashboard 1',
-      ownRole: DashboardRole.editor,
-      updatedAt: '',
-      updatedBy: {
-        id: 1,
-        name: 'Joe'
-      }
-    },
-    isOpen: false,
-    status: 'idle'
-  });
   store.set(refreshIntervalAtom, 15);
 
   cy.viewport('macbook-13');
@@ -203,39 +184,19 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardAccessRights',
-      method: Method.GET,
-      path: `${getDashboardAccessRightsEndpoint(1)}**`,
-      response: shares
-    });
-  });
-
-  cy.fixture('Dashboards/Dashboard/contacts.json').then((contacts) => {
+  cy.fixture(`Dashboards/contacts.json`).then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
-      path: `${dashboardsContactsEndpoint}**`,
-      response: contacts
+      path: `./api/latest${dashboardsContactsEndpoint}?**`,
+      response
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/contactGroups.json').then(
-    (contactgroups) => {
-      cy.interceptAPIRequest({
-        alias: 'getContactGroups',
-        method: Method.GET,
-        path: `${dashboardsContactGroupsEndpoint}**`,
-        response: contactgroups
-      });
-    }
-  );
-
   cy.interceptAPIRequest({
-    alias: 'putDashboardAccessRights',
+    alias: 'putShares',
     method: Method.PUT,
-    path: getDashboardAccessRightsEndpoint(1),
+    path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
   });
 
@@ -264,8 +225,6 @@ describe('Dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
-      cy.waitForRequest('@getContacts');
-      cy.waitForRequest('@getContactGroups');
 
       cy.contains(labelEditDashboard).should('be.visible');
 
@@ -503,5 +462,29 @@ describe('Dashboard', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
+  });
+
+  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.findAllByTestId('share').eq(0).click();
+
+    cy.findByLabelText(labelAddAContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains(/^User$/)
+      .parent()
+      .click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@putShares');
+
+    cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
