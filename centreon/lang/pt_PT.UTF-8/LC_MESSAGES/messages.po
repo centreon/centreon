@@ -16918,7 +16918,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Thresholds"
 # msgstr ""
 
-# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
 # msgstr ""
 
 # msgid "Value format"

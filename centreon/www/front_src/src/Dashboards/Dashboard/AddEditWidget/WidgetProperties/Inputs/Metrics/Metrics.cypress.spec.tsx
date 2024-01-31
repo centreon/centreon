@@ -9,7 +9,9 @@ import { metricsEndpoint } from '../../../api/endpoints';
 import { WidgetDataResource } from '../../../models';
 import {
   labelIsTheSelectedResource,
-  labelSelectMetric
+  labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
+  labelYouCanSelectUpToTwoMetricUnits
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -125,6 +127,20 @@ describe('Metrics: single metric', () => {
     initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
     store.set(singleHostPerMetricAtom, true);
     store.set(singleMetricSelectionAtom, true);
+  });
+
+  it('displays a warning message when metrics with different units are selected', () => {
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.findByText('rtmax (ms) / Includes 2 resources').click();
+    cy.findByText('pl (%) / Includes 2 resources').click();
+
+    cy.findByTestId(labelSelectMetric).click();
+
+    cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
+    cy.contains(labelThresholdsAreAutomaticallyHidden).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
