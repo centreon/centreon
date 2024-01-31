@@ -92,8 +92,9 @@ $rq = "SELECT SQL_CALC_FOUND_ROWS hg_id, hg_name, hg_alias, hg_activate, hg_icon
     "FROM hostgroup " .
     "WHERE {$searchFilterQuery} hg_id NOT IN (SELECT hg_child_id FROM hostgroup_hg_relation) " .
     $acl->queryBuilder('AND', 'hg_id', $hgString) .
-    " ORDER BY hg_name LIMIT " . $num * $limit . ", " . $limit;
-$dbResult = $pearDB->query($rq, $mainQueryParameters);
+    " ORDER BY hg_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit;
+$dbResult = $pearDB->prepare($rq);
+$dbResult->execute($mainQueryParameters);
 
 // Pagination
 $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();

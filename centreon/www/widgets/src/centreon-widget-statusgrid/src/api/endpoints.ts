@@ -1,4 +1,4 @@
-import { flatten, includes, pluck } from 'ramda';
+import { equals, flatten, includes, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
@@ -56,6 +56,8 @@ export const buildResourcesEndpoint = ({
     }
   );
 
+  const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
+
   return buildListingEndpoint({
     baseEndpoint: resourcesEndpoint,
     customQueryParameters: [
@@ -76,7 +78,7 @@ export const buildResourcesEndpoint = ({
         conditions: flatten(searchConditions)
       },
       sort: {
-        [sortBy]: 'ASC'
+        [sortBy]: sortOrder
       }
     }
   });
@@ -107,7 +109,7 @@ export const buildServicesEndpoint = ({
         ]
       },
       sort: {
-        status: 'ASC'
+        status: 'DESC'
       }
     }
   });

@@ -51,10 +51,10 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     /**
      * @inheritDoc
      */
-    public function findNotifiedContactsById(int $serviceId): array
+    public function findNotifiedContactsById(int $hostId, int $serviceId): array
     {
         if (! isset($this->notifiedContacts[$serviceId])) {
-            $this->fetchNotifiedContactsAndContactGroups($serviceId);
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $serviceId);
         }
 
         return $this->notifiedContacts[$serviceId];
@@ -63,10 +63,10 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     /**
      * @inheritDoc
      */
-    public function findNotifiedContactGroupsById(int $serviceId): array
+    public function findNotifiedContactGroupsById(int $hostId, int $serviceId): array
     {
         if (! isset($this->notifiedContactGroups[$serviceId])) {
-            $this->fetchNotifiedContactsAndContactGroups($serviceId);
+            $this->fetchNotifiedContactsAndContactGroups($hostId, $serviceId);
         }
 
         return $this->notifiedContactGroups[$serviceId];
@@ -75,21 +75,34 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
     /**
      * Initialize notified contacts and contactgroups for given service id.
      *
+     * @param int $hostId
      * @param int $serviceId
      */
-    private function fetchNotifiedContactsAndContactGroups(int $serviceId): void
+    private function fetchNotifiedContactsAndContactGroups(int $hostId, int $serviceId): void
     {
+
         /**
          * Call to Legacy code to get the contacts and contactgroups
          * that will be notified for the Service regarding global
          * notification inheritance parameter.
          */
         $serviceInstance = \Service::getInstance($this->dependencyInjector);
-
         [
             'contact' => $notifiedContactIds,
             'cg' => $notifiedContactGroupIds,
         ] = $serviceInstance->getCgAndContacts($serviceId);
+
+        /**
+         * @var array{service_use_only_contacts_from_host: string}|null $service
+         */
+        $service = $serviceInstance->getServiceFromCache($serviceId);
+        if ($service !== null && $service['service_use_only_contacts_from_host'] === '1') {
+            $hostInstance = \Host::getInstance($this->dependencyInjector);
+            $host = ['host_id' => $hostId];
+            $hostInstance->processingFromHost($host, false);
+            $notifiedContactIds = $host['contacts_cache'] ?? [];
+            $notifiedContactGroupIds = $host['contact_groups_cache'] ?? [];
+        }
 
         $this->notifiedContacts[$serviceId] = $this->findContactsByIds($notifiedContactIds);
         $this->notifiedContactGroups[$serviceId] = $this->findContactGroupsByIds($notifiedContactGroupIds);

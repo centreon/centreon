@@ -5,6 +5,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      is_nightly:
+        description: 'Set to true for nightly run'
+        required: true
+        default: false
+        type: boolean
   schedule:
     - cron: "0 3 * * *"
   pull_request:
@@ -35,15 +41,15 @@ jobs:
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
       has_features_changes: ${{ steps.filter.outputs.has_features_changes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
         id: filter
         with:
           filters: |
             has_frontend_changes:
               - '**/*.[jt]sx?'
-              - '**/www/front_src/**'
+              - '**/www/(front_src|widgets)/**'
               - '**/tests/e2e/**'
               - '**/package*'
               - '**/lighthouse/**'
@@ -66,7 +72,7 @@ jobs:
               - '**/tests/api/**'
               - '**/tests/php/**'
               - '**/tests/clapi_export/**'
-              - '**/www/!(front_src)/**'
+              - '**/www/!(front_src|widgets)/**'
               - '**/doc/API/**'
             has_features_changes:
               - '**/tests/e2e/**/*.feature'
@@ -77,7 +83,7 @@ jobs:
     needs: [changes]
     if: ${{ needs.changes.outputs.has_features_changes == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -101,13 +107,16 @@ jobs:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -124,7 +133,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -138,7 +147,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -156,7 +165,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - run: |
           cd centreon
@@ -172,7 +181,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -183,7 +192,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -197,7 +206,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -211,14 +220,14 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
         with:
           version: 7
           run_install: false
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
         with:
           node-version: 18
           cache: pnpm
@@ -257,10 +266,10 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
         with:
           php-version: 8.1
           coverage: none
@@ -268,7 +277,7 @@ jobs:
           runner: ubuntu-22.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@v2
+        uses: ramsey/composer-install@c49029afecf85fda829d8c6c7f1b5f7b8bc3f7be # v2
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -289,10 +298,10 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
         with:
           php-version: 8.1
           coverage: none
@@ -384,7 +393,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -408,23 +417,23 @@ jobs:
         shell: bash
 
       - name: Login to registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
-      - uses: docker/setup-buildx-action@v2
+      - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       - name: Build and push fresh image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
@@ -437,7 +446,7 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Build standard image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
@@ -450,7 +459,7 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Push standard image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
@@ -500,7 +509,7 @@ jobs:
         shell: bash
 
       - name: Store standard slim image in cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
@@ -570,8 +579,8 @@ jobs:
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-      client_id: ${{ secrets.CLIENT_ID }}
-      client_secret: ${{ secrets.CLIENT_SECRET }}
+      client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
       jira_user: ${{ secrets.JIRA_USER }}
       jira_token_test: ${{ secrets.JIRA_TOKEN_TEST }}
 
@@ -581,10 +590,10 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -610,7 +619,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -626,11 +635,11 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -670,7 +679,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -702,7 +711,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -716,7 +725,7 @@ jobs:
 
   promote:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -724,7 +733,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

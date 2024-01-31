@@ -330,7 +330,8 @@ class LinkedPollerConfigurationService
         $idBindString = rtrim($idBindString, ',');
         $queryPollers = 'SELECT id, remote_id FROM nagios_server '
             . "WHERE id IN({$idBindString}) AND remote_id IS NOT NULL";
-        $remotesStatement = $this->db->query($queryPollers, $pollerIDs);
+        $remotesStatement = $this->db->prepare($queryPollers);
+        $remotesStatement->execute($pollerIDs);
         $pollersWithRemote = $remotesStatement->fetchAll(\PDO::FETCH_ASSOC);
         $alreadyExportedRemotes = [];
 

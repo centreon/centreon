@@ -81,7 +81,14 @@ const useMutationQuery = <T extends object, TMeta>({
     {
       onError,
       onMutate,
-      onSuccess
+      onSuccess: (data, variables, context) => {
+        if (data?.isError) {
+          onError?.(data, variables, context);
+
+          return;
+        }
+        onSuccess?.(data, variables, context);
+      }
     }
   );
 

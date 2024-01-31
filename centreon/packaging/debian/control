@@ -189,6 +189,7 @@ Depends:
     php8.1-fpm,
     centreon-web (>= ${centreon:version}~),
     centreon-web (<< ${centreon:versionThreshold}~),
+    monitoring-plugins-basic,
     ${misc:Depends}
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon an effective Open Source monitoring engine : Centreon Engine.

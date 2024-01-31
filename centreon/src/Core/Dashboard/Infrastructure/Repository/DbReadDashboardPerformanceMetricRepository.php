@@ -411,14 +411,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $hasMetricName = false): string
     {
         $request
-        = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id, r.parent_id
-                FROM `:dbstg`.`metrics` AS m
-                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-            SQL;
+            = <<<'SQL'
+                    SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
+                    m.max, r.parent_name, r.name, r.id as service_id, r.parent_id
+                    FROM `:dbstg`.`metrics` AS m
+                    INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
+                    INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+                SQL;
 
         $accessGroupIds = array_map(
             fn ($accessGroup) => $accessGroup->getId(),
@@ -517,7 +517,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 if (! array_key_exists($record['service_id'], $metricsInformation)) {
                     $metricsInformation[$record['service_id']] = [
                         'service_id' => $record['service_id'],
-                        'resource_name' => $record['resource_name'],
+                        'name' => $record['name'],
+                        'parent_name' => $record['parent_name'],
                         'parent_id' => $record['parent_id'],
                         'metrics' => [],
                     ];
@@ -538,7 +539,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             foreach ($metricsInformation as $information) {
                 $resourceMetrics[] = new ResourceMetric(
                     $information['service_id'],
-                    $information['resource_name'],
+                    $information['name'],
+                    $information['parent_name'],
                     $information['parent_id'],
                     $information['metrics']
                 );

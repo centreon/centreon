@@ -1,7 +1,17 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, propEq, reject } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  isEmpty,
+  propEq,
+  reject,
+  pluck,
+  includes
+} from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -38,9 +48,14 @@ interface UseResourcesState {
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
+  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: string) => string;
-  resourceTypeOptions: Array<SelectEntry>;
   value: Array<WidgetDataResource>;
+}
+
+interface ResourceTypeOption {
+  id: WidgetResourceType;
+  name: string;
 }
 
 const resourceTypeOptions = [
@@ -177,6 +192,18 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
+  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const resourcetypesIds = pluck('resourceType', value || []);
+
+    const newResourceTypeOptions = reject(
+      ({ id }) =>
+        !equals(id, resource.resourceType) && includes(id, resourcetypesIds),
+      resourceTypeOptions
+    );
+
+    return newResourceTypeOptions;
+  };
+
   useEffect(() => {
     if (!isEmpty(value)) {
       return;
@@ -199,8 +226,8 @@ const useResources = (propertyName: string): UseResourcesState => {
     deleteResourceItem,
     error: errorToDisplay,
     getResourceResourceBaseEndpoint,
+    getResourceTypeOptions,
     getSearchField,
-    resourceTypeOptions,
     value: value || []
   };
 };

@@ -2,10 +2,10 @@ import { ReactElement, useMemo, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
-import AddIcon from '@mui/icons-material/Add';
-
-import { Button, DataTable, PageLayout } from '@centreon/ui/components';
+import { DataTable } from '@centreon/ui/components';
 
 import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
 import { useDashboardDelete } from '../../hooks/useDashboardDelete';
@@ -21,13 +21,24 @@ import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../models';
+import { DashboardListing } from '../DashboardLibrary/DashboardListing';
+import {
+  viewModeAtom,
+  searchAtom
+} from '../DashboardLibrary/DashboardListing/atom';
+import { ViewMode } from '../DashboardLibrary/DashboardListing/models';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
+import { useStyles } from './DashboardsOverview.styles';
 
 const DashboardsOverview = (): ReactElement => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const { isEmptyList, dashboards } = useDashboardsOverview();
+  const viewMode = useAtomValue(viewModeAtom);
+  const search = useAtomValue(searchAtom);
+
+  const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
   const deleteDashboard = useDashboardDelete();
   const { editAccessRights } = useDashboardAccessRights();
@@ -70,49 +81,49 @@ const DashboardsOverview = (): ReactElement => {
     };
   }, []);
 
-  return (
-    <>
-      <PageLayout.Actions>
-        {!isEmptyList && canCreateOrManageDashboards && (
-          <Button
-            aria-label="create"
-            data-testid="create-dashboard"
-            icon={<AddIcon />}
-            iconVariant="start"
-            onClick={createDashboard}
-          >
-            {labels.actions.create}
-          </Button>
-        )}
-      </PageLayout.Actions>
+  const GridTable = (
+    <DataTable isEmpty={isEmptyList} variant="grid">
+      {dashboards.map((dashboard) => (
+        <DataTable.Item
+          hasCardAction
+          description={dashboard.description ?? undefined}
+          hasActions={hasEditPermission(dashboard)}
+          key={dashboard.id}
+          labelsDelete={getLabelsDelete(dashboard)}
+          title={dashboard.name}
+          onClick={navigateToDashboard(dashboard)}
+          onDelete={deleteDashboard(dashboard)}
+          onEdit={editDashboard(dashboard)}
+          onEditAccessRights={editAccessRights(dashboard)}
+        />
+      ))}
+    </DataTable>
+  );
 
-      <DataTable isEmpty={isEmptyList}>
-        {isEmptyList ? (
-          <DataTable.EmptyState
-            aria-label="create"
-            canCreate={canCreateOrManageDashboards}
-            data-testid="create-dashboard"
-            labels={labels.emptyState}
-            onCreate={createDashboard}
-          />
-        ) : (
-          dashboards.map((dashboard) => (
-            <DataTable.Item
-              hasCardAction
-              description={dashboard.description ?? undefined}
-              hasActions={hasEditPermission(dashboard)}
-              key={dashboard.id}
-              labelsDelete={getLabelsDelete(dashboard)}
-              title={dashboard.name}
-              onClick={navigateToDashboard(dashboard)}
-              onDelete={deleteDashboard(dashboard)}
-              onEdit={editDashboard(dashboard)}
-              onEditAccessRights={editAccessRights(dashboard)}
-            />
-          ))
-        )}
+  if (isEmptyList && !search) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={labels.emptyState}
+          onCreate={createDashboard}
+        />
       </DataTable>
-    </>
+    );
+  }
+
+  return (
+    <div className={classes.container}>
+      <DashboardListing
+        customListingComponent={GridTable}
+        data={data}
+        displayCustomListing={equals(viewMode, ViewMode.Cards)}
+        loading={isLoading}
+        openConfig={createDashboard}
+      />
+    </div>
   );
 };
 

@@ -40,6 +40,7 @@ const useListDashboardsContacts = (
 
   const { data, ...queryData } = useFetchQuery<List<DashboardsContact>>({
     decoder: dashboardsContactsListDecoder,
+    doNotCancelCallsOnUnmount: true,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: dashboardsContactsEndpoint,

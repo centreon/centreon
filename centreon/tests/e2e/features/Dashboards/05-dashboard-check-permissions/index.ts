@@ -19,7 +19,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -52,7 +52,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -188,7 +188,7 @@ Given('an admin user on the dashboards library', () => {
 
 When('the admin user creates a new dashboard', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'create-dashboard' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
   );
@@ -382,7 +382,7 @@ Given(
 
 When('the dashboard administrator user creates a new dashboard', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'create-dashboard' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
   );
@@ -577,7 +577,7 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 
 When('the dashboard editor user creates a new dashboard', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'create-dashboard' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
   );
@@ -756,7 +756,7 @@ When('the dashboard viewer accesses the dashboards library', () => {
 });
 
 Then('the option to create a new dashboard is not displayed', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).should('not.exist');
+  cy.getByTestId({ testId: 'create-dashboard' }).should('not.exist');
 });
 
 Given('a dashboard viewer user who could not create a dashboard', () => {

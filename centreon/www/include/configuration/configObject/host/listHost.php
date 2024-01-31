@@ -255,7 +255,7 @@ if (!$centreon->user->admin) {
 
 if ($hostgroup) {
     if ($poller) {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, ns_host_relation, hostgroup_relation hr $templateFROM $aclFrom
@@ -264,42 +264,38 @@ if ($hostgroup) {
             AND ns_host_relation.nagios_server_id = '$poller'
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $dbResult->execute($mainQueryParameters);
     } else {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, hostgroup_relation hr $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = hr.host_host_id
             AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $dbResult->execute($mainQueryParameters);
     }
 } else {
     if ($poller) {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, ns_host_relation $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = ns_host_relation.host_host_id
             AND ns_host_relation.nagios_server_id = '$poller' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $dbResult->execute($mainQueryParameters);
     } else {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
+        $dbResult->execute($mainQueryParameters);
     }
 }
 

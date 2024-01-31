@@ -48,6 +48,8 @@ class Backend
     public $generate_path = '/var/cache/centreon/config';
     public $engine_sub = 'engine';
     public $broker_sub = 'broker';
+
+    /** @var CentreonDB|null  */
     public $db = null;
     public $db_cs = null;
 

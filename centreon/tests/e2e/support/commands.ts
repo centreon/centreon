@@ -5,6 +5,8 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import { apiActionV1 } from '../commons';
 import '../features/Dashboards/commands';
+import metricsGraphWidget from '../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
+import statusGridWidget from '../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 
 Cypress.Commands.add(
   'getByLabel',
@@ -255,6 +257,41 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'insertDashboardWithStatusGridWidget',
+  (dashboardBody, patchBody) => {
+    cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    }).then((response) => {
+      const dashboardId = response.body.id;
+      cy.waitUntil(
+        () => {
+          return cy
+            .request({
+              method: 'GET',
+              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+            })
+            .then((getResponse) => {
+              return getResponse.body && getResponse.body.id === dashboardId;
+            });
+        },
+        {
+          timeout: 10000
+        }
+      );
+      cy.request({
+        body: patchBody,
+        method: 'PATCH',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
+      });
+    });
+  }
+);
+
 Cypress.Commands.add('enableDashboardFeature', () => {
   cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
@@ -289,6 +326,9 @@ interface requestOnDatabaseProps {
   query: string;
 }
 
+type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
+type statusGridWidget = typeof statusGridWidget;
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -311,6 +351,10 @@ declare global {
       insertDashboardWithSingleMetricWidget: (
         dashboard: Dashboard,
         patch: string
+      ) => Cypress.Chainable;
+      insertDashboardWithStatusGridWidget: (
+        dashboard: Dashboard,
+        patch: statusGridWidget
       ) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;

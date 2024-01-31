@@ -19,7 +19,7 @@ import {
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -34,7 +34,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
 
   const {
     value,
-    resourceTypeOptions,
+    getResourceTypeOptions,
     changeResourceType,
     addResource,
     deleteResource,
@@ -45,7 +45,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     deleteResourceItem
   } = useResources(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden = or(!canEditField, value.length <= 1);
 
@@ -81,7 +81,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 dataTestId={labelResourceType}
                 disabled={!canEditField}
                 label={t(labelSelectResourceType) as string}
-                options={resourceTypeOptions}
+                options={getResourceTypeOptions(resource)}
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />

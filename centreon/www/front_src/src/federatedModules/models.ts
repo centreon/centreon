@@ -14,6 +14,7 @@ export interface FederatedModule {
   moduleFederationName: string;
   moduleName: string;
   remoteEntry: string;
+  remoteUrl?: string;
 }
 
 interface PageComponent {
@@ -72,6 +73,7 @@ export interface FederatedWidgetProperties {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
   description: string;
+  icon?: string;
   moduleName: string;
   options: {
     [key: string]: FederatedWidgetOption;

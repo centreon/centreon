@@ -1721,7 +1721,8 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
           "uuid": "h14-s26",
           "metrics": [
             {
@@ -1803,7 +1804,8 @@ Feature:
       | name                          | "rta"                    |
       | unit                          | "ms"                     |
       | resources[0].id                      | 26                       |
-      | resources[0].name                    | "Centreon-Server_Ping"   |
+      | resources[0].name                    | "Ping"   |
+      | resources[0].parent_name                    | "Centreon-Server"   |
       | resources[0].warning_high_threshold       | 200                      |
       | resources[0].critical_high_threshold      | 400                      |
       | resources[0].warning_low_threshold   | 0                        |
@@ -1823,7 +1825,8 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
           "uuid": "h14-s26",
           "metrics": [
             {
