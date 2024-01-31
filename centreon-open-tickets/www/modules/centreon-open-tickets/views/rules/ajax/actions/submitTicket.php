@@ -167,7 +167,8 @@ $sticky = isset($get_information['form']['sticky']) ? 2 : 1;
 $notify = isset($get_information['form']['notify']) ? 1 : 0;
 $persistent = isset($get_information['form']['persistent']) ? 1 : 0;
 $scheduleForcedCheck = isset($get_information['form']['schedule_forced_check']) ? true : false;
-$ackServicesLinkedToHost = isset($get_information['form']['ack_services_linked_to_host']) ? true : false;
+// below feature is not used at the moment. Just putting it here in case we add it some day
+//$ackServicesLinkedToHost = isset($get_information['form']['ack_services_linked_to_host']) ? true : false;
 
 try {
     $contact_infos = get_contact_information();
