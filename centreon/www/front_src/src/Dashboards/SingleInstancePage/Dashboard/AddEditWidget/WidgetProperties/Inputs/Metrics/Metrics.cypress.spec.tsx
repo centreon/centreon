@@ -13,7 +13,7 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
-  labelYouHaveTooManyMetrics,
+  labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
