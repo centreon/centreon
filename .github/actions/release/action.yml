@@ -64,7 +64,7 @@ runs:
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # NEW_STABLE_TAG="$component-$MAJOR_VERSION-$MINOR_VERSION"
           # NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
-          NEW_STABLE_TAGS+=("${component-$MAJOR_VERSION.$MINOR_VERSION}")
+          NEW_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
 
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
@@ -158,10 +158,6 @@ runs:
         #NEW_STABLE_TAGS=$NEW_STABLE_TAGS
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
-
-        # Remove me
-        NEW_STABLE_TAGS=()
-        NEW_STABLE_TAGS=("centreon-awie-23.04.1" "centreon-dsm-23.04.2" "centreon-gorgone-23.04.3" "centreon-ha-23.04.3" "centreon-open-tick    ets-23.04.4" "centreon-web-23.04.6")
 
         # Build JSON structure with released versions
         JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
