@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -119,6 +119,8 @@ jobs:
 
               response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
+              sleep 1
+
               echo "Response from Get Test Plan:"
               echo "$response"
 
@@ -155,6 +157,8 @@ jobs:
               --url "$jira_issue_url" \
               --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
               --header 'Accept: application/json')
+
+            sleep 1
 
             summary=$(echo "$response" | jq -r '.fields.summary')
 
@@ -270,7 +274,7 @@ jobs:
 
   newman-test-run:
     needs: [newman-test-list, associate-test-cases]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-22.04
     continue-on-error: true
     strategy:
@@ -393,7 +397,7 @@ jobs:
           done
 
       - name: Change test execution status
-        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           for summary_file in ./postman_summaries/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
@@ -465,7 +469,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
               issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
               transition_ids=("61" "81" "21" "31")
@@ -491,7 +495,7 @@ jobs:
         shell: bash
 
       - name: Generate and Display Summaries
-        if: failure()
+        # if: failure()
         run: |
           summaries=""
           has_failures=false
