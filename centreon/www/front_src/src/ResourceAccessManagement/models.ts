@@ -36,12 +36,12 @@ export type ResourceAccessRuleType = {
 
 export type Dataset = {
   resourceType: ResourceTypeEnum;
-  resources: Array<number>;
+  resources: Array<NamedEntity>;
 };
 
 export type ResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: Array<number>;
-  contacts: Array<number>;
+  contactGroups: Array<NamedEntity>;
+  contacts: Array<NamedEntity>;
   datasetFilters: Array<Array<Dataset>>;
 };
 

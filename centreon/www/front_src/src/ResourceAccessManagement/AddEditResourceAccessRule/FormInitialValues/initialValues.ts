@@ -1,8 +1,13 @@
 import { equals, prop } from 'ramda';
 
-import { DatasetFilter, NamedEntity, ResourceTypeEnum } from '../../models';
+import {
+  Dataset,
+  DatasetFilter,
+  ResourceAccessRule,
+  ResourceTypeEnum
+} from '../../models';
 
-export const getEmptyInitialValues = (): object => ({
+export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
   contactGroups: [],
   contacts: [],
   datasetFilters: [[{ resourceType: ResourceTypeEnum.Empty, resources: [] }]],
@@ -11,15 +16,8 @@ export const getEmptyInitialValues = (): object => ({
   name: ''
 });
 
-type __Dataset = {
-  resourceType: ResourceTypeEnum;
-  resources: Array<NamedEntity>;
-};
-
-const formatDatasetFilter = (
-  datasetFilter: DatasetFilter
-): Array<__Dataset> => {
-  let datasets: Array<__Dataset> = [];
+const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
+  let datasets: Array<Dataset> = [];
   while (!equals(prop('datasetFilter', datasetFilter), null)) {
     datasets = [
       ...datasets,
@@ -44,7 +42,7 @@ const formatDatasetFilter = (
 
 const formatDatasetFilters = (
   datasetFilters: Array<DatasetFilter>
-): Array<Array<__Dataset>> =>
+): Array<Array<Dataset>> =>
   datasetFilters.map((datasetFilter) => formatDatasetFilter(datasetFilter));
 
 export const getInitialValues = ({
@@ -54,7 +52,7 @@ export const getInitialValues = ({
   description,
   isActivated,
   name
-}): object => ({
+}): Omit<ResourceAccessRule, 'id'> => ({
   contactGroups,
   contacts,
   datasetFilters: formatDatasetFilters(datasetFilters),

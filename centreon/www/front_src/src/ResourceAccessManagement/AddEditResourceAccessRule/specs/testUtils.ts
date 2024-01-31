@@ -253,3 +253,45 @@ export const formData = {
   is_enabled: true,
   name: 'rule#1'
 };
+
+export const findResourceAccessRuleResponse = (): object => ({
+  contact_groups: [
+    { id: 3, name: 'Guest' },
+    { id: 5, name: 'Supervisor' }
+  ],
+  contacts: [
+    { id: 1, name: 'admin admin' },
+    { id: 4, name: 'centreon-gorgone' }
+  ],
+  dataset_filters: [
+    {
+      dataset_filter: {
+        dataset_filter: {
+          dataset_filter: null,
+          resources: [
+            { id: 4, name: 'Memory' },
+            { id: 3, name: 'Disk' }
+          ],
+          type: 'service_category'
+        },
+        resources: [{ id: 14, name: 'Centreon-Server' }],
+        type: 'host'
+      },
+      resources: [{ id: 53, name: 'Linux-Servers' }],
+      type: 'hostgroup'
+    },
+    {
+      dataset_filter: null,
+      resources: [
+        { id: 23, name: 'Disk-/var' },
+        { id: 22, name: 'Disk-/usr' },
+        { id: 21, name: 'Disk-/opt' },
+        { id: 19, name: 'Disk-/' }
+      ]
+    }
+  ],
+  description: 'First rule',
+  id: 1,
+  is_enabled: true,
+  name: 'Rule 1'
+});
