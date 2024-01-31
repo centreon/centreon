@@ -1,9 +1,6 @@
-/* eslint-disable react/no-unused-prop-types */
-
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -14,17 +11,9 @@ import {
   labelEndTime,
   labelComment
 } from '../../../translatedLabels';
+import useStyles from '../State.styles';
 
 import DetailsTable, { getYesNoLabel } from '.';
-
-const useStyles = makeStyles()({
-  comment: {
-    display: 'block',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
-  }
-});
 
 interface DowntimeDetails {
   author_name: string;
@@ -34,6 +23,26 @@ interface DowntimeDetails {
   is_fixed: boolean;
   start_time: Date | string;
 }
+
+const Comment = ({
+  comment
+}: Pick<DowntimeDetails, 'comment'>): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <span className={classes.comment}>
+      {parse(DOMPurify.sanitize(comment))}
+    </span>
+  );
+};
+
+const EndTime = ({
+  end_time
+}: Pick<DowntimeDetails, 'end_time'>): JSX.Element => {
+  const { toDateTime } = useLocaleDateTimeFormat();
+
+  return <span>{toDateTime(end_time)}</span>;
+};
 
 interface Props {
   endpoint: string;
@@ -68,10 +77,7 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
       width: 150
     },
     {
-      // eslint-disable-next-line react/no-unstable-nested-components
-      getContent: ({ end_time }: DowntimeDetails): JSX.Element => (
-        <span>{toDateTime(end_time)}</span>
-      ),
+      getContent: EndTime,
       id: 'end_time',
       label: t(labelEndTime),
       type: ColumnType.string,
@@ -80,15 +86,7 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
 
     {
       className: classes.comment,
-
-      // eslint-disable-next-line react/no-unstable-nested-components
-      getContent: ({ comment }: DowntimeDetails): JSX.Element => {
-        return (
-          <span className={classes.comment}>
-            {parse(DOMPurify.sanitize(comment))}
-          </span>
-        );
-      },
+      getContent: Comment,
       id: 'comment',
       label: t(labelComment),
       type: ColumnType.component,

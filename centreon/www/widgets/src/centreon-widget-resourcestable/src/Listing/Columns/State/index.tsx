@@ -5,12 +5,12 @@ import type { ComponentColumnProps } from '@centreon/ui';
 import { labelInDowntime, labelAcknowledged } from '../../translatedLabels';
 import { Resource } from '../../models';
 import HoverChip from '../HoverChip';
-import { useStateStyles } from '../Columns.styles';
 
-import DowntimeChip from './Chip/Downtime';
 import AcknowledgeChip from './Chip/Acknowledge';
+import DowntimeChip from './Chip/Downtime';
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
+import useStyles from './State.styles';
 
 interface StateChipProps {
   Chip: () => JSX.Element;
@@ -70,7 +70,7 @@ const AcknowledgeHoverChip = ({
 };
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
-  const { classes } = useStateStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.container}>
