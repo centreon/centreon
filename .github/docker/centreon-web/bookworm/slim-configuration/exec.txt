@@ -18,7 +18,7 @@ systemctl stop apache2
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
-service mysql stop
+timeout 30 service mysql stop
 
 rm -f /tmp/gorgone/*.ipc /var/log/centreon*/*.log /var/lib/centreon-gorgone/history.sdb
 
