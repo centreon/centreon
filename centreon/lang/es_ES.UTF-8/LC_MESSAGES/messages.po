@@ -16886,18 +16886,3 @@ msgstr "Modo avanzado"
 
 # msgid "Resources table"
 # msgstr ""
-
-# msgid "Displays data on resource status and events, centralized in a table."
-# msgstr ""
-
-# msgid "Problem (Down & Critical)"
-# msgstr ""
-
-# msgid "Undefined (Unreachable & Unknown)"
-# msgstr ""
-
-# msgid "Add columns"
-# msgstr ""
-
-# msgid "Resources table"
-# msgstr ""
