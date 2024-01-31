@@ -120,18 +120,9 @@ describe('Metrics', () => {
 
     cy.makeSnapshot();
   });
-});
-
-describe('Metrics: single metric', () => {
-  beforeEach(() => {
-    initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
-    store.set(singleHostPerMetricAtom, true);
-    store.set(singleMetricSelectionAtom, true);
-  });
 
   it('displays a warning message when metrics with different units are selected', () => {
     cy.findByTestId(labelSelectMetric).click();
-
     cy.findByText('rtmax (ms) / Includes 2 resources').click();
     cy.findByText('pl (%) / Includes 2 resources').click();
 
@@ -141,6 +132,14 @@ describe('Metrics: single metric', () => {
     cy.contains(labelThresholdsAreAutomaticallyHidden).should('be.visible');
 
     cy.makeSnapshot();
+  });
+});
+
+describe('Metrics: single metric', () => {
+  beforeEach(() => {
+    initializeComponent({ metrics: emptyMetrics, resources: defaultResources });
+    store.set(singleHostPerMetricAtom, true);
+    store.set(singleMetricSelectionAtom, true);
   });
 
   it('displays a warning message when the corresponding atom is set and the selected metric is available on several resources', () => {
