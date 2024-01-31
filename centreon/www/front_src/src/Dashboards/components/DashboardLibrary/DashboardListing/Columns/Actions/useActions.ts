@@ -5,9 +5,9 @@ import { useSetAtom } from 'jotai';
 
 import { useDashboardDelete } from '../../../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../../../../DashboardConfig/useDashboardConfig';
-import { useDashboardAccessRights } from '../../../../DashboardAccessRights/useDashboardAccessRights';
 import { unformatDashboard } from '../../utils';
 import { askBeforeRevokeAtom } from '../../atom';
+import { isSharesOpenAtom } from '../../../../../atoms';
 
 interface UseActionsState {
   closeMoreActions: () => void;
@@ -26,10 +26,11 @@ const useActions = (row): UseActionsState => {
 
   const { editDashboard } = useDashboardConfig();
   const deleteDashboard = useDashboardDelete();
-  const { editAccessRights } = useDashboardAccessRights();
+  const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
+  const openShares = (dashboard) => () => setIsSharesOpen(dashboard);
 
   const isNestedRow = !isNil(row?.role);
 
@@ -49,7 +50,7 @@ const useActions = (row): UseActionsState => {
   return {
     closeMoreActions,
     deleteDashboard: deleteDashboard(unformattedDashboard),
-    editAccessRights: editAccessRights(unformattedDashboard),
+    editAccessRights: openShares(unformattedDashboard),
     editDashboard: editDashboard(unformattedDashboard),
     isNestedRow,
     moreActionsOpen,

@@ -7,11 +7,14 @@ import { ContactType, Labels } from '../models';
 import { contactTypeAtom } from '../atoms';
 import { Subtitle } from '../../../..';
 
+import { useContactSwitchStyles } from './ShareInput.styles';
+
 interface Props {
   labels: Labels['add'];
 }
 
 const ContactSwitch = ({ labels }: Props): JSX.Element => {
+  const { classes } = useContactSwitchStyles();
   const { t } = useTranslation();
 
   const setContactType = useSetAtom(contactTypeAtom);
@@ -23,7 +26,12 @@ const ContactSwitch = ({ labels }: Props): JSX.Element => {
   return (
     <>
       <Subtitle>{t(labels.title)}</Subtitle>
-      <RadioGroup row defaultValue={ContactType.Contact} onChange={change}>
+      <RadioGroup
+        row
+        className={classes.inputs}
+        defaultValue={ContactType.Contact}
+        onChange={change}
+      >
         <FormControlLabel
           control={<Radio />}
           label={labels.contact}
