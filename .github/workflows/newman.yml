@@ -460,9 +460,8 @@ jobs:
                     fi
                   fi
                 fi
-                sleep 10
+                sleep 5
               done
-              sleep 10
             done
 
       - name: Perform Jira Transitions
@@ -487,9 +486,8 @@ jobs:
                   }'
                   echo "Processing issue ID: $test_issue_id"
                   echo "Performing Jira transition with transition ID: $transition_id..."
-                  sleep 10
+                  sleep 5
                 done
-                sleep 10
               done
         shell: bash
 
