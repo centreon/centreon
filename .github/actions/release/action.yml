@@ -74,9 +74,14 @@ runs:
         # or use the check-version action after turning this release action into a real workflow ?
 
         # Make NEW_STABLE_TAGS available for other steps
-        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
+        #echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
         echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
+
+        # Tests (remove me)
+        NEW_STABLE_TAGS=()
+        NEW_STABLE_TAGS=("centreon-awie-23.04.1" "centreon-dsm-23.04.2" "centreon-gorgone-23.04.3" "centreon-ha-23.04.3" "centreon-open-tickets-23.04.4" "centreon-web-23.04.6")
+        echo "NEW_STABLE_TAGS=$NEW_STABLE_TAGS[*]" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Add new release tags to stable branch
