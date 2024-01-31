@@ -54,6 +54,7 @@ runs:
           dnf remove -y nfpm
         else
           apt-get update
+          apt-get install -y curl
           apt-get remove -y nfpm
         fi
         curl -O https://dl.google.com/go/go1.21.6.linux-amd64.tar.gz
@@ -61,7 +62,7 @@ runs:
         mv ./go /usr/local
         export PATH=$PATH:/usr/local/go/bin
         go install github.com/goreleaser/nfpm/v2/cmd/nfpm@fix-perms
-        mv /root/go/bin/nfpm /bin/nfpm
+        sudo mv /root/go/bin/nfpm /bin/nfpm
         nfpm -v
       shell: bash
 
