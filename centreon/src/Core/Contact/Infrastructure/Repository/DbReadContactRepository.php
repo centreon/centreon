@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Contact\Infrastructure\Repository;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
