@@ -1,0 +1,79 @@
+<tr style="margin-top: 5px;">
+  <td class="FormHeader" colspan="2">
+    <h3 style="color: #00bfb3;">Acknowledgement options</h3>
+  </td>
+</tr>
+<tr>
+  <td class="FormRowField" style="padding-left:15px;">Persistent</td>
+  <td class="FormRowField" style="padding-left:15px;">
+    <input 
+      type="checkbox"
+      id="persistent"
+      value="{$ack_options.persistent}"
+      name="persistent"
+      {if $ack_options.persistent == 1}
+        checked
+      {/if}
+    </input>
+  </td>
+</tr>
+<tr>
+  <td class="FormRowField" style="padding-left:15px;">Sticky</td>
+  <td class="FormRowField" style="padding-left:15px;">
+    <input 
+      type="checkbox"
+      id="sticky"
+      value="{$ack_options.sticky}"
+      name="sticky"
+      {if $ack_options.sticky == 1}
+        checked
+      {/if}
+    </input>
+  </td>
+</tr>
+<tr>
+  <td class="FormRowField" style="padding-left:15px;">Notify</td>
+  <td class="FormRowField" style="padding-left:15px;">
+    <input 
+      type="checkbox"
+      id="notify"
+      value="{$ack_options.notify}"
+      name="notify"
+      {if $ack_options.notify == 1}
+        checked
+      {/if}
+    </input>
+  </td>
+</tr>
+<tr>
+  <td class="FormRowField" style="padding-left:15px;">Schedule forced check</td>
+  <td class="FormRowField" style="padding-left:15px;">
+    <input 
+      type="checkbox"
+      id="schedule_forced_check"
+      value="{$ack_options.schedule_forced_check}"
+      name="schedule_forced_check"
+      {if $ack_options.schedule_forced_check == 1}
+        checked
+      {/if}
+    </input>
+  </td>
+</tr>
+<!-- Just preparing ack on all services when ticket is opened on a host in case one day we implement this feature
+{if $host_selected|@count gt 0}
+  <tr>
+    <td class="FormRowField" style="padding-left:15px;">Acknowledge services attached to hosts</td>
+    <td class="FormRowField" style="padding-left:15px;">
+      <input 
+        type="checkbox"
+        id="ack_services_linked_to_host"
+        value="{$ack_options.ack_services_linked_to_host}"
+        name="ack_services_linked_to_host"
+        {if $ack_options.ack_services_linked_to_host == 1}
+          checked
+        {/if}
+      </input>
+    </td>
+    </tr>
+{/if}
+-->

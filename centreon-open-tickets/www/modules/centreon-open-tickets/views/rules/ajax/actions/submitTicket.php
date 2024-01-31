@@ -163,11 +163,11 @@ $selected = $rule->loadSelection(
     $get_information['form']['selection']
 );
 
-$sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
-
-$notify = ! empty($centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
-
-$persistent = ! empty($centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
+$sticky = isset($get_information['form']['sticky']) ? 2 : 1;
+$notify = isset($get_information['form']['notify']) ? 1 : 0;
+$persistent = isset($get_information['form']['persistent']) ? 1 : 0;
+$scheduleForcedCheck = isset($get_information['form']['schedule_forced_check']) ? true : false;
+$ackServicesLinkedToHost = isset($get_information['form']['ack_services_linked_to_host']) ? true : false;
 
 try {
     $contact_infos = get_contact_information();
@@ -221,7 +221,7 @@ try {
                     ]
                 );
             }
-            if ($centreon_provider->doesScheduleCheck()) {
+            if ($centreon_provider->doesScheduleCheck() && $scheduleForcedCheck) {
                 $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
@@ -270,7 +270,7 @@ try {
                     ]
                 );
             }
-            if ($centreon_provider->doesScheduleCheck()) {
+            if ($centreon_provider->doesScheduleCheck() && $scheduleForcedCheck) {
                 $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
                 call_user_func_array(
                     [$external_cmd, $method_external_name],

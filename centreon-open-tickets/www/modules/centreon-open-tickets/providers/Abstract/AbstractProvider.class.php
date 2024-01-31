@@ -328,6 +328,7 @@ abstract class AbstractProvider
     </td>
 </tr>
 {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
+{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/ack.ihtml"}
 <!--<tr>
     <td class="FormRowField" style="padding-left:15px;">Add graphs</td>
     <td class="FormRowValue" style="padding-left:15px;"><input type="checkbox" name="add_graph" value="1" /></td>
