@@ -41,6 +41,7 @@ services:
             - '../../src/Core/Command/*'
             - '../../src/Core/ResourceAccess/*'
             - '../../src/Core/Service/*'
+            - '../../src/Core/HostGroup/*'
             - '../../src/Core/ServiceGroup/*'
             - '../../src/Core/Host/*'
         bind:
