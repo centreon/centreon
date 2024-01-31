@@ -80,7 +80,7 @@ Then(
 );
 
 Then('the pagination is disabled', () => {
-  cy.get('div.css-1ueg8i9-root >').each(($button) => {
+  cy.get('.MuiTablePagination-toolbar > > button').each(($button) => {
     cy.wrap($button).should('be.disabled');
   });
 });
