@@ -17,7 +17,7 @@ manageUsersAndGroups() {
 fixIndexFileRights() {
   # https://github.com/goreleaser/nfpm/issues/777
   echo "Forcing rights of centreon index.html file ..."
-  # chmod 0775 /usr/share/centreon/www/index.html
+  chmod 0775 /usr/share/centreon/www/index.html
 }
 
 updateConfigurationFiles() {
