@@ -1,6 +1,9 @@
 import { ReactElement } from 'react';
 
+import { gt } from 'ramda';
+
 import AddIcon from '@mui/icons-material/Add';
+import LinkIcon from '@mui/icons-material/Link';
 
 import { Button } from '..';
 
@@ -11,6 +14,7 @@ type Props = {
   addButtonHidden?: boolean;
   addbuttonDisabled?: boolean;
   children: Array<ReactElement>;
+  displayItemsAsLinked?: boolean;
   labelAdd: string;
   onAddItem: () => void;
 };
@@ -21,13 +25,23 @@ export const ItemComposition = ({
   labelAdd,
   addbuttonDisabled,
   addButtonHidden,
-  IconAdd
+  IconAdd,
+  displayItemsAsLinked
 }: Props): JSX.Element => {
   const { classes } = useItemCompositionStyles();
 
+  const hasMoreThanOneChildren = gt(children.length, 1);
+
   return (
     <div className={classes.itemCompositionContainer}>
-      {children}
+      <div className={classes.itemCompositionItemsAndLink}>
+        <div className={classes.itemCompositionItems}>{children}</div>
+        {displayItemsAsLinked && hasMoreThanOneChildren && (
+          <div className={classes.linkedItems}>
+            <LinkIcon className={classes.linkIcon} viewBox="0 0 24 24" />
+          </div>
+        )}
+      </div>
       {!addButtonHidden && (
         <Button
           aria-label={labelAdd}

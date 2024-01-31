@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
-import FilterIcon from '@mui/icons-material/Tune';
+import AddIcon from '@mui/icons-material/Add';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelRefineFilter,
+  labelAddFilter,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -62,10 +62,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
-          IconAdd={<FilterIcon />}
+          IconAdd={<AddIcon />}
           addButtonHidden={!canEditField}
           addbuttonDisabled={!areResourcesFullfilled(value)}
-          labelAdd={t(labelRefineFilter)}
+          labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => (
