@@ -74,14 +74,14 @@ runs:
         # or use the check-version action after turning this release action into a real workflow ?
 
         # Make NEW_STABLE_TAGS available for other steps
-        #echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
+        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
         echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
 
         # Tests (remove me)
         # NEW_STABLE_TAGS=()
         # NEW_STABLE_TAGS=("centreon-awie-24.04.0" "centreon-dsm-24.04.0" "centreon-gorgone-24.04.0" "centreon-ha-24.04.0" "centreon-open-tickets-24.04.0" "centreon-web-24.04.0")
-        # echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
+        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Add new release tags to stable branch
@@ -164,8 +164,14 @@ runs:
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
+        # Rebuild NEW_STABLE_TAGS as an array
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          RELEASE_TAGS+=("$i")
+        done
+
         # Build JSON structure with released versions
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+        #JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${RELEASE_TAGS[@]}")
         #JSON_MAJOR_VERSION=$(jq -n --arg majorVersion "$MAJOR_VERSION" '{"majorVersion":$majorVersion}')
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
