@@ -147,16 +147,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     [propertyName]
   );
 
-  const hasNoResources = useCallback(
-    (): boolean => {
-      if (!resources.length) {
-        return true;
-      }
+  const hasNoResources = useCallback((): boolean => {
+    if (!resources.length) {
+      return true;
+    }
 
-      return resources.every((resource) => !resource.resources.length);
-    },
-    useDeepCompare([resources])
-  );
+    return resources.every((resource) => !resource.resources.length);
+  }, useDeepCompare([resources]));
 
   const getTagLabel = useCallback(
     (metric: FormMetric): string => {
@@ -227,64 +224,61 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     ])
   );
 
-  useEffect(
-    () => {
-      if (isNil(servicesMetrics)) {
-        return;
-      }
+  useEffect(() => {
+    if (isNil(servicesMetrics)) {
+      return;
+    }
 
-      if (isEmpty(resources)) {
-        setFieldValue(`data.${propertyName}`, []);
+    if (isEmpty(resources)) {
+      setFieldValue(`data.${propertyName}`, []);
 
-        return;
-      }
+      return;
+    }
 
-      const baseMetricNames = pluck('name', metrics);
-      const baseMetricIds = (servicesMetrics?.result || []).reduce(
-        (acc, service) => {
-          return [...acc, ...pluck('id', service.metrics)];
-        },
-        []
-      );
+    const baseMetricNames = pluck('name', metrics);
+    const baseMetricIds = (servicesMetrics?.result || []).reduce(
+      (acc, service) => {
+        return [...acc, ...pluck('id', service.metrics)];
+      },
+      []
+    );
 
-      const intersectionBetweenMetricsIdsAndValues = innerJoin(
-        (metric, name) => equals(metric.name, name),
-        value || [],
-        baseMetricNames
-      );
+    const intersectionBetweenMetricsIdsAndValues = innerJoin(
+      (metric, name) => equals(metric.name, name),
+      value || [],
+      baseMetricNames
+    );
 
-      const intersectionFilteredExcludedMetrics =
-        intersectionBetweenMetricsIdsAndValues
-          .filter((item) => {
-            if (isNil(item.excludedMetrics)) {
-              return true;
-            }
-            const resourcesByMetricName = getResourcesByMetricName(item.name);
+    const intersectionFilteredExcludedMetrics =
+      intersectionBetweenMetricsIdsAndValues
+        .filter((item) => {
+          if (isNil(item.excludedMetrics)) {
+            return true;
+          }
+          const resourcesByMetricName = getResourcesByMetricName(item.name);
 
-            return !equals(
-              item.excludedMetrics.sort(),
-              pluck('metricId', resourcesByMetricName).sort()
-            );
-          })
-          .map((item) => {
-            return {
-              ...item,
-              excludedMetrics:
-                item.excludedMetrics?.filter((metric) =>
-                  baseMetricIds.includes(metric)
-                ) || []
-            };
-          });
+          return !equals(
+            item.excludedMetrics.sort(),
+            pluck('metricId', resourcesByMetricName).sort()
+          );
+        })
+        .map((item) => {
+          return {
+            ...item,
+            excludedMetrics:
+              item.excludedMetrics?.filter((metric) =>
+                baseMetricIds.includes(metric)
+              ) || []
+          };
+        });
 
-      setFieldValue(
-        `data.${propertyName}`,
-        isEmpty(intersectionFilteredExcludedMetrics)
-          ? []
-          : intersectionFilteredExcludedMetrics
-      );
-    },
-    useDeepCompare([servicesMetrics, resources])
-  );
+    setFieldValue(
+      `data.${propertyName}`,
+      isEmpty(intersectionFilteredExcludedMetrics)
+        ? []
+        : intersectionFilteredExcludedMetrics
+    );
+  }, useDeepCompare([servicesMetrics, resources]));
 
   return {
     changeMetric,

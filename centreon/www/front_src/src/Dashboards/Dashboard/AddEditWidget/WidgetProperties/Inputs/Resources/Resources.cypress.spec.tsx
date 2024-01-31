@@ -40,14 +40,14 @@ const initialize = (): void => {
     alias: 'getHosts',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
-    response: generateResources('Host')
+    response: generateResources('Resource')
   });
 
   cy.interceptAPIRequest({
     alias: 'getServices',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.service]}**`,
-    response: generateResources('Service')
+    response: generateResources('Resource')
   });
 
   cy.mount({
@@ -81,17 +81,17 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
     cy.waitForRequest('@getHosts');
-    cy.contains('Host 0').click();
+    cy.contains('Resource 1').click();
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices');
-    cy.contains('Service 0').click();
+    cy.contains('Resource 0').click();
 
     cy.findAllByTestId(labelSelectAResource)
       .eq(0)
-      .should('have.value', 'Host 0');
+      .should('have.value', 'Resource 0');
     cy.findAllByTestId(labelSelectAResource)
       .eq(1)
-      .should('have.value', 'Service 0');
+      .should('have.value', 'Resource 1');
   });
 });
