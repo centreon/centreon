@@ -316,9 +316,7 @@ contents:
     dst: "/usr/share/centreon/www"
     type: tree
     file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
+      mode: 0777
 
   - src: "../api"
     dst: "/usr/share/centreon/api"
