@@ -65,7 +65,7 @@ runs:
         go install github.com/goreleaser/nfpm/v2/cmd/nfpm@fix-perms
         updatedb
         locate bin/nfpm
-        sudo mv /root/go/bin/nfpm /bin/nfpm
+        mv /github/home/go/bin/nfpm /bin/nfpm
         nfpm -v
       shell: bash
 
