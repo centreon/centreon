@@ -129,7 +129,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@dashboardMetricsTop');
   }
 );
@@ -174,7 +174,9 @@ Given('a dashboard configured with a Top Bottom widget', () => {
 When(
   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'CancelIcon' }).click();
+    cy.getByTestId({ testId: 'CancelIcon' })
+      .eq(0)
+      .click();
   }
 );
 
@@ -198,7 +200,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 
