@@ -19,7 +19,7 @@ Feature:
     When I send a POST request to '/api/latest/configuration/hosts' with body:
       """
       {
-        "monitoring_server_id": 2,
+        "monitoring_server_id": 1,
         "name": "  host name A  ",
         "address": "127.0.0.1",
         "snmp_version": "2c",
