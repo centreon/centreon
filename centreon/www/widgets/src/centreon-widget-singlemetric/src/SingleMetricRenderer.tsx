@@ -8,7 +8,7 @@ import { Gauge, GraphText, SingleBar } from '@centreon/ui';
 import { labelCritical, labelWarning } from '../../translatedLabels';
 
 import { useGraphStyles } from './Graph.styles';
-import { SingleMetricGraphyType } from './models';
+import { SingleMetricGraphType } from './models';
 
 interface Props {
   graphProps: {
@@ -17,7 +17,7 @@ interface Props {
     displayAsRaw?: boolean;
     thresholds;
   };
-  singleMetricGraphyType: SingleMetricGraphyType;
+  singleMetricGraphType: SingleMetricGraphType;
 }
 
 const SingleMetricRenderer = ({

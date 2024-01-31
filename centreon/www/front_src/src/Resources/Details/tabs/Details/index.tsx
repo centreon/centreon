@@ -7,6 +7,7 @@ import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
 import DetailsLoadingSkeleton from '../../LoadingSkeleton';
 
 import SortableCards from './SortableCards';
+import DetailsActions from './DetailsActions';
 
 const DetailsTab = (): JSX.Element => {
   const theme = useTheme();
@@ -19,6 +20,7 @@ const DetailsTab = (): JSX.Element => {
     <DetailsLoadingSkeleton />
   ) : (
     <div>
+      <DetailsActions details={details} />
       <SortableCards details={details} panelWidth={panelWidth - panelPadding} />
     </div>
   );
