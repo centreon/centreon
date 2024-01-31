@@ -338,26 +338,26 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - dst: "/usr/share/centreon/www"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
+  # - dst: "/usr/share/centreon/www"
+  #   type: dir
+  #   file_info:
+  #     owner: "centreon"
+  #     group: "centreon"
+  #     mode: 0775
 
-  - dst: "/usr/share/centreon/www/install"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
+  # - dst: "/usr/share/centreon/www/install"
+  #   type: dir
+  #   file_info:
+  #     owner: "centreon"
+  #     group: "centreon"
+  #     mode: 0775
 
-  - dst: "/usr/share/centreon/www/img/media"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
+  # - dst: "/usr/share/centreon/www/img/media"
+  #   type: dir
+  #   file_info:
+  #     owner: "centreon"
+  #     group: "centreon"
+  #     mode: 0775
 
   - src: "../api"
     dst: "/usr/share/centreon/api"
