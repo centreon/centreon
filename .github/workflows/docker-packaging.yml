@@ -12,9 +12,9 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".github/docker/Dockerfile.packaging-*"
-  # pull_request:
-  #   paths:
-  #     - ".github/docker/Dockerfile.packaging-*"
+  pull_request:
+    paths:
+      - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
   get-version:
