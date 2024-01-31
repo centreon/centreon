@@ -1,4 +1,7 @@
+import { FC } from 'react';
+
 import { path } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
@@ -10,14 +13,22 @@ import AcknowledgeChip from '../../../Chip/Acknowledge';
 
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
-import useStyles from './State.styles';
 
 interface StateChipProps {
   Chip: () => JSX.Element;
-  DetailsTable: (props) => JSX.Element;
+  DetailsTable: FC<{ endpoint: string }>;
   endpoint: string;
   label: string;
 }
+
+const useStyles = makeStyles()({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gridGap: 2,
+    marginLeft: 2
+  }
+});
 
 const StateHoverChip = ({
   endpoint,
