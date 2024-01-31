@@ -29,7 +29,7 @@ jobs:
 
   veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
+    uses: ./.github/workflows/veracode-pipeline/veracode-analysis.yml
     with:
       module_directory: centreon-awie
       module_name: centreon-awie
