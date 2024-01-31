@@ -107,7 +107,18 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
             FROM `:db`.hostcategories hc'
         );
-
+        $concatenator->appendJoins(
+            <<<'SQL'
+            LEFT JOIN  hostcategories_relation hcr
+                ON hc.hc_id = hcr.hostcategories_hc_id
+            LEFT JOIN host h
+                ON hcr.host_host_id = h.host_id
+            LEFT JOIN hostgroup_relation hgr
+                ON h.host_id = hgr.host_host_id
+            LEFT JOIN hostgroup hg
+                ON hgr.hostgroup_hg_id = hg.hg_id
+            SQL
+        );
         return $this->retrieveHostCategories($concatenator, $requestParameters);
     }
 
@@ -508,6 +519,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             'name' => 'hc.hc_name',
             'alias' => 'hc.hc_alias',
             'is_activated' => 'hc.hc_activate',
+            'hostgroups_id' => 'hg.hg_id',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator?->translateForConcatenator($concatenator);

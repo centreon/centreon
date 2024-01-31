@@ -290,6 +290,7 @@ paths:
         * name
         * alias
         * is_activated
+        * hostgroups_id
       responses:
         "200":
           description: "OK"
