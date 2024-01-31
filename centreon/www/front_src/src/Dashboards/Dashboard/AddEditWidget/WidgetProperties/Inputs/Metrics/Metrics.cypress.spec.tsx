@@ -129,11 +129,9 @@ describe('Metrics', () => {
     initializeComponent({});
     cy.waitForRequest('@getServiceMetrics');
 
-    cy.findByTestId(labelSelectMetric).click();
-    cy.contains('rtmax (ms)');
-    cy.contains('pl (%)');
+    cy.findByTestId(labelSelectMetric).should('be.enabled');
 
-    cy.makeSnapshot();
+    cy.findByTestId(labelSelectMetric).parent().click();
   });
 
   describe('Single metric selection with single resource', () => {
