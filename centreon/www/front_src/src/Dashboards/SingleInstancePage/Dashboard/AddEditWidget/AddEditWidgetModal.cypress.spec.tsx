@@ -649,7 +649,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
-        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+        cy.findByLabelText(labelAddFilter).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
@@ -751,7 +751,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelTitle).type('Generic data');
 
-        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+        cy.findByLabelText(labelAddFilter).should('be.disabled');
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
