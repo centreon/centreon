@@ -326,6 +326,7 @@ contents:
 
   - src: "../src"
     dst: "/usr/share/centreon/src"
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
