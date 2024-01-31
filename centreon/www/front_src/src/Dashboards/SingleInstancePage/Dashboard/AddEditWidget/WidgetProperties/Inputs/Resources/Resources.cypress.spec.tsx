@@ -29,7 +29,7 @@ const generateResources = (resourceLabel: string): object => ({
   }))
 });
 
-const initialize = () => {
+const initialize = (): void => {
   const store = createStore();
   store.set(singleHostPerMetricAtom, true);
   store.set(singleMetricSelectionAtom, true);
