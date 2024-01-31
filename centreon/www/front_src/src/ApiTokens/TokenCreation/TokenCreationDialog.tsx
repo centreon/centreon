@@ -1,29 +1,24 @@
-import { ReactNode } from 'react';
-
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
-
-import { ResponseError } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
 import useRefetch from '../useRefetch';
 
+import FormCreation from './Form';
 import { CreatedToken } from './models';
 import useCreateToken from './useCreateToken';
 
-interface Parameters {
-  data?: ResponseError | CreatedToken | undefined;
-  isMutating: boolean;
-  isRefetching: boolean;
-}
-
 interface Props {
-  renderFormCreation: (params: Parameters) => ReactNode;
+  closeDialog: () => void;
+  isDialogOpened: boolean;
 }
 
-const TokenCreationDialog = ({ renderFormCreation }: Props): JSX.Element => {
+const TokenCreationDialog = ({
+  closeDialog,
+  isDialogOpened
+}: Props): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
   const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
@@ -59,7 +54,13 @@ const TokenCreationDialog = ({ renderFormCreation }: Props): JSX.Element => {
       validationSchema={validationForm}
       onSubmit={submit}
     >
-      {renderFormCreation({ data, isMutating, isRefetching })}
+      <FormCreation
+        closeDialog={closeDialog}
+        data={data}
+        isDialogOpened={isDialogOpened}
+        isMutating={isMutating}
+        isRefetching={isRefetching}
+      />
     </Formik>
   );
 };

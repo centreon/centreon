@@ -6,8 +6,7 @@ import { SaveButton as Button } from '@centreon/ui';
 
 import { labelCreateNewToken } from '../translatedLabels';
 
-import FormCreation from './Form';
-import CreateTokenDialog from './TokenCreationDialog';
+import TokenCreationDialog from './TokenCreationDialog';
 
 const TokenCreationButton = (): JSX.Element => {
   const { t } = useTranslation();
@@ -31,16 +30,9 @@ const TokenCreationButton = (): JSX.Element => {
         onClick={createToken}
       />
       {isCreatingToken && (
-        <CreateTokenDialog
-          renderFormCreation={({ data, isMutating, isRefetching }) => (
-            <FormCreation
-              closeDialog={closeDialog}
-              data={data}
-              isDialogOpened={isCreatingToken}
-              isMutating={isMutating}
-              isRefetching={isRefetching}
-            />
-          )}
+        <TokenCreationDialog
+          closeDialog={closeDialog}
+          isDialogOpened={isCreatingToken}
         />
       )}
     </>
