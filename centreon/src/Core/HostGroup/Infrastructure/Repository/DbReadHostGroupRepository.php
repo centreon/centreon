@@ -423,7 +423,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'alias' => 'hg.hg_alias',
             'name' => 'hg.hg_name',
             'is_activated' => 'hg.hg_activate',
-            'hostcategories_id' => 'hc.hc_id',
+            'host_category_ids' => 'hc.hc_id',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
