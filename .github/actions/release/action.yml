@@ -79,9 +79,9 @@ runs:
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
 
         # Tests (remove me)
-        NEW_STABLE_TAGS=()
-        NEW_STABLE_TAGS=("centreon-awie-24.04.0" "centreon-dsm-24.04.0" "centreon-gorgone-24.04.0" "centreon-ha-24.04.0" "centreon-open-tickets-24.04.0" "centreon-web-24.04.0")
-        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
+        # NEW_STABLE_TAGS=()
+        # NEW_STABLE_TAGS=("centreon-awie-24.04.0" "centreon-dsm-24.04.0" "centreon-gorgone-24.04.0" "centreon-ha-24.04.0" "centreon-open-tickets-24.04.0" "centreon-web-24.04.0")
+        # echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Add new release tags to stable branch
