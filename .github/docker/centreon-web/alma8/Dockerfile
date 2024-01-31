@@ -12,6 +12,9 @@ RUN bash -e <<EOF
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
+ls -ld /usr/share/centreon/www
+ls -l /usr/share/centreon/
+
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
 
 touch /var/log/php-fpm/centreon-error.log
