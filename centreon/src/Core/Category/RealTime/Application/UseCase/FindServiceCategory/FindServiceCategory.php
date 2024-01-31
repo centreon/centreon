@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Category\RealTime\Application\UseCase\FindServiceCategory;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
@@ -34,9 +36,13 @@ final class FindServiceCategory
 
     /**
      * @param ReadTagRepositoryInterface $repository
+     * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      */
     public function __construct(
-        private ReadTagRepositoryInterface $repository
+        private ReadTagRepositoryInterface $repository,
+        private readonly ContactInterface $user,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -48,7 +54,12 @@ final class FindServiceCategory
         $this->info('Searching for service categories');
 
         try {
-            $serviceCategories = $this->repository->findAllByTypeId(Tag::SERVICE_CATEGORY_TYPE_ID);
+            if ($this->user->isAdmin()) {
+                $serviceCategories = $this->repository->findAllByTypeId(Tag::SERVICE_CATEGORY_TYPE_ID);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $serviceCategories = $this->repository->findAllByTypeIdAndAccessGroups(Tag::SERVICE_CATEGORY_TYPE_ID, $accessGroups);
+            }
         } catch (\Throwable $e) {
             $this->error('An error occurred while retrieving service categories');
             $presenter->setResponseStatus(new ErrorResponse('An error occurred while retrieving service categories'));

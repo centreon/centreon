@@ -16929,7 +16929,7 @@ msgstr ""
 # msgid "Thresholds"
 # msgstr ""
 
-# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
 # msgstr ""
 
 # msgid "Value format"
@@ -17240,6 +17240,39 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Failed to copy link"
+# msgstr ""
+
+# msgid "Link copied"
+# msgstr ""
+
+# msgid "Add a contact"
+# msgstr ""
+
+# msgid "Add a contact group"
+# msgstr ""
+
+# msgid "Share with"
+# msgstr ""
+
+# msgid "Removed"
+# msgstr ""
+
+# msgid "Updated"
+# msgstr ""
+
+# msgid "User rights"
+# msgstr ""
+
+# msgid "The share list is empty"
+# msgstr ""
+
+# msgid "Failed to save shares"
+# msgstr ""
+
+# msgid "Shares saved"
+# msgstr ""
+
 # msgid "Show more filters"
 # msgstr ""
 
@@ -17301,6 +17334,8 @@ msgstr ""
 # msgstr ""
 
 # msgid "Select resource type"
+# msgstr ""
+# msgid "Your comment has been saved."
 # msgstr ""
 
 # msgid "Displays data on resource status and events, centralized in a table."

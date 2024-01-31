@@ -14,6 +14,8 @@ import {
 
 import { centreonBaseURL } from '@centreon/ui';
 
+import { WidgetResourceType } from './AddEditWidget/models';
+
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
   const state = JSON.parse(editorState);
@@ -41,28 +43,46 @@ export const getDetailsPanelQueriers = (data): object => {
   return queryParameters;
 };
 
+const resourcesCriteriasMapping = {
+  [WidgetResourceType.host]: 'h.name',
+  [WidgetResourceType.hostCategory]: 'host_categories',
+  [WidgetResourceType.hostGroup]: 'host_groups',
+  [WidgetResourceType.service]: 'name',
+  [WidgetResourceType.serviceCategory]: 'service_categories',
+  [WidgetResourceType.serviceGroup]: 'service_groups'
+};
+
 export const getResourcesUrlForMetricsWidgets = ({
   data,
   widgetName
 }): string => {
-  const values = data?.services?.map(({ name }) => {
+  const filters = data?.resources.map(({ resourceType, resources }) => {
+    if (
+      [WidgetResourceType.host, WidgetResourceType.service].includes(
+        resourceType
+      )
+    ) {
+      return {
+        name: resourcesCriteriasMapping[resourceType],
+        value: uniq(
+          resources.map(({ name }) => ({
+            id: `\\b${name}\\b`,
+            name
+          })) || []
+        )
+      };
+    }
+
     return {
-      id: `\\b${name}\\b`,
-      name
+      name: resourcesCriteriasMapping[resourceType],
+      value: uniq(
+        resources.map(({ name, id }) => ({
+          id,
+          name
+        })) || []
+      )
     };
   });
-
-  const hostvalues = data?.services?.map(({ parentName }) => {
-    return {
-      id: `\\b${parentName}\\b`,
-      name: parentName
-    };
-  });
-
-  const filters = [
-    { name: 'name', value: uniq(values || []) },
-    { name: 'h.name', value: uniq(hostvalues || []) }
-  ];
 
   const serviceCriteria = {
     name: 'resource_types',

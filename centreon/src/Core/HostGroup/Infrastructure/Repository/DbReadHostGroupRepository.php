@@ -66,20 +66,21 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     /**
      * @inheritDoc
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array
+    public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
         $concatenator = $this->getFindHostGroupConcatenator();
 
-        return $this->retrieveHostGroups($concatenator, $requestParameters);
+        return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
     }
 
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array
+    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups):
+    \Traversable&\Countable
     {
         if ([] === $accessGroups) {
-            return [];
+            return new \ArrayIterator([]);
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
@@ -91,7 +92,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
         $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
 
-        return $this->retrieveHostGroups($concatenator, $requestParameters);
+        return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
     }
 
     /**

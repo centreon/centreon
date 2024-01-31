@@ -10,7 +10,6 @@ import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import { AddEditWidgetModal } from '../AddEditWidget';
-import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 
 import PanelsLayout from './Layout';
 
@@ -87,17 +86,12 @@ const DashboardPageLayout = (): JSX.Element => {
         };
       });
 
-  const { getLinkToResourceStatusPage, changeViewMode } =
-    useLinkToResourceStatus();
-
   return (
     <>
       <PanelsLayout
         displayMoreActions
         canEdit={canEdit}
         changeLayout={changeLayout}
-        changeViewMode={changeViewMode}
-        getLinkToResourceStatusPage={getLinkToResourceStatusPage}
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
         panels={panels}
