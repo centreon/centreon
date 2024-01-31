@@ -16131,7 +16131,7 @@ msgstr "Erweiterter Modus"
 # msgid "Thresholds"
 # msgstr ""
 
-# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
 # msgstr ""
 
 # msgid "Value format"
@@ -16446,6 +16446,39 @@ msgstr "Erweiterter Modus"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Failed to copy link"
+# msgstr ""
+
+# msgid "Link copied"
+# msgstr ""
+
+# msgid "Add a contact"
+# msgstr ""
+
+# msgid "Add a contact group"
+# msgstr ""
+
+# msgid "Share with"
+# msgstr ""
+
+# msgid "Removed"
+# msgstr ""
+
+# msgid "Updated"
+# msgstr ""
+
+# msgid "User rights"
+# msgstr ""
+
+# msgid "The share list is empty"
+# msgstr ""
+
+# msgid "Failed to save shares"
+# msgstr ""
+
+# msgid "Shares saved"
+# msgstr ""
+
 # msgid "Show more filters"
 # msgstr ""
 
@@ -16474,7 +16507,6 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
-
 # msgstr ""
 
 # msgid "Create a new resource access rule"
@@ -16509,3 +16541,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Select resource type"
 # msgstr ""
+
+# msgid "Your comment has been saved."
+# msgstr "

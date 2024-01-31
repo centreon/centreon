@@ -607,6 +607,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelSelectMetric).click();
         cy.findByTestId('pl').click();
         cy.findByTestId('rtmax').click();
+        cy.findByTestId(labelSelectMetric).click();
 
         cy.contains('Metrics (4 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');

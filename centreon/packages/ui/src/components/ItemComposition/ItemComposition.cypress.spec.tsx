@@ -77,7 +77,7 @@ describe('ItemComposition', () => {
     cy.makeSnapshot();
   });
 
-  it('does not display the add button as hidden when the prop is set to true', () => {
+  it('does not display the add button when the prop is set to true', () => {
     initialize({ addButtonHidden: true });
 
     cy.findByTestId('Add').should('not.exist');
@@ -85,7 +85,7 @@ describe('ItemComposition', () => {
     cy.makeSnapshot();
   });
 
-  it('does not display the delete button as hidden when the prop is set to true', () => {
+  it('does not display the delete button when the prop is set to true', () => {
     initialize({ deleteButtonHidden: true });
 
     cy.findByTestId('Delete').should('not.exist');

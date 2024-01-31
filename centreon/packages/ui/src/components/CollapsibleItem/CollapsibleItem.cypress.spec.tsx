@@ -11,7 +11,7 @@ const initialize = (props: Omit<Props, 'children'>): void => {
 };
 
 describe('CollapsibleItem', () => {
-  it('displays the component collpased by default', () => {
+  it('displays the component collapsed by default', () => {
     initialize({ title });
 
     cy.contains(title).should('be.visible');

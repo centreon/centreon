@@ -13,7 +13,7 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
-  labelYouHaveTooManyMetrics
+  labelYouHaveTooManyMetrics,
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -162,7 +162,7 @@ describe('Metrics', () => {
       cy.makeSnapshot();
     });
 
-    it('displays a warning when a metric with several resources is selected', () => {
+    it('displays a warning message when a metric with several resources is selected', () => {
       initializeComponent({
         metrics: emptyMetrics,
         resources: defaultResources,

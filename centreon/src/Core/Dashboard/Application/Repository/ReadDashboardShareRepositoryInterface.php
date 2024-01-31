@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
@@ -117,4 +118,32 @@ interface ReadDashboardShareRepositoryInterface
      * @return array<int, array<DashboardContactGroupShare>>
      */
     public function findDashboardsContactGroupSharesByContact(ContactInterface $contact, Dashboard ...$dashboards): array;
+
+    /**
+     * Find users with Topology ACLs on dashboards.
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactRole[]
+     */
+    public function findContactsWithAccessRightByRequestParameters(
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find users with Topology ACLs on dashboards by current user ACLs.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param int[] $aclGroupIds
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactRole[]
+     */
+    public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        array $aclGroupIds
+    ): array;
 }
