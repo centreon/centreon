@@ -119,7 +119,7 @@ jobs:
 
               response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-              sleep 4
+              sleep 5
 
               echo "Response from Get Test Plan:"
               echo "$response"
@@ -158,7 +158,7 @@ jobs:
               --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
               --header 'Accept: application/json')
 
-            sleep 4
+            sleep 5
 
             summary=$(echo "$response" | jq -r '.fields.summary')
 
@@ -213,7 +213,7 @@ jobs:
                 }' \
                 --max-time 20)
 
-              sleep 4
+              sleep 5
               if [ -z "$response" ]; then
                 echo "Failed to create the test case within the specified time."
               else
@@ -465,9 +465,9 @@ jobs:
                     fi
                   fi
                 fi
-                sleep 4
+                sleep 5
               done
-              sleep 4
+              sleep 5
             done
 
       - name: Perform Jira Transitions
@@ -492,9 +492,9 @@ jobs:
                   }'
                   echo "Processing issue ID: $test_issue_id"
                   echo "Performing Jira transition with transition ID: $transition_id..."
-                  sleep 4
+                  sleep 5
                 done
-                sleep 4
+                sleep 5
               done
         shell: bash
 
