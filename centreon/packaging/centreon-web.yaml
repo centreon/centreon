@@ -333,6 +333,7 @@ contents:
 
   - src: "../www"
     dst: "/usr/share/centreon/www"
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
