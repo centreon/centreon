@@ -296,33 +296,13 @@ contents:
     file_info:
       mode: 0644
 
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/cache"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/compile"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/config"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
   - src: "../GPL_LIB"
     dst: "/usr/share/centreon/GPL_LIB"
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
-      mode: 0664
+      mode: 0775
 
   - src: "../src"
     dst: "/usr/share/centreon/src"
@@ -339,27 +319,6 @@ contents:
       owner: "centreon"
       group: "centreon"
       mode: 0775
-
-  # - dst: "/usr/share/centreon/www"
-  #   type: dir
-  #   file_info:
-  #     owner: "centreon"
-  #     group: "centreon"
-  #     mode: 0775
-
-  # - dst: "/usr/share/centreon/www/install"
-  #   type: dir
-  #   file_info:
-  #     owner: "centreon"
-  #     group: "centreon"
-  #     mode: 0775
-
-  # - dst: "/usr/share/centreon/www/img/media"
-  #   type: dir
-  #   file_info:
-  #     owner: "centreon"
-  #     group: "centreon"
-  #     mode: 0775
 
   - src: "../api"
     dst: "/usr/share/centreon/api"

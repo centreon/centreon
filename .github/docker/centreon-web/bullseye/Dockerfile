@@ -16,15 +16,6 @@ apt-get update
 rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
-ls -l /usr/share/centreon/www
-echo "!!!!"
-ls -l /usr/share/centreon/www
-echo "!!!!"
-ls -l /usr/share/centreon/www/img
-echo "!!!!"
-ls -l /usr/share/centreon/www/install
-echo "!!!!"
-
 echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
 
 touch /var/log/php8.1-fpm-centreon-error.log
