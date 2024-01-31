@@ -18570,6 +18570,39 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "Failed to copy link"
+msgstr "Échec de la copie du lien"
+
+msgid "Link copied"
+msgstr "Lien copié"
+
+msgid "Add a contact"
+msgstr "Ajouter un contact"
+
+msgid "Add a contact group"
+msgstr "Ajouter un contact group"
+
+msgid "Share with"
+msgstr "Partager avec"
+
+msgid "Removed"
+msgstr "Supprimé"
+
+msgid "Updated"
+msgstr "Mis à jour"
+
+msgid "User rights"
+msgstr "Droits d'utilisateur"
+
+msgid "The share list is empty"
+msgstr "La liste de partages est vide"
+
+msgid "Failed to save shares"
+msgstr "La sauvegarde des partages a échoué"
+
+msgid "Shares saved"
+msgstr "Partages sauvegardés"
+
 msgid "Show more filters"
 msgstr "Afficher plus de filtres"
 

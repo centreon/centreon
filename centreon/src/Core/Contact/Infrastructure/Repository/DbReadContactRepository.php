@@ -23,9 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 
 class DbReadContactRepository extends AbstractRepositoryDRB implements ReadContactRepositoryInterface
@@ -195,5 +199,69 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array
+    {
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'c.contact_name',
+        ]);
+        $query = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                c.contact_id,
+                c.contact_name,
+                c.contact_email,
+                c.contact_admin
+            FROM `:db`.contact c
+            SQL;
+
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        $query .= $searchRequest !== null
+            ? $searchRequest . ' AND '
+            : ' WHERE ';
+
+        $query .= "c.contact_admin = '1' AND c.contact_oreon = '1'";
+
+        $query .= $sqlTranslator->translatePaginationToSql();
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /**
+             * @var int
+             */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $admins = [];
+        foreach ($statement as $admin) {
+            /** @var array{
+             *     contact_admin: string,
+             *     contact_name: string,
+             *     contact_id: int,
+             *     contact_email: string
+             * } $admin
+             */
+            $admins[] = (new Contact())
+                ->setAdmin(true)
+                ->setName($admin['contact_name'])
+                ->setId($admin['contact_id'])
+                ->setEmail($admin['contact_email']);
+        }
+
+        return $admins;
     }
 }

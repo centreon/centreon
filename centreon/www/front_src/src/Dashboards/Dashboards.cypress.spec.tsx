@@ -12,18 +12,21 @@ import { Method } from '@centreon/js-config/cypress/component/commands';
 import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
+  dashboardSharesEndpoint,
   getDashboardAccessRightsContactGroupEndpoint
 } from './api/endpoints';
 import {
+  labelAddAContact,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
   labelDelete,
   labelDeleteUser,
   labelName,
+  labelSave,
+  labelSharesSaved,
   labelUserDeleted,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
@@ -89,16 +92,7 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
-      path: `${dashboardsContactsEndpoint}?**`,
-      response
-    });
-  });
-
-  cy.fixture(`Dashboards/contactGroups.json`).then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'getContactGroups',
-      method: Method.GET,
-      path: `${dashboardsContactGroupsEndpoint}?**`,
+      path: `./api/latest${dashboardsContactsEndpoint}?**`,
       response
     });
   });
@@ -133,6 +127,12 @@ const initializeAndMount = ({
     statusCode: 204
   });
 
+  cy.interceptAPIRequest({
+    alias: 'putShares',
+    method: Method.PUT,
+    path: `./api/latest${dashboardSharesEndpoint(1)}`,
+    statusCode: 204
+  });
   cy.interceptAPIRequest({
     alias: 'revokeUser',
     method: Method.DELETE,
@@ -267,7 +267,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId('create-dashboard').should('be.visible');
+      cy.findByLabelText('create').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -311,7 +311,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId('create-dashboard').should('be.visible');
+      cy.findByLabelText('create').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -352,7 +352,7 @@ describe('Dashboards', () => {
 
       cy.findByText('Actions').should('not.exist');
 
-      cy.findByTestId('create-dashboard').should('not.exist');
+      cy.findByLabelText('create').should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -452,5 +452,29 @@ describe('Dashboards', () => {
 
     cy.contains(labelCancel).should('not.exist');
     cy.contains(labelDelete).should('not.exist');
+  });
+
+  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByTestId('edit-access-rights').eq(0).click();
+
+    cy.findByLabelText(labelAddAContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains(/^User$/)
+      .parent()
+      .click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@putShares');
+
+    cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
