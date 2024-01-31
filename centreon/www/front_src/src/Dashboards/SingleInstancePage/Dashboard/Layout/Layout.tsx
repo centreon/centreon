@@ -12,7 +12,6 @@ import PanelHeader from './Panel/PanelHeader';
 interface Props {
   canEdit?: boolean;
   changeLayout?: (newLayout: Array<Layout>) => void;
-  changeViewMode: (options) => void;
   displayMoreActions?: boolean;
   isEditing?: boolean;
   isStatic: boolean;
