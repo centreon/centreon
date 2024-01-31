@@ -16,6 +16,7 @@ import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
+  displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview;
   metrics: Array<ServiceMetric>;
@@ -23,14 +24,13 @@ interface Props {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
-  singleMetricGraphType: SingleMetricGraphType;
   threshold: FormThreshold;
   valueFormat: ValueFormat;
 }
 
 const Graph = ({
   metrics,
-  singleMetricGraphType,
+  displayType,
   threshold,
   refreshInterval,
   refreshIntervalCustom,
@@ -99,7 +99,7 @@ const Graph = ({
     >
       <SingleMetricRenderer
         graphProps={props}
-        singleMetricGraphType={singleMetricGraphType}
+        singleMetricGraphType={displayType}
       />
     </ContentWithCircularLoading>
   );

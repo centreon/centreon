@@ -26,7 +26,6 @@ import {
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
-  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
@@ -59,8 +58,6 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]:
-    WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
