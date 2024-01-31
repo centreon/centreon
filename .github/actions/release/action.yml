@@ -28,7 +28,8 @@ runs:
         set -eux
         COMPONENTS_RELEASED=()
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
-        # COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
+        COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
+        COMPONENTS_COLLECT=("centreon-collect")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a NEW_STABLE_TAGS=()
         PREVIOUS_STABLE_TAGS=()
@@ -62,8 +63,6 @@ runs:
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
-          # NEW_STABLE_TAG="$component-$MAJOR_VERSION-$MINOR_VERSION"
-          # NEW_STABLE_TAGS+=$($NEW_STABLE_TAG)
           NEW_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
 
@@ -77,11 +76,6 @@ runs:
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
         echo "CURRENT_STABLE_BRANCH_MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION" >> "$GITHUB_ENV"
         echo "SCOPE_VERSION=$SCOPE_VERSION" >> "$GITHUB_ENV"
-
-        # Tests (remove me)
-        # NEW_STABLE_TAGS=()
-        # NEW_STABLE_TAGS=("centreon-awie-24.04.0" "centreon-dsm-24.04.0" "centreon-gorgone-24.04.0" "centreon-ha-24.04.0" "centreon-open-tickets-24.04.0" "centreon-web-24.04.0")
-        echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Add new release tags to stable branch
@@ -160,27 +154,24 @@ runs:
       run: |
         set -eux
         MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
-        #NEW_STABLE_TAGS=$NEW_STABLE_TAGS
+
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
         for i in ${NEW_STABLE_TAGS[@]}; do
-          RELEASE_TAGS+=("$i")
+          NEW_RELEASE_TAGS+=("$i")
         done
 
         # Build JSON structure with released versions
-        #JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${RELEASE_TAGS[@]}")
-        #JSON_MAJOR_VERSION=$(jq -n --arg majorVersion "$MAJOR_VERSION" '{"majorVersion":$majorVersion}')
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
 
         # DEBUG
-        echo "JSON_TAGS: $JSON_TAGS"
-        #echo "JSON_MAJOR_VERSION: $JSON_MAJOR_VERSION"
+        echo "JSON_TAGS: \r\n$JSON_TAGS"
         echo "JSON_VERSION_INFO: $JSON_VERSION_INFO"
-        echo "Sending $RELEASE_JSON"
+        echo "Sending to JIRA: \r\n$RELEASE_JSON"
 
         # Call jira webhook to trigger the communication workflow
         # and provide versions data for communication
