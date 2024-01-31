@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 
-import type { ComponentColumnProps } from '@centreon/ui';
+import { EllipsisTypography, type ComponentColumnProps } from '@centreon/ui';
 
 import { DisplayType } from '../models';
 import { getStatus } from '../utils';
@@ -10,15 +10,16 @@ import StatusChip from './ServiceSubItemColumn/StatusChip';
 
 const ResourceColumn =
   ({ displayType, classes }) =>
-  ({ row, renderEllipsisTypography }: ComponentColumnProps): JSX.Element => {
+  ({ row }: ComponentColumnProps): JSX.Element => {
     const isViewByHostMode = equals(displayType, DisplayType.Host);
     const isViewByServiceMode = equals(displayType, DisplayType.Service);
     const status = row?.status.name;
 
-    const resourceName = renderEllipsisTypography?.({
-      className: classes.resourceNameText,
-      formattedString: row.name
-    });
+    const resourceName = (
+      <EllipsisTypography className={classes.resourceNameText} variant="body2">
+        {row.name}
+      </EllipsisTypography>
+    );
 
     if (isViewByServiceMode) {
       return <div>{resourceName}</div>;
