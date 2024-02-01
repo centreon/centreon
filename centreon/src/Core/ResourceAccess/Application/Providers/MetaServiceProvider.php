@@ -25,6 +25,7 @@ namespace Core\ResourceAccess\Application\Providers;
 
 use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 
 final class MetaServiceProvider implements DatasetProviderInterface
 {
@@ -33,6 +34,16 @@ final class MetaServiceProvider implements DatasetProviderInterface
      */
     public function __construct(private readonly ReadMetaServiceRepositoryInterface $repository)
     {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findResourceNamesByIds(array $ids): ResourceNamesById
+    {
+        $names = $this->repository->findNames(...$ids);
+
+        return (new ResourceNamesById())->setNames($names->getNames());
     }
 
     /**

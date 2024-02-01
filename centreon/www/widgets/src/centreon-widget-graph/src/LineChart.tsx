@@ -3,11 +3,11 @@ import { head, pluck } from 'ramda';
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { GlobalRefreshInterval } from '../../models';
+import { Data, GlobalRefreshInterval } from '../../models';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
-import { Data, PanelOptions } from './models';
+import { PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
@@ -36,7 +36,7 @@ const WidgetLineChart = ({
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: metricNames,
+      metrics: panelData.metrics,
       refreshCount,
       refreshInterval: refreshIntervalToUse,
       resources: panelData.resources,
