@@ -88,7 +88,8 @@ const Layout = (): JSX.Element => {
         };
       });
 
-  const { getLinkToResourceStatusPage } = useLinkToResourceStatus();
+  const { getLinkToResourceStatusPage, changeViewMode } =
+    useLinkToResourceStatus();
 
   return (
     <>
@@ -108,6 +109,7 @@ const Layout = (): JSX.Element => {
               header={
                 !panelConfiguration?.isAddWidgetPanel ? (
                   <PanelHeader
+                    changeViewMode={() => changeViewMode(options?.displayType)}
                     id={i}
                     linkToResourceStatus={getLinkToResourceStatusPage(
                       data,

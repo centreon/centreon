@@ -5,14 +5,14 @@ import { useFormikContext } from 'formik';
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
-interface UseSingleMetricGraphTypeState {
+interface UseDisplayTypeState {
   changeType: (type: string) => () => void;
   value: string;
 }
 
-const useSingleMetricGraphType = ({
+const useDisplayType = ({
   propertyName
-}: WidgetPropertyProps): UseSingleMetricGraphTypeState => {
+}: Pick<WidgetPropertyProps, 'propertyName'>): UseDisplayTypeState => {
   const { values, setFieldValue } = useFormikContext<Widget>();
 
   const value = useMemo<string | undefined>(
@@ -30,4 +30,4 @@ const useSingleMetricGraphType = ({
   };
 };
 
-export default useSingleMetricGraphType;
+export default useDisplayType;

@@ -259,7 +259,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByLabelText('Add').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -277,12 +277,12 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the dashboard actions on the corresponding dashboard when the user has viewer roles', () => {
+    it("doesn't displays the dashboard actions when the user has viewer roles", () => {
       initializeAndMount(viewerRole);
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('not.exist');
+      cy.findByLabelText('add').should('not.exist');
 
       cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
         dashboards.result.forEach(({ name }) => {
@@ -303,7 +303,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByLabelText('Add').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -344,7 +344,7 @@ describe('Dashboards', () => {
 
       cy.findByText('Actions').should('not.exist');
 
-      cy.findByLabelText('create').should('not.exist');
+      cy.findByLabelText('Add').should('not.exist');
 
       cy.makeSnapshot();
     });

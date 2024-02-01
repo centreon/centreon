@@ -23,6 +23,8 @@ const resourceTypesCustomParameters = [
 ];
 const resourceTypesSearchParameters = ['host', 'service'];
 
+const categories = ['host-category', 'service-category'];
+
 const resourcesSearchMapping = {
   host: 'parent_name',
   service: 'name'
@@ -66,7 +68,9 @@ export const buildResourcesEndpoint = ({
       { name: 'states', value: states },
       ...resourcesToApplyToCustomParameters.map(
         ({ resourceType, resources: resourcesToApply }) => ({
-          name: `${resourceType.replace('-', '')}_names`,
+          name: includes(resourceType, categories)
+            ? `${resourceType.replace('-', '_')}_names`
+            : `${resourceType.replace('-', '')}_names`,
           value: pluck('name', resourcesToApply)
         })
       )
