@@ -548,11 +548,11 @@ jobs:
 
             # Extract the transition ID from the response
             current_transition_id=$(echo "$get_response" | jq -r '.transitions[0].id')
-            # Check if the current transition ID is 31
-            if [ "$current_transition_id" -eq 31 ]; then
+            # Check if the current transition ID is 41
+            if [ "$current_transition_id" -eq 41 ]; then
               echo "Skipping Jira transition for issue ID $test_issue_id as current transition ID is 31."
             else
-              # Perform the POST request for transitions other than 31
+              # Perform the POST request for transitions other than 41
               for transition_id in "${transition_ids[@]}"; do
                 curl --request POST \
                   --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
