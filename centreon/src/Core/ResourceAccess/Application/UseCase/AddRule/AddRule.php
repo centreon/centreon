@@ -96,6 +96,8 @@ final class AddRule
             }
 
             try {
+                $this->info('Starting resource access rule creation process');
+                $this->debug('Starting resource access rule transaction');
                 $this->dataStorageEngine->startTransaction();
 
                 /**
@@ -257,7 +259,7 @@ final class AddRule
      */
     private function addRule(NewRule $rule): int
     {
-        $this->info('Adding new rule');
+        $this->debug('Adding new rule with basic information');
 
         return $this->writeRepository->add($rule);
     }
@@ -268,7 +270,7 @@ final class AddRule
      */
     private function linkContacts(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contacts to the resource access rule',
             ['ruleId' => $ruleId, 'contact_ids' => $rule->getLinkedContactIds()]
         );
@@ -282,7 +284,7 @@ final class AddRule
      */
     private function linkContactGroups(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contact groups to the resource access rule',
             ['ruleId' => $ruleId, 'contact_group_ids' => $rule->getLinkedContactGroupIds()]
         );
@@ -393,6 +395,7 @@ final class AddRule
      */
     private function createResponse(int $ruleId): AddRuleResponse
     {
+        $this->debug('Fetching information post creation', ['rule_id' => $ruleId]);
         $rule = $this->readRepository->findById($ruleId);
 
         if (! $rule) {
