@@ -1,5 +1,5 @@
-name: "tag version"
-description: "Tag package"
+name: "release action"
+description: "Create git release tags, github releases, jira version and push release communication. "
 inputs:
   github_ref_name:
     description: "Github ref name"
@@ -32,7 +32,7 @@ runs:
         COMPONENTS_COLLECT=("centreon-collect")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a NEW_STABLE_TAGS=()
-        PREVIOUS_STABLE_TAGS=()
+        declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
 
