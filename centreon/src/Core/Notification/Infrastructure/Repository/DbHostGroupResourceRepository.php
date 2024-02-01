@@ -26,6 +26,7 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\HostGroup\Infrastructure\Repository\DbReadHostGroupRepository;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -130,12 +131,16 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             $accessGroups
         );
 
-        $concatenator = $this->getConcatenatorForExistRequest($accessGroupIds)
-            ->appendWhere(
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+            $concatenator = $this->getConcatenatorForExistRequest([]);
+        } else {
+            $concatenator = $this->getConcatenatorForExistRequest($accessGroupIds);
+            $concatenator->appendWhere(
                 <<<'SQL'
                     hg.hg_id IN (:resourceIds)
                     SQL
             )->storeBindValueMultiple(':resourceIds', $resourceIds, \PDO::PARAM_INT);
+        }
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
         $concatenator->bindValuesToStatement($statement);
@@ -565,5 +570,50 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         }
 
         return $concatenator;
+    }
+
+    /**
+     * Determine if accessGroups give access to all hostGroups
+     * - true: all host groups are accessible
+     * - false: all host groups are NOT accessible.
+     *
+     * Duplicate code with :
+     * - {@see DbReadHostGroupRepository::hasAccessToAllHostGroups()}
+     * - {@see DbServiceGroupResourceRepository::hasAccessToAllHostGroups()}
+     *
+     * @param list<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
