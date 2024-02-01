@@ -2,20 +2,23 @@
   "result": [
     {
       "id": 1,
-      "name": "John"
+      "name": "John",
+      "most_permissive_role": "editor"
     },
     {
       "id": 2,
-      "name": "John 2"
+      "name": "John 2",
+      "most_permissive_role": "viewer"
     },
     {
       "id": 3,
-      "name": "John 3"
+      "name": "John 3",
+      "most_permissive_role": "viewer"
     }
   ],
   "meta": {
     "page": 1,
     "total": 3,
-    "limit": 100
+    "limit": 10
   }
 }
