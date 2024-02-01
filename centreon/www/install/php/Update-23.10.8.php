@@ -33,7 +33,7 @@ $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): 
         $pearDB->query(
             <<<SQL
                 INSERT INTO dashboard_widgets (`name`)
-                VALUES ('centreon-widget-resourcestable'))
+                VALUES ('centreon-widget-resourcestable')
                 SQL
         );
     }
