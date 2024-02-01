@@ -56,7 +56,9 @@ class ResourceNamesById
      */
     public function setNames(array $names): self
     {
-        $this->names = $names;
+        foreach ($names as $id => $name) {
+            $this->addName($id, $name);
+        }
 
         return $this;
     }
