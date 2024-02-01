@@ -383,14 +383,14 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 )
                 ->appendJoins(
                     <<<'SQL'
-                    LEFT JOIN `:db`.hostgroup_relation hgr
-                        ON hg.hg_id = hgr.hostgroup_hg_id
-                    LEFT JOIN `:db`.host h
-                        ON hgr.host_host_id = h.host_id
-                    LEFT JOIN `:db`.hostcategories_relation hcr
-                        ON h.host_id = hcr.host_host_id
-                    LEFT JOIN `:db`.hostcategories hc
-                        ON hcr.hostcategories_hc_id = hc.hc_id
+                        LEFT JOIN `:db`.hostgroup_relation hgr
+                            ON hg.hg_id = hgr.hostgroup_hg_id
+                        LEFT JOIN `:db`.host h
+                            ON hgr.host_host_id = h.host_id
+                        LEFT JOIN `:db`.hostcategories_relation hcr
+                            ON h.host_id = hcr.host_host_id
+                        LEFT JOIN `:db`.hostcategories hc
+                            ON hcr.hostcategories_hc_id = hc.hc_id
                     SQL
                 )
                 ->appendWhere(
