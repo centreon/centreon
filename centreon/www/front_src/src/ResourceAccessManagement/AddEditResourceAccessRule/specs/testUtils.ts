@@ -266,14 +266,7 @@ export const findResourceAccessRuleResponse = (): object => ({
   dataset_filters: [
     {
       dataset_filter: {
-        dataset_filter: {
-          dataset_filter: null,
-          resources: [
-            { id: 4, name: 'Memory' },
-            { id: 3, name: 'Disk' }
-          ],
-          type: 'service_category'
-        },
+        dataset_filter: null,
         resources: [{ id: 14, name: 'Centreon-Server' }],
         type: 'host'
       },
@@ -287,7 +280,8 @@ export const findResourceAccessRuleResponse = (): object => ({
         { id: 22, name: 'Disk-/usr' },
         { id: 21, name: 'Disk-/opt' },
         { id: 19, name: 'Disk-/' }
-      ]
+      ],
+      type: 'service'
     }
   ],
   description: 'First rule',
