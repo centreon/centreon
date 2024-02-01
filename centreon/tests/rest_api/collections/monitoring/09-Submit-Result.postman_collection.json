@@ -945,6 +945,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
