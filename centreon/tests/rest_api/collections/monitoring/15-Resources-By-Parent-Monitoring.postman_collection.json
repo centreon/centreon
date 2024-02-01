@@ -4,7 +4,7 @@
 		"name": "15 - Resources by Parent Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6492fe6e-ec70-4797-b3b7-455eb9e6ce62?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6492fe6e-ec70-4797-b3b7-455eb9e6ce62?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -939,13 +939,13 @@
 					"response": []
 				},
 				{
-					"name": "Check the host is retrieve via host group",
+					"name": "Check the host is retrieved via host group by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -954,12 +954,30 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length === 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is retrieved via host group by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -996,7 +1014,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the service is retrieve via type",
+					"name": "Check the host is retrieved via type by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1012,11 +1030,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result.length = 0)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is retrieved via type by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2013,7 +2045,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the host is retrieve via host group",
+					"name": "Check the host is retrieved via host group by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2029,11 +2061,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is retrieved via host group by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2070,7 +2116,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the service is retrieve via type",
+					"name": "Check the host is retrieved via type by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2086,11 +2132,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host is retrieved via type by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}

@@ -884,7 +884,7 @@
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
 									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2500);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",

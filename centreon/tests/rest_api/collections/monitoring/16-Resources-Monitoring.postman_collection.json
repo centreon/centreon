@@ -4,7 +4,7 @@
 		"name": "16 - Resources Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-280facfc-daec-4320-b3ff-6b52d81ca35d?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-280facfc-daec-4320-b3ff-6b52d81ca35d?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -944,13 +944,13 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via host group",
+					"name": "Check the resources retrieved via host group by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -959,24 +959,44 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"type\": \"host\",\r",
-									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
-									"        \"fqdn\": '999.99.99.99'\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length === 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via host group by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"host\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
+									"            \"fqdn\": '999.99.99.99'\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"type\": \"service\",\r",
-									"        \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"        \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"    });\r",
-									"});"
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -993,7 +1013,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources?hostgroup_names=[\"{{HostGroup1Name}}\"]",
+							"raw": "{{baseUrl}}/monitoring/resources?hostgroup_names=[\"{{HostGroup1Name}}\"]&sort_by={\"type\":\"DESC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1005,6 +1025,10 @@
 								{
 									"key": "hostgroup_names",
 									"value": "[\"{{HostGroup1Name}}\"]"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"type\":\"DESC\"}"
 								}
 							]
 						}
@@ -1012,7 +1036,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via type",
+					"name": "Check the resources retrieved via type by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1028,11 +1052,33 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via type by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"host\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
+									"            \"fqdn\": '999.99.99.99'\r",
+									"        });\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1068,7 +1114,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via states acknowledged",
+					"name": "Check the resources retrieved via states acknowledged by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1084,11 +1130,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(0);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via states acknowledged by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(0);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1124,7 +1184,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via service ctaegory names",
+					"name": "Check the resources retrieved via service category names by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1140,11 +1200,32 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via service category names by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1180,7 +1261,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via status soft",
+					"name": "Check the resources retrieved via status soft by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1196,11 +1277,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(0);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via status soft by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(0);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1780,7 +1875,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via host group",
+					"name": "Check the resources retrieved via host group by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1796,7 +1891,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
+									"pm.test(\"Resources have not been retrieved, because the user does not have access to the resources.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.result.length).to.eql(0);\r",
 									"});\r",
@@ -1836,7 +1931,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via type",
+					"name": "Check the resources retrieved via type by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1892,7 +1987,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via states in_downtime",
+					"name": "Check the resources retrieved via states in_downtime by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1948,7 +2043,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via service category names",
+					"name": "Check the resources retrieved via service category names by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2004,7 +2099,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via status hard",
+					"name": "Check the resources retrieved via status hard by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2419,7 +2514,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via host group",
+					"name": "Check the resources retrieved via host group by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2435,25 +2530,39 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"type\": \"host\",\r",
-									"        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
-									"        \"fqdn\": '999.99.99.99'\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via host group by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"type\": \"host\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
+									"            \"fqdn\": '999.99.99.99'\r",
+									"        });\r",
 									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"type\": \"service\",\r",
-									"        \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
-									"        \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
-									"    });\r",
-									"});\r",
-									""
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2470,7 +2579,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources?hostgroup_names=[\"{{HostGroup1Name}}\"]",
+							"raw": "{{baseUrl}}/monitoring/resources?hostgroup_names=[\"{{HostGroup1Name}}\"]&sort_by={\"type\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2482,6 +2591,10 @@
 								{
 									"key": "hostgroup_names",
 									"value": "[\"{{HostGroup1Name}}\"]"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"type\":\"ASC\"}"
 								}
 							]
 						}
@@ -2489,7 +2602,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via type",
+					"name": "Check the resources retrieved via type by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2505,11 +2618,32 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via type by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2545,7 +2679,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via states in_downtime",
+					"name": "Check the resources retrieved via states in_downtime by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2561,11 +2695,25 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(0);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via states in_downtime by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have not been retrieved, because there is no downtime\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(0);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2601,7 +2749,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via service category names",
+					"name": "Check the resources retrieved via service category names by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2617,11 +2765,32 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have been successfully retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via service category names by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2657,7 +2826,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the resources retrieved via status hard",
+					"name": "Check the resources retrieved via status hard by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2673,11 +2842,39 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Resources have not been retrieved.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"});\r",
-									""
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (responseJson.result.length = 0)) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the resources retrieved via status hard by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Resources have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"type\": \"service\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Service1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Service1Name\"),\r",
+									"            \"host_id\":pm.collectionVariables.get(\"Host1Id\")\r",
+									"        });\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"type\": \"host\",\r",
+									"            \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
+									"            \"alias\": pm.collectionVariables.get(\"Host1Alias\"),\r",
+									"            \"fqdn\": '999.99.99.99'\r",
+									"        });\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -2694,7 +2891,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources?status_types=[\"hard\"]",
+							"raw": "{{baseUrl}}/monitoring/resources?status_types=[\"hard\"]&sort_by={\"type\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2706,6 +2903,10 @@
 								{
 									"key": "status_types",
 									"value": "[\"hard\"]"
+								},
+								{
+									"key": "sort_by",
+									"value": "{\"type\":\"ASC\"}"
 								}
 							]
 						}
