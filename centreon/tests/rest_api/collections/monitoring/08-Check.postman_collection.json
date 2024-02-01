@@ -744,8 +744,7 @@
 									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
 									"    });\r",
 									"\r",
-									"}\r",
-									""
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1438,7 +1437,7 @@
 			]
 		},
 		{
-			"name": "0803 - Acknowledgement by user without access to Actions and Ressources",
+			"name": "0803 - Check by user without access to Actions and Ressources",
 			"item": [
 				{
 					"name": "Login with user-non-admin user",
@@ -1815,7 +1814,7 @@
 			]
 		},
 		{
-			"name": "0804 - Acknowledgement by user-non-admin with access to Actions but without access to Resources",
+			"name": "0804 - Check by user-non-admin with access to Actions but without access to Resources",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -2419,7 +2418,7 @@
 			]
 		},
 		{
-			"name": "0805 - Acknowledgement by user-non-admin with access to resources and actions",
+			"name": "0805 - Check by user-non-admin with access to resources and actions",
 			"item": [
 				{
 					"name": "Login with admin user",
