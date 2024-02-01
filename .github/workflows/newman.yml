@@ -524,7 +524,7 @@ jobs:
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
           fi
 
-  Adding-testCases-keys:
+  adding-testCases-keys:
     if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
     needs: [newman-test-list, associate-test-cases, newman-test-run]
     runs-on: ubuntu-22.04
