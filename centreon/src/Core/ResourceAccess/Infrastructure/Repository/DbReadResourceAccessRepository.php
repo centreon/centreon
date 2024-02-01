@@ -90,6 +90,8 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
         $this->debug('Find dataset filters linked to the rule', ['rule_id' => $ruleId]);
         $datasets = $this->findDatasetsByRuleId($ruleId);
 
+        // Loop on datasets + exec requests to get names
+
         if ($datasets === null) {
             $this->error('Failed to retrieve dataset filters linked to the rule');
 
@@ -204,11 +206,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     private function findLinkedContactsToRule(int $ruleId): array
     {
-        $request = <<<'SQL'
-            SELECT contact_contact_id FROM `:db`.acl_group_contacts_relations WHERE acl_group_id = :ruleId
-            SQL;
+        $statement = $this->db->prepare(
+            $this->translatedbname(
+                <<<'SQL'
+                        SELECT contact_contact_id FROM `:db`.acl_group_contacts_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
 
-        $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
         $statement->execute();
 
@@ -222,11 +227,14 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     private function findLinkedContactGroupsToRule(int $ruleId): array
     {
-        $request = <<<'SQL'
-                SELECT cg_cg_id FROM `:db`.acl_group_contactgroups_relations WHERE acl_group_id = :ruleId
-            SQL;
+        $statement = $this->db->prepare(
+            $this->translatedbname(
+                <<<'SQL'
+                        SELECT cg_cg_id FROM `:db`.acl_group_contactgroups_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
 
-        $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
         $statement->execute();
 

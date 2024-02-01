@@ -21,35 +21,31 @@
 
 declare(strict_types = 1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\Domain\Configuration\Model;
 
 use Core\Common\Domain\TrimmedString;
 
-class HostNamesById
+class MetaServiceNamesById
 {
     /** @var array<int,TrimmedString> */
     private array $names = [];
 
-    public function __construct()
-    {
-    }
-
     /**
-     * @param int $hostId
-     * @param TrimmedString $hostName
+     * @param int $metaServiceId
+     * @param TrimmedString $metaServiceName
      */
-    public function addName(int $hostId, TrimmedString $hostName): void
+    public function addName(int $metaServiceId, TrimmedString $metaServiceName): void
     {
-        $this->names[$hostId] = $hostName;
+        $this->names[$metaServiceId] = $metaServiceName;
     }
 
     /**
-     * @param int $hostId
+     * @param int $metaServiceId
      *
      * @return null|string
      */
-    public function getName(int $hostId): ?string {
-        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
+    public function getName(int $metaServiceId): ?string {
+        return isset($this->names[$metaServiceId]) ? $this->names[$metaServiceId]->value: null;
     }
 
     /**
@@ -60,3 +56,4 @@ class HostNamesById
         return $this->names;
     }
 }
+

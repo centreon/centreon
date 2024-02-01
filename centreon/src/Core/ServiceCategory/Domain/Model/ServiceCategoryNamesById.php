@@ -51,4 +51,12 @@ class ServiceCategoryNamesById
     public function getName(int $categoryId): ?string {
         return isset($this->names[$categoryId]) ? $this->names[$categoryId]->value: null;
     }
+
+    /**
+     * @return array<int,TrimmedString>
+     */
+    public function getNames(): array
+    {
+        return $this->names;
+    }
 }
