@@ -65,7 +65,7 @@ runs:
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
