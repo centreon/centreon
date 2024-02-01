@@ -70,31 +70,19 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
      */
     public function findById(int $ruleId): ?Rule
     {
-        $this->info('Find rule information', ['rule_id' => $ruleId]);
-        $this->debug('Find basic information for rule', ['rule_id' => $ruleId]);
-
         $basicInformation = $this->findBasicInformation($ruleId);
 
         if ($basicInformation === null) {
-            $this->error('Failed to retrieve basic rule information');
-
             return null;
         }
 
-        $this->debug('Find contacts linked to the rule', ['rule_id' => $ruleId]);
         $linkedContactIds = $this->findLinkedContactsToRule($ruleId);
-
-        $this->debug('Find contact groups linked to the rule', ['rule_id' => $ruleId]);
         $linkedContactGroupIds = $this->findLinkedContactGroupsToRule($ruleId);
-
-        $this->debug('Find dataset filters linked to the rule', ['rule_id' => $ruleId]);
         $datasets = $this->findDatasetsByRuleId($ruleId);
 
         // Loop on datasets + exec requests to get names
 
         if ($datasets === null) {
-            $this->error('Failed to retrieve dataset filters linked to the rule');
-
             return null;
         }
 
@@ -110,10 +98,28 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
+    public function findDatasetIdsByRuleId(int $ruleId): array
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        SELECT acl_res_id FROM `:db`.acl_res_group_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByName(string $name): bool
     {
-        $this->info('Check if resource access rule already exists with name: ' . $name);
-
         $request = $this->translateDbName(
             <<<'SQL'
                     SELECT 1
