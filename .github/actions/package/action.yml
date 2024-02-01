@@ -57,7 +57,7 @@ runs:
   steps:
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
