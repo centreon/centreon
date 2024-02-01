@@ -135,7 +135,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('rta (ms)').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@performanceData');
   }
 );
@@ -365,7 +365,7 @@ When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('pl (%)').realClick();
+    cy.getByTestId({ testId: 'pl' }).realClick();
   }
 );
 

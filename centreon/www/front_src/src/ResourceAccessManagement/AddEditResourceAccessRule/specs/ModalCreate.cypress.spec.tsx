@@ -25,7 +25,7 @@ import {
   labelContacts,
   labelDescription,
   labelName,
-  labelRefineFilter,
+  labelAddFilter,
   labelResourceAccessRuleAddedSuccess,
   labelSave,
   labelSelectResource,
@@ -150,7 +150,7 @@ const fillFormRequiredFields = (): void => {
   cy.waitForRequest('@findHostGroupsEndpoint');
   cy.findByText('Linux-Servers').click();
 
-  cy.findByLabelText(labelRefineFilter).click();
+  cy.findByLabelText(labelAddFilter).click();
 
   cy.findAllByLabelText(labelSelectResourceType).last().click();
   cy.findByText('Host').click();
@@ -199,8 +199,8 @@ describe('Create modal', () => {
     cy.findByTestId(labelSelectResource).should('be.visible');
     cy.findByTestId(labelSelectResource).should('have.value', '');
 
-    cy.findByLabelText(labelRefineFilter).should('be.visible');
-    cy.findByLabelText(labelRefineFilter).should('be.disabled');
+    cy.findByLabelText(labelAddFilter).should('be.visible');
+    cy.findByLabelText(labelAddFilter).should('be.disabled');
 
     cy.findByLabelText(labelAddNewDataset).should('be.visible');
     cy.findByLabelText(labelAddNewDataset).should('be.disabled');
@@ -225,29 +225,29 @@ describe('Create modal', () => {
   });
 
   it('confirms that the Refine filter and Add new dataset buttons are disabled when resource type and/or resources in dataset are not selected', () => {
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelSelectResourceType).click();
     cy.findByText('Host').click();
 
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.findByTestId(labelSelectResource).click();
     cy.waitForRequest('@findHostsEndpoint');
     cy.findByText('Centreon-Server').click();
 
-    cy.findByText(labelRefineFilter).click();
+    cy.findByText(labelAddFilter).click();
 
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.makeSnapshot();
   });
 
   it('confirms that the Refine filter and Add new dataset buttons are enabled when a dataset is selected', () => {
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelSelectResourceType).click();
@@ -256,14 +256,14 @@ describe('Create modal', () => {
     cy.waitForRequest('@findHostsEndpoint');
     cy.findByText('Centreon-Server').click();
 
-    cy.findByText(labelRefineFilter).should('not.be.disabled');
+    cy.findByText(labelAddFilter).should('not.be.disabled');
     cy.findByText(labelAddNewDataset).should('not.be.disabled');
 
     cy.makeSnapshot();
   });
 
   it('confirms that the Refine filter button is disabled and Add new dataset button is enabled when a dataset for metaservice is setup', () => {
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelSelectResourceType).click();
@@ -272,14 +272,14 @@ describe('Create modal', () => {
     cy.waitForRequest('@findMetaServicesEndpoint');
     cy.findByText('META_SERVICE_MEMORY_PARIS').click();
 
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('not.be.disabled');
 
     cy.makeSnapshot();
   });
 
   it('confirms that the Refine filter button is disabled and the Add new dataset button is enabled when a dataset for a service is selected', () => {
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelSelectResourceType).click();
@@ -288,7 +288,7 @@ describe('Create modal', () => {
     cy.waitForRequest('@findServicesEndpoint');
     cy.findByText('Ping').click();
 
-    cy.findByText(labelRefineFilter).should('be.disabled');
+    cy.findByText(labelAddFilter).should('be.disabled');
     cy.findByText(labelAddNewDataset).should('not.be.disabled');
 
     cy.makeSnapshot();
