@@ -21,7 +21,7 @@ const DisplayType = ({
   return (
     <div>
       <Subtitle>{t(labelDisplayType)}</Subtitle>
-      <div className={classes.container}>
+      <div className={classes.displayTypeContainer}>
         {options?.map(({ id, icon, label }) => (
           <Option
             changeType={changeType}

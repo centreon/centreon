@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
-  container: {
+  displayTypeContainer: {
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2)

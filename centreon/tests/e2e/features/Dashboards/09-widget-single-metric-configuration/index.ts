@@ -113,7 +113,7 @@ Then(
     cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
     cy.contains('Value settings').should('exist');
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-    cy.get('[class*="graphTypeContainer"]').should('be.visible');
+    cy.get('[class*="displayTypeContainer"]').should('be.visible');
   }
 );
 
