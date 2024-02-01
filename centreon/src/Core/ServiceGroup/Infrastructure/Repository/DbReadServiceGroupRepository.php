@@ -228,9 +228,12 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     public function findNames(array $serviceGroupIds): ServiceGroupNamesById
     {
         $concatenator = new SqlConcatenator();
+
+        $serviceGroupIds = array_unique($serviceGroupIds);
+
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT DISTINCT(sg.sg_id), sg.sg_name
+                SELECT sg.sg_id, sg.sg_name
                 FROM `:db`.servicegroup sg
                 WHERE sg.sg_id IN (:serviceGroupIds)
                 SQL

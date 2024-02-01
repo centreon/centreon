@@ -19,44 +19,47 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 
 use Core\Common\Domain\TrimmedString;
 
-class HostNamesById
+class ResourceNamesById
 {
     /** @var array<int,TrimmedString> */
     private array $names = [];
 
-    public function __construct()
-    {
-    }
-
     /**
-     * @param int $hostId
-     * @param TrimmedString $hostName
+     * @param int $resourceId
+     * @param TrimmedString $resourceName
      */
-    public function addName(int $hostId, TrimmedString $hostName): void
+    public function addName(int $resourceId, TrimmedString $resourceName): void
     {
-        $this->names[$hostId] = $hostName;
+        $this->names[$resourceId] = $resourceName;
     }
 
     /**
-     * @param int $hostId
+     * @param int $resourceId
      *
      * @return null|string
      */
-    public function getName(int $hostId): ?string {
-        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
+    public function getName(int $resourceId): ?string
+    {
+        return isset($this->names[$resourceId]) ? $this->names[$resourceId]->value : null;
     }
 
     /**
-     * @return array<int,TrimmedString>
+     * @param array<int,TrimmedString> $names
+     *
+     * @return ResourceNamesById
      */
-    public function getNames(): array
+    public function setNames(array $names): self
     {
-        return $this->names;
+        foreach ($names as $id => $name) {
+            $this->addName($id, $name);
+        }
+
+        return $this;
     }
 }

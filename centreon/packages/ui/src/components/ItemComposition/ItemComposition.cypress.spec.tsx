@@ -1,30 +1,19 @@
+import { Props } from './ItemComposition';
+
 import { ItemComposition } from '.';
 
-interface Props {
-  addButtonHidden?: boolean;
-  addbuttonDisabled?: boolean;
-  deleteButtonHidden?: boolean;
-  secondaryLabel?: string;
-}
-
 const initialize = ({
-  addButtonHidden,
-  addbuttonDisabled,
-  secondaryLabel,
-  deleteButtonHidden
-}: Props): unknown => {
+  deleteButtonHidden,
+  ...props
+}: Partial<Props> & {
+  deleteButtonHidden?: boolean;
+}): unknown => {
   const addItem = cy.stub();
   const deleteItem = cy.stub();
 
   cy.mount({
     Component: (
-      <ItemComposition
-        addButtonHidden={addButtonHidden}
-        addbuttonDisabled={addbuttonDisabled}
-        labelAdd="Add"
-        secondaryLabel={secondaryLabel}
-        onAddItem={addItem}
-      >
+      <ItemComposition {...props} labelAdd="Add" onAddItem={addItem}>
         <ItemComposition.Item
           deleteButtonHidden={deleteButtonHidden}
           labelDelete="Delete"
@@ -112,5 +101,13 @@ describe('ItemComposition', () => {
       .then(() => {
         expect(deleteItem).to.have.been.calledWith();
       });
+  });
+
+  it('displays items as linked when the prop is set to true', () => {
+    initialize({ displayItemsAsLinked: true });
+
+    cy.get('[data-linked]').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
