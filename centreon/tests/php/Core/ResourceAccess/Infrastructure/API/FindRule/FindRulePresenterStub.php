@@ -21,30 +21,20 @@
 
 declare(strict_types = 1);
 
-namespace Core\ResourceAccess\Application\Providers;
+namespace Tests\Core\ResourceAccess\Infrastructure\API\FindRule;
 
-use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\ResourceAccess\Application\UseCase\FindRule\FindRulePresenterInterface;
+use Core\ResourceAccess\Application\UseCase\FindRule\FindRuleResponse;
 
-interface DatasetProviderInterface
+class FindRulePresenterStub extends AbstractPresenter implements FindRulePresenterInterface
 {
-    /**
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function isValidFor(string $type): bool;
+    public FindRuleResponse|ResponseStatusInterface $response;
 
-    /**
-     * @param int[] $resourceIds
-     *
-     * @return int[]
-     */
-    public function areResourcesValid(array $resourceIds): array;
-
-    /**
-     * @param int[] $ids
-     *
-     * @return ResourceNamesById
-     */
-    public function findResourceNamesByIds(array $ids): ResourceNamesById;
+    public function presentResponse(FindRuleResponse|ResponseStatusInterface $response): void
+    {
+        $this->response = $response;
+    }
 }
+

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Application\Providers;
 
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 
 final class ServiceCategoryProvider implements DatasetProviderInterface
@@ -33,6 +34,16 @@ final class ServiceCategoryProvider implements DatasetProviderInterface
      */
     public function __construct(private readonly ReadServiceCategoryRepositoryInterface $repository)
     {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findResourceNamesByIds(array $ids): ResourceNamesById
+    {
+        $names = $this->repository->findNames($ids);
+
+        return (new ResourceNamesById())->setNames($names->getNames());
     }
 
     /**

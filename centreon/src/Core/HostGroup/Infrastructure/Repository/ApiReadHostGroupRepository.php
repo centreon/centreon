@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\HostGroup\Infrastructure\Repository;
 
@@ -30,6 +30,7 @@ use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Common\Infrastructure\Repository\ApiResponseTrait;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupNamesById;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -44,6 +45,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
         private readonly RouterInterface $router,
         private readonly LoggerInterface $logger,
     ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(array $hostGroupIds): HostGroupNamesById
+    {
+        throw RepositoryException::notYetImplemented();
     }
 
     /**
@@ -88,8 +97,7 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups):
-    \Traversable&\Countable
+    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable
     {
         throw RepositoryException::notYetImplemented();
     }
