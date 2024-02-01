@@ -42,7 +42,7 @@ const initializeComponent = (canEdit = true): void => {
           }}
           onSubmit={cy.stub()}
         >
-          <DisplayType options={options} propertyName="singleMetricGraphType" />
+          <DisplayType options={options} propertyName="displayType" />
         </Formik>
       </Provider>
     )
