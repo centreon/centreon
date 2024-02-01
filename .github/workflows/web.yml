@@ -284,7 +284,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         with:
           php-version: 8.1
           coverage: none
@@ -292,7 +292,7 @@ jobs:
           runner: ubuntu-22.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@c49029afecf85fda829d8c6c7f1b5f7b8bc3f7be # v2
+        uses: ramsey/composer-install@83af392bf5f031813d25e6fe4cd626cdba9a2df6 # v2.2.0
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -316,7 +316,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         with:
           php-version: 8.1
           coverage: none
