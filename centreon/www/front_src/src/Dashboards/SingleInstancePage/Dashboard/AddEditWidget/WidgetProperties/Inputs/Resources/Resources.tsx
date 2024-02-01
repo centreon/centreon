@@ -70,6 +70,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
+          displayItemsAsLinked
           IconAdd={<AddIcon />}
           addButtonHidden={!canEditField}
           addbuttonDisabled={!areResourcesFullfilled(value)}
