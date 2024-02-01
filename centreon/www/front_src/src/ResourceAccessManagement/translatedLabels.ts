@@ -22,7 +22,7 @@ export const labelNameAlreadyExists = 'This name already exists';
 export const labelSave = 'Save';
 export const labelExit = 'Exit';
 export const labelAddNewDataset = 'Add new dataset';
-export const labelRefineFilter = 'Refine filter';
+export const labelAddFilter = 'Refine filter';
 export const labelChooseAtLeastOneContactOrContactGroup =
   'Choose at least one contact or contact group';
 export const labelHost = 'Host';
