@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { equals, prop } from 'ramda';
 
 import {
