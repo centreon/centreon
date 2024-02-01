@@ -126,8 +126,8 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@performanceData');
   }
 );
@@ -368,8 +368,8 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('pl (%) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.getByTestId({ testId: 'pl' }).realClick();
   }
 );
 
