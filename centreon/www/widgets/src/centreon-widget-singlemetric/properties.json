@@ -17,7 +17,7 @@
           "id": "gauge"
         },
         {
-          "icon": "<svg  viewBox=\"0 0 24 24\" data-testid=\"BarChartIcon\"><path d=\"M4 9h4v11H4zm12 4h4v7h-4zm-6-9h4v16h-4z\"></path></svg>",
+          "icon": "<svg viewBox=\"0 0 24 24\" data-testid=\"BarChartIcon\" transform=\"rotate(90)\"><path d=\"M4 9h4v11H4zm12 4h4v7h-4zm-6-9h4v16h-4z\"></path></svg>",
           "label": "Bar",
           "id": "bar"
         }
