@@ -2,12 +2,13 @@ import { ReactElement, useMemo, useCallback } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import { DataTable } from '@centreon/ui/components';
+import AddIcon from '@mui/icons-material/Add';
 
-import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
+import { Button, DataTable, PageLayout } from '@centreon/ui/components';
+
 import { useDashboardDelete } from '../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
@@ -21,6 +22,7 @@ import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../../models';
+import { isSharesOpenAtom } from '../../../atoms';
 import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
@@ -38,11 +40,13 @@ const DashboardsOverview = (): ReactElement => {
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
   const deleteDashboard = useDashboardDelete();
-  const { editAccessRights } = useDashboardAccessRights();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
 
   const navigate = useNavigate();
+
+  const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
+
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
     navigate(
       generatePath(routeMap.dashboard, {
@@ -78,6 +82,25 @@ const DashboardsOverview = (): ReactElement => {
     };
   }, []);
 
+  const editAccessRights = useCallback(
+    (dashboard) => () => setIsSharesOpenAtom(dashboard),
+    []
+  );
+
+  if (isEmptyList && !search) {
+    return (
+      <DataTable isEmpty={isEmptyList} variant="grid">
+        <DataTable.EmptyState
+          aria-label="create"
+          canCreate={canCreateOrManageDashboards}
+          data-testid="create-dashboard"
+          labels={labels.emptyState}
+          onCreate={createDashboard}
+        />
+      </DataTable>
+    );
+  }
+
   const GridTable = (
     <DataTable isEmpty={isEmptyList} variant="grid">
       {dashboards.map((dashboard) => (
@@ -97,30 +120,31 @@ const DashboardsOverview = (): ReactElement => {
     </DataTable>
   );
 
-  if (isEmptyList && !search) {
-    return (
-      <DataTable isEmpty={isEmptyList} variant="grid">
-        <DataTable.EmptyState
-          aria-label="create"
-          canCreate={canCreateOrManageDashboards}
-          data-testid="create-dashboard"
-          labels={labels.emptyState}
-          onCreate={createDashboard}
-        />
-      </DataTable>
-    );
-  }
-
   return (
-    <div className={classes.container}>
-      <DashboardListing
-        customListingComponent={GridTable}
-        data={data}
-        displayCustomListing={equals(viewMode, ViewMode.Cards)}
-        loading={isLoading}
-        openConfig={createDashboard}
-      />
-    </div>
+    <>
+      <PageLayout.Actions>
+        {!isEmptyList && canCreateOrManageDashboards && (
+          <Button
+            aria-label="create"
+            data-testid="create-dashboard"
+            icon={<AddIcon />}
+            iconVariant="start"
+            onClick={createDashboard}
+          >
+            {labels.actions.create}
+          </Button>
+        )}
+      </PageLayout.Actions>
+      <div className={classes.container}>
+        <DashboardListing
+          customListingComponent={GridTable}
+          data={data}
+          displayCustomListing={equals(viewMode, ViewMode.Cards)}
+          loading={isLoading}
+          openConfig={createDashboard}
+        />
+      </div>
+    </>
   );
 };
 

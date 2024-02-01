@@ -142,7 +142,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@dashboardMetricsTop');
   }
 );
@@ -192,6 +192,7 @@ When(
     cy.contains(hostName)
       .parent()
       .getByTestId({ testId: 'CancelIcon' })
+      .eq(0)
       .click();
   }
 );
@@ -217,7 +218,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 

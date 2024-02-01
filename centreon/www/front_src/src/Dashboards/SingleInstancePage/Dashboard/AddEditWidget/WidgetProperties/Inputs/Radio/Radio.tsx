@@ -13,7 +13,7 @@ import {
   Widget,
   WidgetPropertyProps
 } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
 import { getProperty } from '../utils';
 
@@ -34,7 +34,7 @@ const WidgetRadio = ({
     [getProperty({ obj: values, propertyName })]
   );
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const dependencyValue = has('when', options)
     ? values.options[options.when]

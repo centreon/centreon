@@ -10,6 +10,14 @@ import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-gen
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import widgetSingleDataConfiguration from 'centreon-widgets/centreon-widget-singledata/moduleFederation.json';
 import widgetSingleDataProperties from 'centreon-widgets/centreon-widget-singledata/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
+import widgetGraphConfiguration from 'centreon-widgets/centreon-widget-graph/moduleFederation.json';
+import widgetGraphProperties from 'centreon-widgets/centreon-widget-graph/properties.json';
+import widgetStatusGridConfiguration from 'centreon-widgets/centreon-widget-statusgrid/moduleFederation.json';
+import widgetStatusGridProperties from 'centreon-widgets/centreon-widget-statusgrid/properties.json';
+import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbottom/moduleFederation.json';
+import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -35,8 +43,7 @@ import {
   labelRefineFilter,
   labelAddMetric
 } from '../translatedLabels';
-import { dashboardAtom } from '../atoms';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
 import { widgetFormInitialDataAtom } from './atoms';
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
@@ -44,6 +51,18 @@ import { WidgetResourceType } from './models';
 import { metricsEndpoint } from './api/endpoints';
 
 import { AddEditWidgetModal } from '.';
+
+const widgetsProperties = [
+  widgetTextProperties,
+  widgetInputProperties,
+  widgetDataProperties,
+  widgetGenericTextProperties,
+  widgetSingleDataProperties,
+  widgetStatusGridProperties,
+  widgetSingleMetricProperties,
+  widgetGraphProperties,
+  widgetTopBottomProperties
+];
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -66,18 +85,28 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
     {
       ...widgetSingleDataConfiguration,
       moduleFederationName: 'centreon-widget-singledata/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
+    },
+    {
+      ...widgetStatusGridConfiguration,
+      moduleFederationName: 'centreon-widget-statusgrid/src'
+    },
+    {
+      ...widgetGraphConfiguration,
+      moduleFederationName: 'centreon-widget-graph/src'
+    },
+    {
+      ...widgetTopBottomConfiguration,
+      moduleFederationName: 'centreon-widget-topbottom/src'
     }
   ];
 
   const store = defaultStore || createStore();
   store.set(federatedWidgetsAtom, federatedWidgets);
-  store.set(federatedWidgetsPropertiesAtom, [
-    widgetTextProperties,
-    widgetInputProperties,
-    widgetDataProperties,
-    widgetGenericTextProperties,
-    widgetSingleDataProperties
-  ]);
+  store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
 
   return store;
 };
@@ -174,13 +203,11 @@ const store = createStore();
 describe('AddEditWidgetModal', () => {
   describe('Properties', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: true
-      });
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
 
       cy.viewport('macbook-13');
 
@@ -200,6 +227,8 @@ describe('AddEditWidgetModal', () => {
         const jotaiStore = initializeWidgets();
 
         jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        jotaiStore.set(hasEditPermissionAtom, true);
+        jotaiStore.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -296,6 +325,8 @@ describe('AddEditWidgetModal', () => {
         const jotaiStore = initializeWidgets();
 
         jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
+        jotaiStore.set(hasEditPermissionAtom, true);
+        jotaiStore.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -401,18 +432,29 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays widgets icon when widget type field is expanded', () => {
+      cy.findByLabelText(labelWidgetType).click();
+
+      widgetsProperties.forEach(({ title, description, icon }) => {
+        cy.get(`[data-icon="${icon ? '' : 'default-'}${title}"]`).should(
+          'exist'
+        );
+        cy.contains(title).should('exist');
+        cy.contains(description).should('exist');
+      });
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: false
-      });
-
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, false);
 
       cy.viewport('macbook-13');
 
@@ -459,13 +501,11 @@ describe('AddEditWidgetModal', () => {
   describe('Data', () => {
     describe('Resources and metrics', () => {
       beforeEach(() => {
-        cy.stub(editProperties, 'useCanEditProperties').returns({
-          canEdit: true,
-          canEditField: true
-        });
         initializeWidgets(store);
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        store.set(hasEditPermissionAtom, true);
+        store.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -565,10 +605,11 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('rtmax').click();
+        cy.findByTestId(labelSelectMetric).click();
 
-        cy.contains('Metrics (2 available)').should('be.visible');
+        cy.contains('Metrics (4 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findByLabelText(labelSave).should('be.enabled');
@@ -594,14 +635,53 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('rtmax').click();
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
         cy.findAllByLabelText(labelDelete).eq(0).should('not.be.visible');
 
         cy.makeSnapshot();
+      });
+
+      it('stores the data with an excluded resource when a resource is selected, a metric is selected, a resource is unchecked and the Add button is clicked', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 0$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId('pl-summary').click();
+        cy.findByTestId('pl_Centreon-1:Ping').click();
+        cy.findByTestId(labelSelectMetric).click();
+
+        cy.findByLabelText(labelSave)
+          .click()
+          .then(() => {
+            const dashboard = store.get(dashboardAtom);
+            expect(dashboard.layout[0].data.metrics[0]).to.deep.equal({
+              criticalHighThreshold: 1000,
+              criticalLowThreshold: null,
+              excludedMetrics: [2],
+              id: 2,
+              includeAllMetrics: true,
+              name: 'pl',
+              unit: '%',
+              warningHighThreshold: null,
+              warningLowThreshold: null
+            });
+          });
       });
 
       it('stores the data when a resource is selected, a metric is selected and the Add button is clicked', () => {
@@ -622,25 +702,25 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
-        cy.contains('rtmax (ms)').click();
+        cy.findByTestId('rtmax').click();
+        cy.findByTestId(labelSelectMetric).click();
 
         cy.findByLabelText(labelSave)
           .click()
           .then(() => {
             const dashboard = store.get(dashboardAtom);
 
-            assert.equal(dashboard.layout.length, 1);
-            assert.equal(dashboard.layout[0].data.resources.length, 1);
+            assert.equal(dashboard.layout.length, 2);
+            assert.equal(dashboard.layout[1].data.resources.length, 1);
             assert.equal(
-              dashboard.layout[0].data.resources[0].resourceType,
+              dashboard.layout[1].data.resources[0].resourceType,
               'host'
             );
             assert.equal(
-              dashboard.layout[0].data.resources[0].resources.length,
+              dashboard.layout[1].data.resources[0].resources.length,
               1
             );
-            assert.equal(dashboard.layout[0].data.metrics.length, 2);
+            assert.equal(dashboard.layout[1].data.metrics.length, 1);
           });
       });
 
@@ -660,21 +740,72 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelSelectMetric).click();
-        cy.contains('pl (%)').click();
+        cy.findByTestId('pl').click();
 
         cy.makeSnapshot();
+      });
+
+      it('removes the selected resource from the metric selector when the corresponding resource is removed from the resource selector', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelTitle).type('Generic data');
+
+        cy.findByLabelText(labelRefineFilter).should('be.disabled');
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 1$/).click();
+        cy.findByTestId(labelSelectAResource).click();
+        cy.contains(/^Host 2$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.fixture('Dashboards/Dashboard/serviceMetric.json').then(
+          (serviceMetric) => {
+            cy.interceptAPIRequest({
+              alias: 'getServiceMetric',
+              method: Method.GET,
+              path: `${metricsEndpoint}**`,
+              response: serviceMetric
+            });
+          }
+        );
+
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl').click();
+        cy.findByTestId(labelSelectMetric).click();
+
+        cy.contains('pl (%)/2').should('be.visible');
+
+        cy.contains(/^Host 2$/)
+          .parent()
+          .findByTestId('CancelIcon')
+          .click();
+
+        cy.waitForRequest('@getServiceMetric');
+        cy.contains('pl (%)/1').should('be.visible');
+        cy.findByTestId(labelSelectMetric).click();
+        cy.findByTestId('pl-summary').click();
+        cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+        cy.findByTestId('pl_Centreon-1:Ping').should(
+          'have.attr',
+          'data-checked',
+          'true'
+        );
       });
     });
 
     describe('With one service metrics', () => {
       beforeEach(() => {
-        cy.stub(editProperties, 'useCanEditProperties').returns({
-          canEdit: true,
-          canEditField: true
-        });
         initializeWidgets(store);
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        store.set(hasEditPermissionAtom, true);
+        store.set(isEditingAtom, true);
 
         cy.viewport('macbook-13');
 
@@ -730,14 +861,11 @@ describe('AddEditWidgetModal', () => {
 
   describe('Disabled data', () => {
     beforeEach(() => {
-      cy.stub(editProperties, 'useCanEditProperties').returns({
-        canEdit: true,
-        canEditField: false
-      });
-
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormData);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, false);
 
       cy.viewport('macbook-13');
 

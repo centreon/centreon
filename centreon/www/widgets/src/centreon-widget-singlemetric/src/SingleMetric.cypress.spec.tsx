@@ -2,8 +2,10 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
-import { Data, FormThreshold, ValueFormat } from './models';
-import { labelNoDataFound } from './translatedLabels';
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+import { Data } from '../../models';
+
+import { FormThreshold, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
 
 import Widget from '.';
@@ -12,30 +14,18 @@ const panelData: Data = {
   metrics: [
     {
       id: 1,
-      metrics: [
-        {
-          id: 1,
-          name: 'Ping_1',
-          unit: 'ms'
-        }
-      ],
-      name: 'Ping'
+      name: 'Ping_1',
+      unit: 'ms'
     },
     {
       id: 2,
-      metrics: [
-        {
-          id: 2,
-          name: 'Cpu 1',
-          unit: '%'
-        },
-        {
-          id: 3,
-          name: 'Cpu 2',
-          unit: '%'
-        }
-      ],
-      name: 'Cpu'
+      name: 'Cpu 1',
+      unit: '%'
+    },
+    {
+      id: 3,
+      name: 'Cpu 2',
+      unit: '%'
     }
   ],
   resources: [
@@ -181,7 +171,7 @@ describe('Single metric Widget', () => {
         threshold: disabledThreshold
       }
     });
-    cy.contains(labelNoDataFound).should('be.visible');
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
 
     cy.makeSnapshot();
   });
