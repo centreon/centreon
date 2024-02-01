@@ -191,7 +191,6 @@
                 "files": [
                     "GPL_LIB/smarty-plugins/compiler.displaysvg.php",
                     "GPL_LIB/smarty-plugins/compiler.pagination.php",
-                    "GPL_LIB/smarty-plugins/compiler.php.php",
                     "GPL_LIB/smarty-plugins/function.eval.php",
                     "GPL_LIB/smarty-plugins/SmartyBC.php",
                     "www/api/exceptions.php",
