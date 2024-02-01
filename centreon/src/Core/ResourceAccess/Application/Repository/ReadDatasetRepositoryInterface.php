@@ -21,42 +21,22 @@
 
 declare(strict_types = 1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\ResourceAccess\Application\Repository;
 
-use Core\Common\Domain\TrimmedString;
-
-class HostNamesById
+interface ReadDatasetRepositoryInterface
 {
-    /** @var array<int,TrimmedString> */
-    private array $names = [];
-
-    public function __construct()
-    {
-    }
-
     /**
-     * @param int $hostId
-     * @param TrimmedString $hostName
-     */
-    public function addName(int $hostId, TrimmedString $hostName): void
-    {
-        $this->names[$hostId] = $hostName;
-    }
-
-    /**
-     * @param int $hostId
+     * @param string $type
      *
-     * @return null|string
+     * @return bool
      */
-    public function getName(int $hostId): ?string {
-        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
-    }
+    public function isValidFor(string $type): bool;
 
     /**
-     * @return array<int,TrimmedString>
+     * @param int[] $ids
+     *
+     * @return array{id: int, name: string}
      */
-    public function getNames(): array
-    {
-        return $this->names;
-    }
+    public function findResourceNamesByIds(array $ids): array;
 }
+

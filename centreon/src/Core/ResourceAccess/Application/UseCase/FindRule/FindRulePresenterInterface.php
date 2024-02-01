@@ -19,32 +19,15 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\Providers;
+namespace Core\ResourceAccess\Application\UseCase\FindRule;
 
-use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
+use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface DatasetProviderInterface
+interface FindRulePresenterInterface extends PresenterInterface
 {
-    /**
-     * @param string $type
-     *
-     * @return bool
-     */
-    public function isValidFor(string $type): bool;
-
-    /**
-     * @param int[] $resourceIds
-     *
-     * @return int[]
-     */
-    public function areResourcesValid(array $resourceIds): array;
-
-    /**
-     * @param int[] $ids
-     *
-     * @return ResourceNamesById
-     */
-    public function findResourceNamesByIds(array $ids): ResourceNamesById;
+    public function presentResponse(FindRuleResponse|ResponseStatusInterface $response): void;
 }
+

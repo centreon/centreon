@@ -21,35 +21,31 @@
 
 declare(strict_types = 1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\HostGroup\Domain\Model;
 
 use Core\Common\Domain\TrimmedString;
 
-class HostNamesById
+class HostGroupNamesById
 {
     /** @var array<int,TrimmedString> */
     private array $names = [];
 
-    public function __construct()
-    {
-    }
-
     /**
-     * @param int $hostId
-     * @param TrimmedString $hostName
+     * @param int $hostGroupId
+     * @param TrimmedString $hostGroupName
      */
-    public function addName(int $hostId, TrimmedString $hostName): void
+    public function addName(int $hostGroupId, TrimmedString $hostGroupName): void
     {
-        $this->names[$hostId] = $hostName;
+        $this->names[$hostGroupId] = $hostGroupName;
     }
 
     /**
-     * @param int $hostId
+     * @param int $hostGroupId
      *
      * @return null|string
      */
-    public function getName(int $hostId): ?string {
-        return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
+    public function getName(int $hostGroupId): ?string {
+        return isset($this->names[$hostGroupId]) ? $this->names[$hostGroupId]->value: null;
     }
 
     /**
@@ -60,3 +56,4 @@ class HostNamesById
         return $this->names;
     }
 }
+

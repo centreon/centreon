@@ -412,9 +412,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     public function findNames(array $hostIds): HostNamesById
     {
         $concatenator = new SqlConcatenator();
+
+        $hostIds = array_unique($hostIds);
+
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT DISTINCT(h.host_id), h.host_name
+                SELECT h.host_id, h.host_name
                 FROM `:db`.host h
                 WHERE h.host_id IN (:hostIds)
                     AND h.host_register = '1'
