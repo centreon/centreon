@@ -67,7 +67,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
 
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
@@ -459,7 +459,7 @@ jobs:
           done
 
       - name: Change test execution status
-        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           for summary_file in newman-json-test-reports/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
@@ -531,7 +531,7 @@ jobs:
             done
 
       - name: Perform Jira Transitions
-        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
           transition_ids=("61" "81" "21" "31")
@@ -550,7 +550,7 @@ jobs:
             current_transition_id=$(echo "$get_response" | jq -r '.transitions[0].id')
             # Check if the current transition ID is 41
             if [ "$current_transition_id" -eq 41 ]; then
-              echo "Skipping Jira transition for issue ID $test_issue_id as current transition ID is 31."
+              echo "Skipping Jira transition for issue ID $test_issue_id as current transition ID is 41."
             else
               # Perform the POST request for transitions other than 41
               for transition_id in "${transition_ids[@]}"; do
