@@ -9,13 +9,13 @@ export const useItemCompositionStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   itemCompositionContainer: {
+    width: '100%'
+  },
+  itemCompositionItems: {
     alignItems: 'flex-start',
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(2),
-    width: '100%'
-  },
-  itemCompositionItems: {
     width: '100%'
   },
   itemCompositionItemsAndLink: {
