@@ -356,6 +356,11 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         ON hcr.hostcategories_hc_id = hc.hc_id
                     SQL
             )
+            ->appendWhere(
+                <<<'SQL'
+                    hc.hc_level is not null
+                SQL
+            )
             ->defineOrderBy(
                 <<<'SQL'
                     ORDER BY hg.hg_name ASC
@@ -376,9 +381,21 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                             ON argr.acl_group_id = ag.acl_group_id
                         SQL
                 )
+                ->appendJoins(
+                    <<<'SQL'
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hg.hg_id = hgr.hostgroup_hg_id
+                    LEFT JOIN `:db`.host h
+                        ON hgr.host_host_id = h.host_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON h.host_id = hcr.host_host_id
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON hcr.hostcategories_hc_id = hc.hc_id
+                    SQL
+                )
                 ->appendWhere(
                     <<<'SQL'
-                        WHERE ag.acl_group_id IN (:ids)
+                        WHERE ag.acl_group_id IN (:ids) AND hc.hc_level is not null
                         SQL
                 )
                 ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
