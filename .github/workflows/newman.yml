@@ -495,7 +495,6 @@ jobs:
                     fi
                   fi
                 fi
-                sleep 10
               done
             done
 
