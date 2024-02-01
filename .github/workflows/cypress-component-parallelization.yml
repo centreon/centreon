@@ -109,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
-          path: coverage
+          path: coverage/lcov-report
           retention-days: 1
 
       - name: Publish code coverage to PR

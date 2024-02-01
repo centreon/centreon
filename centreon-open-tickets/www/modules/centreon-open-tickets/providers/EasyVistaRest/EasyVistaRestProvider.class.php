@@ -62,8 +62,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Set default values for our rule form options
-    *
-    * @return {void}
     */
     protected function setDefaultValueExtra()
     {
@@ -139,7 +137,7 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Set default values for the widget popup when opening a ticket
     *
-    * @return {void}
+    * @return void
     */
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -190,8 +188,6 @@ class EasyVistaRestProvider extends AbstractProvider
     /*
     * Verify if every mandatory form field is filled with data
     *
-    * @return {void}
-    *
     * @throw \Exception when a form field is not set
     */
     protected function checkConfigForm()
@@ -216,8 +212,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Initiate your html configuration and let Smarty display it in the rule form
-    *
-    * @return {void}
     */
     protected function getConfigContainer1Extra()
     {
@@ -328,8 +322,6 @@ class EasyVistaRestProvider extends AbstractProvider
 
     /*
     * Saves the rule form in the database
-    *
-    * @return {void}
     */
     protected function saveConfigExtra()
     {
@@ -388,7 +380,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
         $result = array();
 
-        foreach ($listAssets['records'] as $asset) {
+        foreach ($listAssets['records'] ?? [] as $asset) {
             // HREF structure is the following: https://{your_server}/api/v1/{your_account}/assets/9478 we only keep id
             preg_match('/.*\/([0-9]+)$/', $asset['HREF'], $match);
             $result[$match[1]] = $this->to_utf8($asset['ASSET_TAG']);
@@ -699,7 +691,7 @@ class EasyVistaRestProvider extends AbstractProvider
     *
     * @param {array} $tickets
     *
-    * @return {void}
+    * @return void
     */
     public function closeTicket(&$tickets)
     {
@@ -723,6 +715,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $hostCount = count($data['host_list']);
         $listIds = "";
 
+        $queryValues = [];
         foreach ($data['host_list'] as $hostId) {
             $listIds .= ':hId_' . $hostId . ', ';
             $queryValues[':hId_' . $hostId] = (int)$hostId;
@@ -731,7 +724,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $listIds = rtrim($listIds, ', ');
 
         require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
-        $db_storage = new centreonDBManager('centstorage');
+        $db_storage = new CentreonDBManager('centstorage');
 
         $query = "SELECT name FROM hostgroups WHERE hostgroup_id IN"
             . " (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (" . $listIds .")"

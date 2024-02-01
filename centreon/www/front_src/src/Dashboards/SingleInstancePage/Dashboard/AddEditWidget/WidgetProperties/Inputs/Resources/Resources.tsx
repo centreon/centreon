@@ -3,13 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { or } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
-import FilterIcon from '@mui/icons-material/Tune';
+import AddIcon from '@mui/icons-material/Add';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  SelectField,
+  SingleConnectedAutocompleteField
+} from '@centreon/ui';
 
 import {
-  labelRefineFilter,
+  labelAddFilter,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -19,7 +23,7 @@ import {
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -42,10 +46,14 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    deleteResourceItem
+    deleteResourceItem,
+    getResourceStatic,
+    changeResource,
+    singleMetricSelection,
+    singleHostPerMetric
   } = useResources(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden = or(!canEditField, value.length <= 1);
 
@@ -62,16 +70,19 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
-          IconAdd={<FilterIcon />}
+          displayItemsAsLinked
+          IconAdd={<AddIcon />}
           addButtonHidden={!canEditField}
           addbuttonDisabled={!areResourcesFullfilled(value)}
-          labelAdd={t(labelRefineFilter)}
+          labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
           {value.map((resource, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
-              deleteButtonHidden={deleteButtonHidden}
+              deleteButtonHidden={
+                deleteButtonHidden || getResourceStatic(resource.resourceType)
+              }
               key={`${index}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(index)}
@@ -79,35 +90,63 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               <SelectField
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
-                disabled={!canEditField}
+                disabled={
+                  !canEditField || getResourceStatic(resource.resourceType)
+                }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(resource)}
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              <MultiConnectedAutocompleteField
-                allowUniqOption
-                chipProps={{
-                  color: 'primary',
-                  onDelete: (_, option): void =>
-                    deleteResourceItem({
-                      index,
-                      option,
-                      resources: resource.resources
-                    })
-                }}
-                className={classes.resources}
-                disabled={!canEditField || !resource.resourceType}
-                field={getSearchField(resource.resourceType)}
-                getEndpoint={getResourceResourceBaseEndpoint(
-                  resource.resourceType
-                )}
-                label={t(labelSelectAResource)}
-                limitTags={2}
-                queryKey={`${resource.resourceType}-${index}`}
-                value={resource.resources || []}
-                onChange={changeResources(index)}
-              />
+              {singleMetricSelection && singleHostPerMetric ? (
+                <SingleConnectedAutocompleteField
+                  allowUniqOption
+                  chipProps={{
+                    color: 'primary',
+                    onDelete: (_, option): void =>
+                      deleteResourceItem({
+                        index,
+                        option,
+                        resources: resource.resources
+                      })
+                  }}
+                  className={classes.resources}
+                  disabled={!canEditField || !resource.resourceType}
+                  field={getSearchField(resource.resourceType)}
+                  getEndpoint={getResourceResourceBaseEndpoint(
+                    resource.resourceType
+                  )}
+                  label={t(labelSelectAResource)}
+                  limitTags={2}
+                  queryKey={`${resource.resourceType}-${index}`}
+                  value={resource.resources[0] || undefined}
+                  onChange={changeResource(index)}
+                />
+              ) : (
+                <MultiConnectedAutocompleteField
+                  allowUniqOption
+                  chipProps={{
+                    color: 'primary',
+                    onDelete: (_, option): void =>
+                      deleteResourceItem({
+                        index,
+                        option,
+                        resources: resource.resources
+                      })
+                  }}
+                  className={classes.resources}
+                  disabled={!canEditField || !resource.resourceType}
+                  field={getSearchField(resource.resourceType)}
+                  getEndpoint={getResourceResourceBaseEndpoint(
+                    resource.resourceType
+                  )}
+                  label={t(labelSelectAResource)}
+                  limitTags={2}
+                  queryKey={`${resource.resourceType}-${index}`}
+                  value={resource.resources || []}
+                  onChange={changeResources(index)}
+                />
+              )}
             </ItemComposition.Item>
           ))}
         </ItemComposition>
