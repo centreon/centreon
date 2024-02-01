@@ -29,7 +29,7 @@ on:
         required: true
         type: string
       xray_keys_and_ids:
-        description: "The test execution and the test plan keys and ids"
+        description: 'The test execution and the test plan keys and ids'
         required: true
         type: string
     secrets:
@@ -308,9 +308,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
         env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          CYPRESS_INSTALL_BINARY: '0'
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
       - name: Login to registry
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
@@ -333,8 +333,8 @@ jobs:
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
-            docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-            docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
       - name: Start Centreon Web Container
@@ -342,14 +342,6 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: pnpx wait-on http://localhost:4000/ --timeout 100000
-
-      - name: Generate Xray Token
-        id: generate-xray-token
-        run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
@@ -376,10 +368,53 @@ jobs:
           name: postman-html-reports
           path: centreon/tests/rest_api/newman/
 
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: always()
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+        with:
+          name: newman-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          path: newman-json-test-reports/*.json
+          retention-days: 1
+
+  synchronize-with-xray:
+    needs: [newman-test-run, associate-test-cases]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+        with:
+          version: 7
+
+      - name: Generate Xray Token
+        id: generate-xray-token
+        run: |
+          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.client_id }}\", \"client_secret\": \"${{ secrets.client_secret }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
+          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
+          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+        with:
+          pattern: newman-${{ inputs.os }}-test-reports-*
+          path: newman-json-test-reports
+          merge-multiple: true
+
       - name: Extract and Store Summaries
         run: |
           declare -A json_info
-          for summary_file in ./postman_summaries/*.json; do
+          for summary_file in newman-json-test-reports/*.json; do
           summary_content=$(cat "$summary_file" | jq -c '{Name: .Collection.Info.Name, Stats: .Run.Stats, Failures: .Run.Failures}')
           filename=$(basename "$summary_file" .json)
             clean_filename="${filename// /_}"
@@ -394,7 +429,7 @@ jobs:
       - name: Change test execution status
         if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
-          for summary_file in ./postman_summaries/*.json; do
+          for summary_file in newman-json-test-reports/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
               test_plan_id=${{ needs.associate-test-cases.outputs.test_plan_id }}
               issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
@@ -467,14 +502,28 @@ jobs:
       - name: Perform Jira Transitions
         if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
-              issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
-              transition_ids=("61" "81" "21" "31")
+          issue_ids=${{ needs.associate-test-cases.outputs.issue_list_ids }}
+          transition_ids=("61" "81" "21" "31")
 
-              # Display the final set of issue IDs
-              echo "All Issue IDs: ${issue_ids[@]}"
-              for test_issue_id in "${issue_ids[@]}"; do
-                for transition_id in "${transition_ids[@]}"; do
-                  curl --request POST \
+          # Display the final set of issue IDs
+          echo "All Issue IDs: ${issue_ids[@]}"
+
+          for test_issue_id in "${issue_ids[@]}"; do
+            # Make a GET request to get information about available transitions
+            get_response=$(curl --request GET \
+              --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
+              --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+              --header 'Accept: application/json')
+
+            # Extract the transition ID from the response
+            current_transition_id=$(echo "$get_response" | jq -r '.transitions[0].id')
+            # Check if the current transition ID is 31
+            if [ "$current_transition_id" -eq 31 ]; then
+              echo "Skipping Jira transition for issue ID $test_issue_id as current transition ID is 31."
+            else
+              # Perform the POST request for transitions other than 31
+              for transition_id in "${transition_ids[@]}"; do
+                curl --request POST \
                   --url "https://centreon.atlassian.net/rest/api/2/issue/${test_issue_id}/transitions?expand=transitions.fields" \
                   --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
                   --header 'Accept: application/json' \
@@ -484,19 +533,18 @@ jobs:
                       "id": "'"$transition_id"'"
                     }
                   }'
-                  echo "Processing issue ID: $test_issue_id"
-                  echo "Performing Jira transition with transition ID: $transition_id..."
-                  sleep 10
-                done
+                echo "Processing issue ID: $test_issue_id"
+                echo "Performing Jira transition with transition ID: $transition_id..."
               done
-        shell: bash
+            fi
+          done
 
       - name: Generate and Display Summaries
-        if: failure()
+        if: ${{ contains(needs.newman-test-run.result, 'failure') }}
         run: |
           summaries=""
           has_failures=false
-          for summary_file in ./postman_summaries/*.json; do
+          for summary_file in newman-json-test-reports/*.json; do
               collection_name=$(jq -r '.Collection.Info.Name' "$summary_file")
               total_requests=$(jq -r '.Run.Stats.Requests.total' "$summary_file")
               pending_requests=$(jq -r '.Run.Stats.Requests.pending' "$summary_file")
