@@ -45,17 +45,17 @@ jobs:
             dockerfile: packaging-bullseye
             image: packaging-bullseye
           - runner: ubuntu-22.04
-            dockerfile: packaging-bookworm
-            image: packaging-bookworm
-          - runner: ubuntu-22.04
-            dockerfile: packaging-nfpm-jammy
-            image: packaging-nfpm-jammy
-          - runner: ubuntu-22.04
             dockerfile: packaging-nfpm-bullseye
             image: packaging-nfpm-bullseye
           - runner: ubuntu-22.04
+            dockerfile: packaging-bookworm
+            image: packaging-bookworm
+          - runner: ubuntu-22.04
             dockerfile: packaging-nfpm-bookworm
             image: packaging-nfpm-bookworm
+          - runner: ubuntu-22.04
+            dockerfile: packaging-nfpm-jammy
+            image: packaging-nfpm-jammy
           - runner: ["self-hosted", "collect-arm64"]
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64

@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 COPY *.deb /tmp/debs-centreon/
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 apt-get update
 

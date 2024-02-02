@@ -78,16 +78,16 @@ jobs:
         distrib: [el8, el9, bullseye, bookworm]
         include:
           - package_extension: rpm
-            image: packaging-alma8
+            image: packaging-nfpm-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-alma9
+            image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-bullseye
+            image: packaging-nfpm-bullseye
             distrib: bullseye
           - package_extension: deb
-            image: packaging-bookworm
+            image: packaging-nfpm-bookworm
             distrib: bookworm
 
     runs-on: ubuntu-22.04

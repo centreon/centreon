@@ -215,8 +215,8 @@ jobs:
               mariadb_version="MARIADB_10_5"
               ;;
             bookworm)
-            linux_distribution="DEBIAN12"
-            mariadb_version="MARIADB_10_11"
+              linux_distribution="DEBIAN12"
+              mariadb_version="MARIADB_10_11"
             ;;
           esac
 
