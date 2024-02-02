@@ -31,6 +31,8 @@ VERSION_CODENAME=$(
     echo $VERSION_CODENAME
 )
 
+cat /etc/os-release
+
 echo "!!!!!!"
 echo $VERSION_CODENAME
 echo "!!!!!!"
