@@ -6,13 +6,13 @@ import {
   getUrlForResourcesOnlyWidgets,
   resourceBasedWidgets
 } from '../utils';
-import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
-import { Visualization } from '../../../../Resources/models';
-import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
+import { selectedVisualizationAtom } from '../../../Resources/Actions/actionsAtoms';
+import { Visualization } from '../../../Resources/models';
+import { selectedColumnIdsAtom } from '../../../Resources/Listing/listingAtoms';
 import {
   defaultSelectedColumnIdsforViewByHost,
   defaultSelectedColumnIds
-} from '../../../../Resources/Listing/columns';
+} from '../../../Resources/Listing/columns';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
