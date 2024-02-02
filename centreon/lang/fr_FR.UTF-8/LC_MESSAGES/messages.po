@@ -13555,8 +13555,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -18514,3 +18514,18 @@ msgstr "Utilisateur supprimé"
 
 msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Problem (Down/Critical)"
+msgstr "Problème (Indisponible/Critique)"
+
+msgid "Undefined (Unreachable/Unknown)"
+msgstr "Indéfini (Injoignable/Inconnu)"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
+
+msgid "Resource table"
+msgstr "Tableau des ressources"

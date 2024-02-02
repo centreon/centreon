@@ -1,20 +1,19 @@
-import { ReactNode } from 'react';
-
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import parse from 'html-react-parser';
 
-import { Card, CardActionArea } from '@mui/material';
+import { Card, CardActionArea, SvgIcon } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { Tooltip } from '@centreon/ui/components';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
-import { useGraphTypeStyles } from './SingleMetricGraphType.styles';
+import { useStyles } from './DisplayType.styles';
 
 interface Props {
   changeType: (type: string) => () => void;
-  icon: ReactNode;
+  icon: string;
   label: string;
   type: string;
   value: string;
@@ -27,8 +26,8 @@ const OptionCard = ({
   value,
   label
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
-  const { classes } = useGraphTypeStyles();
 
   const isSelected = equals(value, type);
 
@@ -37,20 +36,29 @@ const OptionCard = ({
   return (
     <Tooltip followCursor={false} label={t(label)} position="top">
       <Card
-        className={classes.graphTypeOption}
+        className={classes.typeOption}
         data-disabled={!canEditField}
         data-selected={isSelected}
         data-type={type}
         key={type}
       >
         <CardActionArea
-          className={classes.graphTypeOption}
+          className={classes.typeOption}
           disabled={!canEditField}
           onClick={changeType(type)}
         >
-          <div className={classes.graphTypeIcon}>{icon}</div>
+          <div className={classes.iconWrapper}>
+            <SvgIcon
+              className={classes.icon}
+              color="inherit"
+              data-icon={label}
+              viewBox="0 0 60 60"
+            >
+              {parse(icon)}
+            </SvgIcon>
+          </div>
           {isSelected && (
-            <div className={classes.graphTypeSelected}>
+            <div className={classes.typeSelected}>
               <CheckCircleIcon
                 className={classes.iconSelected}
                 color="success"

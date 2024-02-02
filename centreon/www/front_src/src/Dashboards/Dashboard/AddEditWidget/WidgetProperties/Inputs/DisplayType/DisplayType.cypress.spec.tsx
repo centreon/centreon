@@ -4,7 +4,25 @@ import { Provider, createStore } from 'jotai';
 import { labelDisplayType } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
-import SingleMetricGraphType from './SingleMetricGraphType';
+import DisplayType from './DisplayType';
+
+const options = [
+  {
+    icon: '<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="TitleIcon"><path d="M5 4v3h5.5v12h3V7H19V4z"></path></svg>',
+    id: 'text',
+    label: 'Text'
+  },
+  {
+    icon: '<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="SpeedIcon"><path d="m20.38 8.57-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"></path></svg>',
+    id: 'gauge',
+    label: 'Gauge'
+  },
+  {
+    icon: '<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="BarChartIcon"><path d="M4 9h4v11H4zm12 4h4v7h-4zm-6-9h4v16h-4z"></path></svg>',
+    id: 'bar',
+    label: 'Bar'
+  }
+];
 
 const initializeComponent = (canEdit = true): void => {
   const store = createStore();
@@ -19,22 +37,19 @@ const initializeComponent = (canEdit = true): void => {
           initialValues={{
             moduleName: 'widget',
             options: {
-              singleMetricGraphType: 'text'
+              displayType: 'text'
             }
           }}
           onSubmit={cy.stub()}
         >
-          <SingleMetricGraphType
-            label=""
-            propertyName="singleMetricGraphType"
-          />
+          <DisplayType options={options} propertyName="displayType" />
         </Formik>
       </Provider>
     )
   });
 };
 
-describe('Single metric graph type', () => {
+describe('Display type', () => {
   beforeEach(() => {
     initializeComponent(true);
   });
@@ -60,12 +75,12 @@ describe('Single metric graph type', () => {
   });
 });
 
-describe('Disabled Graph type', () => {
+describe('Disabled display type', () => {
   beforeEach(() => {
     initializeComponent(false);
   });
 
-  it('displays the graph types as disabled', () => {
+  it('displays the display types as disabled', () => {
     cy.contains(labelDisplayType).should('be.visible');
 
     cy.get('[data-type="text"]').should('have.attr', 'data-disabled', 'true');
