@@ -7,8 +7,8 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
-    # paths:
-    #   - "centreon-awie/**"
+    paths:
+      - "centreon-awie/**"
   push:
     branches:
       - develop
