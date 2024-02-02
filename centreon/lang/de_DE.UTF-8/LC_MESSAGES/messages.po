@@ -15882,27 +15882,6 @@ msgstr ""
 # msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
-# msgstr ""
-
 # msgid "Start"
 # msgstr ""
 
@@ -15910,27 +15889,6 @@ msgstr ""
 # msgstr ""
 
 # msgid "Custom value"
-# msgstr ""
-
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
 # msgstr ""
 
 # msgid "Start"
@@ -16140,7 +16098,16 @@ msgstr "Erweiterter Modus"
 # msgid "Time period"
 # msgstr ""
 
-# msgid "Last hour (default)"
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 3 hours"
+# msgstr ""
+
+# msgid "Last 6 hours"
+# msgstr ""
+
+# msgid "Last 12 hours"
 # msgstr ""
 
 # msgid "Last 24 hours"
@@ -16153,6 +16120,9 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
 # msgstr ""
 
 # msgid "Last 12 months"
