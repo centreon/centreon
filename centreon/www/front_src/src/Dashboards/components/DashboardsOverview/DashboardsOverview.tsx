@@ -21,7 +21,10 @@ import routeMap from '../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../models';
 import { DashboardListing } from '../DashboardLibrary/DashboardListing';
-import { viewModeAtom, searchAtom } from '../DashboardLibrary/DashboardListing/atom';
+import {
+  viewModeAtom,
+  searchAtom
+} from '../DashboardLibrary/DashboardListing/atom';
 import { ViewMode } from '../DashboardLibrary/DashboardListing/models';
 import { isSharesOpenAtom } from '../../atoms';
 
