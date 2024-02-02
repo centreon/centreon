@@ -30,7 +30,7 @@ source /etc/os-release
 cat /etc/os-release
 
 echo "!!!!!!"
-echo $VERSION_CODENAME
+echo \$VERSION_CODENAME
 echo "!!!!!!"
 
 echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
