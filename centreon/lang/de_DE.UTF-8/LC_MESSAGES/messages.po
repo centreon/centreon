@@ -16544,3 +16544,18 @@ msgstr "Erweiterter Modus"
 
 # msgid "Your comment has been saved."
 # msgstr "
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
+# msgstr ""

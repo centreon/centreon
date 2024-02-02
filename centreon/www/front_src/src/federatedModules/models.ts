@@ -32,6 +32,7 @@ export interface StyleMenuSkeleton {
 
 export enum FederatedWidgetOptionType {
   checkbox = 'checkbox',
+  displayType = 'displayType',
   metrics = 'metrics',
   radio = 'radio',
   refreshInterval = 'refresh-interval',

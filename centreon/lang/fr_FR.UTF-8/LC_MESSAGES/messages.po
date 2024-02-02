@@ -13555,8 +13555,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -18669,3 +18669,18 @@ msgstr "Métaservice"
 
 msgid "Select resource type"
 msgstr "Sélectionnez un type de ressource"
+
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Problem (Down/Critical)"
+msgstr "Problème (Indisponible/Critique)"
+
+msgid "Undefined (Unreachable/Unknown)"
+msgstr "Indéfini (Injoignable/Inconnu)"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
+
+msgid "Resource table"
+msgstr "Tableau des ressources"
