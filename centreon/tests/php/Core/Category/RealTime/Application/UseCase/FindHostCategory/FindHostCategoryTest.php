@@ -22,44 +22,76 @@ declare(strict_types=1);
 
 namespace Tests\Core\Category\RealTime\Application\UseCase\FindHostCategory;
 
-use Core\Tag\RealTime\Domain\Model\Tag;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategory;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
 use Tests\Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategoryPresenterStub;
 
 beforeEach(function () {
+    $this->presenter = new FindHostCategoryPresenterStub();
+
     $this->category = new Tag(1, 'host-category-name', Tag::HOST_CATEGORY_TYPE_ID);
+    $this->repository = $this->createMock(ReadTagRepositoryInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
+    $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->tagRepository = $this->createMock(ReadTagRepositoryInterface::class);
 });
 
-it('should find all categories', function () {
+it('should find all categories as admin', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->tagRepository->expects($this->once())
         ->method('findAllByTypeId')
         ->willReturn([$this->category]);
 
-    $useCase = new FindHostCategory($this->tagRepository);
+    $useCase = new FindHostCategory($this->tagRepository, $this->user, $this->readAccessGroupRepository);
+    $useCase($this->presenter);
 
-    $presenter = new FindHostCategoryPresenterStub();
-    $useCase($presenter);
+    expect($this->presenter->response->tags)->toHaveCount(1);
+    expect($this->presenter->response->tags[0]['id'])->toBe($this->category->getId());
+    expect($this->presenter->response->tags[0]['name'])->toBe($this->category->getName());
+});
 
-    expect($presenter->response->tags)->toHaveCount(1);
-    expect($presenter->response->tags[0]['id'])->toBe($this->category->getId());
-    expect($presenter->response->tags[0]['name'])->toBe($this->category->getName());
+it('should find all categories as non-admin', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([]);
+    $this->tagRepository->expects($this->once())
+        ->method('findAllByTypeIdAndAccessGroups')
+        ->willReturn([$this->category]);
+
+    $useCase = new FindHostCategory($this->tagRepository, $this->user, $this->readAccessGroupRepository);
+    $useCase($this->presenter);
+
+    expect($this->presenter->response->tags)->toHaveCount(1);
+    expect($this->presenter->response->tags[0]['id'])->toBe($this->category->getId());
+    expect($this->presenter->response->tags[0]['name'])->toBe($this->category->getName());
 });
 
 it('should present an ErrorResponse on repository error', function () {
+        $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->tagRepository->expects($this->once())
         ->method('findAllByTypeId')
         ->willThrowException(new \Exception());
 
-    $useCase = new FindHostCategory($this->tagRepository);
+    $useCase = new FindHostCategory($this->tagRepository, $this->user, $this->readAccessGroupRepository);
+    $useCase($this->presenter);
 
-    $presenter = new FindHostCategoryPresenterStub();
-    $useCase($presenter);
-
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
+    expect($this->presenter->getResponseStatus()?->getMessage())->toBe(
         'An error occurred while retrieving host categories'
     );
 });

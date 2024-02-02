@@ -1,7 +1,6 @@
 /* eslint-disable typescript-sort-keys/interface */
 
 import { JsonDecoder } from 'ts.data.json';
-import { omit } from 'ramda';
 
 import { buildListingDecoder } from '@centreon/ui';
 
@@ -15,8 +14,8 @@ import {
   DashboardsContact,
   DashboardsContactGroup,
   NamedEntity,
-  Role,
-  Share
+  Shares,
+  UserRole
 } from './models';
 
 const namedEntityDecoder = {
@@ -56,6 +55,19 @@ const dashboardPanelDecoder = JsonDecoder.object<DashboardPanel>(
   }
 );
 
+const userRoleDecoder = JsonDecoder.object<UserRole>(
+  {
+    email: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    role: JsonDecoder.enumeration<DashboardRole>(
+      DashboardRole,
+      'dashboard role'
+    )
+  },
+  'user role'
+);
+
 /**
  * dashboard entity
  */
@@ -72,28 +84,10 @@ export const dashboardEntityDecoder = {
   panels: JsonDecoder.optional(
     JsonDecoder.array(dashboardPanelDecoder, 'Panels')
   ),
-  shares: JsonDecoder.object<Share>(
+  shares: JsonDecoder.object<Shares>(
     {
-      contactGroups: JsonDecoder.array(
-        JsonDecoder.object(
-          {
-            ...namedEntityDecoder,
-            role: JsonDecoder.enumeration<Role>(Role, 'role')
-          },
-          'contactGroup'
-        ),
-        'contactGroups'
-      ),
-      contacts: JsonDecoder.array(
-        JsonDecoder.object(
-          {
-            ...namedEntityDecoder,
-            role: JsonDecoder.enumeration<Role>(Role, 'role')
-          },
-          'contact'
-        ),
-        'contacts'
-      )
+      contactGroups: JsonDecoder.array(userRoleDecoder, 'contact groups'),
+      contacts: JsonDecoder.array(userRoleDecoder, 'contacts')
     },
     'shares',
     {
@@ -104,9 +98,9 @@ export const dashboardEntityDecoder = {
   updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
 };
 
-export const dashboardDecoder = JsonDecoder.object<Omit<Dashboard, 'shares'>>(
+export const dashboardDecoder = JsonDecoder.object<Dashboard>(
   {
-    ...omit(['shares'], dashboardEntityDecoder),
+    ...dashboardEntityDecoder,
     refresh: JsonDecoder.object<Dashboard['refresh']>(
       {
         interval: JsonDecoder.nullable(JsonDecoder.number),

@@ -126,8 +126,8 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@performanceData');
   }
 );
@@ -186,7 +186,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -281,7 +281,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -357,7 +357,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -368,8 +368,8 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('pl (%) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.getByTestId({ testId: 'pl' }).realClick();
   }
 );
 
