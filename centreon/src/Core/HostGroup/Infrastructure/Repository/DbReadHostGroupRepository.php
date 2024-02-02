@@ -29,12 +29,14 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupNamesById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -61,6 +63,42 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(array $hostGroupIds): HostGroupNamesById
+    {
+        $concatenator = new SqlConcatenator();
+
+        $hostGroupIds = array_unique($hostGroupIds);
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                    SELECT hg.hg_id, hg.hg_name
+                    FROM `:db`.hostgroup hg
+                    WHERE hg.hg_id IN (:hostGroupIds)
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':hostGroupIds', $hostGroupIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $names = new HostGroupNamesById();
+
+        foreach ($statement as $record) {
+            /** @var array{hg_id:int,hg_name:string} $record */
+            $names->addName(
+                $record['hg_id'],
+                new TrimmedString($record['hg_name'])
+            );
+        }
+
+        return $names;
     }
 
     /**

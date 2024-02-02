@@ -7,7 +7,9 @@ import {
   flatten,
   groupBy,
   identity,
-  includes
+  includes,
+  pipe,
+  map
 } from 'ramda';
 
 import { centreonBaseURL } from '@centreon/ui';
@@ -23,10 +25,6 @@ export const areResourcesFullfilled = (
       !isEmpty(resourceType) && !isEmpty(resources)
   );
 
-const hostCriterias = {
-  name: 'resource_types',
-  value: [{ id: 'host', name: 'Host' }]
-};
 const serviceCriteria = {
   name: 'resource_types',
   value: [{ id: 'service', name: 'Service' }]
@@ -41,8 +39,8 @@ interface GetResourcesUrlProps {
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource, type }): object => {
-  const { id, parentId, uuid } = resource;
+export const getDetailsPanelQueriers = ({ resource }): object => {
+  const { id, parentId, uuid, type } = resource;
 
   const resourcesDetailsEndpoint = equals(type, 'host')
     ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
@@ -68,12 +66,38 @@ export const getResourcesUrl = ({
   isForOneResource,
   resource
 }: GetResourcesUrlProps): string => {
-  const formattedStatuses = statuses.map((status) => {
-    return {
-      id: status.toLocaleUpperCase(),
-      name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-    };
-  });
+  const resourcesCriterias = equals(type, 'all')
+    ? {
+        name: 'resource_types',
+        value: [
+          { id: 'service', name: 'Service' },
+          { id: 'host', name: 'Host' }
+        ]
+      }
+    : {
+        name: 'resource_types',
+        value: [
+          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+        ]
+      };
+
+  const formatStatusFilter = cond([
+    [equals('success'), always(['ok', 'up'])],
+    [equals('problem'), always(['down', 'critical'])],
+    [equals('undefined'), always(['unreachable', 'unknown'])],
+    [T, identity]
+  ]);
+
+  const formattedStatuses = pipe(
+    map((status) => formatStatusFilter(status)),
+    flatten,
+    map((status: string) => {
+      return {
+        id: status.toLocaleUpperCase(),
+        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+      };
+    })
+  )(statuses);
 
   const formattedStates = states.map((state) => {
     return {
@@ -113,7 +137,7 @@ export const getResourcesUrl = ({
 
   const filterQueryParameter = {
     criterias: [
-      equals(type, 'host') ? hostCriterias : serviceCriteria,
+      resourcesCriterias,
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: formattedStates },
       ...resourcesFilters,
@@ -129,7 +153,8 @@ export const getResourcesUrl = ({
     return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
-  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
+  const detailsPanelQueriers = getDetailsPanelQueriers({ resource });
+
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)
   );

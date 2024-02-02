@@ -25,6 +25,7 @@ namespace Core\HostGroup\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\HostGroupNamesById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostGroupRepositoryInterface
@@ -169,4 +170,13 @@ interface ReadHostGroupRepositoryInterface
      * @return list<HostGroup>
      */
     public function findByIds(int ...$hostGroupIds): array;
+
+    /**
+     * Find Host Groups names by their IDs.
+     *
+     * @param int[] $hostGroupIds
+     *
+     * @return HostGroupNamesById
+     */
+    public function findNames(array $hostGroupIds): HostGroupNamesById;
 }
