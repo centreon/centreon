@@ -12,7 +12,6 @@ before(() => {
   );
 });
 
-
 after(() => {
   cy.stopWebContainer();
 });
