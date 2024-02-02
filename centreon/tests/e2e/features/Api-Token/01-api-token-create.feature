@@ -16,9 +16,15 @@ Feature: Create and Manage Basic API Token
     | Field | Value                |
     | Name  | <Enter token name>  |
     | User  | <Enter linked user> |
-    And I select the duration as "30d"
+    And I select the duration as "<Duration>"
     And I click on the "Generate token" button
     Then a new basic API token with hidden display should be generated
+
+    Examples:
+      | Duration |
+      | 30d      |
+      | 60d      |
+      | 90d      |
 
   Scenario: Display and Copy Generated Token
     Given a basic API token is generated
