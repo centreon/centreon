@@ -29,8 +29,8 @@ import {
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Visualization } from '../models';
 
-import { labelOpenMoreFilters } from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
+import { labelShowMoreFilters } from './criteriasNewInterface/translatedLabels';
 
 import Filter from '.';
 
@@ -541,7 +541,7 @@ describe('Criterias', () => {
     cy.findByPlaceholderText(labelSearch).clear();
     cy.findByLabelText(labelSearchOptions).click();
 
-    cy.findByText(labelOpenMoreFilters).click();
+    cy.findByText(labelShowMoreFilters).click();
 
     cy.makeSnapshot();
 
@@ -571,7 +571,7 @@ describe('Criterias', () => {
         cy.get('[data-testid="Filter options"]').click();
 
         if (equals(label, 'Extended criterias')) {
-          cy.findByText(labelOpenMoreFilters).click();
+          cy.findByText(labelShowMoreFilters).click();
         }
 
         if (equals(type, Type.select)) {
