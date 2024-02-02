@@ -17220,3 +17220,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""
+
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
