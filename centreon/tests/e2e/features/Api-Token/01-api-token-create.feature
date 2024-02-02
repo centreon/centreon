@@ -13,10 +13,9 @@ Feature: Create and Manage Basic API Token
   Scenario Outline: Create Basic API Token with Required Fields
     When I click on the "Create new token" button
     And I fill in the following required fields
-    Examples:
-      | Field     | Value                  |
-      | Name      | [Enter token name]     |
-      | User      | [Enter linked user]    |
+    | Field | Value                |
+    | Name  | <Enter token name>  |
+    | User  | <Enter linked user> |
     And I select the duration as "30d"
     And I click on the "Generate token" button
     Then a new basic API token with hidden display should be generated
