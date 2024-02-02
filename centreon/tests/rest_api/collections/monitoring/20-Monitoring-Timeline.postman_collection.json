@@ -4,7 +4,7 @@
 		"name": "20 - Monitoring Timeline",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6964f372-2d56-47d3-a8c3-d123aaab01ee?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6964f372-2d56-47d3-a8c3-d123aaab01ee?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -531,13 +531,13 @@
 					"response": []
 				},
 				{
-					"name": "Scheduled a check on a host",
+					"name": "Scheduled a check on a host by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -546,9 +546,26 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Scheduled a check on a host by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The check has been successfully sent\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -577,13 +594,13 @@
 					"response": []
 				},
 				{
-					"name": "Scheduled a check on a service",
+					"name": "Scheduled a check on a service by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -592,9 +609,22 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Scheduled a check on a service by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The check has been successfully sent\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -625,13 +655,13 @@
 					"response": []
 				},
 				{
-					"name": "Check the host timeline",
+					"name": "Check the host timeline by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -641,11 +671,27 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Host is in DOWN status.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result[0].status.name).to.eql(\"DOWN\");\r",
-									"});\r",
-									""
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result[0].status.name == \"PENDING\") || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host timeline by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Host is in DOWN status\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.state).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].status.name).to.eql(\"DOWN\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -683,13 +729,13 @@
 					"response": []
 				},
 				{
-					"name": "Check the service timeline",
+					"name": "Check the service timeline by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 10000);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -699,10 +745,27 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service is in UNKNOWN status.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result[0].status.name).to.eql(\"UNKNOWN\");\r",
-									"});"
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result[0].status.name == \"PENDING\") || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the service timeline by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Service is in UNKNOWN status\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.state).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].status.name).to.eql(\"UNKNOWN\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1286,7 +1349,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the host timeline",
+					"name": "Check the host timeline by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1301,12 +1364,26 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
-									"});\r",
-									""
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host timeline by user non-admin without rights (error)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Host not found, because the user does not have access to the resources\", function () {\r",
+									"        pm.response.to.have.status(404);\r",
+									"\r",
+									"        pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1344,7 +1421,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the service timeline",
+					"name": "Check the service timeline by user non-admin without rights (error)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1359,11 +1436,26 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
-									"});"
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the service timeline by user non-admin without rights (error)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Service not found, because the user does not have access to the resources\", function () {\r",
+									"        pm.response.to.have.status(404);\r",
+									"\r",
+									"        pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1762,7 +1854,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the host timeline",
+					"name": "Check the host timeline by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1778,11 +1870,27 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Host is in DOWN status.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result[0].status.name).to.eql(\"DOWN\");\r",
-									"});\r",
-									""
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result[0].status.name == \"PENDING\") || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host timeline by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Host is in DOWN status\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.state).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].status.name).to.eql(\"DOWN\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -1820,7 +1928,7 @@
 					"response": []
 				},
 				{
-					"name": "Check the service timeline",
+					"name": "Check the service timeline by user non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1836,10 +1944,27 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service is in UNKNOWN status.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result[0].status.name).to.eql(\"UNKNOWN\");\r",
-									"});"
+									"console.log(responseJson);\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result[0].status.name == \"PENDING\") || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the service timeline by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Service is in UNKNOWN status\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.state).to.eql(1);\r",
+									"        pm.expect(responseJson.result[0].status.name).to.eql(\"UNKNOWN\");\r",
+									"    });\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
