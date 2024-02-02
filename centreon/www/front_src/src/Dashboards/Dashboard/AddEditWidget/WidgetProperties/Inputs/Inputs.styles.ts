@@ -27,8 +27,7 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resources: {
     '& .MuiInputBase-root': {
       borderRadius: `0px ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px`
-    },
-    marginTop: theme.spacing(1)
+    }
   },
   resourcesContainer: {
     display: 'flex',
