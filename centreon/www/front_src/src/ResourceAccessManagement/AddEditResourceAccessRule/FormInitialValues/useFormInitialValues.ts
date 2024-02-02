@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { ModalMode } from '../../models';
+import { ModalMode, ResourceAccessRule } from '../../models';
 import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
 import { resourceAccessRuleDecoder } from '../api/decoders';
 import { resourceAccessRuleEndpoint } from '../api/endpoints';
@@ -11,7 +11,7 @@ import { resourceAccessRuleEndpoint } from '../api/endpoints';
 import { getEmptyInitialValues, getInitialValues } from './initialValues';
 
 interface UseFormState {
-  initialValues: object;
+  initialValues: Omit<ResourceAccessRule, 'id'>;
   isLoading: boolean;
 }
 

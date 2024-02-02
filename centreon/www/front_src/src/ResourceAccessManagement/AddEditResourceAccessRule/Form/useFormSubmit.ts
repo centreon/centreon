@@ -15,7 +15,10 @@ import {
 import { adaptResourceAccessRule } from '../api/adapters';
 
 interface UseFormState {
-  submit: (values: ResourceAccessRule, { setSubmitting }) => Promise<object>;
+  submit: (
+    values: Omit<ResourceAccessRule, 'id'>,
+    { setSubmitting }
+  ) => Promise<object>;
 }
 
 const useFormSubmit = (): UseFormState => {
@@ -46,7 +49,7 @@ const useFormSubmit = (): UseFormState => {
   });
 
   const submit = (
-    values: ResourceAccessRule,
+    values: Omit<ResourceAccessRule, 'id'>,
     { setSubmitting }
   ): Promise<object> => {
     const payload = adaptResourceAccessRule({ ...values });
