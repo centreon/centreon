@@ -1,12 +1,12 @@
 ARG VERSION
 
-FROM debian:bullseye AS web_fresh
+FROM debian:bullseye
 
 ARG VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 ######################################
 # additional configuration for apt   #
