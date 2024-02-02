@@ -11,11 +11,12 @@ import { Resource, GlobalRefreshInterval, Metric } from '../../models';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
-import { FormThreshold, SingleMetricGraphyType, ValueFormat } from './models';
+import { FormThreshold, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
+  displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview;
   metrics: Array<Metric>;
@@ -23,14 +24,13 @@ interface Props {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
-  singleMetricGraphType: SingleMetricGraphyType;
   threshold: FormThreshold;
   valueFormat: ValueFormat;
 }
 
 const Graph = ({
   metrics,
-  singleMetricGraphType,
+  displayType,
   threshold,
   refreshInterval,
   refreshIntervalCustom,
@@ -100,7 +100,7 @@ const Graph = ({
     >
       <SingleMetricRenderer
         graphProps={props}
-        singleMetricGraphType={singleMetricGraphType}
+        singleMetricGraphType={displayType}
       />
     </ContentWithCircularLoading>
   );

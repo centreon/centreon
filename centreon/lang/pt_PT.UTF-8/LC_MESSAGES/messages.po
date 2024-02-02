@@ -17259,3 +17259,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
+# msgstr ""
