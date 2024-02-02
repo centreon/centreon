@@ -18206,7 +18206,7 @@ msgid "Last 12 hours"
 msgstr "Les 12 dernières heures"
 
 msgid "Last 24 hours"
-msgstr "Les dernières 24 heures"
+msgstr "Les 24 dernières heures"
 
 msgid "Last 7 days"
 msgstr "Les 7 derniers jours"
