@@ -13,6 +13,8 @@ Feature: List Existing API Tokens in Administration
   Scenario Outline: View Existing API Tokens
     When I navigate to "App token" under "Administration"
     Then a list of API tokens is displayed with the following fields
+      | Status          | Name          | Creator        | User          | Creation date   | Expiration date |
+      | <Status>        | <Name>        | <Creator>      | <User>        | <CreationDate>  | <ExpirationDate>|
     Examples:
       | Status      | Name       | Creator  | User   | Creation date | Expiration date |
       | Active      | Token_1    | Admin    | User_1 | 2023-10-15    | 2024-10-15      |
