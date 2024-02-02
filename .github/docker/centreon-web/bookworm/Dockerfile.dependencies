@@ -92,9 +92,7 @@ apt-get install -y \
   php8.1-intl \
   php8.1-fpm \
   php8.1-curl \
-  php8.1-zip \
-  php8.1-pear \
-  php8.1-json
+  php8.1-zip
 
 #################################
 # install and configure mariadb #
