@@ -84,7 +84,7 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
             'severity' => $response->severity,
         ];
 
-        if ($presenterResponse['severity'] !== null) {
+        if (! empty($response->severity['icon'])) {
             // normalize the URL to the severity icon
             $presenterResponse['severity']['icon']['url'] = $this->getBaseUri()
                 . '/img/media/' . $response->severity['icon']['url'];

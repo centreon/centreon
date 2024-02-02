@@ -322,7 +322,7 @@ class CentreonUtils
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape);
+                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
                 return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
@@ -341,7 +341,34 @@ class CentreonUtils
      */
     public static function escapeAll($stringToEscape)
     {
-        return htmlentities($stringToEscape, ENT_QUOTES, 'UTF-8');
+        return htmlentities($stringToEscape ?? '', ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Protect a string and return it with single quotes around.
+     *
+     * This is the same behaviour as {@see \PDO::quote()}.
+     *
+     * @see https://dev.mysql.com/doc/refman/5.7/en/mysql-real-escape-string.html
+     * @see https://www.php.net/manual/fr/mysqli.real-escape-string.php
+     *
+     * @param null|int|float|bool|string|Stringable $value
+     *
+     * @return string
+     */
+    public static function quote(null|int|float|bool|string|Stringable $value): string
+    {
+        $pairs = [
+            "\x00" => '\x00', // \0 (ASCII 0)
+            "\n" => '\n', // \n
+            "\r" => '\r', // \r
+            '\\' => '\\\\', // \
+            "'" => "\'", // '
+            '"' => '\"', // "
+            "\x1a" => '\x1a', // Control-Z
+        ];
+
+        return "'" . strtr((string) $value, $pairs) . "'";
     }
 
     /**

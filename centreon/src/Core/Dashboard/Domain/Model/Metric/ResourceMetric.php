@@ -28,11 +28,15 @@ class ResourceMetric
     /**
      * @param int $serviceId
      * @param string $resourceName
+     * @param string $parentName
+     * @param int $parentId
      * @param PerformanceMetric[] $metrics
      */
     public function __construct(
         private readonly int $serviceId,
         private readonly string $resourceName,
+        private readonly string $parentName,
+        private readonly int $parentId,
         private readonly array $metrics
     ) {
     }
@@ -45,6 +49,16 @@ class ResourceMetric
     public function getResourceName(): string
     {
         return $this->resourceName;
+    }
+
+    public function getParentName(): string
+    {
+        return $this->parentName;
+    }
+
+    public function getParentId(): int
+    {
+        return $this->parentId;
     }
 
     /**

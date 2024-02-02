@@ -1,16 +1,15 @@
 import { useTranslation } from 'react-i18next';
 
-import { Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
-import ActionButton from '../ActionButton';
 import { labelActionNotPermitted } from '../../translatedLabels';
-
-import useMediaQueryListing from './useMediaQueryListing';
+import ActionButton from '../ActionButton';
 
 interface Props {
   disabled: boolean;
+  displayCondensed?: boolean;
   icon: JSX.Element;
   label: string;
   onClick: (event) => void;
@@ -24,15 +23,10 @@ const ResourceActionButton = ({
   onClick,
   disabled,
   testId,
-  permitted = true
+  permitted = true,
+  displayCondensed = false
 }: Props): JSX.Element => {
-  const theme = useTheme();
   const { t } = useTranslation();
-
-  const { applyBreakPoint } = useMediaQueryListing();
-
-  const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const title = permitted ? label : `${label} (${t(labelActionNotPermitted)})`;
 

@@ -14,14 +14,14 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@v2
+    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
       with:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
       with:
-        node-version: 18
+        node-version: 20
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -53,9 +53,14 @@ runs:
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
         publish-summary: false
+        env: codeCoverageTasksRegistered=true
+
+    - name: Clean up code coverage results
+      shell: bash
+      run: node centreon/packages/js-config/cypress/component/excludeNodeModulesFromCoverage.js ${{ inputs.module }}/.nyc_output/out.json
 
     - name: Archive test results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
       if: ${{ failure() }}
       with:
         name: component-test-results

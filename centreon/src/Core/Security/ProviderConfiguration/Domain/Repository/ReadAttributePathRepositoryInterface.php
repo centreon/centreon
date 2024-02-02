@@ -57,7 +57,7 @@ interface ReadAttributePathRepositoryInterface
      * @param Configuration $configuration
      * @param string $endpointType
      * 
-     * @return array
+     * @return array<mixed>
      */
     public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array;
 }

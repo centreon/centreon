@@ -47,4 +47,15 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return MonitoringServer|null
      */
     public function findByHost(int $hostId): ?MonitoringServer;
+
+    /**
+     * Get monitoring servers by their IDs.
+     *
+     * @param int[] $ids
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer[]
+     */
+    public function findByIds(array $ids): array;
 }

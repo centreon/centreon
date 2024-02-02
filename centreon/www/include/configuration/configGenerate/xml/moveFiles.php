@@ -290,10 +290,8 @@ try {
                  * Copy monitoring engine's configuration files
                  */
                 foreach (glob($nagiosCFGPath . $host['id'] . '/*.{json,cfg}', GLOB_BRACE) as $filename) {
-                    $succeded = @copy(
-                        $filename,
-                        rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename)
-                    );
+                    $targetFilePath = rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename);
+                    $succeded = @copy($filename,$targetFilePath);
                     if (!$succeded) {
                         throw new Exception(
                             sprintf(
@@ -305,8 +303,8 @@ try {
                                 $host['name']
                             )
                         );
-                    } else {
-                        @chmod(rtrim($nagiosCfg["cfg_dir"], "/") . '/' . basename($filename), 0664);
+                    } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                        @chmod($targetFilePath, 0664);
                     }
                 }
                 /*
@@ -330,7 +328,8 @@ try {
                             }
                         }
                         foreach ($listBrokerFile as $fileCfg) {
-                            $succeded = @copy($fileCfg, rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg));
+                            $targetFilePath = rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg);
+                            $succeded = @copy($fileCfg, $targetFilePath);
                             if (!$succeded) {
                                 throw new Exception(
                                     sprintf(
@@ -342,14 +341,17 @@ try {
                                         $host['name']
                                     )
                                 );
-                            } else {
-                                @chmod(rtrim($centreonBrokerDirCfg, "/") . '/' . basename($fileCfg), 0664);
+                            } elseif (posix_getuid() === fileowner($targetFilePath)) {
+                                @chmod($targetFilePath, 0664);
                             }
                         }
                     }
                 }
             } else {
-                passthru("echo 'SENDCFGFILE:" . $host['id'] . "' >> $centcore_pipe", $return);
+                passthru(
+                    escapeshellcmd("echo 'SENDCFGFILE:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
+                    $return
+                );
                 if ($return) {
                     throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
                 }
@@ -357,7 +359,10 @@ try {
                     $msg_restart[$host["id"]] = "";
                 }
                 if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> $centcore_pipe", $return);
+                    passthru(
+                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}") . ' >> ' . escapeshellcmd($centcore_pipe),
+                        $return
+                    );
                     if ($return) {
                         throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
                     }

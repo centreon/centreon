@@ -28,6 +28,9 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
 use Core\Domain\RealTime\Model\Host;
 
+/**
+ * @phpstan-import-type _dataHost from DbHostFactory
+ */
 class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepositoryInterface
 {
     /**
@@ -149,7 +152,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
         $statement->execute();
 
         if (($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var array<string,int|string|null> $row */
+            /** @var _dataHost $row */
             return DbHostFactory::createFromRecord($row);
         }
 

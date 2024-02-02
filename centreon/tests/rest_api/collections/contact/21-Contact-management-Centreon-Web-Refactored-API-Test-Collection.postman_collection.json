@@ -1935,11 +1935,10 @@
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = \"[2106] Login with admin user after non-admin user check\"\r",
 									"\r",
-									"pm.test(\"Since the non-admin user was granted API access rights, it can access the list of users, which is not void.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
+									"pm.test(\"Since the non-admin user was granted API access rights, but without access to configuration user page, it can not access the list of users.\", function () {\r",
+									"    const expectedResponseCode = 403\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"    pm.expect(responseJson.result.length).to.not.eql(0);\r",
 									"});"
 								],
 								"type": "text/javascript"

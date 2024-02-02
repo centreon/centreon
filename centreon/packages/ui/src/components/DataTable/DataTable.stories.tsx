@@ -1,5 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 
+import { Box } from '@mui/material';
+
+import { ColumnType } from '../../Listing/models';
+
 import { DataTable } from './index';
 
 const meta: Meta<typeof DataTable> = {
@@ -48,4 +52,40 @@ export const withFixedHeightContainer: Story = {
       <DataTable {...args} />
     </div>
   )
+};
+
+const ListingTemplate = (args): JSX.Element => (
+  <Box sx={{ height: '80vh' }}>
+    <DataTable {...args} />
+  </Box>
+);
+
+export const listing: Story = {
+  args: {
+    children: (
+      <DataTable.Listing
+        columns={[
+          {
+            getFormattedString: (row) => row.title,
+            id: 'title',
+            label: 'Title',
+            type: ColumnType.string
+          },
+          {
+            getFormattedString: (row) => row.description,
+            id: 'description',
+            label: 'Description',
+            type: ColumnType.string
+          }
+        ]}
+        rows={[...Array(5)].map((_, i) => ({
+          description: `Item description ${i}`,
+          id: i,
+          title: `Item ${i}`
+        }))}
+      />
+    ),
+    variant: 'listing'
+  },
+  render: ListingTemplate
 };

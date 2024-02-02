@@ -1,5 +1,20 @@
 import { Column } from '@centreon/ui';
 
+export enum ModalMode {
+  Create = 'create',
+  Edit = 'edit'
+}
+
+export enum ResourceTypeEnum {
+  Host = 'host',
+  HostCategory = 'host_category',
+  HostGroup = 'hostgroup',
+  MetaService = 'meta_service',
+  Service = 'service',
+  ServiceCategory = 'service_category',
+  ServiceGroup = 'servicegroup'
+}
+
 export interface Listing {
   changePage: (page: number) => void;
   changeSort: ({
@@ -40,11 +55,22 @@ export interface ResourceAccessRuleListingType {
   result: Array<ResourceAccessRuleType>;
 }
 
-export interface ResourceAccessRuleType {
+export type ResourceAccessRuleType = {
   description: string;
-  id: number;
+  id?: number;
   isActivated: boolean;
   name: string;
-}
+};
+
+export type Dataset = {
+  resourceType: ResourceTypeEnum | undefined;
+  resources: Array<number>;
+};
+
+export type ResourceAccessRule = ResourceAccessRuleType & {
+  contactGroups: Array<number>;
+  contacts: Array<number>;
+  datasetFilters: Array<Array<Dataset>>;
+};
 
 export type SortOrder = 'asc' | 'desc';

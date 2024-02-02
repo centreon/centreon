@@ -19,3 +19,5 @@ export * from './useInfiniteScrollListing';
 export * from './useLicenseExpirationWarning';
 export * from './useRefreshInterval';
 export * from './centreonBaseURL';
+export * from './usePluralizedTranslation';
+export * from './useResizeObserver';

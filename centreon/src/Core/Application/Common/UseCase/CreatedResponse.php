@@ -24,14 +24,14 @@ declare(strict_types=1);
 namespace Core\Application\Common\UseCase;
 
 /**
- * @template R
- * @template P
+ * @template TResourceId of int|string|null
+ * @template TPayload
  */
 final class CreatedResponse implements ResponseStatusInterface
 {
     /**
-     * @param R $resourceId
-     * @param P $payload
+     * @param TResourceId $resourceId
+     * @param TPayload $payload
      */
     public function __construct(
         readonly private mixed $resourceId,
@@ -40,18 +40,19 @@ final class CreatedResponse implements ResponseStatusInterface
     }
 
     /**
-     * @return R
+     * @return TResourceId
      */
     public function getResourceId(): mixed
     {
-        return match (gettype($this->resourceId)) {
-            'integer', 'string' => $this->resourceId,
+        return match (true) {
+            null === $this->resourceId,
+            is_int($this->resourceId) => $this->resourceId,
             default => (string) $this->resourceId,
         };
     }
 
     /**
-     * @return P
+     * @return TPayload
      */
     public function getPayload(): mixed
     {
@@ -59,11 +60,27 @@ final class CreatedResponse implements ResponseStatusInterface
     }
 
     /**
-     * @param P $payload
+     * If you need to change the payload type, use {@see self::withPayload()}.
+     *
+     * @param TPayload $payload
      */
     public function setPayload(mixed $payload): void
     {
         $this->payload = $payload;
+    }
+
+    /**
+     * Basically the proper way to avoid the mutation of the internal type.
+     *
+     * @template TChangedPayload
+     *
+     * @param TChangedPayload $payload
+     *
+     * @return self<TResourceId, TChangedPayload>
+     */
+    public function withPayload(mixed $payload): self
+    {
+        return new self($this->resourceId, $payload);
     }
 
     /**

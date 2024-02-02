@@ -255,7 +255,7 @@ class CentreonXMLBGRequest
      */
     private function myDecode($arg)
     {
-        return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
+        return html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
     }
 
     /*

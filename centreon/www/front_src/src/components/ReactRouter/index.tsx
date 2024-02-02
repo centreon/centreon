@@ -1,12 +1,13 @@
 import { lazy, Suspense } from 'react';
 
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
 
 import { styled } from '@mui/material';
 
+import { featureFlagsDerivedAtom } from '@centreon/ui-context';
 import { PageSkeleton, useMemoComponent } from '@centreon/ui';
 
 import internalPagesRoutes from '../../reactRoutes';
@@ -16,6 +17,10 @@ import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';
+import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
+import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
+
+import DeprecatedRoute from './DeprecatedRoute';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
@@ -53,6 +58,12 @@ interface IsAllowedPageProps {
   path?: string;
 }
 
+interface GetExternalPageRoutesProps {
+  allowedPages?: Array<string | Array<string>>;
+  featureFlags: Record<string, boolean>;
+  federatedModules: Array<FederatedModule>;
+}
+
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
   flatten(allowedPages || []).some(
     (allowedPage) => path?.includes(allowedPage)
@@ -60,8 +71,9 @@ const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
 
 const getExternalPageRoutes = ({
   allowedPages,
-  federatedModules
-}): Array<JSX.Element> => {
+  federatedModules,
+  featureFlags
+}: GetExternalPageRoutesProps): Array<Array<JSX.Element | null>> => {
   return federatedModules?.map(
     ({
       federatedPages,
@@ -70,31 +82,59 @@ const getExternalPageRoutes = ({
       moduleName,
       remoteUrl
     }) => {
-      return federatedPages?.map(({ component, route }) => {
-        if (not(isAllowedPage({ allowedPages, path: route }))) {
-          return null;
-        }
+      const filteredPagesByFeatureFlag = (federatedPages || [])?.filter(
+        ({ featureFlag }) => {
+          if (isNil(featureFlag)) {
+            return true;
+          }
 
-        return (
-          <Route
-            element={
-              <PageContainer>
-                <BreadcrumbTrail path={route} />
-                <Remote
-                  component={component}
-                  key={component}
-                  moduleFederationName={moduleFederationName}
-                  moduleName={moduleName}
-                  remoteEntry={remoteEntry}
-                  remoteUrl={remoteUrl}
-                />
-              </PageContainer>
-            }
-            key={route}
-            path={route}
-          />
-        );
-      });
+          return featureFlags[featureFlag];
+        }
+      );
+
+      return filteredPagesByFeatureFlag.map(
+        ({ component, route, children }) => {
+          if (not(isAllowedPage({ allowedPages, path: route }))) {
+            return null;
+          }
+
+          const ChildrenComponent: ((props) => JSX.Element) | null | undefined =
+            children ? childrenComponentsMapping[children] : undefined;
+
+          return (
+            <Route
+              element={
+                <PageContainer>
+                  <BreadcrumbTrail path={route} />
+                  {ChildrenComponent ? (
+                    <Remote
+                      component={component}
+                      key={component}
+                      moduleFederationName={moduleFederationName}
+                      moduleName={moduleName}
+                      remoteEntry={remoteEntry}
+                      remoteUrl={remoteUrl}
+                    >
+                      {(props): JSX.Element => <ChildrenComponent {...props} />}
+                    </Remote>
+                  ) : (
+                    <Remote
+                      component={component}
+                      key={component}
+                      moduleFederationName={moduleFederationName}
+                      moduleName={moduleName}
+                      remoteEntry={remoteEntry}
+                      remoteUrl={remoteUrl}
+                    />
+                  )}
+                </PageContainer>
+              }
+              key={route}
+              path={route}
+            />
+          );
+        }
+      );
     }
   );
 };
@@ -112,10 +152,23 @@ const ReactRouterContent = ({
   allowedPages,
   pathname
 }: Props): JSX.Element => {
+  const parameters = useParams();
+
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
+
   return useMemoComponent({
     Component: (
       <Suspense fallback={<PageSkeleton />}>
         <Routes location={pathname}>
+          {...deprecatedRoutes
+            .filter((route) => !route.ignoreWhen?.(pathname))
+            .map(({ deprecatedRoute, newRoute }) => (
+              <Route
+                element={<DeprecatedRoute newRoute={newRoute} />}
+                key={deprecatedRoute.path}
+                path={deprecatedRoute.path}
+              />
+            ))}
           {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => {
             const isLogoutPage = path === routeMap.logout;
             const isAllowed =
@@ -139,14 +192,25 @@ const ReactRouterContent = ({
               />
             );
           })}
-          {getExternalPageRoutes({ allowedPages, federatedModules })}
+          {getExternalPageRoutes({
+            allowedPages,
+            featureFlags,
+            federatedModules
+          })}
           {externalPagesFetched && (
             <Route element={<NotFoundPage />} path="*" />
           )}
         </Routes>
       </Suspense>
     ),
-    memoProps: [externalPagesFetched, federatedModules, allowedPages, pathname]
+    memoProps: [
+      externalPagesFetched,
+      federatedModules,
+      allowedPages,
+      pathname,
+      parameters,
+      deprecatedRoutes
+    ]
   });
 };
 

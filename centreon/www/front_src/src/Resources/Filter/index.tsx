@@ -93,7 +93,7 @@ import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
 import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
 
-const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
+export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useStyles();
 

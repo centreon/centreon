@@ -217,7 +217,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      * Build the SQL Query.
      *
      * @param RequestParametersInterface $requestParameters
-     * @param array $accessGroups
+     * @param AccessGroup[] $accessGroups
      * @param string[] $metricNames
      *
      * @return string
@@ -233,6 +233,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
                 id.`service_id`
             FROM `:dbstg`.`index_data` AS id
                 INNER JOIN `:dbstg`.`metrics` AS m ON m.`index_id` = id.`id`
+                INNER JOIN `:dbstg`.`resources` AS r on r.`parent_id` = id.`host_id`
             SQL;
 
         $accessGroupIds = \array_map(
@@ -267,6 +268,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $metricNamesQuery = implode(', ', \array_keys($bindValues));
         $request .= <<<SQL
                 WHERE m.metric_name IN ({$metricNamesQuery})
+                AND r.enabled = 1
             SQL;
 
         return $request;
@@ -357,10 +359,20 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     /**
      * Get request and bind values information for each search filter.
      *
-     * @param array{
-     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
+     * @phpstan-param array{
+     *      '$and': array<
+     *          array{
+     *                    'service.name'?: array{'$in': non-empty-array<string>},
+     *                         'host.id'?: array{'$in': non-empty-array<int>},
+     *                    'hostgroup.id'?: array{'$in': non-empty-array<int>},
+     *                 'servicegroup.id'?: array{'$in': non-empty-array<int>},
+     *                 'hostcategory.id'?: array{'$in': non-empty-array<int>},
+     *              'servicecategory.id'?: array{'$in': non-empty-array<int>},
+     *          }
+     *      >
      * } $search
-     * @param array $search
+     *
+     * @param array<mixed> $search
      *
      * @return array<
      *  string, array{

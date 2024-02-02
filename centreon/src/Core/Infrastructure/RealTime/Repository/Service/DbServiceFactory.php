@@ -27,12 +27,47 @@ use Core\Domain\RealTime\Model\Service;
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
 use Core\Infrastructure\RealTime\Repository\Icon\DbIconFactory;
 
+/**
+ * @phpstan-type _dataService array{
+ *     service_id: int|string|null,
+ *     host_id: int|string|null,
+ *     description: int|string|null,
+ *     performance_data: string|null,
+ *     output: string|null,
+ *     command_line: string|null,
+ *     flapping: int|string|null,
+ *     acknowledged: int|string|null,
+ *     in_downtime: int|string|null,
+ *     passive_checks: int|string|null,
+ *     active_checks: int|string|null,
+ *     latency: int|string|null,
+ *     execution_time: int|string|null,
+ *     status_change_percentage: int|string|null,
+ *     notify: int|string|null,
+ *     notification_number: int|string|null,
+ *     last_status_change: int|string|null,
+ *     last_status_change: int|string|null,
+ *     last_notification: int|string|null,
+ *     last_notification: int|string|null,
+ *     last_check: int|string|null,
+ *     last_check: int|string|null,
+ *     last_time_ok: int|string|null,
+ *     last_time_ok: int|string|null,
+ *     max_check_attempts: int|string|null,
+ *     check_attempt: int|string|null,
+ *     has_graph_data: int|string|null,
+ *     active_checks: int|string|null,
+ *     next_check: int|string|null,
+ *     icon_name: string|null,
+ *     icon_url: string|null,
+ * }
+ */
 class DbServiceFactory
 {
     use DbFactoryUtilitiesTrait;
 
     /**
-     * @param array<string,int|string|null> $data
+     * @param _dataService $data
      *
      * @return Service
      */
@@ -45,21 +80,12 @@ class DbServiceFactory
             DbServiceStatusFactory::createFromRecord($data)
         );
 
-        /** @var string|null */
-        $performanceData = $data['performance_data'];
-
-        /** @var string|null */
-        $output = $data['output'];
-
-        /** @var string|null */
-        $commandLine = $data['command_line'];
-
-        $service->setPerformanceData($performanceData)
-            ->setOutput($output)
-            ->setCommandLine($commandLine)
+        $service->setPerformanceData($data['performance_data'])
+            ->setOutput($data['output'])
+            ->setCommandLine($data['command_line'])
             ->setIsFlapping((int) $data['flapping'] === 1)
             ->setIsAcknowledged((int) $data['acknowledged'] === 1)
-            ->setIsInDowntime((int) $data['in_downtime'] === 1)
+            ->setIsInDowntime((int) $data['in_downtime'] > 0)
             ->setPassiveChecks((int) $data['passive_checks'] === 1)
             ->setActiveChecks((int) $data['active_checks'] === 1)
             ->setLatency(self::getFloatOrNull($data['latency']))

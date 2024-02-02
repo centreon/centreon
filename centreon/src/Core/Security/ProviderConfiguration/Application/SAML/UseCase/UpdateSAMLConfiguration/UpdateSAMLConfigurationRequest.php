@@ -23,6 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
+/**
+ * @phpstan-type _RolesMapping array{
+ *     is_enabled: bool,
+ *     apply_only_first_role: bool,
+ *     attribute_path: string,
+ *     relations: array<array{claim_value: string, access_group_id: int, priority: int}>,
+ * }
+ */
 final class UpdateSAMLConfigurationRequest
 {
     /** @var bool */
@@ -61,7 +69,7 @@ final class UpdateSAMLConfigurationRequest
     /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /** @var array<string, array<int|string, string|null>|string|bool> */
+    /** @var _RolesMapping */
     public array $rolesMapping = [
         'is_enabled' => false,
         'apply_only_first_role' => false,

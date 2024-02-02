@@ -33,21 +33,21 @@ interface LoginLoggerInterface
     /**
      * @param string $scope
      * @param string $message
-     * @param array<string,string> $content
+     * @param array<mixed> $content
      */
     public function info(string $scope, string $message, array $content = []): void;
 
     /**
      * @param string $scope
      * @param string $message
-     * @param array<string,string> $content
+     * @param array<mixed> $content
      */
     public function debug(string $scope, string $message, array $content = []): void;
 
     /**
      * @param string $scope
      * @param string $message
-     * @param array<string,string> $content
+     * @param array<mixed> $content
      */
     public function error(string $scope, string $message, array $content = []): void;
 

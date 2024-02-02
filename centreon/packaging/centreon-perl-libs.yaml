@@ -1,0 +1,73 @@
+name: "centreon-perl-libs"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  This package contains Centreon Perl libraries.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+  - src: "../lib/perl/centreon"
+    dst: "${PERL_VENDORLIB}/centreon"
+    expand: true
+    file_info:
+      mode: 0755
+
+overrides:
+  rpm:
+    depends:
+      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - perl
+      - perl(DBI)
+      - perl(FindBin)
+      - perl(Getopt::Long)
+      - perl(IO::Handle)
+      - perl(POSIX)
+      - perl(Pod::Usage)
+      - perl(Sys::Syslog)
+    provides:
+      - perl-centreon-base
+      - perl(centreon::common::db)
+      - perl(centreon::common::lock)
+      - perl(centreon::common::lock::file)
+      - perl(centreon::common::lock::sql)
+      - perl(centreon::common::logger)
+      - perl(centreon::common::misc)
+      - perl(centreon::script)
+      - perl(centreon::script::centreontrapd)
+      - perl(centreon::script::centreontrapdforward)
+      - perl(centreon::script::centFillTrapDB)
+      - perl(centreon::script::centreonSyncArchives)
+      - perl(centreon::script::centreonSyncPlugins)
+      - perl(centreon::script::centreon_trap_send)
+      - perl(centreon::script::dashboardBuilder)
+      - perl(centreon::script::eventReportBuilder)
+      - perl(centreon::script::logAnalyser)
+      - perl(centreon::script::logAnalyserBroker)
+      - perl(centreon::script::centreon_health)
+    replaces:
+      - perl-centreon-base
+  deb:
+    depends:
+      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - libconfig-inifiles-perl
+      - libcrypt-des-perl
+      - librrds-perl
+      - libdigest-hmac-perl
+      - libdigest-sha-perl
+      - libgd-perl
+
+rpm:
+  summary: Centreon Perl libraries
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

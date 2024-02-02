@@ -140,7 +140,7 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */
@@ -152,7 +152,7 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */

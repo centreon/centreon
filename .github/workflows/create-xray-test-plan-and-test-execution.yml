@@ -13,14 +13,30 @@ on:
         required: true
         type: string
     outputs:
-      test_plan_key:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key }}
-      test_plan_id:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id }}
-      test_execution_key:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key }}
-      test_execution_id:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id }}
+      test_plan_key_alma8:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8 }}
+      test_plan_id_alma8:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma8 }}
+      test_execution_key_alma8:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma8 }}
+      test_execution_id_alma8:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma8 }}
+      test_plan_key_alma9:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma9 }}
+      test_plan_id_alma9:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma9 }}
+      test_execution_key_alma9:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma9 }}
+      test_execution_id_alma9:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma9 }}
+      test_plan_key_bullseye:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_bullseye }}
+      test_plan_id_bullseye:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_bullseye }}
+      test_execution_key_bullseye:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_bullseye }}
+      test_execution_id_bullseye:
+        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_bullseye }}
     secrets:
       xray_jira_user_email:
         required: true
@@ -36,10 +52,18 @@ jobs:
   create-xray-test-plan-and-test-execution:
     runs-on: ubuntu-22.04
     outputs:
-      test_plan_key: ${{ steps.get_test_plan_key.outputs.test_plan_key }}
-      test_plan_id: ${{ steps.get_test_plan_id.outputs.test_plan_id }}
-      test_execution_key: ${{ steps.get_test_execution_key.outputs.test_execution_key }}
-      test_execution_id: ${{ steps.get_test_execution_id.outputs.test_execution_id }}
+      test_plan_key_alma8: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma8 }}
+      test_plan_id_alma8: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma8 }}
+      test_execution_key_alma8: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma8 }}
+      test_execution_id_alma8: ${{ steps.get_test_execution_id.outputs.test_execution_id_alma8 }}
+      test_plan_key_alma9: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma9 }}
+      test_plan_id_alma9: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma9 }}
+      test_execution_key_alma9: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma9 }}
+      test_execution_id_alma9: ${{ steps.get_test_execution_id.outputs.test_execution_id_alma9 }}
+      test_plan_key_bullseye: ${{ steps.get_test_plan_key.outputs.test_plan_key_bullseye }}
+      test_plan_id_bullseye: ${{ steps.get_test_plan_id.outputs.test_plan_id_bullseye }}
+      test_execution_key_bullseye: ${{ steps.get_test_execution_key.outputs.test_execution_key_bullseye }}
+      test_execution_id_bullseye: ${{ steps.get_test_execution_id.outputs.test_execution_id_bullseye }}
 
     steps:
       - name: Generate Xray Token
@@ -123,18 +147,19 @@ jobs:
           fi
 
           # Set the testPlanKey as an output
-          echo "test_plan_key=$test_plan_key" >> $GITHUB_OUTPUT
+          echo "test_plan_key_${{ inputs.os }}=$test_plan_key" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Get TestPlanID
         id: get_test_plan_id
         run: |
-          echo "getting the testPlanId for the testPlanKey: ${{ steps.get_test_plan_key.outputs.test_plan_key }}"
-          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_plan_key.outputs.test_plan_key }}"
+          test_plan_key=$(echo '${{ toJSON(steps.get_test_plan_key.outputs) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
+          echo "getting the testPlanId for the testPlanKey: $test_plan_key"
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key"
 
           test_plan_id=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.id')
           echo "this is the testPlan ID : $test_plan_id"
-          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
+          echo "test_plan_id_${{ inputs.os }}=$test_plan_id" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Create TestExecution and Get the TestExecutionID
@@ -163,21 +188,18 @@ jobs:
           input_summary="$summary_prefix WEB ${{ inputs.major_version }}.${{ inputs.minor_version }} $current_date"
           echo "The summary of the TE is: $input_summary"
 
-          linux_distribution='ALMA9'
-
-          if [[ ${{ github.event_name }} == 'schedule' ]]; then
-            case "${{ inputs.os }}" in
-              alma8)
-                linux_distribution="ALMA8"
-                ;;
-              alma9)
-                linux_distribution="ALMA9"
-                ;;
-              bullseye)
-                linux_distribution="DEBIAN11"
-                ;;
-            esac
-          fi
+          linux_distribution=''
+          case "${{ inputs.os }}" in
+            alma8)
+              linux_distribution="ALMA8"
+              ;;
+            alma9)
+              linux_distribution="ALMA9"
+              ;;
+            bullseye)
+              linux_distribution="DEBIAN11"
+              ;;
+          esac
 
           xray_graphql_createTestExecution="{
             \"query\": \"mutation CreateTestExecution(\$testEnvironments: [String], \$jira: JSON!) { createTestExecution(testEnvironments: \$testEnvironments, jira: \$jira) { testExecution { issueId jira(fields: [\\\"key\\\"]) } warnings createdTestEnvironments } }\",
@@ -203,7 +225,7 @@ jobs:
 
           # Extract the ID of the created TE
           test_execution_id=$(echo "$response" | jq -r '.data.createTestExecution.testExecution.issueId')
-          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
+          echo "test_execution_id_${{ inputs.os }}=$test_execution_id" >> $GITHUB_OUTPUT
 
           echo "TestExecution created with ID:  $test_execution_id"
         shell: bash
@@ -211,24 +233,28 @@ jobs:
       - name: Get TestExecutionKey
         id: get_test_execution_key
         run: |
-          jira_url="https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_execution_id.outputs.test_execution_id }}"
+          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
+          jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_execution_id"
 
           test_execution_key=$(curl -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.key')
           echo "this is the TestExecutionKey: $test_execution_key"
-          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+          echo "test_execution_key_${{ inputs.os }}=$test_execution_key" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Update the status of the TestExecution Issue
         run: |
-          curl -D- -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/${{ steps.get_test_execution_key.outputs.test_execution_key }}/transitions?expand=transitions.fields
+          test_execution_key=$(echo '${{ toJSON(steps.get_test_execution_key.outputs) }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          curl -D- -u "${{ secrets.xray_jira_user_email}}:${{ secrets.xray_jira_token }}" -X POST --data '{"transition":{"id":"5"}}' -H "Content-Type: application/json" https://centreon.atlassian.net/rest/api/2/issue/$test_execution_key/transitions?expand=transitions.fields
 
       - name: Add the TestExecution Issue to the TestPlan
         run: |
-          xray_graphql_mutation='{
-            "query": "mutation AddTestExecution($issueId: String!, $testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: $issueId, testExecIssueIds: $testExecIssueIds) { addedTestExecutions warning } }",
-            "variables": {
-              "issueId": "${{ steps.get_test_plan_id.outputs.test_plan_id }}",
-              "testExecIssueIds": ["'${{ steps.get_test_execution_id.outputs.test_execution_id }}'"]
+          test_plan_id=$(echo '${{ toJSON(steps.get_test_plan_id.outputs) }}' | jq -r '.test_plan_id_'${{ inputs.os }})
+          test_execution_id=$(echo '${{ toJSON(steps.get_test_execution_id.outputs) }}' | jq -r '.test_execution_id_'${{ inputs.os }})
+          xray_graphql_mutation="{
+            \"query\": \"mutation AddTestExecution(\$issueId: String!, \$testExecIssueIds: [String]!) { addTestExecutionsToTestPlan(issueId: \$issueId, testExecIssueIds: \$testExecIssueIds) { addedTestExecutions warning } }\",
+            \"variables\": {
+              \"issueId\": \"$test_plan_id\",
+              \"testExecIssueIds\": [\"$test_execution_id\"]
             }
-          }'
+          }"
           curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token}}" --data "${xray_graphql_mutation}" "https://xray.cloud.getxray.app/api/v2/graphql"

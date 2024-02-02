@@ -1,0 +1,17 @@
+FROM almalinux:8
+
+RUN bash -e <<EOF
+
+echo '[goreleaser]
+name=GoReleaser
+baseurl=https://repo.goreleaser.com/yum/
+enabled=1
+gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
+
+dnf install -y zstd nfpm-2.35.3 selinux-policy-devel
+
+rm -f /etc/yum.repos.d/goreleaser.repo
+
+dnf clean all
+
+EOF

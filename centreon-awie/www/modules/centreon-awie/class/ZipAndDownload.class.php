@@ -20,7 +20,7 @@ class ZipAndDownload
 {
     /**
      * ZipAndDownload constructor.
-     * @param $fileNames
+     * @param string $fileNames
      * @param string $filePath
      * @param string $fileExtension
      */

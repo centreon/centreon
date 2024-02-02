@@ -50,6 +50,15 @@ interface ReadTimePeriodRepositoryInterface
     public function findById(int $timePeriodId): ?TimePeriod;
 
     /**
+     * @param int[] $timePeriodIds
+     *
+     * @throws \Throwable
+     *
+     * @return Timeperiod[]
+     */
+    public function findByIds(array $timePeriodIds): array;
+
+    /**
      * @param int $timePeriodId
      *
      * @throws \Throwable

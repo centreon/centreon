@@ -137,7 +137,7 @@ describe('Web SSO configuration form', () => {
     cy.findByLabelText(labelTrustedClientAddresses).click();
     cy.contains(`127.0.0.1111: ${labelInvalidIPAddress}`).should('be.visible');
 
-    cy.findByText(labelSave).should('be.disabled');
+    cy.findByTestId(labelSave).should('be.disabled');
     cy.findByText(labelReset).should('not.be.disabled');
 
     cy.makeSnapshot();

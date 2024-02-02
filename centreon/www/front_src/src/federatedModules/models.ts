@@ -1,3 +1,5 @@
+import { SelectEntry } from '@centreon/ui';
+
 export interface FederatedComponentsConfiguration {
   federatedComponents: Array<string>;
   panelMinHeight?: number;
@@ -7,7 +9,7 @@ export interface FederatedComponentsConfiguration {
 }
 
 export interface FederatedModule {
-  federatedComponentsConfiguration: FederatedComponentsConfiguration;
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>;
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;
@@ -16,7 +18,9 @@ export interface FederatedModule {
 }
 
 interface PageComponent {
+  children?: string;
   component: string;
+  featureFlag?: string;
   route: string;
 }
 
@@ -27,23 +31,42 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  checkbox = 'checkbox',
+  displayType = 'displayType',
   metrics = 'metrics',
-  metricsOnly = 'metrics-only',
+  radio = 'radio',
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
   singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
   threshold = 'threshold',
+  tiles = 'tiles',
   timePeriod = 'time-period',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format'
 }
 
 export interface FederatedWidgetOption {
-  defaultValue: unknown;
+  defaultValue:
+    | unknown
+    | {
+        is: unknown;
+        otherwise: unknown;
+        then: unknown;
+        when: string;
+      };
   label: string;
+  options?:
+    | Array<SelectEntry>
+    | {
+        is: unknown;
+        otherwise: Array<SelectEntry>;
+        then: Array<SelectEntry>;
+        when: string;
+      };
   required?: boolean;
+  secondaryLabel: string;
   type: FederatedWidgetOptionType;
 }
 
@@ -53,11 +76,12 @@ export interface FederatedWidgetProperties {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
   description: string;
+  icon?: string;
   moduleName: string;
   options: {
     [key: string]: FederatedWidgetOption;
   };
+  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
-  singleResourceTypeSelection?: boolean;
   title: string;
 }

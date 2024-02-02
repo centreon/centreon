@@ -40,7 +40,7 @@ if (!isset($centreon)) {
 
 function myDecodeTrap($arg)
 {
-    $arg = html_entity_decode($arg, ENT_QUOTES, "UTF-8");
+    $arg = html_entity_decode($arg ?? '', ENT_QUOTES, "UTF-8");
     return ($arg);
 }
 

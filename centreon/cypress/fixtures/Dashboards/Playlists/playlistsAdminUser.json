@@ -1,0 +1,315 @@
+{
+    "result":[
+    {
+      "id": 1,
+      "name": "Dashboard Playlist 1",
+      "description": "Sample description for Playlist 1",
+      "dashboards": [
+        {
+          "id": 101,
+          "order": 1,
+          "name" : "dashboard1qq" 
+        },
+        {
+          "id": 102,
+          "order": 2,
+          "name" : "dashboardaz" 
+        },
+              {
+          "id": 12,
+          "order": 3,
+          "name" : "dashboardasz" 
+        }
+  
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 21,
+            "name": "Steven",
+            "role": "viewer"
+          },
+          {
+            "id": 22,
+            "name": "Harry",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 31,
+            "name": "Developers",
+            "role": "editor"
+          },
+          {
+            "id": 32,
+            "name": "Managers",
+            "role": "viewer"
+          }
+        ]
+      },
+      "public_link": "https://example.com/public-link",
+      "is_public": true,
+      "rotation_time": 60,
+      "author": {
+        "id": 401,
+        "name": "Kevin"
+      },
+      "created_at": "2023-01-01T12:00:00Z",
+      "updated_at": "2023-01-02T14:30:00Z",
+      "own_role" : "editor"
+    },
+    {
+      "id": 2,
+      "name": "Dashboard Playlist 2",
+      "description": "Sample description for Playlist 2",
+      "dashboards": [
+        {
+          "id": 103,
+          "order": 1,
+          "name" : "dashboard14" 
+        },
+        {
+          "id": 104,
+          "order": 2,
+          "name" : "dashboard178" 
+        }
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 203,
+            "name": "Alice",
+            "role": "editor"
+          },
+          {
+            "id": 204,
+            "name": "Bob",
+            "role": "editor"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 303,
+            "name": "Designers",
+            "role": "editor"
+          }
+        ]
+      },
+      "public_link": null,
+      "is_public": false,
+      "rotation_time": 30,
+      "author": {
+        "id": 402,
+        "name": "James"
+      },
+      "created_at": "2023-02-01T08:45:00Z",
+      "updated_at": "2023-02-05T17:15:00Z",
+      "own_role" : "editor"
+    },
+      {
+      "id": 3,
+      "name": "Dashboard Playlist 3",
+      "description": "Sample description for Playlist 3",
+      "dashboards": [
+        {
+          "id": 101,
+          "order": 1,
+          "name" : "dashboard1q" 
+        },
+        {
+          "id": 102,
+          "order": 2,
+          "name" : "dashboard1u" 
+        }
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 201,
+            "name": "John Doe",
+            "role": "viewer"
+          },
+          {
+            "id": 202,
+            "name": "Jane Doe",
+            "role": "viewer"
+          }
+        ]
+      },
+      "public_link": "https://example.com/public-link",
+      "is_public": true,
+      "rotation_time": 60,
+      "author": {
+        "id": 401,
+        "name": "Kevin"
+      },
+      "created_at": "2023-01-01T12:00:00Z",
+      "updated_at": "2023-01-02T14:30:00Z",
+      "own_role" : "editor"
+    },
+    {
+      "id": 4,
+      "name": "Dashboard Playlist 4",
+      "description": "Sample description for Playlist 4",
+      "dashboards": [
+        {
+          "id": 103,
+          "order": 1,
+          "name" : "dashboard12" 
+        },
+        {
+          "id": 104,
+          "order": 2,
+          "name" : "dashboard31" 
+        }
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 203,
+            "name": "Alice",
+            "role": "editor"
+          },
+          {
+            "id": 204,
+            "name": "Bob",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 303,
+            "name": "Designers",
+            "role": "viewer"
+          },
+          {
+            "id": 304,
+            "name": "Marketing",
+            "role": "viewer"
+          }
+        ]
+      },
+      "public_link": null,
+      "is_public": false,
+      "rotation_time": 30,
+      "author": {
+        "id": 402,
+        "name": "James"
+      },
+      "own_role" : "editor" ,
+      "created_at": "2023-02-01T08:45:00Z",
+      "updated_at": "2023-02-05T17:15:00Z"
+    },
+      {
+      "id": 5,
+      "name": "Dashboard Playlist 5",
+      "description": "Sample description for Playlist 5",
+      "dashboards": [
+        {
+          "id": 101,
+          "order": 1,
+          "name" : "dashboard51" 
+        },
+        {
+          "id": 102,
+          "order": 2,
+          "name" : "dashboard13" 
+        }
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 201,
+            "name": "John Doe",
+            "role": "viewer"
+          },
+          {
+            "id": 202,
+            "name": "Jane Doe",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 301,
+            "name": "Developers",
+            "role": "editor"
+          },
+          {
+            "id": 302,
+            "name": "Managers",
+            "role": "viewer"
+          }
+        ]
+      },
+      "public_link": "https://example.com/public-link",
+      "is_public": true,
+      "rotation_time": 60,
+      "author": {
+        "id": 401,
+        "name": "Kevin"
+      },
+      "own_role" : "editor" ,
+      "created_at": "2023-01-01T12:00:00Z",
+      "updated_at": "2023-01-02T14:30:00Z"
+    },
+    {
+      "id": 6,
+      "name": "Dashboard Playlist 6",
+      "description": "Sample description for Playlist 6",
+      "dashboards": [
+        {
+          "id": 103,
+          "order": 1,
+          "name" : "dashboard1" 
+        },
+        {
+          "id": 104,
+          "order": 2,
+          "name" : "dashboard2" 
+        }
+      ],
+      "shares": {
+        "contacts": [
+          {
+            "id": 96,
+            "name": "Alice",
+            "role": "editor"
+          },
+          {
+            "id": 45,
+            "name": "Bob",
+            "role": "viewer"
+          }
+        ],
+        "contact_groups": [
+          {
+            "id": 602,
+            "name": "Designers",
+            "role": "viewer"
+          }
+        ]
+      },
+      "public_link": null,
+      "is_public": false,
+      "rotation_time": 30,
+      "author": {
+        "id": 402,
+        "name": "James"
+      },
+      "own_role" : "editor" ,
+      "created_at": "2023-02-01T08:45:00Z",
+      "updated_at": "2023-02-05T17:15:00Z"
+    }
+  ]
+  
+  ,
+    "meta": {
+      "page": 1,
+      "limit": 10,
+      "search": {},
+      "sort_by": {},
+      "total": 6
+    }
+  }

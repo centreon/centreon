@@ -21,9 +21,7 @@
 <table class="ToolbarTable table">
     <tr class="ToolbarTR">
         <td style='width:30%;'>&nbsp;</td>
-        {php}
-           include './include/common/pagination.php';
-        {/php}
+        {pagination}
     </tr>
 </table>
 <table class="ListTable">
@@ -82,9 +80,7 @@
 <table class="ToolbarTable table">
     <tr class="ToolbarTR">
         <td style='width:30%;'>&nbsp;</td>
-        {php}
-           include('./include/common/pagination.php');
-        {/php}
+        {pagination}
     </tr>
 </table>
 <input type='hidden' name='o' id='o' value='42'>

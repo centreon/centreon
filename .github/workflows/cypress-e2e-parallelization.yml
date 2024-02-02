@@ -35,10 +35,8 @@ on:
         required: true
         type: string
         description: "The frontend dependencies lock file path"
-      test_plan_key:
-        required: true
-        type: string
-      test_execution_key:
+      xray_keys_and_ids:
+        description: "The test execution and the test plan keys and ids"
         required: true
         type: string
     secrets:
@@ -59,7 +57,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: List features
         id: list-features
@@ -82,11 +80,11 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache@v3
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
@@ -100,7 +98,7 @@ jobs:
         shell: bash
 
       - name: Login to Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -108,7 +106,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -124,6 +122,14 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
+      - name: Test Execution Key
+        id: get-test-execution-key
+        run: |
+          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          echo "The Test Execution KEY : $test_execution_key"
+          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -134,11 +140,11 @@ jobs:
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
-          test_execution_key: ${{ inputs.test_execution_key }}
+          test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
           path: ${{ inputs.module_name }}/tests/e2e/results/
@@ -146,7 +152,7 @@ jobs:
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
@@ -154,7 +160,7 @@ jobs:
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
@@ -163,17 +169,17 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ inputs.stability == 'testing' || github.event_name == 'schedule' }}
+    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
         with:
           version: 7
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
           path: ${{ inputs.name }}-json-xray-reports
@@ -188,8 +194,10 @@ jobs:
 
       - name: Keys
         run: |
-          echo "The Test Execution KEY : ${{ inputs.test_execution_key }}"
-          echo "The Test Plan KEY: ${{ inputs.test_plan_key }}"
+          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
+          echo "The Test Execution KEY : $test_execution_key"
+          echo "The Test Plan KEY: $test_plan_key"
 
       - name: Import results to xray
         run: |
@@ -204,14 +212,14 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
         with:
           version: 8
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
           path: ${{ inputs.name }}-json-reports

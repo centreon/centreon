@@ -1,6 +1,15 @@
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 
-import { concat, filter, isNil, pathEq } from 'ramda';
+import {
+  concat,
+  equals,
+  filter,
+  flatten,
+  isNil,
+  pluck,
+  reject,
+  type
+} from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -11,20 +20,35 @@ import {
 } from '../../federatedModules/atoms';
 import { Remote } from '../../federatedModules/Load';
 import {
+  FederatedComponentsConfiguration,
   FederatedModule,
   StyleMenuSkeleton
 } from '../../federatedModules/models';
 
 interface Props extends Record<string, unknown> {
+  children?: ReactNode;
   federatedModulesConfigurations: Array<FederatedModule>;
   isFederatedWidget?: boolean;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
+const getFederatedComponents = (
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>
+): Array<string> => {
+  if (equals(type(federatedComponentsConfiguration), 'Object')) {
+    return federatedComponentsConfiguration.federatedComponents;
+  }
+
+  return flatten(
+    pluck('federatedComponents', federatedComponentsConfiguration)
+  );
+};
+
 const FederatedModules = ({
   federatedModulesConfigurations,
   styleMenuSkeleton,
   isFederatedWidget,
+  children,
   ...rest
 }: Props): JSX.Element | null => {
   return useMemoComponent({
@@ -37,7 +61,7 @@ const FederatedModules = ({
             federatedComponentsConfiguration,
             moduleName
           }) => {
-            return federatedComponentsConfiguration.federatedComponents.map(
+            return getFederatedComponents(federatedComponentsConfiguration).map(
               (component) => {
                 return (
                   <Remote
@@ -50,7 +74,9 @@ const FederatedModules = ({
                     remoteEntry={remoteEntry}
                     styleMenuSkeleton={styleMenuSkeleton}
                     {...rest}
-                  />
+                  >
+                    {children}
+                  </Remote>
                 );
               }
             );
@@ -64,6 +90,7 @@ const FederatedModules = ({
 
 interface LoadableComponentsContainerProps extends Record<string, unknown> {
   [props: string]: unknown;
+  children?: ReactNode;
   isFederatedWidget?: boolean;
   path: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
@@ -81,26 +108,43 @@ const getLoadableComponents = ({
     return null;
   }
 
+  const filteredFederatedModules = reject(
+    (federatedModule) => equals(type(federatedModule), 'String'),
+    federatedModules
+  );
+
   const components = path
-    ? filter(
-        pathEq(path, ['federatedComponentsConfiguration', 'path']),
-        federatedModules
-      )
-    : federatedModules;
+    ? filter(({ federatedComponentsConfiguration }) => {
+        if (equals(type(federatedComponentsConfiguration), 'Object')) {
+          return equals(path, federatedComponentsConfiguration.path);
+        }
 
-  return components;
-};
+        return federatedComponentsConfiguration?.some(
+          ({ path: federatedPath }) => equals(path, federatedPath)
+        );
+      }, filteredFederatedModules)
+    : filteredFederatedModules;
 
-const defaultStyleMenuSkeleton = {
-  className: undefined,
-  height: undefined,
-  width: undefined
+  return path
+    ? components.map(({ federatedComponentsConfiguration, ...rest }) => ({
+        ...rest,
+        federatedComponentsConfiguration: equals(
+          type(federatedComponentsConfiguration),
+          'Object'
+        )
+          ? federatedComponentsConfiguration
+          : federatedComponentsConfiguration?.filter(
+              ({ path: federatedPath }) => equals(path, federatedPath)
+            )
+      }))
+    : components;
 };
 
 const LoadableComponentsContainer = ({
   path,
-  styleMenuSkeleton = defaultStyleMenuSkeleton,
+  styleMenuSkeleton,
   isFederatedWidget,
+  children,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
   const federatedModules = useAtomValue(federatedModulesAtom);
@@ -128,7 +172,9 @@ const LoadableComponentsContainer = ({
       isFederatedWidget={isFederatedWidget}
       styleMenuSkeleton={styleMenuSkeleton}
       {...props}
-    />
+    >
+      {children}
+    </FederatedModules>
   );
 };
 

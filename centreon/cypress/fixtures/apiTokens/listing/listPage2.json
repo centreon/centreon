@@ -1,0 +1,41 @@
+{
+  "result": [
+    {
+      "name": "k-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "l-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-19-15T00:00:00+00:00",
+      "is_revoked": true
+    }
+   
+
+  ],
+  "meta": {
+    "page": 2,
+    "limit": 10,
+    "search": {},
+    "sort_by": { "token_name": "ASC"},
+    "total": 12
+  }
+}

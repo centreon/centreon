@@ -31,7 +31,7 @@ class NotificationResource
     /**
      * @template T of NotificationHostEvent|NotificationServiceEvent
      *
-     * @param string $type
+     * @param self::*_RESOURCE_TYPE $type
      * @param class-string<T> $eventEnum
      * @param ConfigurationResource[] $resources
      * @param array<T> $events
@@ -50,6 +50,9 @@ class NotificationResource
         $this->setServiceEvents($serviceEvents);
     }
 
+    /**
+     * @return self::*_RESOURCE_TYPE
+     */
     public function getType(): string
     {
         return $this->type;

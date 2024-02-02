@@ -1,43 +1,91 @@
 import { includes, isEmpty, split } from 'ramda';
 
-import { Tooltip, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
+import { EllipsisTypography, formatMetricValue } from '../../..';
 import { Line } from '../../common/timeSeries/models';
+import { Tooltip } from '../../../components';
 
-import { useStyles } from './Legend.styles';
+import { useLegendHeaderStyles } from './Legend.styles';
+import { LegendDisplayMode } from './models';
+import LegendContent from './LegendContent';
 
 interface Props {
+  color: string;
+  disabled?: boolean;
   line: Line;
+  minMaxAvg?;
+  value?: string | null;
 }
 
-const LegendHeader = ({ line }: Props): JSX.Element => {
-  const { classes } = useStyles({});
+const LegendHeader = ({
+  line,
+  color,
+  disabled,
+  value,
+  minMaxAvg
+}: Props): JSX.Element => {
+  const { classes, cx } = useLegendHeaderStyles({ color });
+
   const { unit, name, legend } = line;
 
   const legendName = legend || name;
-  const unitName = ` (${unit})`;
+  const hasUnit = !isEmpty(unit);
+  const unitName = `(${unit})`;
   const metricName = includes('#', legendName)
     ? split('#')(legendName)[1]
     : legendName;
 
+  const getEndText = (): string => {
+    if (value) {
+      return `${value}${hasUnit ? ` ${unit}` : ''}`;
+    }
+
+    return hasUnit ? ` ${unitName}` : '';
+  };
+
   return (
-    <div className={classes.legendName}>
-      <Tooltip placement="top" title={legendName + unitName}>
-        <Typography
-          className={classes.legendName}
-          component="p"
-          variant="caption"
-        >
-          {metricName}
-        </Typography>
-      </Tooltip>
-      <Typography
-        className={classes.legendUnit}
-        component="p"
-        variant="caption"
+    <div className={classes.container}>
+      <Tooltip
+        followCursor={false}
+        label={
+          minMaxAvg ? (
+            <div>
+              <Typography>{`${legendName} ${unitName}`}</Typography>
+              <div className={classes.minMaxAvgContainer}>
+                {minMaxAvg.map(({ label, value: subValue }) => (
+                  <LegendContent
+                    data={formatMetricValue({
+                      unit: line.unit,
+                      value: subValue
+                    })}
+                    key={label}
+                    label={label}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            `${legendName} ${unitName}`
+          )
+        }
+        placement="top"
       >
-        {!isEmpty(line?.unit) && `(${line.unit})`}
-      </Typography>
+        <div className={classes.markerAndLegendName}>
+          <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
+          <EllipsisTypography
+            className={cx(classes.text, classes.legendName)}
+            data-mode={
+              value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
+            }
+          >
+            {metricName}
+          </EllipsisTypography>
+        </div>
+      </Tooltip>
+      {hasUnit && (
+        <Typography className={classes.text}>{getEndText()}</Typography>
+      )}
     </div>
   );
 };

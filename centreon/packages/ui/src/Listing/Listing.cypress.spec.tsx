@@ -77,9 +77,9 @@ const mountListing = (): void => {
           subItems={{
             canCheckSubItems: false,
             enable: true,
+            getRowProperty: () => 'subItems',
             labelCollapse: 'Collapse',
-            labelExpand: 'Expand',
-            rowProperty: 'subItems'
+            labelExpand: 'Expand'
           }}
           totalRows={10}
         />

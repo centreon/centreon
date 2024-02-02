@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { useStyles } from './Legend.styles';
+import { useLegendContentStyles } from './Legend.styles';
 
 interface Props {
   data: string;
@@ -10,15 +10,21 @@ interface Props {
 }
 
 const LegendContent = ({ data, label }: Props): JSX.Element => {
-  const { classes } = useStyles({});
+  const { classes, cx } = useLegendContentStyles();
 
   const { t } = useTranslation();
 
   return (
-    <div data-testid={label}>
-      <Typography variant="caption">{t(label)}: </Typography>
-      <Typography className={classes.minMaxAvgValue} variant="caption">
-        {data}
+    <div className={classes.text} data-testid={label}>
+      <Typography className={classes.text} component="span" variant="caption">
+        {t(label)}:{' '}
+        <Typography
+          className={cx(classes.minMaxAvgValue, classes.text)}
+          component="span"
+          variant="caption"
+        >
+          {data}
+        </Typography>
       </Typography>
     </div>
   );

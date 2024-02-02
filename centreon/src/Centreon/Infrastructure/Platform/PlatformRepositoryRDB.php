@@ -82,10 +82,11 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
             }
         }
 
-        $dashboardWidgetsRequest = $this->translateDbName('SELECT `name`, `version` FROM `:db`.dashboard_widgets');
+        $dashboardWidgetsRequest = $this->translateDbName('SELECT `name` FROM `:db`.dashboard_widgets');
+        $version = $this->getWebVersion();
         if (($statement = $this->db->query($dashboardWidgetsRequest)) !== false) {
             while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-                $versions[(string) $result['name']] = (string) $result['version'];
+                $versions[(string) $result['name']] = $version;
             }
         }
 

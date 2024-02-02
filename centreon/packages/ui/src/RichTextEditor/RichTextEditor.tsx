@@ -220,6 +220,7 @@ const RichTextEditor = ({
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
+                setHtmlString={setHtmlString}
                 onBlur={onBlur}
               />
             }

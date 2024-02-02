@@ -13555,8 +13555,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -17987,8 +17987,8 @@ msgstr "Afficher les seuils"
 msgid "Custom"
 msgstr "Personnalisé"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units"
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
+msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -18003,7 +18003,7 @@ msgid "You have too many metrics, please filter more resources to optimize platf
 msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme."
 
 msgid "You can select a maximum of two metric units"
-msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
+msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
 
 msgid "Add resource"
 msgstr "Ajouter une ressource"
@@ -18216,9 +18216,6 @@ msgstr "Affiche le top ou le bottom x des hôtes, pour une métrique sélectionn
 msgid "Thresholds"
 msgstr "Seuils"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique."
-
 msgid "Value format"
 msgstr "Format de la valeur"
 
@@ -18345,6 +18342,60 @@ msgstr "Gestion de l'accès aux ressources"
 msgid "Refine filter"
 msgstr "Affiner le filtre"
 
+msgid "Refine your filter on a single metric by adding more resources."
+msgstr "Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
+
+msgid "Unselect all"
+msgstr "Tout désélectionner"
+
+msgid "Display up to"
+msgstr "Afficher jusqu'à"
+
+msgid "tiles"
+msgstr "tuiles"
+
+msgid "You must fill in more resources."
+msgstr "Vous devez indiquer plus de ressources."
+
+msgid "All services on this host are working fine."
+msgstr "Tous les services de cet hôtes fonctionnent correctement."
+
+msgid "All metrics on this service are working fine."
+msgstr "Toutes les métriques de ce service fonctionnent correctement."
+
+msgid "Metric name"
+msgstr "Nom de la métrique"
+
+msgid "Status grid"
+msgstr "Grille de statut"
+
+msgid "Displays a status overview for selected resources."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+
+msgid "Display with this resource type"
+msgstr "Afficher avec ce type de ressource"
+
+msgid "Display resources with this status"
+msgstr "Afficher les ressources avec ce statut"
+
+msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+msgstr "Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre statut et les statuts de ses services."
+
+msgid "For a service, the service status is displayed."
+msgstr "Pour un service, le statut du service est affiché."
+
+msgid "Display resources with this state"
+msgstr "Afficher les ressources avec cet état"
+
+msgid "Sort by"
+msgstr "Trier par"
+
+msgid "See more on the Resources Status page"
+msgstr "Voir plus dans la page Statut des ressources"
+
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
+
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18386,3 +18437,250 @@ msgstr "Vous n'êtes pas autorisé à éditer un service"
 
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
+
+msgid "Error while searching for media"
+msgstr "Erreur lors de la recherche de médias"
+
+msgid "You are not allowed to list media"
+msgstr "Vous n'êtes pas autorisé à lister les médias"
+
+msgid "API token"
+msgstr "Jeton d'API"
+
+msgid "Create new token"
+msgstr "Créer un nouveau jeton"
+
+msgid "Error while updating playlist shares"
+msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
+
+msgid "You cannot share the same playlist to a contact several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un contact"
+
+msgid "You cannot share the same playlist to a contact group several times"
+msgstr "Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un groupe de contacts"
+
+msgid "The following playlist does not exist: [%d]"
+msgstr "La liste de diffusion suivante n'existe  : [%d]"
+
+msgid "You do not have editing rights on the following playlist: [%d]"
+msgstr "Vous n'avez pas les droits d'édition sur la liste de diffusion suivante : [%d]"
+
+msgid "The following contact does not exist: [%s]"
+msgstr "Le contact suivant n'existe pas : [%s]"
+
+msgid "The following contact group does not exist: [%s]"
+msgstr "Le groupe de contact suivant n'existe pas : [%s]"
+
+msgid "The following contact is not in your contact groups: [%s]"
+msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
+
+msgid "You are not in the following contact group: [%s]"
+msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
+
+msgid "Error while deleting a playlist"
+msgstr "Erreur lors de la suppression d'une liste de diffusion"
+
+msgid "Error while listing the playlist shares"
+msgstr "Erreur lors du listing des partages de la liste de diffusion"
+
+msgid "The following playlist is not shared with you: [%d]"
+msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
+
+msgid "Add at least 1 contact"
+msgstr "Ajoutez au moins 1 contact"
+
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+msgid "Shares"
+msgstr "Partages"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "Public link"
+msgstr "Lien public"
+
+msgid "Private/Public"
+msgstr "Privé/Public"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
+
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
+
+msgid "Link has been copied!"
+msgstr "Lien copié!"
+
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Revoked"
+msgstr "Révoqué"
+
+msgid "For security reasons, the token can only be displayed once. Store it carefully."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
+
+msgid "Generate new token"
+msgstr "Générer un nouveau jeton"
+
+msgid "Token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
+
+msgid "This field is required"
+msgstr "Ce champ est obligatoire"
+
+msgid "Token"
+msgstr "Jeton"
+
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
+
+msgid "Failed to copy link"
+msgstr "Échec de la copie du lien"
+
+msgid "Link copied"
+msgstr "Lien copié"
+
+msgid "Add a contact"
+msgstr "Ajouter un contact"
+
+msgid "Add a contact group"
+msgstr "Ajouter un contact group"
+
+msgid "Share with"
+msgstr "Partager avec"
+
+msgid "Removed"
+msgstr "Supprimé"
+
+msgid "Updated"
+msgstr "Mis à jour"
+
+msgid "User rights"
+msgstr "Droits d'utilisateur"
+
+msgid "The share list is empty"
+msgstr "La liste de partages est vide"
+
+msgid "Failed to save shares"
+msgstr "La sauvegarde des partages a échoué"
+
+msgid "Shares saved"
+msgstr "Partages sauvegardés"
+
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
+
+msgid "Delete user"
+msgstr "Supprimer un utilisateur"
+
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
+msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+
+msgid "Your comment has been saved."
+msgstr "Votre commentaire a été enregistré."
+
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+msgid "Edit resource access rule"
+msgstr "Modifier la règle d'accès aux ressources"
+
+msgid "Rule properties"
+msgstr "Propriétés de la règle"
+
+msgid "Resource selection"
+msgstr "Sélection des ressources"
+
+msgid "Contacts/Contact groups"
+msgstr "Contacts/Groupes de contacts"
+
+msgid "The resource access rule was successfully created"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+msgid "Metaservice"
+msgstr "Métaservice"
+
+msgid "Select resource type"
+msgstr "Sélectionnez un type de ressource"
+
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Problem (Down/Critical)"
+msgstr "Problème (Indisponible/Critique)"
+
+msgid "Undefined (Unreachable/Unknown)"
+msgstr "Indéfini (Injoignable/Inconnu)"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
+
+msgid "Resource table"
+msgstr "Tableau des ressources"

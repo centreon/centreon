@@ -1,6 +1,9 @@
 import React, { ReactElement, ReactNode } from 'react';
 
-import { IconButton as MuiIconButton } from '@mui/material';
+import {
+  IconButton as MuiIconButton,
+  IconButtonProps as MuiIconButtonProps
+} from '@mui/material';
 
 import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
 import { DataTestAttributes } from '../../../@types/data-attributes';
@@ -23,7 +26,8 @@ type IconButtonProps = {
   size?: 'small' | 'medium' | 'large';
   variant?: 'primary' | 'secondary' | 'ghost';
 } & AriaLabelingAttributes &
-  DataTestAttributes;
+  DataTestAttributes &
+  MuiIconButtonProps;
 
 /**
  * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)

@@ -140,8 +140,8 @@ class GroupsMapping implements SecurityAccessInterface
     }
 
     /**
-     * @param array $providerGroupsMapping
-     * @param array $contactGroupRelations
+     * @param array<mixed> $providerGroupsMapping
+     * @param array<mixed> $contactGroupRelations
      *
      * @throws AuthenticationConditionsException
      */

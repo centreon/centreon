@@ -44,6 +44,7 @@ final class FindResourcesByParent
 
     private string $searchProvided = '';
 
+    /** @var array<mixed> */
     private array $sortProvided = [];
 
     /**
@@ -82,7 +83,7 @@ final class FindResourcesByParent
 
             $parents = new FindResourcesResponse([]);
 
-            $this->requestParameters->setSort(json_encode($servicesSort));
+            $this->requestParameters->setSort(json_encode($servicesSort) ?: '');
 
             if ($this->contact->isAdmin()) {
                 $children = $this->findResourcesAsAdmin($filter);
@@ -131,7 +132,7 @@ final class FindResourcesByParent
     private function prepareRequestParametersForParentSearch(): void
     {
         $this->requestParameters->unsetSearch();
-        $this->requestParameters->setSort(json_encode($this->sortProvided));
+        $this->requestParameters->setSort(json_encode($this->sortProvided) ?: '');
         $this->requestParameters->setPage(1);
     }
 

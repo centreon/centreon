@@ -204,7 +204,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */
@@ -216,7 +216,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     }
 
     /**
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      *
      * @return string|null
      */

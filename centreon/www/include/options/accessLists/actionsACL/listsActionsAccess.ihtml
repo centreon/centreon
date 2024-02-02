@@ -17,9 +17,7 @@
 	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
 			<td> {$form.o1.html}<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a></td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -50,9 +48,7 @@
 			<td>
 				 {$form.o2.html}<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 <input type='hidden' name='o' id='o' value='42'>

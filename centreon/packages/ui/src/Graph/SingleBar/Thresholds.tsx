@@ -1,4 +1,4 @@
-import { Thresholds } from '../common/models';
+import { Thresholds as ThresholdsModel } from '../common/models';
 
 import { ThresholdLine } from './ThresholdLine';
 
@@ -8,7 +8,7 @@ interface Props {
   hideTooltip: () => void;
   showTooltip: (args) => void;
   size: 'small' | 'medium';
-  thresholds: Thresholds;
+  thresholds: ThresholdsModel;
   xScale: (value: number) => number;
 }
 

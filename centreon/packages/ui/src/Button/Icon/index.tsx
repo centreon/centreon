@@ -21,7 +21,7 @@ type Props = {
   ariaLabel?: string;
   className?: string;
   onClick: (event) => void;
-  title?: string;
+  title?: string | JSX.Element;
   tooltipClassName?: string;
   tooltipPlacement?:
     | 'bottom'
@@ -38,7 +38,7 @@ type Props = {
     | 'top-start';
 } & IconButtonProps;
 
-const IconButton = ({
+export const IconButton = ({
   title = '',
   ariaLabel,
   className,

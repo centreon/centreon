@@ -67,7 +67,7 @@ final class MetricRepositoryLegacy implements MetricRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findMetricsByService(Service $service, \DateTime $start, \DateTime $end): array
+    public function findMetricsByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $graph = new \CentreonGraphNg($this->contact->getId());
         $graph->addServiceMetrics($service->getHost()->getId(), $service->getId());
@@ -78,7 +78,7 @@ final class MetricRepositoryLegacy implements MetricRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findStatusByService(Service $service, \DateTime $start, \DateTime $end): array
+    public function findStatusByService(Service $service, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $indexData = \CentreonGraphStatus::getIndexId(
             $service->getHost()->getId(),

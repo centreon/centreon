@@ -28,6 +28,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
 
+// ------------ Widgets database updates ---------------- //
 $updateWidgetModelsTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to add column is_internal to table widget_models';
     if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
@@ -84,8 +85,44 @@ $setCoreWidgetsToInternal = function(CentreonDB $pearDB): void {
     );
 };
 
-// ------------ INSERT / UPDATE / DELETE
-$insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB): void {
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
+$insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-resourcestable')
+                SQL
+        );
+    }
+};
+
+$updateTopologyForApiTokens = function(CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = "Could not update topology for API tokens";
+    $pearDB->query(
+            <<<'SQL'
+                UPDATE `topology`
+                SET topology_url = '/administration/api-token', is_react = '1', topology_show='1'
+                WHERE `topology_name` = 'API Tokens'
+                SQL
+    );
+};
+
+// ------------ Resource Access Management database updates ---------------- //
+$insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to insert topology for Resource Access Management';
     $statement = $pearDB->query(
         <<<'SQL'
             SELECT 1 FROM `topology` WHERE `topology_name` = 'Resource Access Management'
@@ -106,96 +143,17 @@ $insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB): void 
     }
 };
 
-/**
- * $errorMessage is passed by reference to handle errors on each query instead of a global error on the function call.
- */
-$createDashboardsPlaylistTables = function(CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to create table: dashboard_playlist';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist` (
-                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name` VARCHAR(255) NOT NULL,
-                `description` TEXT NULL,
-                `rotation_time` TINYINT UNSIGNED NOT NULL,
-                `created_at` INT(11) UNSIGNED NOT NULL,
-                `updated_at` INT(11) UNSIGNED NULL,
-                `created_by` INT NULL,
-                `updated_by` INT NULL,
-                `is_public` TINYINT(1) NOT NULL,
-                PRIMARY KEY (`id`),
-                UNIQUE KEY (`name`),
-                CONSTRAINT `dashboard_playlist_author_id`
-                FOREIGN KEY (`created_by`)
-                REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
-                CONSTRAINT `dashboard_playlist_editor_id`
-                FOREIGN KEY (`updated_by`)
-                REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_relation` (
-                `dashboard_id` INT UNSIGNED NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                `order` INT(11) NOT NULL,
-                UNIQUE KEY(`dashboard_id`, `playlist_id`),
-                CONSTRAINT `AK_PlaylisId_Order` UNIQUE (`playlist_id`, `order`),
-                CONSTRAINT `dashboard_playlist_relation_dashboard_id`
-                FOREIGN KEY (`dashboard_id`)
-                REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_contact_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_contact_relation` (
-                `contact_id` INT(11) NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                UNIQUE KEY(`contact_id`, `playlist_id`),
-                CONSTRAINT `dashboard_playlist_contact_relation_contact_id`
-                FOREIGN KEY (`contact_id`)
-                REFERENCES `contact` (`contact_id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_contact_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-
-    $errorMessage = 'Unable to create table: dashboard_playlist_contactgroup_relation';
-    $pearDB->query(
-        <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `dashboard_playlist_contactgroup_relation` (
-                `contactgroup_id` INT(11) NOT NULL,
-                `playlist_id` INT UNSIGNED NOT NULL,
-                UNIQUE KEY(`contactgroup_id`, `playlist_id`),
-                CONSTRAINT `dashboard_playlist_contactgroup_relation_contactgroup_id`
-                FOREIGN KEY (`contactgroup_id`)
-                REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE,
-                CONSTRAINT `dashboard_playlist_contactgroup_relation_playlist_id`
-                FOREIGN KEY (`playlist_id`)
-                REFERENCES `dashboard_playlist` (`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            SQL
-    );
-};
-
-$alterAclGroupsTable = function (CentreonDB $pearDB): void {
+$addCloudDescriptionToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add cloud_description column to acl_groups table';
     if (! $pearDB->isColumnExist('acl_groups', 'cloud_description')) {
         $pearDB->query(
             'ALTER TABLE `acl_groups` ADD COLUMN `cloud_description` TEXT DEFAULT NULL'
         );
     }
+};
 
+$addCloudSpecificToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add cloud_specific column to acl_groups table';
     if (! $pearDB->isColumnExist('acl_groups', 'cloud_specific')) {
         $pearDB->query(
             'ALTER TABLE `acl_groups` ADD COLUMN `cloud_specific` BOOLEAN NOT NULL DEFAULT 0'
@@ -203,27 +161,46 @@ $alterAclGroupsTable = function (CentreonDB $pearDB): void {
     }
 };
 
-$alterAclResourceGroupRelation = function (CentreonDB $pearDB) {
-    if (! $pearDB->isColumnExist('acl_res_group_relations', 'order')) {
+$addCloudSpecificToAclResources = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to add cloud_specific column to acl_resources table';
+    if (! $pearDB->isColumnExist('acl_resources', 'cloud_specific')) {
         $pearDB->query(
-            'ALTER TABLE acl_res_group_relations ADD COLUMN `order` INT NOT NULL DEFAULT 0'
+            'ALTER TABLE `acl_resources` ADD COLUMN `cloud_specific` BOOLEAN NOT NULL DEFAULT 0'
         );
     }
 };
 
+$createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create dataset_filters configuration table';
+    $pearDB->query(
+        <<<SQL
+        CREATE TABLE `dataset_filters` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `parent_id` int(11) DEFAULT NULL,
+            `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+            `acl_resource_id` int(11) DEFAULT NULL,
+            `acl_group_id` int(11) DEFAULT NULL,
+            `resource_ids` varchar(255) DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
+            CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        SQL
+    );
+};
+
 try {
-    $createDashboardsPlaylistTables($pearDB);
-
-    $errorMessage = 'Unable to add columns cloud_description and cloud_specific to acl_groups table';
-    $alterAclGroupsTable($pearDB);
-
     $updateWidgetModelsTable($pearDB);
 
     $errorMessage = "Unable to install core widgets";
     $installCoreWidgets();
 
-    $errorMessage = 'Unable to add column order to acl_res_group_relations table';
-    $alterAclResourceGroupRelation($pearDB);
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
+
+    $addCloudSpecificToAclGroups($pearDB);
+    $addCloudDescriptionToAclGroups($pearDB);
+    $addCloudSpecificToAclResources($pearDB);
+    $createDatasetFiltersTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -232,9 +209,11 @@ try {
 
     $errorMessage = "Could not set core widgets to internal";
     $setCoreWidgetsToInternal($pearDB);
+    $insertResourcesTableWidget($pearDB);
 
-    $errorMessage = 'Unable to insert topology for Resource Access Management';
     $insertTopologyForResourceAccessManagement($pearDB);
+
+    $updateTopologyForApiTokens($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

@@ -25,6 +25,7 @@ namespace Core\Service\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -32,6 +33,7 @@ use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -96,6 +98,7 @@ use Utility\SqlConcatenator;
 class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServiceRepositoryInterface
 {
     use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -103,6 +106,47 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $serviceIds): array
+    {
+        $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
+
+        if ([] === $serviceIds) {
+            return [];
+        }
+
+        $bindValues = [];
+
+        foreach ($serviceIds as $index => $serviceId) {
+            $bindValues[":service_{$index}"] = $serviceId;
+        }
+
+        $serviceIdsList = implode(', ', array_keys($bindValues));
+
+        $request = $this->translateDbName(
+            <<<SQL
+                    SELECT
+                        service_id
+                    FROM `:db`.service
+                    WHERE service_id IN ({$serviceIdsList})
+                        AND service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+
+        foreach ($bindValues as $bindKey => $bindValue) {
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -289,6 +333,50 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
+    public function findByIds(int ...$serviceIds): array
+    {
+        [$bindValues, $serviceIdsQuery] = $this->createMultipleBindQuery($serviceIds, ':id_');
+        $request = <<<SQL
+            SELECT service_id,
+                   service_description,
+                   host.host_name
+            FROM `:db`.service
+            LEFT JOIN `:db`.host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            LEFT JOIN `:db`.host
+                ON host.host_id = hsr.host_host_id
+                AND host.host_register = '1'
+            WHERE service.service_id IN ({$serviceIdsQuery})
+                AND service.service_register = '1'
+            ORDER BY service.service_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $bindKey => $serviceId) {
+            $statement->bindValue($bindKey, $serviceId, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $services = [];
+        foreach ($statement as $result) {
+            /** @var array{service_id: int, service_description: string, host_name: string} $result */
+            $services[] = TinyServiceFactory::createFromDb($result);
+        }
+
+        return $services;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(): \Traversable&\Countable
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findParents(int $serviceId): array
     {
         $request = $this->translateDbName(
@@ -433,7 +521,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
                     GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
                     GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
-                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as groups
+                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as 'groups'
                 FROM `:db`.service
                 SQL
         );

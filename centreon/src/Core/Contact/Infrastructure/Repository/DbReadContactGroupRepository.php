@@ -59,6 +59,67 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     /**
      * @inheritDoc
      */
+    public function exists(int $contactGroupId): bool
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1 FROM `:db`.contactgroup
+                WHERE cg_id = :contactGroupId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNamesByIds(int ...$ids): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        $ids = array_unique($ids);
+
+        $fields = '';
+        foreach ($ids as $index => $id) {
+            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+        }
+
+        $select = <<<SQL
+            SELECT
+                `cg_id` as `id`,
+                `cg_name` as `name`
+            FROM
+                `:db`.`contactgroup`
+            WHERE
+                `cg_id` IN ({$fields})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($select));
+        foreach ($ids as $index => $id) {
+            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $names = [];
+        foreach ($statement as $result) {
+            /** @var array{ id: int, name: string } $result */
+            $names[$result['id']] = $result;
+        }
+
+        return $names;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findAll(): array
     {
         $request = 'SELECT SQL_CALC_FOUND_ROWS cg_id, cg_name FROM contactgroup';
@@ -254,5 +315,33 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $contactGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $contactGroupIds): array
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[":cg_{$key}"] = $contactGroupId;
+        }
+        if ($bind === []) {
+            return [];
+        }
+        $contactGroupIdsAsString = implode(', ', array_keys($bind));
+        $request = $this->translateDbName(
+           <<<SQL
+               SELECT cg_id FROM `:db`.contactgroup
+               WHERE cg_id IN ({$contactGroupIdsAsString})
+               SQL
+        );
+        $statement = $this->db->prepare($request);
+        foreach ($bind as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
     }
 }

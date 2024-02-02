@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import humanizeDuration from 'humanize-duration';
 import { useAtomValue } from 'jotai';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -19,6 +20,8 @@ export interface LocaleDateTimeFormat {
   toIsoString: (date: Date) => string;
   toTime: (date: Date | string) => string;
 }
+
+dayjs.extend(localizedFormat);
 
 const dateFormat = 'L';
 const timeFormat = 'LT';

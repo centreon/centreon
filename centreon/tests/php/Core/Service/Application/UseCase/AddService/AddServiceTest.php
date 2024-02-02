@@ -683,7 +683,7 @@ it('should present an AddServiceResponse when everything has gone well', functio
     $this->readMonitoringServerRepository
         ->expects($this->once())
         ->method('findByHost')
-        ->willReturn(new MonitoringServer(1));
+        ->willReturn(new MonitoringServer(1, 'ms-name'));
     $this->writeMonitoringServerRepository
         ->expects($this->once())
         ->method('notifyConfigurationChange');

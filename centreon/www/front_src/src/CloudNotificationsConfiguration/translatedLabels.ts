@@ -37,8 +37,7 @@ export const labelConfirmAddNotification = 'Confirm notification creation';
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';
 export const labelChooseAtleastOneServiceGroup =
   'Choose at least 1 service group';
-export const labelChooseAtleastOneContactOrContactGroup =
-  'Choose at least 1 contact or contact group';
+export const labelChooseAtleastOneContact = 'Add at least 1 contact';
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';
 export const labelClosePanel = 'Close the panel';
@@ -70,9 +69,7 @@ export const labelFailedToDeleteSelectedNotifications =
   'Failed to delete the selected notifications';
 export const labelDeleteMultipleNotifications = 'delete multiple notifications';
 export const labelContacts = 'Contacts';
-export const labelContactsGroups = 'Contact groups';
 export const labelSearchContacts = 'Search contacts';
-export const labelSearchContactsGroups = 'Search contact groups';
 export const labelTimePeriod24h7days = '24h/24h - 7/7 days';
 export const labelIncludeServicesForTheseHosts =
   'Include services for these hosts';

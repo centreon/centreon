@@ -36,6 +36,7 @@ const useUser = (): (() => null | Promise<void>) => {
         }
 
         const {
+          id,
           alias,
           isExportButtonEnabled,
           locale,
@@ -52,6 +53,7 @@ const useUser = (): (() => null | Promise<void>) => {
           alias,
           dashboard,
           default_page: defaultPage || '/monitoring/resources',
+          id,
           isExportButtonEnabled,
           locale: locale || 'en',
           name,

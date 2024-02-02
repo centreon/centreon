@@ -137,7 +137,8 @@ $attrBtnSuccess = array(
 $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 
 //Init Smarty
-$tpl = initSmartyTpl($path, new Smarty());
+$tpl = new Smarty();
+$tpl = initSmartyTpl($path, $tpl);
 
 $tabAction = array();
 $tabAction["a"] = _("Added");
@@ -388,8 +389,8 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('search_object_str', _("Object"));
 $tpl->assign('search_user_str', _("User"));
 $tpl->assign('Search', _('Search'));
-$tpl->assign('searchO', htmlentities($searchO));
-$tpl->assign('searchU', htmlentities($searchU));
+$tpl->assign('searchO', htmlentities($searchO ?? ''));
+$tpl->assign('searchU', htmlentities($searchU ?? ''));
 $tpl->assign('obj_str', _("Object Type"));
 $tpl->assign('type_id', $otype);
 

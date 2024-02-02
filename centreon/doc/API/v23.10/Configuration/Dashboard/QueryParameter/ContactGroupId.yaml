@@ -1,8 +1,0 @@
-in: path
-name: contact_group_id
-description: "ID of the contact group"
-required: true
-schema:
-  type: integer
-  format: int64
-  example: 5

@@ -49,7 +49,7 @@ class GroupsMapping
      * @param bool $isEnabled
      * @param string $attributePath
      * @param Endpoint|null $endpoint
-     * @param array $contactGroupRelations
+     * @param ContactGroupRelation[] $contactGroupRelations
      *
      * @throws ConfigurationException
      */

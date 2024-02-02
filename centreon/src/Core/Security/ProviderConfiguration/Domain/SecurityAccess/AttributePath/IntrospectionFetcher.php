@@ -62,7 +62,7 @@ class IntrospectionFetcher implements AttributePathFetcherInterface
             throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
         }
         $url = $customConfiguration->getBaseUrl() . '/'
-            . ltrim($customConfiguration->getIntrospectionTokenEndpoint(), '/');
+            . ltrim($customConfiguration->getIntrospectionTokenEndpoint() ?? '', '/');
 
         try {
             return $this->attributePathRepository->getData($url, $accessToken, $configuration, $endpoint->getType());

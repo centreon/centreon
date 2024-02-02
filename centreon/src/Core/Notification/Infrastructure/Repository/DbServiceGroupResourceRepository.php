@@ -37,7 +37,7 @@ use Utility\SqlConcatenator;
 class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = 'servicegroup';
+    private const RESOURCE_TYPE = NotificationResource::SERVICEGROUP_RESOURCE_TYPE;
     private const EVENT_ENUM = NotificationServiceEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationServiceEventConverter::class;
 
@@ -366,11 +366,13 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             <<<SQL
                 DELETE FROM `:db`.notification_sg_relation
                 WHERE sg_id IN ({$serviceGroupsIds})
+                AND notification_id = :notificationId
                 SQL
         ));
         foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
+        $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $deleteStatement->execute();
     }
 

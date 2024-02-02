@@ -167,7 +167,7 @@ class WebSSO implements ProviderAuthenticationInterface
     public function authenticateOrFail(LoginRequest $request): void
     {
         $this->info('Authenticate the user');
-        $this->ipIsAllowToConnect($request->clientIp);
+        $this->ipIsAllowToConnect($request->clientIp ?? '');
         $this->validateLoginAttributeOrFail();
     }
 
@@ -191,7 +191,7 @@ class WebSSO implements ProviderAuthenticationInterface
 
     public function getUsername(): string
     {
-        return $this->provider->getUser()->getEmail();
+        return $this->provider->getUser()?->getEmail() ?? '';
     }
 
     /**
@@ -233,7 +233,7 @@ class WebSSO implements ProviderAuthenticationInterface
         }
 
         $this->info('Validating login header attribute');
-        if (! array_key_exists($customConfiguration->getLoginHeaderAttribute(), $_SERVER)) {
+        if (! array_key_exists($customConfiguration->getLoginHeaderAttribute() ?? '', $_SERVER)) {
             $this->error('login header attribute not found in server environment', [
                 'login_header_attribute' => $customConfiguration->getLoginHeaderAttribute(),
             ]);
@@ -305,7 +305,7 @@ class WebSSO implements ProviderAuthenticationInterface
     public function getProviderToken(?string $token = null): NewProviderToken
     {
         return new NewProviderToken(
-            $token,
+            $token ?? '',
             new DateTimeImmutable(),
             (new DateTimeImmutable())->add(new DateInterval('PT28800M'))
         );

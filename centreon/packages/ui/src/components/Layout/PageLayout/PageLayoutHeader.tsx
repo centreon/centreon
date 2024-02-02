@@ -11,5 +11,9 @@ export const PageLayoutHeader = ({
 }: PageLayoutHeaderProps): JSX.Element => {
   const { classes } = useStyles();
 
-  return <header className={classes.pageLayoutHeader}>{children}</header>;
+  return (
+    <header className={classes.pageLayoutHeader} id="header">
+      {children}
+    </header>
+  );
 };

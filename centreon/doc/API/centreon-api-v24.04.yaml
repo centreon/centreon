@@ -8,8 +8,8 @@ info:
     + Added graph template endpoint (GET)
     + Added connector endpoint (GET)
     + Added host endpoint (PATCH)
-    + Added dashboard playlist endpoint (POST)
     + Added service enpdoint (PATCH)
+    + Added service severity configuration endpoint (PUT)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
@@ -885,93 +885,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/services/severities:
-    get:
-      tags:
-        - Service severity
-      summary: "List all service severities"
-      description: |
-        List of all service severity configurations
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-        * level
-        * is_activated
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.Service.Severity'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      tags:
-        - Service severity
-      summary: "Create a service severity"
-      description: |
-        Create a service severity
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                name:
-                  type: string
-                  example: "service-severity-name"
-                alias:
-                  type: string
-                  example: "service-severity-alias"
-                level:
-                  type: integer
-                  example: 2
-                icon_id:
-                  type: integer
-                  example: 1
-      responses:
-        '201':
-          description: "OK"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v24.04/Configuration/ServiceSeverity/AddAndFindServiceSeverities.yaml'
   /configuration/services/severities/{service_severity_id}:
-    delete:
-      tags:
-        - Service severity
-      summary: "Delete a service severity"
-      description: |
-        Delete a service severity configuration
-      parameters:
-        - $ref: '#/components/parameters/ServiceSeverityId'
-      responses:
-        '204':
-          description: "OK"
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v24.04/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml'
   /configuration/icons:
     get:
       tags:
@@ -1020,7 +936,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
-    $ref: './v24.04/Configuration/Media/AddMedia.yaml'
+    $ref: './v24.04/Configuration/Media/AddAndFindMedia.yaml'
   /configuration/proxy:
     get:
       tags:
@@ -1648,8 +1564,6 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
     $ref: './v24.04/Configuration/Dashboard/ContactGroups.yaml'
-  /configuration/dashboards/playlists:
-    $ref: './v24.04/Configuration/Dashboard/Playlist.yaml'
   /monitoring/dashboard/metrics/performances:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:
@@ -5201,15 +5115,6 @@ components:
         type: integer
         format: int64
         example: 1
-    HostTemplateId:
-      in: path
-      name: host_template_id
-      description: "ID of existing host template configuration"
-      required: true
-      schema:
-        type: integer
-        format: int64
-        example: 1
     HostCategoryId:
       in: path
       name: host_category_id
@@ -5232,15 +5137,6 @@ components:
       in: path
       name: service_category_id
       description: "ID of existing service category configuration"
-      required: true
-      schema:
-        type: integer
-        format: int64
-        example: 1
-    ServiceSeverityId:
-      in: path
-      name: service_severity_id
-      description: "ID of existing service severity configuration"
       required: true
       schema:
         type: integer
@@ -6746,32 +6642,6 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the service group is activated or not"
-    Configuration.Service.Severity:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: "Service severity ID"
-          example: 1
-        name:
-          type: string
-          description: "Service severity name"
-          example: "service-severity"
-        alias:
-          type: string
-          description: "Service severity alias"
-          example: "service-severity"
-        level:
-          type: integer
-          description: "Service severity priority"
-          example: 2
-        icon_id:
-          type: integer
-          description: "Define the image ID associated with this severity"
-          example: 1
-        is_activated:
-          type: boolean
-          description: "Indicates whether this service severity is enabled or not"
     Configuration.ContactTemplate:
       type: object
       required:

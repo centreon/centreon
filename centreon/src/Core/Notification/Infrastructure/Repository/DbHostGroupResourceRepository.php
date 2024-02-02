@@ -38,7 +38,7 @@ use Utility\SqlConcatenator;
 class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = 'hostgroup';
+    private const RESOURCE_TYPE = NotificationResource::HOSTGROUP_RESOURCE_TYPE;
     private const EVENT_ENUM = NotificationHostEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationHostEventConverter::class;
 
@@ -372,11 +372,13 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             <<<SQL
                     DELETE FROM `:db`.notification_hg_relation
                     WHERE hg_id IN ({$hostGroupsIds})
+                    AND notification_id = :notificationId
                 SQL
         ));
         foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
+        $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $deleteStatement->execute();
     }
 

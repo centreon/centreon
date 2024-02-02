@@ -32,6 +32,8 @@ import useFetchQuery from '../../../../api/useFetchQuery';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
+  baseEndpoint?: string;
+  changeIdValue: (item: TData) => number | string;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -60,6 +62,8 @@ const ConnectedAutocompleteField = (
     displayOptionThumbnail,
     queryKey,
     allowUniqOption,
+    baseEndpoint,
+    changeIdValue,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -87,6 +91,7 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage } = useFetchQuery<
       ListingModel<TData>
     >({
+      baseEndpoint,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -235,17 +240,24 @@ const ConnectedAutocompleteField = (
 
         const moreOptions = page > 1 ? options : [];
 
+        const formattedList = changeIdValue
+          ? newOptions.result.map((item) => ({
+              ...item,
+              id: changeIdValue(item)
+            }))
+          : newOptions.result;
+
         if (!isEmpty(labelKey) && !isNil(labelKey)) {
-          const list = newOptions.result.map((item) =>
+          const list = formattedList.map((item) =>
             renameKey({ key: labelKey, newKey: 'name', object: item })
           );
           setOptions(moreOptions.concat(list as Array<TData>));
 
           return;
         }
-        setOptions(moreOptions.concat(newOptions.result));
+        setOptions(moreOptions.concat(formattedList));
 
-        setOptions(moreOptions.concat(newOptions.result as Array<TData>));
+        setOptions(moreOptions.concat(formattedList as Array<TData>));
 
         const total = prop('total', newOptions.meta) || 1;
         const limit = prop('limit', newOptions.meta) || 1;

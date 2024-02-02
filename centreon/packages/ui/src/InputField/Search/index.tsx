@@ -1,8 +1,8 @@
 import IconSearch from '@mui/icons-material/Search';
 
-import TextField, { Props as TextFieldProps } from '../Text';
+import TextField, { TextProps } from '../Text';
 
-type Props = Omit<TextFieldProps, 'StartAdornment'>;
+type Props = Omit<TextProps, 'StartAdornment'>;
 
 const SearchAdornment = (): JSX.Element => <IconSearch />;
 

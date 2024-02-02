@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Contact\Application\Repository;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+
 interface ReadContactRepositoryInterface
 {
     /**
@@ -46,4 +49,44 @@ interface ReadContactRepositoryInterface
      * @return bool
      */
     public function exists(int $userId): bool;
+
+    /**
+     * Check existence of provided users
+     * Return an array of the existing user IDs out of the provided ones.
+     *
+     * @param int[] $userIds
+     *
+     * @return int[]
+     */
+    public function exist(array $userIds): array;
+
+    /**
+     * Find contact_ids link to given contactGroups.
+     *
+     * @param int[] $contactGroupIds
+     *
+     * @return int[]
+     */
+    public function findContactIdsByContactGroups(array $contactGroupIds): array;
+
+    /**
+     * Checks if in an user exists in given access groups.
+     *
+     * @param int $contactId
+     * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existInAccessGroups(int $contactId, array $accessGroupIds): bool;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Contact[]
+     */
+    public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array;
 }

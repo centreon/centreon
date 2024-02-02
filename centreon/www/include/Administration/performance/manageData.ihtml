@@ -8,9 +8,7 @@
 				&nbsp;&nbsp;&nbsp;
 				<a href="{$msg.addL}">{$msg.addT}</a>
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -54,9 +52,7 @@
 				&nbsp;&nbsp;&nbsp;
 				<a href="{$msg.addL}">{$msg.addT}</a>
 			</td>
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<input type='hidden' id='limit' name='limit' value='{$limit}'>	

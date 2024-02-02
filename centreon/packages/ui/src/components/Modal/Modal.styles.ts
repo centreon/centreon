@@ -24,9 +24,9 @@ const useStyles = makeStyles<{
     },
     '&[data-size="fullscreen"] .MuiDialog-paper': {
       bottom: props?.bottom ?? 0,
+      height: 'calc(100vh - 90px)',
       left: props?.left ?? 0,
       margin: 0,
-      maxHeight: 'unset',
       maxWidth: 'unset',
       position: 'absolute',
       right: props?.right ?? 0,
@@ -49,12 +49,15 @@ const useStyles = makeStyles<{
     }
   },
   modalActions: {
-    bottom: 0,
+    '&[data-fixed="true"]': {
+      position: 'fixed'
+    },
+    bottom: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    position: 'sticky'
+    right: theme.spacing(2.5)
   },
   modalBody: {
     '& > p': {

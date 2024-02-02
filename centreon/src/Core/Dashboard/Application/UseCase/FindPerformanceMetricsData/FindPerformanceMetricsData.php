@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -36,6 +37,9 @@ use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * @phpstan-import-type _MetricData from PerformanceMetricsDataFactory
+ */
 final class FindPerformanceMetricsData
 {
     use LoggerTrait;
@@ -83,8 +87,8 @@ final class FindPerformanceMetricsData
             $this->error('Metric from RRD are not correctly formatted', ['trace' => (string) $ex]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving metrics data', ['trace' => (string) $ex]);
-            $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics data'));
+            $this->error('An error occurred while retrieving metrics data', ['trace' => (string) $ex]);
+            $presenter->presentResponse(new ErrorResponse('An error occurred while retrieving metrics data'));
         }
     }
 
@@ -105,24 +109,8 @@ final class FindPerformanceMetricsData
             $request->metricNames,
             $this->requestParameters
         );
-        $metricsData = [];
-        $this->metricRepositoryLegacy->setContact($this->user);
-        foreach ($services as $service) {
-            /**
-             * array<int<0, max>, array>.
-             */
-            $metricsData[] = $this->metricRepositoryLegacy->findMetricsByService(
-                $service,
-                $request->startDate,
-                $request->endDate
-            );
-        }
-        if (empty($metricsData)) {
-            throw MetricException::metricsNotFound();
-        }
-        $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricNames);
+        return $this->createPerformanceMetricsData($services, $request);
     }
 
     /**
@@ -145,24 +133,8 @@ final class FindPerformanceMetricsData
             $accessGroups,
             $this->requestParameters
         );
-        $metricsData = [];
-        $this->metricRepositoryLegacy->setContact($this->user);
-        foreach ($services as $service) {
-            /**
-             * array<int<0, max>, array>.
-             */
-            $metricsData[] = $this->metricRepositoryLegacy->findMetricsByService(
-                $service,
-                $request->startDate,
-                $request->endDate
-            );
-        }
-        if ([] === $metricsData) {
-            throw MetricException::metricsNotFound();
-        }
-        $factory = new PerformanceMetricsDataFactory();
 
-        return $factory->createFromRecords($metricsData, $request->metricNames);
+        return $this->createPerformanceMetricsData($services, $request);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
@@ -173,5 +145,33 @@ final class FindPerformanceMetricsData
         $response->times = $performanceMetricsData->getTimes();
 
         return $response;
+    }
+
+    /**
+     * @param Service[] $services
+     * @param FindPerformanceMetricsDataRequest $request
+     *
+     * @throws MetricException|\Exception
+     *
+     * @return PerformanceMetricsData
+     */
+    private function createPerformanceMetricsData(
+        array $services,
+        FindPerformanceMetricsDataRequest $request
+    ): PerformanceMetricsData {
+        $metricsData = [];
+        $this->metricRepositoryLegacy->setContact($this->user);
+        foreach ($services as $service) {
+            /** @var _MetricData $data */
+            $data = $this->metricRepositoryLegacy->findMetricsByService(
+                $service,
+                $request->startDate,
+                $request->endDate
+            );
+            $metricsData[] = $data;
+        }
+
+        return (new PerformanceMetricsDataFactory())
+            ->createFromRecords($metricsData, $request->metricNames);
     }
 }

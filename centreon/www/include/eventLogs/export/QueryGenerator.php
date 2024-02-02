@@ -46,6 +46,7 @@ class QueryGenerator
     private string $warning;
     private string $critical;
     private string $unknown;
+    private string $acknowledgement;
     private string $notification;
     private string $alert;
     private string $error;
@@ -321,6 +322,14 @@ class QueryGenerator
     }
 
     /**
+     * @param string $acknowledgement
+     */
+    public function setAcknowledgement(string $acknowledgement): void
+    {
+        $this->acknowledgement = $acknowledgement;
+    }
+
+    /**
      * Generates executable PROStatement for all database records
      * @return PDOStatement
      */
@@ -413,7 +422,8 @@ class QueryGenerator
                     $this->unreachable == 'true' ||
                     $this->ok == 'true' || $this->warning == 'true' ||
                     $this->critical == 'true' ||
-                    $this->unknown == 'true'
+                    $this->unknown == 'true' ||
+                    $this->acknowledgement == 'true'
                 )
             ) {
                 $req_append = "";

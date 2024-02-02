@@ -6,8 +6,16 @@ properties:
     example: 26
   name:
     type: string
-    description: concatenation of host name and service name
-    example: Printers_Ping
+    description: name of the resource
+    example: Ping
+  parent_name:
+    type: string
+    description: name of the resource's parent
+    example: Printers
+  uuid:
+    type: string
+    description: UUID of the resource
+    example: h24-s16
   metrics:
     type: array
     items:

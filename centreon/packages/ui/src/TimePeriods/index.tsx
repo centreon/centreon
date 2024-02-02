@@ -20,7 +20,7 @@ import { useStyles } from './TimePeriods.styles';
 import {
   CustomTimePeriod as CustomTimePeriodModel,
   EndStartInterval,
-  TimePeriod
+  TimePeriod as TimePeriodModel
 } from './models';
 import useTimePeriod from './useTimePeriod';
 
@@ -34,7 +34,7 @@ interface Parameters extends EndStartInterval {
 export interface Props {
   adjustTimePeriodData?: Omit<CustomTimePeriodModel, 'timelineEventsLimit'>;
   disabled?: boolean;
-  extraTimePeriods?: Array<Omit<TimePeriod, 'timelineEventsLimit'>>;
+  extraTimePeriods?: Array<Omit<TimePeriodModel, 'timelineEventsLimit'>>;
   getIsError?: (value: boolean) => void;
   getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
   renderExternalComponent?: ReactNode;

@@ -43,6 +43,7 @@ abstract class Centreon_Object
 {
     /**
      * Database Connector
+     * @var CentreonDB
      */
     protected $db;
 

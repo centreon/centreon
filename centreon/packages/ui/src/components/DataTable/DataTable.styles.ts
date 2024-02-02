@@ -10,6 +10,9 @@ const useStyles = makeStyles()((theme) => ({
       gridGap: theme.spacing(2.5),
       gridTemplateColumns: `repeat(auto-fill, ${theme.spacing(45)})`
     },
+    '&[data-variant="listing"]': {
+      height: '100%'
+    },
     '&[data-variant][data-is-empty="true"]': {
       display: 'flex',
       justifyContent: 'center',

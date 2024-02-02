@@ -225,13 +225,13 @@ if (
 
     if (! $isCloudPlatform) {
         // Set Host Notification Options
-        $tmp = explode(',', $host['host_notification_options']);
+        $tmp = explode(',', $host['host_notification_options'] ?? '');
         foreach ($tmp as $key => $value) {
             $host['host_notifOpts'][trim($value)] = 1;
         }
 
         // Set Stalking Options
-        $tmp = explode(',', $host['host_stalking_options']);
+        $tmp = explode(',', $host['host_stalking_options'] ?? '');
         foreach ($tmp as $key => $value) {
             $host['host_stalOpts'][trim($value)] = 1;
         }
@@ -953,7 +953,11 @@ $form->addElement('text', 'ehi_action_url', _('Action URL'), $attrsText);
 $form->addElement('text', 'geo_coords', _('Geographic coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
 
-if (! $centreon->user->admin && $o === HOST_ADD) {
+if (
+    ! $centreon->user->admin
+    && $o === HOST_ADD
+    && $isCloudPlatform === false
+) {
     $form->addElement('select2', 'acl_groups', _('ACL Resource Groups'), [], $attributes['acl_groups']);
     $form->addRule('acl_groups', _('Mandatory field for ACL purpose.'), 'required');
 }

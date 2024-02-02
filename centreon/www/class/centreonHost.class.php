@@ -624,7 +624,7 @@ class CentreonHost
 
     /**
      * @param $hostName
-     * @param null $pollerId
+     * @param null|int $pollerId
      * @return mixed
      * @throws Exception
      */
@@ -696,7 +696,7 @@ class CentreonHost
      */
     public function replaceMacroInString($hostParam, $string, $antiLoop = null)
     {
-        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string)) {
+        if (! preg_match('/\$[0-9a-zA-Z_-]+\$/', $string ?? '')) {
             return $string;
         }
         if (is_numeric($hostParam)) {

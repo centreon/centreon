@@ -17,13 +17,11 @@ import {
   labelNotificationName,
   labelSubject,
   labelSearchBusinessViews,
-  labelSearchContactsGroups,
   labelSearchContacts
 } from '../../translatedLabels';
 import { panelWidthStorageAtom } from '../../atom';
 import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
-  contactGroupsEndpoint,
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
@@ -36,7 +34,6 @@ import {
   usersResponse,
   hostGroupsResponse,
   serviceGroupsResponse,
-  contactGroupsResponse,
   platformVersions,
   formData,
   emailBodyText
@@ -88,13 +85,6 @@ const initialize = (): void => {
     response: usersResponse
   });
 
-  cy.interceptAPIRequest({
-    alias: 'contactGroupsEndpoint',
-    method: Method.GET,
-    path: `${contactGroupsEndpoint}**`,
-    response: contactGroupsResponse
-  });
-
   cy.viewport('macbook-13');
 
   cy.mount({
@@ -115,10 +105,6 @@ const fillFormRequiredFields = (): void => {
   cy.findByLabelText(labelSearchContacts).click();
   cy.waitForRequest('@getUsersEndpoint');
   cy.findByText('Guest').click();
-
-  cy.findByLabelText(labelSearchContactsGroups).click();
-  cy.waitForRequest('@contactGroupsEndpoint');
-  cy.findByText('contact_group1').click();
 };
 
 describe('Create Panel', () => {
@@ -148,6 +134,7 @@ describe('Create Panel', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     fillFormRequiredFields();
+    cy.clickOutside();
 
     cy.get('#panel-content').scrollTo('top');
 
@@ -160,6 +147,7 @@ describe('Create Panel', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     fillFormRequiredFields();
+    cy.clickOutside();
 
     cy.get('#panel-content').scrollTo('top');
 

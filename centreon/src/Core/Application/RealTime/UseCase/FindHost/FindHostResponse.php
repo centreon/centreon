@@ -33,6 +33,9 @@ use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
+/**
+ * @phpstan-import-type _severityArray from RealTimeResponseTrait
+ */
 final class FindHostResponse
 {
     use RealTimeResponseTrait;
@@ -118,7 +121,7 @@ final class FindHostResponse
     /** @var array<array<string, mixed>> */
     public array $categories = [];
 
-    /** @var array<string, mixed>|null */
+    /** @var _severityArray|null */
     public ?array $severity = null;
 
     /** @var string */
@@ -156,7 +159,7 @@ final class FindHostResponse
         $this->downtimes = $this->downtimesToArray($downtimes);
         $this->acknowledgement = $this->acknowledgementToArray($acknowledgement);
         $this->categories = $this->tagsToArray($categories);
-        $this->severity = is_null($severity) ? $severity : $this->severityToArray($severity);
+        $this->severity = null === $severity ? $severity : $this->severityToArray($severity);
     }
 
     /**

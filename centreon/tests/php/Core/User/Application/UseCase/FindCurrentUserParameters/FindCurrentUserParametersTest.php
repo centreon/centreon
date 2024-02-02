@@ -35,6 +35,7 @@ use Core\User\Domain\Model\UserInterfaceDensity;
 use Core\User\Domain\Model\UserTheme;
 use Core\User\Infrastructure\Model\UserInterfaceDensityConverter;
 use Core\User\Infrastructure\Model\UserThemeConverter;
+use Tests\Core\User\Infrastructure\API\FindCurrentUserParameters\FindCurrentUserParametersPresenterStub;
 
 beforeEach(function (): void {
     $this->presenter = new FindCurrentUserParametersPresenterStub();

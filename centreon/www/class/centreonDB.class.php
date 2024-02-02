@@ -285,7 +285,7 @@ class CentreonDB extends \PDO
             $str = htmlspecialchars($str);
         }
 
-        return addslashes($str);
+        return addslashes($str ?? '');
     }
 
     /**

@@ -23,7 +23,7 @@ interface DashboardLayoutProps<T> {
   layout: Array<T>;
 }
 
-const Layout = <T extends Layout>({
+const DashboardLayout = <T extends Layout>({
   children,
   changeLayout,
   displayGrid,
@@ -76,4 +76,4 @@ const Layout = <T extends Layout>({
   });
 };
 
-export default Layout;
+export default DashboardLayout;

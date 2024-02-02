@@ -1,0 +1,62 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-dashboard-administrator;user-dashboard-administrator;user-dashboard-administrator@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"user-dashboard-administrator;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;alias-administrator-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Home;Dashboards;Administrator;"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Monitoring;Resources Status"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;alias-administrator-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;name-administrator-ACLMENU"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=admin-ACLRESOURCE;acl_group=name-administrator-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;name=admin-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=admin-ACLRESOURCE;*"
+    },
+    {
+        "action": "GRANT_HOSTGROUP",
+        "object": "ACLRESOURCE",
+        "values": "name=admin-ACLRESOURCE;*"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;user-dashboard-administrator;"
+    }
+]

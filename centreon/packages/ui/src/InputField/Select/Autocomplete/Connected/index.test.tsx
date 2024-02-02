@@ -45,6 +45,7 @@ const renderSingleConnectedAutocompleteField = (
   render(
     <TestQueryProvider>
       <SingleConnectedAutocompleteField
+        baseEndpoint=""
         field="host.name"
         getEndpoint={getEndpoint}
         label={label}

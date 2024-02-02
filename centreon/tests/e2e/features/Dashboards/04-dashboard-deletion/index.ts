@@ -4,10 +4,7 @@ import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboard
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
@@ -24,7 +21,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',
@@ -41,7 +38,7 @@ afterEach(() => {
 });
 
 Given('a user with dashboard update rights on the dashboards library', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When(
@@ -93,7 +90,7 @@ Given(
   'a user with dashboard edition rights about to delete a dashboard',
   () => {
     const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToDelete.name)
       .parent()
       .find('button[aria-label="delete"]')

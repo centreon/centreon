@@ -22,9 +22,7 @@
 			{ else }
 			<td>&nbsp;</td>
 			{ /if }
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+            {pagination}
 		</tr>
 	</table>
 
@@ -61,9 +59,7 @@
 			{ else }
 			<td>&nbsp;</td>
 			{ /if }
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+            {pagination}
 		</tr>
 	</table>
 

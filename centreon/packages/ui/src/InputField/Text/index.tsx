@@ -17,38 +17,36 @@ import { getNormalizedId } from '../../utils';
 
 import useAutoSize from './useAutoSize';
 
-const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
-  (theme: Theme, { displayAsBlock }) => ({
-    autoSizeCompact: {
-      paddingRight: theme.spacing(1),
-      paddingTop: theme.spacing(0.6)
-    },
-    hiddenText: {
-      display: 'table',
-      lineHeight: 0,
-      transform: 'scaleY(0)'
-    },
-    input: {
-      fontSize: theme.typography.body1.fontSize
-    },
-    inputBase: {
-      display: displayAsBlock ? 'block' : 'inline-flex',
-      justifyItems: 'start',
-      paddingRight: theme.spacing(1)
-    },
-    noLabelInput: {
-      padding: theme.spacing(1)
-    },
-    textField: {
-      transition: theme.transitions.create(['width'], {
-        duration: theme.transitions.duration.shortest
-      })
-    },
-    transparent: {
-      backgroundColor: 'transparent'
-    }
-  })
-);
+const useStyles = makeStyles()((theme: Theme) => ({
+  autoSizeCompact: {
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(0.6)
+  },
+  hiddenText: {
+    display: 'table',
+    lineHeight: 0,
+    transform: 'scaleY(0)'
+  },
+  input: {
+    fontSize: theme.typography.body1.fontSize
+  },
+  inputBase: {
+    display: 'inline-flex',
+    justifyItems: 'start',
+    paddingRight: theme.spacing(1)
+  },
+  noLabelInput: {
+    padding: theme.spacing(1)
+  },
+  textField: {
+    transition: theme.transitions.create(['width'], {
+      duration: theme.transitions.duration.shortest
+    })
+  },
+  transparent: {
+    backgroundColor: 'transparent'
+  }
+}));
 
 interface OptionalLabelInputAdornmentProps {
   children: React.ReactNode;
@@ -72,7 +70,7 @@ const OptionalLabelInputAdornment = ({
 
 type SizeVariant = 'large' | 'medium' | 'small' | 'compact';
 
-export type Props = {
+export type TextProps = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
@@ -80,6 +78,7 @@ export type Props = {
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
   className?: string;
+  containerClassName?: string;
   dataTestId: string;
   debounced?: boolean;
   displayErrorInTooltip?: boolean;
@@ -112,17 +111,19 @@ const TextField = forwardRef(
       autoSizeCustomPadding,
       defaultValue,
       required = false,
+      containerClassName,
+      type,
       ...rest
-    }: Props,
+    }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ): JSX.Element => {
-    const { classes, cx } = useStyles({
-      displayAsBlock: autoSize && isNil(StartAdornment) && isNil(EndAdornment)
-    });
+    const { classes, cx } = useStyles();
 
     const { inputRef, width, changeInputValue, innerValue } = useAutoSize({
       autoSize,
-      autoSizeCustomPadding,
+      autoSizeCustomPadding: equals(type, 'number')
+        ? Math.max(6, autoSizeCustomPadding || 0)
+        : autoSizeCustomPadding,
       autoSizeDefaultWidth,
       value: externalValueForAutoSize || rest.value
     });
@@ -142,7 +143,10 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <Box sx={{ width: autoSize ? 'auto' : '100%' }}>
+      <Box
+        className={containerClassName}
+        sx={{ width: autoSize ? 'auto' : '100%' }}
+      >
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
@@ -150,9 +154,9 @@ const TextField = forwardRef(
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
             inputProps={{
-              ...rest.inputProps,
               'aria-label': ariaLabel,
-              'data-testid': dataTestId
+              'data-testid': dataTestId,
+              ...rest.inputProps
             }}
             label={label}
             ref={ref}
@@ -191,6 +195,7 @@ const TextField = forwardRef(
               width: autoSize ? width : undefined,
               ...rest?.sx
             }}
+            type={type}
           />
         </Tooltip>
         {autoSize && (

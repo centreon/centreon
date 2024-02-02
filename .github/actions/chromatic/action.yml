@@ -21,14 +21,14 @@ runs:
   using: "composite"
 
   steps:
-    - uses: pnpm/action-setup@v2
+    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
       with:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
       with:
-        node-version: 18
+        node-version: 20
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -52,6 +52,7 @@ runs:
         untraced: |
           - "centreon/packages/ui/package.json"
           - "centreon/package.json"
+          - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
         skip: '!(develop)'

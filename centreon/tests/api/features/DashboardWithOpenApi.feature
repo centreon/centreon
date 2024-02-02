@@ -441,13 +441,13 @@ Feature:
     Then the response code should be "404"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/1'
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a PATCH request to '/api/latest/configuration/dashboards/1' with body:
     """
     { "name": "modified-name" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
   Scenario: Dashboard scenario with a VIEWER + CREATOR + ADMIN
 
@@ -533,7 +533,7 @@ Feature:
     Then the response code should be "200"
     And the json node "result" should have 0 elements
 
-    # The VIEWER cannot GET, PATCH, DELETE the ADMIN dashboard not shared to him.
+    # The VIEWER cannot GET, PATCH, DELETE dashboards
 
     When I send a GET request to '/api/latest/configuration/dashboards/<adminDashboardId>'
     Then the response code should be "404"
@@ -542,10 +542,10 @@ Feature:
     """
     { "name": "modified-name" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<adminDashboardId>'
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     # The VIEWER cannot GET, PATCH, DELETE the CREATOR dashboard not shared to him.
 
@@ -556,10 +556,10 @@ Feature:
     """
     { "name": "modified-name" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<creatorDashboardId>'
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     #---------- as ADMIN ----------#
     Given I am logged in with "usr-admin"/"Centreon@2023"
@@ -832,16 +832,16 @@ Feature:
     """
     { "id": 20, "role": "editor" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a PATCH request to '/api/latest/configuration/dashboards/<adminDashboardId>/access_rights/contacts/1' with body:
     """
     { "role": "editor" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<adminDashboardId>/access_rights/contacts/1'
-    Then the response code should be "404"
+    Then the response code should be "403"
 
   Scenario: Dashboard access rights ADMIN sharing contact as "viewer" with a CREATOR + VIEWER
 
@@ -1063,10 +1063,10 @@ Feature:
     """
     { "name": "modified-name" }
     """
-    Then the response code should be "204"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<adminDashboardId2>'
-    Then the response code should be "204"
+    Then the response code should be "403"
 
   Scenario: Dashboard contact group access rights CRUD with an ADMIN
 
@@ -1292,16 +1292,16 @@ Feature:
     """
     { "id": 20, "role": "editor" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a PATCH request to '/api/latest/configuration/dashboards/<adminDashboardId>/access_rights/contactgroups/3' with body:
     """
     { "role": "editor" }
     """
-    Then the response code should be "404"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<adminDashboardId>/access_rights/contactgroups/3'
-    Then the response code should be "404"
+    Then the response code should be "403"
 
   Scenario: Dashboard access rights ADMIN sharing contact group as "viewer" with a CREATOR + VIEWER
 
@@ -1559,10 +1559,10 @@ Feature:
     """
     { "name": "modified-name" }
     """
-    Then the response code should be "204"
+    Then the response code should be "403"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/<adminDashboardId2>'
-    Then the response code should be "204"
+    Then the response code should be "403"
 
   Scenario: Dashboard search contacts + contact groups with an allowed user as VIEWER
 
@@ -1591,20 +1591,24 @@ Feature:
     {
         "result": [
             {
-                "id": 20,
-                "name": "usr-admin"
-            },
-            {
                 "id": 21,
-                "name": "usr-viewer"
+                "name": "usr-viewer",
+                "email": "usr-viewer@centreon.test",
+                "most_permissive_role": "viewer"
             }
         ],
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": { "$and": { "name": { "$lk": "%usr%" } } },
+            "search": {
+                "$and": {
+                    "name": {
+                        "$lk": "%usr%"
+                    }
+                }
+            },
             "sort_by": {},
-            "total": 2
+            "total": 1
         }
     }
     """
@@ -1721,7 +1725,9 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
+          "uuid": "h14-s26",
           "metrics": [
             {
               "id": 1,
@@ -1802,7 +1808,8 @@ Feature:
       | name                          | "rta"                    |
       | unit                          | "ms"                     |
       | resources[0].id                      | 26                       |
-      | resources[0].name                    | "Centreon-Server_Ping"   |
+      | resources[0].name                    | "Ping"   |
+      | resources[0].parent_name                    | "Centreon-Server"   |
       | resources[0].warning_high_threshold       | 200                      |
       | resources[0].critical_high_threshold      | 400                      |
       | resources[0].warning_low_threshold   | 0                        |
@@ -1822,7 +1829,9 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
+          "uuid": "h14-s26",
           "metrics": [
             {
               "id": 1,

@@ -14,7 +14,7 @@ export const PageLayout = ({
   const { classes } = useStyles();
 
   return (
-    <section className={classes.pageLayout} data-variant={variant}>
+    <section className={classes.pageLayout} data-variant={variant} id="page">
       {children}
     </section>
   );

@@ -23,11 +23,15 @@ declare(strict_types = 1);
 
 namespace Core\Media\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
 use Psr\Log\LoggerInterface;
+use Traversable;
 
 /**
  * @phpstan-type _Media array{
@@ -77,186 +81,173 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
+     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
+     *  MAX_ITEMS_BY_REQUEST elements.
+     *
+     * {@inheritDoc}
+     */
+    public function findAll(): Traversable&\Countable
+    {
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            ORDER BY img_id
+            LIMIT :from, :max_item_by_request
+            SQL;
+        $index = 0;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindParam(':from', $index, \PDO::PARAM_INT);
+        $statement->bindValue(':max_item_by_request', self::MAX_ITEMS_BY_REQUEST, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $result = $this->db->query('SELECT FOUND_ROWS()');
+        $totalItems = ($result !== false && ($total = $result->fetchColumn()) !== false)
+            ? (int) $total
+            : 0;
+
+         return new class(
+             $statement,
+             $index,
+             $totalItems,
+             self::MAX_ITEMS_BY_REQUEST,
+             $this->createMedia(...),
+             $this->logger
+         ) implements \IteratorAggregate, \Countable
+         {
+             /** @var list<Media> */
+             private array $findAllCache = [];
+
+             public function __construct(
+                 private readonly \PDOStatement $statement,
+                 private int &$index,
+                 private readonly int $totalItem,
+                 private readonly int $maxItemByRequest,
+                 private readonly \Closure $factory,
+                 private readonly LoggerInterface $logger,
+            ) {
+            }
+
+             public function getIterator(): Traversable
+             {
+                 if ($this->findAllCache !== []) {
+                     foreach ($this->findAllCache as $media) {
+                         yield $media;
+                     }
+                 } else {
+                     $itemCounter = 0;
+                     do {
+                         $this->logger->debug(
+                             sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
+                         );
+                         foreach ($this->statement as $result) {
+                             $itemCounter++;
+
+                             $this->findAllCache[] = ($this->factory)($result);
+                         }
+                         $this->index += $this->maxItemByRequest;
+                         $this->statement->execute();
+                     } while ($itemCounter < $this->totalItem);
+                     foreach ($this->findAllCache as $media) {
+                         yield $media;
+                     }
+                 }
+             }
+
+             public function count(): int
+             {
+                 return $this->totalItem;
+             }
+         };
+    }
+
+    /**
      * @inheritDoc
      */
-    public function findAll(): \Iterator&\Countable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): Traversable
     {
-        return $this->findAllByIteration();
-    }
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'img_id',
+            'filename' => 'img_path',
+            'directory' => 'dir_name',
+        ]);
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            SQL;
 
-    /**
-     * To avoid loading all database elements at once, this iterator allows you to retrieve them in blocks of
-     * MAX_ITEMS_BY_REQUEST elements.
-     *
-     * @return \Iterator<int, Media>&\Countable
-     */
-    private function findAllByIteration(): \Iterator&\Countable
-    {
-        $this->logger->debug(sprintf('Loading media in blocks of %d elements', self::MAX_ITEMS_BY_REQUEST));
+        $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+        if ($searchRequest !== null) {
+            $request .= $searchRequest;
+        }
 
-        return new class ($this->db, self::MAX_ITEMS_BY_REQUEST, $this->createMedia(), $this->logger)
-            extends AbstractRepositoryRDB
-            implements \Iterator, \Countable
-        {
-            /** @var callable */
-            protected $createMedia;
+        // Handle sort
+        $sortRequest = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sortRequest !== null ? $sortRequest : ' ORDER BY img_id';
+        $request .= $sqlTranslator->translatePaginationToSql();
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /** @var int $type */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+        $result = $this->db->query('SELECT FOUND_ROWS()');
 
-            private int $position = 0;
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
 
-            private int $requestIndex = 0;
-
-            private int $totalItems = 0;
-
-            private \PDOStatement|false $statement = false;
-
-            /**
-             * @var array{
-             *    img_id: int,
-             *    img_path: string,
-             *    img_comment: string,
-             *    dir_name: string
-             *  }|false
-             */
-            private array|false $currentItem;
-
+        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
             public function __construct(
-                protected DatabaseConnection $db,
-                readonly private int $maxItemByRequest,
-                callable $createMedia,
-                readonly private LoggerInterface $logger
+                readonly private \PDOStatement $statement,
+                readonly private \Closure $factory,
             ) {
-                $this->createMedia = $createMedia;
             }
 
-            public function current(): Media
+            public function getIterator(): Traversable
             {
-                return ($this->createMedia)($this->currentItem);
-            }
-
-            public function next(): void
-            {
-                $this->position++;
-                if (! $this->statement || ($nextItem = $this->statement->fetch()) === false) {
-                    if ($this->valid()) {
-                        // There are still some items to be retrieved from the database
-                        $this->requestIndex += $this->maxItemByRequest;
-                        $this->loadDatabase();
-                    }
-                } else {
-                    /**
-                     * @var array{
-                     *     img_id: int,
-                     *     img_path: string,
-                     *     dir_name: string,
-                     *     img_comment: string,
-                     * } $nextItem
-                     */
-                    $this->currentItem = $nextItem;
+                foreach ($this->statement as $result) {
+                    yield ($this->factory)($result);
                 }
-            }
-
-            public function key(): int
-            {
-                return $this->position;
-            }
-
-            public function valid(): bool
-            {
-                return $this->position < $this->totalItems;
-            }
-
-            public function rewind(): void
-            {
-                $this->position = 0;
-                $this->requestIndex = 0;
-                $this->totalItems = 0;
-                $this->loadDatabase();
-            }
-
-            public function count(): int
-            {
-                if (! $this->statement) {
-                    $request = <<<'SQL'
-                        SELECT COUNT(*)
-                        FROM `:db`.`view_img` img
-                        INNER JOIN `:db`.`view_img_dir_relation` rel
-                            ON rel.img_img_id = img.img_id
-                        INNER JOIN `:db`.`view_img_dir` dir
-                            ON dir.dir_id = rel.dir_dir_parent_id
-                        SQL;
-
-                    $this->statement = $this->db->query($this->translateDbName($request))
-                        ?: throw new \Exception('Impossible to retrieve a PDO Statement');
-                    $this->totalItems = (int) $this->statement->fetchColumn();
-                }
-
-                return $this->totalItems;
-            }
-
-            private function loadDatabase(): void
-            {
-                $this->logger->debug(
-                    sprintf(
-                        'Loading media from %d/%d',
-                        $this->requestIndex,
-                        $this->maxItemByRequest
-                    )
-                );
-                $request = <<<'SQL'
-                    SELECT SQL_CALC_FOUND_ROWS
-                        `img`.img_id,
-                        `img`.img_path,
-                        `img`.img_comment,
-                        `dir`.dir_name
-                    FROM `:db`.`view_img` img
-                    INNER JOIN `:db`.`view_img_dir_relation` rel
-                        ON rel.img_img_id = img.img_id
-                    INNER JOIN `:db`.`view_img_dir` dir
-                        ON dir.dir_id = rel.dir_dir_parent_id
-                    ORDER BY img_id
-                    LIMIT :from, :max_item_by_request
-                    SQL;
-
-                $this->statement = $this->db->prepare($this->translateDbName($request));
-                $this->statement->bindValue(':from', $this->requestIndex, \PDO::PARAM_INT);
-                $this->statement->bindValue(':max_item_by_request', $this->maxItemByRequest, \PDO::PARAM_INT);
-                $this->statement->setFetchMode(\PDO::FETCH_ASSOC);
-                $this->statement->execute();
-
-                $result = $this->db->query('SELECT FOUND_ROWS()');
-
-                if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-                    $this->totalItems = (int) $total;
-                }
-                /**
-                 * @var array{
-                 *     img_id: int,
-                 *     img_path: string,
-                 *     dir_name: string,
-                 *     img_comment: string,
-                 * } $result|false
-                 */
-                $result = $this->statement->fetch();
-                $this->currentItem = $result;
             }
         };
     }
 
     /**
-     * @return callable
+     * @param array<string, int|string> $data
+     *
+     * @throws AssertionFailedException
+     *
+     * @return Media
      */
-    private function createMedia(): callable
+    private function createMedia(array $data): Media
     {
-        return function (array $data) {
-            $media = new Media(
-                $data['img_id'],
-                $data['img_path'],
-                $data['dir_name'],
-                null
-            );
-            $media->setComment($data['img_comment']);
-
-            return $media;
-        };
+        return new Media(
+            (int) $data['img_id'],
+            (string) $data['img_path'],
+            (string) $data['dir_name'],
+            (string) $data['img_comment'],
+            null
+        );
     }
 }

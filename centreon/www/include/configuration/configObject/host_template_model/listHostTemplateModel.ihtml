@@ -32,9 +32,7 @@
 			{ else }
 			<td>&nbsp;</td>
 			{ /if }
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 	<table class="ListTable">
@@ -83,9 +81,7 @@
 			{ else }
 			<td>&nbsp;</td>
 			{ /if }
-			{php}
-			   include('./include/common/pagination.php');
-			{/php}
+			{pagination}
 		</tr>
 	</table>
 <input type='hidden' name='o' id='o' value='42'>

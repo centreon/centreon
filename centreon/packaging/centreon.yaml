@@ -1,0 +1,41 @@
+name: "centreon"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  UI to export/import centreon configuration.
+  Centreon is a network, system, applicative supervision and monitoring tool,
+  it is based upon the most effective Open Source monitoring engine : Nagios.
+  Centreon provides a new frontend and new functionnalities to Nagios.
+  It allows you to be more efficient in your network monitoring, but also allows
+  you to make your supervision information readable by a largest range of users.
+  Indeed, a non technical user can now use the Centreon/Nagios couple to easily
+  understand your network infrastructure thanks to charts and graphical representations
+  of the gathered information. Skilled users still have access to specific and technical
+  information collected  by Nagios though.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+overrides:
+  rpm:
+    depends:
+      - centreon-central = ${VERSION}-${RELEASE}${DIST}
+      - centreon-database = ${VERSION}-${RELEASE}${DIST}
+  deb:
+    depends:
+      - centreon-central (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-database (= ${VERSION}-${RELEASE}${DIST})
+
+rpm:
+  summary: Centreon, Network & System Monitoring
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

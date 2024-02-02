@@ -285,7 +285,7 @@ const NavigationMenu = ({
     } else {
       window.addEventListener('mousemove', moveMouse);
     }
-  }, [pathname, search]);
+  }, [pathname, search, navigationData]);
 
   const props = {
     collapseScrollMaxHeight,

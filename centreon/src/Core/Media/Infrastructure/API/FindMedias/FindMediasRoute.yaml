@@ -1,0 +1,5 @@
+FindMedias:
+  methods: GET
+  path: /configuration/medias
+  controller: 'Core\Media\Infrastructure\API\FindMedias\FindMediasController'
+  condition: "request.attributes.get('version') >= 24.04"

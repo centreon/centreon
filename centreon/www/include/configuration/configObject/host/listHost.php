@@ -105,12 +105,11 @@ $centreon->template = $template;
 
 // Status Filter
 $statusFilter = array(1 => _("Disabled"), 2 => _("Enabled"));
-$sqlFilterCase = '';
-if ($status == 2) {
-    $sqlFilterCase = " AND host_activate = '1' ";
-} elseif ($status == 1) {
-    $sqlFilterCase = " AND host_activate = '0' ";
-}
+$sqlFilterCase = match((int) $status) {
+    2 => " AND host_activate = '1' ",
+    1 => " AND host_activate = '0' ",
+    default => '',
+};
 
 /*
  * Search active
@@ -127,7 +126,7 @@ if (isset($search) && !empty($search)) {
 if ($template) {
     $templateFROM = ', host_template_relation htr ';
     $templateWHERE = " htr.host_host_id = h.host_id "
-        . "AND htr.host_tpl_id = '{$template}' AND ";
+        . "AND htr.host_tpl_id = " . CentreonUtils::quote($template) . " AND ";
 } else {
     $templateFROM = '';
     $templateWHERE = '';
@@ -247,61 +246,56 @@ $form->addElement('submit', 'SearchB', _("Search"), $attrBtnSuccess);
 $aclFrom = '';
 $aclCond = '';
 if (!$centreon->user->admin) {
-    $aclFrom = ", {$aclDbName}.centreon_acl acl";
+    $aclFrom = ", `{$aclDbName}`.centreon_acl acl";
+    $aclGroupIds = $acl->getAccessGroupsString('ID');
     $aclCond
         = ' AND h.host_id = acl.host_id AND acl.service_id IS NULL '
-        . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
+        . 'AND acl.group_id IN (' . ($aclGroupIds ?: '0') . ') ';
 }
 
 if ($hostgroup) {
     if ($poller) {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, ns_host_relation, hostgroup_relation hr $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = ns_host_relation.host_host_id
-            AND ns_host_relation.nagios_server_id = '$poller'
+            AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . "
             AND h.host_id = hr.host_host_id
-            AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
     } else {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, hostgroup_relation hr $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = hr.host_host_id
-            AND hr.hostgroup_hg_id = '$hostgroup' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            AND hr.hostgroup_hg_id = " . CentreonUtils::quote($hostgroup) . " $sqlFilterCase $aclCond
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
     }
 } else {
     if ($poller) {
-        $dbResult = $pearDB->query(
+        $dbResult = $pearDB->prepare(
             "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h, ns_host_relation $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1'
             AND h.host_id = ns_host_relation.host_host_id
-            AND ns_host_relation.nagios_server_id = '$poller' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            AND ns_host_relation.nagios_server_id = " . CentreonUtils::quote($poller) . " $sqlFilterCase $aclCond
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit);
     } else {
-        $dbResult = $pearDB->query(
-            "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
+        $request = "SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_id, h.host_name, host_alias,
             host_address, host_activate, host_template_model_htm_id
             FROM host h $templateFROM $aclFrom
             WHERE $searchFilterQuery $templateWHERE host_register = '1' $sqlFilterCase $aclCond
-            ORDER BY h.host_name LIMIT " . $num * $limit . ", " . $limit,
-            $mainQueryParameters
-        );
+            ORDER BY h.host_name LIMIT " . (int) ($num * $limit) . ", " . (int) $limit;
+
+        $dbResult = $pearDB->prepare($request);
     }
 }
+$dbResult->execute($mainQueryParameters);
 
 $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 include './include/common/checkPagination.php';
@@ -310,7 +304,7 @@ $search = tidySearchKey($search, $advanced_search);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = array();
-$search = str_replace('\_', "_", $search);
+$search = str_replace('\_', "_", $search ?? '');
 
 
 $centreonToken = createCSRFToken();

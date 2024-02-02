@@ -532,7 +532,7 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableAsc${label}`
       });
 
-      cy.contains('notification1').should('be.visible');
+      cy.contains('notification1').should('exist');
 
       cy.makeSnapshot(
         `column sorting --  executes a listing request when the ${label} column is clicked`

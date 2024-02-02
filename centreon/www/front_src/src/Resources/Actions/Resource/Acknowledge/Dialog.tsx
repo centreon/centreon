@@ -68,6 +68,7 @@ const DialogAcknowledge = ({
   return (
     <Dialog
       confirmDisabled={!canConfirm}
+      data-testid="dialogAcknowledge"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelAcknowledge)}
       labelTitle={t(labelAcknowledge)}

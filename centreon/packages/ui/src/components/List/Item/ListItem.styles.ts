@@ -23,6 +23,12 @@ export const useStyles = makeStyles()((theme) => ({
     paddingBottom: theme.spacing(1),
     paddingTop: theme.spacing(1)
   },
+  secondary: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  },
   text: {
     '&, &.MuiListItemText-root': {
       '& .MuiListItemText-primary': {

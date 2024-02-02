@@ -1,0 +1,8 @@
+in: path
+name: playlist_id
+description: "ID of the playlist"
+required: true
+schema:
+  type: integer
+  format: int64
+  example: 5

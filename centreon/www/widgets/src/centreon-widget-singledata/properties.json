@@ -5,7 +5,8 @@
   "data": {
     "resources": {
       "type": "resources",
-      "defaultValue": []
+      "defaultValue": [],
+      "required" : true
     },
     "metrics": {
       "type": "metrics",
@@ -13,6 +14,5 @@
     }
   },
   "singleMetricSelection": true,
-  "singleResourceTypeSelection": true,
   "moduleName": "centreon-widget-singledata"
 }

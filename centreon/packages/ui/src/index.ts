@@ -23,6 +23,7 @@ export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTool
 
 export { default as TextField } from './InputField/Text';
 export type { Props as TextFieldProps } from './InputField/Text';
+export { default as NumberField } from './InputField/Number/Number';
 
 export type { SelectEntry } from './InputField/Select';
 export { default as SelectField } from './InputField/Select';
@@ -164,3 +165,6 @@ export { default as TimePeriods } from './TimePeriods';
 export { default as SimpleCustomTimePeriod } from './TimePeriods/CustomTimePeriod/SimpleCustomTimePeriod';
 export { default as DateTimePickerInput } from './TimePeriods/DateTimePickerInput';
 export * from './ParentSize';
+export { default as Subtitle } from './Typography/Subtitle';
+export { default as TablePagination } from './Listing/ActionBar/Pagination';
+export { default as PaginationActions } from './Listing/ActionBar/PaginationActions';

@@ -28,7 +28,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 function myDecodeSvTP($arg)
 {
-    $arg = str_replace('#BR#', '\\n', $arg);
+    $arg = str_replace('#BR#', '\\n', $arg ?? '');
     $arg = str_replace('#T#', '\\t', $arg);
     $arg = str_replace('#R#', '\\r', $arg);
     $arg = str_replace('#S#', '/', $arg);

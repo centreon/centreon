@@ -63,8 +63,6 @@ function isSqlComment($str)
 function getTemplate($dir)
 {
     $libDir = __DIR__ . '/../../../GPL_LIB';
-    $smartyDir = __DIR__ . '/../../../vendor/smarty/smarty/';
-    require_once $smartyDir . 'libs/SmartyBC.class.php';
 
     $template = new \SmartyBC();
     $template->setTemplateDir($dir);

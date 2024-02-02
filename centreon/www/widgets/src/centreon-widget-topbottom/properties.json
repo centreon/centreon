@@ -1,6 +1,7 @@
 {
   "title": "Top/bottom",
   "description": "Displays the top or bottom x hosts, for a selected metric.",
+  "icon": "<rect x=\"6\" y=\"25\" width=\"30\" height=\"10\" rx=\"4\" ry=\"4\"></rect><rect x=\"6\" y=\"11\" width=\"20\" height=\"10\" rx=\"4\" ry=\"4\"></rect><rect x=\"6\" y=\"39\" width=\"48\" height=\"10\" rx=\"4\" ry=\"4\"></rect>",
   "options": {
     "topBottomSettings": {
       "type": "top-bottom-settings",
@@ -40,7 +41,7 @@
       "defaultValue": []
     },
     "metrics": {
-      "type": "metrics-only",
+      "type": "metrics",
       "defaultValue": []
     }
   },

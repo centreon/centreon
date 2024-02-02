@@ -29,6 +29,10 @@ class MetricInformationDto
 
     public string $resourceName = '';
 
+    public string $parentName = '';
+
+    public int $parentId = 0;
+
     public ?float $currentValue = null;
 
     public ?float $warningHighThreshold = null;

@@ -1,0 +1,44 @@
+delete:
+  tags:
+    - Service severity
+  summary: "Delete a service severity"
+  description: |
+    Delete a service severity configuration
+  parameters:
+    - $ref: 'QueryParameter/SeverityId.yaml'
+  responses:
+    '204':
+      description: "OK"
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+put:
+  tags:
+    - Service severity
+  summary: "Update a service severity"
+  description: |
+    Update a service severity configuration
+  parameters:
+    - $ref: 'QueryParameter/SeverityId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/SeverityRequest.yaml'
+  responses:
+    '204':
+      description: "OK"
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

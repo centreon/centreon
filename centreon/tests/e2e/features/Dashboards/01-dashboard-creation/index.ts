@@ -2,14 +2,11 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import patchBody from '../../../fixtures/dashboards/creation/widgets/patchBody.json';
+import textWidget from '../../../fixtures/dashboards/creation/widgets/textWidget.json';
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
@@ -48,7 +45,7 @@ afterEach(() => {
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -124,7 +121,7 @@ Then('the newly created dashboard has the required only dashboard data', () => {
 Given(
   'a user with dashboard edition rights on the dashboard creation form',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
   }
 );
@@ -160,7 +157,7 @@ Then(
 Given(
   'a user with dashboard edition rights who is about to create a dashboard',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       `${dashboards.default.name} to be cancelled`
@@ -182,7 +179,7 @@ Then('the user is on the dashboards overview page', () => {
     .invoke('split', '/')
     .should('not.be.empty')
     .then(last)
-    .should('eq', 'dashboards'); // dashboards overview
+    .should('eq', 'library'); // dashboards overview
 });
 
 When(
@@ -202,9 +199,9 @@ Given(
   () => {
     cy.insertDashboardWithWidget(
       dashboards.fromDashboardCreatorUser,
-      patchBody
+      textWidget
     );
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -229,7 +226,7 @@ Then("creates a new dashboard on the previous dashboard's edition page", () => {
 Then(
   "the user is redirected to the newly created dashboard's edition page",
   () => {
-    cy.url().should('match', /\/dashboards\/\d+\?edit=true/);
+    cy.url().should('match', /\/dashboards\/library\/\d+\?edit=true/);
   }
 );
 

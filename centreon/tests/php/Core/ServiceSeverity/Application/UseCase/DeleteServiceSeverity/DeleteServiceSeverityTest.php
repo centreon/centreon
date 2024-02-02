@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,16 +28,16 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\UseCase\DeleteServiceSeverity\DeleteServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->writeServiceSeverityRepository = $this->createMock(WriteServiceSeverityRepositoryInterface::class);
     $this->readServiceSeverityRepository = $this->createMock(ReadServiceSeverityRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
@@ -48,7 +48,7 @@ beforeEach(function () {
     $this->serviceSeverityId = 1;
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $useCase = new DeleteServiceSeverity(
         $this->writeServiceSeverityRepository,
         $this->readServiceSeverityRepository,
@@ -102,7 +102,7 @@ it('should present a ForbiddenResponse when a non-admin user has insufficient ri
         ->toBe(ServiceSeverityException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the service severity does not exist (with admin user)', function () {
+it('should present a NotFoundResponse when the service severity does not exist (with admin user)', function (): void {
     $useCase = new DeleteServiceSeverity(
         $this->writeServiceSeverityRepository,
         $this->readServiceSeverityRepository,
@@ -127,7 +127,7 @@ it('should present a NotFoundResponse when the service severity does not exist (
         ->toBe('Service severity not found');
 });
 
-it('should present a NotFoundResponse when the service severity does not exist (with non-admin user)', function () {
+it('should present a NotFoundResponse when the service severity does not exist (with non-admin user)', function (): void {
     $useCase = new DeleteServiceSeverity(
         $this->writeServiceSeverityRepository,
         $this->readServiceSeverityRepository,
@@ -156,7 +156,7 @@ it('should present a NotFoundResponse when the service severity does not exist (
         ->toBe('Service severity not found');
 });
 
-it('should present a NoContentResponse on success (with admin user)', function () {
+it('should present a NoContentResponse on success (with admin user)', function (): void {
     $useCase = new DeleteServiceSeverity(
         $this->writeServiceSeverityRepository,
         $this->readServiceSeverityRepository,
@@ -182,7 +182,7 @@ it('should present a NoContentResponse on success (with admin user)', function (
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
-it('should present a NoContentResponse on success (with non-admin user)', function () {
+it('should present a NoContentResponse on success (with non-admin user)', function (): void {
     $useCase = new DeleteServiceSeverity(
         $this->writeServiceSeverityRepository,
         $this->readServiceSeverityRepository,

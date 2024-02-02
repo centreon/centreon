@@ -21,13 +21,13 @@
         <div class="refresh" id="chart-refresh">
             <div class="icon refresh-icon">
                 <span class="ico-14">
-                    {php}displaySvg("www/img/icons/refresh.svg", "var(--icons-fill-color)", 14, 14){/php}
+                    {displaysvg svgPath="www/img/icons/refresh.svg" color="var(--icons-fill-color)" height=14.0 width=14.0}
                 </span>
             </div>
             <span class="time" style="display: none"></span>
             <div class="icon">
                 <span class="ico-14 timer-icon">
-                    {php}displaySvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14){/php}
+                    {displaysvg svgPath="www/img/icons/timer.svg" color="var(--icons-disabled-fill-color)" height=14.0 width=14.0}
                 </span>
             </div>
             <ul class="refresh-list">
@@ -51,12 +51,12 @@
             <div id="graph_wrapper_{$metric.id}" data-graph-id="{$metric.id}" class="graph">
                 <div class="title">
                     <span class="remove ico-14 margin_right">
-                        {php}displaySvg("www/img/icons/circle-crossed.svg", "var(--icons-fill-color)", 14, 14){/php}
+                        {displaysvg svgPath="www/img/icons/circle-crossed.svg" color="var(--icons-fill-color)" height=14.0 width=14.0}
                     </span>
                     <span>{$metric.title}</span>
                     <a class="actions" href="#" data-href="./include/views/graphs/generateGraphs/generateMetricImage.php?cpt=1">
                         <span class="ico-14 margin_right">
-                            {php}displaySvg("www/img/icons/picture.svg", "var(--icons-fill-color)", 14, 14){/php}
+                            {displaysvg svgPath="www/img/icons/picture.svg" color="var(--icons-fill-color)" height=14.0 width=14.0}
                         </span>
                     </a>
                 </div>
