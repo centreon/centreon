@@ -1595,7 +1595,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1604,8 +1604,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
+									"pm.test(\"The check has not been sent.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2199,7 +2199,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 7500);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2208,8 +2208,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The check has been successfully sent.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
+									"pm.test(\"The check has not been sent.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
 								"type": "text/javascript"
