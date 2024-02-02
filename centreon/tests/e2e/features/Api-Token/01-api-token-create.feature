@@ -21,10 +21,10 @@ Feature: Create and Manage Basic API Token
     Then a new basic API token with hidden display should be generated
 
     Examples:
-      | Duration |
-      | 30d      |
-      | 60d      |
-      | 90d      |
+      | Enter token name | Enter linked user | Duration |
+      | TokenName_1      | User_1            | 30d      |
+      | TokenName_2      | User_2            | 60d      |
+      | TokenName_3      | User_3            | 90d      |
 
   Scenario: Display and Copy Generated Token
     Given a basic API token is generated
