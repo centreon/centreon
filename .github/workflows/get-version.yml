@@ -152,7 +152,7 @@ jobs:
 
           DOCKERIZE_MATRIX='["bookworm"]'
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            DOCKERIZE_MATRIX='["alma8","alma9","bullseye", "bookworm"]'
+            DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
           fi
           echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
