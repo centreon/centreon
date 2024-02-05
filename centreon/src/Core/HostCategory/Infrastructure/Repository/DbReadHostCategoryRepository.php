@@ -104,7 +104,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         $concatenator = new SqlConcatenator();
         $concatenator->withCalcFoundRows(true);
         $concatenator->defineSelect(
-            'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
+            'SELECT DISTINCT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment
             FROM `:db`.hostcategories hc'
         );
 
