@@ -71,7 +71,7 @@ final class FindDashboardContactGroupsPresenter extends AbstractPresenter implem
         return [
             'id' => $dto->id,
             'name' => $dto->name,
-            'most_permissive_role' => $mostPermissiveRole
+            'most_permissive_role' => $mostPermissiveRole,
         ];
     }
 }

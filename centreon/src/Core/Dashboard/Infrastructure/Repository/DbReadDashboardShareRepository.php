@@ -640,7 +640,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             ? $searchRequest . ' AND '
             : ' WHERE ';
 
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Editor','Creator')
                 AND cgcr.contact_contact_id = :contactId
