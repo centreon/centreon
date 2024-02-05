@@ -49,6 +49,8 @@ jobs:
     steps:
       - name: package rpm
         run: |
+          ls
+          pwd
           dnf install -y wget rpmdevtools rpmlint epel-release
           dnf config-manager --set-enabled crb || true # alma 9
           dnf config-manager --set-enabled powertools || true # alma 8
