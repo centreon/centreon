@@ -678,46 +678,46 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # api-integration-test:
-  #   needs: [get-version, changes, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  api-integration-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: api
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     os: ${{ matrix.os }}
-  #     features_path: tests/api/features
-  #     config_file: tests/api/behat.yml
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ matrix.os }}
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # legacy-e2e-test:
-  #   needs: [get-version, changes, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  legacy-e2e-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: legacy-e2e
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     os: ${{ matrix.os }}
-  #     features_path: features
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ matrix.os }}
+      features_path: features
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
     needs: [get-version, dockerize]
@@ -738,33 +738,33 @@ jobs:
       xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # e2e-test:
-  #   needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  e2e-test:
+    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/cypress-e2e-parallelization.yml
-  #   with:
-  #     name: e2e
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     os: ${{ matrix.os }}
-  #     features_path: tests/e2e/features
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     stability: ${{ needs.get-version.outputs.stability }}
-  #     package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
-  #     package_directory: centreon/tests/e2e/fixtures/packages
-  #     dependencies_lock_file: centreon/pnpm-lock.yaml
-  #     xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-  #     xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+    uses: ./.github/workflows/cypress-e2e-parallelization.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ matrix.os }}
+      features_path: tests/e2e/features
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
+      package_directory: centreon/tests/e2e/fixtures/packages
+      dependencies_lock_file: centreon/pnpm-lock.yaml
+      xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   # performances-test:
   #   runs-on: ubuntu-22.04
