@@ -372,7 +372,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
         }
 
-        if (! empty($_GET['search']) && strpos($_GET['search'], 'host_category_id')) {
+        if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_category_id') !== false) {
             $concatenator
                 ->appendJoins(
                 <<<'SQL'
