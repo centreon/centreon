@@ -1,3 +1,3 @@
-import TokenFilter from './Filter';
+import TokenFilter from './PopoverFilter';
 
 export default TokenFilter;

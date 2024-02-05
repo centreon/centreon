@@ -15,7 +15,6 @@ import {
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
 import {
   labelCancel,
   labelClose,
@@ -24,6 +23,7 @@ import {
   labelName,
   labelUser
 } from '../translatedLabels';
+import { getEndpointConfiguredUser } from '../api/endpoints';
 
 import CustomTimePeriod from './CustomTimePeriod/CustomTimePeriod';
 import Title from './Title';
@@ -70,13 +70,6 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     values
   });
 
-  const getEndpointConfiguredUser = (dataConfiguredUser): string => {
-    return buildListEndpoint({
-      endpoint: listConfiguredUser,
-      parameters: { ...dataConfiguredUser, limit: 10 }
-    });
-  };
-
   const closeDialog = (): void => {
     resetForm();
     setIsCreatingToken(false);
@@ -100,6 +93,7 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   };
 
   const changeUser = (_, value): void => {
+    console.log({ data, value });
     setFieldValue('user', value);
   };
 

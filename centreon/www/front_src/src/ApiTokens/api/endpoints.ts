@@ -16,3 +16,17 @@ export const buildListEndpoint = ({
     customQueryParameters,
     parameters
   });
+
+export const getEndpointConfiguredUser = (dataConfiguredUser): string => {
+  return buildListEndpoint({
+    endpoint: listConfiguredUser,
+    parameters: { ...dataConfiguredUser, limit: 10 }
+  });
+};
+
+export const getEndpointCreatorsToken = (dataCreatorsToken): string => {
+  return buildListEndpoint({
+    endpoint: listTokensEndpoint,
+    parameters: { ...dataCreatorsToken, limit: 10 }
+  });
+};

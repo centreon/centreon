@@ -21,3 +21,4 @@ export const labelCancel = 'Cancel';
 export const labelTokenCreated = 'Token has been created';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Store it carefully.';
+export const labelCreator = 'Creator';
