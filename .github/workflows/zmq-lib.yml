@@ -1,0 +1,176 @@
+name: libzmq
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/zmq-lib.yml'
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - '.github/workflows/zmq-lib.yml'
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon-gorgone/.version
+
+  package-rpm:
+    needs: [get-version]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: packaging-nfpm-alma8
+            distrib: el8
+          - image: packaging-nfpm-alma9
+            distrib: el9
+
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    name: package ${{ matrix.distrib }}
+
+    steps:
+      - name: package rpm
+        run: |
+          dnf install -y wget rpmdevtools rpmlint epel-release
+          dnf config-manager --set-enabled crb || true # alma 9
+          dnf config-manager --set-enabled powertools || true # alma 8
+          cd /root/
+          wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
+          rpmdev-setuptree
+          cp libzmq-4.3.5/packaging/redhat/zeromq.spec rpmbuild/SPECS/
+          wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
+          dnf install -y asciidoc autoconf automake gcc gcc-c++ glib2-devel libbsd-devel libtool make xmlto
+          rpmbuild -bb rpmbuild/SPECS/zeromq.spec
+        shell: bash
+
+      - name: cache rpm
+        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        with:
+          path: /root/rpmbuild/RPMS/x86_64/*.rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+  package-deb:
+    needs: [get-version]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: packaging-bullseye
+            distrib: bullseye
+          - image: packaging-bookworm
+            distrib: bookworm
+          - image: packaging-jammy
+            distrib: jammy
+
+    runs-on: ubuntu-22.04
+
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    name: package ${{ matrix.distrib }}
+
+    steps:
+      - name: package deb
+        run: |
+          cd /root
+          wget -O - https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz|tar zxvf -
+          cd zeromq-4.3.5
+          apt-get install -y dpkg-dev
+          ./configure
+          make
+          make install
+          cd /root
+          wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
+          cd libzmq-4.3.5
+          apt-get install -y debhelper dh-autoreconf libkrb5-dev libnorm-dev libpgm-dev libsodium-dev libunwind8-dev libnss3-dev libgnutls28-dev libbsd-dev pkg-config asciidoc xmlto
+          ln -s packaging/debian
+          dpkg-buildpackage -us -uc -nc
+        shell: bash
+
+      - name: cache deb
+        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        with:
+          path: /root/rpmbuild/RPMS/x86_64/*.rpm
+          key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+
+  deliver-rpm:
+    runs-on: [self-hosted, common]
+    needs: [get-version, package-rpm]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+
+    steps:
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: libzmq
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  deliver-deb:
+    runs-on: [self-hosted, common]
+    needs: [get-version, package-deb]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+
+    strategy:
+      matrix:
+        distrib: [bullseye, bookworm]
+
+    steps:
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: libzmq
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye, bookworm, jammy]
+
+    steps:
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: libzmq
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+          github_base_ref: ${{ github.base_ref }}
