@@ -719,24 +719,24 @@ jobs:
   #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
   #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # create-xray-test-plan-and-test-execution:
-  #   needs: [get-version, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  create-xray-test-plan-and-test-execution:
+    needs: [get-version, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
-  #   with:
-  #     major_version: ${{ needs.get-version.outputs.major_version }}
-  #     minor_version: ${{ needs.get-version.outputs.minor_version }}
-  #     os: ${{ matrix.os }}
-  #   secrets:
-  #     xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-  #     xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-  #     xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-  #     xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+    uses: ./.github/workflows/create-xray-test-plan-and-test-execution.yml
+    with:
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      os: ${{ matrix.os }}
+    secrets:
+      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+      xray_jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   # e2e-test:
   #   needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
