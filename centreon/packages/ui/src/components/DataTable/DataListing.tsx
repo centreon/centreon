@@ -1,4 +1,4 @@
-import { RowId } from '../../Listing/models';
+import { RowId } from '../../Listing/Listing/models';
 import { Listing, ListingProps } from '../..';
 
 export const DataListing = <TRow extends { id: RowId }>(

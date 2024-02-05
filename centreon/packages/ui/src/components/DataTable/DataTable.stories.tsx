@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 
 import { Box } from '@mui/material';
 
-import { ColumnType } from '../../Listing/models';
+import { ColumnType } from '../../Listing/Listing/models';
 
 import { DataTable } from './index';
 

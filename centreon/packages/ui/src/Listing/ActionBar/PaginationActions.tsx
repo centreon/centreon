@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import IconButton from '@mui/material/IconButton';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -15,12 +14,7 @@ import {
   labelPreviousPage
 } from '../translatedLabels';
 
-const useStyles = makeStyles()((theme) => ({
-  root: {
-    color: theme.palette.text.secondary,
-    flexShrink: 0
-  }
-}));
+import { usePaginationStyles } from './ActionBar.styles';
 
 const PaginationActions = ({
   onPageChange,
@@ -28,7 +22,7 @@ const PaginationActions = ({
   rowsPerPage,
   count
 }: TablePaginationActionsProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes } = usePaginationStyles();
   const { t } = useTranslation();
 
   const changeToFirstPage = (event): void => {

@@ -9,7 +9,7 @@ import { grey } from '@mui/material/colors';
 
 import { SearchField } from '..';
 import Listing from '../Listing';
-import { ColumnType } from '../Listing/models';
+import { ColumnType } from '../Listing/Listing/models';
 import Panel from '../Panel';
 
 import Filter from './Filter';
