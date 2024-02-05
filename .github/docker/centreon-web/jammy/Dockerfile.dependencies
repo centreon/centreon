@@ -4,6 +4,8 @@ FROM ubuntu:jammy
 
 ARG VERSION
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN bash -e <<EOF
 
 ######################################
