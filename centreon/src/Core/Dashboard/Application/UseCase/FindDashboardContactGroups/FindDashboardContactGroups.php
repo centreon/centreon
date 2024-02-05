@@ -28,7 +28,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -41,7 +40,6 @@ final class FindDashboardContactGroups
     use LoggerTrait;
 
     public function __construct(
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
@@ -75,7 +73,7 @@ final class FindDashboardContactGroups
     /**
      * @throws \Throwable
      *
-     * @return array<DashboardContactGroupRole>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsAdmin(): array
     {
@@ -87,7 +85,7 @@ final class FindDashboardContactGroups
     /**
      * @throws \Throwable
      *
-     * @return array<ContactGroup>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsContact(): array
     {
