@@ -60,6 +60,8 @@ jobs:
           ls
           echo "LS ROOT"
           ls /root/
+          echo "LS CENTREON"
+          ls /home/centreon/
           echo "CP"
           cp libzmq-4.3.5/packaging/redhat/zeromq.spec rpmbuild/SPECS/
           wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
