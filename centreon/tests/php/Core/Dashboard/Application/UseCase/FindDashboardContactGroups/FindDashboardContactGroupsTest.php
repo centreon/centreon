@@ -37,7 +37,6 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 beforeEach(function (): void {
     $this->presenter = new FindDashboardContactGroupsPresenterStub();
     $this->useCase = new FindDashboardContactGroups(
-        $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),

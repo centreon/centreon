@@ -725,7 +725,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function createDashboardContactGroupRole(array $contactRole): DashboardContactGroupRole
     {
-        $topologies =  explode(',', $contactRole['topologies']);
+        $topologies = explode(',', $contactRole['topologies']);
         $roles = array_map(
             static fn (string $topology): DashboardGlobalRole => DashboardGlobalRoleConverter::fromString(
                 $topology
