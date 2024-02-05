@@ -391,7 +391,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                                 ON h.host_id = hcr.host_host_id
                             LEFT JOIN `:db`.hostcategories hc
                                 ON hcr.hostcategories_hc_id = hc.hc_id
-                    SQL
+                        SQL
                 )
                 ->appendWhere(
                     <<<'SQL'
