@@ -94,10 +94,10 @@ jobs:
     steps:
       - name: package deb
         run: |
+          apt-get install -y dpkg-dev wget
           cd /root
           wget -O - https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz|tar zxvf -
           cd zeromq-4.3.5
-          apt-get install -y dpkg-dev
           ./configure
           make
           make install
