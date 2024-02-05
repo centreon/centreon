@@ -1,8 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-# FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${VERSION} AS web_fresh
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:MON-34937-deliver-ubuntu AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${VERSION} AS web_fresh
 
 ARG VERSION
 
