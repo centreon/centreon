@@ -55,7 +55,9 @@ jobs:
           dnf config-manager --set-enabled powertools || true # alma 8
           wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
           rpmdev-setuptree
+          echo "SETUPTREE"
           ls
+          ls /root/
           cp libzmq-4.3.5/packaging/redhat/zeromq.spec rpmbuild/SPECS/
           wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
           dnf install -y asciidoc autoconf automake gcc gcc-c++ glib2-devel libbsd-devel libtool make xmlto
