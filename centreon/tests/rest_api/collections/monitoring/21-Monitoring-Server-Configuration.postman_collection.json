@@ -266,6 +266,56 @@
 					"response": []
 				},
 				{
+					"name": "Export the configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The configuration has successfully been reloaded.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/generate-and-reload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"generate-and-reload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Logout from admin user",
 					"event": [
 						{
@@ -875,7 +925,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"setTimeout(function(){}, 5000);"
+									""
 								],
 								"type": "text/javascript"
 							}
