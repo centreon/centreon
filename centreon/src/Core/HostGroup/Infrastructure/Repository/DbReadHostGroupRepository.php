@@ -344,23 +344,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         `:db`.`hostgroup` hg
                     SQL
             )
-            ->appendJoins(
-                <<<'SQL'
-                        LEFT JOIN `:db`.hostgroup_relation hgr
-                            ON hg.hg_id = hgr.hostgroup_hg_id
-                        LEFT JOIN `:db`.host h
-                            ON hgr.host_host_id = h.host_id
-                        LEFT JOIN `:db`.hostcategories_relation hcr
-                            ON h.host_id = hcr.host_host_id
-                        LEFT JOIN `:db`.hostcategories hc
-                            ON hcr.hostcategories_hc_id = hc.hc_id
-                    SQL
-            )
-            ->appendWhere(
-                <<<'SQL'
-                        hc.hc_level is not null
-                    SQL
-            )
             ->defineOrderBy(
                 <<<'SQL'
                     ORDER BY hg.hg_name ASC
@@ -381,8 +364,18 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                             ON argr.acl_group_id = ag.acl_group_id
                         SQL
                 )
-                ->appendJoins(
+                ->appendWhere(
                     <<<'SQL'
+                        WHERE ag.acl_group_id IN (:ids)
+                        SQL
+                )
+                ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
+        }
+
+        if (!empty($_GET['search']) && strpos($_GET['search'], 'host_category_id')) {
+            $concatenator
+                ->appendJoins(
+                <<<'SQL'
                             LEFT JOIN `:db`.hostgroup_relation hgr
                                 ON hg.hg_id = hgr.hostgroup_hg_id
                             LEFT JOIN `:db`.host h
@@ -391,14 +384,9 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                                 ON h.host_id = hcr.host_host_id
                             LEFT JOIN `:db`.hostcategories hc
                                 ON hcr.hostcategories_hc_id = hc.hc_id
+                                AND hc.level IS NOT NULL
                         SQL
-                )
-                ->appendWhere(
-                    <<<'SQL'
-                        WHERE ag.acl_group_id IN (:ids) AND hc.hc_level is not null
-                        SQL
-                )
-                ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
+            );
         }
 
         return $concatenator;
