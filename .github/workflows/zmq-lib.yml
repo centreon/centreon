@@ -74,11 +74,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: packaging-bullseye
+          - image: packaging-nfpm-bullseye
             distrib: bullseye
-          - image: packaging-bookworm
+          - image: packaging-nfpm-bookworm
             distrib: bookworm
-          - image: packaging-jammy
+          - image: packaging-nfpm-jammy
             distrib: jammy
 
     runs-on: ubuntu-22.04
@@ -112,7 +112,7 @@ jobs:
       - name: cache deb
         uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
-          path: /root/rpmbuild/RPMS/x86_64/*.rpm
+          path: /root/*.deb
           key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
 
   deliver-rpm:
