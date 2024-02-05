@@ -49,12 +49,9 @@ jobs:
     steps:
       - name: package rpm
         run: |
-          ls
-          pwd
           dnf install -y wget rpmdevtools rpmlint epel-release
           dnf config-manager --set-enabled crb || true # alma 9
           dnf config-manager --set-enabled powertools || true # alma 8
-          cd /root/
           wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
           rpmdev-setuptree
           cp libzmq-4.3.5/packaging/redhat/zeromq.spec rpmbuild/SPECS/
@@ -66,7 +63,7 @@ jobs:
       - name: cache rpm
         uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
-          path: /root/rpmbuild/RPMS/x86_64/*.rpm
+          path: /centreon/rpmbuild/RPMS/x86_64/*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   package-deb:
