@@ -539,6 +539,9 @@ jobs:
           elif [ "${{ matrix.os }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.os }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.os }} is not managed"
             exit 1
@@ -886,7 +889,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources
