@@ -358,8 +358,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             )
             ->appendWhere(
                 <<<'SQL'
-                    hc.hc_level is not null
-                SQL
+                        hc.hc_level is not null
+                    SQL
             )
             ->defineOrderBy(
                 <<<'SQL'
