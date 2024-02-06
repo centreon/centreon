@@ -160,8 +160,102 @@ class DashboardException extends \Exception
      *
      * @return self
      */
-    public static function theDashboardDoesNotExist(int $dashboardId): self
+    public static function  theDashboardDoesNotExist(int $dashboardId): self
     {
         return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function theContactsDoNotExist(array $contactIds): self
+    {
+        return new self(sprintf(_('The contacts [%s] do not exist'), implode(', ', $contactIds)));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoNotExist(array $contactGroupIds): self
+    {
+        return new self(sprintf(_('The contact groups [%s] do not exist'), implode(', ', $contactGroupIds)));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function theContactsDoesNotHaveDashboardAccessRights(array $contactIds): self
+    {
+        return new self (
+            sprintf(_('The contacts [%s] do not have any dashboard Access rights'), implode(', ', $contactIds))
+        );
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoesNotHaveDashboardAccessRights(array $contactGroupIds): self
+    {
+        return new self (
+            sprintf(
+                _('The contact groups [%s] do not have any dashboard Access rights'),
+                implode(', ', $contactGroupIds)
+            )
+        );
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact several times'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactGroupForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact group several times'));
+    }
+
+    public static function notSufficientAccessRight(): self
+    {
+        return new self(_('The no sufficient access rights to give this sharing role'));
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return self
+     */
+    public static function userIsNotInAccessGroups(array $accessGroupIds): self
+    {
+        return new self(sprintf(
+            _('This user is not in your access groups: [%s]'),
+            implode(', ', $accessGroupIds)
+        ));
+    }
+
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return self
+     */
+    public static function contactGroupIsNotInUserContactGroups(array $contactGroupIds): self
+    {
+        return new self(sprintf(
+            _('This user is not in your access groups: [%s]'),
+            implode(', ', $contactGroupIds)
+        ));
     }
 }

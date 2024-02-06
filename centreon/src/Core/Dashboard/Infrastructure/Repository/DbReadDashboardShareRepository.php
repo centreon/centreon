@@ -445,6 +445,67 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
+    public function findContactsWithAccessRightByContactIds(array $contactIds): array
+    {
+        $bind = [];
+        foreach ($contactIds as $key => $contactId) {
+            $bind[':contact_id' . $key] = $contactId;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email
+                FROM `:db`.contact c
+                    LEFT JOIN `:db`.contactgroup_contact_relation cgcr
+                        ON cgcr.contact_contact_id = c.contact_id
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cgcr.contactgroup_cg_id
+                    LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                        ON gcr.contact_contact_id = c.contact_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcr.acl_group_id
+                            OR agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+                    WHERE parent.topology_name = 'Dashboards'
+                        AND topology.topology_name IN ('Viewer','Editor','Creator')
+                        AND acltr.access_right IS NOT NULL
+                        AND c.contact_oreon = '1'
+                        AND c.contact_id IN ($bindTokenAsString)
+                        GROUP BY c.contact_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactId) {
+            $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $dashboardContactRoles = [];
+        foreach ($statement as $contactRole) {
+            /** @var array{
+             *     topologies: string,
+             *     contact_name: string,
+             *     contact_id: int,
+             *     contact_email: string
+             * } $contactRole
+             */
+            $dashboardContactRoles[] = $this->createDashboardContactRole($contactRole);
+        }
+
+        return $dashboardContactRoles;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findContactGroupsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -497,6 +558,59 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         if ($result !== false && ($total = $result->fetchColumn()) !== false) {
             $sqlTranslator->getRequestParameters()->setTotal((int) $total);
         }
+
+        $dashboardContactGroupRoles = [];
+        foreach ($statement as $contactGroupRole) {
+            /** @var array{
+             *     topologies: string,
+             *     cg_name: string,
+             *     cg_id: int,
+             * } $contactGroupRole
+             */
+            $dashboardContactGroupRoles[] = $this->createDashboardContactGroupRole($contactGroupRole);
+        }
+
+        return $dashboardContactGroupRoles;
+    }
+
+    public function findContactGroupsWithAccessRightByContactGroupIds(array $contactGroupIds): array
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[':contact_group' . $key] = $contactGroupId;
+        }
+
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS GROUP_CONCAT(topology.topology_name) as topologies, cg.cg_name, cg.cg_id
+                FROM `:db`.contactgroup cg
+                    LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                        ON gcgr.cg_cg_id = cg.cg_id
+                    LEFT JOIN `:db`.acl_group_topology_relations agtr
+                        ON agtr.acl_group_id = gcgr.acl_group_id
+                    LEFT JOIN `:db`.acl_topology_relations acltr
+                        ON acltr.acl_topo_id = agtr.acl_topology_id
+                    INNER JOIN `:db`.topology
+                        ON topology.topology_id = acltr.topology_topology_id
+                    INNER JOIN `:db`.topology parent
+                        ON topology.topology_parent = parent.topology_page
+                    WHERE parent.topology_name = 'Dashboards'
+                        AND topology.topology_name IN ('Viewer','Editor','Creator')
+                        AND acltr.access_right IS NOT NULL
+                        AND cg.cg_id IN ($bindTokenAsString)
+                    GROUP BY cg.cg_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactGroupId) {
+            $statement->bindValue($token, $contactGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
 
         $dashboardContactGroupRoles = [];
         foreach ($statement as $contactGroupRole) {
