@@ -458,7 +458,7 @@ sub get_macros_host {
             my $macro_value = $_->[1];
             my $is_password = $_->[2];
             # Replace macro value if a vault is used
-            if ($options{vault_count} > 0 && defined($is_password) && $is_password == 1) {
+            if (defined($options{vault_count}) && $options{vault_count} > 0 && defined($is_password) && $is_password == 1) {
                 set_macro(\%macros, $macro_name, "{" . $macro_name . "::secret::" . $macro_value . "}");
             } else {
                 set_macro(\%macros, $macro_name, $macro_value);
@@ -498,7 +498,7 @@ sub substitute_service_discovery_command {
     $command =~ s/\$HOSTADDRESS\$/$options{host}->{host_address}/g;
     $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
 
-    if ($options{vault_count} > 0) {
+    if (defined($options{vault_count}) && $options{vault_count} > 0) {
         $command .= ' --pass-manager="centreonvault"';
     }
     
