@@ -23,7 +23,10 @@ const DashboardNavbar = (): JSX.Element => {
         component={RouterLink}
         data-selected={includes(routeMap.dashboards, location.pathname)}
         to={routeMap.dashboards}
-        underline="hover"
+        underline="none"
+        onClick={(e) => {
+          e.preventDefault();
+        }}
       >
         {t(labelDashboardLibrary)}
       </Link>
