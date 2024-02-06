@@ -41,10 +41,6 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION="24.04"
         echo "Curent stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
-        # TEST (remove me)
-        TEST_CURRENT_STABLE_VERSION=$(git tag -l 'centreon-${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}' | awk -F '-' '{print $3}' )
-        echo "TEST CURRENT STABLE = $TEST_CURRENT_STABLE_VERSION"
-
         # Get previous version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
           if [[ $component == "centreon-web" ]]; then
@@ -72,7 +68,7 @@ runs:
 
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
 
-        # Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
+        # TODO: Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
         # re use the part from check version ??
         # or use the check-version action after turning this release action into a real workflow ?
 
