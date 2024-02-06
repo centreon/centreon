@@ -148,7 +148,7 @@ sub send_email {
             }
 
             if (scalar(@$body) > 0) {
-                $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} send email to '" . $contact_id .  "' (" . $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email} . ")");
+                $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} send email to '" . $contact_id .  "' (" . $self->{discovery}->{rules}->{$rule_id}->{contact}->{$contact_id}->{contact_email} . ")");
 
                 my $smtp = Net::SMTP->new('localhost', Timeout => 15);
                 if (!defined($smtp)) {
@@ -298,8 +298,8 @@ sub update_service {
             type => 'update',
             msg => 'template',
             rule_id => $options{rule_id}
-        };
-        $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update template");
+        }; 
+        $self->{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update template");
         if ($self->{discovery}->{is_manual} == 1) {
             $self->{discovery}->{manual}->{ $options{host_id} }->{rules}->{ $options{rule_id} }->{discovery}->{ $options{discovery_svc}->{service_name} }->{service_template_model_stm_id} = $self->{discovery}->{rules}->{ $options{rule_id} }->{service_template_model_id};
         }
@@ -312,7 +312,7 @@ sub update_service {
             type => 'enable',
             rule_id => $options{rule_id}
         };
-        $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service enable");
+        $self->{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service enable");
     }
 
     foreach my $macro_name (keys %{$options{macros}}) {
@@ -343,7 +343,7 @@ sub update_service {
             msg => 'macros',
             rule_id => $options{rule_id}
         };
-        $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update/insert macros");
+        $self->{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service update/insert macros");
     }
 
     return $options{service}->{id} if ($self->{discovery}->{dry_run} == 1 || scalar(@journal) == 0);
@@ -504,7 +504,7 @@ sub crud_service {
     my $service_id;
     if (!defined($options{service})) {
         $service_id = $self->create_service(%options);
-        $self->{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service created");
+        $self->{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> service created");
         if ($service_id != -1) {
             push @{$self->{discovery}->{journal}}, {
                 host_name => $self->{discovery}->{hosts}->{ $options{host_id} }->{host_name},
@@ -529,13 +529,13 @@ sub disable_services {
 
         if (!defined($options{discovery_svc}->{discovered_services}->{$service_description}) &&
             $self->{discovery}->{rules}->{ $options{rule_id} }->{linked_services}->{ $options{host_id} }->{$service}->{service_activate} == 1) {
-            $self->{logger}->writeLogInfo("$options{logger_pre_message} -> disable service '" . $service_description . "'");
+            $self->{logger}->writeLogDebug("$options{logger_pre_message} -> disable service '" . $service_description . "'");
             next if ($self->{discovery}->{dry_run} == 1);
 
             my $query = "UPDATE service SET service_activate = '0' WHERE service_id = " . $service;
             my ($status) = $self->{class_object_centreon}->custom_execute(request => $query);
             if ($status == -1) {
-                $self->{logger}->writeLogInfo("$options{logger_pre_message} -> cannot disable service '" . $service_description . "'");
+                $self->{logger}->writeLogError("$options{logger_pre_message} -> cannot disable service '" . $service_description . "'");
                 next;
             }
 
@@ -713,7 +713,7 @@ sub discoverylistener {
 
     $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} current count $self->{discovery}->{done_discoveries}/$self->{discovery}->{count_discoveries}");
     if ($self->{discovery}->{done_discoveries} == $self->{discovery}->{count_discoveries}) {
-        $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} discovery finished");
+        $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} discovery finished");
         $self->{finished} = 1;
 
         $self->send_log(
@@ -760,8 +760,8 @@ sub service_execute_commands {
                     vault_count => $options{vault_count}
                 );
 
-                $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} [" .
-                    $self->{discovery}->{rules}->{$rule_id}->{rule_alias} . "] [" .
+                $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} [" .
+                    $self->{discovery}->{rules}->{$rule_id}->{rule_alias} . "] [" . 
                     $self->{service_pollers}->{$poller_id}->{name} . "] [" .
                     $host->{host_name} . "] -> substitute string: " . $command
                 );
@@ -816,7 +816,7 @@ sub launchdiscovery {
     ################
     # get pollers
     ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} load pollers configuration");
+    $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} load pollers configuration");
     my ($status, $message, $pollers) = gorgone::modules::centreon::autodiscovery::services::resources::get_pollers(
         class_object_centreon => $self->{class_object_centreon}
     );
@@ -829,7 +829,7 @@ sub launchdiscovery {
     ################
     # get audit user
     ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} load audit configuration");
+    $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} load audit configuration");
 
     ($status, $message, my $audit_enable) = gorgone::modules::centreon::autodiscovery::services::resources::get_audit(
         class_object_centstorage => $self->{class_object_centstorage}
@@ -867,8 +867,8 @@ sub launchdiscovery {
     ################
     # get rules
     ################
-    $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} load rules configuration");
-
+    $self->{logger}->writeLogDebug("[autodiscovery] -servicediscovery- $self->{uuid} load rules configuration");
+    
     ($status, $message, my $rules) = gorgone::modules::centreon::autodiscovery::services::resources::get_rules(
         class_object_centreon => $self->{class_object_centreon},
         filter_rules => $data->{content}->{filter_rules},
