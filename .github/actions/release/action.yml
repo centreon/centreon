@@ -138,15 +138,19 @@ runs:
         # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
         # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
 
-        # JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
-        # echo "$JIRA_VERSION_DATA"
-        # curl --fail --request POST \
-        #   --url 'https://centreon.atlassian.net/rest/api/3/version' \
-        #   --header 'Authorization: Basic ${{ inputs.jira_token }}' \
-        #   --header 'Accept: application/json' \
-        #   --header 'Content-Type: application/json' \
-        #   --data ''$VERSION_DATA''
+        # Create JIRA version for each released component
+        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+          echo "Creating JIRA release $TAG based on $TAG."
 
+          JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+          echo "$JIRA_VERSION_DATA"
+          # curl --fail --request POST \
+          #   --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          #   --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          #   --header 'Accept: application/json' \
+          #   --header 'Content-Type: application/json' \
+          #   --data ''$VERSION_DATA''
+        done
       shell: bash
 
     - name: Trigger release communication for new releases
