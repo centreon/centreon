@@ -142,7 +142,7 @@ runs:
 
         # Create JIRA version for each released component
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
-          echo "Creating JIRA release $TAG based on $TAG."
+          echo "::notice::Creating JIRA release $TAG based on $TAG."
 
           JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"$TAG\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
           echo "$JIRA_VERSION_DATA"
