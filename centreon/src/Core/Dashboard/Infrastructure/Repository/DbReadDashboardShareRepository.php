@@ -442,6 +442,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         return $dashboardContactRoles;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findContactGroupsWithAccessRightByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
