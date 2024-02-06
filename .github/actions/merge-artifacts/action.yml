@@ -1,23 +1,23 @@
-name: "Merge Artifacts"
-description: "Merge Artifacts"
+name: 'Merge Artifacts'
+description: 'Merge Artifacts'
 inputs:
   target_name:
-    description: "The name of the result artifact"
+    description: 'The name of the result artifact'
     required: true
   source_paths:
-    description: "The path to the files that will be uplaoded"
+    description: 'The path to the files that will be uplaoded'
     required: true
   source_name_pattern:
     description: "Artifact's pattern to be merged"
     required: true
   github_token:
-    description: "The Github Token to use"
+    description: 'The Github Token to use'
     required: true
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: Download ${{ matrix.type_of_report }} Artifacts
+    - name: Download Artifacts
       uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
       with:
         pattern: ${{ inputs.source_name_pattern }}*
@@ -32,7 +32,7 @@ runs:
           ${{ inputs.source_paths }}
         retention-days: 1
 
-    - name: Delete ${{ matrix.type_of_report }} Artifacts
+    - name: Delete Artifacts
       run: |
         artifact_pattern="${{ inputs.source_name_pattern }}"
         TOKEN="${{ inputs.github_token }}"
