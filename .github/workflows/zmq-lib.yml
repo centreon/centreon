@@ -52,18 +52,19 @@ jobs:
           dnf install -y wget rpmdevtools rpmlint epel-release
           dnf config-manager --set-enabled crb || true # alma 9
           dnf config-manager --set-enabled powertools || true # alma 8
-          wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
-          mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          cp libzmq-4.3.5/packaging/redhat/zeromq.spec rpmbuild/SPECS/
-          wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
           dnf install -y asciidoc autoconf automake gcc gcc-c++ glib2-devel libbsd-devel libtool make xmlto
-          rpmbuild -bb rpmbuild/SPECS/zeromq.spec
+          cd /tmp
+          wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
+          mkdir -p /tmp/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          cp libzmq-4.3.5/packaging/redhat/zeromq.spec /tmp/rpmbuild/SPECS/
+          wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  /tmp/rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
+          rpmbuild -bb /tmp/rpmbuild/SPECS/zeromq.spec
         shell: bash
 
       - name: cache rpm
         uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
-          path: /github/home/rpmbuild/RPMS/x86_64/*.rpm
+          path: /tmp/rpmbuild/RPMS/x86_64/*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   package-deb:
