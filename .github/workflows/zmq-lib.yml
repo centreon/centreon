@@ -64,7 +64,7 @@ jobs:
       - name: cache rpm
         uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
-          path: /tmp/rpmbuild/RPMS/x86_64/*.rpm
+          path: /github/home/rpmbuild/RPMS/x86_64/*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   package-deb:
@@ -95,13 +95,13 @@ jobs:
       - name: package deb
         run: |
           apt-get install -y dpkg-dev wget
-          cd /root
+          cd /github/home
           wget -O - https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz|tar zxvf -
           cd zeromq-4.3.5
           ./configure
           make
           make install
-          cd /root
+          cd /github/home
           wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
           cd libzmq-4.3.5
           apt-get install -y debhelper dh-autoreconf libkrb5-dev libnorm-dev libpgm-dev libsodium-dev libunwind8-dev libnss3-dev libgnutls28-dev libbsd-dev pkg-config asciidoc xmlto
@@ -112,7 +112,7 @@ jobs:
       - name: cache deb
         uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
-          path: /root/*.deb
+          path: /github/home/*.deb
           key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
 
   deliver-rpm:
