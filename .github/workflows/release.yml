@@ -35,7 +35,7 @@ jobs:
         id: release
         uses: ./.github/actions/release
         with:
-          github_ref_name: ${{ github.ref_name }}
+          github_ref_name: ${{ github.head_ref || github.ref_name }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
           jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
