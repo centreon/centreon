@@ -683,6 +683,39 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     }
 
     /**
+     * @inheritDoc
+     */
+    public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool
+    {
+        $query = <<<'SQL'
+            SELECT 1 FROM `:db`.`dashboard` d
+            LEFT JOIN  `:db`.`dashboard_contact_relation` dcr
+            ON dcr.dashboard_id = dpl.id
+            LEFT JOIN  `:db`.`dashboard_contactgroup_relation` dcgr
+            ON dcgr.dashboard_id = dpl.id
+            WHERE
+                (dcgr.dashboard_id = :dashboardId
+                AND dcgr.contactgroup_id IN (
+                    SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation
+                    WHERE contact_contact_id = :contactId
+                )
+                AND dcgr.role = 'editor')
+            OR (
+                dpcr.dashboard_id = :dashboardId
+                AND dpcr.contact_id = :contactId
+                AND dpcr.role = 'editor')
+            OR dpl.created_by = :contactId
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param array{
      *      contact_name: string,
      *      contact_id: int,

@@ -1,0 +1,7 @@
+ShareDashboardPlaylist:
+  methods: PUT
+  path: /configuration/dashboards/{dashboardId}/shares
+  requirements:
+    dashboardId: '\d+'
+  controller: 'CentreonItEdition\Dashboard\Playlist\Infrastructure\API\ShareDashboard\ShareDashboardController'
+  condition: "request.attributes.get('version') >= 23.10"

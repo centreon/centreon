@@ -98,4 +98,10 @@ interface WriteDashboardShareRepositoryInterface
      * @return bool
      */
     public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool;
+
+    public function deleteDashboardShares(int $dashboardId): void;
+
+    public function addDashboardContactGroupShares(int $dashboardId, array $contactGroupShares): void;
+
+    public function addDashboardContactShares(int $dashboardId, array $contactShares): void;
 }

@@ -175,4 +175,16 @@ interface ReadDashboardShareRepositoryInterface
         RequestParametersInterface $requestParameters,
         int $contactId
     ): array;
+
+    /**
+     * Check if a user is editor on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param ContactInterface $contact
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool;
 }

@@ -154,4 +154,14 @@ class DashboardException extends \Exception
     {
         return new self(sprintf(_('The contact ID #%d does not exist'), $contactId));
     }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function theDashboardDoesNotExist(int $dashboardId): self
+    {
+        return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId));
+    }
 }
