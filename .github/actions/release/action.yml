@@ -144,7 +144,7 @@ runs:
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
           echo "Creating JIRA release $TAG based on $TAG."
 
-          JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"$TAG\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
+          JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"$TAG\",\"description\":\"$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
           echo "$JIRA_VERSION_DATA"
           # curl --fail --request POST \
           #   --url 'https://centreon.atlassian.net/rest/api/3/version' \
