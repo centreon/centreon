@@ -30,8 +30,8 @@ overrides:
       - centreon-pp-manager < ${NEXT_MAJOR_VERSION}
       - centreon-auto-discovery-server >= ${MAJOR_VERSION}
       - centreon-auto-discovery-server < ${NEXT_MAJOR_VERSION}
-      - centreon-it-edition-extensions (>= ${MAJOR_VERSION}~)
-      - centreon-it-edition-extensions (<< ${NEXT_MAJOR_VERSION}~)
+      - centreon-it-edition-extensions >= ${MAJOR_VERSION}
+      - centreon-it-edition-extensions << ${NEXT_MAJOR_VERSION}
     provides:
       - centreon-base-config
       - centreon-base-config-centreon-engine
