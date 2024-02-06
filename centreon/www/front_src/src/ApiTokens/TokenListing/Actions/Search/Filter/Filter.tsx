@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
@@ -24,20 +25,40 @@ const Filter = (): JSX.Element => {
   };
 
   const changeCreator = (_, value): void => {
-    const data = value.map(({ creator }) => creator);
-    setCreators(data);
+    setCreators(value);
+  };
+
+  const getUniqData = (data): Array<PersonalInformation> => {
+    const result = [
+      ...new Map(data.map((item) => [item.id, item])).values()
+    ] as Array<PersonalInformation>;
+
+    return result || [];
   };
 
   const filterOptions = (options): Array<PersonalInformation> => {
-    const data = options?.map(({ creator }) => creator);
+    const creatorsData = options?.map(({ creator }) => creator);
 
-    return data || [];
+    return getUniqData(creatorsData);
+  };
+
+  const deleteCreator = (_, item): void => {
+    const data = creators.filter(({ id }) => !equals(item.id, id));
+    setCreators(data);
+  };
+
+  const deleteUser = (_, item): void => {
+    const data = users.filter(({ id }) => !equals(item.id, id));
+    setUsers(data);
   };
 
   return (
-    <div style={{ backgroundColor: 'white', minWidth: 600 }}>
+    <div className={classes.container}>
       <MultiConnectedAutocompleteField
         disableSortedOptions
+        chipProps={{
+          onDelete: deleteUser
+        }}
         className={classes.input}
         dataTestId={labelUser}
         field="name"
@@ -48,11 +69,13 @@ const Filter = (): JSX.Element => {
       />
 
       <MultiConnectedAutocompleteField
+        disableSortedOptions
         chipProps={{
-          onDelete: (data, s) => console.log('delete', s, data)
+          onDelete: deleteCreator
         }}
         className={classes.input}
         dataTestId={labelCreator}
+        field="name"
         filterOptions={filterOptions}
         getEndpoint={getEndpointCreatorsToken}
         label={t(labelCreator)}
