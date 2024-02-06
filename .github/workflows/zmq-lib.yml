@@ -53,12 +53,12 @@ jobs:
           dnf config-manager --set-enabled crb || true # alma 9
           dnf config-manager --set-enabled powertools || true # alma 8
           dnf install -y asciidoc autoconf automake gcc gcc-c++ glib2-devel libbsd-devel libtool make xmlto
-          cd /tmp
+          cd /github/home
           wget -O - https://github.com/zeromq/libzmq/archive/refs/tags/v4.3.5.tar.gz|tar zxvf -
-          mkdir -p /tmp/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          cp libzmq-4.3.5/packaging/redhat/zeromq.spec /tmp/rpmbuild/SPECS/
-          wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  /tmp/rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
-          rpmbuild -bb /tmp/rpmbuild/SPECS/zeromq.spec
+          mkdir -p /github/home/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          cp libzmq-4.3.5/packaging/redhat/zeromq.spec /github/home/rpmbuild/SPECS/
+          wget https://github.com/zeromq/libzmq/releases/download/v4.3.5/zeromq-4.3.5.tar.gz -O  /github/home/rpmbuild/SOURCES/zeromq-4.3.5.tar.gz
+          rpmbuild -bb /github/home/rpmbuild/SPECS/zeromq.spec
         shell: bash
 
       - name: cache rpm
