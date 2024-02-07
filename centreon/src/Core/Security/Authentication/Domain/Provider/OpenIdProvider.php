@@ -189,6 +189,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->userInformations[$customConfiguration->getUserNameBindAttribute()],
             $this->userInformations[$customConfiguration->getEmailBindAttribute()],
         );
+        ! $user->canReachFrontend() ?: $user->setCanReachRealtimeApi(true);
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [
