@@ -25,7 +25,7 @@ runs:
 
     - name: Get released versions for components
       run: |
-        set -eux
+        set -eu
         COMPONENTS_RELEASED=()
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
         COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
@@ -80,17 +80,17 @@ runs:
     - name: Add new release tags to stable branch
       run: |
         # Add new stable tags to stable branch
-        echo "::notice::Configuring git."
+        echo "Configuring git."
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
 
         # Create release tags on git for each release components
-        echo "::notice::Creating release tags."
+        echo "Creating release tags."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
-            echo "::notice::Tagging branch with $TAG."
+            echo "::notice::Tagging stable branch with $TAG."
           else
             echo "::error::Release tag $TAG already exists, exiting."
             exit 1
@@ -101,30 +101,30 @@ runs:
     - name: Create GITHUB releases from new release tags
       run: |
         # Install gh cli
-        echo "::notice::Installing GH CLI."
+        echo "Installing GH CLI."
         if ! command -v gh &> /dev/null; then
           echo "Installing GH CLI."
-          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          type -p curl >/dev/null || (sudo apt-get update && sudo apt-get install curl -y)
           curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
           sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update
-          sudo apt install gh -y
+          sudo apt-get update
+          sudo apt-get install gh -y
         else
           echo "GH CLI is already installed."
         fi
 
         # Create GITHUB release for each release components
-        echo "::notice::Creating GITHUB releases."
+        echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          echo "::notice::Creating release with title $TAG for tag $TAG."
+          echo "::notice::Creating GITHUB release with title $TAG for tag $TAG."
           gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
         done
       shell: bash
 
     - name: Create stable JIRA versions from new release tags
       run: |
-        set -eux
+        set -eu
 
         # Call JIRA to provide new jira versions to create
         # Webhook url
@@ -140,9 +140,9 @@ runs:
         # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
 
         # Create JIRA version for each released component
-        echo "::notice::Creating JIRA releases."
+        echo "Creating JIRA releases."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
-          echo "::notice::Creating JIRA release $TAG based on $TAG."
+          echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
 
           JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"$TAG\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
           echo "Sending to JIRA release: $JIRA_VERSION_DATA"
@@ -157,7 +157,7 @@ runs:
 
     - name: Trigger release communication for new releases
       run: |
-        set -eux
+        set -eu
         MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
 
         # Webhook url
