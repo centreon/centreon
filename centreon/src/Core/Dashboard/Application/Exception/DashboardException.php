@@ -247,6 +247,19 @@ class DashboardException extends \Exception
     }
 
     /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInAccessGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your access groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
      * @param int[] $accessGroupIds
      *
      * @return self

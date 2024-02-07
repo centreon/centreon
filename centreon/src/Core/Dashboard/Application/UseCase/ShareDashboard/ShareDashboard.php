@@ -23,14 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\ShareDashboard;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\TinyRole;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class ShareDashboard
 {
@@ -40,6 +46,10 @@ final class ShareDashboard
         private readonly DashboardRights $rights,
         private readonly ShareDashboardValidator $validator,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -56,7 +66,23 @@ final class ShareDashboard
             }
 
             $this->validator->validateDashboard($request->dashboardId);
-            $this->validator->validateContacts($request->contacts);
+            if (! $this->rights->hasAdminRole()) {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $accessGroupIds = array_map(
+                    static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+                    $accessGroups
+                );
+                $contactIdsInUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups(
+                    $accessGroupIds
+                );
+
+                $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
+                $userContactGroupIds = array_map(static fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups);
+            }
+            $this->validator->validateContacts(
+                $request->contacts,
+                $contactIdsInUserAccessGroups ?? []
+            );
             $contactRoles = [];
             foreach ($request->contacts as $contact) {
                 $contactRoles[] = new TinyRole(
@@ -64,7 +90,7 @@ final class ShareDashboard
                     DashboardSharingRoleConverter::fromString($contact['role'])
                 );
             }
-            $this->validator->validateContactGroups($request->contactGroups);
+            $this->validator->validateContactGroups($request->contactGroups, $userContactGroupIds ?? []);
             $contactGroupRoles = [];
             foreach ($request->contactGroups as $contactGroup) {
                 $contactGroupRoles[] = new TinyRole(
@@ -79,7 +105,13 @@ final class ShareDashboard
                 return;
             }
 
-            $this->updateDashboardSharesAsNonAdmin($request->dashboardId, $contactRoles, $contactGroupRoles);
+            $this->updateDashboardSharesAsNonAdmin(
+                $request->dashboardId,
+                $contactRoles,
+                $contactGroupRoles,
+                $userContactGroupIds,
+                $contactIdsInUserAccessGroups
+            );
             $presenter->presentResponse(new NoContentResponse());
         } catch(DashboardException $ex) {
             return;
@@ -88,28 +120,50 @@ final class ShareDashboard
         }
     }
 
+    /**
+     * @param int $dashboardId
+     * @param TinyRole[] $contactRoles
+     * @param TinyRole[] $contactGroupRoles
+     *
+     * @throws \Throwable
+     */
     private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
-        $this->writeDashboardShareRepository->deleteDashboardShares($request->dashboardId);
-        $this->writeDashboardShareRepository->addDashboardContactShares($request->dashboardId, $request->contacts);
+        $this->writeDashboardShareRepository->deleteDashboardShares($dashboardId);
+        $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
         $this->writeDashboardShareRepository->addDashboardContactGroupShares(
-            $request->dashboardId,
-            $request->contactGroups
+            $dashboardId,
+            $contactGroupRoles
         );
     }
 
-    private function updateDashboardSharesAsNonAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
+    /**
+     * @param int $dashboardId
+     * @param TinyRole[] $contactRoles
+     * @param TinyRole[] $contactGroupRoles
+     * @param int[] $userContactGroupIds
+     * @param int[] $contactIdsInUserAccessGroups
+     *
+     * @throws \Throwable
+     */
+    private function updateDashboardSharesAsNonAdmin(
+        int $dashboardId,
+        array $contactRoles,
+        array $contactGroupRoles,
+        array $userContactGroupIds,
+        array $contactIdsInUserAccessGroups
+    ): void {
         $this->writeDashboardShareRepository->deleteDashboardSharesByContactIds(
             $playlistId,
-            $contactsInUserContactGroups
+            $contactIdsInUserAccessGroups
         );
         $this->writeDashboardShareRepository->deleteDashboardSharesByContactGroupIds(
             $playlistId,
-            $userContactGroups
+            $userContactGroupIds
         );
-        $this->writeDashboardShareRepository->addDashboardContactShares($request->dashboardId, $request->contacts);
+        $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
         $this->writeDashboardShareRepository->addDashboardContactGroupShares(
-            $request->dashboardId,
-            $request->contactGroups
+            $dashboardId,
+            $contactGroupRoles
         );
     }
 }
