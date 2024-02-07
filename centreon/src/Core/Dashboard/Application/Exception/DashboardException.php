@@ -228,9 +228,16 @@ class DashboardException extends \Exception
         return new self(_('You cannot share the same dashboard to a contact group several times'));
     }
 
-    public static function notSufficientAccessRight(): self
+    public static function notSufficientAccessRightForUser(int $contactId, string $role): self
     {
-        return new self(_('The no sufficient access rights to give this sharing role'));
+        return new self(sprintf(_('No sufficient access rights to user [%d] to give role [%s]'), $contactId, $role));
+    }
+
+    public static function notSufficientAccessRightForContactGroup(int $contactGroupId, string $role): self
+    {
+        return new self(
+            sprintf(_('No sufficient access rights to contact group [%d] to give role [%s]'), $contactGroupId, $role)
+        );
     }
 
     /**

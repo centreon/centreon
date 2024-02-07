@@ -98,4 +98,14 @@ interface ReadContactRepositoryInterface
      * @return Contact[]
      */
     public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable
+     *
+     * @return Contact[]
+     * /
+     */
+    public function findAdminsByIds(array $contactIds): array;
 }

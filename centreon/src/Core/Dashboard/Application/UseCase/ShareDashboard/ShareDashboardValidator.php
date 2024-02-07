@@ -33,8 +33,10 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\TinyRole;
 use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Utility\Difference\BasicDifference;
 
 class ShareDashboardValidator
@@ -45,7 +47,6 @@ class ShareDashboardValidator
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $contactRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
     ) {
     }
@@ -82,7 +83,7 @@ class ShareDashboardValidator
      *  - If the user executing the request is not an admin, the contacts should be member of his access groups
      *
      * @param array<array{id: int, role: string}> $contacts
-     * @param int[] $contactsInUserAccessGroups
+     * @param int[] $contactIdsInUserAccessGroups
      *
      * @throws DashboardException|\Throwable
      */
@@ -95,6 +96,15 @@ class ShareDashboardValidator
         $dashboardContactRoles = $this->readDashboardShareRepository->findContactsWithAccessRightByContactIds(
             $contactIds
         );
+        $adminUsers = $this->contactRepository->findAdminsByIds($contactIds);
+        foreach ($adminUsers as $adminUser) {
+            $dashboardContactRoles[] = new DashboardContactRole(
+                $adminUser->getId(),
+                $adminUser->getName(),
+                $adminUser->getEmail(),
+                [DashboardGlobalRole::Administrator]
+            );
+        }
         $this->validateContactsHaveDashboardACLs($dashboardContactRoles, $contactIds);
         $contactsByIdAndRole = [];
         foreach ($contacts as $contact) {
@@ -103,7 +113,7 @@ class ShareDashboardValidator
         $this->validateContactsHaveSufficientRightForSharingRole($contactsByIdAndRole, $dashboardContactRoles);
 
         // If the current user is not admin, the shared contacts should be member of his access groups.
-        if ($this->rights->hasAdminRole()) {
+        if (! $this->rights->hasAdminRole()) {
             $this->validateContactsAreInTheSameAccessGroupThanCurrentUser($contactIds, $contactIdsInUserAccessGroups);
         }
 
@@ -127,7 +137,7 @@ class ShareDashboardValidator
             ->findContactGroupsWithAccessRightByContactGroupIds($contactGroupIds);
         $this->validateContactGroupsHaveDashboardACLs($dashboardContactGroupRoles, $contactGroupIds);
         $this->validateContactGroupsHaveSufficientRightForSharingRole($contactGroups, $dashboardContactGroupRoles);
-        if ($this->rights->hasAdminRole()) {
+        if (! $this->rights->hasAdminRole()) {
             $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $$userContactGroupIds);
         }
     }
@@ -213,11 +223,14 @@ class ShareDashboardValidator
     ): void {
         foreach ($dashboardContactRoles as $dashboardContactRole) {
             if (
-                DashboardGlobalRoleConverter::fromString($contactsByIdAndRole[$dashboardContactRole->getContactId()])
-                !== DashboardGlobalRole::Viewer
+                DashboardSharingRoleConverter::fromString($contactsByIdAndRole[$dashboardContactRole->getContactId()])
+                !== DashboardSharingRole::Viewer
                 && $dashboardContactRole->getMostPermissiveRole() === DashboardGlobalRole::Viewer
             ) {
-                throw DashboardException::notSufficientAccessRight();
+                throw DashboardException::notSufficientAccessRightForUser(
+                    $dashboardContactRole->getContactId(),
+                    $contactsByIdAndRole[$dashboardContactRole->getContactId()]
+                );
             }
         }
     }
@@ -239,12 +252,15 @@ class ShareDashboardValidator
 
         foreach ($dashboardContactGroupRoles as $dashboardContactGroupRole) {
             if (
-                DashboardGlobalRoleConverter::fromString(
+                DashboardSharingRoleConverter::fromString(
                     $contactGroupByIdAndRole[$dashboardContactGroupRole->getContactGroupId()]
-                )  !== DashboardGlobalRole::Viewer
+                )  !== DashboardSharingRole::Viewer
                 && $dashboardContactGroupRole->getMostPermissiveRole() === DashboardGlobalRole::Viewer
             ) {
-                throw DashboardException::notSufficientAccessRight();
+                throw DashboardException::notSufficientAccessRightForContactGroup(
+                    $dashboardContactGroupRole->getContactGroupId(),
+                    $contactGroupByIdAndRole[$dashboardContactGroupRole->getContactGroupId()]
+                );
             }
         }
     }
@@ -288,7 +304,7 @@ class ShareDashboardValidator
             ! empty(
                 ($nonexistentContactGroups = array_diff(
                     $contactGroupIds,
-                    $this->readContactGroupRepository->exist($contactIds)
+                    $this->readContactGroupRepository->exist($contactGroupIds)
                 ))
             )
         ) {
@@ -304,7 +320,7 @@ class ShareDashboardValidator
     private function validateContactGroupsAreUnique(array $contactGroupIds): void
     {
         if (count(array_flip($contactGroupIds)) < count($contactGroupIds)) {
-            throw DashboardException::contactForShareShouldBeUnique();
+            throw DashboardException::contactGroupForShareShouldBeUnique();
         }
     }
 }

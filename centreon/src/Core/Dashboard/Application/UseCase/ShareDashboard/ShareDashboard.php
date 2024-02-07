@@ -25,7 +25,9 @@ namespace Core\Dashboard\Application\UseCase\ShareDashboard;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
@@ -49,7 +51,8 @@ final class ShareDashboard
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly DataStorageEngineInterface $dataStorageEngine
     ) {
     }
 
@@ -114,9 +117,14 @@ final class ShareDashboard
             );
             $presenter->presentResponse(new NoContentResponse());
         } catch(DashboardException $ex) {
-            return;
+            $presenter->presentResponse(
+                new InvalidArgumentResponse($ex->getMessage())
+            );
         } catch (\Throwable $ex) {
             $this->error(DashboardException::errorWhileUpdating()->getMessage());
+            $presenter->presentResponse(
+                new InvalidArgumentResponse($ex->getMessage())
+            );
         }
     }
 
@@ -128,12 +136,19 @@ final class ShareDashboard
      * @throws \Throwable
      */
     private function updateDashboardSharesAsAdmin(int $dashboardId, array $contactRoles, array $contactGroupRoles): void {
-        $this->writeDashboardShareRepository->deleteDashboardShares($dashboardId);
-        $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
-        $this->writeDashboardShareRepository->addDashboardContactGroupShares(
-            $dashboardId,
-            $contactGroupRoles
-        );
+        try {
+            $this->dataStorageEngine->startTransaction();
+            $this->writeDashboardShareRepository->deleteDashboardShares($dashboardId);
+            $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
+            $this->writeDashboardShareRepository->addDashboardContactGroupShares(
+                $dashboardId,
+                $contactGroupRoles
+            );
+            $this->dataStorageEngine->commitTransaction();
+        } catch (\Throwable $ex) {
+            $this->dataStorageEngine->rollbackTransaction();
+            throw $ex;
+        }
     }
 
     /**
@@ -152,18 +167,25 @@ final class ShareDashboard
         array $userContactGroupIds,
         array $contactIdsInUserAccessGroups
     ): void {
-        $this->writeDashboardShareRepository->deleteDashboardSharesByContactIds(
-            $playlistId,
-            $contactIdsInUserAccessGroups
-        );
-        $this->writeDashboardShareRepository->deleteDashboardSharesByContactGroupIds(
-            $playlistId,
-            $userContactGroupIds
-        );
-        $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
-        $this->writeDashboardShareRepository->addDashboardContactGroupShares(
-            $dashboardId,
-            $contactGroupRoles
-        );
+        try {
+            $this->dataStorageEngine->startTransaction();
+            $this->writeDashboardShareRepository->deleteDashboardSharesByContactIds(
+                $playlistId,
+                $contactIdsInUserAccessGroups
+            );
+            $this->writeDashboardShareRepository->deleteDashboardSharesByContactGroupIds(
+                $playlistId,
+                $userContactGroupIds
+            );
+            $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);
+            $this->writeDashboardShareRepository->addDashboardContactGroupShares(
+                $dashboardId,
+                $contactGroupRoles
+            );
+            $this->dataStorageEngine->commitTransaction();
+        } catch (\Throwable $ex) {
+            $this->dataStorageEngine->rollbackTransaction();
+            throw $ex;
+        }
     }
 }

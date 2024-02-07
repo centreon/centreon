@@ -303,4 +303,53 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
     }
+
+    public function findAdminsByIds(array $contactIds): array
+    {
+        $bind = [];
+        foreach ($contactIds as $key => $contactId) {
+            $bind[':contact' . $key] = $contactId;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS
+                c.contact_id,
+                c.contact_name,
+                c.contact_email,
+                c.contact_admin
+            FROM `:db`.contact c
+            WHERE c.contact_admin = '1' 
+              AND c.contact_oreon = '1'
+              AND c.contact_id IN ($bindTokenAsString)
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactId) {
+            $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $admins = [];
+        foreach ($statement as $admin) {
+            /** @var array{
+             *     contact_admin: string,
+             *     contact_name: string,
+             *     contact_id: int,
+             *     contact_email: string
+             * } $admin
+             */
+            $admins[] = (new Contact())
+                ->setAdmin(true)
+                ->setName($admin['contact_name'])
+                ->setId($admin['contact_id'])
+                ->setEmail($admin['contact_email']);
+        }
+
+        return $admins;
+    }
 }
