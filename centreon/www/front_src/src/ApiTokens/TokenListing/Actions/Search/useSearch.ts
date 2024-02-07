@@ -1,3 +1,5 @@
+import { flatten } from 'ramda';
+
 import { SearchParameter, getFoundFields } from '@centreon/ui';
 
 import { Fields } from './Filter/models';
@@ -14,17 +16,23 @@ const useBuildSearchParameters = (
     value: searchValue
   });
 
-  const terms = fieldMatches.map(({ field, value }) => {
+  const searchedWords = fieldMatches.map(({ field, value }) => {
     const values = value.split(',');
     if (values?.length <= 1) {
       return { field, value };
     }
 
-    return { field, value: values };
+    return values.map((item) => ({
+      field,
+      value: item
+    }));
   });
 
   const getSearchParameters = (): SearchParameter => {
-    const hasMultipleSearch = terms.some((term) => Array.isArray(term?.value));
+    const terms = flatten(searchedWords);
+    const hasMultipleSearch =
+      [...new Map(terms.map((term) => [term.field, term])).values()].length !==
+      terms?.length;
 
     if (hasMultipleSearch) {
       return {
