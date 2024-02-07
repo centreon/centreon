@@ -12,13 +12,13 @@ const Actions = ({ refresh, buttonCreateToken }: Props): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <div className={classes.subContainerSearch}>
-        <Search />
-        <TokenFilter />
-      </div>
       <div className={classes.subContainer}>
         {buttonCreateToken}
         {refresh}
+      </div>
+      <div className={classes.subContainerSearch}>
+        <Search />
+        <TokenFilter />
       </div>
     </div>
   );

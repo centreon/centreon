@@ -3,9 +3,16 @@ import { useState } from 'react';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { MultiConnectedAutocompleteField } from '@centreon/ui';
+import {
+  SaveButton as Button,
+  MultiConnectedAutocompleteField
+} from '@centreon/ui';
 
-import { labelCreator, labelUser } from '../../../../translatedLabels';
+import {
+  labelCreator,
+  labelSearch,
+  labelUser
+} from '../../../../translatedLabels';
 import {
   getEndpointConfiguredUser,
   getEndpointCreatorsToken
@@ -13,6 +20,7 @@ import {
 import { PersonalInformation } from '../../../models';
 
 import { useStyles } from './filter.styles';
+import { Fields } from './models';
 
 const Filter = (): JSX.Element => {
   const { classes } = useStyles();
@@ -63,6 +71,7 @@ const Filter = (): JSX.Element => {
         dataTestId={labelUser}
         field="name"
         getEndpoint={getEndpointConfiguredUser}
+        id={Fields.UserName}
         label={t(labelUser)}
         value={users}
         onChange={changeUser}
@@ -78,9 +87,16 @@ const Filter = (): JSX.Element => {
         field="name"
         filterOptions={filterOptions}
         getEndpoint={getEndpointCreatorsToken}
+        id={Fields.CreatorName}
         label={t(labelCreator)}
         value={creators}
         onChange={changeCreator}
+      />
+      <Button
+        data-testid={labelSearch}
+        labelSave={t(labelSearch)}
+        startIcon={false}
+        onClick={() => console.log('search')}
       />
     </div>
   );

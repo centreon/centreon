@@ -6,7 +6,8 @@ export const useStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.default,
     display: 'flex',
     flexDirection: 'column',
-    minWidth: theme.spacing(45)
+    marginTop: theme.spacing(1),
+    minWidth: theme.spacing(44)
   },
   input: {
     margin: theme.spacing(2, 0),
