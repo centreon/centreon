@@ -18141,8 +18141,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18349,8 +18364,8 @@ msgstr "Nom de la métrique"
 msgid "Status grid"
 msgstr "Grille de statut"
 
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
 
 msgid "Display with this resource type"
 msgstr "Afficher avec ce type de ressource"
