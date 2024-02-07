@@ -10,7 +10,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator user selects a particular status in the displayed resource status list
     Then only the resources with this particular status are displayed in the ressource table Widget
 
- @TEST_MON-35096
+  @TEST_MON-35096
   Scenario: Displaying ressources on a downtime on a ressource table widget
     Given a dashboard featuring a configured ressource table widget
     When the dashboard administrator user applies a downtime on one of the resources of the dataset selection
@@ -43,13 +43,13 @@ Feature: Configuring resource table widget
 
   @TEST_MON-35095
   Scenario: Editing the displayed resource state of a ressource table widget
-   Given a dashboard that includes a configured ressource table widget
-   When the dashboard administrator user selects a particular status in the displayed ressrouce state list
-   Then only the resources with this particular state are displayed in the ressource table Widget
+    Given a dashboard that includes a configured ressource table widget
+    When the dashboard administrator user selects a particular status in the displayed ressrouce state list
+    Then only the resources with this particular state are displayed in the ressource table Widget
 
   @TEST_MON-35097
   Scenario: Displaying aknowledged ressources on a ressource table widget
-   Given a dashboard featuring a configured ressrouce table widget
-   When the dashboard administrator user applies an acknowledgement on one of the resources of the dataset selection
-   And selects the option to exclusively display the acknowledged resources
-   Then only the acknowledged resource is displayed in the ressrouce table widget
+    Given a dashboard featuring a configured ressrouce table widget
+    When the dashboard administrator user applies an acknowledgement on one of the resources of the dataset selection
+    And selects the option to exclusively display the acknowledged resources
+    Then only the acknowledged resource is displayed in the ressrouce table widget
