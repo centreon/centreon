@@ -57,6 +57,7 @@ PHP_ETC="/etc/php.d/"
 # Variables dynamically set
 detected_os_release=
 detected_os_version=
+detected_mariadb_version=
 centreon_admin_password=
 
 # Variables will be defined later according to the target system OS
@@ -267,25 +268,41 @@ function get_os_information() {
 	case "${OS_NAME}" in
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
+			detected_mariadb_version="mariadb-10.5"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${OS_VERSIONID}"
+			detected_mariadb_version="mariadb-10.5"
 			;;
 		Debian*)
 			detected_os_release="debian-release-${OS_VERSIONID}"
+			case "${OS_VERSIONID}" in
+				11*)
+					detected_mariadb_version="mariadb-10.5"
+					;;
+				12*)
+					detected_mariadb_version="mariadb-10.11"
+					;;
+				*)
+					log "ERROR" "Unsupported Debian distribution ${OS_VERSIONID} detected"
+					;;
+			esac
 			;;
 		Oracle*)
 			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
+			detected_mariadb_version="mariadb-10.5"
 			;;
 		"Red Hat"*)
 			detected_os_release="redhat-release-${OS_VERSIONID}"
+			detected_mariadb_version="mariadb-10.5"
 			;;
 		Rocky*)
 			detected_os_release="rocky-release-${OS_VERSIONID}"
+			detected_mariadb_version="mariadb-10.5"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distributions (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 	esac
 
@@ -337,7 +354,7 @@ function set_mariadb_repos() {
 
 	case "$detected_os_release" in
 	debian-release*)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=$detected_os_version --mariadb-server-version=$detected_mariadb_version
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install the repository"
 		else
@@ -346,7 +363,7 @@ function set_mariadb_repos() {
 		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
 		;;
 	*)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-10.5"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version=$detected_mariadb_version
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install the repository"
 		else
@@ -455,7 +472,7 @@ function set_required_prerequisite() {
 			;;
 
 		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
 
@@ -478,46 +495,50 @@ function set_required_prerequisite() {
 			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
 			fi
-
-			log "INFO" "Setting specific part for Debian"
-			PKG_MGR="apt -qq"
-			OS_SPEC_SERVICES="php8.1-fpm apache2"
-			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
-
-			# Get CPU architecture type
-			VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
-			ARCH=""
-			if [[ "$VENDORID" == "ARM" ]]; then
-				ARCH="[ arch=all,arm64 ]"
-				if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
-					error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
-				fi
-			fi
-
-			# Add Centreon repositories
-			set_centreon_repos
-			IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
-			for _repo in "${array_apt[@]}"; do
-				echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
-
-				SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
-				echo "deb $ARCH https://packages.centreon.com/apt-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
-			done
-			wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
-
-			if [ "$topology" == "central" ]; then
-				# Add PHP repo
-				echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
-				wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-				set_mariadb_repos
-			else
-				${PKG_MGR} update
+			;;
+		12)
+			if ! [[ "$version" == "24.04" ]]; then
+				error_and_exit "For Debian, only Centreon versions >= 24.04 are compatible. You chose $version"
 			fi
 			;;
 		*)
-			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
+		log "INFO" "Setting specific part for Debian"
+		PKG_MGR="apt -qq"
+		OS_SPEC_SERVICES="php8.1-fpm apache2"
+		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+
+		# Get CPU architecture type
+		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+		ARCH=""
+		if [[ "$VENDORID" == "ARM" ]]; then
+			ARCH="[ arch=all,arm64 ]"
+			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
+				error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
+			fi
+		fi
+
+		# Add Centreon repositories
+		set_centreon_repos
+		IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
+		for _repo in "${array_apt[@]}"; do
+			echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+
+			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
+			echo "deb $ARCH https://packages.centreon.com/apt-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
+		done
+		wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+
+		if [ "$topology" == "central" ]; then
+			# Add PHP repo
+			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+			set_mariadb_repos
+		else
+			${PKG_MGR} update
+		fi
 	esac
 }
 #========= end of function set_required_prerequisite()
