@@ -55,6 +55,12 @@ runs:
           exit 0
         fi
 
+        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+          REPO_PREFIX="ubuntu"
+        else
+          REPO_PREFIX="apt"
+        fi
+
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
@@ -64,6 +70,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "${REPO_PREFIX}-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash
