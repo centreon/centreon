@@ -1,8 +1,7 @@
 import { useRef, useState } from 'react';
 
-import { equals } from 'ramda';
 import { useFormikContext } from 'formik';
-import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -15,6 +14,7 @@ import {
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
+import { getEndpointConfiguredUser } from '../api/endpoints';
 import {
   labelCancel,
   labelClose,
@@ -23,22 +23,29 @@ import {
   labelName,
   labelUser
 } from '../translatedLabels';
-import { getEndpointConfiguredUser } from '../api/endpoints';
 
 import CustomTimePeriod from './CustomTimePeriod/CustomTimePeriod';
 import Title from './Title';
 import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
-import useCreateTokenFormValues from './useTokenFormValues';
-import { isCreatingTokenAtom } from './atoms';
 import { useStyles } from './tokenCreation.styles';
+import useCreateTokenFormValues from './useTokenFormValues';
 
 interface Props {
+  closeDialog: () => void;
   data?: ResponseError | CreatedToken;
+  isDialogOpened: boolean;
   isMutating: boolean;
+  isRefetching: boolean;
 }
 
-const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
+const FormCreation = ({
+  data,
+  isMutating,
+  isRefetching,
+  isDialogOpened,
+  closeDialog
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -51,8 +58,6 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     useState(false);
   const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-
-  const [isCreatingToken, setIsCreatingToken] = useAtom(isCreatingTokenAtom);
 
   const {
     values,
@@ -70,9 +75,9 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
     values
   });
 
-  const closeDialog = (): void => {
+  const close = (): void => {
     resetForm();
-    setIsCreatingToken(false);
+    closeDialog();
   };
 
   const handleCustomizeCase = (value): void => {
@@ -93,7 +98,6 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   };
 
   const changeUser = (_, value): void => {
-    console.log({ data, value });
     setFieldValue('user', value);
   };
 
@@ -103,18 +107,20 @@ const FormCreation = ({ data, isMutating }: Props): JSX.Element => {
   }));
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
+  const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
 
   return (
     <Dialog
-      confirmDisabled={!dirty || !isValid}
+      cancelDisabled={isMutating}
+      confirmDisabled={confirmDisabled}
       data-testid="tokenCreationDialog"
       labelCancel={t(labelCancel)}
       labelConfirm={labelConfirm}
       labelTitle={<Title token={token} />}
-      open={isCreatingToken}
+      open={isDialogOpened}
       submitting={isMutating}
-      onCancel={token ? undefined : closeDialog}
-      onConfirm={token ? closeDialog : handleSubmit}
+      onCancel={token ? undefined : close}
+      onConfirm={token ? close : handleSubmit}
     >
       <TextField
         autoComplete="off"

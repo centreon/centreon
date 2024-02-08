@@ -16,6 +16,7 @@ export interface UseTokenListing {
   changeLimit: (value: number) => void;
   changePage: (value: number) => void;
   dataListing: DataListing;
+  isRefetching: boolean;
   onSort: (sortParams: SortParams) => void;
   refetch: (
     options?: RefetchOptions | undefined
