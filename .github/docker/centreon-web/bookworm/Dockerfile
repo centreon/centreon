@@ -56,7 +56,7 @@ sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.2-7/mydumper_0.15.2-7.bookworm_amd64.deb
-apt-get install -y /tmp/mydumper_*.deb zstd
+apt-get install -y /tmp/mydumper_*.deb zstd libpcre3
 rm -f /tmp/mydumper_*
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
