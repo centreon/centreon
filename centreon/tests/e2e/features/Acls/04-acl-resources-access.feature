@@ -7,7 +7,7 @@ Feature: ACL Resources Access administration
   Background:
     Given I am logged in a Centreon server
     And three ACL access groups including non admin users exist
-                         
+
   Scenario: Creating Resources Access linked to several access groups
     When I add a new Resources access linked with two groups
     Then the Resources access is saved with its properties
