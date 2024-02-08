@@ -267,7 +267,7 @@ class DashboardException extends \Exception
     }
 
     /**
-     * @param int[] $accessGroupIds
+     * @param int[] $contactGroupIds
      *
      * @return self
      */

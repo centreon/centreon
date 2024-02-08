@@ -123,6 +123,7 @@ class ShareDashboardValidator
 
     /**
      * @param array<array{id: int, role: string}> $contactGroups
+     * @param int[] $userContactGroupIds
      *
      * @throws DashboardException|\Throwable
      */
@@ -266,7 +267,8 @@ class ShareDashboardValidator
     }
 
     /**
-     * @param int[] $contactIds
+     * @param int[] $requestContactIds
+     * @param int[] $contactIdsInUserAccessGroups
      *
      * @throws DashboardException
      */

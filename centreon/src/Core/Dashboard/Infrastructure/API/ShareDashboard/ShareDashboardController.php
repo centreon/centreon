@@ -43,8 +43,25 @@ final class ShareDashboardController extends AbstractController
         return $presenter->show();
     }
 
+    /**
+     * @param int $dashboardId
+     * @param Request $request
+     * @return ShareDashboardRequest
+     */
     private function createRequest(int $dashboardId, Request $request): ShareDashboardRequest
     {
+        /**
+         * @var array{
+         *  contacts: array<array{
+         *      id:int,
+         *      role:string
+         *  }>,
+         *  contact_groups: array<array{
+         *      id:int,
+         *      role:string
+         *  }>
+         * } $requestBody
+         */
         $requestBody = $this->validateAndRetrieveDataSent(
             $request,
             __DIR__ . '/ShareDashboardSchema.json'

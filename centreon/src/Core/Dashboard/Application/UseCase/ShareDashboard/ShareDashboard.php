@@ -117,6 +117,7 @@ final class ShareDashboard
             );
             $presenter->presentResponse(new NoContentResponse());
         } catch(DashboardException $ex) {
+            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new InvalidArgumentResponse($ex->getMessage())
             );
@@ -146,6 +147,7 @@ final class ShareDashboard
             );
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
+            $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
             throw $ex;
         }
@@ -184,6 +186,7 @@ final class ShareDashboard
             );
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
+            $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
             throw $ex;
         }
