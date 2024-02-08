@@ -428,6 +428,9 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             'alias' => 'sg.sg_alias',
             'name' => 'sg.sg_name',
             'is_activated' => 'sg.sg_activate',
+            'host_id' => 'h.host_id',
+            'host_group_id' => 'hg.hg_id',
+            'host_category_id' => 'hc.hc_id',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 

@@ -811,6 +811,9 @@ paths:
         * name
         * alias
         * is_activated
+        * host_id
+        * host_group_id
+        * host_category_id
       responses:
         "200":
           description: "OK"
