@@ -3,7 +3,7 @@ Feature: ACL Actions Access
   As a Centreon administrator
   I want to administrate Actions Access
   To restrict users actions on Centreon objects
-	
+
   Background:
     Given I am logged in a Centreon server
     And one ACL access group including a non admin user exists
@@ -21,8 +21,8 @@ Feature: ACL Actions Access
   Scenario: Creating actions access by selecting authorized actions by lots
     When I check button-radio for a lot of actions
     Then all buttons-radio of the authorized actions lot are checked
-    
-  Scenario: Remove one access group from Actions access 
+
+  Scenario: Remove one access group from Actions access
     Given one existing action access
     When I remove the access group
     Then link between access group and action access must be broken
@@ -31,12 +31,12 @@ Feature: ACL Actions Access
     Given one existing action access
     When I duplicate the action access
     Then a new action access record is created with identical properties except the name
-    
+
   Scenario: Modify one existing Actions access record
     Given one existing action access
-    When I modify some properties such as name, description, comments, status or authorized actions 
+    When I modify some properties such as name, description, comments, status or authorized actions
     Then the modifications are saved
-    
+
   Scenario: Delete one existing Actions access record
     Given one existing action access
     When I delete the action access

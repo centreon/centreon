@@ -7,13 +7,13 @@ Feature: ACL Menus Access administration
   Background:
     Given I am logged in a Centreon server
     And three ACL access groups have been created
-                    
+
   Scenario: Creating ACL Menu Access linked to several access groups
     When I add a new menu access linked with two groups
     Then the menu access is saved with its properties
     And only chosen linked access groups display the new menu access in Authorized information tab
-    
-  Scenario: Remove one access group from Menu access 
+
+  Scenario: Remove one access group from Menu access
     Given one existing ACL Menu access linked with two access groups
     When I remove one access group
     Then link between access group and Menu access must be broken
