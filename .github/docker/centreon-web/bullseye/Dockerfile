@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${VERSION}
 
 ARG VERSION
 
@@ -25,7 +25,6 @@ mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
 mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
 chmod -R 755 /usr/share/centreon/container.*
 
-mkdir /usr/share/centreon/www/install/tmp
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
 chown -R www-data:www-data /usr/share/centreon/www/install/tmp
 
@@ -56,7 +55,7 @@ sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper_0.15.1-3.bullseye_amd64.deb
+wget -P /tmp/ https://github.com/mydumper/mydumper/releases/download/v0.15.2-7/mydumper_0.15.2-7.bullseye_amd64.deb
 apt-get install -y /tmp/mydumper_*.deb zstd
 rm -f /tmp/mydumper_*
 mkdir -p /usr/local/src/sql/databases

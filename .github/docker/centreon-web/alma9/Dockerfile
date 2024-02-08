@@ -21,7 +21,6 @@ mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
 mv /tmp/entrypoint/container.d /usr/share/centreon/container.d
 chmod -R 755 /usr/share/centreon/container.*
 
-mkdir /usr/share/centreon/www/install/tmp
 mv /tmp/configuration/* /usr/share/centreon/www/install/tmp/
 chown -R apache:apache /usr/share/centreon/www/install/tmp
 
@@ -50,7 +49,7 @@ sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.1-3/mydumper-0.15.1-3.el9.x86_64.rpm zstd
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.2-7/mydumper-0.15.2-7.el9.x86_64.rpm zstd
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
