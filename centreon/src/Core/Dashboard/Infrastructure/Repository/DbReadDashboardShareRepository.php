@@ -804,9 +804,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $query = <<<'SQL'
             SELECT 1 FROM `:db`.`dashboard` d
             LEFT JOIN  `:db`.`dashboard_contact_relation` dcr
-            ON dcr.dashboard_id = dpl.id
+            ON dcr.dashboard_id = d.id
             LEFT JOIN  `:db`.`dashboard_contactgroup_relation` dcgr
-            ON dcgr.dashboard_id = dpl.id
+            ON dcgr.dashboard_id = d.id
             WHERE
                 (dcgr.dashboard_id = :dashboardId
                 AND dcgr.contactgroup_id IN (
@@ -815,10 +815,10 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 )
                 AND dcgr.role = 'editor')
             OR (
-                dpcr.dashboard_id = :dashboardId
-                AND dpcr.contact_id = :contactId
-                AND dpcr.role = 'editor')
-            OR dpl.created_by = :contactId
+                dcr.dashboard_id = :dashboardId
+                AND dcr.contact_id = :contactId
+                AND dcr.role = 'editor')
+            OR d.created_by = :contactId
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));

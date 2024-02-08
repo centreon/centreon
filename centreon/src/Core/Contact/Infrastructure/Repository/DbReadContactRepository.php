@@ -290,12 +290,10 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
                                    ON c.contact_id = gcr.contact_contact_id
                          LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
                                    ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
-                WHERE c.contact_id = :contactId
-                    AND (gcr.acl_group_id IN ({$accessGroupIdsAsString})
-                    OR gcgr.acl_group_id IN ({$accessGroupIdsAsString}));
+                WHERE  gcr.acl_group_id IN ({$accessGroupIdsAsString})
+                    OR gcgr.acl_group_id IN ({$accessGroupIdsAsString});
                 SQL
         ));
-        $statement->bindValue(':contactId', $contactId,\PDO::PARAM_INT);
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }

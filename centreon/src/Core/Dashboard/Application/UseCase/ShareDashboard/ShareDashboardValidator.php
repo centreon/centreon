@@ -138,7 +138,7 @@ class ShareDashboardValidator
         $this->validateContactGroupsHaveDashboardACLs($dashboardContactGroupRoles, $contactGroupIds);
         $this->validateContactGroupsHaveSufficientRightForSharingRole($contactGroups, $dashboardContactGroupRoles);
         if (! $this->rights->hasAdminRole()) {
-            $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $$userContactGroupIds);
+            $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $userContactGroupIds);
         }
     }
 

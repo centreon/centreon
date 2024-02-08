@@ -170,11 +170,11 @@ final class ShareDashboard
         try {
             $this->dataStorageEngine->startTransaction();
             $this->writeDashboardShareRepository->deleteDashboardSharesByContactIds(
-                $playlistId,
+                $dashboardId,
                 $contactIdsInUserAccessGroups
             );
             $this->writeDashboardShareRepository->deleteDashboardSharesByContactGroupIds(
-                $playlistId,
+                $dashboardId,
                 $userContactGroupIds
             );
             $this->writeDashboardShareRepository->addDashboardContactShares($dashboardId, $contactRoles);

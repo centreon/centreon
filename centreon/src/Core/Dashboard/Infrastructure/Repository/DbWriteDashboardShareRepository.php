@@ -220,7 +220,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
             <<<SQL
                 DELETE FROM dashboard_contact_relation 
                     WHERE dashboard_id = :dashboardId 
-                    AND contactgroup_id IN ($bindTokenAsString)
+                    AND contact_id IN ($bindTokenAsString)
                 SQL
         ));
         $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
