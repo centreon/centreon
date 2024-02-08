@@ -14,7 +14,7 @@ COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configurat
 
 COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
-RUN bash -e <<EOF
+RUN bash -ex <<EOF
 
 apt-get update
 
