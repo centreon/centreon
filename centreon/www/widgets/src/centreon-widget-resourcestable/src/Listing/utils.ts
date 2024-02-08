@@ -25,17 +25,14 @@ export const formatRessources = ({
     return data as ResourceListing;
   }
 
-  const result = map(
-    (item) => {
-      return {
-        ...item,
-        isHeadRow: true,
-        parent_resource: item?.children?.resources,
-        resourceCount: item?.children?.status_count
-      };
-    },
-    data?.result || []
-  );
+  const result = map((item) => {
+    return {
+      ...item,
+      isHeadRow: true,
+      parent_resource: item?.children?.resources,
+      resourceCount: item?.children?.status_count
+    };
+  }, data?.result || []);
 
   const hostsResponse = { ...data, result } as ResourceListing;
 

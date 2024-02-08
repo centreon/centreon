@@ -15,11 +15,12 @@ import type { PollersIssuesList } from '../api/models';
 import { retrievedNavigation } from '../../Navigation/mocks';
 import type Navigation from '../../Navigation/models';
 
-export type DeepPartial<Thing> = Thing extends Array<infer InferredArrayMember>
-  ? DeepPartialArray<InferredArrayMember>
-  : Thing extends object
-    ? DeepPartialObject<Thing>
-    : Thing | undefined;
+export type DeepPartial<Thing> =
+  Thing extends Array<infer InferredArrayMember>
+    ? DeepPartialArray<InferredArrayMember>
+    : Thing extends object
+      ? DeepPartialObject<Thing>
+      : Thing | undefined;
 
 type DeepPartialArray<Thing> = Array<DeepPartial<Thing>>;
 
