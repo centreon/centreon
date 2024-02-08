@@ -432,15 +432,16 @@ $cloneSetMacro = [
     ),
 ];
 
+$form->addElement('header', 'check', _('Host Check Properties'));
+
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+$checkCommandSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+);
+
 // Check information
 if (! $isCloudPlatform) {
-    $form->addElement('header', 'check', _('Host Check Properties'));
-
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-    $checkCommandSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-    );
 
     $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
