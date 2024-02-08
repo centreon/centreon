@@ -9,7 +9,7 @@ import {
   labelValueFormat
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useValueFormat from './useValueFormat';
 
@@ -20,7 +20,7 @@ const WidgetValueFormat = ({
 
   const { value, changeType } = useValueFormat(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const options = [
     {

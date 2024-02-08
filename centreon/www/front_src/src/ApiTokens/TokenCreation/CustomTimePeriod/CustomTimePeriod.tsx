@@ -11,6 +11,7 @@ import { labelInvalidDateCreationToken } from '../../translatedLabels';
 import { AnchorElDuration, OpenPicker } from '../models';
 import { isInvalidDate as validateDate } from '../utils';
 
+import { useStyles } from './customTimePeriod.styles';
 import ActionList from './ActionsList';
 import InvisibleField from './InvisibleField';
 
@@ -18,13 +19,16 @@ interface Props {
   anchorElDuration: AnchorElDuration;
   openPicker: OpenPicker;
   setIsDisplayingDateTimePicker: Dispatch<SetStateAction<boolean>>;
+  windowHeight: number;
 }
 
 const CustomTimePeriod = ({
   anchorElDuration,
   openPicker,
-  setIsDisplayingDateTimePicker
+  setIsDisplayingDateTimePicker,
+  windowHeight
 }: Props): JSX.Element => {
+  const { classes } = useStyles({ windowHeight });
   const { t } = useTranslation();
 
   const { format } = useLocaleDateTimeFormat();
@@ -82,7 +86,13 @@ const CustomTimePeriod = ({
       cancelDate,
       isInvalidDate: validateDate({ endTime: endDate })
     },
-    popper: { anchorEl }
+    desktopPaper: {
+      classes: { root: classes.root }
+    },
+    popper: {
+      anchorEl,
+      className: classes.popper
+    }
   };
 
   const slots = {

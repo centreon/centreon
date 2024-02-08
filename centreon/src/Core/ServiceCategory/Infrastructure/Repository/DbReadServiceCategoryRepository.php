@@ -271,9 +271,12 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     public function findNames(array $serviceCategoryIds): ServiceCategoryNamesById
     {
         $concatenator = new SqlConcatenator();
+
+        $serviceCategoryIds = array_unique($serviceCategoryIds);
+
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT DISTINCT(sc.sc_id), sc.sc_name
+                SELECT sc.sc_id, sc.sc_name
                 FROM `:db`.service_categories sc
                 WHERE sc.sc_id IN (:serviceCategoryIds)
                     AND sc.level IS NULL

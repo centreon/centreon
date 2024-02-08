@@ -25,8 +25,8 @@ namespace Core\Media\Application\UseCase\MigrateAllMedias;
 
 final class MigrationAllMediasResponse
 {
-    /** @var \Iterator<MediaRecordedDto|MigrationErrorDto> */
-    public \Iterator $results;
+    /** @var \Traversable<MediaRecordedDto|MigrationErrorDto> */
+    public \Traversable $results;
 
     public function __construct()
     {

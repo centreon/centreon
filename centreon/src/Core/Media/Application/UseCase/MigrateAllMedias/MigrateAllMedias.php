@@ -63,73 +63,51 @@ final class MigrateAllMedias
     }
 
     /**
-     * @param \Iterator<int, Media>&\Countable $medias
+     * @param \Traversable<int, Media>&\Countable $medias
      * @param MigrationAllMediasResponse $response
      */
-    private function migrateMedias(\Iterator&\Countable $medias, MigrationAllMediasResponse $response): void
+    private function migrateMedias(\Traversable&\Countable $medias, MigrationAllMediasResponse $response): void
     {
-        $response->results = new class($medias, $this->writeMediaRepository) implements \Iterator, \Countable {
+        $response->results = new class($medias, $this->writeMediaRepository) implements \IteratorAggregate, \Countable {
             /**
-             * @param \Iterator<int, Media>&\Countable $medias
+             * @param \Traversable<int, Media>&\Countable $medias
              * @param WriteMediaRepositoryInterface $writeMediaRepository
              */
             public function __construct(
-                readonly private \Iterator&\Countable $medias,
+                readonly private \Traversable&\Countable $medias,
                 readonly private WriteMediaRepositoryInterface $writeMediaRepository,
             ) {
             }
 
-            /**
-             * @return MediaRecordedDto|MigrationErrorDto
-             */
-            public function current(): MediaRecordedDto|MigrationErrorDto
+            public function getIterator(): \Traversable
             {
-                $media = $this->medias->current();
-                try {
-                    if ($media->getData() === null) {
-                        throw new \Exception(sprintf('The file %s does not exist', $media->getRelativePath()));
+                foreach ($this->medias as $media) {
+                    try {
+                        if ($media->getData() === null) {
+                            throw new \Exception(sprintf('The file %s does not exist', $media->getRelativePath()));
+                        }
+                        $destinationNewMediaId = $this->writeMediaRepository->add(NewMedia::createFromMedia($media));
+                        $status = new MediaRecordedDto();
+                        $status->id = $destinationNewMediaId;
+                        $status->filename = $media->getFilename();
+                        $status->directory = $media->getDirectory();
+                        $status->md5 = md5($media->getData());
+
+                        yield $status;
+                    } catch (\Throwable $ex) {
+                        $status = new MigrationErrorDto();
+                        $status->filename = $media->getFilename();
+                        $status->directory = $media->getDirectory();
+                        $status->reason = $ex->getMessage();
+
+                        yield $status;
                     }
-                    $destinationNewMediaId = $this->writeMediaRepository->add(NewMedia::createFromMedia($media));
-                    $status = new MediaRecordedDto();
-                    $status->id = $destinationNewMediaId;
-                    $status->filename = $media->getFilename();
-                    $status->directory = $media->getDirectory();
-                    $status->md5 = md5($media->getData());
-
-                    return $status;
-                } catch (\Throwable $ex) {
-                    $status = new MigrationErrorDto();
-                    $status->filename = $media->getFilename();
-                    $status->directory = $media->getDirectory();
-                    $status->reason = $ex->getMessage();
-
-                    return $status;
                 }
-            }
-
-            public function next(): void
-            {
-                $this->medias->next();
-            }
-
-            public function key(): int
-            {
-                return $this->medias->key();
-            }
-
-            public function valid(): bool
-            {
-                return $this->medias->key() < $this->medias->count();
-            }
-
-            public function rewind(): void
-            {
-                 $this->medias->rewind();
             }
 
             public function count(): int
             {
-                return $this->medias->count();
+                return count($this->medias);
             }
         };
     }

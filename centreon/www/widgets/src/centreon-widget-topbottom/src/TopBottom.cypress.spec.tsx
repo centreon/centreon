@@ -1,11 +1,13 @@
 import { createStore } from 'jotai';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
-import { FormThreshold } from '../../models';
+import { Data, FormThreshold } from '../../models';
+import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 
 import { metricsTopEndpoint } from './api/endpoint';
-import { Data, TopBottomSettings } from './models';
+import { TopBottomSettings } from './models';
 
 import Widget from '.';
 
@@ -57,6 +59,9 @@ const defaultThreshold: FormThreshold = {
   warningType: 'default'
 };
 
+const linkToResourcePing1 =
+  '/monitoring/resources?details=%7B%22id%22%3A%221%22%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2F1%2Fservices%2F1%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22details%22%2C%22tabParameters%22%3A%7B%7D%2C%22uuid%22%3A%22h1-s1%22%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing_1%5C%5Cb%22%2C%22name%22%3A%22Ping_1%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon_server%5C%5Cb%22%2C%22name%22%3A%22Centreon_server%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true';
+
 const initializeComponent = ({
   topBottomSettings = defaultSettings
 }: Props): void => {
@@ -76,24 +81,68 @@ const initializeComponent = ({
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Widget
-          globalRefreshInterval={30}
-          panelData={data}
-          panelOptions={{
-            refreshInterval: 'custom',
-            refreshIntervalCustom: 30,
-            threshold: defaultThreshold,
-            topBottomSettings,
-            valueFormat: 'human'
-          }}
-          store={store}
-        />
+        <BrowserRouter>
+          <Widget
+            globalRefreshInterval={{
+              interval: 30,
+              type: 'global'
+            }}
+            panelData={data}
+            panelOptions={{
+              refreshInterval: 'custom',
+              refreshIntervalCustom: 30,
+              threshold: defaultThreshold,
+              topBottomSettings,
+              valueFormat: 'human'
+            }}
+            refreshCount={0}
+            store={store}
+          />
+        </BrowserRouter>
+      </div>
+    )
+  });
+};
+
+const initializeEmptyComponent = (): void => {
+  const store = createStore();
+
+  cy.viewport('macbook-13');
+
+  cy.mount({
+    Component: (
+      <div style={{ height: '400px', width: '100%' }}>
+        <BrowserRouter>
+          <Widget
+            globalRefreshInterval={{
+              interval: 30,
+              type: 'global'
+            }}
+            panelData={{}}
+            panelOptions={{
+              refreshInterval: 'custom',
+              refreshIntervalCustom: 30,
+              threshold: defaultThreshold,
+              topBottomSettings: defaultSettings,
+              valueFormat: 'human'
+            }}
+            refreshCount={0}
+            store={store}
+          />
+        </BrowserRouter>
       </div>
     )
   });
 };
 
 describe('TopBottom', () => {
+  it('displays a message when the dataset is empty', () => {
+    initializeEmptyComponent();
+    cy.contains(labelPreviewRemainsEmpty).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('displays the widget', () => {
     initializeComponent({});
 
@@ -152,5 +201,23 @@ describe('TopBottom', () => {
     cy.contains('40 B').should('not.exist');
 
     cy.makeSnapshot();
+  });
+
+  it('navigates to the resource with predefined filters when resource name or bar is clicked', () => {
+    initializeComponent({
+      topBottomSettings: {
+        numberOfValues: 5,
+        order: 'bottom',
+        showLabels: false
+      }
+    });
+
+    cy.findAllByTestId('link to Ping_1')
+      .eq(0)
+      .should('have.attr', 'href', linkToResourcePing1);
+
+    cy.findAllByTestId('link to Ping_1')
+      .eq(1)
+      .should('have.attr', 'href', linkToResourcePing1);
   });
 });

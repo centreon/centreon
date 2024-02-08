@@ -27,6 +27,7 @@ import {
   selectedResourcesDetailsAtom
 } from '../Details/detailsAtoms';
 import { ChangeCustomTimePeriodProps } from '../Details/tabs/Graph/models';
+import { resourceDetailsDecoder } from '../decoders';
 
 export interface DetailsState {
   changeCustomTimePeriod: (props: ChangeCustomTimePeriodProps) => void;
@@ -37,6 +38,7 @@ const useLoadDetails = (): DetailsState => {
   const { t } = useTranslation();
 
   const { sendRequest } = useRequest<ResourceDetails>({
+    decoder: resourceDetailsDecoder,
     getErrorMessage: ifElse(
       pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),

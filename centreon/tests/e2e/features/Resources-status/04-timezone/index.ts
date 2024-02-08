@@ -263,7 +263,7 @@ When('the user creates a downtime on a resource', () => {
     .find('input[type="checkbox"]:first')
     .click();
 
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByTestId({ testId: 'mainSetDowntime' }).last().click();
 
   cy.getByLabel({ label: 'Set downtime' }).last().click();
 

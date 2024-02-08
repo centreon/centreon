@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
+      - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
         id: filter
         with:
           filters: |
@@ -119,6 +119,9 @@ jobs:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   frontend-web-build:
     needs: [get-version]
@@ -190,7 +193,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -277,7 +280,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         with:
           php-version: 8.1
           coverage: none
@@ -285,7 +288,7 @@ jobs:
           runner: ubuntu-22.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@c49029afecf85fda829d8c6c7f1b5f7b8bc3f7be # v2
+        uses: ramsey/composer-install@83af392bf5f031813d25e6fe4cd626cdba9a2df6 # v2.2.0
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -309,7 +312,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         with:
           php-version: 8.1
           coverage: none
@@ -372,6 +375,12 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-nfpm-bookworm
+            distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
 
     runs-on: ubuntu-22.04
 
@@ -388,28 +397,28 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Restore translation from cache
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: centreon/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
           fail-on-cache-miss: true
 
       - name: Restore web index.html from cache
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: centreon/www/index.html
           key: ${{ github.sha }}-${{ github.run_id }}-index
           fail-on-cache-miss: true
 
       - name: Restore web frontend from cache
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
 
       - name: Restore widget frontend from cache
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: centreon/www/widgets/src
           key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
@@ -420,7 +429,7 @@ jobs:
         shell: bash
 
       - name: Restore vendor directory from cache
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: centreon/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
@@ -428,7 +437,7 @@ jobs:
 
       - name: Set perl vendor lib path according to distrib
         run: |
-          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             PERL_VENDORLIB="/usr/share/perl5"
           else
             PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
@@ -444,7 +453,7 @@ jobs:
         run: |
           rm -rf centreon/www/front_src
           rm -rf centreon/www/widgets/src
-          find centreon/www/widgets/ -maxdepth 1 -type f -delete
+          find centreon/www/widgets/ -maxdepth 1 -type f ! -name "*.php" ! -name "*.ts" -delete
         shell: bash
 
       - name: Replace macros in source code
@@ -493,6 +502,7 @@ jobs:
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -522,6 +532,9 @@ jobs:
           elif [ "${{ matrix.os }}" = "bullseye" ]; then
             DISTRIB=bullseye
             PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.os }}" = "bookworm" ]; then
+            DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.os }} is not managed"
             exit 1
@@ -539,7 +552,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -617,7 +630,7 @@ jobs:
         shell: bash
 
       - name: Store slim image in cache
-        uses: actions/cache/save@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
@@ -733,7 +746,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
@@ -867,7 +880,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -889,7 +902,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -904,6 +917,7 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+          github_base_ref: ${{ github.base_ref }}
 
   deploy-platform-nightly:
     needs:

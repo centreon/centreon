@@ -33,6 +33,7 @@ $dbStorage = $dependencyInjector['realtime_db'];
 $ticket_log = new Centreon_OpenTickets_Log($db, $dbStorage);
 
 if (isset($_SESSION['centreon'])) {
+    /** @var \Centreon $centreon */
     $centreon = $_SESSION['centreon'];
 } else {
     exit;

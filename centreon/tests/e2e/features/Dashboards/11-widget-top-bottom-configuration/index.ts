@@ -32,7 +32,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
@@ -69,7 +69,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -152,7 +152,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@dashboardMetricsTop');
   }
 );
@@ -202,6 +202,7 @@ When(
     cy.contains(hostName)
       .parent()
       .getByTestId({ testId: 'CancelIcon' })
+      .eq(0)
       .click();
   }
 );
@@ -227,7 +228,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 
@@ -262,9 +263,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
