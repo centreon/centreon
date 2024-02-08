@@ -16214,27 +16214,6 @@ msgstr ""
 # msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
-# msgstr ""
-
 # msgid "Start"
 # msgstr ""
 
@@ -16242,27 +16221,6 @@ msgstr ""
 # msgstr ""
 
 # msgid "Custom value"
-# msgstr ""
-
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
 # msgstr ""
 
 # msgid "Start"
@@ -16464,7 +16422,7 @@ msgstr "Modo avanzado"
 # msgid "Thresholds"
 # msgstr ""
 
-# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
 # msgstr ""
 
 # msgid "Value format"
@@ -16473,7 +16431,16 @@ msgstr "Modo avanzado"
 # msgid "Time period"
 # msgstr ""
 
-# msgid "Last hour (default)"
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 3 hours"
+# msgstr ""
+
+# msgid "Last 6 hours"
+# msgstr ""
+
+# msgid "Last 12 hours"
 # msgstr ""
 
 # msgid "Last 24 hours"
@@ -16486,6 +16453,9 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
 # msgstr ""
 
 # msgid "Last 12 months"
@@ -16774,5 +16744,115 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "Failed to copy link"
+# msgstr ""
+
+# msgid "Link copied"
+# msgstr ""
+
+# msgid "Add a contact"
+# msgstr ""
+
+# msgid "Add a contact group"
+# msgstr ""
+
+# msgid "Share with"
+# msgstr ""
+
+# msgid "Removed"
+# msgstr ""
+
+# msgid "Updated"
+# msgstr ""
+
+# msgid "User rights"
+# msgstr ""
+
+# msgid "The share list is empty"
+# msgstr ""
+
+# msgid "Failed to save shares"
+# msgstr ""
+
+# msgid "Shares saved"
+# msgstr ""
+
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
 # msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+# msgstr ""
+
+# msgid "Create a new resource access rule"
+# msgstr ""
+
+# msgid "Edit resource access rule"
+# msgstr ""
+
+# msgid "Rule properties"
+# msgstr ""
+
+# msgid "Resource selection"
+# msgstr ""
+
+# msgid "Contacts/Contact groups"
+# msgstr ""
+
+# msgid "The resource access rule was successfully added"
+# msgstr ""
+
+# msgid "The resource access rule was successfully updated"
+# msgstr ""
+
+# msgid "Add new dataset"
+# msgstr ""
+
+# msgid "Choose at least one contact or contact group"
+# msgstr ""
+
+# msgid "Metaservice"
+# msgstr ""
+
+# msgid "Select resource type"
+# msgstr ""
+# msgid "Your comment has been saved."
+# msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
 # msgstr ""

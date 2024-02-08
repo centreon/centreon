@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useStyle = makeStyles()((theme) => ({
+const usePageHeaderStyles = makeStyles()((theme) => ({
   box: {
     alignItems: 'center',
     borderBottom: `1px solid ${theme.palette.primary.main}`,
@@ -17,4 +17,4 @@ const useStyle = makeStyles()((theme) => ({
   }
 }));
 
-export default useStyle;
+export default usePageHeaderStyles;

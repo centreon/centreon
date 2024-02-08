@@ -55,7 +55,7 @@ final class DeleteDashboard
         try {
             if ($this->rights->hasAdminRole()) {
                 $presenter->presentResponse($this->deleteDashboardAsAdmin($dashboardId));
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 $presenter->presentResponse($this->deleteDashboardAsContact($dashboardId));
             } else {
                 $this->error(

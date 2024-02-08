@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@e6f75134d35752277f093989e72e140eaa222f35 # v2
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         with:
           php-version: 8.1
           coverage: none
@@ -75,17 +75,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
         include:
           - package_extension: rpm
-            image: packaging-alma8
+            image: packaging-nfpm-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-alma9
+            image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-bullseye
+            image: packaging-nfpm-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-nfpm-bookworm
+            distrib: bookworm
 
     runs-on: ubuntu-22.04
 
@@ -116,6 +119,7 @@ jobs:
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
@@ -168,7 +172,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -189,7 +193,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources

@@ -79,6 +79,7 @@ const DialogDowntime = ({
   return (
     <Dialog
       confirmDisabled={!canConfirm}
+      data-testid="dialogDowntime"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSetDowntime)}
       labelTitle={t(labelDowntime)}

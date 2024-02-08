@@ -42,9 +42,13 @@ services:
             $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
             $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 
+    Core\Media\Infrastructure\Repository\ApiReadMediaRepository:
+        arguments:
+            $logger: '@Centreon\Domain\Log\Logger'
+
     Core\Media\Infrastructure\Repository\ApiWriteMediaRepository:
         calls:
-        - method: setApiTimeOut
+        - method: setTimeOut
           arguments: [ '%curl.timeout%' ]
 
 
