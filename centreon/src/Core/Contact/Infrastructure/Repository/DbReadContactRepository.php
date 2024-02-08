@@ -323,9 +323,9 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
                 c.contact_email,
                 c.contact_admin
             FROM `:db`.contact c
-            WHERE c.contact_admin = '1' 
+            WHERE c.contact_admin = '1'
               AND c.contact_oreon = '1'
-              AND c.contact_id IN ($bindTokenAsString)
+              AND c.contact_id IN ({$bindTokenAsString})
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));

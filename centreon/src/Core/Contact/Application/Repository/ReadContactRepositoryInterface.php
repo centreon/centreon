@@ -105,7 +105,7 @@ interface ReadContactRepositoryInterface
      * @throws \Throwable
      *
      * @return Contact[]
-     * /
+     *                   /
      */
     public function findAdminsByIds(array $contactIds): array;
 }
