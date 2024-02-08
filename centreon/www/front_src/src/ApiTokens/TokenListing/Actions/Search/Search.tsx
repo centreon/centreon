@@ -1,4 +1,4 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useEffect } from 'react';
 
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,9 @@ const TokenSearch = (): JSX.Element => {
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
   const { getSearchParameters } = useBuildSearchParameters(searchValue);
 
-  const clearFilters = (): void => {};
+  const clearFilters = (): void => {
+    setSearchValue('');
+  };
 
   const handleSearch = (e): void => {
     setSearchValue(e?.target?.value);
@@ -34,6 +36,13 @@ const TokenSearch = (): JSX.Element => {
 
     setCurrentFilter({ ...currentFilter, search: getSearchParameters() });
   };
+
+  useEffect(() => {
+    if (searchValue) {
+      return;
+    }
+    setCurrentFilter({ ...currentFilter, search: undefined });
+  }, [searchValue]);
 
   return (
     <div className={classes.search}>
