@@ -308,7 +308,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         sg.sg_id,
                         sg.sg_name,
                         sg.sg_alias,
@@ -327,7 +327,45 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                 <<<'SQL'
                     ORDER BY sg.sg_name ASC
                     SQL
+            )
+            ->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN `:db`.acl_resources_sg_relations arsr
+                        ON sg.sg_id = arsr.sg_id
+                    LEFT JOIN `:db`.acl_resources ar
+                        ON arsr.acl_res_id = ar.acl_res_id
+                    SQL
             );
+        if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_group_id')){
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN `:db`.acl_resources_hg_relation arhgr
+                        ON ar.acl_res_id = arhgr.acl_res_id
+                    LEFT JOIN `:db`.hostgroup hg
+                        ON arhgr.hg_hg_id = hg.hg_id
+                    SQL
+            );
+        } else if(mb_strpos($_GET['search'], 'host_id')) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN `:db`.acl_resources_host_relation arhr
+                        ON ar.acl_res_id = arhr.acl_res_id
+                    LEFT JOIN `:db`.host h
+                        ON arhgr.host_host_id = h.host_id
+                    SQL
+            );
+        } else if(mb_strpos($_GET['search'], 'host_category_id')) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                        LEFT JOIN `:db`.acl_resources_hc_relations arhcr
+                            ON ar.acl_res_id = arhcr.acl_res_id
+                        LEFT JOIN `:db`.hostcategories hc
+                            ON arhcr.hc_id = hc.hc_id
+                            AND hc.level IS NOT NULL
+                    SQL
+            );
+        }
+
 
         if ([] !== $accessGroupIds) {
             $concatenator
