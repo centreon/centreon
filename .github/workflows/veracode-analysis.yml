@@ -110,27 +110,6 @@ jobs:
           # Find baseline file
           baseline_file_path=""
           create_baseline_from=""
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
-          if [[ "${{ inputs.stability }}" == "testing" ]] || [[ ${{ github.base_ref || github.ref_name }} =~ ^hotfix-[2-9][0-9].[0-9][0-9]-next ]]; then
-            TARGETS=( "${{ github.base_ref || github.ref_name }}" "${{ inputs.major_version }}.x" master )
-          else
-            TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
-          fi
-
-          for TARGET in ${TARGETS[@]}; do
-            RESULT=0
-            echo "[INFO] - Searching baseline file for $TARGET's"
-            aws s3 ls "$BUCKET/$TARGET/results.json" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$BUCKET/$TARGET/results.json" "/tmp/results.json"
-              echo "[INFO] - Found $TARGET's baseline file"
-              baseline_file_path="/tmp/results.json"
-              create_baseline_from="standard"
-              break
-            else
-              echo "::warning::Baseline file not found for branch $TARGET"
-            fi
-          done
 
           echo "baseline_file=$baseline_file_path" >> $GITHUB_ENV
           echo "create_baseline_from=$create_baseline_from" >> $GITHUB_ENV
@@ -159,7 +138,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
+        #if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -268,13 +247,13 @@ jobs:
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
+          version: "develop_support_case_00832599"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
           createprofile: true
           createsandbox: true
-          sandboxname: "${{ github.ref_name }}"
+          sandboxname: "support_case_00832599"
           scantimeout: 120
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
@@ -295,42 +274,3 @@ jobs:
           app-name: "${{ inputs.module_name }}"
           sandbox-name: "${{ github.ref_name }}"
           delete-on-promote: false
-
-  sca-scan:
-    needs: [build]
-    name: Run a SCA scan
-    # only stable and unstable maintenance branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
-    runs-on: ubuntu-latest
-    continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Removing pnpm dependencies
-        run: |
-          cd ${{ inputs.module_directory }}
-          echo "[DEBUG] - pnpm dependencies analysis disabled"
-          find ./ -type f -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" -delete
-
-          RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
-          if [[ -n ${RESULT[0]} ]]; then
-          	echo "trigger_sca_scan=true" >> $GITHUB_ENV
-          fi
-
-      - name: SCA scan
-        if: env.trigger_sca_scan == 'true'
-        env:
-          SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
-          SRCCLR_REGION: "ER"
-
-        uses: sc979/veracode-sca@d3cf7437b198b0e861785f2568d50aeed45bb99b # v1.10
-        # This action is based on the following command:
-        # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          create-issues: false
-          allow-dirty: true
-          path: "./${{ inputs.module_directory }}"
-          recursive: true
