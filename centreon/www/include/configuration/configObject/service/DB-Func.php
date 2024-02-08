@@ -2094,11 +2094,10 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     isset($ret["command_command_id2"]) && $ret["command_command_id2"] != null
         ? $rq .= "'" . $ret["command_command_id2"] . "', "
         : $rq .= "NULL, ";
-    /*$rq .= "timeperiod_tp_id2 = ";
-      isset($ret["timeperiod_tp_id2"]) && $ret["timeperiod_tp_id2"] != NULL
+    $rq .= "timeperiod_tp_id2 = ";
+    isset($ret["timeperiod_tp_id2"]) && $ret["timeperiod_tp_id2"] != NULL
     ? $rq .= "'".$ret["timeperiod_tp_id2"]."', "
-    : $rq .= "NULL, ";*/
-    // If we are doing a MC, we don't have to set name and alias field
+    : $rq .= "NULL, ";
     if (!$from_MC) {
         $rq .= "service_description = ";
         isset($ret["service_description"]) && $ret["service_description"] != null
