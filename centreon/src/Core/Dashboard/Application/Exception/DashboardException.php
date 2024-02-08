@@ -274,7 +274,7 @@ class DashboardException extends \Exception
     public static function contactGroupIsNotInUserContactGroups(array $contactGroupIds): self
     {
         return new self(sprintf(
-            _('This user is not in your access groups: [%s]'),
+            _('The contact groups [%s] are not in your contact groups'),
             implode(', ', $contactGroupIds)
         ));
     }

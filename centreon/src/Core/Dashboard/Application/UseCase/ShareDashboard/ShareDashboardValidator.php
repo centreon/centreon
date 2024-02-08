@@ -279,15 +279,16 @@ class ShareDashboardValidator
     }
 
     /**
-     * @param array $contactGroupIds
+     * @param int[] $contactGroupIds
+     * @param int[] $userContactGroupIds
      *
-     * @throws DashboardException|\Throwable
+     * @throws DashboardException
      */
-    private function validateContactGroupsAreInCurrentUserContactGroups(array $contactGroupIds, $userContactgroupIds): void
+    private function validateContactGroupsAreInCurrentUserContactGroups(array $contactGroupIds, array $userContactGroupIds): void
     {
         $contactGroupIdsDifference = new BasicDifference($contactGroupIds, $userContactGroupIds);
         if ([] !== $contactGroupIdsDifference->getRemoved()) {
-            throw DashboardException::theContactGroupsDoesNotHaveDashboardAccessRights(
+            throw DashboardException::contactGroupIsNotInUserContactGroups(
                 $contactGroupIdsDifference->getRemoved()
             );
         }
