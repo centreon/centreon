@@ -479,7 +479,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                         AND topology.topology_name IN ('Viewer','Editor','Creator')
                         AND acltr.access_right IS NOT NULL
                         AND c.contact_oreon = '1'
-                        AND c.contact_id IN ($bindTokenAsString)
+                        AND c.contact_id IN ({$bindTokenAsString})
                         GROUP BY c.contact_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($query));
@@ -602,7 +602,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                     WHERE parent.topology_name = 'Dashboards'
                         AND topology.topology_name IN ('Viewer','Editor','Creator')
                         AND acltr.access_right IS NOT NULL
-                        AND cg.cg_id IN ($bindTokenAsString)
+                        AND cg.cg_id IN ({$bindTokenAsString})
                     GROUP BY cg.cg_id
             SQL;
 

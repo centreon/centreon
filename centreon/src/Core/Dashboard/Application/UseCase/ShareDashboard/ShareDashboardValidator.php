@@ -34,8 +34,6 @@ use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
-use Core\Dashboard\Domain\Model\Role\TinyRole;
-use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Utility\Difference\BasicDifference;
 
@@ -58,7 +56,7 @@ class ShareDashboardValidator
      */
     public function validateDashboard(int $dashboardId): void
     {
-        //Validate Dashboard Exists
+        // Validate Dashboard Exists
         if ($this->readDashboardRepository->existsOne($dashboardId) === false) {
             throw DashboardException::theDashboardDoesNotExist($dashboardId);
         }
@@ -117,8 +115,6 @@ class ShareDashboardValidator
             $this->validateContactsAreInTheSameAccessGroupThanCurrentUser($contactIds, $contactIdsInUserAccessGroups);
         }
 
-
-
     }
 
     /**
@@ -129,7 +125,7 @@ class ShareDashboardValidator
      */
     public function validateContactGroups(array $contactGroups, array $userContactGroupIds): void
     {
-        //Validate contact groups exists
+        // Validate contact groups exists
         $contactGroupIds = array_map(static fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);
         $this->validateContactGroupsExist($contactGroupIds);
         $this->validateContactGroupsAreUnique($contactGroupIds);
@@ -211,7 +207,6 @@ class ShareDashboardValidator
         }
     }
 
-
     /**
      * @param array<int, string> $contactsByIdAndRole
      * @param DashboardContactRole[] $dashboardContactRoles
@@ -255,7 +250,7 @@ class ShareDashboardValidator
             if (
                 DashboardSharingRoleConverter::fromString(
                     $contactGroupByIdAndRole[$dashboardContactGroupRole->getContactGroupId()]
-                )  !== DashboardSharingRole::Viewer
+                ) !== DashboardSharingRole::Viewer
                 && $dashboardContactGroupRole->getMostPermissiveRole() === DashboardGlobalRole::Viewer
             ) {
                 throw DashboardException::notSufficientAccessRightForContactGroup(

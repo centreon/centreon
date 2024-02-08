@@ -32,7 +32,6 @@ final class ShareDashboardRequest
      *  id: int,
      *  role: string
      * }>
-     *
      */
     public array $contacts;
 
@@ -41,7 +40,6 @@ final class ShareDashboardRequest
      *  id: int,
      *  role: string
      * }>
-     *
      */
     public array $contactGroups;
 }

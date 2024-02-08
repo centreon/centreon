@@ -46,6 +46,7 @@ final class ShareDashboardController extends AbstractController
     /**
      * @param int $dashboardId
      * @param Request $request
+     *
      * @return ShareDashboardRequest
      */
     private function createRequest(int $dashboardId, Request $request): ShareDashboardRequest

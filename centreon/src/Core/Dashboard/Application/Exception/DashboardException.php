@@ -160,7 +160,7 @@ class DashboardException extends \Exception
      *
      * @return self
      */
-    public static function  theDashboardDoesNotExist(int $dashboardId): self
+    public static function theDashboardDoesNotExist(int $dashboardId): self
     {
         return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId));
     }
@@ -238,19 +238,6 @@ class DashboardException extends \Exception
         return new self(
             sprintf(_('No sufficient access rights to contact group [%d] to give role [%s]'), $contactGroupId, $role)
         );
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return self
-     */
-    public static function userIsNotInAccessGroups(array $accessGroupIds): self
-    {
-        return new self(sprintf(
-            _('This user is not in your access groups: [%s]'),
-            implode(', ', $accessGroupIds)
-        ));
     }
 
     /**

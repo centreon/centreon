@@ -188,9 +188,9 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
 
         $deleteContactGroupSharesStatement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                DELETE FROM dashboard_contactgroup_relation 
-                    WHERE dashboard_id = :dashboardId 
-                    AND contactgroup_id IN ($bindTokenAsString)
+                DELETE FROM dashboard_contactgroup_relation
+                    WHERE dashboard_id = :dashboardId
+                    AND contactgroup_id IN ({$bindTokenAsString})
                 SQL
         ));
         $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
@@ -218,9 +218,9 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
 
         $deleteContactGroupSharesStatement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                DELETE FROM dashboard_contact_relation 
-                    WHERE dashboard_id = :dashboardId 
-                    AND contact_id IN ($bindTokenAsString)
+                DELETE FROM dashboard_contact_relation
+                    WHERE dashboard_id = :dashboardId
+                    AND contact_id IN ({$bindTokenAsString})
                 SQL
         ));
         $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
@@ -236,10 +236,10 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
     public function addDashboardContactShares(int $dashboardId, array $contactRoles): void
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                INSERT INTO dashboard_contact_relation (`dashboard_id`,`contact_id`,`role`)
-                VALUES (:dashboardId,:contactId,:role)
-            SQL
+            <<<'SQL'
+                    INSERT INTO dashboard_contact_relation (`dashboard_id`,`contact_id`,`role`)
+                    VALUES (:dashboardId,:contactId,:role)
+                SQL
         ));
         $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
         foreach ($contactRoles as $contactRole) {
@@ -259,10 +259,10 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
     public function addDashboardContactGroupShares(int $dashboardId, array $contactGroupRoles): void
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                INSERT INTO dashboard_contactgroup_relation (`dashboard_id`,`contactgroup_id`,`role`)
-                VALUES (:dashboardId,:contactGroupId,:role)
-            SQL
+            <<<'SQL'
+                    INSERT INTO dashboard_contactgroup_relation (`dashboard_id`,`contactgroup_id`,`role`)
+                    VALUES (:dashboardId,:contactGroupId,:role)
+                SQL
         ));
         $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
         foreach ($contactGroupRoles as $contactGroupRole) {
