@@ -172,18 +172,20 @@ const BarVertical = ({
                               });
                             }}
                           />
-                          {displayValues && (
-                            <Text
-                              fill="black"
-                              fontSize={12}
-                              textAnchor="middle"
-                              verticalAnchor="middle"
-                              x={bar.x + bar.width / 2}
-                              y={bar.y + bar.height / 2}
-                            >
-                              {barStack.bars[0].bar.data[barStack.key]}
-                            </Text>
-                          )}
+                          {displayValues &&
+                            bar.height > 10 &&
+                            bar.width > 10 && (
+                              <Text
+                                fill="black"
+                                fontSize={12}
+                                textAnchor="middle"
+                                verticalAnchor="middle"
+                                x={bar.x + bar.width / 2}
+                                y={bar.y + bar.height / 2}
+                              >
+                                {barStack.bars[0].bar.data[barStack.key]}
+                              </Text>
+                            )}
                         </g>
                       );
                     })

@@ -11,7 +11,7 @@ const data = [
   { color: '#FF6666', label: 'Down', value: 62 }
 ];
 
-const dataWithLargeNumber = [
+const dataWithBigNumbers = [
   { color: '#88B922', label: 'Ok', value: 260000 },
   { color: '#999999', label: 'Unknown', value: 1010900 },
   { color: '#F7931A', label: 'Warning', value: 63114 },
@@ -60,9 +60,9 @@ export const WithPencentage: Story = {
   render: Template
 };
 
-export const WithLargeNumber: Story = {
+export const WithBigNumbers: Story = {
   args: {
-    data: dataWithLargeNumber,
+    data: dataWithBigNumbers,
     title: 'hosts',
     unit: 'Number',
     variant: 'Donut'
