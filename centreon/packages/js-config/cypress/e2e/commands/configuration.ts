@@ -158,7 +158,7 @@ Cypress.Commands.add(
     authenticationType = 'local',
     email,
     enableNotifications = true,
-    GUIAcces = true,
+    GUIAccess = true,
     language = 'en_US',
     name,
     password
