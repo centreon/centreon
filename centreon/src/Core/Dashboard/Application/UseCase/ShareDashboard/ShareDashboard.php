@@ -118,7 +118,7 @@ final class ShareDashboard
                 $contactIdsInUserAccessGroups
             );
             $presenter->presentResponse(new NoContentResponse());
-        } catch(DashboardException $ex) {
+        } catch (DashboardException $ex) {
             $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 match ($ex->getCode()) {
@@ -155,6 +155,7 @@ final class ShareDashboard
         } catch (\Throwable $ex) {
             $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
+
             throw $ex;
         }
     }
@@ -194,6 +195,7 @@ final class ShareDashboard
         } catch (\Throwable $ex) {
             $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
+
             throw $ex;
         }
     }
