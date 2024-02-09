@@ -25,7 +25,7 @@ const Share = ({ row }: ComponentColumnProps): JSX.Element => {
   const sharesNubmer = shares?.length;
 
   if (!isNestedRow) {
-    return <Box>{`${sharesNubmer} ${t(labelShares.toLowerCase())}`}</Box>;
+    return <Box>{`${sharesNubmer} ${t(labelShares).toLowerCase()}`}</Box>;
   }
 
   if (equals(type, ContactType.contactGroup)) {
