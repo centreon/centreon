@@ -32,7 +32,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator user deletes one of the widgets
     Then only the contents of the other widget are displayed
 
-    @TEST_MON-35098
+  @TEST_MON-35098
   Scenario: Duplicating resource table widget
     Given a dashboard having a configured ressrouce table widget
     When the dashboard administrator user duplicates the resource table widget
