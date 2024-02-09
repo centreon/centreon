@@ -126,6 +126,14 @@ class ShareDashboardValidator
     }
 
     /**
+     *  Validate request contact groups against the following rules:
+     *   - The contact groups should exist
+     *   - The contact groups should be unique in the request
+     *   - The contact groups should have Dashboard related ACLs
+     *   - The contacts should have sufficient ACLs for their given roles
+     *       (e.g a Viewer in ACLs can not be shared as Editor)
+     *   - If the user executing the request is not an admin, the contacts should be member of his contact groups
+     *
      * @param array<array{id: int, role: string}> $contactGroups
      * @param int[] $userContactGroupIds
      *
