@@ -100,6 +100,8 @@ interface ReadContactRepositoryInterface
     public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Retrieve admins based on given IDs.
+     *
      * @param int[] $contactIds
      *
      * @throws \Throwable
