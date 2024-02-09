@@ -68,12 +68,6 @@ importers:
       '@visx/curve':
         specifier: ^3.3.0
         version: 3.3.0
-      '@visx/event':
-        specifier: ^3.3.0
-        version: 3.3.0
-      '@visx/legend':
-        specifier: ^3.5.0
-        version: 3.5.0(react@18.2.0)
       '@visx/responsive':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
@@ -83,15 +77,9 @@ importers:
       '@visx/shape':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
-      '@visx/text':
-        specifier: ^3.3.0
-        version: 3.3.0(react@18.2.0)
       '@visx/threshold':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
-      '@visx/tooltip':
-        specifier: ^3.3.0
-        version: 3.3.0(react-dom@18.2.0)(react@18.2.0)
       '@visx/visx':
         specifier: 3.4.0
         version: 3.4.0(@react-spring/web@9.7.3)(react-dom@18.2.0)(react@18.2.0)
@@ -603,9 +591,15 @@ importers:
       '@visx/curve':
         specifier: ^2.1.0
         version: 2.17.0
+      '@visx/event':
+        specifier: ^3.3.0
+        version: 3.3.0
       '@visx/group':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
+      '@visx/legend':
+        specifier: ^3.5.0
+        version: 3.5.0(react@18.2.0)
       '@visx/pattern':
         specifier: ^3.0.0
         version: 3.3.0(react@18.2.0)
@@ -615,9 +609,15 @@ importers:
       '@visx/shape':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
+      '@visx/text':
+        specifier: ^3.3.0
+        version: 3.3.0(react@18.2.0)
       '@visx/threshold':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
+      '@visx/tooltip':
+        specifier: ^3.3.0
+        version: 3.3.0(react-dom@18.2.0)(react@18.2.0)
       '@visx/visx':
         specifier: 2.16.0
         version: 2.16.0(@react-spring/web@9.7.3)(react-dom@18.2.0)(react@18.2.0)
@@ -9315,7 +9315,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/drag': 2.10.0(react@18.2.0)
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
@@ -9351,7 +9351,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
       '@visx/scale': 2.2.2
@@ -9384,7 +9384,7 @@ packages:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
       react-dom: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@types/react-dom': 18.2.15
       prop-types: 15.8.1
       react: 18.2.0
@@ -9439,7 +9439,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -9449,7 +9449,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -9502,7 +9502,7 @@ packages:
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/event': 2.6.0
       '@visx/point': 2.6.0
       prop-types: 15.8.1
@@ -9524,7 +9524,7 @@ packages:
   /@visx/event@2.6.0:
     resolution: {integrity: sha512-WGp91g82s727g3NAnENF1ppC3ZAlvWg+Y+GG0WFg34NmmOZbvPI/PTOqTqZE3x6B8EUn8NJiMxRjxIMbi+IvRw==}
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/point': 2.6.0
     dev: false
 
@@ -9542,7 +9542,7 @@ packages:
     dependencies:
       '@types/d3-geo': 1.12.7
       '@types/geojson': 7946.0.13
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-geo: 1.12.1
@@ -9571,7 +9571,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-shape': 1.3.11
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-shape: 1.3.7
@@ -9598,7 +9598,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -9618,7 +9618,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/curve': 2.1.0
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
@@ -9650,7 +9650,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       prop-types: 15.8.1
       react: 18.2.0
@@ -9661,7 +9661,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       prop-types: 15.8.1
       react: 18.2.0
@@ -9683,7 +9683,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -9708,7 +9708,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-hierarchy': 1.1.11
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-hierarchy: 1.1.9
@@ -9735,7 +9735,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/scale': 2.2.2
       classnames: 2.3.2
@@ -9774,7 +9774,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/shape': 2.12.2(react@18.2.0)
       classnames: 2.3.2
@@ -9814,7 +9814,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -9838,7 +9838,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       prop-types: 15.8.1
       react: 18.2.0
@@ -9870,7 +9870,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/axis': 2.14.0(react@18.2.0)
       '@visx/grid': 2.12.2(react@18.2.0)
       '@visx/scale': 2.2.2
@@ -9904,7 +9904,7 @@ packages:
     dependencies:
       '@juggle/resize-observer': 3.4.0
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       lodash: 4.17.21
       prop-types: 15.8.1
       react: 18.2.0
@@ -9964,7 +9964,7 @@ packages:
       '@types/d3-path': 1.0.11
       '@types/d3-shape': 1.3.11
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/curve': 2.1.0
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/scale': 2.2.2
@@ -10022,7 +10022,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -10049,7 +10049,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/clip-path': 2.10.0(react@18.2.0)
       '@visx/shape': 2.12.2(react@18.2.0)
       classnames: 2.3.2
@@ -10089,7 +10089,7 @@ packages:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
       react-dom: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/bounds': 2.16.0(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -10250,7 +10250,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-voronoi': 1.1.12
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       d3-voronoi: 1.1.4
       prop-types: 15.8.1
@@ -10300,7 +10300,7 @@ packages:
     dependencies:
       '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/annotation': 2.12.2(react-dom@18.2.0)(react@18.2.0)
       '@visx/axis': 2.14.0(react@18.2.0)
       '@visx/event': 2.6.0
@@ -10363,7 +10363,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@use-gesture/react': 10.3.0(react@18.2.0)
       '@visx/event': 2.6.0
       prop-types: 15.8.1
