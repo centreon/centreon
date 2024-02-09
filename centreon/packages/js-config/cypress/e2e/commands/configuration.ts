@@ -173,7 +173,7 @@ Cypress.Commands.add(
         bodyContent: {
           action: 'ADD',
           object: 'CONTACT',
-          values: `${name};${contactAlias};${email};${password};${contactAdmin};${contactGUIAcces};${language};${authenticationType}`
+          values: `${name};${contactAlias};${email};${password};${contactAdmin};${contactGUIAccess};${language};${authenticationType}`
         }
       })
       .then(() => {
