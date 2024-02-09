@@ -6,7 +6,7 @@ import { BarStack } from '.';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },
-  { color: '#999999', label: 'Unknown', value: 13 },
+  { color: '#999999', label: 'Unknown', value: 63 },
   { color: '#F7931A', label: 'Warning', value: 16 },
   { color: '#FF6666', label: 'Down', value: 13 }
 ];
