@@ -5,51 +5,44 @@ Feature: Configuring resource table widget
   To manipulate the properties of the resource table Widget and test the outcome of each manipulation.
 
   @TEST_MON-35094
-  Scenario: Editing the displayed resource status of ressource table widget
-    Given a dashboard that includes a configured ressource table widget
+  Scenario: Editing the displayed resource status of resource table widget
+    Given a dashboard containing a configured resource table widget
     When the dashboard administrator user selects a particular status in the displayed resource status list
-    Then only the resources with this particular status are displayed in the ressource table Widget
+    Then only the resources with this particular status are displayed in the resource table Widget
+    When the dashboard administrator user selects all the status and save changes
+    Then all the resources having the status selected are displayed in the resource table Widget
+
+  @TEST_MON-35094
+  Scenario: Editing the display type of resource table widget
+    Given a dashboard that includes a configured resource table widget
+    When the dashboard administrator user selects view by host as a display type
+    Then only the hosts must be displayed
+    When the dashboard administrator user selects view by service as a display type
+    Then only the services must be displayed
 
   @TEST_MON-35096
-  Scenario: Displaying ressources on a downtime on a ressource table widget
-    Given a dashboard featuring a configured ressource table widget
-    When the dashboard administrator user applies a downtime on one of the resources of the dataset selection
-    And selects the option to exclusively display the resources on a downtime
-    Then only the resource on a downtime is displayed in the ressrouce table widget
+  Scenario: Displaying unhandled ressources on a resource table widget
+    Given a dashboard featuring a configured resource table widget
+    When the dashboard administrator user select all the status of the dataset selection
+    Then only the unhandled ressources are displayed in the ressrouce table widget
 
-  @TEST_MON-35098
-  Scenario: Duplicating ressource table widget
+  Scenario: Deleting a resource table widget
+    Given a dashboard featuring two resource table widgets
+    When the dashboard administrator user deletes one of the widgets
+    Then only the contents of the other widget are displayed
+
+    @TEST_MON-35098
+  Scenario: Duplicating resource table widget
     Given a dashboard having a configured ressrouce table widget
-    When the dashboard administrator user duplicates the ressource table widget
-    Then a second ressrouce table widget is displayed on the dashboard
-    And the second widget has the same properties as the first widget
+    When the dashboard administrator user duplicates the resource table widget
+    Then a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget
 
   @TEST_MON-35084
-  Scenario: Creating and configuring a new ressource table widget on a dashboard
+  Scenario: Creating and configuring a new resource table widget on a dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
-    And selects the widget type "Ressource table"
-    Then configuration properties for the ressource table widget are displayed
+    And selects the widget type "resource table"
+    Then configuration properties for the resource table widget are displayed
     When the dashboard administrator user selects a resource and a metric for the widget to report on
-    When the user saves the ressource table widget
-    Then the ressource table widget is added to the dashboard's layout
-    And the information about the selected metric is displayed
-
-  @TEST_MON-35099
-  Scenario: Editing the number of displayed tiles on a ressource table widget
-    Given a dashboard featuring two Metrics ressrouce tables
-    When the dashboard administrator user deletes one of the ressource table widgets
-    Then only the contents of the other ressource table h widget are displayed
-
-  @TEST_MON-35095
-  Scenario: Editing the displayed resource state of a ressource table widget
-    Given a dashboard that includes a configured ressource table widget
-    When the dashboard administrator user selects a particular status in the displayed ressrouce state list
-    Then only the resources with this particular state are displayed in the ressource table Widget
-
-  @TEST_MON-35097
-  Scenario: Displaying aknowledged ressources on a ressource table widget
-    Given a dashboard featuring a configured ressrouce table widget
-    When the dashboard administrator user applies an acknowledgement on one of the resources of the dataset selection
-    And selects the option to exclusively display the acknowledged resources
-    Then only the acknowledged resource is displayed in the ressrouce table widget
+    When the user saves the resource table widget
+    Then the resource table widget is added to the dashboard's layout

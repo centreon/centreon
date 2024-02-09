@@ -116,6 +116,17 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
+  cy.get(`.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`)
+    .invoke('text')
+    .then((content) => {
+      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+      cy.log(`Contenu de la colonne (${rowIndex}, ${columnIndex}): ${columnContents.join(',').trim()}`);
+      return cy.wrap(columnContents);
+    });
+});
+
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -150,6 +161,10 @@ declare global {
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number
+      ) => Cypress.Chainable;
+      getCellContent: (
+        rowIndex: number,
+        colIndex: number
       ) => Cypress.Chainable;
     }
   }

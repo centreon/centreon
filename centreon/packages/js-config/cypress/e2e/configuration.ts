@@ -61,7 +61,7 @@ export default ({
     env: {
       ...env,
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
-      WEB_IMAGE_OS: 'alma9',
+      WEB_IMAGE_OS: 'bookworm',
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
