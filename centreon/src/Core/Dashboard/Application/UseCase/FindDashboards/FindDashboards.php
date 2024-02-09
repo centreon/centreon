@@ -35,6 +35,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboards
 {
@@ -46,7 +48,8 @@ final class FindDashboards
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -103,13 +106,21 @@ final class FindDashboards
             $this->requestParameters,
             $this->contact,
         );
-        $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
+        $editorIds = $this->extractAllContactIdsFromDashboards($dashboards);
+
+        $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $userAccessGroups
+        );
+
+        $userInCurrentUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups($accessGroupsIds);
 
         return FindDashboardsFactory::createResponse(
             $dashboards,
-            $this->readContactRepository->findNamesByIds(...$contactIds),
+            $this->readContactRepository->findNamesByIds(...$editorIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactShares(...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds($userInCurrentUserAccessGroups, ...$dashboards),
             $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
