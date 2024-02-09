@@ -166,7 +166,7 @@ Cypress.Commands.add(
     const contactAdmin = admin ? 1 : 0;
     const contactAlias = alias === null ? name : alias;
     const contactEnableNotifications = enableNotifications ? 1 : 0;
-    const contactGUIAcces = GUIAcces ? 1 : 0;
+    const contactGUIAccess = GUIAccess ? 1 : 0;
 
     return cy
       .executeActionViaClapi({
