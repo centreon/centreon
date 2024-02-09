@@ -1,57 +1,99 @@
-import { flatten } from 'ramda';
+import { useRef, useMemo, useEffect } from 'react';
 
-import { SearchParameter, getFoundFields } from '@centreon/ui';
+import { useAtom, useAtomValue } from 'jotai';
+import { isEmpty, head } from 'ramda';
 
-import { Fields } from './Filter/models';
+import { SearchMatch, SearchParameter, getFoundFields } from '@centreon/ui';
 
-interface UseBuildSearchParameters {
-  getSearchParameters: () => SearchParameter;
-}
+import { Fields } from '../Filter/models';
 
-const useBuildSearchParameters = (
-  searchValue: string
-): UseBuildSearchParameters => {
-  const fieldMatches = getFoundFields({
-    fields: [...Object.values(Fields)],
-    value: searchValue
-  });
+import { searchAtom } from './atoms';
 
-  const searchedWords = fieldMatches.map(({ field, value }) => {
-    const values = value.split(',');
-    if (values?.length <= 1) {
-      return { field, value };
-    }
+const useSearch = (data: string) => {
+  const [search, setSearch] = useAtom(searchAtom);
 
-    return values.map((item) => ({
-      field,
-      value: item
-    }));
-  });
+  const newSearch = useRef('');
 
-  const getSearchParameters = (): SearchParameter => {
-    const terms = flatten(searchedWords);
-    const hasMultipleSearch =
-      [...new Map(terms.map((term) => [term.field, term])).values()].length !==
-      terms?.length;
+  const fieldDelimiter = ':';
+  const valueDelimiter = ',';
 
-    if (hasMultipleSearch) {
-      return {
-        conditions: terms.map((term) => ({
-          field: term.field,
-          values: { $rg: term.value }
-        }))
-      };
-    }
+  const matchFieldDelimiter = new RegExp(`\\w+${fieldDelimiter}\\w*`, 'g');
 
-    return {
-      regex: {
-        fields: [...Object.values(Fields)],
-        value: searchValue
+  const matchValueDelimiter = (expression): RegExp =>
+    new RegExp(
+      `(?<![^${valueDelimiter}])${expression}(?![^${valueDelimiter}])`,
+      'g'
+    );
+
+  const matchSpecificWord = (word): RegExp =>
+    new RegExp(`(?<=\\s|^)${word}(?=\\s|$)`, 'g');
+
+  useMemo(() => {
+    const wordsIncomingData = data.split(' ');
+    wordsIncomingData.forEach((word) => {
+      const wordsWithFieldDelimiter = word.match(matchFieldDelimiter);
+
+      if (!wordsWithFieldDelimiter) {
+        const matchedSimpleWord = search.match(matchSpecificWord(word));
+        if (!isEmpty(matchedSimpleWord)) {
+          return;
+        }
+        newSearch.current = newSearch.current.concat(' ', word);
       }
-    };
-  };
+      const searchableFieldIncomingData = getFoundFields({
+        fields: Object.values(Fields),
+        value: word
+      });
 
-  return { getSearchParameters };
+      if (isEmpty(searchableFieldIncomingData)) {
+        newSearch.current = newSearch.current.concat(' ', word);
+
+        return;
+      }
+
+      const matchedSearchData = getFoundFields({
+        fields: [head(searchableFieldIncomingData).field],
+        value: search
+      });
+
+      if (isEmpty(matchedSearchData)) {
+        newSearch.current = newSearch.current.concat(' ', word);
+
+        return;
+      }
+
+      const [incomingData] = searchableFieldIncomingData;
+      const [searchData] = matchedSearchData;
+
+      if (incomingData.value === searchData.value) {
+        return;
+      }
+      const values = incomingData.value.split(',');
+
+      values.forEach((value) => {
+        const matchedValue = searchData.value.match(matchValueDelimiter(value));
+        if (matchedValue) {
+          return;
+        }
+
+        const newValues = searchData.value.concat(',', value);
+
+        newSearch.current = search.replace(
+          `${searchData.field}:${searchData.value}`,
+          `${searchData.field}:${newValues}`
+        );
+      });
+    });
+  }, [data]);
+
+  console.log({ newSearch });
+
+  useEffect(() => {
+    if (!newSearch.current) {
+      return;
+    }
+    setSearch(newSearch.current);
+  }, [newSearch.current]);
 };
 
-export default useBuildSearchParameters;
+export default useSearch;

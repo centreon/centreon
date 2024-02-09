@@ -1,6 +1,6 @@
 import { atomWithStorage } from 'jotai/utils';
 
-import { baseKey } from '../../../../storage';
+import { baseKey } from '../../../storage';
 
 import { DefaultParameters, TokenFilter } from './models';
 

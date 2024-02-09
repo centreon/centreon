@@ -1,6 +1,6 @@
 import { useStyles } from './actions.styles';
 import Search from './Search';
-import TokenFilter from './Search/Filter';
+import TokenFilter from './Filter';
 
 interface Props {
   buttonCreateToken: React.ReactNode;

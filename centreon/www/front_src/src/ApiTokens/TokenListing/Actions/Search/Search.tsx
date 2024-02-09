@@ -8,17 +8,16 @@ import { SearchField } from '@centreon/ui';
 import { renderEndAdornmentFilter } from '../../../../Resources/Filter';
 import { labelSearch } from '../../../translatedLabels';
 import { useStyles } from '../actions.styles';
+import { currentFilterAtom } from '../Filter/atoms';
 
-import { currentFilterAtom } from './Filter/atoms';
 import { searchAtom } from './atoms';
-import useBuildSearchParameters from './useSearch';
+import { buildSearchParameters } from './utils';
 
 const TokenSearch = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const { getSearchParameters } = useBuildSearchParameters(searchValue);
 
   const clearFilters = (): void => {
     setSearchValue('');
@@ -34,7 +33,10 @@ const TokenSearch = (): JSX.Element => {
       return;
     }
 
-    setCurrentFilter({ ...currentFilter, search: getSearchParameters() });
+    setCurrentFilter({
+      ...currentFilter,
+      search: buildSearchParameters(searchValue)()
+    });
   };
 
   useEffect(() => {

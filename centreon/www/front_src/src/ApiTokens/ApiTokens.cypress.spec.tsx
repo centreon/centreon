@@ -16,7 +16,7 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { DefaultParameters } from './TokenListing/Actions/Search/Filter/models';
+import { DefaultParameters } from './TokenListing/Actions/Filter/models';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {

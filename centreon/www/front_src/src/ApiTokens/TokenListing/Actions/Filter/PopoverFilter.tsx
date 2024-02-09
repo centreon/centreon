@@ -6,8 +6,8 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
-import { labelSearchOptions } from '../../../../translatedLabels';
-import { useStyles } from '../../actions.styles';
+import { labelSearchOptions } from '../../../translatedLabels';
+import { useStyles } from '../actions.styles';
 
 import Filter from './Filter';
 

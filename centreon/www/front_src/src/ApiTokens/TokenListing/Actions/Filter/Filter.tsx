@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { equals } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -9,15 +9,16 @@ import {
 } from '@centreon/ui';
 
 import {
+  getEndpointConfiguredUser,
+  getEndpointCreatorsToken
+} from '../../../api/endpoints';
+import { PersonalInformation } from '../../models';
+import {
   labelCreator,
   labelSearch,
   labelUser
-} from '../../../../translatedLabels';
-import {
-  getEndpointConfiguredUser,
-  getEndpointCreatorsToken
-} from '../../../../api/endpoints';
-import { PersonalInformation } from '../../../models';
+} from '../../../translatedLabels';
+import useSearch from '../Search/useSearch';
 
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
@@ -27,6 +28,12 @@ const Filter = (): JSX.Element => {
   const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [creators, setCreators] = useState<Array<PersonalInformation>>([]);
+
+  useSearch(
+    isEmpty(users)
+      ? ''
+      : `${Fields.UserName}:${users.map(({ name }) => name).join(',')}`
+  );
 
   const changeUser = (_, value): void => {
     setUsers(value);
