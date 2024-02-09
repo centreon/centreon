@@ -143,7 +143,7 @@ const ResponsivePie = ({
                           x={centroidX}
                           y={centroidY}
                         >
-                          {arc.data.value}
+                          {numeral(arc.data.value).format('0a').toUpperCase()}
                         </Text>
                       )}
                     </g>

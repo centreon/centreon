@@ -183,7 +183,11 @@ const BarVertical = ({
                                 x={bar.x + bar.width / 2}
                                 y={bar.y + bar.height / 2}
                               >
-                                {barStack.bars[0].bar.data[barStack.key]}
+                                {numeral(
+                                  barStack.bars[0].bar.data[barStack.key]
+                                )
+                                  .format('0a')
+                                  .toUpperCase()}
                               </Text>
                             )}
                         </g>
