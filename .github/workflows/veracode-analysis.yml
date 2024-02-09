@@ -123,7 +123,7 @@ jobs:
       - name: Pipeline scan
         id: pipeline-scan
         uses: veracode/Veracode-pipeline-scan-action@651b8c3a9c9b32b3b1e7c334c8b34d3cabc2da3f # v1.0.12
-        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
+        continue-on-error: true
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -230,7 +230,7 @@ jobs:
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@f7e1fbf02c5c899fba9f12e3f537b62f2f1230e1 # master
-        continue-on-error: 'true'
+        continue-on-error: true
         with:
           appname: "support_case_00832599_bis_${{ inputs.module_name }}"
           version: "develop_support_case_00832599_bis"
