@@ -92,7 +92,7 @@ class ShareDashboardValidator
         $this->validateContactsAreUnique($contactIds);
 
         /**
-         * Retrieve the contacts which have Dashboard's ACLs
+         * Retrieve the contacts which have Dashboard's ACLs.
          */
         $dashboardContactRoles = $this->readDashboardShareRepository->findContactsWithAccessRightByContactIds(
             $contactIds
@@ -176,7 +176,7 @@ class ShareDashboardValidator
     }
 
     /**
-     * Validate that contacts in the request are contacts with Dashboard ACLs
+     * Validate that contacts in the request are contacts with Dashboard ACLs.
      *
      * A user without Dashboard ACLs can not be shared on a dashboard.
      *
