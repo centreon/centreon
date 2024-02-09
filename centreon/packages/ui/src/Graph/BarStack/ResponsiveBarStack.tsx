@@ -1,148 +1,210 @@
-import { BarStackHorizontal } from '@visx/shape';
+import { BarStack, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { withTooltip, Tooltip, defaultStyles } from '@visx/tooltip';
-import { LegendOrdinal } from '@visx/legend';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
+import { localPoint } from '@visx/event';
+import numeral from 'numeral';
+import { Text } from '@visx/text';
+
+import { useTheme } from '@mui/system';
+
+import { LegendProps } from '../Lengend/models';
+import { Legend as LegendComponent } from '../Lengend';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
 
-const defaultMargin = { bottom: 0, left: 0, right: 0, top: 0 };
-
-const tooltipStyles = {
-  ...defaultStyles,
-  backgroundColor: 'rgba(0,0,0,0.9)',
-  color: 'white',
-  minHeight: 100,
-  minWidth: 100
+type TooltipData = {
+  bar;
+  color: string;
+  height: number;
+  index: number;
+  key: string;
+  width: number;
+  x: number;
+  y: number;
 };
 
-const data = [{ Down: 22, Ok: 121, Unknown: 19, Warning: 13 }];
+const formatValue = (unit, value, total): string => {
+  if (unit === 'Number') {
+    return numeral(value).format('0a').toUpperCase();
+  }
 
-const keys = Object.keys(data[0]);
+  return `${((value * 100) / total).toFixed(1)}%`;
+};
 
-const total = Object.values(data[0]).reduce((acc, curr) => acc + curr, 0);
+let tooltipTimeout: number;
 
-// scales
-const xScale = scaleLinear({
-  domain: [0, total],
-  nice: true
-});
-const yScale = scaleBand({
-  domain: [0, 0],
-  padding: 0
-});
+const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
+  <LegendComponent configuration={configuration} scale={scale} />
+);
 
-const colorScale = scaleOrdinal({
-  domain: keys,
-  range: ['#88B922', '#999999', '#F7931A', '#FF6666']
-});
-
-const legendScale = scaleOrdinal({
-  domain: Object.values(data[0]),
-  range: ['#88B922', '#999999', '#F7931A', '#FF6666']
-});
-
-let tooltipTimeout;
-
-const ResponsiveBarStack = ({
+const BarVertical = ({
+  title,
+  data,
   width,
   height,
-  margin = defaultMargin,
-  tooltipOpen,
-  tooltipLeft,
-  tooltipTop,
-  tooltipData,
-  hideTooltip,
-  showTooltip,
-  variant = 'Vertical',
-  legend = true
+  onSingleBarClick,
+  displayLegend = true,
+  Tooltip,
+  legendConfiguration = { direction: 'row' },
+  Legend = DefaultLengd,
+  unit = 'Number',
+  variant = 'Horizental',
+  displayValues
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
-  const { classes } = useBarStackStyles();
+  const theme = useTheme();
+  const { classes } = useBarStackStyles({
+    legendDirection: legendConfiguration.direction
+  });
 
-  const xMax = width - margin.left - margin.right;
-  const yMax = height - margin.top - margin.bottom;
+  const tooltipStyles = {
+    ...defaultStyles,
+    backgroundColor: theme.palette.background.tooltip,
+    minWidth: 60
+  };
+
+  const {
+    tooltipOpen,
+    tooltipLeft,
+    tooltipTop,
+    tooltipData,
+    hideTooltip,
+    showTooltip
+  } = useTooltip<TooltipData>();
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    scroll: true
+  });
+
+  const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+
+  const yScale = scaleLinear({
+    domain: [0, total],
+    nice: true
+  });
+  const xScale = scaleBand({
+    domain: [0, 0],
+    padding: 0
+  });
+
+  const keys = data.map(({ label }) => label);
+
+  const colorsRange = data.map(({ color }) => color);
+
+  const colorScale = scaleOrdinal({
+    domain: keys,
+    range: colorsRange
+  });
+
+  const legendScale = {
+    domain: data.map(({ value }) => formatValue(unit, value, total)),
+    range: colorsRange
+  };
+
+  const xMax = width;
+  const yMax = height;
 
   xScale.rangeRound([0, xMax]);
-  yScale.rangeRound([yMax, 0]);
+  yScale.range([yMax, 0]);
+
+  const input = data.reduce((acc, { label, value }) => {
+    acc[label] = value;
+
+    return acc;
+  }, {});
 
   return (
     <div className={classes.container}>
-      <div
-        className={classes.svgContainer}
-        style={{ height: height + 10, width: width + 10 }}
-      >
-        <svg height={height} width={width}>
-          {/* <rect width={width} height={height} fill={"grey"} rx={14} /> */}
-          <Group>
-            <BarStackHorizontal
-              color={colorScale}
-              data={data}
-              height={yMax}
-              keys={keys}
-              xScale={xScale}
-              y={() => undefined}
-              yScale={yScale}
-            >
-              {(barStacks) =>
-                barStacks.map((barStack) =>
-                  barStack.bars.map((bar) => (
-                    <rect
-                      fill={bar.color}
-                      height={bar.height}
-                      key={`barstack-horizontal-${barStack.index}-${bar.index}`}
-                      width={bar.width}
-                      x={bar.x}
-                      y={bar.y}
-                      onClick={() => {
-                        console.log('clicked');
-                      }}
-                      onMouseLeave={() => {
-                        tooltipTimeout = window.setTimeout(() => {
-                          hideTooltip();
-                        }, 300);
-                      }}
-                      onMouseMove={() => {
-                        if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                        const top = bar.y + margin.top + bar.height;
-                        const left = bar.x + bar.width;
-                        showTooltip({
-                          tooltipData: bar,
-                          tooltipLeft: left,
-                          tooltipTop: top
-                        });
-                      }}
-                    />
-                  ))
-                )
-              }
-            </BarStackHorizontal>
-          </Group>
-        </svg>
-      </div>
-
-      {legend && (
-        <div className={classes.legends}>
-          <LegendOrdinal
-            direction="row"
-            labelMargin="0 15px 0 0"
-            scale={legendScale}
-          />
-        </div>
-      )}
-      {tooltipOpen && tooltipData && (
-        <Tooltip left={tooltipLeft} style={tooltipStyles} top={tooltipTop}>
-          <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.key}</strong>
+      <div className={classes.svgWrapper}>
+        {title && (
+          <div className={classes.title}>
+            {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
-          {/* <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-          <div>
-            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-          </div> */}
-        </Tooltip>
+        )}
+        <div
+          className={classes.svgContainer}
+          style={{ height: height + 15, width: width + 15 }}
+        >
+          <svg height={height} ref={containerRef} width={width}>
+            <Group>
+              <BarStack
+                color={colorScale}
+                data={[input]}
+                keys={keys}
+                x={() => undefined}
+                xScale={xScale}
+                yScale={yScale}
+              >
+                {(barStacks) =>
+                  barStacks.map((barStack) =>
+                    barStack.bars.map((bar) => {
+                      return (
+                        <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                          <rect
+                            fill={bar.color}
+                            height={bar.height}
+                            key={`bar-stack-${barStack.index}-${bar.index}`}
+                            width={bar.width}
+                            x={bar.x}
+                            y={bar.y}
+                            onClick={() => {
+                              onSingleBarClick?.(bar);
+                            }}
+                            onMouseLeave={() => {
+                              tooltipTimeout = window.setTimeout(() => {
+                                hideTooltip();
+                              }, 300);
+                            }}
+                            onMouseMove={(event) => {
+                              if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                              const eventSvgCoords = localPoint(event);
+                              const left = bar.x + bar.width / 2;
+                              showTooltip({
+                                tooltipData: bar,
+                                tooltipLeft: left,
+                                tooltipTop: eventSvgCoords?.y
+                              });
+                            }}
+                          />
+                          {displayValues && (
+                            <Text
+                              fill="black"
+                              fontSize={12}
+                              textAnchor="middle"
+                              verticalAnchor="middle"
+                              x={bar.x + bar.width / 2}
+                              y={bar.y + bar.height / 2}
+                            >
+                              {barStack.bars[0].bar.data[barStack.key]}
+                            </Text>
+                          )}
+                        </g>
+                      );
+                    })
+                  )
+                }
+              </BarStack>
+            </Group>
+          </svg>
+        </div>
+      </div>
+      {displayLegend &&
+        Legend({
+          configuration: legendConfiguration,
+          scale: legendScale
+        })}
+      {Tooltip && tooltipOpen && tooltipData && (
+        <TooltipInPortal
+          left={tooltipLeft}
+          style={tooltipStyles}
+          top={tooltipTop}
+        >
+          {Tooltip(tooltipData)}
+        </TooltipInPortal>
       )}
     </div>
   );
 };
 
-export default withTooltip(ResponsiveBarStack);
+export default BarVertical;

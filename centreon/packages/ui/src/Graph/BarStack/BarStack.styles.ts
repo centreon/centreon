@@ -1,26 +1,35 @@
+import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-export const useBarStackStyles = makeStyles()((theme) => ({
+import { LegendDirection } from '../Lengend/models';
+
+export const useBarStackStyles = makeStyles<{
+  legendDirection: LegendDirection;
+}>()((theme, { legendDirection }) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    flexDirection: 'column',
-    padding: theme.spacing(3)
-  },
-  legends: {
-    marginTop: theme.spacing(3)
-  },
-  pieTitle: {
-    fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    marginBottom: theme.spacing(2)
+    flexDirection: equals(legendDirection, 'column') ? 'row' : 'column',
+    gap: theme.spacing(3),
+    justifyContent: 'center',
+    minWidth: theme.spacing(40),
+    padding: theme.spacing(2)
   },
   svgContainer: {
     alignItems: 'center',
-    background: 'blue',
     backgroundColor: theme.palette.background.panelGroups,
     borderRadius: '5px',
     display: 'flex',
     justifyContent: 'center'
+  },
+  svgWrapper: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2)
+  },
+  title: {
+    fontSize: theme.typography.h6.fontSize,
+    fontWeight: theme.typography.fontWeightBold
   }
 }));
