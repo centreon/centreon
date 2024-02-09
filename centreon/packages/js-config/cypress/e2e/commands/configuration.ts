@@ -144,7 +144,7 @@ interface Contact {
   authenticationType?: 'local' | 'ldap';
   email: string;
   enableNotifications?: boolean;
-  GUIAcces?: boolean;
+  GUIAccess?: boolean;
   language?: string;
   name: string;
   password: string;
