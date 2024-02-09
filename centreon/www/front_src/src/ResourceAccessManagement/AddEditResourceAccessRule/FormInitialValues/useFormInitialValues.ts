@@ -22,7 +22,7 @@ const useFormInitialValues = (): UseFormState => {
   const { data, isLoading: loading } = useFetchQuery({
     decoder: resourceAccessRuleDecoder,
     getEndpoint: () => resourceAccessRuleEndpoint({ id: editRuleId }),
-    getQueryKey: () => ['resource-access-rule', editRuleId],
+    getQueryKey: () => ['resource-access-rules', editRuleId],
     queryOptions: {
       cacheTime: 0,
       enabled: equals(modalState.mode, ModalMode.Edit),
