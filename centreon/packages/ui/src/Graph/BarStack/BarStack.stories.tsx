@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
+import { BarType } from './models';
+
 import { BarStack } from '.';
 
 const data = [
@@ -16,8 +18,12 @@ const meta: Meta<typeof BarStack> = {
 export default meta;
 type Story = StoryObj<typeof BarStack>;
 
-const Tooltip = (tooltipData): JSX.Element => {
-  return <div>{JSON.stringify(tooltipData)}</div>;
+const Tooltip = ({ label, color, value }: BarType): JSX.Element => {
+  return (
+    <div style={{ color }}>
+      {label} : {value}
+    </div>
+  );
 };
 
 const Template = (args): JSX.Element => {
@@ -45,7 +51,6 @@ export const WithPencentage: Story = {
 
 export const WidthVerticalLegend: Story = {
   args: {
-    Tooltip,
     data,
     legendConfiguration: { direction: 'column' },
     title: 'hosts'

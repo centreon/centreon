@@ -161,7 +161,11 @@ const BarVertical = ({
                               const eventSvgCoords = localPoint(event);
                               const left = bar.x + bar.width / 2;
                               showTooltip({
-                                tooltipData: bar,
+                                tooltipData: {
+                                  color: bar.color,
+                                  label: bar.key,
+                                  value: barStack.bars[0].bar.data[barStack.key]
+                                },
                                 tooltipLeft: left,
                                 tooltipTop: eventSvgCoords?.y
                               });
