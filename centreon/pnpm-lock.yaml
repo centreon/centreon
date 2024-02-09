@@ -636,6 +636,9 @@ importers:
       notistack:
         specifier: ^3.0.1
         version: 3.0.1(react-dom@18.2.0)(react@18.2.0)
+      numeral:
+        specifier: ^2.0.6
+        version: 2.0.6
       ramda:
         specifier: 0.29.1
         version: 0.29.1
@@ -7894,7 +7897,7 @@ packages:
     dependencies:
       '@babel/core': 7.23.6
       '@svgr/babel-preset': 8.1.0(@babel/core@7.23.6)
-      '@svgr/core': 8.1.0(typescript@5.2.2)
+      '@svgr/core': 8.1.0
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
