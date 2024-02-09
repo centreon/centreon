@@ -63,7 +63,7 @@ export const WithPencentage: Story = {
   render: Template
 };
 
-export const WidthVerticalLegend: Story = {
+export const WithVerticalLegend: Story = {
   args: {
     data,
     legendConfiguration: { direction: 'column' },
@@ -83,12 +83,12 @@ export const withithDisplayedValues: Story = {
   render: Template
 };
 
-export const WidthTooltip: Story = {
+export const WithTooltip: Story = {
   args: { Tooltip, data, title: 'hosts' },
   render: Template
 };
 
-export const WidthBigNumbers: Story = {
+export const WithBigNumbers: Story = {
   args: {
     Tooltip,
     data: dataWithBigNumbers,
@@ -98,7 +98,7 @@ export const WidthBigNumbers: Story = {
   render: Template
 };
 
-export const WidthSmallNumbers: Story = {
+export const WithSmallNumbers: Story = {
   args: {
     Tooltip,
     data: dataWithSmallNumber,
