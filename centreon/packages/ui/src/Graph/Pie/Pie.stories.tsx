@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
+import { ArcType } from './models';
+
 import { Pie as PieComponent } from '.';
 
 const data = [
@@ -71,7 +73,7 @@ export const WithLargeNumber: Story = {
 export const WithoutLegend: Story = {
   args: {
     data,
-    legend: false,
+    displayLegend: false,
     title: 'hosts',
     variant: 'Donut'
   },
@@ -89,6 +91,72 @@ export const DonutWithoutTitle: Story = {
 export const PieWithoutTitle: Story = {
   args: {
     data
+  },
+  render: Template
+};
+
+export const DonutWithDisplayedValues: Story = {
+  args: {
+    data,
+    displayValues: true,
+    variant: 'Donut'
+  },
+  render: Template
+};
+
+export const PieWithDisplayedValues: Story = {
+  args: {
+    data,
+    displayValues: true
+  },
+  render: Template
+};
+
+const Tooltip = ({ label, color, value }: ArcType): JSX.Element => {
+  return (
+    <div style={{ color }}>
+      {label} : {value}
+    </div>
+  );
+};
+
+export const PieWithTooltip: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true
+  },
+  render: Template
+};
+
+export const DonutWithTooltip: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true,
+    variant: 'Donut'
+  },
+  render: Template
+};
+
+export const PieWithVerticalLegend: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true,
+    legendConfiguration: { direction: 'column' },
+    variant: 'Pie'
+  },
+  render: Template
+};
+
+export const DonutWithVerticalLegend: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true,
+    legendConfiguration: { direction: 'column' },
+    variant: 'Donut'
   },
   render: Template
 };

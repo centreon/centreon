@@ -1,14 +1,42 @@
-import { useState } from 'react';
-
 import { Pie as PieComponent } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { LegendOrdinal } from '@visx/legend';
-import { scaleOrdinal } from '@visx/scale';
+import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import numeral from 'numeral';
+import { localPoint } from '@visx/event';
 
-import { PieProps } from './models';
+import { useTheme } from '@mui/material';
+
+import { Legend as LegendComponent } from '../Lengend';
+import { LegendProps } from '../Lengend/models';
+
+import { ArcType, PieProps } from './models';
 import { usePieStyles } from './Pie.styles';
+
+type TooltipData = {
+  arc: ArcType;
+  color: string;
+  height: number;
+  index: number;
+  key: string;
+  width: number;
+  x: number;
+  y: number;
+};
+
+let tooltipTimeout: number;
+
+const formatValue = (unit, value, total): string => {
+  if (unit === 'Number') {
+    return numeral(value).format('0a').toUpperCase();
+  }
+
+  return `${((value * 100) / total).toFixed(1)}%`;
+};
+
+const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
+  <LegendComponent configuration={configuration} scale={scale} />
+);
 
 const ResponsivePie = ({
   title,
@@ -16,26 +44,46 @@ const ResponsivePie = ({
   width,
   data,
   unit = 'Number',
-  legend = true
+  Legend = DefaultLengd,
+  legendConfiguration = { direction: 'row' },
+  displayLegend = true,
+  innerRadius = 35,
+  onArcClick,
+  displayValues,
+  Tooltip
 }: PieProps & { width: number }): JSX.Element => {
-  const { classes } = usePieStyles();
-  const [active, setActive] = useState(null);
+  const theme = useTheme();
+  const { classes } = usePieStyles({
+    legendDirection: legendConfiguration.direction
+  });
+
+  const {
+    tooltipOpen,
+    tooltipLeft,
+    tooltipTop,
+    tooltipData,
+    hideTooltip,
+    showTooltip
+  } = useTooltip<TooltipData>();
+
+  const tooltipStyles = {
+    ...defaultStyles,
+    backgroundColor: theme.palette.background.tooltip,
+    minWidth: 60
+  };
+
+  const { containerRef, TooltipInPortal } = useTooltipInPortal({
+    scroll: true
+  });
+
   const half = width / 2;
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
-  const formatValue = (value): string => {
-    if (unit === 'Number') {
-      return numeral(value).format('0a').toUpperCase();
-    }
-
-    return `${((value * 100) / total).toFixed(1)}%`;
-  };
-
-  const legendScale = scaleOrdinal({
-    domain: data.map(({ value }) => formatValue(value)),
+  const legendScale = {
+    domain: data.map(({ value }) => formatValue(unit, value, total)),
     range: data.map(({ color }) => color)
-  });
+  };
 
   return (
     <div className={classes.container}>
@@ -48,14 +96,12 @@ const ResponsivePie = ({
         className={classes.svgContainer}
         style={{ height: width + 30, width: width + 30 }}
       >
-        <svg height={width} width={width}>
+        <svg height={width} ref={containerRef} width={width}>
           <Group left={half} top={half}>
             <PieComponent
               data={data}
               innerRadius={() => {
-                const size = variant === 'Donut' ? 30 : half;
-
-                return half - size;
+                return variant === 'Pie' ? 0 : half - innerRadius;
               }}
               outerRadius={half}
               padAngle={0.01}
@@ -63,13 +109,43 @@ const ResponsivePie = ({
             >
               {(pie) => {
                 return pie.arcs.map((arc) => {
+                  const [centroidX, centroidY] = pie.path.centroid(arc);
+
                   return (
                     <g
                       key={arc.data.label}
-                      onMouseEnter={() => setActive(arc.data)}
-                      onMouseLeave={() => setActive(null)}
+                      onClick={() => {
+                        onArcClick?.(arc.data);
+                      }}
+                      onMouseLeave={() => {
+                        tooltipTimeout = window.setTimeout(() => {
+                          hideTooltip();
+                        }, 300);
+                      }}
+                      onMouseMove={(event) => {
+                        if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                        const eventSvgCoords = localPoint(event);
+                        showTooltip({
+                          tooltipData: arc.data,
+                          tooltipLeft: eventSvgCoords?.x,
+                          tooltipTop: eventSvgCoords?.y
+                        });
+                      }}
                     >
                       <path d={pie.path(arc)} fill={arc.data.color} />
+                      {displayValues && (
+                        <Text
+                          dy=".33em"
+                          fill="#000"
+                          fontSize={15}
+                          pointerEvents="none"
+                          textAnchor="middle"
+                          x={centroidX}
+                          y={centroidY}
+                        >
+                          {arc.data.value}
+                        </Text>
+                      )}
                     </g>
                   );
                 });
@@ -100,14 +176,19 @@ const ResponsivePie = ({
           </Group>
         </svg>
       </div>
-      {legend && (
-        <div className={classes.legends}>
-          <LegendOrdinal
-            direction="row"
-            labelMargin="0 15px 0 0"
-            scale={legendScale}
-          />
-        </div>
+      {displayLegend &&
+        Legend({
+          configuration: legendConfiguration,
+          scale: legendScale
+        })}
+      {Tooltip && tooltipOpen && tooltipData && (
+        <TooltipInPortal
+          left={tooltipLeft}
+          style={tooltipStyles}
+          top={tooltipTop}
+        >
+          {Tooltip(tooltipData)}
+        </TooltipInPortal>
       )}
     </div>
   );
