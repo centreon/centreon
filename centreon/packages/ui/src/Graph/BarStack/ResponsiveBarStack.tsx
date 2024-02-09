@@ -143,8 +143,9 @@ const BarVertical = ({
                         <g key={`bar-stack-${barStack.index}-${bar.index}`}>
                           <rect
                             fill={bar.color}
-                            height={bar.height}
+                            height={bar.height - 1}
                             key={`bar-stack-${barStack.index}-${bar.index}`}
+                            ry={5}
                             width={bar.width}
                             x={bar.x}
                             y={bar.y}
