@@ -78,7 +78,7 @@ class ShareDashboardValidator
      *  - The contacts should have Dashboard related ACLs
      *  - The contacts should have sufficient ACLs for their given roles
      *      (e.g a Viewer in ACLs can not be shared as Editor)
-     *  - If the user executing the request is not an admin, the contacts should be member of his access groups
+     *  - If the user executing the request is not an admin, the contacts should be member of his access groups.
      *
      * @param array<array{id: int, role: string}> $contacts
      * @param int[] $contactIdsInUserAccessGroups
@@ -132,7 +132,7 @@ class ShareDashboardValidator
      *   - The contact groups should have Dashboard related ACLs
      *   - The contacts should have sufficient ACLs for their given roles
      *       (e.g a Viewer in ACLs can not be shared as Editor)
-     *   - If the user executing the request is not an admin, the contacts should be member of his contact groups
+     *   - If the user executing the request is not an admin, the contacts should be member of his contact groups.
      *
      * @param array<array{id: int, role: string}> $contactGroups
      * @param int[] $userContactGroupIds
