@@ -5,7 +5,7 @@ import { includes } from 'ramda';
 
 import { Link } from '@mui/material';
 
-import { labelDashboardLibrary } from '../../translatedLabels';
+import { labelDashboards } from '../../translatedLabels';
 import routeMap from '../../../reactRoutes/routeMap';
 import FederatedComponent from '../../../components/FederatedComponents';
 
@@ -25,7 +25,7 @@ const DashboardNavbar = (): JSX.Element => {
         to={routeMap.dashboards}
         underline="hover"
       >
-        {t(labelDashboardLibrary)}
+        {t(labelDashboards)}
       </Link>
       <FederatedComponent path="/it-edition-extensions/playlists/NavigationLink" />
     </nav>
