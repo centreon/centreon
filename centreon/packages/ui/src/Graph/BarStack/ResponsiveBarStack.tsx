@@ -8,8 +8,8 @@ import { Text } from '@visx/text';
 
 import { useTheme } from '@mui/system';
 
-import { LegendProps } from '../Lengend/models';
-import { Legend as LegendComponent } from '../Lengend';
+import { LegendProps } from '../Legend/models';
+import { Legend as LegendComponent } from '../Legend';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';

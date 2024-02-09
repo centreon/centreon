@@ -7,8 +7,8 @@ import { localPoint } from '@visx/event';
 
 import { useTheme } from '@mui/material';
 
-import { Legend as LegendComponent } from '../Lengend';
-import { LegendProps } from '../Lengend/models';
+import { Legend as LegendComponent } from '../Legend';
+import { LegendProps } from '../Legend/models';
 
 import { ArcType, PieProps } from './models';
 import { usePieStyles } from './Pie.styles';

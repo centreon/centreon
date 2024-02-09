@@ -1,4 +1,4 @@
-import { LegendConfiguration, LegendProps } from '../Lengend/models';
+import { LegendConfiguration, LegendProps } from '../Legend/models';
 
 export interface ArcType {
   color: string;

@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 import { equals } from 'ramda';
 
-import { LegendDirection } from '../Lengend/models';
+import { LegendDirection } from '../Legend/models';
 
 export const usePieStyles = makeStyles<{ legendDirection: LegendDirection }>()(
   (theme, { legendDirection }) => ({

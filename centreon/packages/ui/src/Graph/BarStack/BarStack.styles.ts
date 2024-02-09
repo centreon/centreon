@@ -1,7 +1,7 @@
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { LegendDirection } from '../Lengend/models';
+import { LegendDirection } from '../Legend/models';
 
 export const useBarStackStyles = makeStyles<{
   legendDirection: LegendDirection;
