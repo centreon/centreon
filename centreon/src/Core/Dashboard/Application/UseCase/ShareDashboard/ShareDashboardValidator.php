@@ -91,9 +91,17 @@ class ShareDashboardValidator
         $this->validateContactsExist($contactIds);
         $this->validateContactsAreUnique($contactIds);
 
+        /**
+         * Retrieve the contacts which have Dashboard's ACLs
+         */
         $dashboardContactRoles = $this->readDashboardShareRepository->findContactsWithAccessRightByContactIds(
             $contactIds
         );
+
+        /**
+         * As the Admins does not have concrete ACLs,
+         * it is needed to retrieve and add them to the list of users with valid roles.
+         */
         $adminUsers = $this->contactRepository->findAdminsByIds($contactIds);
         foreach ($adminUsers as $adminUser) {
             $dashboardContactRoles[] = new DashboardContactRole(
@@ -168,6 +176,10 @@ class ShareDashboardValidator
     }
 
     /**
+     * Validate that contacts in the request are contacts with Dashboard ACLs
+     *
+     * A user without Dashboard ACLs can not be shared on a dashboard.
+     *
      * @param DashboardContactRole[] $dashboardContactRoles
      * @param int[] $contactIds
      *
@@ -271,7 +283,7 @@ class ShareDashboardValidator
     {
         $contactDifference = new BasicDifference($requestContactIds, $contactIdsInUserAccessGroups);
         if ([] !== $contactDifference->getRemoved()) {
-            DashboardException::userAreNotInAccessGroups($contactDifference->getRemoved());
+            throw DashboardException::userAreNotInAccessGroups($contactDifference->getRemoved());
         }
     }
 

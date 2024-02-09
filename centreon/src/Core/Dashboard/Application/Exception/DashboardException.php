@@ -25,6 +25,9 @@ namespace Core\Dashboard\Application\Exception;
 
 class DashboardException extends \Exception
 {
+    public const CODE_NOT_FOUND = 1;
+    public const CODE_FORBIDDEN = 2;
+
     /**
      * @return self
      */
@@ -75,7 +78,8 @@ class DashboardException extends \Exception
             sprintf(
                 _('You are not allowed to edit access rights on the dashboard #%d'),
                 $dashboardId
-            )
+            ),
+            self::CODE_FORBIDDEN
         );
     }
 
@@ -162,7 +166,7 @@ class DashboardException extends \Exception
      */
     public static function theDashboardDoesNotExist(int $dashboardId): self
     {
-        return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId));
+        return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId), self::CODE_NOT_FOUND);
     }
 
     /**

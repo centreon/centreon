@@ -26,9 +26,11 @@ namespace Core\Dashboard\Application\UseCase\ShareDashboard;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -116,15 +118,19 @@ final class ShareDashboard
                 $contactIdsInUserAccessGroups
             );
             $presenter->presentResponse(new NoContentResponse());
-        } catch (DashboardException $ex) {
+        } catch(DashboardException $ex) {
             $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new InvalidArgumentResponse($ex->getMessage())
+                match ($ex->getCode()) {
+                    DashboardException::CODE_NOT_FOUND => new NotFoundResponse($ex),
+                    DashboardException::CODE_FORBIDDEN => new ForbiddenResponse($ex),
+                    default => new InvalidArgumentResponse($ex->getMessage()),
+                }
             );
         } catch (\Throwable $ex) {
-            $this->error(DashboardException::errorWhileUpdating()->getMessage());
+            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new InvalidArgumentResponse($ex->getMessage())
+                new ErrorResponse(DashboardException::errorWhileUpdating()->getMessage())
             );
         }
     }
@@ -149,7 +155,6 @@ final class ShareDashboard
         } catch (\Throwable $ex) {
             $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
-
             throw $ex;
         }
     }
@@ -189,7 +194,6 @@ final class ShareDashboard
         } catch (\Throwable $ex) {
             $this->error('Error during transaction, rollback', ['trace' => (string) $ex]);
             $this->dataStorageEngine->rollbackTransaction();
-
             throw $ex;
         }
     }

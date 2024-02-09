@@ -21,25 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\ShareDashboard;
+namespace Tests\Core\Dashboard\Application\UseCase\ShareDashboard;
 
-final class ShareDashboardRequest
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardPresenterInterface;
+
+class ShareDashboardPresenterStub implements ShareDashboardPresenterInterface
 {
-    public int $dashboardId = 0;
+    public ResponseStatusInterface $data;
 
-    /**
-     * @var array<array{
-     *  id: int,
-     *  role: string
-     * }>
-     */
-    public array $contacts = [];
-
-    /**
-     * @var array<array{
-     *  id: int,
-     *  role: string
-     * }>
-     */
-    public array $contactGroups = [];
+    public function presentResponse(ResponseStatusInterface $response): void
+    {
+        $this->data = $response;
+    }
 }
