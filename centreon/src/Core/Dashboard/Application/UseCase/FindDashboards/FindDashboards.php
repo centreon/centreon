@@ -120,7 +120,10 @@ final class FindDashboards
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$editorIds),
             $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
-            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds($userInCurrentUserAccessGroups, ...$dashboards),
+            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
+                $userInCurrentUserAccessGroups,
+                ...$dashboards
+            ),
             $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
