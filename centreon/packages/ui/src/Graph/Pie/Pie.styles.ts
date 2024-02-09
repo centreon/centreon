@@ -8,9 +8,9 @@ export const usePieStyles = makeStyles<{ legendDirection: LegendDirection }>()(
     container: {
       alignItems: 'center',
       display: 'flex',
-      flexDirection: equals(legendDirection, 'row') ? 'column' : 'row',
+      flexDirection: equals(legendDirection, 'column') ? 'row' : 'column',
       gap: theme.spacing(3),
-      padding: theme.spacing(3)
+      padding: theme.spacing(2)
     },
     pieTitle: {
       fontSize: theme.typography.h6.fontSize,
