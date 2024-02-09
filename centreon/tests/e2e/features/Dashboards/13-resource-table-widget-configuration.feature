@@ -26,6 +26,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator user select all the status of the dataset selection
     Then only the unhandled ressources are displayed in the ressrouce table widget
 
+  @TEST_MON-35096
   Scenario: Deleting a resource table widget
     Given a dashboard featuring two resource table widgets
     When the dashboard administrator user deletes one of the widgets
