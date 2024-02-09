@@ -79,6 +79,7 @@ class CentreonService extends CentreonObject
     public const ORDER_HOSTNAME = 0;
     public const ORDER_SVCDESC = 1;
     public const ORDER_SVCTPL = 2;
+    public const SVC_NOTIF_TP = "svcnotifperiod";
     public const NB_UPDATE_PARAMS = 4;
     public const UNKNOWN_NOTIFICATION_OPTIONS = "Invalid notifications options";
     public const INVALID_GEO_COORDS = "Invalid geo coords";
@@ -603,8 +604,6 @@ class CentreonService extends CentreonObject
                         $field = "timeperiod_tp_id";
                         break;
                     case "notification_period":
-                        $field = "timeperiod_tp_id2";
-                        break;
                     case "template":
                         $field = "service_template_model_stm_id";
                         break;
@@ -1421,9 +1420,13 @@ class CentreonService extends CentreonObject
             foreach ($element as $parameter => $value) {
                 if (!in_array($parameter, $this->exportExcludedParams) && !is_null($value) && $value != "") {
                     $action_tmp = null;
-                    if ($parameter == "timeperiod_tp_id" || $parameter == "timeperiod_tp_id2") {
+                    if ($parameter == "timeperiod_tp_id") {
                         $action_tmp = 'TP';
                         $tmpObj = CentreonTimePeriod::getInstance();
+                    } elseif ($parameter == "timeperiod_tp_id2") {
+                        $parameter = self::SVC_NOTIF_TP;
+                        $value = $this->tpObject->getObjectName($value);
+                        CentreonTimePeriod::getInstance()->export($value);
                     } elseif ($parameter == "command_command_id" || $parameter == "command_command_id2") {
                         $action_tmp = 'CMD';
                         $tmpObj = CentreonCommand::getInstance();
