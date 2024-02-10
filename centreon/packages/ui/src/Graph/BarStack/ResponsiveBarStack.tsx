@@ -43,8 +43,8 @@ const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
 const BarStack = ({
   title,
   data,
-  width,
-  height,
+  width: barWidth,
+  height: barHeight,
   onSingleBarClick,
   displayLegend = true,
   Tooltip,
@@ -77,6 +77,9 @@ const BarStack = ({
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     scroll: true
   });
+
+  const width = equals(variant, 'Vertical') ? barWidth : barHeight;
+  const height = equals(variant, 'Vertical') ? barHeight : barWidth;
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
@@ -113,8 +116,8 @@ const BarStack = ({
     range: colorsRange
   };
 
-  const xMax = equals(variant, 'Vertical') ? width : height;
-  const yMax = equals(variant, 'Vertical') ? height : width;
+  const xMax = width;
+  const yMax = height;
 
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax, 0]);
@@ -124,11 +127,6 @@ const BarStack = ({
 
     return acc;
   }, {});
-
-  const containerHeight = equals(variant, 'Vertical')
-    ? height + 15
-    : width + 15;
-  const containerWidth = equals(variant, 'Vertical') ? width + 15 : height + 15;
 
   return (
     <div className={classes.container}>
@@ -140,13 +138,9 @@ const BarStack = ({
         )}
         <div
           className={classes.svgContainer}
-          style={{ height: containerHeight, width: containerWidth }}
+          style={{ height: height + 15, width: width + 15 }}
         >
-          <svg
-            height={equals(variant, 'Vertical') ? height : width}
-            ref={containerRef}
-            width={equals(variant, 'Vertical') ? width : height}
-          >
+          <svg height={height} ref={containerRef} width={width}>
             <Group>
               {equals(variant, 'Vertical') ? (
                 <BarStackVertical
@@ -251,15 +245,15 @@ const BarStack = ({
                             onMouseMove={(event) => {
                               if (tooltipTimeout) clearTimeout(tooltipTimeout);
                               const eventSvgCoords = localPoint(event);
-                              const left = bar.x + bar.width / 2;
+                              const top = bar.y + bar.height / 2;
                               showTooltip({
                                 tooltipData: {
                                   color: bar.color,
                                   label: bar.key,
                                   value: barStack.bars[0].bar.data[barStack.key]
                                 },
-                                tooltipLeft: left,
-                                tooltipTop: eventSvgCoords?.y
+                                tooltipLeft: eventSvgCoords?.x,
+                                tooltipTop: top
                               });
                             }}
                           />

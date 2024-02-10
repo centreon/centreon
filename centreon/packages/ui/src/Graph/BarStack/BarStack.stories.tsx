@@ -48,7 +48,7 @@ const Template = (args): JSX.Element => {
   );
 };
 
-export const Normal: Story = {
+export const Vertical: Story = {
   args: { data, title: 'hosts' },
   render: Template
 };
