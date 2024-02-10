@@ -1,4 +1,4 @@
-import { BarStack, BarStackHorizontal } from '@visx/shape';
+import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
@@ -40,7 +40,7 @@ const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
   <LegendComponent configuration={configuration} scale={scale} />
 );
 
-const BarVertical = ({
+const BarStack = ({
   title,
   data,
   width,
@@ -149,7 +149,7 @@ const BarVertical = ({
           >
             <Group>
               {equals(variant, 'Vertical') ? (
-                <BarStack
+                <BarStackVertical
                   color={colorScale}
                   data={[input]}
                   keys={keys}
@@ -218,7 +218,7 @@ const BarVertical = ({
                       })
                     )
                   }
-                </BarStack>
+                </BarStackVertical>
               ) : (
                 <BarStackHorizontal
                   color={colorScale}
@@ -309,4 +309,4 @@ const BarVertical = ({
   );
 };
 
-export default BarVertical;
+export default BarStack;
