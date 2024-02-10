@@ -1,4 +1,4 @@
-import { Pie as PieComponent } from '@visx/shape';
+import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
@@ -9,30 +9,10 @@ import { useTheme } from '@mui/material';
 
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
+import { getValueByUnit } from '../common/utils';
 
-import { ArcType, PieProps } from './models';
-import { usePieStyles } from './Pie.styles';
-
-type TooltipData = {
-  arc: ArcType;
-  color: string;
-  height: number;
-  index: number;
-  key: string;
-  width: number;
-  x: number;
-  y: number;
-};
-
-let tooltipTimeout: number;
-
-const formatValue = (unit, value, total): string => {
-  if (unit === 'Number') {
-    return numeral(value).format('0a').toUpperCase();
-  }
-
-  return `${((value * 100) / total).toFixed(1)}%`;
-};
+import { PieProps } from './models';
+import { usePieStyles } from './PieChart.styles';
 
 const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
   <LegendComponent configuration={configuration} scale={scale} />
@@ -64,7 +44,7 @@ const ResponsivePie = ({
     tooltipData,
     hideTooltip,
     showTooltip
-  } = useTooltip<TooltipData>();
+  } = useTooltip();
 
   const tooltipStyles = {
     ...defaultStyles,
@@ -81,7 +61,7 @@ const ResponsivePie = ({
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
   const legendScale = {
-    domain: data.map(({ value }) => formatValue(unit, value, total)),
+    domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
     range: data.map(({ color }) => color)
   };
 
@@ -98,7 +78,7 @@ const ResponsivePie = ({
       >
         <svg height={width} ref={containerRef} width={width}>
           <Group left={half} top={half}>
-            <PieComponent
+            <Pie
               data={data}
               innerRadius={() => {
                 return variant === 'Pie' ? 0 : half - innerRadius;
@@ -118,12 +98,11 @@ const ResponsivePie = ({
                         onArcClick?.(arc.data);
                       }}
                       onMouseLeave={() => {
-                        tooltipTimeout = window.setTimeout(() => {
+                        setTimeout(() => {
                           hideTooltip();
                         }, 300);
                       }}
                       onMouseMove={(event) => {
-                        if (tooltipTimeout) clearTimeout(tooltipTimeout);
                         const eventSvgCoords = localPoint(event);
                         showTooltip({
                           tooltipData: arc.data,
@@ -150,7 +129,7 @@ const ResponsivePie = ({
                   );
                 });
               }}
-            </PieComponent>
+            </Pie>
             {variant === 'Donut' && title && (
               <>
                 <Text

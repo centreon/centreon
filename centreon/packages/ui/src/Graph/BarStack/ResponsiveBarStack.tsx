@@ -1,6 +1,5 @@
 import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
-import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import numeral from 'numeral';
@@ -14,27 +13,7 @@ import { Legend as LegendComponent } from '../Legend';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
-
-type TooltipData = {
-  bar;
-  color: string;
-  height: number;
-  index: number;
-  key: string;
-  width: number;
-  x: number;
-  y: number;
-};
-
-const formatValue = (unit, value, total): string => {
-  if (unit === 'Number') {
-    return numeral(value).format('0a').toUpperCase();
-  }
-
-  return `${((value * 100) / total).toFixed(1)}%`;
-};
-
-let tooltipTimeout: number;
+import useResponsiveBarStack from './useResponsiveBarStack';
 
 const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
   <LegendComponent configuration={configuration} scale={scale} />
@@ -72,61 +51,29 @@ const BarStack = ({
     tooltipData,
     hideTooltip,
     showTooltip
-  } = useTooltip<TooltipData>();
+  } = useTooltip();
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal({
     scroll: true
   });
 
-  const width = equals(variant, 'Vertical') ? barWidth : barHeight;
-  const height = equals(variant, 'Vertical') ? barHeight : barWidth;
-
-  const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
-
-  const yScale = equals(variant, 'Vertical')
-    ? scaleLinear({
-        domain: [0, total],
-        nice: true
-      })
-    : scaleBand({
-        domain: [0, 0],
-        padding: 0
-      });
-
-  const xScale = equals(variant, 'Vertical')
-    ? scaleBand({
-        domain: [0, 0],
-        padding: 0
-      })
-    : scaleLinear({
-        domain: [0, total],
-        nice: true
-      });
-  const keys = data.map(({ label }) => label);
-
-  const colorsRange = data.map(({ color }) => color);
-
-  const colorScale = scaleOrdinal({
-    domain: keys,
-    range: colorsRange
+  const {
+    height,
+    width,
+    colorScale,
+    input,
+    keys,
+    legendScale,
+    total,
+    xScale,
+    yScale
+  } = useResponsiveBarStack({
+    barHeight,
+    barWidth,
+    data,
+    unit,
+    variant
   });
-
-  const legendScale = {
-    domain: data.map(({ value }) => formatValue(unit, value, total)),
-    range: colorsRange
-  };
-
-  const xMax = width;
-  const yMax = height;
-
-  xScale.rangeRound([0, xMax]);
-  yScale.range([yMax, 0]);
-
-  const input = data.reduce((acc, { label, value }) => {
-    acc[label] = value;
-
-    return acc;
-  }, {});
 
   return (
     <div className={classes.container}>
@@ -168,13 +115,11 @@ const BarStack = ({
                                 onSingleBarClick?.(bar);
                               }}
                               onMouseLeave={() => {
-                                tooltipTimeout = window.setTimeout(() => {
+                                setTimeout(() => {
                                   hideTooltip();
                                 }, 300);
                               }}
                               onMouseMove={(event) => {
-                                if (tooltipTimeout)
-                                  clearTimeout(tooltipTimeout);
                                 const eventSvgCoords = localPoint(event);
                                 const left = bar.x + bar.width / 2;
                                 showTooltip({
@@ -238,12 +183,11 @@ const BarStack = ({
                               onSingleBarClick?.(bar);
                             }}
                             onMouseLeave={() => {
-                              tooltipTimeout = window.setTimeout(() => {
+                              setTimeout(() => {
                                 hideTooltip();
                               }, 300);
                             }}
                             onMouseMove={(event) => {
-                              if (tooltipTimeout) clearTimeout(tooltipTimeout);
                               const eventSvgCoords = localPoint(event);
                               const top = bar.y + bar.height / 2;
                               showTooltip({

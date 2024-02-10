@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 
 import { ArcType } from './models';
 
-import { Pie as PieComponent } from '.';
+import { PieChart } from '.';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },
@@ -18,17 +18,17 @@ const dataWithBigNumbers = [
   { color: '#FF6666', label: 'Down', value: 122222 }
 ];
 
-const meta: Meta<typeof PieComponent> = {
-  component: PieComponent
+const meta: Meta<typeof PieChart> = {
+  component: PieChart
 };
 
 export default meta;
-type Story = StoryObj<typeof PieComponent>;
+type Story = StoryObj<typeof PieChart>;
 
 const Template = (args): JSX.Element => {
   return (
     <div style={{ width: '250px' }}>
-      <PieComponent {...args} />
+      <PieChart {...args} />
     </div>
   );
 };
