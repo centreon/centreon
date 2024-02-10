@@ -107,3 +107,26 @@ export const WithSmallNumbers: Story = {
   },
   render: Template
 };
+
+export const Horizontal: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true,
+    title: 'hosts',
+    variant: 'Horizontal'
+  },
+  render: Template
+};
+
+export const HorizontalWithVerticalLegend: Story = {
+  args: {
+    Tooltip,
+    data,
+    displayValues: true,
+    legendConfiguration: { direction: 'column' },
+    title: 'hosts',
+    variant: 'Horizontal'
+  },
+  render: Template
+};

@@ -1,10 +1,11 @@
-import { BarStack } from '@visx/shape';
+import { BarStack, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import numeral from 'numeral';
 import { Text } from '@visx/text';
+import { equals } from 'ramda';
 
 import { useTheme } from '@mui/system';
 
@@ -50,7 +51,8 @@ const BarVertical = ({
   legendConfiguration = { direction: 'row' },
   Legend = DefaultLengd,
   unit = 'Number',
-  displayValues
+  displayValues,
+  variant = 'Vertical'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const theme = useTheme();
   const { classes } = useBarStackStyles({
@@ -78,15 +80,25 @@ const BarVertical = ({
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
-  const yScale = scaleLinear({
-    domain: [0, total],
-    nice: true
-  });
-  const xScale = scaleBand({
-    domain: [0, 0],
-    padding: 0
-  });
+  const yScale = equals(variant, 'Vertical')
+    ? scaleLinear({
+        domain: [0, total],
+        nice: true
+      })
+    : scaleBand({
+        domain: [0, 0],
+        padding: 0
+      });
 
+  const xScale = equals(variant, 'Vertical')
+    ? scaleBand({
+        domain: [0, 0],
+        padding: 0
+      })
+    : scaleLinear({
+        domain: [0, total],
+        nice: true
+      });
   const keys = data.map(({ label }) => label);
 
   const colorsRange = data.map(({ color }) => color);
@@ -101,8 +113,8 @@ const BarVertical = ({
     range: colorsRange
   };
 
-  const xMax = width;
-  const yMax = height;
+  const xMax = equals(variant, 'Vertical') ? width : height;
+  const yMax = equals(variant, 'Vertical') ? height : width;
 
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax, 0]);
@@ -112,6 +124,11 @@ const BarVertical = ({
 
     return acc;
   }, {});
+
+  const containerHeight = equals(variant, 'Vertical')
+    ? height + 15
+    : width + 15;
+  const containerWidth = equals(variant, 'Vertical') ? width + 15 : height + 15;
 
   return (
     <div className={classes.container}>
@@ -123,29 +140,104 @@ const BarVertical = ({
         )}
         <div
           className={classes.svgContainer}
-          style={{ height: height + 15, width: width + 15 }}
+          style={{ height: containerHeight, width: containerWidth }}
         >
-          <svg height={height} ref={containerRef} width={width}>
+          <svg
+            height={equals(variant, 'Vertical') ? height : width}
+            ref={containerRef}
+            width={equals(variant, 'Vertical') ? width : height}
+          >
             <Group>
-              <BarStack
-                color={colorScale}
-                data={[input]}
-                keys={keys}
-                x={() => undefined}
-                xScale={xScale}
-                yScale={yScale}
-              >
-                {(barStacks) =>
-                  barStacks.map((barStack) =>
-                    barStack.bars.map((bar) => {
-                      return (
+              {equals(variant, 'Vertical') ? (
+                <BarStack
+                  color={colorScale}
+                  data={[input]}
+                  keys={keys}
+                  x={() => undefined}
+                  xScale={xScale}
+                  yScale={yScale}
+                >
+                  {(barStacks) =>
+                    barStacks.map((barStack) =>
+                      barStack.bars.map((bar) => {
+                        return (
+                          <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                            <rect
+                              fill={bar.color}
+                              height={bar.height - 1}
+                              key={`bar-stack-${barStack.index}-${bar.index}`}
+                              ry={5}
+                              width={bar.width}
+                              x={bar.x}
+                              y={bar.y}
+                              onClick={() => {
+                                onSingleBarClick?.(bar);
+                              }}
+                              onMouseLeave={() => {
+                                tooltipTimeout = window.setTimeout(() => {
+                                  hideTooltip();
+                                }, 300);
+                              }}
+                              onMouseMove={(event) => {
+                                if (tooltipTimeout)
+                                  clearTimeout(tooltipTimeout);
+                                const eventSvgCoords = localPoint(event);
+                                const left = bar.x + bar.width / 2;
+                                showTooltip({
+                                  tooltipData: {
+                                    color: bar.color,
+                                    label: bar.key,
+                                    value:
+                                      barStack.bars[0].bar.data[barStack.key]
+                                  },
+                                  tooltipLeft: left,
+                                  tooltipTop: eventSvgCoords?.y
+                                });
+                              }}
+                            />
+                            {displayValues &&
+                              bar.height > 10 &&
+                              bar.width > 10 && (
+                                <Text
+                                  fill="black"
+                                  fontSize={12}
+                                  textAnchor="middle"
+                                  verticalAnchor="middle"
+                                  x={bar.x + bar.width / 2}
+                                  y={bar.y + bar.height / 2}
+                                >
+                                  {numeral(
+                                    barStack.bars[0].bar.data[barStack.key]
+                                  )
+                                    .format('0a')
+                                    .toUpperCase()}
+                                </Text>
+                              )}
+                          </g>
+                        );
+                      })
+                    )
+                  }
+                </BarStack>
+              ) : (
+                <BarStackHorizontal
+                  color={colorScale}
+                  data={[input]}
+                  keys={keys}
+                  xScale={xScale}
+                  y={() => undefined}
+                  yScale={yScale}
+                >
+                  {(barStacks) =>
+                    barStacks.map((barStack) =>
+                      barStack.bars.map((bar) => (
                         <g key={`bar-stack-${barStack.index}-${bar.index}`}>
                           <rect
                             fill={bar.color}
-                            height={bar.height - 1}
-                            key={`bar-stack-${barStack.index}-${bar.index}`}
+                            height={bar.height}
+                            key={`barstack-horizontal-${barStack.index}-${bar.index}`}
                             ry={5}
-                            width={bar.width}
+                            width={bar.width - 1}
                             x={bar.x}
                             y={bar.y}
                             onClick={() => {
@@ -190,11 +282,11 @@ const BarVertical = ({
                               </Text>
                             )}
                         </g>
-                      );
-                    })
-                  )
-                }
-              </BarStack>
+                      ))
+                    )
+                  }
+                </BarStackHorizontal>
+              )}
             </Group>
           </svg>
         </div>

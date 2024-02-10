@@ -16,5 +16,5 @@ export type BarStackProps = {
   onSingleBarClick?: (barData) => void;
   title?: string;
   unit?: 'Percentage' | 'Number';
-  variant?: 'Vertical' | 'Horizental';
+  variant?: 'Vertical' | 'Horizontal';
 };

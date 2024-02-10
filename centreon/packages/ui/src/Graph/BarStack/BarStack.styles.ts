@@ -12,7 +12,7 @@ export const useBarStackStyles = makeStyles<{
     flexDirection: equals(legendDirection, 'column') ? 'row' : 'column',
     gap: theme.spacing(3),
     justifyContent: 'center',
-    minWidth: theme.spacing(40),
+    minWidth: theme.spacing(50),
     padding: theme.spacing(2)
   },
   svgContainer: {
