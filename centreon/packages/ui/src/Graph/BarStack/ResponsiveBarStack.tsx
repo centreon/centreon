@@ -1,4 +1,4 @@
-import { BarStack, BarStackHorizontal } from '@visx/shape';
+import { BarStack } from '@visx/shape';
 import { Group } from '@visx/group';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
@@ -50,7 +50,6 @@ const BarVertical = ({
   legendConfiguration = { direction: 'row' },
   Legend = DefaultLengd,
   unit = 'Number',
-  variant = 'Horizental',
   displayValues
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const theme = useTheme();
