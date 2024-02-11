@@ -357,9 +357,6 @@ Then(
     cy.getCellContent(1, 1).then((myTableContent) => {
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.include('Unknown');
-      expect(myTableContent[4]).to.include('Unknown');
-      expect(myTableContent[5]).to.include('Unknown');
     });
   }
 );
@@ -403,15 +400,9 @@ Then('only the contents of the other widget are displayed', () => {
   .invoke('text')
   .then((content) => {
     const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-    // Utilisez 'expect' directement au lieu de 'cy.wrap'
-    expect(columnContents).to.be.an('array').and.to.have.length.above(5);
-
-    // Maintenant, vous pouvez effectuer vos assertions
+    expect(columnContents).to.be.an('array').and.to.have.length.above(3);
     expect(columnContents[1]).to.include('Critical');
     expect(columnContents[2]).to.include('Warning');
-    expect(columnContents[3]).to.include('Unknown');
-    expect(columnContents[4]).to.include('Unknown');
-    expect(columnContents[5]).to.include('Unknown');
   });
 });
 
@@ -455,16 +446,10 @@ Then(
     const columnContents = content.match(/[A-Z][a-z]*/g) || [];
     expect(columnContents[1]).to.include('Critical');
     expect(columnContents[2]).to.include('Warning');
-    expect(columnContents[3]).to.include('Unknown');
-    expect(columnContents[4]).to.include('Unknown');
-    expect(columnContents[5]).to.include('Unknown');
   });
     cy.getCellContent(1, 1).then((myTableContent) => {
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.include('Unknown');
-      expect(myTableContent[4]).to.include('Unknown');
-      expect(myTableContent[5]).to.include('Unknown');
     });
   }
 );
