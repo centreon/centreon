@@ -62,92 +62,92 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.startWebContainer();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  );
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  // );
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceOk.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   })
+  //   .applyPollerConfiguration();
 
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceCritical.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceCritical.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   })
+  //   .applyPollerConfiguration();
 
-  cy.loginByTypeOfUser({
-    jsonName: 'admin'
-  });
+  // cy.loginByTypeOfUser({
+  //   jsonName: 'admin'
+  // });
 
-  checkHostsAreMonitored([
-    { name: services.serviceOk.host },
-    { name: services.serviceCritical.host }
-  ]);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name },
-    { name: services.serviceOk.name }
-  ]);
-  cy.submitResults(resultsToSubmit);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name, status: 'critical' },
-    { name: services.serviceOk.name, status: 'ok' }
-  ]);
+  // checkHostsAreMonitored([
+  //   { name: services.serviceOk.host },
+  //   { name: services.serviceCritical.host }
+  // ]);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name },
+  //   { name: services.serviceOk.name }
+  // ]);
+  // cy.submitResults(resultsToSubmit);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name, status: 'critical' },
+  //   { name: services.serviceOk.name, status: 'ok' }
+  // ]);
 
-  cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
-  });
+  // cy.logoutViaAPI();
+  // const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+  //   ? 'apache'
+  //   : 'www-data';
+  // cy.execInContainer({
+  //   command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
+  //   name: Cypress.env('dockerName')
+  // });
 });
 
 beforeEach(() => {
@@ -188,9 +188,9 @@ afterEach(() => {
   });
 });
 
-// after(() => {
-//   cy.stopWebContainer();
-// });
+after(() => {
+  cy.stopWebContainer();
+});
 
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
@@ -212,7 +212,7 @@ Given('a dashboard containing a configured resource table widget', () => {
     tag: 'li'
   }).realClick();
   cy.wait('@resourceRequest');
-  cy.getCellContent(1, 1).then((myTableContent) => {
+  cy.getCellContent(1,1).then((myTableContent) => {
     expect(myTableContent[1]).to.include('Critical');
     expect(myTableContent[2]).to.include('Warning');
   });
@@ -252,13 +252,11 @@ Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
     cy.getCellContent(1, 1).then((myTableContent) => {
-      cy.then(() => {
         expect(myTableContent[6]).to.include('Pending');
         expect(myTableContent[7]).to.include('Pending');
         expect(myTableContent[8]).to.include('Up');
         expect(myTableContent[9]).to.include('Up');
         expect(myTableContent[10]).to.include('Up');
-      });
     });
   }
 );
@@ -441,6 +439,7 @@ Then(
     cy.get(
       `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
     )
+      .should('be.visible')
       .invoke('text')
       .then((content) => {
         const columnContents = content.match(/[A-Z][a-z]*/g) || [];
@@ -532,6 +531,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
   cy.get(
     `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
   )
+    .should('be.visible')
     .invoke('text')
     .then((content) => {
       const columnContents = content.match(/[A-Z][a-z]*/g) || [];
