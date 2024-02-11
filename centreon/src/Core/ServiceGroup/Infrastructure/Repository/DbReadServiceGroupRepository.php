@@ -323,45 +323,46 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         `:db`.`servicegroup` sg
                     SQL
             )
-            ->defineOrderBy(
-                <<<'SQL'
-                    ORDER BY sg.sg_name ASC
-                    SQL
-            )
             ->appendJoins(
                 <<<'SQL'
                     LEFT JOIN `:db`.acl_resources_sg_relations arsr
                         ON sg.sg_id = arsr.sg_id
-                    LEFT JOIN `:db`.acl_resources ar
-                        ON arsr.acl_res_id = ar.acl_res_id
+                    LEFT JOIN `:db`.acl_resources res
+                            ON arsr.acl_res_id = res.acl_res_id
+                    SQL
+            )
+            ->defineOrderBy(
+                <<<'SQL'
+                    ORDER BY sg.sg_name ASC
                     SQL
             );
+
         if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_group_id')){
             $concatenator->appendJoins(
                 <<<'SQL'
-                    LEFT JOIN `:db`.acl_resources_hg_relation arhgr
-                        ON ar.acl_res_id = arhgr.acl_res_id
+                    LEFT JOIN `:db`.acl_resources_hg_relations arhgr
+                        ON res.acl_res_id = arhgr.acl_res_id
                     LEFT JOIN `:db`.hostgroup hg
                         ON arhgr.hg_hg_id = hg.hg_id
                     SQL
             );
-        } else if(mb_strpos($_GET['search'], 'host_id')) {
+        } else if(! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
-                    LEFT JOIN `:db`.acl_resources_host_relation arhr
-                        ON ar.acl_res_id = arhr.acl_res_id
+                    LEFT JOIN `:db`.acl_resources_host_relations arhr
+                        ON res.acl_res_id = arhr.acl_res_id
                     LEFT JOIN `:db`.host h
-                        ON arhgr.host_host_id = h.host_id
+                        ON arhr.host_host_id = h.host_id
                     SQL
             );
-        } else if(mb_strpos($_GET['search'], 'host_category_id')) {
+        } else if(! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_category_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
-                        LEFT JOIN `:db`.acl_resources_hc_relations arhcr
-                            ON ar.acl_res_id = arhcr.acl_res_id
-                        LEFT JOIN `:db`.hostcategories hc
-                            ON arhcr.hc_id = hc.hc_id
-                            AND hc.level IS NOT NULL
+                    LEFT JOIN `:db`.acl_resources_hc_relations arhcr
+                        ON res.acl_res_id = arhcr.acl_res_id
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON arhcr.hc_id = hc.hc_id
+                        AND hc.level IS NOT NULL
                     SQL
             );
         }
