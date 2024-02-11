@@ -396,22 +396,23 @@ Then('only the contents of the other widget are displayed', () => {
   cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
     .should('be.visible')
     .then(() => true),
-  { timeout: 10000, interval: 500 }
+  { timeout: 10000, interval: 1000 }
 );
-  cy.get(
-    `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
-  )
-    .invoke('text')
-    .then((content) => {
-      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-      cy.wrap(columnContents).then((columns) => {
-        expect(columns[1]).to.include('Critical');
-        expect(columns[2]).to.include('Warning');
-        expect(columns[3]).to.include('Unknown');
-        expect(columns[4]).to.include('Unknown');
-        expect(columns[5]).to.include('Unknown');
-      });
-    });
+  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+  .should('be.visible')
+  .invoke('text')
+  .then((content) => {
+    const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+    // Utilisez 'expect' directement au lieu de 'cy.wrap'
+    expect(columnContents).to.be.an('array').and.to.have.length.above(5);
+
+    // Maintenant, vous pouvez effectuer vos assertions
+    expect(columnContents[1]).to.include('Critical');
+    expect(columnContents[2]).to.include('Warning');
+    expect(columnContents[3]).to.include('Unknown');
+    expect(columnContents[4]).to.include('Unknown');
+    expect(columnContents[5]).to.include('Unknown');
+  });
 });
 
 Given('a dashboard having a configured ressrouce table widget', () => {
@@ -446,23 +447,18 @@ Then(
     cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
       .should('be.visible')
       .then(() => true),
-    { timeout: 10000, interval: 500 }
+    { timeout: 10000, interval: 1000 }
   );
-    cy.get(
-      `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
-    )
-      .should('be.visible')
-      .invoke('text')
-      .then((content) => {
-        const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-        cy.wrap(columnContents).then((columns) => {
-          expect(columns[1]).to.include('Critical');
-          expect(columns[2]).to.include('Warning');
-          expect(columns[3]).to.include('Unknown');
-          expect(columns[4]).to.include('Unknown');
-          expect(columns[5]).to.include('Unknown');
-        });
-      });
+  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+  .invoke('text')
+  .then((content) => {
+    const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+    expect(columnContents[1]).to.include('Critical');
+    expect(columnContents[2]).to.include('Warning');
+    expect(columnContents[3]).to.include('Unknown');
+    expect(columnContents[4]).to.include('Unknown');
+    expect(columnContents[5]).to.include('Unknown');
+  });
     cy.getCellContent(1, 1).then((myTableContent) => {
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
@@ -540,16 +536,17 @@ When('the user saves the resource table widget', () => {
 
 Then("the resource table widget is added to the dashboard's layout", () => {
   cy.wait('@resourceRequest');
-  cy.get(
-    `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
-  )
+  cy.waitUntil(() =>
+  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
     .should('be.visible')
-    .invoke('text')
-    .then((content) => {
-      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-      cy.wrap(columnContents).then((columns) => {
-        expect(columns[1]).to.include('Critical');
-        expect(columns[2]).to.include('Warning');
-      });
-    });
+    .then(() => true),
+  { timeout: 10000, interval: 1000 }
+);
+cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+.invoke('text')
+.then((content) => {
+  const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+  expect(columnContents[1]).to.include('Critical');
+  expect(columnContents[2]).to.include('Warning');
+});
 });
