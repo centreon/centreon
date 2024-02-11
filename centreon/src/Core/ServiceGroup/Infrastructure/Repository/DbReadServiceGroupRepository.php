@@ -337,7 +337,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     SQL
             );
 
-        if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_group_id')){
+        if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_group_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     LEFT JOIN `:db`.acl_resources_hg_relations arhgr
@@ -366,7 +366,6 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     SQL
             );
         }
-
 
         if ([] !== $accessGroupIds) {
             $concatenator
