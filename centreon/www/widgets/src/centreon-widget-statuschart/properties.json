@@ -1,0 +1,111 @@
+{
+  "title": "Status chart",
+  "description": "Displays a detailed view of the current status for selected resources as a chart.",
+  "icon": "<svg viewBox=\"0 0 24 24\"><g><path d=\"M16.36,5.87c-.06.08-.17.1-.26.05-.53-.36-1.11-.65-1.72-.86-.61-.21-1.24-.34-1.88-.38-.1,0-.18-.09-.18-.2l.07-1.69c0-.21.19-.38.41-.36.79.07,1.57.23,2.32.49.75.26,1.46.61,2.13,1.04.18.12.22.36.1.53l-.98,1.38Z\"/><path d=\"M12,21.6c-.08,0-.16,0-.24,0-2.55-.06-4.93-1.13-6.7-2.99-1.77-1.87-2.72-4.3-2.65-6.85.06-2.55,1.13-4.93,2.99-6.7,1.77-1.68,4.05-2.62,6.45-2.65.21,0,.39.17.38.39l-.04,1.69c0,.1-.09.18-.19.18-1.88,0-3.66.72-5.05,2.03-1.43,1.36-2.24,3.18-2.29,5.12s.67,3.8,2.03,5.23c1.36,1.43,3.18,2.24,5.12,2.29,1.94.05,3.8-.67,5.23-2.03,1.43-1.36,2.24-3.18,2.29-5.12.06-2.33-1-4.55-2.83-5.98-.08-.06-.1-.18-.04-.26l1-1.36c.13-.17.37-.2.54-.07,2.33,1.87,3.66,4.73,3.58,7.73-.06,2.55-1.13,4.93-2.99,6.7-1.81,1.72-4.14,2.66-6.6,2.66Z\"/></g></svg>",
+  "options": {
+    "variant": {
+      "type": "displayType",
+      "options": [
+        {
+          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"24\" fill=\"none\"/><path id=\"Label_menu\" data-name=\"Label menu\" d=\"M6.964-5.178H2.627L1.654-2.443H.246L4.2-12.924H5.393L9.352-2.443h-1.4ZM3.04-6.316H6.558L4.8-11.218Zm9.19,3.873H10.915V-13.5H12.23Zm3.795,0H14.71V-13.5h1.315Z\" transform=\"translate(3.865 19.5)\" fill=\"#A2A2A2\"/></svg>",
+          "label": "Pie chart",
+          "id": "Pie"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"24\" fill=\"none\"/><circle id=\"Ellipse_192\" data-name=\"Ellipse 192\" cx=\"3.5\" cy=\"3.5\" r=\"3.5\" transform=\"translate(2 3)\" fill=\"#a2a2a2\"/><line id=\"Ligne_318\" data-name=\"Ligne 318\" x2=\"10\" transform=\"translate(12 20)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><line id=\"Ligne_319\" data-name=\"Ligne 319\" x2=\"10\" transform=\"translate(12 16)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><line id=\"Ligne_320\" data-name=\"Ligne 320\" x2=\"10\" transform=\"translate(12 12)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/><path id=\"Tracé_2975\" data-name=\"Tracé 2975\" d=\"M8.829,6.5h3.317V21\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></svg>",
+          "label": "Donut chart",
+          "id": "Donut"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"28\" fill=\"none\"/><g id=\"Groupe_2458\" data-name=\"Groupe 2458\" transform=\"translate(1 2)\"><circle id=\"Ellipse_192\" data-name=\"Ellipse 192\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 2)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2976\" data-name=\"Tracé 2976\" d=\"M-2.979,0h16\" transform=\"translate(6.979 4)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2459\" data-name=\"Groupe 2459\" transform=\"translate(1 2)\"><circle id=\"Ellipse_193\" data-name=\"Ellipse 193\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 8)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2977\" data-name=\"Tracé 2977\" d=\"M-2.979,0h16\" transform=\"translate(6.979 10)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2460\" data-name=\"Groupe 2460\" transform=\"translate(1 3)\"><circle id=\"Ellipse_194\" data-name=\"Ellipse 194\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 13)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2978\" data-name=\"Tracé 2978\" d=\"M-2.979,0h16\" transform=\"translate(6.979 15)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g></svg>",
+          "label": "Horizontal bar chart",
+          "id": "Horizontal"
+        },
+        {
+          "icon": "<svg viewBox=\"0 0 24 24\"><rect id=\"Rectangle_1650\" data-name=\"Rectangle 1650\" width=\"24\" height=\"28\" fill=\"none\"/><g id=\"Groupe_2458\" data-name=\"Groupe 2458\" transform=\"translate(1 2)\"><circle id=\"Ellipse_192\" data-name=\"Ellipse 192\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 2)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2976\" data-name=\"Tracé 2976\" d=\"M-2.979,0h16\" transform=\"translate(6.979 4)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2459\" data-name=\"Groupe 2459\" transform=\"translate(1 2)\"><circle id=\"Ellipse_193\" data-name=\"Ellipse 193\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 8)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2977\" data-name=\"Tracé 2977\" d=\"M-2.979,0h16\" transform=\"translate(6.979 10)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g><g id=\"Groupe_2460\" data-name=\"Groupe 2460\" transform=\"translate(1 3)\"><circle id=\"Ellipse_194\" data-name=\"Ellipse 194\" cx=\"2\" cy=\"2\" r=\"2\" transform=\"translate(2 13)\" fill=\"#a2a2a2\"/><path id=\"Tracé_2978\" data-name=\"Tracé 2978\" d=\"M-2.979,0h16\" transform=\"translate(6.979 15)\" fill=\"none\" stroke=\"#a2a2a2\" stroke-width=\"2\"/></g></svg>",
+          "label": "Vertical bar chart",
+          "id": "Vertical"
+        }
+      ],
+      "defaultValue": "Pie"
+    },
+    "resourceType": {
+      "type": "checkbox",
+      "label": "Display resources with this type",
+      "options": [
+        {
+          "id": "host",
+          "name": "Host"
+        },
+        {
+          "id": "service",
+          "name": "Service" 
+        }
+      ],
+      "defaultValue": ["host" , "service"]
+    },
+    "states": {
+      "type": "checkbox",
+      "label": "Display resources with this state",
+      "options": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        },
+        {
+          "id": "acknowledged",
+          "name": "Acknowledged"
+        },
+        {
+          "id": "in_downtime",
+          "name": "In downtime"
+        }
+      ],
+      "defaultValue": []
+    },
+    "displayPredominentInformation" : {
+      "type" : "switch" , 
+      "label" : "Display state as predominant information",
+      "defaultValue": false
+    },
+    "unit": {
+      "type": "radio",
+      "label": "Display resources with this unit",
+      "options": [
+        {
+          "id": "Number",
+          "name": "Number"
+        },
+        {
+          "id": "Percentage",
+          "name": "Percentage" 
+        }
+      ],
+      "defaultValue": "Number"
+    },
+    "displayValues" : {
+      "type" : "switch" , 
+      "label" : "Show number of resources" ,
+      "defaultValue": false
+    },
+    "displayLegend" : {
+      "type" : "switch" , 
+      "label" : "Show legend" ,
+      "secondaryLabel" : "Legend",
+      "defaultValue": true
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required" : true
+    }
+  },
+  "moduleName": "centreon-widget-statuschart"
+}

@@ -10,7 +10,7 @@ interface Props extends ResourcesTableProps {
 }
 
 const Widget = ({ store, ...props }: Props): JSX.Element => (
-  <Module maxSnackbars={1} seedName="widget-statusgrid" store={store}>
+  <Module maxSnackbars={1} seedName="widget-resourcetable" store={store}>
     <ResourcesTable {...props} />
   </Module>
 );
