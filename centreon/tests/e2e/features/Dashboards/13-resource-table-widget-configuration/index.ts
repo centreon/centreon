@@ -392,6 +392,12 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
+  cy.waitUntil(() =>
+  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+    .should('be.visible')
+    .then(() => true),
+  { timeout: 10000, interval: 500 }
+);
   cy.get(
     `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
   )
@@ -436,6 +442,12 @@ When(
 Then(
   'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
+    cy.waitUntil(() =>
+    cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+      .should('be.visible')
+      .then(() => true),
+    { timeout: 10000, interval: 500 }
+  );
     cy.get(
       `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
     )
