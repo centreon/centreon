@@ -458,7 +458,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON arhgr.hg_hg_id = hg.hg_id
                     SQL
             );
-        } else if(! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_id')) {
+        } else if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     LEFT JOIN `:db`.acl_resources_host_relations arhr
@@ -467,7 +467,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON arhr.host_host_id = h.host_id
                     SQL
             );
-        } else if(! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_category_id')) {
+        } else if (! empty($_GET['search']) && mb_strpos($_GET['search'], 'host_category_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     LEFT JOIN `:db`.acl_resources_hc_relations arhcr
