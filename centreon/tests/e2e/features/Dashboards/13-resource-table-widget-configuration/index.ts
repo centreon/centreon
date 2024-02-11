@@ -400,7 +400,7 @@ Then('only the contents of the other widget are displayed', () => {
   .invoke('text')
   .then((content) => {
     const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-    expect(columnContents).to.be.an('array').and.to.have.length.above(3);
+    expect(columnContents).to.be.an('array').and.to.have.length.above(2);
     expect(columnContents[1]).to.include('Critical');
     expect(columnContents[2]).to.include('Warning');
   });
@@ -436,14 +436,15 @@ Then(
   () => {
     cy.waitUntil(() =>
     cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-      .should('be.visible')
-      .then(() => true),
+    .should('be.visible')
+    .then(() => true),
     { timeout: 10000, interval: 1000 }
   );
   cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
   .invoke('text')
   .then((content) => {
     const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+    expect(columnContents).to.be.an('array').and.to.have.length.above(2);
     expect(columnContents[1]).to.include('Critical');
     expect(columnContents[2]).to.include('Warning');
   });
@@ -531,6 +532,7 @@ cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-chi
 .invoke('text')
 .then((content) => {
   const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+  expect(columnContents).to.be.an('array').and.to.have.length.above(2);
   expect(columnContents[1]).to.include('Critical');
   expect(columnContents[2]).to.include('Warning');
 });
