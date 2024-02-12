@@ -10,6 +10,7 @@ import { useTheme } from '@mui/system';
 
 import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
+import { getValueByUnit } from '../common/utils';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
@@ -27,16 +28,14 @@ const BarStack = ({
   onSingleBarClick,
   displayLegend = true,
   Tooltip,
-  legendConfiguration = { direction: 'row' },
+  legendConfiguration = { direction: 'column' },
   Legend = DefaultLengd,
   unit = 'Number',
   displayValues,
   variant = 'Vertical'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const theme = useTheme();
-  const { classes } = useBarStackStyles({
-    legendDirection: legendConfiguration.direction
-  });
+  const { classes } = useBarStackStyles();
 
   const tooltipStyles = {
     ...defaultStyles,
@@ -85,7 +84,10 @@ const BarStack = ({
         )}
         <div
           className={classes.svgContainer}
-          style={{ height: height + 15, width: width + 15 }}
+          style={{
+            height: height + 15,
+            width: width + 15
+          }}
         >
           <svg height={height} ref={containerRef} width={width}>
             <Group>
@@ -121,7 +123,7 @@ const BarStack = ({
                               }}
                               onMouseMove={(event) => {
                                 const eventSvgCoords = localPoint(event);
-                                const left = bar.x + bar.width / 2;
+                                const left = bar.x + bar.width;
                                 showTooltip({
                                   tooltipData: {
                                     color: bar.color,
@@ -138,18 +140,20 @@ const BarStack = ({
                               bar.height > 10 &&
                               bar.width > 10 && (
                                 <Text
-                                  fill="black"
+                                  cursor="pointer"
+                                  fill="#000"
                                   fontSize={12}
                                   textAnchor="middle"
                                   verticalAnchor="middle"
                                   x={bar.x + bar.width / 2}
                                   y={bar.y + bar.height / 2}
                                 >
-                                  {numeral(
-                                    barStack.bars[0].bar.data[barStack.key]
-                                  )
-                                    .format('0a')
-                                    .toUpperCase()}
+                                  {getValueByUnit({
+                                    total,
+                                    unit,
+                                    value:
+                                      barStack.bars[0].bar.data[barStack.key]
+                                  })}
                                 </Text>
                               )}
                           </g>
@@ -189,7 +193,7 @@ const BarStack = ({
                             }}
                             onMouseMove={(event) => {
                               const eventSvgCoords = localPoint(event);
-                              const top = bar.y + bar.height / 2;
+                              const top = bar.y + bar.height;
                               showTooltip({
                                 tooltipData: {
                                   color: bar.color,
@@ -205,18 +209,19 @@ const BarStack = ({
                             bar.height > 10 &&
                             bar.width > 10 && (
                               <Text
-                                fill="black"
+                                cursor="pointer"
+                                fill="#000"
                                 fontSize={12}
                                 textAnchor="middle"
                                 verticalAnchor="middle"
                                 x={bar.x + bar.width / 2}
                                 y={bar.y + bar.height / 2}
                               >
-                                {numeral(
-                                  barStack.bars[0].bar.data[barStack.key]
-                                )
-                                  .format('0a')
-                                  .toUpperCase()}
+                                {getValueByUnit({
+                                  total,
+                                  unit,
+                                  value: barStack.bars[0].bar.data[barStack.key]
+                                })}
                               </Text>
                             )}
                         </g>
