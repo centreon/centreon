@@ -3,7 +3,8 @@ import { includes } from 'ramda';
 import { useRefreshInterval } from '@centreon/ui';
 
 import { StatusChartProps } from './models';
-import Chart from './Compontents/Chart/Chart';
+import { Chart } from './Compontents/Chart';
+import { useStyles } from './StatusChart.styles';
 
 const hosts = [
   { color: '#88B922', label: 'Up', value: 148 },
@@ -14,21 +15,21 @@ const hosts = [
 
 const services = [
   { color: '#88B922', label: 'Ok', value: 82 },
-  { color: '#F7931A', label: 'Warning', value: 1161 },
-  { color: '#999999', label: 'Unknown', value: 1735 },
-  { color: '#14f122', label: 'Pending', value: 1820 },
-  { color: '#FF6666', label: 'Critical', value: 11262 }
+  { color: '#F7931A', label: 'Warning', value: 112 },
+  { color: '#999999', label: 'Unknown', value: 165 },
+  { color: '#14f122', label: 'Pending', value: 42 },
+  { color: '#FF6666', label: 'Critical', value: 18 }
 ];
 
 const StatusChart = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  //   refreshCount,
+  refreshCount,
   changeViewMode,
   isFromPreview
 }: StatusChartProps): JSX.Element => {
-  //   const { resources } = panelData;
+  const { resources } = panelData;
 
   const {
     displayType,
@@ -42,14 +43,16 @@ const StatusChart = ({
     displayPredominentInformation
   } = panelOptions;
 
-  //   const refreshIntervalToUse = useRefreshInterval({
-  //     globalRefreshInterval,
-  //     refreshInterval,
-  //     refreshIntervalCustom
-  //   });
+  const { classes } = useStyles({ displayType });
+
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval,
+    refreshIntervalCustom
+  });
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+    <div className={classes.container}>
       {includes('host', resourceType) && (
         <Chart
           data={hosts}
@@ -63,7 +66,6 @@ const StatusChart = ({
           unit={unit}
         />
       )}
-
       {includes('service', resourceType) && (
         <Chart
           data={services}

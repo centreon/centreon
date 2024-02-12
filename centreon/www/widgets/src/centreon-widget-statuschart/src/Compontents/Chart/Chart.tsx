@@ -4,6 +4,8 @@ import { PieChart, BarStack } from '@centreon/ui';
 
 import { DisplayType, PanelOptions } from '../../models';
 
+import { useStyles } from './Chart.styles';
+
 const Chart = ({
   displayType,
   states,
@@ -18,35 +20,30 @@ const Chart = ({
   data?;
   title?;
 }): JSX.Element => {
+  const { classes } = useStyles({
+    displaySingleChart: equals(resourceType.length, 1)
+  });
+
   return (
-    <div
-      style={{
-        alignItems: 'centrer',
-        display: 'flex',
-        justifyContent: 'center',
-        width: '100%'
-      }}
-    >
+    <div className={classes.container}>
       {equals(displayType, DisplayType.Pie) ||
       equals(displayType, DisplayType.Donut) ? (
-        <div style={{ width: '250px' }}>
+        <div className={classes.pieChart}>
           <PieChart
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
-            legendConfiguration={{ direction: 'column' }}
             title={title}
             unit={unit}
             variant={displayType}
           />
         </div>
       ) : (
-        <div style={{ height: '300px', width: '60px' }}>
+        <div className={classes.barStack}>
           <BarStack
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
-            legendConfiguration={{ direction: 'column' }}
             title={title}
             unit={unit}
             variant={displayType}
