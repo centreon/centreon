@@ -192,7 +192,6 @@ after(() => {
   cy.stopWebContainer();
 });
 
-
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.visit('/centreon/home/dashboards');
@@ -307,11 +306,11 @@ Then(
   'all the resources having the status selected are displayed in the resource table Widget',
   () => {
     cy.getCellContent(1, 1).then((myTableContent) => {
-        expect(myTableContent[6]).to.include('Pending');
-        expect(myTableContent[7]).to.include('Pending');
-        expect(myTableContent[8]).to.include('Up');
-        expect(myTableContent[9]).to.include('Up');
-        expect(myTableContent[10]).to.include('Up');
+      expect(myTableContent[6]).to.include('Pending');
+      expect(myTableContent[7]).to.include('Pending');
+      expect(myTableContent[8]).to.include('Up');
+      expect(myTableContent[9]).to.include('Up');
+      expect(myTableContent[10]).to.include('Up');
     });
   }
 );
@@ -384,21 +383,27 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.waitUntil(() =>
-  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
+  cy.waitUntil(
+    () =>
+      cy
+        .get(
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+        )
+        .should('be.visible')
+        .then(() => true),
+    { interval: 1000, timeout: 10000 }
+  );
+  cy.get(
+    `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+  )
     .should('be.visible')
-    .then(() => true),
-  { timeout: 10000, interval: 1000 }
-);
-  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-  .should('be.visible')
-  .invoke('text')
-  .then((content) => {
-    const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-    expect(columnContents).to.be.an('array').and.to.have.length.above(2);
-    expect(columnContents[1]).to.include('Critical');
-    expect(columnContents[2]).to.include('Warning');
-  });
+    .invoke('text')
+    .then((content) => {
+      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+      expect(columnContents).to.be.an('array').and.to.have.length.above(2);
+      expect(columnContents[1]).to.include('Critical');
+      expect(columnContents[2]).to.include('Warning');
+    });
 });
 
 Given('a dashboard having a configured ressrouce table widget', () => {
@@ -429,12 +434,28 @@ When(
 Then(
   'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
-    cy.getCellContent(1, 1).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-    });
-  }
-);
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          )
+          .should('exist')
+          .invoke('text')
+          .then((content) => {
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
+
+            return (
+              columnContents.length >= 3 &&
+              columnContents.includes('Critical') &&
+              columnContents.includes('Warning')
+            );
+          }),
+      { interval: 2000, timeout: 10000 }
+    );
+})
+
 
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
@@ -503,14 +524,24 @@ When('the user saves the resource table widget', () => {
 
 Then("the resource table widget is added to the dashboard's layout", () => {
   cy.wait('@resourceRequest');
-  cy.waitUntil(() =>
-  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-    .should('be.visible')
-    .invoke('text')
-    .then((content) => {
-      const columnContents: string[] = content.match(/[A-Z][a-z]*/g) || [];
-      return columnContents.length >= 3 && columnContents.includes('Critical') && columnContents.includes('Warning');
-    }),
-  { timeout: 10000, interval: 2000 }
-);
+  cy.waitUntil(
+    () =>
+      cy
+        .get(
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+        )
+        .should('be.visible')
+        .invoke('text')
+        .then((content) => {
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
+
+          return (
+            columnContents.length >= 3 &&
+            columnContents.includes('Critical') &&
+            columnContents.includes('Warning')
+          );
+        }),
+    { interval: 2000, timeout: 10000 }
+  );
 });
