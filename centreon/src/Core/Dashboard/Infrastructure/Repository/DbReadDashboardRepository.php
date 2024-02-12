@@ -341,11 +341,21 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             'name' => 'd.name',
             'created_at' => 'd.created_at',
             'updated_at' => 'd.updated_at',
-            'created_by' => 'd.created_by'
+            'created_by' => 'c.contact_name'
         ]);
+
+        if (array_key_exists('created_by', $requestParameters->getSort())) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN contact c
+                    ON d.created_by = c.contact_id
+                    SQL
+            );
+        }
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator?->translateForConcatenator($concatenator);
+
 
         // Prepare SQL + bind values
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
@@ -400,7 +410,6 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                     ORDER BY d.name ASC
                     SQL
             );
-
         if ($contactId) {
             $concatenator->appendJoins(
                 <<<'SQL'
