@@ -301,6 +301,68 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     /**
      * @inheritDoc
      */
+    public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array
+    {
+        if ([] === $dashboards) {
+            return [];
+        }
+
+        $dashboardsById = [];
+        foreach ($dashboards as $dashboard) {
+            $dashboardsById[$dashboard->getId()] = $dashboard;
+        }
+
+        $select = <<<'SQL'
+            SELECT
+                dcr.`dashboard_id`,
+                dcr.`role`,
+                c.`contact_id`,
+                c.`contact_email`,
+                c.`contact_name`
+            FROM `:db`.`dashboard_contact_relation` dcr
+            INNER JOIN contact c
+                ON dcr.contact_id = c.contact_id
+            WHERE dcr.`dashboard_id` IN (:dashboard_ids)
+            AND c.contact_id IN(:contact_ids)
+            SQL;
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect($select)
+            ->storeBindValueMultiple(':dashboard_ids', array_keys($dashboardsById), \PDO::PARAM_INT)
+            ->storeBindValueMultiple(':contact_ids', $contactIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     dashboard_id: int,
+             *     role: string,
+             *     contact_id: int,
+             *     contact_email: string,
+             *     contact_name: string
+             * } $result
+             */
+            $dashboardId = $result['dashboard_id'];
+
+            $shares[$dashboardId][] = new DashboardContactShare(
+                $dashboardsById[$dashboardId],
+                $result['contact_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findDashboardsContactGroupShares(Dashboard ...$dashboards): array
     {
         if ([] === $dashboards) {

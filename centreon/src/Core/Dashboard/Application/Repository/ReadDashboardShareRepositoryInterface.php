@@ -98,6 +98,18 @@ interface ReadDashboardShareRepositoryInterface
     public function findDashboardsContactShares(Dashboard ...$dashboards): array;
 
     /**
+     * Retrieve all the contacts shares for several dashboards based on contact IDs.
+     *
+     * @param int[] $contactIds
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactShare>>
+     */
+    public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array;
+
+    /**
      * Retrieve all the contact groups shares for several dashboards.
      *
      * @param Dashboard ...$dashboards
