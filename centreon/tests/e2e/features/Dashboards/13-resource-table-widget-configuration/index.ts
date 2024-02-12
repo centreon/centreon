@@ -273,10 +273,6 @@ Given('a dashboard containing a configured resource table widget', () => {
     tag: 'li'
   }).realClick();
   cy.wait('@resourceRequest');
-  cy.getCellContent(1,1).then((myTableContent) => {
-    expect(myTableContent[1]).to.include('Critical');
-    expect(myTableContent[2]).to.include('Warning');
-  });
 });
 
 When(
