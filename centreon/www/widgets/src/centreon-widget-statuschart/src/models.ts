@@ -1,10 +1,10 @@
 import { GlobalRefreshInterval, Resource } from '../../models';
 
 export enum DisplayType {
-  Donut = 'Donut',
-  Horizontal = 'Horizontal',
-  Pie = 'Pie',
-  Vertical = 'Vertical'
+  Donut = 'donut',
+  Horizontal = 'horizontal',
+  Pie = 'pie',
+  Vertical = 'vertical'
 }
 
 interface Data {
@@ -20,7 +20,7 @@ export interface PanelOptions {
   refreshIntervalCustom?: number;
   resourceType: Array<'host' | 'service'>;
   states: Array<string>;
-  unit: 'Number' | 'Percentage';
+  unit: 'number' | 'percentage';
 }
 
 export interface StatusChartProps {
