@@ -635,7 +635,11 @@ function insertContact($ret = array())
         $ret = $form->getSubmitValues();
     }
     $ret["contact_name"] = $centreon->checkIllegalChar($ret["contact_name"]);
-    if (isset($ret['contact_oreon']) && $ret['contact_oreon']['contact_oreon'] === '1') {
+    if (
+        isset($ret['contact_oreon'])
+        && isset($ret['contact_oreon']['contact_oreon'])
+        && $ret['contact_oreon']['contact_oreon'] === '1'
+    ) {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
     }
 
