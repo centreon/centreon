@@ -5,20 +5,20 @@ Feature: Configuring resource table widget
   To manipulate the properties of the resource table Widget and test the outcome of each manipulation.
 
   @TEST_MON-35094
-  Scenario: Editing the displayed resource status of resource table widget
-    Given a dashboard containing a configured resource table widget
-    When the dashboard administrator user selects a particular status in the displayed resource status list
-    Then only the resources with this particular status are displayed in the resource table Widget
-    When the dashboard administrator user selects all the status and save changes
-    Then all the resources having the status selected are displayed in the resource table Widget
-
-  @TEST_MON-35094
   Scenario: Editing the display type of resource table widget
     Given a dashboard that includes a configured resource table widget
     When the dashboard administrator user selects view by host as a display type
     Then only the hosts must be displayed
     When the dashboard administrator user selects view by service as a display type
     Then only the services must be displayed
+
+   @TEST_MON-35094
+  Scenario: Editing the displayed resource status of resource table widget
+    Given a dashboard containing a configured resource table widget
+    When the dashboard administrator user selects a particular status in the displayed resource status list
+    Then only the resources with this particular status are displayed in the resource table Widget
+    When the dashboard administrator user selects all the status and save changes
+    Then all the resources having the status selected are displayed in the resource table Widget
 
   @TEST_MON-35096
   Scenario: Displaying unhandled ressources on a resource table widget

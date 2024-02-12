@@ -192,6 +192,67 @@ after(() => {
   cy.stopWebContainer();
 });
 
+
+Given('a dashboard that includes a configured resource table widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@resourceRequest');
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@resourceRequest');
+});
+
+When(
+  'the dashboard administrator user selects view by host as a display type',
+  () => {
+    cy.get('svg[data-icon="View by host"]')
+      .should('exist')
+      .click({ force: true });
+    cy.wait('@resourceRequest');
+  }
+);
+
+Then('only the hosts must be displayed', () => {
+  cy.getCellContent(1, 1).then((myTableContent) => {
+    cy.then(() => {
+      expect(myTableContent[1]).to.include('Up');
+    });
+  });
+});
+
+When(
+  'the dashboard administrator user selects view by service as a display type',
+  () => {
+    cy.get('svg[data-icon="View by service"]')
+      .should('exist')
+      .click({ force: true });
+    cy.wait('@resourceRequest');
+  }
+);
+
+Then('only the services must be displayed', () => {
+  cy.getCellContent(1, 1).then((myTableContent) => {
+    cy.then(() => {
+      expect(myTableContent[1]).to.include('Critical');
+      expect(myTableContent[2]).to.include('Warning');
+    });
+  });
+});
+
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.visit('/centreon/home/dashboards');
@@ -260,66 +321,6 @@ Then(
     });
   }
 );
-
-Given('a dashboard that includes a configured resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
-  cy.wait('@resourceRequest');
-});
-
-When(
-  'the dashboard administrator user selects view by host as a display type',
-  () => {
-    cy.get('svg[data-icon="View by host"]')
-      .should('exist')
-      .click({ force: true });
-    cy.wait('@resourceRequest');
-  }
-);
-
-Then('only the hosts must be displayed', () => {
-  cy.getCellContent(1, 1).then((myTableContent) => {
-    cy.then(() => {
-      expect(myTableContent[1]).to.include('Up');
-    });
-  });
-});
-
-When(
-  'the dashboard administrator user selects view by service as a display type',
-  () => {
-    cy.get('svg[data-icon="View by service"]')
-      .should('exist')
-      .click({ force: true });
-    cy.wait('@resourceRequest');
-  }
-);
-
-Then('only the services must be displayed', () => {
-  cy.getCellContent(1, 1).then((myTableContent) => {
-    cy.then(() => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-    });
-  });
-});
 
 Given('a dashboard featuring a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
@@ -436,18 +437,14 @@ Then(
   () => {
     cy.waitUntil(() =>
     cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-    .should('be.visible')
-    .then(() => true),
-    { timeout: 10000, interval: 1000 }
+      .should('be.visible')
+      .invoke('text')
+      .then((content) => {
+        const columnContents: string[] = content.match(/[A-Z][a-z]*/g) || [];
+        return columnContents.length >= 3 && columnContents.includes('Critical') && columnContents.includes('Warning');
+      }),
+    { timeout: 10000, interval: 2000 }
   );
-  cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-  .invoke('text')
-  .then((content) => {
-    const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-    expect(columnContents).to.be.an('array').and.to.have.length.above(2);
-    expect(columnContents[1]).to.include('Critical');
-    expect(columnContents[2]).to.include('Warning');
-  });
     cy.getCellContent(1, 1).then((myTableContent) => {
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
@@ -524,16 +521,12 @@ Then("the resource table widget is added to the dashboard's layout", () => {
   cy.wait('@resourceRequest');
   cy.waitUntil(() =>
   cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-  .should('be.visible')
-    .then(() => true),
-  { timeout: 10000, interval: 1000 }
+    .should('be.visible')
+    .invoke('text')
+    .then((content) => {
+      const columnContents: string[] = content.match(/[A-Z][a-z]*/g) || [];
+      return columnContents.length >= 3 && columnContents.includes('Critical') && columnContents.includes('Warning');
+    }),
+  { timeout: 10000, interval: 2000 }
 );
-cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-.invoke('text')
-.then((content) => {
-  const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-  expect(columnContents).to.be.an('array').and.to.have.length.above(2);
-  expect(columnContents[1]).to.include('Critical');
-  expect(columnContents[2]).to.include('Warning');
-});
 });
