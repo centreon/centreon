@@ -117,14 +117,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
-  // Utilisez cy.waitUntil pour attendre que l'élément soit visible
   cy.waitUntil(() =>
     cy.get(`.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`)
       .should('be.visible')
       .then(() => true),
     { timeout: 10000, interval: 1000 }
   );
-  // Maintenant, l'élément est visible, vous pouvez procéder avec invoke('text')
   return cy.get(`.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`)
     .invoke('text')
     .then((content) => {
