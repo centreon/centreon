@@ -499,15 +499,17 @@ const formatMetricValue = ({
 
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
-  const formattedMetricValue = base1024
+  const formattedMetricValue: string = base1024
     ? numeral(Math.abs(value)).format(`0.[00] ib`).replace(/iB/g, unit)
     : `${numeral(Math.abs(value)).format(`0.[00]a`)} ${unit}`;
 
+  const trimmedMetricValue = formattedMetricValue.trim();
+
   if (lt(value, 0)) {
-    return `-${formattedMetricValue}`;
+    return `-${trimmedMetricValue}`;
   }
 
-  return formattedMetricValue;
+  return trimmedMetricValue;
 };
 
 const formatMetricValueWithUnit = ({
