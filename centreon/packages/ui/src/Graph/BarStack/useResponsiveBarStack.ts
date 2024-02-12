@@ -9,8 +9,8 @@ interface useBarStackProps {
   barHeight: number;
   barWidth: number;
   data: Array<BarType>;
-  unit?: 'Percentage' | 'Number';
-  variant?: 'Vertical' | 'Horizontal';
+  unit?: 'percentage' | 'number';
+  variant?: 'vertical' | 'horizontal';
 }
 interface useBarStackState {
   colorScale;
@@ -29,14 +29,16 @@ const useResponsiveBarStack = ({
   variant,
   barWidth,
   barHeight,
-  unit = 'Number'
+  unit = 'number'
 }: useBarStackProps): useBarStackState => {
-  const width = equals(variant, 'Vertical') ? barHeight : barWidth;
-  const height = equals(variant, 'Vertical') ? 250 : barHeight;
+  const isVerticalBar = equals(variant, 'vertical');
+
+  const width = isVerticalBar ? barHeight : barWidth;
+  const height = isVerticalBar ? 250 : barHeight;
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
-  const yScale = equals(variant, 'Vertical')
+  const yScale = isVerticalBar
     ? scaleLinear({
         domain: [0, total],
         nice: true
@@ -46,7 +48,7 @@ const useResponsiveBarStack = ({
         padding: 0
       });
 
-  const xScale = equals(variant, 'Vertical')
+  const xScale = isVerticalBar
     ? scaleBand({
         domain: [0, 0],
         padding: 0

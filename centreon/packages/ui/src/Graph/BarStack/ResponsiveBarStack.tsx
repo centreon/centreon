@@ -30,9 +30,9 @@ const BarStack = ({
   Tooltip,
   legendConfiguration = { direction: 'column' },
   Legend = DefaultLengd,
-  unit = 'Number',
+  unit = 'number',
   displayValues,
-  variant = 'Vertical'
+  variant = 'vertical'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const theme = useTheme();
   const { classes } = useBarStackStyles();
@@ -85,13 +85,13 @@ const BarStack = ({
         <div
           className={classes.svgContainer}
           style={{
-            height: height + 15,
-            width: width + 15
+            height: height + 16,
+            width: width + 16
           }}
         >
           <svg height={height} ref={containerRef} width={width}>
             <Group>
-              {equals(variant, 'Vertical') ? (
+              {equals(variant, 'vertical') ? (
                 <BarStackVertical
                   color={colorScale}
                   data={[input]}
