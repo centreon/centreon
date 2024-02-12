@@ -19,10 +19,12 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(1)
   },
   title: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.fontWeightBold
+    fontWeight: theme.typography.fontWeightBold,
+    margin: 0,
+    padding: 0
   }
 }));

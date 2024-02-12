@@ -137,7 +137,7 @@ const ResponsivePie = ({
                 <>
                   <Text
                     dy={-15}
-                    fontSize={24}
+                    fontSize={20}
                     fontWeight={700}
                     textAnchor="middle"
                   >
@@ -145,7 +145,7 @@ const ResponsivePie = ({
                   </Text>
                   <Text
                     dy={20}
-                    fontSize={24}
+                    fontSize={20}
                     fontWeight={700}
                     textAnchor="middle"
                   >

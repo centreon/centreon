@@ -21,6 +21,6 @@ export const usePieStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(1.5)
   }
 }));
