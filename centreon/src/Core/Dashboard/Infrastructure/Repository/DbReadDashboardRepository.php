@@ -339,6 +339,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         $sqlTranslator?->setConcordanceArray([
             'id' => 'd.id',
             'name' => 'd.name',
+            'created_at' => 'd.created_at',
+            'updated_at' => 'd.updated_at',
+            'created_by' => 'd.created_by'
         ]);
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
