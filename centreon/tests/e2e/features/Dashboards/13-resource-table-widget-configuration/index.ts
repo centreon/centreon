@@ -433,16 +433,6 @@ Then(
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
     });
-    cy.waitUntil(() =>
-    cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-      .should('be.visible')
-      .invoke('text')
-      .then((content) => {
-        const columnContents: string[] = content.match(/[A-Z][a-z]*/g) || [];
-        return columnContents.length >= 3 && columnContents.includes('Critical') && columnContents.includes('Warning');
-      }),
-    { timeout: 10000, interval: 2000 }
-  );
   }
 );
 

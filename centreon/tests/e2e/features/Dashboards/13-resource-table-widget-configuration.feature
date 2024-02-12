@@ -12,7 +12,7 @@ Feature: Configuring resource table widget
     When the dashboard administrator user selects view by service as a display type
     Then only the services must be displayed
 
-   @TEST_MON-35094
+  @TEST_MON-35094
   Scenario: Editing the displayed resource status of resource table widget
     Given a dashboard containing a configured resource table widget
     When the dashboard administrator user selects a particular status in the displayed resource status list
