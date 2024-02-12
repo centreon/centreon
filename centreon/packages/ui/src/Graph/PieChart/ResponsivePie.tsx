@@ -25,17 +25,15 @@ const ResponsivePie = ({
   data,
   unit = 'Number',
   Legend = DefaultLengd,
-  legendConfiguration = { direction: 'row' },
+  legendConfiguration = { direction: 'column' },
   displayLegend = true,
-  innerRadius = 35,
+  innerRadius = 40,
   onArcClick,
   displayValues,
   Tooltip
 }: PieProps & { width: number }): JSX.Element => {
   const theme = useTheme();
-  const { classes } = usePieStyles({
-    legendDirection: legendConfiguration.direction
-  });
+  const { classes } = usePieStyles();
 
   const {
     tooltipOpen,
@@ -67,93 +65,97 @@ const ResponsivePie = ({
 
   return (
     <div className={classes.container}>
-      {variant === 'Pie' && title && (
-        <div className={classes.pieTitle}>
-          {`${numeral(total).format('0a').toUpperCase()} `} {title}
-        </div>
-      )}
-      <div
-        className={classes.svgContainer}
-        style={{ height: width + 30, width: width + 30 }}
-      >
-        <svg height={width} ref={containerRef} width={width}>
-          <Group left={half} top={half}>
-            <Pie
-              data={data}
-              innerRadius={() => {
-                return variant === 'Pie' ? 0 : half - innerRadius;
-              }}
-              outerRadius={half}
-              padAngle={0.01}
-              pieValue={(items) => items.value}
-            >
-              {(pie) => {
-                return pie.arcs.map((arc) => {
-                  const [centroidX, centroidY] = pie.path.centroid(arc);
+      <div className={classes.svgWrapper}>
+        {variant === 'Pie' && title && (
+          <div className={classes.pieTitle}>
+            {`${numeral(total).format('0a').toUpperCase()} `} {title}
+          </div>
+        )}
+        <div
+          className={classes.svgContainer}
+          style={{ height: width + 30, width: width + 30 }}
+        >
+          <svg height={width} ref={containerRef} width={width}>
+            <Group left={half} top={half}>
+              <Pie
+                data={data}
+                innerRadius={() => {
+                  return variant === 'Pie' ? 0 : half - innerRadius;
+                }}
+                outerRadius={half}
+                padAngle={0.01}
+                pieValue={(items) => items.value}
+              >
+                {(pie) => {
+                  return pie.arcs.map((arc) => {
+                    const [centroidX, centroidY] = pie.path.centroid(arc);
 
-                  return (
-                    <g
-                      key={arc.data.label}
-                      onClick={() => {
-                        onArcClick?.(arc.data);
-                      }}
-                      onMouseLeave={() => {
-                        setTimeout(() => {
-                          hideTooltip();
-                        }, 300);
-                      }}
-                      onMouseMove={(event) => {
-                        const eventSvgCoords = localPoint(event);
-                        showTooltip({
-                          tooltipData: arc.data,
-                          tooltipLeft: eventSvgCoords?.x,
-                          tooltipTop: eventSvgCoords?.y
-                        });
-                      }}
-                    >
-                      <path d={pie.path(arc)} fill={arc.data.color} />
-                      {displayValues && (
-                        <Text
-                          dy=".33em"
-                          fill="#000"
-                          fontSize={15}
-                          pointerEvents="none"
-                          textAnchor="middle"
-                          x={centroidX}
-                          y={centroidY}
-                        >
-                          {numeral(arc.data.value).format('0a').toUpperCase()}
-                        </Text>
-                      )}
-                    </g>
-                  );
-                });
-              }}
-            </Pie>
-            {variant === 'Donut' && title && (
-              <>
-                <Text
-                  dy={-15}
-                  fill="#000"
-                  fontSize={24}
-                  fontWeight={700}
-                  textAnchor="middle"
-                >
-                  {numeral(total).format('0a').toUpperCase()}
-                </Text>
-                <Text
-                  dy={20}
-                  fill="#000"
-                  fontSize={24}
-                  fontWeight={700}
-                  textAnchor="middle"
-                >
-                  {title}
-                </Text>
-              </>
-            )}
-          </Group>
-        </svg>
+                    return (
+                      <g
+                        key={arc.data.label}
+                        onClick={() => {
+                          onArcClick?.(arc.data);
+                        }}
+                        onMouseLeave={() => {
+                          setTimeout(() => {
+                            hideTooltip();
+                          }, 300);
+                        }}
+                        onMouseMove={(event) => {
+                          const eventSvgCoords = localPoint(event);
+                          showTooltip({
+                            tooltipData: arc.data,
+                            tooltipLeft: eventSvgCoords?.x,
+                            tooltipTop: eventSvgCoords?.y
+                          });
+                        }}
+                      >
+                        <path d={pie.path(arc)} fill={arc.data.color} />
+                        {displayValues && (
+                          <Text
+                            dy=".33em"
+                            fill="#000"
+                            fontSize={12}
+                            pointerEvents="none"
+                            textAnchor="middle"
+                            x={centroidX}
+                            y={centroidY}
+                          >
+                            {getValueByUnit({
+                              total,
+                              unit,
+                              value: arc.data.value
+                            })}
+                          </Text>
+                        )}
+                      </g>
+                    );
+                  });
+                }}
+              </Pie>
+              {variant === 'Donut' && title && (
+                <>
+                  <Text
+                    dy={-15}
+                    fontSize={24}
+                    fontWeight={700}
+                    textAnchor="middle"
+                  >
+                    {numeral(total).format('0a').toUpperCase()}
+                  </Text>
+                  <Text
+                    dy={20}
+                    fontSize={24}
+                    fontWeight={700}
+                    textAnchor="middle"
+                  >
+                    {title}
+                  </Text>
+                </>
+              )}
+            </Group>
+          </svg>
+        </div>
       </div>
       {displayLegend &&
         Legend({

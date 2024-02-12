@@ -1,24 +1,17 @@
-import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { LegendDirection } from '../Legend/models';
-
-export const useBarStackStyles = makeStyles<{
-  legendDirection: LegendDirection;
-}>()((theme, { legendDirection }) => ({
+export const useBarStackStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    flexDirection: equals(legendDirection, 'column') ? 'row' : 'column',
     gap: theme.spacing(3),
     justifyContent: 'center',
-    minWidth: theme.spacing(50),
     padding: theme.spacing(2)
   },
   svgContainer: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.panelGroups,
-    borderRadius: '5px',
+    borderRadius: theme.spacing(0.5),
     display: 'flex',
     justifyContent: 'center'
   },

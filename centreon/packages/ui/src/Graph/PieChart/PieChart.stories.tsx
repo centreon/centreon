@@ -27,7 +27,7 @@ type Story = StoryObj<typeof PieChart>;
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ width: '250px' }}>
+    <div style={{ width: '20%' }}>
       <PieChart {...args} />
     </div>
   );
@@ -134,28 +134,6 @@ export const DonutWithTooltip: Story = {
     Tooltip,
     data,
     displayValues: true,
-    variant: 'Donut'
-  },
-  render: Template
-};
-
-export const PieWithVerticalLegend: Story = {
-  args: {
-    Tooltip,
-    data,
-    displayValues: true,
-    legendConfiguration: { direction: 'column' },
-    variant: 'Pie'
-  },
-  render: Template
-};
-
-export const DonutWithVerticalLegend: Story = {
-  args: {
-    Tooltip,
-    data,
-    displayValues: true,
-    legendConfiguration: { direction: 'column' },
     variant: 'Donut'
   },
   render: Template

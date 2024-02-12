@@ -31,8 +31,8 @@ const useResponsiveBarStack = ({
   barHeight,
   unit = 'Number'
 }: useBarStackProps): useBarStackState => {
-  const width = equals(variant, 'Vertical') ? barWidth : barHeight;
-  const height = equals(variant, 'Vertical') ? barHeight : barWidth;
+  const width = equals(variant, 'Vertical') ? barHeight : barWidth;
+  const height = equals(variant, 'Vertical') ? 250 : barHeight;
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 

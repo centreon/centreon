@@ -42,7 +42,7 @@ const Tooltip = ({ label, color, value }: BarType): JSX.Element => {
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ height: '300px', width: '60px' }}>
+    <div style={{ height: '60px', width: '100%' }}>
       <BarStack {...args} />
     </div>
   );
@@ -60,15 +60,6 @@ export const WithoutTitle: Story = {
 
 export const WithPencentage: Story = {
   args: { data, title: 'hosts', unit: 'Percentage' },
-  render: Template
-};
-
-export const WithVerticalLegend: Story = {
-  args: {
-    data,
-    legendConfiguration: { direction: 'column' },
-    title: 'hosts'
-  },
   render: Template
 };
 
@@ -119,12 +110,12 @@ export const Horizontal: Story = {
   render: Template
 };
 
-export const HorizontalWithVerticalLegend: Story = {
+export const HorizontalWithoutLegend: Story = {
   args: {
     Tooltip,
     data,
+    displayLegend: false,
     displayValues: true,
-    legendConfiguration: { direction: 'column' },
     title: 'hosts',
     variant: 'Horizontal'
   },
