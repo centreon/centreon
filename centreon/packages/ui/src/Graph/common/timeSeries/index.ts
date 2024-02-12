@@ -499,14 +499,9 @@ const formatMetricValue = ({
 
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
-  const formatSuffix = cond([
-    [equals('ms'), always(' ms')],
-    [T, always(base1024 ? ' ib' : 'a')]
-  ])(unit);
-
-  const formattedMetricValue = numeral(Math.abs(value))
-    .format(`0.[00]${formatSuffix}`)
-    .replace(/iB/g, unit);
+  const formattedMetricValue = base1024
+    ? numeral(Math.abs(value)).format(`0.[00] ib`).replace(/iB/g, unit)
+    : `${numeral(Math.abs(value)).format(`0.[00]a`)} ${unit}`;
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
