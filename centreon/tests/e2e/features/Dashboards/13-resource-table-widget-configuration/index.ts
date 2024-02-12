@@ -434,7 +434,10 @@ When(
 Then(
   'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
-    cy.wait('@resourceRequest');
+    cy.getCellContent(1, 1).then((myTableContent) => {
+      expect(myTableContent[1]).to.include('Critical');
+      expect(myTableContent[2]).to.include('Warning');
+    });
     cy.waitUntil(() =>
     cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
       .should('be.visible')
@@ -445,10 +448,6 @@ Then(
       }),
     { timeout: 10000, interval: 2000 }
   );
-    cy.getCellContent(1, 1).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-    });
   }
 );
 
