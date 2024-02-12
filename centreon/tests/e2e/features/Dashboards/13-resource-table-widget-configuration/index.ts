@@ -524,7 +524,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
   cy.wait('@resourceRequest');
   cy.waitUntil(() =>
   cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
-    .should('be.visible')
+  .should('be.visible')
     .then(() => true),
   { timeout: 10000, interval: 1000 }
 );
