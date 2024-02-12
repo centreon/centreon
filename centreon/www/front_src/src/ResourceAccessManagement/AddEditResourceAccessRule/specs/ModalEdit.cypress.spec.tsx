@@ -21,7 +21,7 @@ import {
   labelNameAlreadyExists,
   labelRequired,
   labelResourceAccessRuleEditedSuccess,
-  labelResourceSelection,
+  labelAddResourceDatasets,
   labelRuleProperies,
   labelSave
 } from '../../translatedLabels';
@@ -78,7 +78,7 @@ describe('Edit modal', () => {
 
     cy.findByText(labelEditResourceAccessRule).should('be.visible');
     cy.findByText(labelRuleProperies).should('be.visible');
-    cy.findByText(labelResourceSelection).should('be.visible');
+    cy.findByText(labelAddResourceDatasets).should('be.visible');
     cy.findByRole('dialog').scrollTo('bottom');
     cy.findByText(labelContactsAndContactGroups).should('be.visible');
     cy.findByLabelText(labelExit).should('be.enabled');
@@ -137,7 +137,7 @@ describe('Edit modal', () => {
   it('displays configured resources for the Resource Access Rule', () => {
     cy.waitForRequest('@findResourceAccessRuleRequest');
 
-    cy.findByText(labelResourceSelection).should('be.visible');
+    cy.findByText(labelAddResourceDatasets).should('be.visible');
     cy.findByText('Host group').should('be.visible');
     cy.findByText('Linux-Servers').should('be.visible');
     cy.findByText('Host').should('be.visible');
