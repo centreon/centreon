@@ -143,7 +143,7 @@ jobs:
 
       - name: Pipeline scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@651b8c3a9c9b32b3b1e7c334c8b34d3cabc2da3f # v1.0.12
+        uses: veracode/Veracode-pipeline-scan-action@3ddddec53bbb54b2c59879890f7fcc550a6fc829 # v1.0.13
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
