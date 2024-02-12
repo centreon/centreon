@@ -356,7 +356,6 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator?->translateForConcatenator($concatenator);
 
-
         // Prepare SQL + bind values
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
         $sqlTranslator?->bindSearchValues($statement);
@@ -410,6 +409,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                     ORDER BY d.name ASC
                     SQL
             );
+
         if ($contactId) {
             $concatenator->appendJoins(
                 <<<'SQL'
