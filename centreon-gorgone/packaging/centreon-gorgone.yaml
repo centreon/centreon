@@ -190,6 +190,7 @@ overrides:
       - libssh-session-perl
       - libev-perl
       - libzmq-ffi-perl
+      - libclone-choose-perl
 
 rpm:
   summary: Centreon gorgone daemon

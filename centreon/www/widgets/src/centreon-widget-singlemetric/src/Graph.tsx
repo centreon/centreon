@@ -7,7 +7,7 @@ import {
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
+import { Resource, GlobalRefreshInterval, Metric } from '../../models';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
@@ -16,21 +16,21 @@ import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
+  displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview;
-  metrics: Array<ServiceMetric>;
+  metrics: Array<Metric>;
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
-  singleMetricGraphType: SingleMetricGraphType;
   threshold: FormThreshold;
   valueFormat: ValueFormat;
 }
 
 const Graph = ({
   metrics,
-  singleMetricGraphType,
+  displayType,
   threshold,
   refreshInterval,
   refreshIntervalCustom,
@@ -51,7 +51,8 @@ const Graph = ({
 
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
-    metrics: [metricName],
+    bypassMetricsExclusion: true,
+    metrics,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources
@@ -99,7 +100,7 @@ const Graph = ({
     >
       <SingleMetricRenderer
         graphProps={props}
-        singleMetricGraphType={singleMetricGraphType}
+        singleMetricGraphType={displayType}
       />
     </ContentWithCircularLoading>
   );

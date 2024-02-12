@@ -29,10 +29,34 @@ export interface NamedEntity {
   name: string;
 }
 
-export interface Metric extends NamedEntity {
+export interface MetricResource {
+  id: number;
+  name: string;
+  parentName: string;
+  uuid: string;
+}
+
+export interface Metric {
+  criticalHighThreshold: number | null;
+  criticalLowThreshold: number | null;
+  excludedMetrics: Array<number>;
+  id: number;
+  includeAllResources?: boolean;
+  name: string;
   unit: string;
+  warningHighThreshold: number | null;
+  warningLowThreshold: number | null;
 }
 
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
+}
+
+export interface Data {
+  metrics: Array<Metric>;
+  resources: Array<Resource>;
+}
+
+export interface DataWithoutMetrics {
+  resources: Array<Resource>;
 }

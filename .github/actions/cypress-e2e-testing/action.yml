@@ -23,8 +23,8 @@ inputs:
     description: "The frontend dependencies lock file path"
     required: true
   test_execution_key:
+    description: "xray test execution key"
     required: true
-    type: string
 
 runs:
   using: "composite"
@@ -83,5 +83,7 @@ runs:
         rm "$report_path"
 
         # Show the content of the modified file
+        echo "::group::${feature_name}-report.json"
         cat "$report_path_updated"
+        echo "::endgroup::"
       shell: bash

@@ -4,6 +4,7 @@ import { DashboardLayout } from '@centreon/ui';
 
 import { AddWidgetPanel } from '../AddEditWidget';
 import { Panel } from '../models';
+import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -12,7 +13,6 @@ interface Props {
   canEdit?: boolean;
   changeLayout?: (newLayout: Array<Layout>) => void;
   displayMoreActions?: boolean;
-  getLinkToResourceStatusPage: (data, name, options) => string;
   isEditing?: boolean;
   isStatic: boolean;
   panels: Array<Panel>;
@@ -26,9 +26,11 @@ const PanelsLayout = ({
   changeLayout,
   canEdit,
   setRefreshCount,
-  displayMoreActions = true,
-  getLinkToResourceStatusPage
+  displayMoreActions = true
 }: Props): JSX.Element => {
+  const { getLinkToResourceStatusPage, changeViewMode } =
+    useLinkToResourceStatus();
+
   return (
     <DashboardLayout.Layout
       changeLayout={changeLayout}
@@ -46,6 +48,7 @@ const PanelsLayout = ({
             header={
               !panelConfiguration?.isAddWidgetPanel ? (
                 <PanelHeader
+                  changeViewMode={() => changeViewMode(options?.displayType)}
                   displayMoreActions={displayMoreActions}
                   id={i}
                   linkToResourceStatus={getLinkToResourceStatusPage(

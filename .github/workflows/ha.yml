@@ -44,6 +44,9 @@ jobs:
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-bookworm
+            distrib: bookworm
 
     uses: ./.github/workflows/package.yml
     with:
@@ -112,7 +115,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -133,7 +136,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources

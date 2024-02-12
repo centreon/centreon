@@ -4,6 +4,24 @@
     "description": "my description",
     "created_at": "",
     "updated_at": "",
+    "shares": {
+      "contacts": [
+        {
+          "id": 1,
+          "name": "Arnaud",
+          "email": "arnaud@centreon.com",
+          "role": "editor"
+        }
+      ],
+      "contact_groups": [
+        {
+          "id": 1,
+          "name": "Guest",
+          "email": "",
+          "role": "viewer"
+        }
+      ]
+    },
     "created_by": {
       "id": 1,
       "name": "Arnaud"

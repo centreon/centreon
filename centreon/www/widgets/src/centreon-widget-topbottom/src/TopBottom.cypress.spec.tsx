@@ -3,11 +3,11 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
-import { FormThreshold } from '../../models';
+import { Data, FormThreshold } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 
 import { metricsTopEndpoint } from './api/endpoint';
-import { Data, TopBottomSettings } from './models';
+import { TopBottomSettings } from './models';
 
 import Widget from '.';
 
