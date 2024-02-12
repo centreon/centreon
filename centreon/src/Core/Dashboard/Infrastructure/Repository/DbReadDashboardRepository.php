@@ -344,7 +344,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             'created_by' => 'c.contact_name',
         ]);
 
-        if (array_key_exists('created_by', $requestParameters->getSort())) {
+        if (array_key_exists('created_by', $requestParameters?->getSort() ?? [])) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     LEFT JOIN contact c
