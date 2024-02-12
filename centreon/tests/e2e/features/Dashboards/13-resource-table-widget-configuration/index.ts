@@ -283,7 +283,6 @@ When(
   'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
     cy.get('input[name="unhandled_problems"]').click();
-    cy.get('input[name="undefined"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -435,6 +434,7 @@ When(
 Then(
   'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
+    cy.wait('@resourceRequest');
     cy.waitUntil(() =>
     cy.get(`.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`)
       .should('be.visible')
