@@ -77,7 +77,7 @@ export const getColorFromDataAndTresholds = ({
 
 interface ValueByUnitProps {
   total: number;
-  unit: 'Percentage' | 'Number';
+  unit: 'percentage' | 'number';
   value: number;
 }
 
@@ -86,7 +86,7 @@ export const getValueByUnit = ({
   value,
   total
 }: ValueByUnitProps): string => {
-  if (unit === 'Number') {
+  if (equals(unit, 'number')) {
     return numeral(value).format('0a').toUpperCase();
   }
 

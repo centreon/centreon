@@ -16,6 +16,6 @@ export interface PieProps {
   legendConfiguration?: LegendConfiguration;
   onArcClick?: (ardata) => void;
   title?: string;
-  unit?: 'Percentage' | 'Number';
-  variant?: 'Pie' | 'Donut';
+  unit?: 'percentage' | 'number';
+  variant?: 'pie' | 'donut';
 }

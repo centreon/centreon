@@ -4,6 +4,7 @@ import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import numeral from 'numeral';
 import { localPoint } from '@visx/event';
+import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -20,10 +21,10 @@ const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
 
 const ResponsivePie = ({
   title,
-  variant = 'Pie',
+  variant = 'pie',
   width,
   data,
-  unit = 'Number',
+  unit = 'number',
   Legend = DefaultLengd,
   legendConfiguration = { direction: 'column' },
   displayLegend = true,
@@ -66,7 +67,7 @@ const ResponsivePie = ({
   return (
     <div className={classes.container}>
       <div className={classes.svgWrapper}>
-        {variant === 'Pie' && title && (
+        {equals(variant, 'pie') && title && (
           <div className={classes.pieTitle}>
             {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
@@ -80,7 +81,7 @@ const ResponsivePie = ({
               <Pie
                 data={data}
                 innerRadius={() => {
-                  return variant === 'Pie' ? 0 : half - innerRadius;
+                  return equals(variant, 'pie') ? 0 : half - innerRadius;
                 }}
                 outerRadius={half}
                 padAngle={0.01}
@@ -133,7 +134,7 @@ const ResponsivePie = ({
                   });
                 }}
               </Pie>
-              {variant === 'Donut' && title && (
+              {equals(variant, 'donut') && title && (
                 <>
                   <Text
                     dy={-15}

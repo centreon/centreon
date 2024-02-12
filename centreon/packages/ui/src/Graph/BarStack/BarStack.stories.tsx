@@ -59,7 +59,7 @@ export const WithoutTitle: Story = {
 };
 
 export const WithPencentage: Story = {
-  args: { data, title: 'hosts', unit: 'Percentage' },
+  args: { data, title: 'hosts', unit: 'percentage' },
   render: Template
 };
 
@@ -105,7 +105,7 @@ export const Horizontal: Story = {
     data,
     displayValues: true,
     title: 'hosts',
-    variant: 'Horizontal'
+    variant: 'horizontal'
   },
   render: Template
 };
@@ -117,7 +117,7 @@ export const HorizontalWithoutLegend: Story = {
     displayLegend: false,
     displayValues: true,
     title: 'hosts',
-    variant: 'Horizontal'
+    variant: 'horizontal'
   },
   render: Template
 };

@@ -15,6 +15,6 @@ export type BarStackProps = {
   legendConfiguration?: LegendConfiguration;
   onSingleBarClick?: (barData) => void;
   title?: string;
-  unit?: 'Percentage' | 'Number';
-  variant?: 'Vertical' | 'Horizontal';
+  unit?: 'percentage' | 'number';
+  variant?: 'vertical' | 'horizontal';
 };
