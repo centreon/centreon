@@ -18,7 +18,7 @@ Feature: Create and Manage Basic API Token
     | User  | <Enter linked user> |
     And I select the duration as "<Duration>"
     And I click on the "Generate token" button
-    Then a new basic API token with hidden display should be generated
+    Then a new basic API token with hidden display is generated
 
     Examples:
       | Enter token name | Enter linked user | Duration |
