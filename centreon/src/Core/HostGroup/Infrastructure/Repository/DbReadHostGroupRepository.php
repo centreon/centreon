@@ -413,19 +413,19 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'is_activated' => 'hg.hg_activate',
             'host_category_id' => 'hc.hc_id',
         ]);
-        if (mb_strpos($requestParameters->getSearchAsString(), "host_category_id")) {
+        if (mb_strpos($requestParameters->getSearchAsString(), 'host_category_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
-                            LEFT JOIN `:db`.hostgroup_relation hgr
-                                ON hg.hg_id = hgr.hostgroup_hg_id
-                            LEFT JOIN `:db`.host h
-                                ON hgr.host_host_id = h.host_id
-                            LEFT JOIN `:db`.hostcategories_relation hcr
-                                ON h.host_id = hcr.host_host_id
-                            LEFT JOIN `:db`.hostcategories hc
-                                ON hcr.hostcategories_hc_id = hc.hc_id
-                                AND hc.level IS NOT NULL
-                        SQL
+                        LEFT JOIN `:db`.hostgroup_relation hgr
+                            ON hg.hg_id = hgr.hostgroup_hg_id
+                        LEFT JOIN `:db`.host h
+                            ON hgr.host_host_id = h.host_id
+                        LEFT JOIN `:db`.hostcategories_relation hcr
+                            ON h.host_id = hcr.host_host_id
+                        LEFT JOIN `:db`.hostcategories hc
+                            ON hcr.hostcategories_hc_id = hc.hc_id
+                            AND hc.level IS NOT NULL
+                    SQL
             );
         }
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
