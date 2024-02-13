@@ -35,6 +35,8 @@ use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Used to manage filters of the current user
@@ -358,7 +360,7 @@ class FilterController extends AbstractController
     {
         $pageNames = ['events-view'];
         if (! in_array($pageName, $pageNames, true)) {
-            throw new \InvalidArgumentException(
+            throw new FilterException(
                 sprintf(_('Invalid page name. Valid page names are: %s'), implode(', ', $pageNames))
             );
         }
@@ -372,7 +374,7 @@ class FilterController extends AbstractController
      private function userHasAccessToResourceStatusOrFail(Contact $user): void
      {
         if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            throw new \RestForbiddenException(_('You are not allowed to access the Resources Status page'));
+            throw new FilterException(_('You are not allowed to access the Resources Status page'), 403);
         }
      }
 }
