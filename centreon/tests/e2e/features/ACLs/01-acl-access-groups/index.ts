@@ -153,7 +153,11 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Users'
     });
+
+    cy.wait('@getTimeZone');
     cy.getIframeBody().contains(data.contactGroups.contactGroup1.name).click();
+
+    cy.wait('@getTimeZone');
     cy.getIframeBody()
       .find('select[name="cg_acl_groups[]"]')
       .should('contain', originalACLGroup.name);
