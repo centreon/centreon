@@ -2,8 +2,8 @@ import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Avatar, Chip, Divider } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Button, Divider } from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import { labelAddNewDataset } from '../../../translatedLabels';
 import { useAddDatasetButtonStyles } from '../styles/AddDatasetButton.styles';
@@ -23,46 +23,19 @@ const AddDatasetButton = ({
 
   return (
     <Divider className={classes.addDatasetButtonDivider} variant="middle">
-      <Chip
+      <Button
         aria-label={labelAddNewDataset}
-        avatar={
-          <Avatar className={classes.addDatasetButtonAvatar}>
-            <AddIcon className={classes.addDatasetButtonIcon} />
-          </Avatar>
-        }
-        className={classes.addDatasetButtonChip}
+        className={classes.addDatasetButton}
         data-testid={dataTestId}
         disabled={addButtonDisabled}
-        label={t(labelAddNewDataset)}
-        variant="outlined"
         onClick={onAddItem}
-      />
+      >
+        <AddCircleIcon />
+        &nbsp;
+        {t(labelAddNewDataset)}
+      </Button>
     </Divider>
   );
 };
-
-// const AddDatasetButton = ({
-//   addButtonDisabled,
-//   onAddItem
-// }: Props): ReactElement => {
-//   const { t } = useTranslation();
-//   const { classes } = useAddDatasetButtonStyles();
-//   const dataTestId = 'addNewDataset';
-//
-//   return (
-//     <Button
-//       aria-label={labelAddNewDataset}
-//       className={classes.addDatasetButton}
-//       color="primary"
-//       data-testid={dataTestId}
-//       disabled={addButtonDisabled}
-//       startIcon={<AddIcon />}
-//       variant="contained"
-//       onClick={onAddItem}
-//     >
-//       {t(labelAddNewDataset)}
-//     </Button>
-//   );
-// };
 
 export default AddDatasetButton;
