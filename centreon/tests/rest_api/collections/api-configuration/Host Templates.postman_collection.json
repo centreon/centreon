@@ -2381,7 +2381,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host severity with all properties defined (successful)",
+					"name": "Creation of a new host severity (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2438,7 +2438,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host category with all properties defined (successful)",
+					"name": "Creation of a new host category (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2601,8 +2601,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostTemplate1Name\", \"cachuetes\");\r",
-									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"pistache\");\r",
+									"pm.collectionVariables.set(\"HostTemplate1Name\", \"host-template-1\");\r",
+									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template\");\r",
 									""
 								],
 								"type": "text/javascript"
