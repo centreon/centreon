@@ -3,6 +3,7 @@ import { flatten } from 'ramda';
 import { SearchParameter, getFoundFields } from '@centreon/ui';
 
 import { Fields } from '../../Filter/models';
+import { PersonalInformation } from '../../../models';
 
 export const buildSearchParameters = (
   searchValue: string
@@ -48,4 +49,12 @@ export const buildSearchParameters = (
   };
 
   return getSearchParameters;
+};
+
+export const getUniqData = (data): Array<PersonalInformation> => {
+  const result = [
+    ...new Map(data.map((item) => [item.name, item])).values()
+  ] as Array<PersonalInformation>;
+
+  return result || [];
 };
