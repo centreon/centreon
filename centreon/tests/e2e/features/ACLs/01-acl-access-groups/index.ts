@@ -180,14 +180,16 @@ Then(
       '@hostsStatusRequest',
       '@keepAliveRequest'
     ]).then(() => {
-      cy.getIframeBody()
+      cy.getIframeBody().as('frame');
+      cy.get('@frame')
         .contains(data.contactGroups.contactGroup1.name, { timeout: 15000 })
         .click();
     });
 
     cy.wait('@getTimeZone');
     cy.wait('@pendoRequest').then(() => {
-      cy.getIframeBody()
+      cy.getIframeBody().as('frame');
+      cy.get('@frame')
         .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
         .should('contain', originalACLGroup.name);
     });
