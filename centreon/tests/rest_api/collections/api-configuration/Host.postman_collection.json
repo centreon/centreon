@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "c9abdc91-3f82-4793-becb-4bbcc38f5198",
-		"name": "Host  ",
+		"name": "0 - Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c9abdc91-3f82-4793-becb-4bbcc38f5198?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c9abdc91-3f82-4793-becb-4bbcc38f5198?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2711,7 +2711,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host severity with all properties defined (successful)",
+					"name": "Creation of a first host severity (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2778,7 +2778,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host severity with all properties defined (successful)",
+					"name": "Creation of a second host severity (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2845,7 +2845,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host category with all properties defined (successful)",
+					"name": "Creation of a first host category (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2909,7 +2909,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host category with all properties defined (successful)  ",
+					"name": "Creation of a second host category (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2973,7 +2973,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host group with all properties defined (successful)",
+					"name": "Creation of a host group (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -3048,110 +3048,65 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a command",
+					"name": "Add a new command (successful)",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"Command1Name\", \"check-host-alive\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new command \r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"Command1Id\", response.id);\r",
 									"});"
 								],
 								"type": "text/javascript"
 							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
 						}
 					],
 					"request": {
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}"
+								"value": "{{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive;check;$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\n}"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
+							"raw": "{{baseUrl}}/configuration/commands",
 							"host": [
-								"{{baseUriCentreonCLAPI}}"
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Retrieve id of the command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"",
-									"    var response = pm.response.json();",
-									"    pm.collectionVariables.set(\"CommandId\", response.result[response.result.length-1].id);",
-									"",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new host template with all properties defined (successful)",
+					"name": "Add a host template (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3493,7 +3448,6 @@
 							"script": {
 								"exec": [
 									"pm.collectionVariables.set(\"Host2Name\", \"host_002\");\r",
-									"pm.collectionVariables.set(\"Host2Alias\", \"I'm the second host created by admin\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -3503,7 +3457,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host2Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host \r",
@@ -3513,7 +3467,7 @@
 									"    pm.expect(response).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+									"        \"alias\": null,\r",
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
@@ -3576,7 +3530,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"{{Host2Name}}\",\r\n\"alias\": \"{{Host2Alias}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n"
+							"raw": "{\r\n\"name\": \"{{Host2Name}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -3657,7 +3611,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+									"        \"alias\": null,\r",
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"normal_check_interval\": null,\r",
 									"        \"retry_check_interval\": null,\r",
@@ -3755,7 +3709,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"alias\": \"{{Host2Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"alias\": \"hey\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": 202,\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -4216,7 +4170,7 @@
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+									"        \"alias\": null,\r",
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"normal_check_interval\": null,\r",
 									"        \"retry_check_interval\": null,\r",
@@ -4374,7 +4328,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host2Alias\") + \"' has been successfully updated.\", function () {\r",
+									"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' has been successfully updated.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -4440,7 +4394,7 @@
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+									"        \"alias\": null,\r",
 									"        \"address\": \"10.25.6.8\",\r",
 									"        \"normal_check_interval\": 6,\r",
 									"        \"retry_check_interval\": 8,\r",
@@ -5140,7 +5094,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -5291,7 +5245,7 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host2Alias\") + \"' has been successfully updated.\", function () {\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' has been successfully updated.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
 											"});"
 										],
@@ -5357,7 +5311,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -5582,7 +5536,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -6326,7 +6280,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -6936,7 +6890,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -7148,7 +7102,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -7654,7 +7608,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -9265,7 +9219,7 @@
 											"    pm.expect(responseJson.result[0]).to.include({\r",
 											"        \"id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 											"        \"name\": pm.collectionVariables.get(\"Host2Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"Host2Alias\"),\r",
+											"        \"alias\": null,\r",
 											"        \"address\": \"10.25.6.8\",\r",
 											"        \"normal_check_interval\": 6,\r",
 											"        \"retry_check_interval\": 8,\r",
@@ -9350,10 +9304,9 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host2Alias\") + \"' has been successfully deleted.\", function () {\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' has been successfully deleted.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
 											"    pm.collectionVariables.unset(\"Host2Name\");\r",
-											"    pm.collectionVariables.unset(\"Host2Alias\");\r",
 											"    pm.collectionVariables.unset(\"Host2Id\");\r",
 											"});"
 										],
