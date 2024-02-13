@@ -72,7 +72,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
     private const MINIMUM_SUPPORTED_VERSION = '22.04';
 
-    /** @var ProviderAuthenticationInterface $provider */
+    /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
     /**
@@ -126,7 +126,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         $sessionId = $request->getSession()->getId();
         $isValidToken = $this->authenticationService->isValidToken($sessionId);
 
-        return !$isValidToken && $configuration->isActive();
+        return ! $isValidToken && $configuration->isActive();
     }
 
     /**
@@ -174,9 +174,9 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
             // getRedirectionUri() expects ONLY a string as its second parameter
             $referer = $request->headers->get('referer', '');
-            if (!empty($referer)) {
+            if (! empty($referer)) {
                 $referer = parse_url($referer, PHP_URL_QUERY);
-                if (!is_string($referer)) {
+                if (! is_string($referer)) {
                     $referer = '';
                 }
             }
@@ -226,7 +226,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         if ($contact === null) {
             throw new UserNotFoundException();
         }
-        if (!$contact->isActive()) {
+        if (! $contact->isActive()) {
             throw new ContactDisabledException();
         }
 
@@ -325,7 +325,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     ): void {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->dataStorageEngine->startTransaction();
         }
         try {
@@ -338,14 +338,14 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 $providerToken,
                 $providerRefreshToken
             );
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Exception $ex) {
             $this->error('Unable to create authentication tokens', [
                 'trace' => $ex->getTraceAsString(),
             ]);
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->rollbackTransaction();
             }
 
