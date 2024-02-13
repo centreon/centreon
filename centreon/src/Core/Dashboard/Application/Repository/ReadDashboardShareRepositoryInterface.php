@@ -98,6 +98,18 @@ interface ReadDashboardShareRepositoryInterface
     public function findDashboardsContactShares(Dashboard ...$dashboards): array;
 
     /**
+     * Retrieve all the contacts shares for several dashboards based on contact IDs.
+     *
+     * @param int[] $contactIds
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactShare>>
+     */
+    public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array;
+
+    /**
      * Retrieve all the contact groups shares for several dashboards.
      *
      * @param Dashboard ...$dashboards
@@ -134,6 +146,17 @@ interface ReadDashboardShareRepositoryInterface
     ): array;
 
     /**
+     * Find users with Topology ACLs on dashboards based on given contact IDs.
+     *
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactRole[]
+     */
+    public function findContactsWithAccessRightByContactIds(array $contactIds): array;
+
+    /**
      * Find users with Topology ACLs on dashboards by current user ACLs.
      *
      * @param RequestParametersInterface $requestParameters
@@ -162,6 +185,17 @@ interface ReadDashboardShareRepositoryInterface
     ): array;
 
     /**
+     * Find contact groups with Topology ACLs on dashboards based on given contact group IDs.
+     *
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsWithAccessRightByContactGroupIds(array $contactGroupIds): array;
+
+    /**
      * Find contact groups with Topology ACLs on dashboards by current user ACLs.
      *
      * @param RequestParametersInterface $requestParameters
@@ -175,4 +209,16 @@ interface ReadDashboardShareRepositoryInterface
         RequestParametersInterface $requestParameters,
         int $contactId
     ): array;
+
+    /**
+     * Check if a user is editor on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param ContactInterface $contact
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool;
 }
