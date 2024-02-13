@@ -11,6 +11,10 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon/features"
+      - "!centreon/cypress"
+      - "!centreon/lighthouse"
+      - "!centreon/tests"
   workflow_dispatch:
 
 env:

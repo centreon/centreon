@@ -3852,10 +3852,6 @@ msgstr ""
 "Vous pouvez visualiser la liste complète à partir de du projet Centreonsur "
 "Github"
 
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:87
-msgid "Last 3 hours"
-msgstr "Les 3 dernières heures"
-
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:88
 msgid "Today"
 msgstr "Aujourd'hui"
@@ -3876,10 +3872,6 @@ msgstr "La dernière semaine"
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:92
 msgid "Last month"
 msgstr "Le dernier mois"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:93
-msgid "Last 6 months"
-msgstr "Les 6 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
@@ -7106,24 +7098,6 @@ msgstr "Liste des métriques connues"
 msgid "Choose the source to graph"
 msgstr "Choisissez la source à grapher"
 
-#: centreon-web/www/include/views/graphs/graphs.php:173
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:102
-#: centreon-web/www/include/eventLogs/viewLog.php:168
-msgid "Last 3 Hours"
-msgstr "Les 3 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:174
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:103
-#: centreon-web/www/include/eventLogs/viewLog.php:169
-msgid "Last 6 Hours"
-msgstr "Les 6 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:175
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
-#: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 hours"
-msgstr "Les 12 dernières heures"
-
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
@@ -7173,12 +7147,6 @@ msgstr "Les 2 précédents mois"
 #: centreon-web/www/include/eventLogs/viewLog.php:180
 msgid "Last 4 Months"
 msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:188
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:115
-#: centreon-web/www/include/eventLogs/viewLog.php:181
-msgid "Last 6 Months"
-msgstr "Les 6 précédents mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:189
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
@@ -18222,23 +18190,35 @@ msgstr "Format de la valeur"
 msgid "Time period"
 msgstr "Période temporelle"
 
-msgid "Last hour (default)"
-msgstr "Dernière heure (par défaut)"
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 3 hours"
+msgstr "Les 3 dernières heures"
+
+msgid "Last 6 hours"
+msgstr "Les 6 dernières heures"
+
+msgid "Last 12 hours"
+msgstr "Les 12 dernières heures"
 
 msgid "Last 24 hours"
-msgstr "Dernières 24 heures"
+msgstr "Les 24 dernières heures"
 
 msgid "Last 7 days"
-msgstr "7 derniers jours"
+msgstr "Les 7 derniers jours"
 
 msgid "Last 30 days"
-msgstr "30 derniers jours"
+msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
-msgstr "3 derniers mois"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 6 months"
+msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
-msgstr "12 derniers mois"
+msgstr "Les 12 derniers mois"
 
 msgid "Customize"
 msgstr "Personnaliser"

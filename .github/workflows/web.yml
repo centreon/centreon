@@ -379,6 +379,12 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-nfpm-bookworm
+            distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
 
     runs-on: ubuntu-22.04
 
@@ -435,7 +441,7 @@ jobs:
 
       - name: Set perl vendor lib path according to distrib
         run: |
-          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             PERL_VENDORLIB="/usr/share/perl5"
           else
             PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
@@ -500,6 +506,7 @@ jobs:
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -528,6 +535,9 @@ jobs:
             PACKAGE_EXTENSION=rpm
           elif [ "${{ matrix.os }}" = "bullseye" ]; then
             DISTRIB=bullseye
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.os }}" = "bookworm" ]; then
+            DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.os }} is not managed"
@@ -743,7 +753,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || matrix.os == 'bullseye' && 'deb-bullseye' || 'deb-bookworm' ) }}
       package_directory: centreon/tests/e2e/fixtures/packages
       dependencies_lock_file: centreon/pnpm-lock.yaml
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
@@ -876,7 +886,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -898,7 +908,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources
