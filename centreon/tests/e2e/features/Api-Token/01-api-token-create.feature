@@ -18,7 +18,7 @@ Feature: Create and Manage Basic API Token
     | User  | <Enter linked user> |
     And I select the duration as "<Duration>"
     And I click on the "Generate token" button
-    Then a new basic API token with hidden display should be generated
+    Then a new basic API token with hidden display is generated
 
     Examples:
       | Enter token name | Enter linked user | Duration |
@@ -26,18 +26,18 @@ Feature: Create and Manage Basic API Token
       | TokenName_2      | User_2            | 60d      |
       | TokenName_3      | User_3            | 90d      |
 
-  Scenario: Display and Copy Generated Token
+  Scenario: Display and Copy Generated API Token
     Given a basic API token is generated
     When I click to reveal the token
     Then the token is displayed
     And the "copy to clipboard" button is clicked
 
-  Scenario: Save Generated Token
+  Scenario: Save Generated API Token
     Given a basic API token is generated
     When I click on the "Save" button
     Then the token is saved successfully
 
-  Scenario: Edit Existing Token
+  Scenario: Edit Existing API Token
     Given I am on the API tokens page
     And there is an existing basic API token
     When I click on the token to edit
