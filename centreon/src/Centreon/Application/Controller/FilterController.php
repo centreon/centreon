@@ -359,7 +359,7 @@ class FilterController extends AbstractController
         $pageNames = ['events-view'];
         if (! in_array($pageName, $pageNames, true)) {
             throw new \InvalidArgumentException(
-                sprintf(_('Page name invalid. Valid page names are: %s'), implode(', ', $pageNames))
+                sprintf(_('Invalid page name. Valid page names are: %s'), implode(', ', $pageNames))
             );
         }
     }
@@ -372,7 +372,7 @@ class FilterController extends AbstractController
      private function userHasAccessToResourceStatusOrFail(Contact $user): void
      {
         if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            throw new \RestForbiddenException(_('You are not allowed to access resources status'));
+            throw new \RestForbiddenException(_('You are not allowed to access the Resources Status page'));
         }
      }
 }

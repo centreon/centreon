@@ -16563,8 +16563,8 @@ msgstr "Erweiterter Modus"
 # msgid "The {{name}} dashboard will be permanently deleted."
 # msgstr ""
 
-#  msgid "Page name invalid. Valid page names are: %s"
+#  msgid "Invalid page name. Valid page names are: %s"
 #  msgstr ""
 
-#  msgid "You are not allowed to access resources status"
+#  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
