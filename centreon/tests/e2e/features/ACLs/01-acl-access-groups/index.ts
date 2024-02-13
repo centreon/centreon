@@ -155,7 +155,9 @@ Then(
     });
 
     cy.wait('@getTimeZone');
-    cy.getIframeBody().contains(data.contactGroups.contactGroup1.name).click();
+    cy.getIframeBody()
+      .contains(data.contactGroups.contactGroup1.name, { timeout: 15000 })
+      .click();
 
     cy.wait('@getTimeZone');
     cy.getIframeBody()
