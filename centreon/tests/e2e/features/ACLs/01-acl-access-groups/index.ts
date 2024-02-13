@@ -35,10 +35,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
-  cy.intercept(
-    'HEAD',
-    'https://cdn.eu.pendo.io/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
-  ).as('pendoRequest');
 });
 
 afterEach(() => {
@@ -159,15 +155,13 @@ Then(
     });
 
     cy.wait('@getTimeZone');
-    cy.wait('@pendoRequest');
     cy.getIframeBody()
-      .contains(data.contactGroups.contactGroup1.name)
+      .contains(data.contactGroups.contactGroup1.name, { timeout: 15000 })
       .click();
 
     cy.wait('@getTimeZone');
-    cy.wait('@pendoRequest');
     cy.getIframeBody()
-      .find('select[name="cg_acl_groups[]"]')
+      .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
       .should('contain', originalACLGroup.name);
   }
 );
