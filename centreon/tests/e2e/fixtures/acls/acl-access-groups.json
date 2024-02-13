@@ -1,0 +1,21 @@
+{
+  "contactGroups": {
+    "contactGroup1": {
+      "name": "contact_group_1"
+    }
+  },
+  "contacts": {
+    "contact1": {
+      "admin": false,
+      "email": "contact1@localhost",
+      "name": "contact_1",
+      "password": "myPassword@1"
+    },
+    "contact2": {
+      "admin": false,
+      "email": "contact2@localhost",
+      "name": "contact_2",
+      "password": "myPassword@2"
+    }
+  }
+}

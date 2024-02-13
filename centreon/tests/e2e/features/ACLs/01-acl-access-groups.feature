@@ -1,4 +1,3 @@
-@ignore
 Feature: AclAccessGroups
   As a Centreon administrator
   I want to administrate ACL access groups
@@ -10,6 +9,7 @@ Feature: AclAccessGroups
   Scenario: Creating ACL access group with linked contacts
     When one contact group exists including two non admin contacts
     And the access group is saved with its properties
+    And a menu access is linked with this group
     Then all linked users have the access list group displayed in Centreon authentication tab
 
   Scenario: Creating ACL access group with linked contact group
