@@ -413,7 +413,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'is_activated' => 'hg.hg_activate',
             'host_category_id' => 'hc.hc_id',
         ]);
-        if (mb_strpos($requestParameters?->getSearchAsString(), 'host_category_id')) {
+        if (mb_strpos($requestParameters?->getSearchAsString() ?? "", 'host_category_id')) {
             $concatenator->appendJoins(
                 <<<'SQL'
                         LEFT JOIN `:db`.hostgroup_relation hgr
