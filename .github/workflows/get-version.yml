@@ -113,13 +113,14 @@ jobs:
               echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
               GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
-              GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
-              echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
-              # Handle release type (release or hotfix)
-              GITHUB_RELEASE_TYPE="$(echo $BRANCHNAME |cut -d '-' -f 1)"
-              echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
+
               if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
-              # This case is specific to cloud release
+                # This case is specific to cloud release
+                GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
+                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
+                # Handle release type (release or hotfix)
+                GITHUB_RELEASE_TYPE="$(echo $BRANCHNAME |cut -d '-' -f 1)"
+                echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
                 echo "release=`$GITHUB_RELEASE_BRANCH_PR_NUMBER.date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
