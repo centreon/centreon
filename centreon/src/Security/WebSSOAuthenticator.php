@@ -159,12 +159,17 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): SelfValidatingPassport
     {
         try {
-            $this->createSession($request, $this->provider);
-            $this->info('Starting authentication with WebSSO with session id ' . $request->getSession()->getId());
+            $this->info('Starting authentication with WebSSO');
             $this->provider->authenticateOrFail(
                 LoginRequest::createForSSO($request->getClientIp())
             );
             $user = $this->provider->findUserOrFail();
+            $this->createSession($request, $this->provider);
+            $this->info(
+                'Authenticated successfully',
+                ['user' => $user->getAlias(), 'sessionId' => $request->getSession()->getId()]
+            );
+
             $this->info('Authenticated successfully', ['user' => $user->getAlias()]);
 
             $referer = $request->headers->get('referer')
