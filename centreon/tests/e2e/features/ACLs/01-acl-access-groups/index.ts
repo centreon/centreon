@@ -39,6 +39,22 @@ beforeEach(() => {
     'HEAD',
     'https://cdn.eu.pendo.io/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   ).as('pendoRequest');
+  cy.intercept({
+    method: 'GET',
+    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=pollersListIssues'
+  }).as('pollersListIssuesRequest');
+  cy.intercept({
+    method: 'GET',
+    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
+  }).as('servicesStatusRequest');
+  cy.intercept({
+    method: 'GET',
+    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=hosts_status'
+  }).as('hostsStatusRequest');
+  cy.intercept({
+    method: 'GET',
+    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_keepalive&action=keepAlive'
+  }).as('keepAliveRequest');
 });
 
 afterEach(() => {
@@ -157,9 +173,13 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Users'
     });
-
-    cy.wait('@getTimeZone');
-    cy.wait('@pendoRequest').then(() => {
+    cy.wait([
+      '@getTimeZone',
+      '@pollersListIssuesRequest',
+      '@servicesStatusRequest',
+      '@hostsStatusRequest',
+      '@keepAliveRequest'
+    ]).then(() => {
       cy.getIframeBody()
         .contains(data.contactGroups.contactGroup1.name, { timeout: 15000 })
         .click();
