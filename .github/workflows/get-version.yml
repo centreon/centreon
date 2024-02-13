@@ -115,6 +115,7 @@ jobs:
               echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
               GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
               echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
+              GITHUB_RELEASE_TYPE="$(echo $BRANCHNAME |cut -d '-' -f 1)"
               if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
               # This case is specific to cloud release
                 echo "release=`$GITHUB_RELEASE_BRANCH_PR_NUMBER.date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
@@ -126,6 +127,7 @@ jobs:
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
               ;;
           esac
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
 
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)
