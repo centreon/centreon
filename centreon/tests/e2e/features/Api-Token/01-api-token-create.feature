@@ -32,7 +32,7 @@ Feature: Create and Manage Basic API Token
     Then the token is displayed
     And the "copy to clipboard" button is clicked
 
-  Scenario: Save Generated Token
+  Scenario: Save Generated API Token
     Given a basic API token is generated
     When I click on the "Save" button
     Then the token is saved successfully
