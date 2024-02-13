@@ -430,7 +430,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
-
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator?->translateForConcatenator($concatenator);
 
