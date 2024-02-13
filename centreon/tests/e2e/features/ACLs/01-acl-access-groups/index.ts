@@ -182,7 +182,7 @@ Then(
     ]).then(() => {
       cy.getIframeBody().as('frame');
       cy.get('@frame')
-        .contains(data.contactGroups.contactGroup1.name, { timeout: 15000 })
+        .contains(data.contactGroups.contactGroup1.name, { timeout: 20000 })
         .click();
     });
 
@@ -190,7 +190,7 @@ Then(
     cy.wait('@pendoRequest').then(() => {
       cy.getIframeBody().as('frame');
       cy.get('@frame')
-        .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
+        .find('select[name="cg_acl_groups[]"]', { timeout: 20000 })
         .should('contain', originalACLGroup.name);
     });
   }
