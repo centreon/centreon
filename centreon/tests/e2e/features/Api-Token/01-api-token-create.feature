@@ -37,7 +37,7 @@ Feature: Create and Manage Basic API Token
     When I click on the "Save" button
     Then the token is saved successfully
 
-  Scenario: Edit Existing Token
+  Scenario: Edit Existing API Token
     Given I am on the API tokens page
     And there is an existing basic API token
     When I click on the token to edit
