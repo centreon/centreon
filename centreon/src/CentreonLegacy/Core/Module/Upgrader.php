@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace CentreonLegacy\Core\Module;
 
 class Upgrader extends Module
@@ -59,10 +61,29 @@ class Upgrader extends Module
             $this->upgradePhpFiles($upgradePath, false);
         }
 
+        // make sure that if necessary route files are correctly generated.
+        $this->generateRoutes();
+
         // finally, upgrade to current version
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);
 
         return $this->moduleId;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function generateRoutes(): void
+    {
+        $generateRoutesFile = $this->getModulePath($this->moduleName) . '/php/generate_routes.php';
+
+        // routes should be generated only if generate_routes.php is available and routes directory exists
+        if (
+            $this->services->get('filesystem')->exists($generateRoutesFile)
+            && $this->services->get('filesystem')->exists($this->getModulePath($this->moduleName) . '/routes/')
+        ) {
+            $this->utils->executePhpFile($generateRoutesFile);
+        }
     }
 
     /**

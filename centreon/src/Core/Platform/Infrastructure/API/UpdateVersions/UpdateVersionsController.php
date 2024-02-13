@@ -29,9 +29,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Platform\Application\UseCase\UpdateVersions\{
     UpdateVersions,
-    UpdateVersionsPresenterInterface
+    UpdateVersionsPresenterInterface,
 };
-use Symfony\Component\HttpFoundation\Request;
 
 final class UpdateVersionsController extends AbstractController
 {
@@ -39,14 +38,12 @@ final class UpdateVersionsController extends AbstractController
 
     /**
      * @param UpdateVersions $useCase
-     * @param Request $request
      * @param UpdateVersionsPresenterInterface $presenter
      *
      * @return object
      */
     public function __invoke(
         UpdateVersions $useCase,
-        Request $request,
         UpdateVersionsPresenterInterface $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
@@ -55,14 +52,12 @@ final class UpdateVersionsController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
+
         if (! $contact->isAdmin()) {
-            $presenter->setResponseStatus(new UnauthorizedResponse('Only admin user can perform upgrade'));
+            $presenter->setResponseStatus(new UnauthorizedResponse('Only admin user can perform upgrades'));
 
             return $presenter->show();
         }
-
-        $this->info('Validating request body...');
-        $this->validateDataSent($request, __DIR__ . '/UpdateVersionsSchema.json');
 
         $useCase($presenter);
 

@@ -28,11 +28,9 @@ use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 use Pimple\Container;
@@ -41,7 +39,7 @@ final class UpdateVersions
 {
     use LoggerTrait;
 
-    /** CentreonModuleService $moduleService */
+    /** @var CentreonModuleService */
     private CentreonModuleService $moduleService;
 
     /**
@@ -66,34 +64,15 @@ final class UpdateVersions
     /**
      * @param UpdateVersionsPresenterInterface $presenter
      */
-    public function __invoke(
-        UpdateVersionsPresenterInterface $presenter,
-    ): void {
-        $this->info('Updating versions');
-
+    public function __invoke(UpdateVersionsPresenterInterface $presenter): void
+    {
         try {
             $this->validateRequirementsOrFail();
-
             $this->lockUpdate();
-
-            $currentVersion = $this->getCurrentVersionOrFail();
-
-            $availableUpdates = $this->getAvailableUpdatesOrFail($currentVersion);
-
-            $this->runUpdates($availableUpdates);
-
+            $this->updateCentreonWeb();
+            $this->updateInstalledModules();
+            $this->updateInstalledWidgets();
             $this->unlockUpdate();
-
-            $this->runPostUpdate($this->getCurrentVersionOrFail());
-        } catch (UpdateNotFoundException $exception) {
-            $this->error(
-                $exception->getMessage(),
-                ['trace' => $exception->getTraceAsString()],
-            );
-
-            $presenter->setResponseStatus(new NotFoundResponse('Updates'));
-
-            return;
         } catch (\Throwable $exception) {
             $this->error(
                 $exception->getMessage(),
@@ -104,8 +83,26 @@ final class UpdateVersions
 
             return;
         }
-
         $presenter->setResponseStatus(new NoContentResponse());
+    }
+
+    /**
+     * @throws \Exception
+     * @throws UpdateVersionsException
+     * @throws \Throwable
+     */
+    private function updateCentreonWeb(): void
+    {
+        $this->info('Starting centreon-web update process');
+        $availableUpdates = $this->getAvailableUpdates($this->getCurrentVersion());
+
+        if ([] !== $availableUpdates) {
+            $this->info('Available updates found for centreon-web', ['updates' => $availableUpdates]);
+            $this->runUpdates($availableUpdates);
+            $this->runPostUpdate($this->getCurrentVersion());
+        } else {
+            $this->info('No available updates to perform for centreon-web');
+        }
     }
 
     /**
@@ -116,7 +113,6 @@ final class UpdateVersions
     private function validateRequirementsOrFail(): void
     {
         $this->info('Validating platform requirements');
-
         $this->requirementValidators->validateRequirementsOrFail();
     }
 
@@ -126,7 +122,6 @@ final class UpdateVersions
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
-
         if (! $this->updateLocker->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
@@ -149,10 +144,9 @@ final class UpdateVersions
      *
      * @return string
      */
-    private function getCurrentVersionOrFail(): string
+    private function getCurrentVersion(): string
     {
-        $this->info('Getting current version');
-
+        $this->debug('Finding centreon-web current version');
         try {
             $currentVersion = $this->readVersionRepository->findCurrentVersion();
         } catch (\Exception $exception) {
@@ -173,7 +167,7 @@ final class UpdateVersions
      *
      * @return string[]
      */
-    private function getAvailableUpdatesOrFail(string $currentVersion): array
+    private function getAvailableUpdates(string $currentVersion): array
     {
         try {
             $this->info(
@@ -184,8 +178,6 @@ final class UpdateVersions
             );
 
             return $this->readUpdateRepository->findOrderedAvailableUpdates($currentVersion);
-        } catch (UpdateNotFoundException $exception) {
-            throw $exception;
         } catch (\Throwable $exception) {
             throw UpdateVersionsException::errorWhenRetrievingAvailableUpdates($exception);
         }
@@ -205,8 +197,54 @@ final class UpdateVersions
                 $this->info("Running update {$version}");
                 $this->writeUpdateRepository->runUpdate($version);
             } catch (\Throwable $exception) {
-                throw UpdateVersionsException::errorWhenApplyingUpdate($version, $exception->getMessage(), $exception);
+                throw UpdateVersionsException::errorWhenApplyingUpdateToVersion($version, $exception->getMessage(), $exception);
             }
+        }
+    }
+
+    /**
+     * @throws UpdateVersionsException
+     */
+    private function updateInstalledWidgets(): void
+    {
+        $this->info('Updating installed widgets');
+        try {
+            $widgets = $this->moduleService->getList(
+                search: null,
+                installed: true,
+                updated: false,
+                typeList: ['widget']
+            );
+
+            foreach ($widgets['widget'] as $widget) {
+                    $this->debug('Updating widget', ['name' => $widget->getName()]);
+                    $this->moduleService->update($widget->getId(), 'widget');
+            }
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenApplyingUpdate($exception->getMessage(), $exception);
+        }
+    }
+
+    /**
+     * @throws UpdateVersionsException
+     */
+    private function updateInstalledModules(): void
+    {
+        $this->info('Updating installed modules');
+        try {
+            $modules = $this->moduleService->getList(
+                search: null,
+                installed: true,
+                updated: null,
+                typeList: ['module']
+            );
+
+            foreach ($modules['module'] as $module) {
+                $this->debug('Updating module', ['name' => $module->getId()]);
+                $this->moduleService->update($module->getId(), 'module');
+            }
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenApplyingUpdate($exception->getMessage(), $exception);
         }
     }
 
@@ -219,16 +257,8 @@ final class UpdateVersions
      */
     private function runPostUpdate(string $currentVersion): void
     {
-        $this->info('Running post update actions');
-
+        $this->info('Running post update actions for centreon-web');
         try {
-            $widgets = $this->moduleService->getList(null, true, null, ['widget']);
-            foreach ($widgets['widget'] as $widget) {
-                if ($widget->isInternal()) {
-                    $this->moduleService->update($widget->getId(), 'widget');
-                }
-            }
-
             $this->writeUpdateRepository->runPostUpdate($currentVersion);
         } catch (\Throwable $exception) {
             throw UpdateVersionsException::errorWhenApplyingPostUpdate($exception);

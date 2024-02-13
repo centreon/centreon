@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,20 +25,20 @@ namespace Tests\Core\Platform\Application\UseCase\UpdateVersions;
 
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersions;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
 use Core\Platform\Application\Validator\RequirementException;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
-use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Pimple\Container;
 
-beforeEach(function () {
-    $this->requirementValidators =  $this->createMock(RequirementValidatorsInterface::class);
+beforeEach(function (): void {
+    $this->requirementValidators = $this->createMock(RequirementValidatorsInterface::class);
     $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class);
     $this->readVersionRepository = $this->createMock(ReadVersionRepositoryInterface::class);
     $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class);
@@ -48,7 +48,7 @@ beforeEach(function () {
     $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]);
 });
 
-it('should stop update process when an other update is already started', function () {
+it('should stop update process when an other update is already started', function (): void {
     $updateVersions = new UpdateVersions(
         $this->requirementValidators,
         $this->updateLockerRepository,
@@ -71,7 +71,7 @@ it('should stop update process when an other update is already started', functio
     $updateVersions($this->presenter);
 });
 
-it('should present an error response if a requirement is not validated', function () {
+it('should present an error response if a requirement is not validated', function (): void {
     $updateVersions = new UpdateVersions(
         $this->requirementValidators,
         $this->updateLockerRepository,
@@ -94,7 +94,7 @@ it('should present an error response if a requirement is not validated', functio
     $updateVersions($this->presenter);
 });
 
-it('should present an error response if current centreon version is not found', function () {
+it('should present an error response if current centreon version is not found', function (): void {
     $updateVersions = new UpdateVersions(
         $this->requirementValidators,
         $this->updateLockerRepository,
@@ -122,7 +122,7 @@ it('should present an error response if current centreon version is not found', 
     $updateVersions($this->presenter);
 });
 
-it('should run found updates', function () {
+it('should run found updates', function (): void {
     $updateVersions = new UpdateVersions(
         $this->requirementValidators,
         $this->updateLockerRepository,
@@ -149,9 +149,15 @@ it('should run found updates', function () {
         ->willReturn(['22.10.0-beta.1', '22.10.0', '22.10.1']);
 
     $this->centreonModuleService
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getList')
-        ->willReturn(['widget' => []]);
+        ->will(
+            $this->onConsecutiveCalls(
+                ['module' => []],
+                ['widget' => []],
+            )
+        );
+
 
     $this->writeUpdateRepository
         ->expects($this->exactly(3))
