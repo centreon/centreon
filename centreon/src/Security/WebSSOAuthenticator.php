@@ -69,7 +69,6 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 {
     use HttpUrlTrait;
     use LoggerTrait;
-
     private const MINIMUM_SUPPORTED_VERSION = '22.04';
 
     /** @var ProviderAuthenticationInterface */
