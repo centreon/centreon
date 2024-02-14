@@ -105,7 +105,7 @@ jobs:
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
         with:
-          base_code_coverage_percentage: 90
+          module_path: ${{ inputs.module_name }}
 
       - name: Format title
         id: title
