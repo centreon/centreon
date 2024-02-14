@@ -402,7 +402,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<'SQL'
             parent.topology_name = 'Dashboards'
-            AND topology.topology_name IN ('Viewer','Editor','Creator')
+            AND topology.topology_name IN ('Viewer','Editor','Administrator')
             AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
             GROUP BY c.contact_id
@@ -494,7 +494,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
 
         $query .= <<<SQL
             parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Editor','Creator')
+                AND topology.topology_name IN ('Viewer','Editor','Administrator')
                 AND gcr.acl_group_id IN ({$bindTokenAsString})
                 AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
