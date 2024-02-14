@@ -823,35 +823,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    get:
-      tags:
-      - User
-      summary: Get configured users
-      description: |
-        Get list of configured users
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * alias
-        * name
-        * email
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.User'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v22.04/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
     get:
       tags:
@@ -918,9 +890,9 @@ paths:
       summary: Update a user
       description: |
         Update a user
-        
+
         The available parameters to be updated are :
-        
+
         * theme
       requestBody:
         required: true
