@@ -97,6 +97,11 @@ jobs:
         run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
 
+      - name: Install action dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./.github/actions/code-coverage-gate-keeper
+        shell: bash
+
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
         with:

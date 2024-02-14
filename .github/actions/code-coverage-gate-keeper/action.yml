@@ -3,19 +3,9 @@ name: 'Get Latest NPM Branch Version'
 description: 'Get the latest version of a package based on the branch'
 
 inputs:
-  package:
+  base_code_coverage_percentage:
     description: 'The package name to get the latest version of'
     required: true
-  branch_name:
-    description: 'The branch name to match the NPM tag'
-    required: true
-  current_package_version:
-    description: 'The current version of the package'
-    required: true
-
-outputs:
-  package_version:
-    description: "The latest NPM version for the branch"
 
 runs:
   using: 'node20'

@@ -7,7 +7,8 @@ try {
 
   exeSync('pnpx nyc report --reporter json --report-dir /tmp')
 
-  const coverage = require('/tmp/coverage-final.json');
+  const coverageFile = fs.readFileSync('/tmp/coverage-final.json');
+  const coverage = JSON.parse(coverageFile)
 
   console.log(baseCodeCoveragePercentage, coverage)
 } catch (error) {
