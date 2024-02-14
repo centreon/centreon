@@ -62,9 +62,9 @@ const run = async () => {
     const package = fs.readFileSync(`${modulePath}/package.json`);
     const baseCodeCoveragePercentage =JSON.parse(package).baseCodeCoveragePercentage
 
-    const codeCoverageStatements = coverage.total.statements.pct;
+    const codeCoverageLines = coverage.total.lines.pct;
 
-    const passGateKeep = codeCoverageStatements >= baseCodeCoveragePercentage;
+    const passGateKeep = codeCoverageLines >= baseCodeCoveragePercentage;
 
     const octokit = getOctokit(githubToken);
     
@@ -75,7 +75,7 @@ const run = async () => {
       octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: pull_request_number,
-        body: `<h1>Code Coverage Check on ${name} 📁</h1>:
+        body: `<h2>📋 Code Coverage Check on ${name} ❌</h2>
         Your code coverage is <b>${codeCoverageStatements}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
     }
