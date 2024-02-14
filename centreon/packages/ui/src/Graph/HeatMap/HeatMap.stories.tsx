@@ -22,29 +22,6 @@ const meta: Meta<typeof HeatMap<Data>> = {
 export default meta;
 type Story = StoryObj<typeof HeatMap<Data>>;
 
-const TileContent = ({
-  isSmallestSize,
-  data
-}: {
-  data: Data;
-  isSmallestSize: boolean;
-}): JSX.Element | false =>
-  !isSmallestSize && (
-    <Box
-      sx={{
-        alignItems: 'center',
-        color: 'common.black',
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%'
-      }}
-    >
-      <EllipsisTypography textAlign="center">{data.host}</EllipsisTypography>
-      <EllipsisTypography textAlign="center">{data.service}</EllipsisTypography>
-      <EllipsisTypography textAlign="center">{data.counter}</EllipsisTypography>
-    </Box>
-  );
-
 const TooltipContent = ({ data }: { data: Data }): JSX.Element => {
   return (
     <Box sx={{ backgroundColor: 'common.white', color: 'common.black' }}>
