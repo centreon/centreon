@@ -159,9 +159,10 @@ Then(
     });
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.get('iframe#main-content')
+        .should('be.visible')
         .its('0.contentDocument.body')
-        .within(($iframe) => {
-          cy.wrap($iframe)
+        .within((iframe) => {
+          cy.wrap(iframe)
             .contains(data.contactGroups.contactGroup1.name, {
               timeout: 15000
             })
@@ -171,9 +172,10 @@ Then(
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.get('iframe#main-content')
+        .should('be.visible')
         .its('0.contentDocument.body')
-        .within(($iframe) => {
-          cy.wrap($iframe)
+        .within((iframe) => {
+          cy.wrap(iframe)
             .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
             .should('contain', originalACLGroup.name);
         });
