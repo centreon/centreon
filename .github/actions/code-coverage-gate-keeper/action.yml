@@ -6,6 +6,9 @@ inputs:
   module_path:
     description: 'The path of the current module'
     required: true
+  github_token:
+    description: 'The github token'
+    required: true
 
 runs:
   using: 'node20'

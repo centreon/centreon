@@ -106,6 +106,7 @@ jobs:
         uses: ./.github/actions/code-coverage-gate-keeper
         with:
           module_path: ${{ inputs.module_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Format title
         id: title
