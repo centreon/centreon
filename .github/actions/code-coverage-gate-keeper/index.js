@@ -82,8 +82,8 @@ const run = async () => {
         body: `<h2>📋 ${title} ❌</h2>
         Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
+      core.setFailed(`Does not pass the code coverage check (${codeCoverageLines}% instead of ${baseCodeCoveragePercentage}%)`);
     }
-
   } catch (error) {
     core.setFailed(error.message);
   }
