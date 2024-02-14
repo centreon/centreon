@@ -33,7 +33,7 @@ runs:
 
         #echo "Current stable tag is: $CURRENT_STABLE_TAG"
         echo "Current stable version is: $CURRENT_STABLE_VERSION"
-        echo "Branch version is: "$BRANCH_VERSION"
+        echo "Branch version is: $BRANCH_VERSION"
 
         # Compare current stable version with branch version (examples below)
         # CURRENT_STABLE_VERSION = BRANCH_VERSION => FAILURE
