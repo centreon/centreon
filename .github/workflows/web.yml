@@ -112,7 +112,8 @@ jobs:
   check-version:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref == 'master' }}
+    # SHALL NOT RUN ON CLOUD RELEASE (master target branch)
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'master' }}
 
     steps:
       - name: Check version
