@@ -107,6 +107,7 @@ jobs:
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}
 
       - name: Format title
         id: title

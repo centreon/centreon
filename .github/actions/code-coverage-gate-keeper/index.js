@@ -48,6 +48,7 @@ const run = async () => {
   try {
     const modulePath = core.getInput('module_path');
     const githubToken = core.getInput('github_token');
+    const name = core.getInput('name');
 
     if (context.payload.pull_request === null) {
       return;
@@ -74,7 +75,7 @@ const run = async () => {
       octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: pull_request_number,
-        body: `<h1>Code Coverage Check 📁</h1>:
+        body: `<h1>Code Coverage Check on ${name} 📁</h1>:
         Your code coverage is <b>${codeCoverageStatements}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
     }

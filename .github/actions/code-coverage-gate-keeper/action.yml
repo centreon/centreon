@@ -9,6 +9,9 @@ inputs:
   github_token:
     description: 'The github token'
     required: true
+  name:
+    description: 'The name for display purpose'
+    required: true
 
 runs:
   using: 'node20'
