@@ -97,6 +97,13 @@ jobs:
         run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
 
+      - name: Format title
+        id: title
+        run: |
+          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
+          echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Install action dependencies
         run: pnpm install --frozen-lockfile
         working-directory: ./.github/actions/code-coverage-gate-keeper
@@ -107,14 +114,7 @@ jobs:
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ inputs.name }}
-
-      - name: Format title
-        id: title
-        run: |
-          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
-          echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
-        shell: bash
+          name: ${{ steps.title.outputs.replaced }}
 
       - name: Archive HTML code coverage
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
