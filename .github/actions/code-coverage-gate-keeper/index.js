@@ -5,7 +5,7 @@ const { execSync } = require('child_process');
 
 const limit = 20;
 
-const getExistingComments = async ({ octokit, context }) => {
+const getExistingComments = async ({ octokit, context, name }) => {
   let page = 0;
   let results = [];
   let response;
@@ -23,12 +23,12 @@ const getExistingComments = async ({ octokit, context }) => {
 	} while (response.data.length === limit)
 
 	return results.filter(
-		comment => comment.body.includes("Code Coverage Check"),
+		comment => !!comment.user && comment.body.includes(`Code Coverage Check on ${name}`),
 	)
 }
 
-const deleteOldComments = async ({ octokit, context }) => {
-  const existingComments = await getExistingComments({ octokit, context })
+const deleteOldComments = async ({ octokit, context, name }) => {
+  const existingComments = await getExistingComments({ octokit, context, name })
 
   existingComments.forEach((existingComment) => {
     core.debug(`Deleting comment: ${existingComment.id}`)
@@ -68,7 +68,7 @@ const run = async () => {
 
     const octokit = getOctokit(githubToken);
     
-    await deleteOldComments({ octokit, context })
+    await deleteOldComments({ octokit, context, name })
     
     if (!passGateKeep) {
       const pull_request_number = context.payload.pull_request.number;
