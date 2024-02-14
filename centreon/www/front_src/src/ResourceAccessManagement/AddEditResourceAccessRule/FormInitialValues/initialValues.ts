@@ -17,28 +17,35 @@ export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
   name: ''
 });
 
-const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
-  let datasets: Array<Dataset> = [];
-  while (!equals(prop('datasetFilter', datasetFilter), null)) {
-    datasets = [
+const nestedObjectToArray = (
+  element: DatasetFilter,
+  datasets: Array<Dataset>
+): Array<Dataset> => {
+  if (equals(prop('datasetFilter', element), null)) {
+    return [
       ...datasets,
       {
-        resourceType: datasetFilter.resourceType,
-        resources: datasetFilter.resources
+        resourceType: element.resourceType,
+        resources: element.resources
       }
     ];
-    datasetFilter = prop('datasetFilter', datasetFilter);
   }
 
   datasets = [
     ...datasets,
     {
-      resourceType: datasetFilter.resourceType,
-      resources: datasetFilter.resources
+      resourceType: element.resourceType,
+      resources: element.resources
     }
   ];
 
-  return datasets;
+  return nestedObjectToArray(prop('datasetFilter', element), datasets);
+};
+
+const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
+  const datasets: Array<Dataset> = [];
+
+  return nestedObjectToArray(datasetFilter, datasets);
 };
 
 const formatDatasetFilters = (
