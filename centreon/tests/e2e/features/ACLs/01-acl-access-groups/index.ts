@@ -157,9 +157,19 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Users'
     });
-    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
+
+    cy.wait(['@getTimeZone', '@pendoRequest']);
+    cy.waitUntil(
+      () => {
+        return cy.get('iframe#main-content').should('be.visible');
+      },
+      {
+        errorMsg: 'The iframe#main-content element is not visible',
+        interval: 3000,
+        timeout: 10000
+      }
+    ).then(() => {
       cy.get('iframe#main-content')
-        .should('be.visible')
         .its('0.contentDocument.body')
         .within((iframe) => {
           cy.wrap(iframe)
@@ -170,9 +180,18 @@ Then(
         });
     });
 
-    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
+    cy.wait(['@getTimeZone', '@pendoRequest']);
+    cy.waitUntil(
+      () => {
+        return cy.get('iframe#main-content').should('be.visible');
+      },
+      {
+        errorMsg: 'The iframe#main-content element is not visible',
+        interval: 3000,
+        timeout: 10000
+      }
+    ).then(() => {
       cy.get('iframe#main-content')
-        .should('be.visible')
         .its('0.contentDocument.body')
         .within((iframe) => {
           cy.wrap(iframe)
