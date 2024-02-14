@@ -5,7 +5,7 @@ const { execSync } = require('child_process');
 
 const limit = 20;
 
-const getExistingComments = async ({ octokit, context, name }) => {
+const getExistingComments = async ({ octokit, context, title }) => {
   let page = 0;
   let results = [];
   let response;
@@ -23,12 +23,12 @@ const getExistingComments = async ({ octokit, context, name }) => {
 	} while (response.data.length === limit)
 
 	return results.filter(
-		comment => !!comment.user && comment.body.includes(`Code Coverage Check on ${name}`),
+		comment => !!comment.user && comment.body.includes(title),
 	)
 }
 
-const deleteOldComments = async ({ octokit, context, name }) => {
-  const existingComments = await getExistingComments({ octokit, context, name })
+const deleteOldComments = async ({ octokit, context, title }) => {
+  const existingComments = await getExistingComments({ octokit, context, title })
 
   existingComments.forEach((existingComment) => {
     core.debug(`Deleting comment: ${existingComment.id}`)
@@ -67,15 +67,17 @@ const run = async () => {
     const passGateKeep = codeCoverageLines >= baseCodeCoveragePercentage;
 
     const octokit = getOctokit(githubToken);
+
+    const title = `Code Coverage Check on ${name}`;
     
-    await deleteOldComments({ octokit, context, name })
+    await deleteOldComments({ octokit, context, title })
     
     if (!passGateKeep) {
       const pull_request_number = context.payload.pull_request.number;
       octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: pull_request_number,
-        body: `<h2>📋 Code Coverage Check on ${name} ❌</h2>
+        body: `<h2>📋 ${title} ❌</h2>
         Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
     }
