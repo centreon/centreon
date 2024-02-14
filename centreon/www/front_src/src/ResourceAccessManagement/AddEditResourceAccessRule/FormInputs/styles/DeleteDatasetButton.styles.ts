@@ -7,10 +7,10 @@ export const useDeleteDatasetButtonStyles = makeStyles()((theme) => ({
     borderRight: `2px solid ${theme.palette.divider}`,
     borderTop: `2px solid ${theme.palette.divider}`,
     display: 'flex',
-    marginBottom: theme.spacing(7.25),
+    marginBottom: theme.spacing(6),
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4),
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(0.5),
     width: theme.spacing(1)
   },
   deleteIcon: {
