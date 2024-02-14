@@ -64,8 +64,6 @@ describe('HeatMap', () => {
     dataIds.forEach((id) => {
       cy.findByTestId(id).should('be.visible');
     });
-
-    cy.makeSnapshot();
   });
 
   it('does not display the tooltip when the prop is not set and the tile is hovered', () => {
@@ -74,8 +72,6 @@ describe('HeatMap', () => {
     cy.findByTestId(dataIds[0]).trigger('mouseover');
 
     cy.findByTestId(`tooltip-${dataIds[0]}`).should('not.exist');
-
-    cy.makeSnapshot();
   });
 
   it('displays the tooltip when the prop is set and the tile is hovered', () => {
@@ -92,8 +88,6 @@ describe('HeatMap', () => {
     cy.contains(`This is the tooltip for Server-Service Counter-53`).should(
       'be.visible'
     );
-
-    cy.makeSnapshot();
   });
 
   it('displays the tooltip conditionally when the prop is set and the tile is hovered', () => {
@@ -117,8 +111,6 @@ describe('HeatMap', () => {
     cy.contains(`This is the tooltip for Server-Service Counter-779`).should(
       'be.visible'
     );
-
-    cy.makeSnapshot();
   });
 
   it('displays tiles with fixed size', () => {
@@ -126,8 +118,6 @@ describe('HeatMap', () => {
     dataIds.forEach((id) => {
       cy.findByTestId(id).should('be.visible');
     });
-
-    cy.makeSnapshot();
   });
 
   it('displays tiles as small when the container width is under the breakpoint', () => {

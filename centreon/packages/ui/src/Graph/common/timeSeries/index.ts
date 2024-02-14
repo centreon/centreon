@@ -476,7 +476,7 @@ const registerMsUnitToNumeral = (): null => {
 
 registerMsUnitToNumeral();
 
-const getBase1024 = ({ unit, base }) => {
+const getBase1024 = ({ unit, base }): boolean => {
   const base2Units = [
     'B',
     'bytes',
@@ -543,7 +543,9 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return base1024 ? formattedMetricValue : `${formattedMetricValue} ${unit}`;
+  return base1024 || equals(unit, 'ms')
+    ? formattedMetricValue
+    : `${formattedMetricValue} ${unit}`;
 };
 
 const getStackedYScale = ({

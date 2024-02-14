@@ -3,8 +3,6 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box, Typography } from '@mui/material';
 
-import EllipsisTypography from '../../Typography/EllipsisTypography';
-
 import heatMapData from './HeatMapData.json';
 
 import { HeatMap } from '.';
