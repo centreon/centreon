@@ -495,11 +495,13 @@ function set_required_prerequisite() {
 			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
 			fi
+			OS_SPEC_SERVICES="php8.1-fpm apache2"
 			;;
 		12)
 			if ! [[ "$version" == "24.04" ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 24.04 are compatible. You chose $version"
 			fi
+			OS_SPEC_SERVICES="php8.2-fpm apache2"
 			;;
 		*)
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
@@ -507,7 +509,6 @@ function set_required_prerequisite() {
 		esac
 		log "INFO" "Setting specific part for Debian"
 		PKG_MGR="apt -qq"
-		OS_SPEC_SERVICES="php8.1-fpm apache2"
 		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 
 		# Get CPU architecture type
