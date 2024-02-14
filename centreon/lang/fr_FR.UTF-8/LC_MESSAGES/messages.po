@@ -13555,8 +13555,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -17987,8 +17987,8 @@ msgstr "Afficher les seuils"
 msgid "Custom"
 msgstr "Personnalisé"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units"
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
+msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -18003,7 +18003,7 @@ msgid "You have too many metrics, please filter more resources to optimize platf
 msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme."
 
 msgid "You can select a maximum of two metric units"
-msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
+msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
 
 msgid "Add resource"
 msgstr "Ajouter une ressource"
@@ -18216,9 +18216,6 @@ msgstr "Affiche le top ou le bottom x des hôtes, pour une métrique sélectionn
 msgid "Thresholds"
 msgstr "Seuils"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique."
-
 msgid "Value format"
 msgstr "Format de la valeur"
 
@@ -18373,3 +18370,162 @@ msgstr "Vous n'êtes pas autorisé à vous connecter"
 
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
+
+msgid "Rotation time must be at least 10 seconds."
+msgstr "Le temps de rotation doit être au moins de 10 secondes."
+
+msgid "Rotation time cannot exceed 60 seconds."
+msgstr "Le temps de rotation ne peut pas dépasser 60 secondes."
+
+msgid "Shares"
+msgstr "Partages"
+
+msgid "Role"
+msgstr "Rôle"
+
+msgid "Creator"
+msgstr "Créateur"
+
+msgid "Creation date"
+msgstr "Date de création"
+
+msgid "Update"
+msgstr "Mise à jour"
+
+msgid "Public link"
+msgstr "Lien public"
+
+msgid "Private/Public"
+msgstr "Privé/Public"
+
+msgid "Copy link"
+msgstr "Copier le lien"
+
+msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+msgstr "Toute personne disposant du lien peut consulter votre liste de diffusion. Soyez vigilant lorsque vous le partagez."
+
+msgid "Failed to copy the link."
+msgstr "Échec de la copie du lien."
+
+msgid "Link has been copied!"
+msgstr "Lien copié!"
+
+msgid "Stop sharing"
+msgstr "Arrêter le partage"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Revoked"
+msgstr "Révoqué"
+
+msgid "For security reasons, the token can only be displayed once. Store it carefully."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
+
+msgid "Generate new token"
+msgstr "Générer un nouveau jeton"
+
+msgid "Token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
+
+msgid "This field is required"
+msgstr "Ce champ est obligatoire"
+
+msgid "Token"
+msgstr "Jeton"
+
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
+
+msgid "Failed to copy link"
+msgstr "Échec de la copie du lien"
+
+msgid "Link copied"
+msgstr "Lien copié"
+
+msgid "Add a contact"
+msgstr "Ajouter un contact"
+
+msgid "Add a contact group"
+msgstr "Ajouter un contact group"
+
+msgid "Share with"
+msgstr "Partager avec"
+
+msgid "Removed"
+msgstr "Supprimé"
+
+msgid "Updated"
+msgstr "Mis à jour"
+
+msgid "User rights"
+msgstr "Droits d'utilisateur"
+
+msgid "The share list is empty"
+msgstr "La liste de partages est vide"
+
+msgid "Failed to save shares"
+msgstr "La sauvegarde des partages a échoué"
+
+msgid "Shares saved"
+msgstr "Partages sauvegardés"
+
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
+
+msgid "Delete user"
+msgstr "Supprimer un utilisateur"
+
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Problem (Down/Critical)"
+msgstr "Problème (Indisponible/Critique)"
+
+msgid "Undefined (Unreachable/Unknown)"
+msgstr "Indéfini (Injoignable/Inconnu)"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
+
+msgid "Resource table"
+msgstr "Tableau des ressources"

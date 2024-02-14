@@ -16918,7 +16918,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Thresholds"
 # msgstr ""
 
-# msgid "Thresholds are automatically hidden if you select 2 metric units."
+# msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
 # msgstr ""
 
 # msgid "Value format"
@@ -17105,4 +17105,172 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Add at least 1 contact"
+# msgstr ""
+
+# msgid "Rotation time must be at least 10 seconds."
+# msgstr ""
+
+# msgid "Rotation time cannot exceed 60 seconds."
+# msgstr ""
+
+# msgid "Shares"
+# msgstr ""
+
+# msgid "Role"
+# msgstr ""
+
+# msgid "Creator"
+# msgstr ""
+
+# msgid "Creation date"
+# msgstr ""
+
+# msgid "Update"
+# msgstr ""
+
+# msgid "Public link"
+# msgstr ""
+
+# msgid "Private/Public"
+# msgstr ""
+
+# msgid "Copy link"
+# msgstr ""
+
+# msgid "Anyone with the link can view your playlist. Be cautious when you share it."
+# msgstr ""
+
+# msgid "Failed to copy the link."
+# msgstr ""
+
+# msgid "Link has been copied!"
+# msgstr ""
+
+# msgid "Stop sharing"
+# msgstr ""
+
+# msgid "Viewer"
+# msgstr ""
+
+# msgid "Editor"
+# msgstr ""
+
+# msgid "Create"
+# msgstr ""
+
+# msgid "Publish your playlist"
+# msgstr ""
+
+# msgid "Settings"
+# msgstr ""
+
+# msgid "API token"
+# msgstr ""
+
+# msgid "Create new token"
+# msgstr ""
+
+# msgid "Revoked"
+# msgstr ""
+
+# msgid "For security reasons, the token can only be displayed once. Store it carefully."
+# msgstr ""
+
+# msgid "Generate new token"
+# msgstr ""
+
+# msgid "Token copied to the clipboard"
+# msgstr ""
+
+# msgid "Token could not be copied"
+# msgstr ""
+
+# msgid "The end date must be greater than the current date by at least one day"
+# msgstr ""
+
+# msgid "This field is required"
+# msgstr ""
+
+# msgid "Token"
+# msgstr ""
+
+# msgid "Token has been created"
+# msgstr ""
+
+# msgid "Failed to copy link"
+# msgstr ""
+
+# msgid "Link copied"
+# msgstr ""
+
+# msgid "Add a contact"
+# msgstr ""
+
+# msgid "Add a contact group"
+# msgstr ""
+
+# msgid "Share with"
+# msgstr ""
+
+# msgid "Removed"
+# msgstr ""
+
+# msgid "Updated"
+# msgstr ""
+
+# msgid "User rights"
+# msgstr ""
+
+# msgid "The share list is empty"
+# msgstr ""
+
+# msgid "Failed to save shares"
+# msgstr ""
+
+# msgid "Shares saved"
+# msgstr ""
+
+# msgid "Show more filters"
+# msgstr ""
+
+# msgid "Show fewer filters"
+# msgstr ""
+
+# msgid "Select a dataset to display the preview."
+# msgstr ""
+
+# msgid "Not yet implemented"
+# msgstr ""
+
+# msgid "View as list"
+# msgstr ""
+
+# msgid "View as cards"
+# msgstr ""
+
+# msgid "Edit properties"
+# msgstr ""
+
+# msgid "Delete user"
+# msgstr ""
+
+# msgid "User deleted"
+# msgstr ""
+
+# msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+# msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
 # msgstr ""

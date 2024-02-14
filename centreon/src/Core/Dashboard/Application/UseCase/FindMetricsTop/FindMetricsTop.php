@@ -120,6 +120,7 @@ final class FindMetricsTop
             $metric = $resourceMetric->getMetrics()[0];
             $metricInformation->serviceId = $resourceMetric->getServiceId();
             $metricInformation->resourceName = $resourceMetric->getResourceName();
+            $metricInformation->parentName = $resourceMetric->getParentName();
             $metricInformation->parentId = $resourceMetric->getParentId();
             $metricInformation->currentValue = $metric->getCurrentValue();
             $metricInformation->warningHighThreshold = $metric->getWarningHighThreshold();

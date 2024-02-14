@@ -17,14 +17,14 @@ import { DashboardConfigModal } from '../components/DashboardConfig/DashboardCon
 import { useDashboardConfig } from '../components/DashboardConfig/useDashboardConfig';
 import { Dashboard as DashboardType } from '../api/models';
 import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
-import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
+import { isSharesOpenAtom } from '../atoms';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
-import { editProperties } from './hooks/useCanEditDashboard';
+import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
 
@@ -36,15 +36,15 @@ const Dashboard = (): ReactElement => {
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
-  const { editAccessRights } = useDashboardAccessRights();
 
   const unsavedChangesWarning = useUnsavedChangesWarning({ panels });
 
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
   const setRefreshCounts = useSetAtom(refreshCountsAtom);
+  const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const refreshAllWidgets = (): void => {
     setRefreshCounts((prev) => {
@@ -57,6 +57,10 @@ const Dashboard = (): ReactElement => {
         };
       }, {});
     });
+  };
+
+  const openAccessRights = (): void => {
+    setIsSharesOpen(dashboard as DashboardType);
   };
 
   useEffect(() => {
@@ -99,7 +103,7 @@ const Dashboard = (): ReactElement => {
                 icon={<ShareIcon />}
                 size="small"
                 variant="primary"
-                onClick={editAccessRights(dashboard as DashboardType)}
+                onClick={openAccessRights}
               />
               <IconButton
                 aria-label="refresh"

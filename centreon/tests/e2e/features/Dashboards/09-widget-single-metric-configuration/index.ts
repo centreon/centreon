@@ -30,7 +30,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -45,7 +45,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -105,7 +105,7 @@ Then(
     cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
     cy.contains('Value settings').should('exist');
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-    cy.get('[class*="graphTypeContainer"]').should('be.visible');
+    cy.get('[class*="displayTypeContainer"]').should('be.visible');
   }
 );
 
@@ -116,12 +116,12 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).realClick();
-    cy.getByLabel({ label: 'Host Group' }).click();
-    cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.get('[class^="MuiAutocomplete-listbox"]').click();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
+    cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
+    cy.contains('Centreon-Server').realClick();
+    cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+    cy.contains('Ping').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('rta (ms)').realClick();
   }
 );
 
@@ -162,9 +162,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -205,7 +205,7 @@ Given(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'

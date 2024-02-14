@@ -8,6 +8,7 @@ export type ModalActionsProps = {
   children?: React.ReactNode;
   disabled?: boolean;
   isDanger?: boolean;
+  isFixed?: boolean;
   labels?: ModalActionsLabels;
   onCancel?: () => void;
   onConfirm?: () => void;
@@ -24,12 +25,13 @@ const ModalActions = ({
   onCancel,
   onConfirm,
   isDanger = false,
-  disabled
+  disabled,
+  isFixed
 }: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
   return (
-    <div className={classes.modalActions}>
+    <div className={classes.modalActions} data-fixed={isFixed}>
       {children || (
         <>
           <Button

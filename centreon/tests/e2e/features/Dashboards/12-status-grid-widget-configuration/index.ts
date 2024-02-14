@@ -158,7 +158,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -208,7 +208,7 @@ Given('a dashboard that includes a configured Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -247,7 +247,7 @@ Given('a dashboard configuring Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -406,7 +406,7 @@ Given('a dashboard with a configured Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -450,7 +450,7 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
     cy.wait('@resourceRequest');
   }

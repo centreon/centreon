@@ -42,13 +42,15 @@ const metricSchema = Yup.object().shape({
 });
 
 interface GetYupValidatorTypeProps {
+  isResourcesFieldRequired?: boolean;
   t: TFunction;
   widgetOptionType: FederatedWidgetOptionType;
 }
 
 const getYupValidatorType = ({
   t,
-  widgetOptionType
+  widgetOptionType,
+  isResourcesFieldRequired
 }: GetYupValidatorTypeProps):
   | Yup.StringSchema
   | Yup.AnyObjectSchema
@@ -82,8 +84,12 @@ const getYupValidatorType = ({
           .of(
             Yup.object()
               .shape({
-                resourceType: Yup.string().required(t(labelRequired) as string),
-                resources: Yup.array().of(namedEntitySchema).min(1)
+                resourceType: isResourcesFieldRequired
+                  ? Yup.string().required(t(labelRequired) as string)
+                  : Yup.string(),
+                resources: isResourcesFieldRequired
+                  ? Yup.array().of(namedEntitySchema).min(1)
+                  : Yup.array()
               })
               .optional()
           )
@@ -139,20 +145,18 @@ export const buildValidationSchema = ({
   required,
   t
 }: BuildValidationSchemaProps): Yup.StringSchema => {
-  const yupValidator = getYupValidatorType({ t, widgetOptionType: type });
+  const isResourcesFieldRequired = equals(type, 'resources') && required;
+
+  const yupValidator = getYupValidatorType({
+    isResourcesFieldRequired,
+    t,
+    widgetOptionType: type
+  });
 
   return required
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };
-
-export const areResourcesFullfilled = (
-  value: Array<WidgetDataResource>
-): boolean =>
-  value?.every(
-    ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
-  );
 
 export const isAtLeastOneResourceFullfilled = (
   value: Array<WidgetDataResource>
@@ -198,3 +202,11 @@ export const showInput = ({
 
   return true;
 };
+
+export const areResourcesFullfilled = (
+  value: Array<WidgetDataResource> = []
+): boolean =>
+  value.every(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );

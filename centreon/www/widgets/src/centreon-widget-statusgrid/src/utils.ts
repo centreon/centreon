@@ -3,12 +3,9 @@ import {
   always,
   cond,
   equals,
-  flatten,
-  groupBy,
   gt,
   gte,
   head,
-  identity,
   isEmpty,
   isNil,
   length,
@@ -19,8 +16,6 @@ import {
 import { Theme } from '@mui/material';
 
 import { SeverityCode, getStatusColors } from '@centreon/ui';
-
-import { Resource } from '../../models';
 
 interface GetColorProps {
   is_acknowledged?: boolean;
@@ -109,82 +104,4 @@ export const getStatusFromThresholds = ({
     [gt(criticalValue), always(SeverityCode.Medium)],
     [T, always(SeverityCode.High)]
   ])(data);
-};
-
-const hostCriterias = {
-  name: 'resource_types',
-  value: [{ id: 'host', name: 'Host' }]
-};
-const serviceCriteria = {
-  name: 'resource_types',
-  value: [{ id: 'service', name: 'Service' }]
-};
-
-interface GetResourcesUrlProps {
-  resources: Array<Resource>;
-  states: Array<string>;
-  statuses: Array<string>;
-  type: string;
-}
-
-export const getResourcesUrl = ({
-  type,
-  statuses,
-  states,
-  resources
-}: GetResourcesUrlProps): string => {
-  const formattedStatuses = statuses.map((status) => {
-    return {
-      id: status.toLocaleUpperCase(),
-      name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-    };
-  });
-
-  const formattedStates = states.map((state) => {
-    return {
-      id: state,
-      name: `${state.charAt(0).toUpperCase()}${state.slice(1)}`
-    };
-  });
-
-  const groupedResources = groupBy(
-    ({ resourceType }) => resourceType,
-    resources
-  );
-
-  const resourcesFilters = Object.entries(groupedResources).map(
-    ([resourceType, res]) => {
-      const name = cond<Array<string>, string>([
-        [equals('host'), always('parent_name')],
-        [equals('service'), always('name')],
-        [T, identity]
-      ])(resourceType);
-
-      return {
-        name: name.replace('-', '_'),
-        value: flatten(
-          (res || []).map(({ resources: subResources }) => {
-            return subResources.map(({ name: resourceName }) => ({
-              id: resourceName,
-              name: resourceName
-            }));
-          })
-        )
-      };
-    }
-  );
-
-  const filterQueryParameter = {
-    criterias: [
-      equals(type, 'host') ? hostCriterias : serviceCriteria,
-      { name: 'statuses', value: formattedStatuses },
-      { name: 'states', value: formattedStates },
-      ...resourcesFilters,
-      { name: 'search', value: '' }
-    ]
-  };
-
-  return `/monitoring/resources?filter=${JSON.stringify(
-    filterQueryParameter
-  )}&fromTopCounter=true`;
 };

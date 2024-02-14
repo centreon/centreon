@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Category\RealTime\Application\UseCase\FindHostCategory;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
@@ -34,9 +36,13 @@ class FindHostCategory
 
     /**
      * @param ReadTagRepositoryInterface $repository
+     * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      */
     public function __construct(
-        private ReadTagRepositoryInterface $repository
+        private readonly ReadTagRepositoryInterface $repository,
+        private readonly ContactInterface $user,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -48,7 +54,12 @@ class FindHostCategory
         $this->info('Searching for host categories');
 
         try {
-            $hostCategories = $this->repository->findAllByTypeId(Tag::HOST_CATEGORY_TYPE_ID);
+            if ($this->user->isAdmin()) {
+                $hostCategories = $this->repository->findAllByTypeId(Tag::HOST_CATEGORY_TYPE_ID);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $hostCategories = $this->repository->findAllByTypeIdAndAccessGroups(Tag::HOST_CATEGORY_TYPE_ID, $accessGroups);
+            }
         } catch (\Throwable $e) {
             $this->error('An error occurred while retrieving host categories');
             $presenter->setResponseStatus(new ErrorResponse('An error occurred while retrieving host categories'));
