@@ -871,9 +871,10 @@ class CentreonConfigCentreonBroker
             . "event_queue_max_size = :event_queue_max_size, event_queues_total_size = :event_queues_total_size, "
             . "command_file = :command_file, log_directory = :log_directory, log_filename = :log_filename, "
             . "log_max_size = :log_max_size, pool_size = :pool_size, bbdo_version = :bbdo_version "
-            . "WHERE config_id = " . $id;
+            . "WHERE config_id = :config_id";
         try {
             $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
             $stmt->bindValue(':config_name', $values['name'], \PDO::PARAM_STR);
             $stmt->bindValue(':config_filename', $values['filename'], \PDO::PARAM_STR);
             $stmt->bindValue(':ns_nagios_server', $values['ns_nagios_server'], \PDO::PARAM_STR);
