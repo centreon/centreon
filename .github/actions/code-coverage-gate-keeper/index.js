@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const { GitHub, context } = require('@actions/github');
+const { getOctokit, context } = require('@actions/github');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
@@ -11,7 +11,7 @@ const getExistingComments = async ({ octokit, context }) => {
   let response;
 
   do {
-		response = await octokit.issues.listComments({
+		response = await octokit.rest.issues.listComments({
 			issue_number: context.issue.number,
 			owner: context.repo.owner,
 			repo: context.repo.repo,
@@ -33,7 +33,7 @@ const deleteOldComments = async ({ octokit, context }) => {
   existingComments.forEach((existingComment) => {
     core.debug(`Deleting comment: ${existingComment.id}`)
 		try {
-			octokit.issues.deleteComment({
+			octokit.rest.issues.deleteComment({
 				owner: context.repo.owner,
 				repo: context.repo.repo,
 				comment_id: existingComment.id,
@@ -65,13 +65,13 @@ const run = async () => {
 
     const passGateKeep = codeCoverageStatements >= baseCodeCoveragePercentage;
 
-    const octokit = new GitHub(githubToken);
+    const octokit = getOctokit(githubToken);
     
     await deleteOldComments({ octokit, context })
     
     if (!passGateKeep) {
       const pull_request_number = context.payload.pull_request.number;
-      octokit.issues.createComment({
+      octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: pull_request_number,
         body: `Code Coverage Check:
