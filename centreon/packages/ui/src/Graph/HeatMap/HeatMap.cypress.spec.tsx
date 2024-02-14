@@ -137,4 +137,9 @@ describe('HeatMap', () => {
 
     cy.makeSnapshot();
   });
+
+  it('displays a single tile', () => {
+    initialize({ tiles: [heatMapData[0]] });
+    cy.findByTestId(dataIds[0]).should('be.visible');
+  });
 });

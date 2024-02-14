@@ -75,4 +75,27 @@ describe('Text', () => {
 
     cy.makeSnapshot();
   });
+
+  it('does not display the text', () => {
+    initialize({ data: undefined, thresholds: successThresholds });
+
+    cy.contains('0.41 s').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays text with default values when the data is empty', () => {
+    initialize({
+      data: {
+        global: {},
+        metrics: [],
+        times: []
+      },
+      thresholds: successThresholds
+    });
+
+    cy.contains('0').should('be.visible');
+
+    cy.makeSnapshot();
+  });
 });

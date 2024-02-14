@@ -29,6 +29,12 @@ const initialize = (
 };
 
 describe('Gauge', () => {
+  it('does not display the gauge when there is no data', () => {
+    initialize({ data: undefined, thresholds: successThresholds });
+
+    cy.contains('0.41 s').should('not.exist');
+  });
+
   it('displays the gauge as success when corresponding thresholds are set', () => {
     initialize({ thresholds: successThresholds });
 
