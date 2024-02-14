@@ -39,22 +39,6 @@ beforeEach(() => {
     'HEAD',
     'https://cdn.eu.pendo.io/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   ).as('pendoRequest');
-  cy.intercept({
-    method: 'GET',
-    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=pollersListIssues'
-  }).as('pollersListIssuesRequest');
-  cy.intercept({
-    method: 'GET',
-    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
-  }).as('servicesStatusRequest');
-  cy.intercept({
-    method: 'GET',
-    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_topcounter&action=hosts_status'
-  }).as('hostsStatusRequest');
-  cy.intercept({
-    method: 'GET',
-    url: 'http://127.0.0.1:4000/centreon/api/internal.php?object=centreon_keepalive&action=keepAlive'
-  }).as('keepAliveRequest');
 });
 
 afterEach(() => {
@@ -173,25 +157,26 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Users'
     });
-    cy.wait([
-      '@getTimeZone',
-      '@pollersListIssuesRequest',
-      '@servicesStatusRequest',
-      '@hostsStatusRequest',
-      '@keepAliveRequest'
-    ]).then(() => {
-      cy.getIframeBody().as('frame');
-      cy.get('@frame')
-        .contains(data.contactGroups.contactGroup1.name, { timeout: 20000 })
-        .click();
+    cy.wait(['@getTimeZone', '@pollersListIssuesRequest']).then(() => {
+      cy.get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .within(($iframe) => {
+          cy.wrap($iframe)
+            .contains(data.contactGroups.contactGroup1.name, {
+              timeout: 20000
+            })
+            .click();
+        });
     });
 
-    cy.wait('@getTimeZone');
-    cy.wait('@pendoRequest').then(() => {
-      cy.getIframeBody().as('frame');
-      cy.get('@frame')
-        .find('select[name="cg_acl_groups[]"]', { timeout: 20000 })
-        .should('contain', originalACLGroup.name);
+    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
+      cy.get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .within(($iframe) => {
+          cy.wrap($iframe)
+            .find('select[name="cg_acl_groups[]"]', { timeout: 20000 })
+            .should('contain', originalACLGroup.name);
+        });
     });
   }
 );
