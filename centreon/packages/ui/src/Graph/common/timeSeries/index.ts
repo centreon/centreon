@@ -543,7 +543,7 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return base1024 || equals(unit, 'ms')
+  return base1024 || !unit || equals(unit, 'ms')
     ? formattedMetricValue
     : `${formattedMetricValue} ${unit}`;
 };
