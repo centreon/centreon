@@ -33,7 +33,7 @@ jobs:
     needs: [get-version]
     runs-on: ubuntu-22.04
     #if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'master' }}
-    if: ${{ github.base_ref != 'develop' }}
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'develop' }}
 
     steps:
       - name: Checkout sources
