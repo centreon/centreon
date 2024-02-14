@@ -74,8 +74,8 @@ const run = async () => {
       octokit.rest.issues.createComment({
         ...context.repo,
         issue_number: pull_request_number,
-        body: `Code Coverage Check:
-        Your code coverage is ${codeCoverageStatements}% but the required code coverage is ${baseCodeCoveragePercentage}%.`
+        body: `<h1>Code Coverage Check 📁</h1>:
+        Your code coverage is <b>${codeCoverageStatements}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
     }
 
