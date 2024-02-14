@@ -97,6 +97,11 @@ jobs:
         run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
 
+      - name: Check Code coverage
+        uses: ./.github/actions/code-coverage-gate-keeper
+        with:
+          base_code_coverage_percentage: 90
+
       - name: Format title
         id: title
         run: |
