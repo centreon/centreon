@@ -31,7 +31,7 @@ runs:
         BRANCH_MAJOR_VERSION="${{ inputs.major_version }}"
         BRANCH_MINOR_VERSION="${{ inputs.minor_version }}"
 
-        echo "Current stable tag is: $CURRENT_STABLE_TAG"
+        #echo "Current stable tag is: $CURRENT_STABLE_TAG"
         echo "Current stable version is: $CURRENT_STABLE_VERSION"
         echo "Branch version is: $BRANCH_VERSION"
 
