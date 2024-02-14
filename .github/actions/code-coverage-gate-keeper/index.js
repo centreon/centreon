@@ -76,7 +76,7 @@ const run = async () => {
         ...context.repo,
         issue_number: pull_request_number,
         body: `<h2>📋 Code Coverage Check on ${name} ❌</h2>
-        Your code coverage is <b>${codeCoverageStatements}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
+        Your code coverage is <b>${codeCoverageLines}%</b> but the required code coverage is <b>${baseCodeCoveragePercentage}%</b>.`
       });
     }
 
