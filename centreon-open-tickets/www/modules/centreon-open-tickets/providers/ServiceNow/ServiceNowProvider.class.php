@@ -19,6 +19,19 @@
  * limitations under the License.
  */
 
+/**
+ * @phpstan-type TokenInfo array{
+ *     instance: string,
+ *     client_id: string,
+ *     client_secret: string,
+ *     username: string,
+ *     password: string,
+ *     proxy_address: string,
+ *     proxy_port: string,
+ *     proxy_username: string,
+ *     proxy_password: string,
+ * }
+ */
 class ServiceNowProvider extends AbstractProvider
 {
     protected $proxy_enabled = 1;
@@ -41,6 +54,7 @@ class ServiceNowProvider extends AbstractProvider
     public const ARG_ASSIGNMENT_GROUP = 8;
     public const ARG_SEVERITY = 9;
 
+    /** @var array<int, string> */
     protected $internal_arg_name = array(
         self::ARG_SHORT_DESCRIPTION => 'ShortDescription',
         self::ARG_COMMENTS => 'Comments',
@@ -315,7 +329,6 @@ class ServiceNowProvider extends AbstractProvider
      * @param string $contact The contact who open the ticket
      * @param array $host_problems The list of host issues link to the ticket
      * @param array $service_problems The list of service issues link to the ticket
-     * @param array $extra_ticket_arguments Extra arguments
      * @return array The status of action (
      *  'code' => int,
      *  'message' => string
@@ -365,7 +378,7 @@ class ServiceNowProvider extends AbstractProvider
                 'contact' => $contact,
                 'host_problems' => $host_problems,
                 'service_problems' => $service_problems,
-                'ticket_value' => $resultInfo['sysTicketId'],
+                'ticket_value' => $resultInfo['sysTicketId'] ?? null,
                 'subject' => $ticket_arguments[
                     $this->internal_arg_name[self::ARG_SHORT_DESCRIPTION]
                 ],
@@ -389,13 +402,9 @@ class ServiceNowProvider extends AbstractProvider
     }
 
     /**
-     * Get a a access token
+     * Getan access token
      *
-     * @param string $instance The ServiceNow instance name
-     * @param string $clientId The ServiceNow OAuth client ID
-     * @param string $clientSecret The ServiceNow OAuth client secret
-     * @param string $username The ServiceNow OAuth username
-     * @param string $password The ServiceName OAuth password
+     * @param TokenInfo $info
      * @return array The tokens
      */
     protected static function getAccessToken($info)
@@ -436,7 +445,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Test the service
      *
-     * @param array The post information from webservice
+     * @param TokenInfo $info The post information from webservice
      * @return boolean
      */
     public static function test($info)
@@ -615,7 +624,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Get the list of user from ServiceNow for Assigned to
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of user
      */
@@ -642,7 +651,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Get the list of user group from ServiceNow for Assigned to
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of user group
      */
@@ -669,7 +678,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Getting the list of impact from ServiceNow
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of impact
      */
@@ -697,7 +706,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Getting the list of urgency from ServiceNow
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of urgency
      */
@@ -725,7 +734,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Getting the list of severity from ServiceNow
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of urgency
      */
@@ -753,7 +762,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Getting the list of category from ServiceNow
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of category
      */
@@ -781,7 +790,7 @@ class ServiceNowProvider extends AbstractProvider
     /**
      * Getting the list of subcategory from ServiceNow
      *
-     * @param array $param The parameters for filter (no used)
+     * @param array $params The parameters for filter (no used)
      * @param string $accessToken The access token
      * @return array The list of subcategory
      */

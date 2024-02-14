@@ -28,6 +28,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
 
+// ------------ Widgets database updates ---------------- //
 $updateWidgetModelsTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to add column is_internal to table widget_models';
     if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
@@ -90,6 +91,19 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
             <<<'SQL'
                     ALTER TABLE dashboard_widgets
                     DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
+$insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-resourcestable')
                 SQL
         );
     }
@@ -195,6 +209,7 @@ try {
 
     $errorMessage = "Could not set core widgets to internal";
     $setCoreWidgetsToInternal($pearDB);
+    $insertResourcesTableWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 

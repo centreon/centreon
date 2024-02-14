@@ -51,4 +51,12 @@ class ServiceGroupNamesById
     public function getName(int $groupId): ?string {
         return isset($this->names[$groupId]) ? $this->names[$groupId]->value : null;
     }
+
+    /**
+     * @return array<int,TrimmedString>
+     */
+    public function getNames(): array
+    {
+        return $this->names;
+    }
 }

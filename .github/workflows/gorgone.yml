@@ -55,6 +55,9 @@ jobs:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_GORG }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_GORG }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   package:
     needs: [get-version, check-version]
@@ -63,17 +66,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
         include:
           - package_extension: rpm
-            image: packaging-alma8
+            image: packaging-nfpm-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-alma9
+            image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-bullseye
+            image: packaging-nfpm-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-nfpm-bookworm
+            distrib: bookworm
 
     runs-on: ubuntu-22.04
 
@@ -91,7 +97,7 @@ jobs:
 
       - name: Set package version and paths according to distrib
         run: |
-          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             PERL_VENDORLIB="/usr/share/perl5"
           else
             PERL_VENDORLIB="/usr/share/perl5/vendor_perl"
@@ -127,6 +133,7 @@ jobs:
           rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-version.outputs.stability }}
 
   deliver-sources:
     runs-on: [self-hosted, common]
@@ -177,7 +184,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -199,7 +206,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources
@@ -214,3 +221,4 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+          github_base_ref: ${{ github.base_ref }}

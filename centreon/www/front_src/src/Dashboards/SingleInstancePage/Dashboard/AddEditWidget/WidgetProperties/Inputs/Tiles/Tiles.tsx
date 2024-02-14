@@ -1,16 +1,15 @@
-import { ChangeEvent, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { TextField } from '@centreon/ui';
+import { NumberField } from '@centreon/ui';
 
 import { getProperty } from '../utils';
 import { Widget, WidgetPropertyProps } from '../../../models';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 import { useTilesStyles } from './Tiles.styles';
@@ -21,20 +20,15 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const { values, setFieldValue } = useFormikContext<Widget>();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
-  const value = useMemo<string | undefined>(
+  const value = useMemo<number | undefined>(
     () => getProperty({ obj: values, propertyName }),
     [getProperty({ obj: values, propertyName })]
   );
 
-  const change = (event: ChangeEvent<HTMLInputElement>): void => {
-    setFieldValue(
-      `options.${propertyName}`,
-      equals(event.target.value, '') || Number(event.target.value) < 0
-        ? 1
-        : Number(event.target.value)
-    );
+  const change = (inputValue: number): void => {
+    setFieldValue(`options.${propertyName}`, inputValue);
   };
 
   return (
@@ -42,18 +36,19 @@ const WidgetTiles = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       <Typography>
         <strong>{t(labelDisplayUpTo)}</strong>
       </Typography>
-      <TextField
+      <NumberField
         autoSize
         autoSizeDefaultWidth={10}
         dataTestId={labelTiles}
+        defaultValue={value}
         disabled={!canEditField}
+        fallbackValue={100}
         inputProps={{
           'aria-label': t(labelTiles),
           min: 1
         }}
         size="compact"
         type="number"
-        value={value}
         onChange={change}
       />
       <Typography>{t(labelTiles)}</Typography>
