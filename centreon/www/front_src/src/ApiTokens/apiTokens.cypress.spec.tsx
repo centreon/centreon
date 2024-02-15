@@ -13,6 +13,8 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { labelCustomize } from '../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
+
 import { DefaultParameters } from './TokenListing/Actions/Search/Filter/models';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
@@ -28,6 +30,7 @@ import {
   labelDuration,
   labelGenerateNewToken,
   labelName,
+  labelOk,
   labelSecurityToken,
   labelTokenCreated,
   labelUser
@@ -337,9 +340,49 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
-  it('displays the modal when clicking on token creation button', () => {
-    openDialog();
 
+  it('accepts a customized date when the Customize option is selected and a date is selected', () => {
+    cy.clock(new Date(2024, 0, 1).getTime());
+    cy.viewport(1280, 1000);
+
+    cy.findByTestId(labelCreateNewToken).click();
+    cy.findByTestId(labelDuration).click();
+    cy.contains(labelCustomize).click();
+    cy.contains(/^15$/).click({ force: true });
+    cy.contains(/^02$/).click({ force: true });
+    cy.contains('59').click({ force: true });
+
+    cy.contains(labelOk).click();
+
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'January 15, 2024 2:59 AM'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('does not accept a customized date when the Customize option is selected and a date is selected', () => {
+    cy.clock(new Date(2024, 0, 1).getTime());
+    cy.viewport(1280, 1000);
+
+    cy.findByTestId(labelDuration).click();
+    cy.contains(labelCustomize).click();
+    cy.contains(/^15$/).click({ force: true });
+    cy.contains(/^02$/).click({ force: true });
+    cy.contains('59').click({ force: true });
+
+    cy.findAllByTestId(labelCancel).eq(1).click();
+
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'January 2, 2024 12:00 AM'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the modal when clicking on token creation button', () => {
     cy.findByTestId('tokenName').contains(labelName);
 
     cy.findByTestId('tokenNameInput').should('have.attr', 'required');
