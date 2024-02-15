@@ -40,10 +40,20 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('enterIframe', (iframeSelector) => {
+  cy.get(iframeSelector)
+    .its('0.contentDocument')
+    .should('exist')
+    .its('body')
+    .should('not.be.undefined')
+    .then(cy.wrap);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
       addACLMenuToACLGroup: (props: LinkMeuToGroupProps) => Cypress.Chainable;
+      enterIframe: (props: string) => Cypress.Chainable;
       loginByCredentials: (props: Credentials) => Cypress.Chainable;
     }
   }

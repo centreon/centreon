@@ -158,32 +158,16 @@ Then(
       subMenu: 'Users'
     });
 
-    cy.wait(['@getTimeZone', '@pendoRequest']);
-    cy.enter('iframe#main-content', { timeout: 20000 })
-      .then((getBody) => {
-        cy.waitUntil(
-          () => {
-            return () => {
-              if (getBody().find(data.contactGroups.contactGroup1.name)) {
-                return true;
-              }
-              return false;
-            };
-          },
-          { timeout: 30000, interval: 2000 }
-        );
-      })
-      .then(() => {
-        cy.iframe('iframe#main-content')
-          .contains(data.contactGroups.contactGroup1.name)
-          .eq(0)
-          .click();
-      });
+    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
+      cy.enterIframe('iframe#main-content')
+        .contains(data.contactGroups.contactGroup1.name, { timeout: 20000 })
+        .eq(0)
+        .click();
+    });
 
-    cy.wait(['@getTimeZone', '@pendoRequest']);
-    cy.enter('iframe#main-content', { timeout: 20000 }).then((getBody) => {
-      getBody()
-        .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
+    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
+      cy.enterIframe('iframe#main-content')
+        .find('select[name="cg_acl_groups[]"]', { timeout: 20000 })
         .should('contain', originalACLGroup.name);
     });
   }
