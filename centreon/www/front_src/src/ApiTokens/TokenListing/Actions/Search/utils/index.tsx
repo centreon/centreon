@@ -1,4 +1,4 @@
-import { flatten } from 'ramda';
+import { equals, flatten } from 'ramda';
 
 import { SearchParameter, getFoundFields } from '@centreon/ui';
 
@@ -57,4 +57,12 @@ export const getUniqData = (data): Array<PersonalInformation> => {
   ] as Array<PersonalInformation>;
 
   return result || [];
+};
+
+export const adjustData = (value) => {
+  return [{ id: 0, name: value }];
+};
+
+export const convertToBoolean = (input: string) => {
+  return input === 'true';
 };

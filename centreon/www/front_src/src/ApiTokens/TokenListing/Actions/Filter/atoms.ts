@@ -13,3 +13,6 @@ export const currentFilterAtom = atomWithStorage<TokenFilter>(
 
 export const usersAtom = atom<Array<PersonalInformation>>([]);
 export const creatorsAtom = atom<Array<PersonalInformation>>([]);
+export const expirationDateAtom = atom<Date | null>(null);
+export const creationDateAtom = atom<Date | null>(null);
+export const isRevokedAtom = atom<boolean | null>(null);

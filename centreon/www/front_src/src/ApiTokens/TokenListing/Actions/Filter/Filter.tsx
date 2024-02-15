@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -14,33 +12,54 @@ import {
   getEndpointCreatorsToken
 } from '../../../api/endpoints';
 import {
+  labelClear,
   labelCreator,
   labelSearch,
   labelUser
 } from '../../../translatedLabels';
 import { PersonalInformation } from '../../models';
-import { getUniqData } from '../Search/utils';
+import { searchAtom } from '../Search/atoms';
+import { buildSearchParameters, getUniqData } from '../Search/utils';
 
-import { usersAtom } from './atoms';
+import Status from './Status';
+import { creatorsAtom, currentFilterAtom, usersAtom } from './atoms';
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
 import useBuildFilterValues from './useBuildFilterValues';
+import CreationDateInput from './CreationDateInput';
+import useInitializeFilter from './useInitializeFilter';
 
 const Filter = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  // const [users, setUsers] = useState([]);
-  const [creators, setCreators] = useState<Array<PersonalInformation>>([]);
+
+  const [creators, setCreators] = useAtom(creatorsAtom);
   const [users, setUsers] = useAtom(usersAtom);
+  const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const [search, setSearch] = useAtom(searchAtom);
+
+  const { initialize } = useInitializeFilter();
 
   useBuildFilterValues();
 
+  const wordToRegex = (input) => {
+    return input.replace(/\s/g, '\\s+');
+  };
+
   const changeUser = (_, value): void => {
-    setUsers(value);
+    const formattedValues = value.map((item) => ({
+      ...item,
+      name: wordToRegex(item.name)
+    }));
+    setUsers(formattedValues);
   };
 
   const changeCreator = (_, value): void => {
-    setCreators(value);
+    const formattedValues = value.map((item) => ({
+      ...item,
+      name: wordToRegex(item.name)
+    }));
+    setCreators(formattedValues);
   };
 
   const filterCreators = (options): Array<PersonalInformation> => {
@@ -62,11 +81,28 @@ const Filter = (): JSX.Element => {
   const isOptionEqualToValue = (option, selectedValue): boolean => {
     return isNil(option)
       ? false
-      : equals(option.name.toString(), selectedValue.name.toString());
+      : equals(
+          wordToRegex(option.name).toString(),
+          selectedValue.name.toString()
+        );
+  };
+
+  const handleSearch = () => {
+    if (!search) {
+      setCurrentFilter({ ...currentFilter, search: undefined });
+
+      return;
+    }
+
+    setCurrentFilter({
+      ...currentFilter,
+      search: buildSearchParameters(search)()
+    });
   };
 
   return (
     <div className={classes.container}>
+      <CreationDateInput />
       <MultiConnectedAutocompleteField
         disableSortedOptions
         // allowUniqOption
@@ -98,16 +134,34 @@ const Filter = (): JSX.Element => {
         filterOptions={filterCreators}
         getEndpoint={getEndpointCreatorsToken}
         id={Fields.CreatorName}
+        isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelCreator)}
         value={creators}
         onChange={changeCreator}
       />
-      <Button
-        data-testid={labelSearch}
-        labelSave={t(labelSearch)}
-        startIcon={false}
-        onClick={() => console.log('search')}
-      />
+      <Status />
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: 320
+        }}
+      >
+        <Button
+          data-testid={labelSearch}
+          labelSave={t(labelSearch)}
+          startIcon={false}
+          onClick={handleSearch}
+        />
+        <Button
+          data-testid={labelClear}
+          labelSave={t(labelClear)}
+          startIcon={false}
+          onClick={initialize}
+        />
+      </div>
     </div>
   );
 };

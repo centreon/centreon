@@ -1,6 +1,9 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
+  checkbox: {
+    paddingLeft: theme.spacing(0.25)
+  },
   container: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.default,
@@ -11,6 +14,9 @@ export const useStyles = makeStyles()((theme) => ({
   },
   input: {
     margin: theme.spacing(2, 0),
-    minWidth: theme.spacing(40)
+    width: theme.spacing(40)
+  },
+  popper: {
+    zIndex: theme.zIndex.tooltip
   }
 }));

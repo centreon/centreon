@@ -1,37 +1,56 @@
-import { useRef, useMemo, useEffect, useId } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { isEmpty, head, equals } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 
-import { SearchMatch, SearchParameter, getFoundFields } from '@centreon/ui';
+import { getFoundFields } from '@centreon/ui';
 
+import {
+  creationDateAtom,
+  creatorsAtom,
+  expirationDateAtom,
+  isRevokedAtom,
+  usersAtom
+} from '../Filter/atoms';
 import { Fields } from '../Filter/models';
-import { creatorsAtom, usersAtom } from '../Filter/atoms';
 
 import { searchAtom } from './atoms';
-import { fieldDelimiter, valueDelimiter } from './models';
-import { getUniqData } from './utils';
+import { fieldDelimiter } from './models';
+import { adjustData } from './utils';
 
-const useSearch = () => {
+const useSearch = (): void => {
   const [search, setSearch] = useAtom(searchAtom);
-  const [users, setUsers] = useAtom(usersAtom);
-  const [creators, setCreators] = useAtom(creatorsAtom);
-  const id = useId();
+  const users = useAtomValue(usersAtom);
+  const creators = useAtomValue(creatorsAtom);
+  const expirationDate = useAtomValue(expirationDateAtom);
+  const creationDate = useAtomValue(creationDateAtom);
+  const isRevoked = useAtomValue(isRevokedAtom);
 
   const newSearch = useRef('');
 
   const matchFieldDelimiter = new RegExp(`\\w+${fieldDelimiter}\\w*`, 'g');
 
-  const matchValueDelimiter = (expression): RegExp =>
-    new RegExp(
-      `(?<![^${valueDelimiter}])${expression}(?![^${valueDelimiter}])`,
-      'g'
-    );
-
   const matchSpecificWord = (word): RegExp =>
     new RegExp(`(?<=\\s|^)${word}(?=\\s|$)`, 'g');
 
-  const getDataPersonalInformation = ({ data, field }) => {
+  const searchableFieldData = [
+    { data: users, field: Fields.UserName },
+    { data: creators, field: Fields.CreatorName },
+    {
+      data: !isNil(creationDate) ? adjustData(creationDate) : [],
+      field: Fields.CreationDate
+    },
+    {
+      data: !isNil(expirationDate) ? adjustData(expirationDate) : [],
+      field: Fields.ExpirationDate
+    },
+    {
+      data: !isNil(isRevoked) ? adjustData(isRevoked) : [],
+      field: Fields.IsRevoked
+    }
+  ];
+
+  const constructData = ({ data, field }): string => {
     if (!isEmpty(data)) {
       return `${[field]}:${data.map(({ name }) => name).join(',')}`;
     }
@@ -39,10 +58,10 @@ const useSearch = () => {
     return '';
   };
 
-  const clearEmptyFields = (data) => {
-    const wordsToDelete = data
-      .map(({ items, field }) => {
-        if (!isEmpty(items)) {
+  const clearEmptyFields = (input): string | null => {
+    const fieldValueToDelete = input
+      .map(({ data, field }) => {
+        if (!isEmpty(data)) {
           return null;
         }
 
@@ -62,40 +81,35 @@ const useSearch = () => {
     const updatedSearch = search
       .split(' ')
       .map((word) => {
-        return wordsToDelete.every((wordToDelete) => wordToDelete === word)
+        return fieldValueToDelete.every((wordToDelete) => wordToDelete === word)
           ? ''
           : word;
       })
+      .filter((item) => item)
       .join(' ');
 
-    if (isEmpty(wordsToDelete)) {
-      return;
-    }
-    newSearch.current = updatedSearch;
+    return !isEmpty(fieldValueToDelete) ? updatedSearch : null;
   };
 
   const buildData = () => {
     newSearch.current = search;
-    const usersData = getDataPersonalInformation({
-      data: users,
-      field: Fields.UserName
-    });
 
-    const creatorsData = getDataPersonalInformation({
-      data: creators,
-      field: Fields.CreatorName
-    });
-
-    return usersData.concat(' ', creatorsData);
+    return searchableFieldData
+      .map(({ data, field }) => {
+        return constructData({ data, field });
+      })
+      .filter((item) => item)
+      .join(' ');
   };
 
   useMemo(() => {
+    const updatedSearch = clearEmptyFields(searchableFieldData);
+
     const data = buildData();
+
+    newSearch.current = updatedSearch ?? search;
+
     const wordsIncomingData = data.split(' ').filter((item) => item);
-    clearEmptyFields([
-      { field: Fields.UserName, items: users },
-      { field: Fields.CreatorName, items: creators }
-    ]);
 
     if (isEmpty(wordsIncomingData)) {
       return;
@@ -104,11 +118,16 @@ const useSearch = () => {
       const wordsWithFieldDelimiter = word.match(matchFieldDelimiter);
 
       if (!wordsWithFieldDelimiter) {
-        const matchedSimpleWord = search.match(matchSpecificWord(word));
+        const matchedSimpleWord = newSearch.current.match(
+          matchSpecificWord(word)
+        );
         if (!isEmpty(matchedSimpleWord)) {
           return;
         }
-        newSearch.current = newSearch.current.concat(search ? ' ' : '', word);
+        newSearch.current = newSearch.current.concat(
+          newSearch.current ? ' ' : '',
+          word
+        );
       }
       const searchableFieldIncomingData = getFoundFields({
         fields: Object.values(Fields),
@@ -116,35 +135,41 @@ const useSearch = () => {
       });
 
       if (isEmpty(searchableFieldIncomingData)) {
-        newSearch.current = newSearch.current.concat(search ? ' ' : '', word);
+        newSearch.current = newSearch.current.concat(
+          newSearch.current ? ' ' : '',
+          word
+        );
 
         return;
       }
+      const [incomingData] = searchableFieldIncomingData;
 
       const matchedSearchData = getFoundFields({
-        fields: [head(searchableFieldIncomingData).field],
-        value: search
+        fields: [incomingData.field],
+        value: newSearch.current
       });
 
       if (isEmpty(matchedSearchData)) {
-        newSearch.current = newSearch.current.concat(search ? ' ' : '', word);
+        newSearch.current = newSearch.current.concat(
+          newSearch.current ? ' ' : '',
+          `${incomingData.field}:${incomingData.value}`
+        );
 
         return;
       }
 
-      const [incomingData] = searchableFieldIncomingData;
       const [searchData] = matchedSearchData;
 
       if (incomingData.value === searchData.value) {
         return;
       }
 
-      newSearch.current = search.replace(
+      newSearch.current = newSearch.current.replace(
         `${searchData.field}:${searchData.value}`,
         `${searchData.field}:${incomingData.value}`
       );
     });
-  }, [users.length, creators.length]);
+  }, [users.length, creators.length, creationDate, expirationDate, isRevoked]);
 
   useEffect(() => {
     setSearch(newSearch.current);

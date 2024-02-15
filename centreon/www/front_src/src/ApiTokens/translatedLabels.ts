@@ -26,3 +26,9 @@ export const labelMsgConfirmationDeletionToken =
   'You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?';
 export const labelDeleteToken = 'Delete token';
 export const labelTokenDeletedSuccessfully = 'Token deleted successfully';
+export const labelActiveToken = 'Active token';
+export const labelRevokedToken = 'Revoked token';
+export const labelStatus = 'Status';
+export const labelCreationDate = 'Creation date';
+export const labelExpirationDate = 'Expiration date';
+export const labelClear = 'Clear';

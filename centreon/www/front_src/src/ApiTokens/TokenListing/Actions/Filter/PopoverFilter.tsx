@@ -23,7 +23,7 @@ const TokenFilter = (): JSX.Element => {
         className={classes.spacing}
         dataTestId={labelSearchOptions}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-start"
+        popperPlacement="bottom-end"
         title={t(labelSearchOptions) as string}
       >
         {(): JSX.Element => <Filter />}

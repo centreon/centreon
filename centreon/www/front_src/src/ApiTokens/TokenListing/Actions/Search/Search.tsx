@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect } from 'react';
+import { KeyboardEvent, useEffect, useRef } from 'react';
 
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -9,18 +9,25 @@ import { renderEndAdornmentFilter } from '../../../../Resources/Filter';
 import { labelSearch } from '../../../translatedLabels';
 import { useStyles } from '../actions.styles';
 import { currentFilterAtom } from '../Filter/atoms';
+import useInitializeFilter from '../Filter/useInitializeFilter';
 
 import { searchAtom } from './atoms';
+import useSearch from './useSearch';
 import { buildSearchParameters } from './utils';
 
 const TokenSearch = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+  const searchRef = useRef<HTMLDivElement | null>(null);
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const { initialize } = useInitializeFilter();
+
+  useSearch();
 
   const clearFilters = (): void => {
     setSearchValue('');
+    initialize();
   };
 
   const handleSearch = (e): void => {
@@ -51,7 +58,9 @@ const TokenSearch = (): JSX.Element => {
       <SearchField
         fullWidth
         EndAdornment={renderEndAdornmentFilter(clearFilters)}
+        autoComplete="off"
         dataTestId={labelSearch}
+        inputRef={searchRef}
         placeholder={t(labelSearch) as string}
         value={searchValue}
         onChange={handleSearch}
