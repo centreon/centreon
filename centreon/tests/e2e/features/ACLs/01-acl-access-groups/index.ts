@@ -159,47 +159,20 @@ Then(
     });
 
     cy.wait(['@getTimeZone', '@pendoRequest']);
-    cy.waitUntil(
-      () => {
-        return cy.get('iframe#main-content').should('be.visible');
-      },
-      {
-        errorMsg: 'The iframe#main-content element is not visible',
-        interval: 3000,
-        timeout: 20000
-      }
-    ).then(() => {
-      cy.get('iframe#main-content').should('be.visible').as('iframe');
-      cy.get('@iframe')
-        .its('0.contentDocument.body')
-        .then(($body) => {
-          cy.wrap($body)
-            .contains(data.contactGroups.contactGroup1.name, {
-              timeout: 15000
-            })
-            .click();
-        });
+    cy.iframe('iframe#main-content', { timeout: 10000 }).then((iframe) => {
+      cy.wrap(iframe)
+        .contains(data.contactGroups.contactGroup1.name, {
+          timeout: 15000
+        })
+        .eq(0)
+        .click();
     });
 
     cy.wait(['@getTimeZone', '@pendoRequest']);
-    cy.waitUntil(
-      () => {
-        return cy.get('iframe#main-content').should('be.visible');
-      },
-      {
-        errorMsg: 'The iframe#main-content element is not visible',
-        interval: 3000,
-        timeout: 20000
-      }
-    ).then(() => {
-      cy.get('iframe#main-content').should('be.visible').as('iframe');
-      cy.get('@iframe')
-        .its('0.contentDocument.body')
-        .then(($body) => {
-          cy.wrap($body)
-            .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
-            .should('contain', originalACLGroup.name);
-        });
+    cy.iframe('iframe#main-content', { timeout: 10000 }).then((iframe) => {
+      cy.wrap(iframe)
+        .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
+        .should('contain', originalACLGroup.name);
     });
   }
 );
