@@ -169,7 +169,9 @@ Then(
         timeout: 10000
       }
     ).then(() => {
-      cy.get('iframe#main-content')
+      cy.get('iframe#main-content').should('be.visible').as('iframe');
+
+      cy.get('@iframe')
         .its('0.contentDocument.body')
         .within((iframe) => {
           cy.wrap(iframe)
@@ -191,7 +193,9 @@ Then(
         timeout: 10000
       }
     ).then(() => {
-      cy.get('iframe#main-content')
+      cy.get('iframe#main-content').should('be.visible').as('iframe');
+
+      cy.get('@iframe')
         .its('0.contentDocument.body')
         .within((iframe) => {
           cy.wrap(iframe)
