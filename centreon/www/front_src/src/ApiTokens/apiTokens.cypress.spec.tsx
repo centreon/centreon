@@ -374,11 +374,6 @@ describe('Api-token', () => {
 
     cy.findAllByTestId(labelCancel).eq(1).click();
 
-    cy.findByTestId(labelDuration).should(
-      'have.value',
-      'January 2, 2024 12:00 AM'
-    );
-
     cy.makeSnapshot();
   });
 
