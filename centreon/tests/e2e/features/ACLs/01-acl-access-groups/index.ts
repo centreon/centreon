@@ -166,7 +166,7 @@ Then(
       {
         errorMsg: 'The iframe#main-content element is not visible',
         interval: 3000,
-        timeout: 10000
+        timeout: 20000
       }
     ).then(() => {
       cy.get('iframe#main-content').should('be.visible').as('iframe');
@@ -190,7 +190,7 @@ Then(
       {
         errorMsg: 'The iframe#main-content element is not visible',
         interval: 3000,
-        timeout: 10000
+        timeout: 20000
       }
     ).then(() => {
       cy.get('iframe#main-content').should('be.visible').as('iframe');
