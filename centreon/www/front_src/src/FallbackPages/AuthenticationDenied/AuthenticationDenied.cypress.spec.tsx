@@ -15,7 +15,5 @@ describe('Authentication denied', () => {
   it('displays the authentication denied page', () => {
     cy.contains(labelYouAreNotAbleToLogIn).should('be.visible');
     cy.contains(labelAuthenticationDenied).should('be.visible');
-
-    cy.makeSnapshot();
   });
 });

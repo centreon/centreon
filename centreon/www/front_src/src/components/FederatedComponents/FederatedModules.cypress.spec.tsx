@@ -227,8 +227,6 @@ describe('Fallback', () => {
     initializeFallback(FederatedPageFallback);
 
     cy.contains(labelCannotLoadModule).should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('displays the fallback component', () => {
