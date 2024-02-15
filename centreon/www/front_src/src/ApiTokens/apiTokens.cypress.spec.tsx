@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
