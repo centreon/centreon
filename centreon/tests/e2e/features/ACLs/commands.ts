@@ -1,3 +1,5 @@
+import 'cypress-iframe';
+
 interface LinkMeuToGroupProps {
   ACLGroupName: string;
   ACLMenuName: string;
