@@ -17,18 +17,18 @@ on:
         default: false
         type: boolean
   schedule:
-    - cron: "0 3 * * *"
+    - cron: '0 3 * * *'
   pull_request:
     paths:
-      - "centreon/**"
+      - 'centreon/**'
   push:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
-      - "[2-9][0-9].[0-9][0-9].x"
+      - '[2-9][0-9].[0-9][0-9].x'
     paths:
-      - "centreon/**"
+      - 'centreon/**'
 
 env:
   base_directory: centreon
@@ -252,9 +252,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: centreon
         env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          CYPRESS_INSTALL_BINARY: '0'
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
 
       - name: Unit test
         run: pnpm t --silent --reporter=jest-junit
@@ -263,7 +263,7 @@ jobs:
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          path: "centreon/junit.xml"
+          path: 'centreon/junit.xml'
 
   frontend-component-test:
     needs: [changes, get-version]
@@ -295,7 +295,7 @@ jobs:
         uses: ramsey/composer-install@83af392bf5f031813d25e6fe4cd626cdba9a2df6 # v2.2.0
         with:
           working-directory: centreon
-          composer-options: "--optimize-autoloader"
+          composer-options: '--optimize-autoloader'
 
       - name: Unit test
         run: XDEBUG_MODE=coverage composer run-script test:ci
@@ -304,8 +304,8 @@ jobs:
       - if: failure()
         uses: ./.github/actions/publish-report
         with:
-          path: "centreon/build/phpunit.xml"
-          format: "php-junit"
+          path: 'centreon/build/phpunit.xml'
+          format: 'php-junit'
 
   backend-lint:
     runs-on: ubuntu-22.04
@@ -362,7 +362,7 @@ jobs:
         frontend-widgets-build,
         frontend-widgets-lint,
         frontend-unit-test,
-        frontend-component-test,
+        frontend-component-test
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
@@ -494,7 +494,7 @@ jobs:
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
         with:
-          nfpm_file_pattern: "centreon/packaging/*.yaml"
+          nfpm_file_pattern: 'centreon/packaging/*.yaml'
           distrib: ${{ matrix.distrib }}
           package_extension: ${{ matrix.package_extension }}
           major_version: ${{ needs.get-version.outputs.major_version }}
@@ -647,7 +647,13 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   newman-test:
-    needs: [get-version, changes, create-xray-test-plan-and-test-execution, dockerize]
+    needs:
+      [
+        get-version,
+        changes,
+        create-xray-test-plan-and-test-execution,
+        dockerize
+      ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
       fail-fast: false
@@ -736,7 +742,7 @@ jobs:
       xray_jira_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
-    needs: [get-version, dockerize, create-xray-test-plan-and-test-execution]
+    needs: [get-version, create-xray-test-plan-and-test-execution]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
       fail-fast: false
@@ -781,7 +787,7 @@ jobs:
       - name: Run Lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
-          path: "centreon/lighthouse"
+          path: 'centreon/lighthouse'
           image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
@@ -812,7 +818,7 @@ jobs:
         api-integration-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
@@ -846,7 +852,7 @@ jobs:
         api-integration-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
@@ -878,7 +884,7 @@ jobs:
         api-integration-test,
         e2e-test,
         performances-test,
-        legacy-e2e-test,
+        legacy-e2e-test
       ]
     if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
