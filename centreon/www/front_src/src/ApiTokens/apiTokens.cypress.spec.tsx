@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
@@ -190,20 +190,23 @@ const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 describe('Api-token', () => {
   beforeEach(() => {
-    const userData = renderHook(() => useAtomValue(userAtom));
-
-    userData.result.current.timezone = 'Europe/Paris';
-    userData.result.current.locale = 'en_US';
+    const store = createStore();
+    store.set(userAtom, {
+      locale: 'en_US',
+      timezone: 'Europe/Paris'
+    });
 
     interceptListTokens({});
 
     cy.mount({
       Component: (
-        <Router>
-          <TestQueryProvider>
-            <TokenListing />
-          </TestQueryProvider>
-        </Router>
+        <Provider store={store}>
+          <Router>
+            <TestQueryProvider>
+              <TokenListing />
+            </TestQueryProvider>
+          </Router>
+        </Provider>
       )
     });
   });
@@ -366,6 +369,7 @@ describe('Api-token', () => {
     cy.clock(new Date(2024, 0, 1).getTime());
     cy.viewport(1280, 1000);
 
+    cy.findByTestId(labelCreateNewToken).click();
     cy.findByTestId(labelDuration).click();
     cy.contains(labelCustomize).click();
     cy.contains(/^15$/).click({ force: true });
@@ -374,10 +378,16 @@ describe('Api-token', () => {
 
     cy.findAllByTestId(labelCancel).eq(1).click();
 
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'January 2, 2024 12:00 AM'
+    );
+
     cy.makeSnapshot();
   });
 
   it('displays the modal when clicking on token creation button', () => {
+    openDialog();
     cy.findByTestId('tokenName').contains(labelName);
 
     cy.findByTestId('tokenNameInput').should('have.attr', 'required');
