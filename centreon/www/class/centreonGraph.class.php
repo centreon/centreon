@@ -312,11 +312,10 @@ class CentreonGraph
     }
 
     /**
-     *
-     * Enter description here ...
-     * @param unknown_type $metrics
+     * @param $metrics
+     * @return void
      */
-    public function setMetricList($metrics)
+    public function setMetricList($metrics): void
     {
         if (is_array($metrics) && count($metrics)) {
             $this->metricsEnabled = array_keys($metrics);
@@ -456,20 +455,24 @@ class CentreonGraph
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
-            $DBRESULT = $this->DBC->query(
+            $statement = $this->DBC->prepare(
                 "SELECT host_id, service_id, metric_id, metric_name, unit_name, replace(format(warn,9),',','') warn,
-                    replace(format(crit,9),',','') crit
-                    FROM metrics AS m, index_data AS i
-                    WHERE index_id = id
-                    AND " . $l_rselector . "
-                    AND m.hidden = '0'
-                    ORDER BY m.metric_name"
+                replace(format(crit,9),',','') crit
+                FROM metrics AS m, index_data AS i
+                WHERE index_id = id
+                AND :l_rselector
+                AND m.hidden = '0'
+                ORDER BY m.metric_name"
             );
-            while ($rmetric = $DBRESULT->fetch()) {
+            $statement->bindValue(':l_rselector', $l_rselector, \PDO::PARAM_INT);
+            $statement->execute();
+            $rmetrics = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($rmetrics as $rmetric) {
                 $this->mlist[$rmetric["metric_id"]] = $this->mpointer[0]++;
                 $this->rmetrics[] = $rmetric;
             }
-            $DBRESULT->closeCursor();
+            $statement->closeCursor();
         }
 
         /* Manage virtuals metrics */

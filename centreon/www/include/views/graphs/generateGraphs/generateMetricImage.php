@@ -94,9 +94,7 @@ $obj->onecurve = true;
 /**
  * Set metric id
  */
-if (isset($_GET["metric"])) {
-    $obj->setMetricList($_GET["metric"]);
-}
+isset($_GET["metric"]) ? $obj->setMetricList($_GET["metric"]) : null;
 
 /**
  * Set arguments from GET
