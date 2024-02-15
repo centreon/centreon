@@ -637,7 +637,7 @@ describe('Criterias', () => {
     });
   });
 
-  it.only('syncs the information fields with the search bar', () => {
+  it('syncs the information fields with the search bar', () => {
     cy.waitForRequest('@filterRequest');
 
     cy.findByPlaceholderText(labelSearch).clear();
@@ -655,6 +655,8 @@ describe('Criterias', () => {
     cy.findByPlaceholderText(informationLabel).clear();
 
     cy.findByPlaceholderText(labelSearch).should('have.value', ' ');
+
+    cy.findByLabelText(labelSearchOptions).click();
   });
 });
 
