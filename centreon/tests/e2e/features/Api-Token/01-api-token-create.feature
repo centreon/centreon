@@ -31,6 +31,8 @@ Feature: Create and Manage Basic API Token
     When I click to reveal the token
     Then the token is displayed
     And the "copy to clipboard" button is clicked
+    And the "copy to clipboard" button is replaced with the check button
+    Then the token is successfully copyed
 
   Scenario: Save Generated API Token
     Given a basic API token is generated
@@ -39,8 +41,13 @@ Feature: Create and Manage Basic API Token
 
   Scenario: Edit Existing API Token
     Given I am on the API tokens page
-    And there is an existing basic API token
+    And there is an existing basic API token with the following details:
+    | Token Name    | Linked User | Duration |
+    | OriginalToken | OriginalUser| 30d      |
     When I click on the token to edit
-    And I modify the token details
+    And I modify the token details as follows:
+    | Token Name      | Linked User | Duration |
+    | ModifiedToken   | NewUser     | 60d      |
     And I click on the "Save" button
-    Then the token is updated successfully
+    Then the token and its modified details are saved successfully
+    And the updated token details are displayed correctly on the API tokens page
