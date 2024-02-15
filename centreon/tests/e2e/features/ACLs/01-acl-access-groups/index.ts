@@ -159,8 +159,8 @@ Then(
     });
 
     cy.wait(['@getTimeZone', '@pendoRequest']);
-    cy.iframe('iframe#main-content', { timeout: 20000 }).then((iframe) => {
-      cy.wrap(iframe)
+    cy.enter('iframe#main-content', { timeout: 20000 }).then((getBody) => {
+      getBody()
         .contains(data.contactGroups.contactGroup1.name, {
           timeout: 15000
         })
