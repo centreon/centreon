@@ -21,17 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response;
+namespace Tests\Core\Dashboard\Application\UseCase\ShareDashboard;
 
-use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\ShareDashboard\ShareDashboardPresenterInterface;
 
-final class ContactGroupsResponseDto
+class ShareDashboardPresenterStub implements ShareDashboardPresenterInterface
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
-    )
+    public ResponseStatusInterface $data;
+
+    public function presentResponse(ResponseStatusInterface $response): void
     {
+        $this->data = $response;
     }
 }

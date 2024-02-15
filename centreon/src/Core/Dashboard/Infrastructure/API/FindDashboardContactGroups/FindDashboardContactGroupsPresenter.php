@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroupsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroupsResponse;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 final class FindDashboardContactGroupsPresenter extends AbstractPresenter implements FindDashboardContactGroupsPresenterInterface
@@ -63,9 +64,14 @@ final class FindDashboardContactGroupsPresenter extends AbstractPresenter implem
      */
     private function contactGroupsResponseDtoToArray(ContactGroupsResponseDto $dto): array
     {
+        $mostPermissiveRole = DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole) === 'creator'
+            ? 'editor'
+            : DashboardGlobalRoleConverter::toString($dto->mostPermissiveRole);
+
         return [
             'id' => $dto->id,
             'name' => $dto->name,
+            'most_permissive_role' => $mostPermissiveRole,
         ];
     }
 }

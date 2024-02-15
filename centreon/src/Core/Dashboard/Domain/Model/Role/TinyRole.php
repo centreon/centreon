@@ -21,17 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response;
+namespace Core\Dashboard\Domain\Model\Role;
 
-use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
-
-final class ContactGroupsResponseDto
+class TinyRole
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
-    )
+    /**
+     * @param int $id ID of the contact/contactgroup
+     * @param DashboardSharingRole $role
+     */
+    public function __construct(private readonly int $id, private readonly DashboardSharingRole $role)
     {
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getRole(): DashboardSharingRole
+    {
+        return $this->role;
     }
 }

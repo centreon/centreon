@@ -21,17 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response;
+namespace Core\Dashboard\Application\UseCase\ShareDashboard;
 
-use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
-
-final class ContactGroupsResponseDto
+final class ShareDashboardRequest
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
-    )
-    {
-    }
+    public int $dashboardId = 0;
+
+    /**
+     * @var array<array{
+     *  id: int,
+     *  role: string
+     * }>
+     */
+    public array $contacts = [];
+
+    /**
+     * @var array<array{
+     *  id: int,
+     *  role: string
+     * }>
+     */
+    public array $contactGroups = [];
 }
