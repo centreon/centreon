@@ -1,6 +1,7 @@
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
+/* eslint-disable import/no-unresolved */
+// @ts-expect-error ts-migrate(2307)
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
+// @ts-expect-error ts-migrate(2307)
 import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
 import { Provider, createStore } from 'jotai';
 
