@@ -174,7 +174,6 @@ Then(
         .its('0.contentDocument.body')
         .then(($body) => {
           cy.wrap($body)
-            .find('body')
             .contains(data.contactGroups.contactGroup1.name, {
               timeout: 15000
             })
