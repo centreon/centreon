@@ -78,7 +78,7 @@ const ResponsiveHeatMap = <TData,>({
               arrow: cx(classes.heatMapTooltipArrow, arrowClassName),
               tooltip: classes.heatMapTooltip
             }}
-            data-testid={`tooltip-${data.id}`}
+            data-testid={`tooltip-${data?.id}`}
             followCursor={false}
             label={
               displayTooltipCondition?.(data) &&
