@@ -170,11 +170,11 @@ Then(
       }
     ).then(() => {
       cy.get('iframe#main-content').should('be.visible').as('iframe');
-
       cy.get('@iframe')
         .its('0.contentDocument.body')
-        .within((iframe) => {
-          cy.wrap(iframe)
+        .then(($body) => {
+          cy.wrap($body)
+            .find('body')
             .contains(data.contactGroups.contactGroup1.name, {
               timeout: 15000
             })
@@ -194,11 +194,10 @@ Then(
       }
     ).then(() => {
       cy.get('iframe#main-content').should('be.visible').as('iframe');
-
       cy.get('@iframe')
         .its('0.contentDocument.body')
-        .within((iframe) => {
-          cy.wrap(iframe)
+        .then(($body) => {
+          cy.wrap($body)
             .find('select[name="cg_acl_groups[]"]', { timeout: 15000 })
             .should('contain', originalACLGroup.name);
         });
