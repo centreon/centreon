@@ -159,16 +159,91 @@ Then(
     });
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
-      cy.enterIframe('iframe#main-content')
-        .contains(data.contactGroups.contactGroup1.name, { timeout: 20000 })
-        .eq(0)
-        .click();
+      const retryAttempts = 3;
+      const retryDelay = 3000;
+
+      const attempt = ($iframe) => {
+        return new Cypress.Promise((resolve) => {
+          const $body = $iframe.contents().find('body');
+          const bodyText = $body.text();
+          const containsText = bodyText.includes(
+            data.contactGroups.contactGroup1.name
+          );
+          if (containsText) {
+            cy.wrap($body)
+              .contains(data.contactGroups.contactGroup1.name)
+              .eq(0)
+              .click();
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      };
+
+      const attemptWithRetry = (attemptNumber) => {
+        cy.wrap(`Attempt number ${attemptNumber}`);
+        if (attemptNumber > retryAttempts) {
+          throw new Error('The contact Group not found in the iframe body');
+        }
+
+        return cy.get('iframe#main-content').then(($iframe) => {
+          return attempt($iframe).then((found) => {
+            if (!found) {
+              return new Cypress.Promise((resolve) => {
+                setTimeout(() => {
+                  resolve(attemptWithRetry(attemptNumber + 1));
+                }, retryDelay);
+              });
+            }
+          });
+        });
+      };
+
+      cy.wrap(null).then(() => attemptWithRetry(1));
     });
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
-      cy.enterIframe('iframe#main-content')
-        .find('select[name="cg_acl_groups[]"]', { timeout: 20000 })
-        .should('contain', originalACLGroup.name);
+      const retryAttempts = 3;
+      const retryDelay = 3000;
+
+      const attempt = ($iframe) => {
+        return new Cypress.Promise((resolve) => {
+          const $body = $iframe.contents().find('body');
+
+          const bodyText = $body.text();
+          const containsText = bodyText.includes(originalACLGroup.name);
+          if (containsText) {
+            cy.wrap($body)
+              .find('select[name="cg_acl_groups[]"]')
+              .contains(originalACLGroup.name);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      };
+
+      const attemptWithRetry = (attemptNumber) => {
+        cy.wrap(`Attempt number ${attemptNumber}`);
+        if (attemptNumber > retryAttempts) {
+          throw new Error('The ACL group not found in the iframe body');
+        }
+
+        return cy.get('iframe#main-content').then(($iframe) => {
+          return attempt($iframe).then((found) => {
+            if (!found) {
+              return new Cypress.Promise((resolve) => {
+                setTimeout(() => {
+                  resolve(attemptWithRetry(attemptNumber + 1));
+                }, retryDelay);
+              });
+            }
+          });
+        });
+      };
+
+      cy.wrap(null).then(() => attemptWithRetry(1));
     });
   }
 );
