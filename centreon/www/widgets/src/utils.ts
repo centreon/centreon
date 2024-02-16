@@ -39,12 +39,13 @@ interface GetResourcesUrlProps {
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource }): object => {
-  const { id, parentId, uuid, type } = resource;
+export const getDetailsPanelQueriers = ({ resource, type }): object => {
+  const { id, parentId, uuid, type: resourceType } = resource;
 
-  const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-    : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint =
+    equals(type, 'host') || equals(resourceType, 'host')
+      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
+      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
@@ -80,13 +81,6 @@ export const getResourcesUrl = ({
           { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
         ]
       };
-
-  const formatStatusFilter = cond([
-    [equals('success'), always(['ok', 'up'])],
-    [equals('problem'), always(['down', 'critical'])],
-    [equals('undefined'), always(['unreachable', 'unknown'])],
-    [T, identity]
-  ]);
 
   const formattedStatuses = pipe(
     map((status) => formatStatusFilter(status)),
@@ -153,7 +147,7 @@ export const getResourcesUrl = ({
     return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
-  const detailsPanelQueriers = getDetailsPanelQueriers({ resource });
+  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
 
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)
