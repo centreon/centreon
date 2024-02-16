@@ -81,7 +81,7 @@ const useSearch = (): void => {
     const updatedSearch = search
       .split(' ')
       .map((word) => {
-        return fieldValueToDelete.every((wordToDelete) => wordToDelete === word)
+        return fieldValueToDelete.some((wordToDelete) => wordToDelete === word)
           ? ''
           : word;
       })
@@ -91,7 +91,7 @@ const useSearch = (): void => {
     return !isEmpty(fieldValueToDelete) ? updatedSearch : null;
   };
 
-  const buildData = () => {
+  const buildData = (): string => {
     newSearch.current = search;
 
     return searchableFieldData

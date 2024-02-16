@@ -53,6 +53,9 @@ const Status = (): JSX.Element => {
 
   useEffect(() => {
     if (isNil(isRevoked)) {
+      setRevokedToken(false);
+      setActiveToken(false);
+
       return;
     }
 

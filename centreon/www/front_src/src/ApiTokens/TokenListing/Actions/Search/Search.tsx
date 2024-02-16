@@ -60,6 +60,8 @@ const TokenSearch = (): JSX.Element => {
         EndAdornment={renderEndAdornmentFilter(clearFilters)}
         autoComplete="off"
         dataTestId={labelSearch}
+        id="searchBar"
+        inputProps={{ 'data-testid': 'search' }}
         inputRef={searchRef}
         placeholder={t(labelSearch) as string}
         value={searchValue}
