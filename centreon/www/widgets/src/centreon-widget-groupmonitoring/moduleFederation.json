@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": [{
+    "path": "/widgets/groupmonitoring",
+    "federatedComponents": [
+      "./groupmonitoring"
+    ]
+  }],
+  "moduleFederationName": "widgetgroupmonitoring",
+  "moduleName": "centreon-widget-groupmonitoring"
+}

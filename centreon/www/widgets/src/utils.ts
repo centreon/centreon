@@ -218,3 +218,18 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
 
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
+
+export const formatStatusFilter = cond([
+  [equals('success'), always(['ok', 'up'])],
+  [equals('warning'), always(['warning'])],
+  [equals('problem'), always(['down', 'critical'])],
+  [equals('undefined'), always(['unreachable', 'unknown'])],
+  [equals('pending'), always(['pending'])],
+  [T, always([])]
+]);
+
+export const formatStatus = pipe(
+  map(formatStatusFilter),
+  flatten,
+  map((status) => status.toLocaleUpperCase())
+);

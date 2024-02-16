@@ -40,15 +40,7 @@ import {
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
   key: string;
-  props: {
-    defaultValue: unknown | ConditionalOptions<unknown>;
-    label: string;
-    propertyName: string;
-    propertyType: string;
-    required?: boolean;
-    show?: ShowInput;
-    type: FederatedWidgetOptionType;
-  };
+  props: WidgetPropertyProps;
 }
 
 export const propertiesInputType = {
@@ -100,15 +92,9 @@ export const useWidgetInputs = (
               Component,
               key,
               props: {
-                defaultValue: value.defaultValue,
-                label: value.label,
-                options: value.options,
+                ...(value as WidgetPropertyProps),
                 propertyName: key,
-                propertyType: widgetKey,
-                required: value.required,
-                secondaryLabel: value.secondaryLabel,
-                show: value.show,
-                type: value.type
+                propertyType: widgetKey
               }
             };
           })
