@@ -555,6 +555,14 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     LEFT JOIN `:db`.host
                         ON host.host_id = hsr.host_host_id
                         AND host.host_register = '1'
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hgr.host_host_id = host.host_id
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hgr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
                     SQL
             )
             ->appendWhere(
@@ -593,6 +601,10 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             'severity.name' => 'severity.sc_name',
             'group.id' => 'servicegroup.sg_id',
             'group.name' => 'servicegroup.sg_name',
+            'hostgroup.id' => 'hostgroup.hg_id',
+            'hostgroup.name' => 'hostgroup.hg_name',
+            'hostcategory.id' => 'hostcategories.hc_id',
+            'hostcategory.name' => 'hostcategories.hc_name',
         ]);
         $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->translateForConcatenator($concatenator);
