@@ -191,6 +191,10 @@ jobs:
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
+          ls -la
+          BINARY="${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          aws s3 cp "./$BINARY" "$BACKUP_LOCATION/$BINARY"
+
       - name: Save baseline files
         if: success() || failure()
         run: |
