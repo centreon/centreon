@@ -41,11 +41,21 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        description="This ticket relates to:\n${{ github.event.pull_request.title }}/n${{ github.event.pull_request.html_url }}\n\nThe PR-${{ github.event.pull_request.number }} targets following branch:\n${{ github.base_ref || github.ref_name }}\n\nrun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n"
+        TITLE="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
+        DESCRIPTION=$( cat <<-EOF
+          This ticket relates to:
+          (${{ github.event.pull_request.title }})[${{ github.event.pull_request.html_url }}]
+
+          The PR-${{ github.event.pull_request.number }} targets following branch:
+          ${{ github.base_ref || github.ref_name }}
+
+          run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        EOF
+        )
+
         DATA=$( cat <<-EOF
         {"fields": {
-          "summary": "${title}",
+          "summary": "${TITLE}",
           "project": {"key": "MON"},
           "issuetype": {"id": "10209"},
           "parent": {"id": "83818", "key": "AT-268"},
@@ -53,10 +63,11 @@ runs:
           "components":[{"name": "${{ inputs.module_name }}"}],
           "customfield_10902": {"id": "10524", "value": "DevSecOps"},
           "customfield_10005": 1.0,
-          "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
+          "description": {"content": [{"content": [{"text": "${DESCRIPTION}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
         EOF
         )
 
+        echo "DATA = $DATA | jq"
         create_ticket_ang_get_id=$( curl --request POST \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
