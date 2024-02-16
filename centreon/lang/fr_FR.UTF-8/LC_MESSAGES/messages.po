@@ -18529,3 +18529,6 @@ msgstr "Ajouter des colonnes"
 
 msgid "Resource table"
 msgstr "Tableau des ressources"
+
+msgid "See more on the Resources Status page"
+msgstr "Voir plus dans la page Statut des ressources"
