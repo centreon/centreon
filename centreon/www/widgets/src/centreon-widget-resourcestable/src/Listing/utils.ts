@@ -1,4 +1,4 @@
-import { T, always, cond, equals, map } from 'ramda';
+import { cond, equals, map } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
