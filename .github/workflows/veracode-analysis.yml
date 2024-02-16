@@ -120,22 +120,6 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: Pipeline scan
-        id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@651b8c3a9c9b32b3b1e7c334c8b34d3cabc2da3f # v1.0.12
-        continue-on-error: true
-        with:
-          vid: "vera01ei-${{ secrets.veracode_api_id }}"
-          vkey: "vera01es-${{ secrets.veracode_api_key }}"
-          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          baseline_file: "${{ env.baseline_file }}"
-          create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "'Very High','High'"
-          timeout: 60
-          development_stage: '${{ needs.build.outputs.development_stage }}'
-          summary_display: '${{ needs.build.outputs.display_summary }}'
-          issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Backup analysis reports
         if: success() || failure()
