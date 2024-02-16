@@ -6,12 +6,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 
-import {
-  ConditionalOptions,
-  ShowInput,
-  Widget,
-  WidgetPropertyProps
-} from '../models';
+import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,

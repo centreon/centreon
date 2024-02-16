@@ -60,3 +60,11 @@ export interface Data {
 export interface DataWithoutMetrics {
   resources: Array<Resource>;
 }
+
+export enum SeverityStatus {
+  Pending = 'pending',
+  Problem = 'problem',
+  Success = 'success',
+  Undefined = 'undefined',
+  Warning = 'warning'
+}

@@ -14,7 +14,7 @@ import {
 
 import { centreonBaseURL } from '@centreon/ui';
 
-import { Resource } from './models';
+import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -220,11 +220,11 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
 };
 
 export const formatStatusFilter = cond([
-  [equals('success'), always(['ok', 'up'])],
-  [equals('warning'), always(['warning'])],
-  [equals('problem'), always(['down', 'critical'])],
-  [equals('undefined'), always(['unreachable', 'unknown'])],
-  [equals('pending'), always(['pending'])],
+  [equals(SeverityStatus.Success), always(['ok', 'up'])],
+  [equals(SeverityStatus.Warning), always(['warning'])],
+  [equals(SeverityStatus.Problem), always(['down', 'critical'])],
+  [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
+  [equals(SeverityStatus.Pending), always(['pending'])],
   [T, always([])]
 ]);
 
