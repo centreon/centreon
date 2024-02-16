@@ -77,6 +77,7 @@ runs:
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
+        CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
 
     - name: Rename JSON report
       if: ${{ always() }}
