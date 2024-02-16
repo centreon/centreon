@@ -42,7 +42,7 @@ runs:
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
         title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        description="This ticket relates to:\n${{ github.event.pull_request.title }}/n${{ github.event.pull_request.html_url }}\n\nThe PR-${{ github.event.pull_request.number }} targets following branch:\n${{ github.base_ref || github.ref_name }}\n"
+        description="This ticket relates to:\n${{ github.event.pull_request.title }}/n${{ github.event.pull_request.html_url }}\n\nThe PR-${{ github.event.pull_request.number }} targets following branch:\n${{ github.base_ref || github.ref_name }}\n\nrun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n"
         DATA=$( cat <<-EOF
         {"fields": {
           "summary": "${title}",
