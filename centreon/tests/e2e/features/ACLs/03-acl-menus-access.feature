@@ -1,4 +1,3 @@
-@ignore
 Feature: ACL Menus Access administration
   As a Centreon administrator
   I want to administrate Menus Access
