@@ -1,16 +1,11 @@
-import { createStore } from 'jotai';
-
-import { Typography } from '@mui/material';
-
 import { Module } from '@centreon/ui';
 
-interface Props {
-  store: ReturnType<typeof createStore>;
-}
+import { WidgetProps } from './models';
+import GroupMonitoring from './GroupMonitoring';
 
-const Widget = ({ store }: Props): JSX.Element => (
+const Widget = ({ store, ...rest }: WidgetProps): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-groupmonitoring" store={store}>
-    <Typography>group monitoring</Typography>
+    <GroupMonitoring {...rest} />
   </Module>
 );
 

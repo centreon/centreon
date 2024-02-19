@@ -33,7 +33,7 @@ const serviceCriteria = {
 interface GetResourcesUrlProps {
   allResources: Array<Resource>;
   isForOneResource: boolean;
-  resource;
+  resource?;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
@@ -144,7 +144,7 @@ export const getResourcesUrl = ({
   );
 
   if (!isForOneResource) {
-    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `${centreonBaseURL}/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
@@ -153,7 +153,7 @@ export const getResourcesUrl = ({
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
@@ -210,7 +210,7 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 export const formatStatusFilter = cond([

@@ -2,7 +2,7 @@
   "title": "Group monitoring",
   "description": "",
   "options": {
-    "resourceType": {
+    "resourceTypes": {
       "type": "checkbox",
       "label": "Display resources with this type",
       "options": [
