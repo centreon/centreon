@@ -174,10 +174,11 @@ jobs:
           echo "[DEBUG] - begin search"
           ls -la
           ls -la ..
-          find / -name "*veracode-binary.zip" 2>/dev/null
+          find ./ -name "*veracode-binary.zip"
           echo "[DEBUG] - end search"
 
-          cp $( find / -name "*veracode-binary.zip" 2>/dev/null ) "/tmp/backup"
+          cp $( find ./ -name "*veracode-binary.zip" ) "/tmp/backup"
+          echo "[DEBUG] - copy done"
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
