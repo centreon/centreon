@@ -1,13 +1,10 @@
 import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
 import numeral from 'numeral';
-import { localPoint } from '@visx/event';
 import { equals } from 'ramda';
 
-import { useTheme } from '@mui/material';
-
+import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
@@ -31,29 +28,9 @@ const ResponsivePie = ({
   innerRadius = 40,
   onArcClick,
   displayValues,
-  Tooltip
+  tooltipContent
 }: PieProps & { width: number }): JSX.Element => {
-  const theme = useTheme();
   const { classes } = usePieStyles();
-
-  const {
-    tooltipOpen,
-    tooltipLeft,
-    tooltipTop,
-    tooltipData,
-    hideTooltip,
-    showTooltip
-  } = useTooltip();
-
-  const tooltipStyles = {
-    ...defaultStyles,
-    backgroundColor: theme.palette.background.tooltip,
-    minWidth: 60
-  };
-
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    scroll: true
-  });
 
   const half = width / 2;
 
@@ -76,7 +53,7 @@ const ResponsivePie = ({
           className={classes.svgContainer}
           style={{ height: width + 30, width: width + 30 }}
         >
-          <svg height={width} ref={containerRef} width={width}>
+          <svg height={width} width={width}>
             <Group left={half} top={half}>
               <Pie
                 data={data}
@@ -90,46 +67,59 @@ const ResponsivePie = ({
                 {(pie) => {
                   return pie.arcs.map((arc) => {
                     const [centroidX, centroidY] = pie.path.centroid(arc);
+                    const midAngle = Math.atan2(centroidY, centroidX);
+
+                    const labelRadius = half * 0.8;
+
+                    const labelX = Math.cos(midAngle) * labelRadius;
+                    const labelY = Math.sin(midAngle) * labelRadius;
+
+                    const angle = arc.endAngle - arc.startAngle;
+
+                    const minAngle = 0.2;
 
                     return (
-                      <g
+                      <Tooltip
+                        hasCaret
+                        classes={{
+                          tooltip: classes.pieChartTooltip
+                        }}
+                        followCursor={false}
                         key={arc.data.label}
-                        onClick={() => {
-                          onArcClick?.(arc.data);
-                        }}
-                        onMouseLeave={() => {
-                          setTimeout(() => {
-                            hideTooltip();
-                          }, 300);
-                        }}
-                        onMouseMove={(event) => {
-                          const eventSvgCoords = localPoint(event);
-                          showTooltip({
-                            tooltipData: arc.data,
-                            tooltipLeft: eventSvgCoords?.x,
-                            tooltipTop: eventSvgCoords?.y
-                          });
-                        }}
+                        label={tooltipContent?.({
+                          color: arc.data.color,
+                          label: arc.data.label,
+                          title,
+                          total,
+                          value: arc.data.value
+                        })}
                       >
-                        <path d={pie.path(arc)} fill={arc.data.color} />
-                        {displayValues && (
-                          <Text
-                            dy=".33em"
-                            fill="#000"
-                            fontSize={12}
-                            pointerEvents="none"
-                            textAnchor="middle"
-                            x={centroidX}
-                            y={centroidY}
-                          >
-                            {getValueByUnit({
-                              total,
-                              unit,
-                              value: arc.data.value
-                            })}
-                          </Text>
-                        )}
-                      </g>
+                        <g
+                          key={arc.data.label}
+                          onClick={() => {
+                            onArcClick?.(arc.data);
+                          }}
+                        >
+                          <path d={pie.path(arc)} fill={arc.data.color} />
+                          {displayValues && angle > minAngle && (
+                            <Text
+                              dy=".33em"
+                              fill="#000"
+                              fontSize={12}
+                              pointerEvents="none"
+                              textAnchor="middle"
+                              x={equals(variant, 'donut') ? centroidX : labelX}
+                              y={equals(variant, 'donut') ? centroidY : labelY}
+                            >
+                              {getValueByUnit({
+                                total,
+                                unit,
+                                value: arc.data.value
+                              })}
+                            </Text>
+                          )}
+                        </g>
+                      </Tooltip>
                     );
                   });
                 }}
@@ -163,15 +153,6 @@ const ResponsivePie = ({
           configuration: legendConfiguration,
           scale: legendScale
         })}
-      {Tooltip && tooltipOpen && tooltipData && (
-        <TooltipInPortal
-          left={tooltipLeft}
-          style={tooltipStyles}
-          top={tooltipTop}
-        >
-          {Tooltip(tooltipData)}
-        </TooltipInPortal>
-      )}
     </div>
   );
 };

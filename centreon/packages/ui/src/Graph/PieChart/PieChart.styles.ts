@@ -4,7 +4,14 @@ export const usePieStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(3)
+    gap: theme.spacing(3),
+    height: '100%'
+  },
+  pieChartTooltip: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    position: 'relative'
   },
   pieTitle: {
     fontSize: theme.typography.h6.fontSize,
@@ -21,6 +28,7 @@ export const usePieStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1.5)
+    gap: theme.spacing(1.5),
+    justifyContent: 'center'
   }
 }));

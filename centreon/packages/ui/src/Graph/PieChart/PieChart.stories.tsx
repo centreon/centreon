@@ -45,7 +45,7 @@ export const Donut: Story = {
   args: {
     data,
     title: 'hosts',
-    variant: 'Donut'
+    variant: 'donut'
   },
   render: Template
 };
@@ -54,8 +54,8 @@ export const WithPencentage: Story = {
   args: {
     data,
     title: 'hosts',
-    unit: 'Percentage',
-    variant: 'Donut'
+    unit: 'percentage',
+    variant: 'donut'
   },
   render: Template
 };
@@ -64,8 +64,8 @@ export const WithBigNumbers: Story = {
   args: {
     data: dataWithBigNumbers,
     title: 'hosts',
-    unit: 'Number',
-    variant: 'Donut'
+    unit: 'number',
+    variant: 'donut'
   },
   render: Template
 };
@@ -75,7 +75,7 @@ export const WithoutLegend: Story = {
     data,
     displayLegend: false,
     title: 'hosts',
-    variant: 'Donut'
+    variant: 'donut'
   },
   render: Template
 };
@@ -83,7 +83,7 @@ export const WithoutLegend: Story = {
 export const DonutWithoutTitle: Story = {
   args: {
     data,
-    variant: 'Donut'
+    variant: 'donut'
   },
   render: Template
 };
@@ -99,7 +99,7 @@ export const DonutWithDisplayedValues: Story = {
   args: {
     data,
     displayValues: true,
-    variant: 'Donut'
+    variant: 'donut'
   },
   render: Template
 };
@@ -112,7 +112,7 @@ export const PieWithDisplayedValues: Story = {
   render: Template
 };
 
-const Tooltip = ({ label, color, value }: ArcType): JSX.Element => {
+const TooltipContent = ({ label, color, value }: ArcType): JSX.Element => {
   return (
     <div style={{ color }}>
       {label} : {value}
@@ -122,19 +122,20 @@ const Tooltip = ({ label, color, value }: ArcType): JSX.Element => {
 
 export const PieWithTooltip: Story = {
   args: {
-    Tooltip,
     data,
-    displayValues: true
+    displayValues: true,
+    tooltipContent: TooltipContent,
+    unit: 'percentage'
   },
   render: Template
 };
 
 export const DonutWithTooltip: Story = {
   args: {
-    Tooltip,
     data,
     displayValues: true,
-    variant: 'Donut'
+    tooltipContent: TooltipContent,
+    variant: 'donut'
   },
   render: Template
 };

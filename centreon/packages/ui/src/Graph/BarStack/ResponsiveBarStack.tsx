@@ -1,13 +1,10 @@
 import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
-import { useTooltip, useTooltipInPortal, defaultStyles } from '@visx/tooltip';
-import { localPoint } from '@visx/event';
 import numeral from 'numeral';
 import { Text } from '@visx/text';
 import { equals } from 'ramda';
 
-import { useTheme } from '@mui/system';
-
+import { Tooltip } from '../../components';
 import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
 import { getValueByUnit } from '../common/utils';
@@ -27,34 +24,14 @@ const BarStack = ({
   height: barHeight,
   onSingleBarClick,
   displayLegend = true,
-  Tooltip,
+  tooltipContent,
   legendConfiguration = { direction: 'column' },
   Legend = DefaultLengd,
   unit = 'number',
   displayValues,
   variant = 'vertical'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
-  const theme = useTheme();
   const { classes } = useBarStackStyles();
-
-  const tooltipStyles = {
-    ...defaultStyles,
-    backgroundColor: theme.palette.background.tooltip,
-    minWidth: 60
-  };
-
-  const {
-    tooltipOpen,
-    tooltipLeft,
-    tooltipTop,
-    tooltipData,
-    hideTooltip,
-    showTooltip
-  } = useTooltip();
-
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    scroll: true
-  });
 
   const {
     height,
@@ -89,7 +66,7 @@ const BarStack = ({
             width: width + 16
           }}
         >
-          <svg height={height} ref={containerRef} width={width}>
+          <svg height={height} width={width}>
             <Group>
               {equals(variant, 'vertical') ? (
                 <BarStackVertical
@@ -104,36 +81,101 @@ const BarStack = ({
                     barStacks.map((barStack) =>
                       barStack.bars.map((bar) => {
                         return (
+                          <Tooltip
+                            hasCaret
+                            classes={{
+                              tooltip: classes.barStackTooltip
+                            }}
+                            followCursor={false}
+                            key={`bar-stack-${barStack.index}-${bar.index}`}
+                            label={tooltipContent?.({
+                              color: bar.color,
+                              label: bar.key,
+                              title,
+                              total,
+                              value: barStack.bars[0].bar.data[barStack.key]
+                            })}
+                            position="right-start"
+                          >
+                            <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                              <rect
+                                fill={bar.color}
+                                height={bar.height - 1}
+                                key={`bar-stack-${barStack.index}-${bar.index}`}
+                                ry={5}
+                                width={bar.width}
+                                x={bar.x}
+                                y={bar.y}
+                                onClick={() => {
+                                  onSingleBarClick?.(bar);
+                                }}
+                              />
+                              {displayValues &&
+                                bar.height > 10 &&
+                                bar.width > 10 && (
+                                  <Text
+                                    cursor="pointer"
+                                    fill="#000"
+                                    fontSize={12}
+                                    textAnchor="middle"
+                                    verticalAnchor="middle"
+                                    x={bar.x + bar.width / 2}
+                                    y={bar.y + bar.height / 2}
+                                  >
+                                    {getValueByUnit({
+                                      total,
+                                      unit,
+                                      value:
+                                        barStack.bars[0].bar.data[barStack.key]
+                                    })}
+                                  </Text>
+                                )}
+                            </g>
+                          </Tooltip>
+                        );
+                      })
+                    )
+                  }
+                </BarStackVertical>
+              ) : (
+                <BarStackHorizontal
+                  color={colorScale}
+                  data={[input]}
+                  keys={keys}
+                  xScale={xScale}
+                  y={() => undefined}
+                  yScale={yScale}
+                >
+                  {(barStacks) =>
+                    barStacks.map((barStack) =>
+                      barStack.bars.map((bar) => (
+                        <Tooltip
+                          hasCaret
+                          classes={{
+                            tooltip: classes.barStackTooltip
+                          }}
+                          followCursor={false}
+                          key={`bar-stack-${barStack.index}-${bar.index}`}
+                          label={tooltipContent?.({
+                            color: bar.color,
+                            label: bar.key,
+                            title,
+                            total,
+                            value: barStack.bars[0].bar.data[barStack.key]
+                          })}
+                          position="bottom-start"
+                        >
                           <g key={`bar-stack-${barStack.index}-${bar.index}`}>
                             <rect
                               fill={bar.color}
-                              height={bar.height - 1}
-                              key={`bar-stack-${barStack.index}-${bar.index}`}
+                              height={bar.height}
+                              key={`barstack-horizontal-${barStack.index}-${bar.index}`}
                               ry={5}
-                              width={bar.width}
+                              width={bar.width - 1}
                               x={bar.x}
                               y={bar.y}
                               onClick={() => {
                                 onSingleBarClick?.(bar);
-                              }}
-                              onMouseLeave={() => {
-                                setTimeout(() => {
-                                  hideTooltip();
-                                }, 300);
-                              }}
-                              onMouseMove={(event) => {
-                                const eventSvgCoords = localPoint(event);
-                                const left = bar.x + bar.width;
-                                showTooltip({
-                                  tooltipData: {
-                                    color: bar.color,
-                                    label: bar.key,
-                                    value:
-                                      barStack.bars[0].bar.data[barStack.key]
-                                  },
-                                  tooltipLeft: left,
-                                  tooltipTop: eventSvgCoords?.y
-                                });
                               }}
                             />
                             {displayValues &&
@@ -157,74 +199,7 @@ const BarStack = ({
                                 </Text>
                               )}
                           </g>
-                        );
-                      })
-                    )
-                  }
-                </BarStackVertical>
-              ) : (
-                <BarStackHorizontal
-                  color={colorScale}
-                  data={[input]}
-                  keys={keys}
-                  xScale={xScale}
-                  y={() => undefined}
-                  yScale={yScale}
-                >
-                  {(barStacks) =>
-                    barStacks.map((barStack) =>
-                      barStack.bars.map((bar) => (
-                        <g key={`bar-stack-${barStack.index}-${bar.index}`}>
-                          <rect
-                            fill={bar.color}
-                            height={bar.height}
-                            key={`barstack-horizontal-${barStack.index}-${bar.index}`}
-                            ry={5}
-                            width={bar.width - 1}
-                            x={bar.x}
-                            y={bar.y}
-                            onClick={() => {
-                              onSingleBarClick?.(bar);
-                            }}
-                            onMouseLeave={() => {
-                              setTimeout(() => {
-                                hideTooltip();
-                              }, 300);
-                            }}
-                            onMouseMove={(event) => {
-                              const eventSvgCoords = localPoint(event);
-                              const top = bar.y + bar.height;
-                              showTooltip({
-                                tooltipData: {
-                                  color: bar.color,
-                                  label: bar.key,
-                                  value: barStack.bars[0].bar.data[barStack.key]
-                                },
-                                tooltipLeft: eventSvgCoords?.x,
-                                tooltipTop: top
-                              });
-                            }}
-                          />
-                          {displayValues &&
-                            bar.height > 10 &&
-                            bar.width > 10 && (
-                              <Text
-                                cursor="pointer"
-                                fill="#000"
-                                fontSize={12}
-                                textAnchor="middle"
-                                verticalAnchor="middle"
-                                x={bar.x + bar.width / 2}
-                                y={bar.y + bar.height / 2}
-                              >
-                                {getValueByUnit({
-                                  total,
-                                  unit,
-                                  value: barStack.bars[0].bar.data[barStack.key]
-                                })}
-                              </Text>
-                            )}
-                        </g>
+                        </Tooltip>
                       ))
                     )
                   }
@@ -239,15 +214,6 @@ const BarStack = ({
           configuration: legendConfiguration,
           scale: legendScale
         })}
-      {Tooltip && tooltipOpen && tooltipData && (
-        <TooltipInPortal
-          left={tooltipLeft}
-          style={tooltipStyles}
-          top={tooltipTop}
-        >
-          {Tooltip(tooltipData)}
-        </TooltipInPortal>
-      )}
     </div>
   );
 };
