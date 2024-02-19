@@ -173,7 +173,8 @@ jobs:
 
           echo "[DEBUG] - begin search"
           ls -la
-          $( find / -name "$BINARY" 2>/dev/null )
+          ls -la ..
+          find / -name "*veracode-binary.zip" 2>/dev/null
           echo "[DEBUG] - end search"
 
           cp $( find / -name "*veracode-binary.zip" 2>/dev/null ) "/tmp/backup"
