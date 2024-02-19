@@ -78,7 +78,7 @@ const WrapperLineChart = ({
   return (
     <div
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
-      style={{ height: '100%', width: '100%' }}
+      style={{ height: '100%', overflowY: 'hidden', width: '100%' }}
     >
       <ParentSize>
         {({

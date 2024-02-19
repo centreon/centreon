@@ -10,6 +10,6 @@ interface LegendScale {
 }
 
 export interface LegendProps {
-  configuration: LegendConfiguration;
+  configuration?: LegendConfiguration;
   scale: LegendScale;
 }

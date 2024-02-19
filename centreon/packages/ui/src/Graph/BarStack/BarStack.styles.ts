@@ -1,6 +1,12 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useBarStackStyles = makeStyles()((theme) => ({
+  barStackTooltip: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    position: 'relative'
+  },
   container: {
     alignItems: 'center',
     display: 'flex',

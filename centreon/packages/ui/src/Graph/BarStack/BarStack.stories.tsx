@@ -69,42 +69,42 @@ export const WithoutLegend: Story = {
   render: Template
 };
 
-export const withithDisplayedValues: Story = {
+export const withDisplayedValues: Story = {
   args: { data, displayValues: true, title: 'hosts' },
   render: Template
 };
 
 export const WithTooltip: Story = {
-  args: { Tooltip, data, title: 'hosts' },
+  args: { data, title: 'hosts', tooltipContent: Tooltip },
   render: Template
 };
 
 export const WithBigNumbers: Story = {
   args: {
-    Tooltip,
     data: dataWithBigNumbers,
     displayValues: true,
-    title: 'hosts'
+    title: 'hosts',
+    tooltipContent: Tooltip
   },
   render: Template
 };
 
 export const WithSmallNumbers: Story = {
   args: {
-    Tooltip,
     data: dataWithSmallNumber,
     displayValues: true,
-    title: 'hosts'
+    title: 'hosts',
+    tooltipContent: Tooltip
   },
   render: Template
 };
 
 export const Horizontal: Story = {
   args: {
-    Tooltip,
     data,
     displayValues: true,
     title: 'hosts',
+    tooltipContent: Tooltip,
     variant: 'horizontal'
   },
   render: Template
@@ -112,11 +112,11 @@ export const Horizontal: Story = {
 
 export const HorizontalWithoutLegend: Story = {
   args: {
-    Tooltip,
     data,
     displayLegend: false,
     displayValues: true,
     title: 'hosts',
+    tooltipContent: Tooltip,
     variant: 'horizontal'
   },
   render: Template

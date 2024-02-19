@@ -8,13 +8,13 @@ export interface BarType {
 
 export type BarStackProps = {
   Legend: ({ scale, configuration }: LegendProps) => JSX.Element;
-  Tooltip?: (barData) => JSX.Element;
   data: Array<BarType>;
   displayLegend?: boolean;
   displayValues?: boolean;
   legendConfiguration?: LegendConfiguration;
   onSingleBarClick?: (barData) => void;
   title?: string;
+  tooltipContent?: (barData) => JSX.Element | boolean | null;
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
 };

@@ -8,7 +8,6 @@ export interface ArcType {
 
 export interface PieProps {
   Legend: ({ scale, configuration }: LegendProps) => JSX.Element;
-  Tooltip?: (arcData) => JSX.Element;
   data: Array<ArcType>;
   displayLegend?: boolean;
   displayValues?: boolean;
@@ -16,6 +15,7 @@ export interface PieProps {
   legendConfiguration?: LegendConfiguration;
   onArcClick?: (ardata) => void;
   title?: string;
+  tooltipContent?: (arcData) => JSX.Element | boolean | null;
   unit?: 'percentage' | 'number';
   variant?: 'pie' | 'donut';
 }
