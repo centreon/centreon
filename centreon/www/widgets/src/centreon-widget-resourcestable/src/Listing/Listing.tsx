@@ -20,7 +20,7 @@ interface ListingProps {
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
   selectedColumnIds?: Array<string>;
-  setPanelOptions?: (field, value) => void;
+  setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
