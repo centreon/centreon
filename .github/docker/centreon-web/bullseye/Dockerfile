@@ -73,7 +73,7 @@ service mysql stop
 apt-get remove -y --purge mariadb-server
 rm -rf /var/lib/mysql
 
-apt-get clean all
+apt-get clean
 
 EOF
 
