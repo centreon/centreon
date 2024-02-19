@@ -73,12 +73,15 @@ service mysql stop
 apt-get remove -y --purge mariadb-server
 rm -rf /var/lib/mysql
 
-apt-get clean all
+apt-get clean
 
 EOF
 
 EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+HEALTHCHECK --start-interval=1s --timeout=5s --retries=60 \
+  CMD bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
 
 ENV CENTREON_DATASET="1"

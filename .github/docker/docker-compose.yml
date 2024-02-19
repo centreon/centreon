@@ -9,11 +9,11 @@ services:
       - db
     environment:
       MYSQL_HOST: db
-    healthcheck:
-      test: curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
-      start_interval: 1s
-      retries: 60
-      timeout: 5s
+    # healthcheck:
+    #   test: curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+    #   start_interval: 1s
+    #   retries: 60
+    #   timeout: 5s
 
   db:
     env_file:

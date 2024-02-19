@@ -69,12 +69,15 @@ sed -i 's#severity=error#severity=debug#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-dnf clean all
+dnf clean
 
 EOF
 
 EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
+
+HEALTHCHECK --start-interval=1s --timeout=5s --retries=60 \
+  CMD bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
 
 ENV CENTREON_DATASET="1"
