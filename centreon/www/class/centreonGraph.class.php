@@ -464,7 +464,7 @@ class CentreonGraph
                 AND m.hidden = '0'
                 ORDER BY m.metric_name"
             );
-            $statement->bindValue(':l_rselector', $l_rselector, \PDO::PARAM_STR);
+            $statement->bindParam(':l_rselector', $l_rselector, \PDO::PARAM_STR);
             $statement->execute();
             $rmetrics = $statement->fetchAll(PDO::FETCH_ASSOC);
 
