@@ -171,10 +171,10 @@ jobs:
           backup_baseline "results.json"
           backup_baseline "filtered_results.json"
 
-          #cp $( find ./ -name "*veracode-binary.zip" ) "/tmp/backup"
+          cp $( find ./ -name "*veracode-binary.zip" ) "/tmp/backup"
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
           cd /tmp/backup && zip "$ZIPNAME" *
-          aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+          #aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Create jira ticket
         if: success() || failure()
