@@ -171,16 +171,15 @@ jobs:
           backup_baseline "results.json"
           backup_baseline "filtered_results.json"
 
+          echo "[DEBUG] - begin search"
+          ls -la
+          $( find / -name "$BINARY" 2>/dev/null )
+          echo "[DEBUG] - end search"
+
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
+          cp $( find / -name "$BINARY" 2>/dev/null ) "/tmp/backup"
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
-
-          ls -la
-          $( find / -name "$BINARY" )
-
-          echo "end search"
-          BINARY="${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          aws s3 cp $( find / -name "$BINARY" 2>/dev/null ) "$BACKUP_LOCATION/$BINARY"
 
       - name: Create jira ticket
         if: success() || failure()
