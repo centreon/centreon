@@ -17,6 +17,12 @@ export const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(40)
   },
   popper: {
+    '& .MuiPaper-root': {
+      backgroundColor: theme.palette.background.default
+    },
     zIndex: theme.zIndex.tooltip
+  },
+  root: {
+    backgroundClip: 'red'
   }
 }));

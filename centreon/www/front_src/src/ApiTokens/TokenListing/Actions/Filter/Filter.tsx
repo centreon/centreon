@@ -21,12 +21,12 @@ import { PersonalInformation } from '../../models';
 import { searchAtom } from '../Search/atoms';
 import { buildSearchParameters, getUniqData } from '../Search/utils';
 
+import DateCreationInput from './DateCreationInput';
 import Status from './Status';
 import { creatorsAtom, currentFilterAtom, usersAtom } from './atoms';
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
 import useBuildFilterValues from './useBuildFilterValues';
-import CreationDateInput from './CreationDateInput';
 import useInitializeFilter from './useInitializeFilter';
 
 const Filter = (): JSX.Element => {
@@ -87,7 +87,7 @@ const Filter = (): JSX.Element => {
         );
   };
 
-  const handleSearch = () => {
+  const handleSearch = (): void => {
     if (!search) {
       setCurrentFilter({ ...currentFilter, search: undefined });
 
@@ -102,7 +102,7 @@ const Filter = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <CreationDateInput />
+      <DateCreationInput />
       <MultiConnectedAutocompleteField
         disableSortedOptions
         // allowUniqOption
@@ -150,16 +150,17 @@ const Filter = (): JSX.Element => {
         }}
       >
         <Button
+          data-testid={labelClear}
+          labelSave={t(labelClear)}
+          startIcon={false}
+          variant="text"
+          onClick={initialize}
+        />
+        <Button
           data-testid={labelSearch}
           labelSave={t(labelSearch)}
           startIcon={false}
           onClick={handleSearch}
-        />
-        <Button
-          data-testid={labelClear}
-          labelSave={t(labelClear)}
-          startIcon={false}
-          onClick={initialize}
         />
       </div>
     </div>

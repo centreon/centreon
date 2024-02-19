@@ -53,7 +53,6 @@ const FormCreation = ({
     ref: document.getElementById('root')
   });
 
-  const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
   const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
@@ -83,7 +82,6 @@ const FormCreation = ({
   const handleCustomizeCase = (value): void => {
     setIsDisplayingDateTimePicker(true);
     setAnchorEl(refSingleAutocompleteField?.current);
-    setOpen(true);
     setFieldValue('duration', value);
   };
 
@@ -151,7 +149,6 @@ const FormCreation = ({
       {isDisplayingDateTimePicker && (
         <CustomTimePeriod
           anchorElDuration={{ anchorEl, setAnchorEl }}
-          openPicker={{ open, setOpen }}
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />

@@ -17,14 +17,12 @@ import InvisibleField from './InvisibleField';
 
 interface Props {
   anchorElDuration: AnchorElDuration;
-  openPicker: OpenPicker;
   setIsDisplayingDateTimePicker: Dispatch<SetStateAction<boolean>>;
   windowHeight: number;
 }
 
 const CustomTimePeriod = ({
   anchorElDuration,
-  openPicker,
   setIsDisplayingDateTimePicker,
   windowHeight
 }: Props): JSX.Element => {
@@ -38,7 +36,6 @@ const CustomTimePeriod = ({
 
   const { customizeDate } = values;
 
-  const { open, setOpen } = openPicker;
   const { anchorEl, setAnchorEl } = anchorElDuration;
 
   const minDate = dayjs().add(1, 'd').toDate();
@@ -57,7 +54,6 @@ const CustomTimePeriod = ({
   };
 
   const initialize = (): void => {
-    setOpen(false);
     setAnchorEl(null);
     setIsDisplayingDateTimePicker(false);
   };
@@ -108,7 +104,7 @@ const CustomTimePeriod = ({
       date={endDate}
       minDate={minDate}
       minDateTime={minDateTime}
-      open={open}
+      open={Boolean(anchorEl)}
       slotProps={slotProps}
       slots={slots}
       timeSteps={{ minutes: 1 }}
