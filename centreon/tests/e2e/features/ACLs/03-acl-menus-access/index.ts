@@ -168,16 +168,32 @@ Then('link between access group and Menu access must be broken', () => {
     rootItemNumber: 4,
     subMenu: 'ACL'
   });
-  cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', ACLGroups.ACLGroup2.name)
-    .within(() => {
-      cy.get('td.ListColLeft > a').click();
-    });
+  cy.wait('@getTimeZone').then(() => {
+    cy.executeActionOnIframe(
+      ACLGroups.ACLGroup2.name,
+      ($body) => {
+        cy.wrap($body)
+          .contains('tr', ACLGroups.ACLGroup2.name)
+          .within(() => {
+            cy.get('td.ListColLeft > a').click();
+          });
+      },
+      3,
+      3000
+    );
+  });
 
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('a', 'Authorizations information').click();
+  cy.wait('@getTimeZone').then(() => {
+    cy.executeActionOnIframe(
+      'Authorizations information',
+      ($body) => {
+        cy.wrap($body).contains('a', 'Authorizations information').click();
+      },
+      3,
+      3000
+    );
+  });
 
   cy.getIframeBody()
     .find('select[name="menuAccess-t[]"]')
