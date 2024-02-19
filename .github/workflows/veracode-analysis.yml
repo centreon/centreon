@@ -120,6 +120,22 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
+      - name: Pipeline scan
+        id: pipeline-scan
+        uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
+        with:
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
+          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          baseline_file: "${{ env.baseline_file }}"
+          create_baseline_from: "${{ env.create_baseline_from }}"
+          fail_build: '${{ needs.build.outputs.fail_build }}'
+          fail_on_severity: "'Very High','High'"
+          timeout: 60
+          development_stage: '${{ needs.build.outputs.development_stage }}'
+          summary_display: '${{ needs.build.outputs.display_summary }}'
+          issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Backup analysis reports
         if: success() || failure()
@@ -174,7 +190,7 @@ jobs:
           cp $( find ./ -name "*veracode-binary.zip" ) "/tmp/backup"
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
           cd /tmp/backup && zip "$ZIPNAME" *
-          #aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+          aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Create jira ticket
         if: success() || failure()

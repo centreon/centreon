@@ -82,8 +82,8 @@ runs:
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA" )
+          --data "$DATA" | jq .key )
         echo "create_ticket_and_get_id"
 
-        echo "::warning::Incident ticket created as $create_ticket_ang_get_id"
+        echo "::error::Incident ticket created as $create_ticket_ang_get_id"
       shell: bash
