@@ -12,7 +12,7 @@ curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14}
 
 apt-get update
 apt search centreon
-apt-get clean all
+apt-get clean
 
 systemctl stop gorgoned
 systemctl stop centengine

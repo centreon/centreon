@@ -81,7 +81,4 @@ EXPOSE 80 3306
 
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
-HEALTHCHECK --start-interval=1s --timeout=5s --retries=60 \
-  CMD bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
-
 ENV CENTREON_DATASET="1"
