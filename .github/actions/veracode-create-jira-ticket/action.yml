@@ -41,38 +41,163 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        TITLE="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        DESCRIPTION=$( cat <<-EOF
-          This ticket relates to:
-          (${{ github.event.pull_request.title }})[${{ github.event.pull_request.html_url }}]
-
-          The PR-${{ github.event.pull_request.number }} targets following branch:
-          ${{ github.base_ref || github.ref_name }}
-
-          run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        EOF
-        )
+        component_name="${{ inputs.module_name }}"
+        if [[ "${{ inputs.module_name }}" == "centreon" ]]; then
+          component_name="centreon-web"
+        fi
 
         DATA=$( cat <<-EOF
-        {"fields": {
-          "summary": "${TITLE}",
-          "project": {"key": "MON"},
-          "issuetype": {"id": "10209"},
-          "parent": {"id": "83818", "key": "AT-268"},
-          "labels": ["Veracode", "Pipeline"],
-          "components":[{"name": "${{ inputs.module_name }}"}],
-          "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-          "customfield_10005": 1.0,
-          "description": {"content": [{"content": [{"text": "${DESCRIPTION}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
+        {
+          "fields": {
+            "summary": "PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}",
+            "project": {"key": "MON"},
+            "issuetype": {"id": "10209"},
+            "parent": {"id": "83818", "key": "AT-268"},
+            "labels": ["Veracode", "Pipeline"],
+            "components":[{"name": "$component_name"}],
+            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
+            "customfield_10005": 1.0,
+            "description": {
+              "version": 1,
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "This incident ticket relates to:"
+                    }
+                  ]
+                },
+                {
+                  "type": "bulletList",
+                  "content": [
+                    {
+                      "type": "listItem",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Title: "
+                            },
+                            {
+                              "type": "text",
+                              "text": "${{ github.event.pull_request.title }}",
+                              "marks": [
+                                {
+                                  "type": "strong"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "listItem",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Ref: "
+                            },
+                            {
+                              "type": "text",
+                              "text": "PR-${{ github.event.pull_request.number }}",
+                              "marks": [
+                                {
+                                  "type": "link",
+                                  "attrs": {
+                                    "href": "${{ github.event.pull_request.html_url }}"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": []
+                },
+                {
+                  "type": "bulletList",
+                  "content": [
+                    {
+                      "type": "listItem",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Target: "
+                            },
+                            {
+                              "type": "text",
+                              "text": "${{ github.base_ref || github.ref_name }}",
+                              "marks": [
+                                {
+                                  "type": "strong"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "listItem",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Link to the run",
+                              "marks": [
+                                {
+                                  "type": "link",
+                                  "attrs": {
+                                    "href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": []
+                }
+              ]
+            }
+          }
+        }
         EOF
         )
 
         echo "DATA = $DATA | jq"
+
         create_ticket_ang_get_id=$( curl --request POST \
           --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
           --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
-          --data "$DATA" | jq .key )
+          --data "$DATA" )
+        echo "create_ticket_and_get_id"
+
         echo "::warning::Incident ticket created as $create_ticket_ang_get_id"
       shell: bash
