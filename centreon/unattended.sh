@@ -1,11 +1,12 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS="hst:v:r:l:p:"
+OPTIONS="hst:v:r:l:p:d:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
+declare -A SUPPORTED_DATABASE_SYSTEM=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
 default_ip=$(hostname -I | awk '{print $1}')
@@ -18,7 +19,8 @@ tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as t
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
 version=${ENV_CENTREON_VERSION:-"24.04"}        #Default version to be installed
-repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to used
+repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
+database_system=${ENV_CENTREON_DBS:-"MariaDB"}  #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
@@ -81,7 +83,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.04> (default: 24.04)] [-r <stable|testing|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -173,21 +175,34 @@ function parse_subcommand_options() {
 
 		l)
 			log_level=$OPTARG
-			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ]; then
-				log "ERROR" "Unsupported and ignored log level: $log_level"
+			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ] &&
+				log "ERROR" "Unsupported and ignored log level: $log_level" &&
+				usage
 			else
 				runtime_log_level=$log_level
 			fi
 			log "INFO" "Runtime log level set: $runtime_log_level"
 			;;
 
-        s)
-		    wizard_autoplay="true"
+		s)
+			wizard_autoplay="true"
 			log "INFO" "The installation wizard will be executed by the script"
 			;;
+
 		p)
 			centreon_admin_password=$OPTARG
 			;;
+
+		d)
+			requested_database_system=$OPTARG
+			if [ ! ${SUPPORTED_DATABASE_SYSTEM[$requested_database_system]} ]; then
+				log "ERROR" "Unsupported database system: $requested_database_system" &&
+				usage
+			else
+				database_system=$requested_database_system
+			fi
+			;;
+
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
@@ -204,6 +219,7 @@ function parse_subcommand_options() {
 			usage
 			exit 1
 			;;
+
 		esac
 	done
 	shift $((OPTIND - 1))
@@ -375,6 +391,19 @@ function set_mariadb_repos() {
 }
 #========= end of function set_mariadb_repos()
 
+#========= begin of function set_mysql_repos()
+#
+function setup_mysql() {
+
+	case "$detected_os_release" in
+		debian-release*)
+		log "INFO" "Install MySQL repository"
+		;;
+	esac
+}
+#========= end of function set_mysql_repos()
+
+
 #========= begin of function set_required_prerequisite()
 # check if the target OS is compatible with Red Hat and the version is 8 or 9
 # then set the required environment variables accordingly
@@ -484,7 +513,11 @@ function set_required_prerequisite() {
 
 		set_centreon_repos
 		if [ "$topology" == "central" ]; then
-			set_mariadb_repos
+			if [ "$database_system" = "MariaDB" ]; then
+				set_mariadb_repos
+			else
+				setup_mysql
+			fi
 			log "INFO" "Installing glibc langpack for Centreon UI translation"
 			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
 		fi
@@ -535,7 +568,11 @@ function set_required_prerequisite() {
 			# Add PHP repo
 			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-			set_mariadb_repos
+			if [ "$database_system" = "MariaDB" ]; then
+				set_mariadb_repos
+			else
+				set_mysql_repos
+			fi
 		else
 			${PKG_MGR} update
 		fi
@@ -623,22 +660,26 @@ function set_runtime_selinux_mode() {
 
 #========= end of function set_runtime_selinux_mode()
 
-#========= begin of function secure_mariadb_setup()
+#========= begin of function secure_db_system_setup()
 # apply some secure requests
 #
-function secure_mariadb_setup() {
+function secure_db_system_setup() {
 
-	log "INFO" "Secure MariaDB setup..."
-	log "WARN" "We are applying some requests that will enhance your MariaDB setup security"
+	log "INFO" "Secure $database_system setup..."
+	log "WARN" "We are applying some requests that will enhance your $database_system setup security"
 	log "WARN" "Please consult the official documentation https://mariadb.com/kb/en/mysql_secure_installation/ for more details"
 	log "WARN" "You can use mysqladmin in order to set a new password for user root"
 
-	log "INFO" "Restarting MariaDB service first"
-	systemctl restart mariadb
+	log "INFO" "Restarting $database_system service first"
+	if [[ $database_system == "MariaDB" ]]; then
+		systemctl restart mariadb
+	else
+		systemctl restart mysqld
+	fi
 
 	log "INFO" "Executing SQL requests"
 	mysql -u root <<-EOF
-		UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$mariadb_root_password')) WHERE User='root';
+		UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
 		DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 		DELETE FROM mysql.global_priv WHERE User='';
 		DROP DATABASE IF EXISTS test;
@@ -649,11 +690,11 @@ function secure_mariadb_setup() {
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not apply the requests"
 	else
-		log "INFO" "Successfully applied the SQL requests for enhancing your MariaDB"
+		log "INFO" "Successfully applied the SQL requests for enhancing your $database_system"
 	fi
 
 }
-#========= end of function secure_mariadb_setup()
+#========= end of function secure_db_system_setup()
 
 #========= begin of function install_centreon_repo()
 # install the centos-release-scl under CentOS7
@@ -732,11 +773,18 @@ function enable_new_services() {
 	log "INFO" "Enable and restart services ..."
 	if [ $has_systemd -eq 1 ]; then
 		case $topology in
-
 		central)
+			case $database_system in
+			MariaDB)
+				DB_SERVICE_NAME=mariadb
+				;;
+			MySQL)
+				DB_SERVICE_NAME=mysqld
+				;;
+			esac
 			log "DEBUG" "On central..."
-			systemctl enable mariadb $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart mariadb $OS_SPEC_SERVICES snmpd snmptrapd
+			systemctl enable $DB_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart $DB_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
@@ -785,7 +833,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
@@ -1094,15 +1142,21 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
+	if [[ $database_system == "MariaDB" ]]; then
+		$CENTREON_PKG="centreon"
+	else
+		$CENTREON_PKG="centreon-web"
+	fi
+
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		$PKG_MGR install -y --no-install-recommends centreon
+		$PKG_MGR install -y --no-install-recommends $CENTREON_PKG
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	else
 		# install core Centreon packages from enabled repo
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon --enablerepo="$CENTREON_REPO"
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $CENTREON_PKG --enablerepo="$CENTREON_REPO"
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
@@ -1131,7 +1185,7 @@ function install_central() {
 
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
-	secure_mariadb_setup
+	secure_db_system_setup
 }
 #========= end of function install_central()
 
@@ -1160,11 +1214,17 @@ function install_poller() {
 # update Centreon packages
 #
 function update_centreon_packages() {
+	if [[ $database_system == "MariaDB" ]]; then
+		$CENTREON_PKG="centreon\*"
+	else
+		$CENTREON_PKG="centreon-web"
+	fi
+
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		$PKG_MGR upgrade centreon
+		$PKG_MGR upgrade $CENTREON_PKG
 	else
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y $CENTREON_PKG --enablerepo=$CENTREON_REPO
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not update Centreon"
 		fi
@@ -1256,11 +1316,11 @@ esac
 
 # Set MariaDB password from ENV or random password if not defined
 if [ "$operation" == "install" ]; then
-	mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
+	db_root_password=${ENV_DB_ROOT_PASSWD:-"$(genpasswd "Database user: root")"}
 
 	if [ "$wizard_autoplay" == "true" ]; then
-		# Set from ENV or random MariaDB centreon password
-		mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
+		# Set from ENV or random Database centreon password
+		db_centreon_password=${ENV_DB_CENTREON_PASSWD:-"$(genpasswd "Database user: centreon")"}
 		# Generate random password if Centreon admin password is empty
 		if [ -z "${centreon_admin_password}" ]; then
 			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
@@ -1305,7 +1365,6 @@ is_systemd_present
 
 ## Start to execute
 case $operation in
-
 install)
 	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		setup_before_installation
@@ -1370,9 +1429,9 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 	echo
 	echo "****** IMPORTANT ******"
 	if [ "$wizard_autoplay" == "true" ]; then
-		echo "As you will need passwords for users such as MariaDB [root,centreon] and Centreon [admin], random passwords are generated"
+		echo "As you will need passwords for users such as [root,centreon] on your database system and [admin] on your Centreon platform, random passwords are generated"
 	else
-		echo "As you will need password for user MariaDB [root], random password are generated"
+		echo "As you will need a password for the user [root] on your database system, a random password is generated"
 	fi
 	echo "Passwords are currently saved in [$passwords_file]"
 	cat $passwords_file
