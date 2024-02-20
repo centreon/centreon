@@ -28,7 +28,8 @@ const PanelsLayout = ({
   setRefreshCount,
   displayMoreActions = true
 }: Props): JSX.Element => {
-  const { getLinkToResourceStatusPage } = useLinkToResourceStatus();
+  const { getLinkToResourceStatusPage, changeViewMode } =
+    useLinkToResourceStatus();
 
   return (
     <DashboardLayout.Layout
@@ -47,6 +48,7 @@ const PanelsLayout = ({
             header={
               !panelConfiguration?.isAddWidgetPanel ? (
                 <PanelHeader
+                  changeViewMode={() => changeViewMode(options?.displayType)}
                   displayMoreActions={displayMoreActions}
                   id={i}
                   linkToResourceStatus={getLinkToResourceStatusPage(

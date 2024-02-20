@@ -12,7 +12,7 @@ import { ItemComposition } from '@centreon/ui/components';
 import { Dataset } from '../../../models';
 import {
   labelDelete,
-  labelRefineFilter,
+  labelAddFilter,
   labelSelectResource,
   labelSelectResourceType
 } from '../../../translatedLabels';
@@ -55,7 +55,7 @@ const DatasetFilter = ({
         addbuttonDisabled={
           !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
-        labelAdd={t(labelRefineFilter)}
+        labelAdd={t(labelAddFilter)}
         onAddItem={addResource}
       >
         {datasetFilter.map((resource, resourceIndex) => (

@@ -23,6 +23,8 @@ declare(strict_types = 1);
 
 namespace Core\ResourceAccess\Application\Providers;
 
+use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
+
 interface DatasetProviderInterface
 {
     /**
@@ -38,4 +40,11 @@ interface DatasetProviderInterface
      * @return int[]
      */
     public function areResourcesValid(array $resourceIds): array;
+
+    /**
+     * @param int[] $ids
+     *
+     * @return ResourceNamesById
+     */
+    public function findResourceNamesByIds(array $ids): ResourceNamesById;
 }

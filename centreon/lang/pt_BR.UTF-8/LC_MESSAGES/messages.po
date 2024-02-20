@@ -16679,55 +16679,10 @@ msgstr ""
 # msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
-# msgstr ""
-
 # msgid "Start"
 # msgstr ""
 
 # msgid "End"
-# msgstr ""
-
-# msgid "Custom value"
-# msgstr ""
-
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
 # msgstr ""
 
 # msgid "Start"
@@ -16938,7 +16893,16 @@ msgstr ""
 # msgid "Time period"
 # msgstr ""
 
-# msgid "Last hour (default)"
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 3 hours"
+# msgstr ""
+
+# msgid "Last 6 hours"
+# msgstr ""
+
+# msgid "Last 12 hours"
 # msgstr ""
 
 # msgid "Last 24 hours"
@@ -16951,6 +16915,9 @@ msgstr ""
 # msgstr ""
 
 # msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
 # msgstr ""
 
 # msgid "Last 12 months"
@@ -17336,4 +17303,19 @@ msgstr ""
 # msgid "Select resource type"
 # msgstr ""
 # msgid "Your comment has been saved."
+# msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
 # msgstr ""

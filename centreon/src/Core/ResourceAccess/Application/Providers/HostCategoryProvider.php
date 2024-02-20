@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 
 final class HostCategoryProvider implements DatasetProviderInterface
 {
@@ -37,6 +38,16 @@ final class HostCategoryProvider implements DatasetProviderInterface
      */
     public function __construct(private readonly ReadHostCategoryRepositoryInterface $repository)
     {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findResourceNamesByIds(array $ids): ResourceNamesById
+    {
+        $names = $this->repository->findNames($ids);
+
+        return (new ResourceNamesById())->setNames($names->getNames());
     }
 
     /**
