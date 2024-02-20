@@ -903,7 +903,7 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: unstable
+          stability: ${{ needs.get-version.outputs.stability }}
 
   promote:
     needs: [get-version]
