@@ -326,7 +326,7 @@ jobs:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: sc979/veracode-sca@d3cf7437b198b0e861785f2568d50aeed45bb99b # v1.10
+        uses: sc979/veracode-sca@c407924976db886ffb1bfdbbbf3463f0939f835d # v1.11
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
