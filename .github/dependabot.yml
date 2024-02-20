@@ -16,7 +16,7 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - 'dependencies'
-      - 'npm'
+      - 'javascript'
     allow:
       - dependency-type: "direct"
       - dependency-type: "production"
