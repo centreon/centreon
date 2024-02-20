@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Column, ColumnType } from '@centreon/ui';
 
 import { labelHosts, labelServices } from '../translatedLabels';
+import { RowProps } from '../models';
 
 import { Name } from './Name';
 import Statuses from './Statuses/Statuses';
@@ -20,7 +21,9 @@ export const useColumns = ({
 
   return [
     {
-      Component: ({ row }) => <Name groupType={groupType} row={row} />,
+      Component: ({ row }: Pick<RowProps, 'row'>) => (
+        <Name groupType={groupType} row={row} />
+      ),
       clickable: false,
       id: 'name',
       label: t(groupTypeName),
@@ -30,7 +33,7 @@ export const useColumns = ({
       width: '200px'
     },
     {
-      Component: ({ row }) => (
+      Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Statuses groupType={groupType} resourceType="host" row={row} />
       ),
       clickable: false,
@@ -39,7 +42,7 @@ export const useColumns = ({
       type: ColumnType.component
     },
     {
-      Component: ({ row }) => (
+      Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Statuses groupType={groupType} resourceType="service" row={row} />
       ),
       clickable: false,

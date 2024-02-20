@@ -1,5 +1,4 @@
 import { JsonDecoder } from 'ts.data.json';
-import { number } from 'yup';
 
 import { buildListingDecoder } from '@centreon/ui';
 

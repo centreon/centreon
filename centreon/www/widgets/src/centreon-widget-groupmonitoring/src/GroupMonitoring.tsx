@@ -1,3 +1,6 @@
+import { useSetAtom } from 'jotai';
+import { includes, isNotNil } from 'ramda';
+
 import { MemoizedListing } from '@centreon/ui';
 
 import NoResources from '../../NoResources';
@@ -5,9 +8,7 @@ import NoResources from '../../NoResources';
 import { WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
 import { useColumns } from './Columns/useColumns';
-import { useSetAtom } from 'jotai';
 import { statusesAtom } from './atoms';
-import { includes, isNotNil } from 'ramda';
 
 const GroupMonitoring = ({
   panelData,
@@ -42,28 +43,33 @@ const GroupMonitoring = ({
   });
 
   const columns = useColumns({
-    groupTypeName,
-    groupType
+    groupType,
+    groupTypeName
   });
 
-  setStatuses(panelOptions.statuses || [])
+  setStatuses(panelOptions.statuses || []);
 
   if (!hasResourceTypeDefined) {
     return <NoResources />;
   }
 
-  const columnsToDisplay = ['name', includes('host', panelOptions.resourceTypes) ? 'host' : undefined, includes('service', panelOptions.resourceTypes) ? 'service' : undefined].filter(isNotNil)
+  const columnsToDisplay = [
+    'name',
+    includes('host', panelOptions.resourceTypes) ? 'host' : undefined,
+    includes('service', panelOptions.resourceTypes) ? 'service' : undefined
+  ].filter(isNotNil);
 
   return (
     <MemoizedListing
       columnConfiguration={{
-        sortable: false,
-        selectedColumnIds: columnsToDisplay
+        selectedColumnIds: columnsToDisplay,
+        sortable: false
       }}
       columns={columns}
       currentPage={page}
       limit={limit}
       loading={isLoading}
+      memoProps={[panelOptions.statuses]}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}
@@ -71,7 +77,6 @@ const GroupMonitoring = ({
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onSort={changeSort}
-      memoProps={[panelOptions.statuses]}
     />
   );
 };
