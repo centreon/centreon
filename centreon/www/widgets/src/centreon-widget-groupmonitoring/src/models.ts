@@ -7,7 +7,7 @@ export interface PanelOptions {
   page?: number;
   refreshInterval: 'default' | 'custom';
   refreshIntervalCustom?: number;
-  resourceType: Array<string>;
+  resourceTypes: Array<string>;
   sortField?: string;
   sortOrder?: SortOrder;
   statuses: Array<string>;
@@ -37,6 +37,6 @@ export interface Group extends NamedEntity {
 }
 
 export interface RowProps {
-  resourceType: string;
+  groupType: string;
   row: Group;
 }

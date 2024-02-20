@@ -2,27 +2,49 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, ColumnType } from '@centreon/ui';
 
+import { labelHosts, labelServices } from '../translatedLabels';
+
 import { Name } from './Name';
+import Statuses from './Statuses/Statuses';
 
 interface Props {
-  resourceType: string;
-  resourceTypeName: string;
+  groupType: string;
+  groupTypeName: string;
 }
 
 export const useColumns = ({
-  resourceTypeName,
-  resourceType
+  groupTypeName,
+  groupType
 }: Props): Array<Column> => {
   const { t } = useTranslation();
 
   return [
     {
-      Component: ({ row }) => <Name resourceType={resourceType} row={row} />,
+      Component: ({ row }) => <Name groupType={groupType} row={row} />,
       clickable: false,
       id: 'name',
-      label: t(resourceTypeName),
+      label: t(groupTypeName),
       sortField: 'name',
       sortable: true,
+      type: ColumnType.component,
+      width: '200px'
+    },
+    {
+      Component: ({ row }) => (
+        <Statuses groupType={groupType} resourceType="host" row={row} />
+      ),
+      clickable: false,
+      id: 'host',
+      label: t(labelHosts),
+      type: ColumnType.component
+    },
+    {
+      Component: ({ row }) => (
+        <Statuses groupType={groupType} resourceType="service" row={row} />
+      ),
+      clickable: false,
+      id: 'service',
+      label: t(labelServices),
       type: ColumnType.component
     }
   ];

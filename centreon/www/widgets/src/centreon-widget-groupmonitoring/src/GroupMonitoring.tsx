@@ -5,6 +5,9 @@ import NoResources from '../../NoResources';
 import { WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
 import { useColumns } from './Columns/useColumns';
+import { useSetAtom } from 'jotai';
+import { statusesAtom } from './atoms';
+import { includes, isNotNil } from 'ramda';
 
 const GroupMonitoring = ({
   panelData,
@@ -14,6 +17,8 @@ const GroupMonitoring = ({
   isFromPreview,
   setPanelOptions
 }: Omit<WidgetProps, 'store'>): JSX.Element => {
+  const setStatuses = useSetAtom(statusesAtom);
+
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -25,8 +30,8 @@ const GroupMonitoring = ({
     sortField,
     sortOrder,
     listing,
-    resourceTypeName,
-    resourceType
+    groupType,
+    groupTypeName
   } = useGroupMonitoring({
     globalRefreshInterval,
     isFromPreview,
@@ -37,16 +42,24 @@ const GroupMonitoring = ({
   });
 
   const columns = useColumns({
-    resourceTypeName,
-    resourceType
+    groupTypeName,
+    groupType
   });
+
+  setStatuses(panelOptions.statuses || [])
 
   if (!hasResourceTypeDefined) {
     return <NoResources />;
   }
 
+  const columnsToDisplay = ['name', includes('host', panelOptions.resourceTypes) ? 'host' : undefined, includes('service', panelOptions.resourceTypes) ? 'service' : undefined].filter(isNotNil)
+
   return (
     <MemoizedListing
+      columnConfiguration={{
+        sortable: false,
+        selectedColumnIds: columnsToDisplay
+      }}
       columns={columns}
       currentPage={page}
       limit={limit}
@@ -58,6 +71,7 @@ const GroupMonitoring = ({
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onSort={changeSort}
+      memoProps={[panelOptions.statuses]}
     />
   );
 };

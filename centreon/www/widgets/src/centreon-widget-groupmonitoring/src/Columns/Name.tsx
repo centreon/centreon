@@ -1,13 +1,15 @@
 import { Link } from '@mui/material';
 
+import { EllipsisTypography } from '@centreon/ui';
+
 import { RowProps } from '../models';
 import { getResourcesUrl } from '../../../utils';
 
-export const Name = ({ row, resourceType }: RowProps): JSX.Element => {
+export const Name = ({ row, groupType }: RowProps): JSX.Element => {
   const url = getResourcesUrl({
     allResources: [
       {
-        resourceType,
+        resourceType: groupType,
         resources: [
           {
             id: row?.id,
@@ -23,14 +25,16 @@ export const Name = ({ row, resourceType }: RowProps): JSX.Element => {
   });
 
   return (
-    <Link
-      color="inherit"
-      component="a"
-      href={url}
-      target="_blank"
-      underline="hover"
-    >
-      {row.name}
-    </Link>
+    <EllipsisTypography>
+      <Link
+        color="inherit"
+        component="a"
+        href={url}
+        target="_blank"
+        underline="hover"
+      >
+        {row.name}
+      </Link>
+    </EllipsisTypography>
   );
 };

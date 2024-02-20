@@ -24,13 +24,13 @@ interface UseGroupMonitoringState {
     sortField: string;
     sortOrder: SortOrder;
   }) => void;
+  groupType: string;
+  groupTypeName: string;
   hasResourceTypeDefined: boolean;
   isLoading: boolean;
   limit: number;
   listing?: ListingModel<Group>;
   page: number;
-  resourceType: string;
-  resourceTypeName: string;
   sortField: string;
   sortOrder: SortOrder;
 }
@@ -145,13 +145,13 @@ export const useGroupMonitoring = ({
     changeLimit,
     changePage,
     changeSort,
+    groupType: resource?.resourceType || '',
+    groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
     isLoading,
     limit: limitToUse,
     listing: data,
     page: pageToUse,
-    resourceType: resource?.resourceType || '',
-    resourceTypeName: getResourceTypeName(resource?.resourceType),
     sortField: sortFieldToUse,
     sortOrder: sortOrderToUse
   };

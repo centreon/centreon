@@ -1,6 +1,20 @@
 import pluralize from 'pluralize';
+import { always, cond, equals } from 'ramda';
 
 import { capitalize } from '@mui/material';
+
+import { SeverityCode } from '@centreon/ui';
+
+import {
+  labelDown,
+  labelCritical,
+  labelWarning,
+  labelUp,
+  labelOk,
+  labelUnknown,
+  labelUnreachable,
+  labelPending
+} from './translatedLabels';
 
 export const getResourceTypeName = (resourceType: string): string => {
   const [firstPart, secondPart] = resourceType.split('-');
@@ -20,4 +34,81 @@ export const formatResourceTypeToCriterias = (resourceType: string): string => {
   }
 
   return `${firstPart}_${pluralize(secondPart)}`;
+};
+
+interface GetStatusesCountFromResourcesProps {
+  resourceType: string;
+  resources: Array<{ id: number; status: number }>;
+  statuses: Array<string>;
+}
+
+const getSeverityCodeFromMonitoringStatus = ({
+  resourceType,
+  status
+}: {
+  resourceType: string;
+  status: number;
+}): SeverityCode => {
+  if (equals(resourceType, 'service')) {
+    return cond([
+      [equals(0), always(SeverityCode.OK)],
+      [equals(1), always(SeverityCode.Medium)],
+      [equals(2), always(SeverityCode.High)],
+      [equals(3), always(SeverityCode.None)],
+      [equals(4), always(SeverityCode.Pending)]
+    ])(status);
+  }
+
+  return cond([
+    [equals(0), always(SeverityCode.OK)],
+    [equals(1), always(SeverityCode.High)],
+    [equals(2), always(SeverityCode.None)],
+    [equals(4), always(SeverityCode.Pending)]
+  ])(status);
+};
+
+const getSeverityCodeName = ({ resourceType, severityCode }): string => {
+  const isService = equals(resourceType, 'service');
+
+  return cond([
+    [equals(SeverityCode.High), always(isService ? labelCritical : labelDown)],
+    [equals(SeverityCode.Medium), always(labelWarning)],
+    [equals(SeverityCode.OK), always(isService ? labelUp : labelOk)],
+    [
+      equals(SeverityCode.None),
+      always(isService ? labelUnknown : labelUnreachable)
+    ],
+    [equals(SeverityCode.Pending), always(labelPending)]
+  ])(severityCode);
+};
+
+export const getStatusesCountFromResources = ({
+  resources,
+  statuses,
+  resourceType
+}: GetStatusesCountFromResourcesProps): Array<{
+  count: number;
+  label: string;
+  severityCode: number;
+}> => {
+  return statuses.map((status) => {
+    const formattedStatuse = Number(status);
+
+    return {
+      count: resources.filter(({ status: resourceStatus }) =>
+        equals(
+          formattedStatuse,
+          getSeverityCodeFromMonitoringStatus({
+            resourceType,
+            status: resourceStatus
+          })
+        )
+      ).length,
+      label: getSeverityCodeName({
+        resourceType,
+        severityCode: formattedStatuse
+      }),
+      severityCode: formattedStatuse
+    };
+  });
 };
