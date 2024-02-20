@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 
+import dayjs from 'dayjs';
 import { useAtom } from 'jotai';
 import { equals, isEmpty, isNil } from 'ramda';
 
@@ -17,6 +18,7 @@ import {
   usersAtom
 } from './atoms';
 import { Fields } from './models';
+import useInitializeFilter from './useInitializeFilter';
 
 const useBuildFilterValues = () => {
   const [search, setSearch] = useAtom(searchAtom);
@@ -25,20 +27,69 @@ const useBuildFilterValues = () => {
   const [expirationDate, setExpirationDate] = useAtom(expirationDateAtom);
   const [creationDate, setCreationDate] = useAtom(creationDateAtom);
   const [isRevoked, setIsRevoked] = useAtom(isRevokedAtom);
+  const { initialize } = useInitializeFilter();
 
-  const constructData = ({ dataToUpdate, value }) => {
+  const defaultFields = [
+    {
+      data: creationDate,
+      field: Fields.CreationDate,
+      initialValue: null,
+      update: setCreationDate
+    },
+    {
+      data: isRevoked,
+      field: Fields.IsRevoked,
+      initialValue: null,
+      update: setIsRevoked
+    },
+    {
+      data: expirationDate,
+      field: Fields.ExpirationDate,
+      initialValue: null,
+      update: setExpirationDate
+    },
+    { data: users, field: Fields.UserName, initialValue: [], update: setUsers },
+    {
+      data: creators,
+      field: Fields.CreatorName,
+      initialValue: [],
+      update: setCreators
+    }
+  ];
+
+  const constructData = ({ value }) => {
     const newData = value
       .split(',')
       .map((simpleValue) => {
-        return dataToUpdate.every((item) => item.name !== simpleValue)
-          ? { id: crypto.randomUUID(), name: simpleValue }
+        return { id: crypto.randomUUID(), name: simpleValue };
+      })
+      .filter((item) => item) as Array<PersonalInformation>;
+
+    return [...newData];
+  };
+
+  const currentFullFields = useMemo(() => {
+    return defaultFields
+      .map(({ data, field }) => (!isNil(data) && !isEmpty(data) ? field : null))
+      .filter((item) => item);
+  }, [creationDate, isRevoked, expirationDate, users.length, creators.length]);
+
+  const initializeSpecificFields = (searchableField) => {
+    const fieldsToInitialize = currentFullFields
+      .map((item) => {
+        return searchableField.every(({ field }) => item !== field)
+          ? item
           : null;
       })
-      .filter((item) => {
-        return !isNil(item);
-      }) as Array<PersonalInformation>;
+      .filter((item) => item);
 
-    return [...dataToUpdate, ...newData];
+    defaultFields.forEach(({ field, update, initialValue }) => {
+      fieldsToInitialize.forEach((item) => {
+        if (item === field) {
+          update(initialValue);
+        }
+      });
+    });
   };
 
   useMemo(() => {
@@ -48,34 +99,37 @@ const useBuildFilterValues = () => {
     });
 
     if (isEmpty(searchableField)) {
+      initialize();
+
       return;
     }
 
+    initializeSpecificFields(searchableField);
+
     searchableField.forEach(({ field, value }) => {
       if (equals(Fields.CreatorName, field)) {
-        setCreators(constructData({ dataToUpdate: creators, value }));
+        setCreators(constructData({ value }));
       }
 
       if (equals(Fields.UserName, field)) {
-        setUsers(constructData({ dataToUpdate: users, value }));
+        setUsers(constructData({ value }));
       }
       if (equals(Fields.ExpirationDate, field)) {
         const result = constructData({
-          dataToUpdate: adjustData(expirationDate),
           value
         });
-        setExpirationDate(result[result.length - 1].name);
+        const date = dayjs(result[result.length - 1].name).toDate();
+        setExpirationDate(date);
       }
       if (equals(Fields.CreationDate, field)) {
         const result = constructData({
-          dataToUpdate: adjustData(creationDate),
           value
         });
-        setCreationDate(result[result.length - 1].name);
+        const date = dayjs(result[result.length - 1].name).toDate();
+        setCreationDate(date);
       }
       if (equals(Fields.IsRevoked, field)) {
         const result = constructData({
-          dataToUpdate: adjustData(isRevoked),
           value
         });
 

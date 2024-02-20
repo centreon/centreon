@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { isEmpty, isNil } from 'ramda';
 
-import { getFoundFields } from '@centreon/ui';
+import { getFoundFields, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   creationDateAtom,
@@ -25,6 +25,7 @@ const useSearch = (): void => {
   const expirationDate = useAtomValue(expirationDateAtom);
   const creationDate = useAtomValue(creationDateAtom);
   const isRevoked = useAtomValue(isRevokedAtom);
+  const { toIsoString } = useLocaleDateTimeFormat();
 
   const newSearch = useRef('');
 
@@ -37,11 +38,13 @@ const useSearch = (): void => {
     { data: users, field: Fields.UserName },
     { data: creators, field: Fields.CreatorName },
     {
-      data: !isNil(creationDate) ? adjustData(creationDate) : [],
+      data: !isNil(creationDate) ? adjustData(toIsoString(creationDate)) : [],
       field: Fields.CreationDate
     },
     {
-      data: !isNil(expirationDate) ? adjustData(expirationDate) : [],
+      data: !isNil(expirationDate)
+        ? adjustData(toIsoString(expirationDate))
+        : [],
       field: Fields.ExpirationDate
     },
     {

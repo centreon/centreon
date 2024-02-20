@@ -15,7 +15,7 @@ export const buildListEndpoint = ({
 }: BuildListEndpoint): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    customQueryParameters,
+    customQueryParameters: customQueryParameters ?? undefined,
     parameters
   });
 

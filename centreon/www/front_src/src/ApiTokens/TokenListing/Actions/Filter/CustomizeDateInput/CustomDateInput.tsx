@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
 import dayjs from 'dayjs';
+import { PrimitiveAtom, useAtom } from 'jotai';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
@@ -10,30 +9,32 @@ import { useStyles } from '../filter.styles';
 
 interface Props {
   anchorEl: HTMLDivElement | null;
-  getCurrentDate: (date: Date | null) => void;
   onClose: () => void;
-  selectedDate: Date;
+  storageData: PrimitiveAtom<Date | null>;
 }
 
 const CustomDateInput = ({
   anchorEl,
   onClose,
-  getCurrentDate,
-  selectedDate
+  storageData
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const defaultDate = dayjs().toDate();
 
-  const [currentDate, setCurrentDate] = useState<Date>(defaultDate);
+  const [currentDate, setCurrentDate] = useAtom(storageData);
 
   const changeDate = ({ date }): void => {
-    getCurrentDate?.(dayjs(date).toDate());
     setCurrentDate(dayjs(date).toDate());
   };
 
   const acceptDate = (): void => {
-    getCurrentDate(currentDate);
+    if (currentDate) {
+      onClose();
+
+      return;
+    }
+    setCurrentDate(defaultDate);
     onClose();
   };
 
@@ -57,7 +58,7 @@ const CustomDateInput = ({
   return (
     <DateTimePickerInput
       changeDate={changeDate}
-      date={selectedDate ?? currentDate}
+      date={currentDate ?? defaultDate}
       open={Boolean(anchorEl)}
       slotProps={slotProps}
       slots={slots}

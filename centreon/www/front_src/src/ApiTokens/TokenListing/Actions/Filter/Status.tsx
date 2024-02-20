@@ -68,37 +68,21 @@ const Status = (): JSX.Element => {
   }, [isRevoked]);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        margin: '16px 0',
-        width: 320
-      }}
-    >
-      <div style={{ minWidth: 50 }}>
-        <Typography variant="body2">{t(labelStatus)}</Typography>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flex: 0.75,
-          flexDirection: 'row',
-          justifyContent: 'space-between'
-        }}
-      >
+    <div className={classes.statusContainer}>
+      <Typography className={classes.labelStatus} variant="subtitle2">
+        {t(labelStatus)}
+      </Typography>
+      <div className={classes.checkboxContainer}>
         <Checkbox
           checked={activeToken}
-          className={classes.checkbox}
           label={t(labelActiveToken)}
-          labelProps={{ variant: 'body2' }}
+          labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleActiveToken}
         />
         <Checkbox
           checked={revokedToken}
-          className={classes.checkbox}
           label={t(labelRevokedToken)}
-          labelProps={{ variant: 'body2' }}
+          labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleRevokedToken}
         />
       </div>

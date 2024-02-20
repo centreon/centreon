@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import {
   SaveButton as Button,
-  MultiConnectedAutocompleteField
+  MultiConnectedAutocompleteField,
+  QueryParameter
 } from '@centreon/ui';
 
 import {
@@ -19,11 +20,19 @@ import {
 } from '../../../translatedLabels';
 import { PersonalInformation } from '../../models';
 import { searchAtom } from '../Search/atoms';
-import { buildSearchParameters, getUniqData } from '../Search/utils';
+import { getUniqData } from '../Search/utils';
+import useBuildParameters from '../Search/useBuildParametrs';
 
-import DateCreationInput from './DateCreationInput';
+import CustomizeDateInput from './CustomizeDateInput';
 import Status from './Status';
-import { creatorsAtom, currentFilterAtom, usersAtom } from './atoms';
+import {
+  creationDateAtom,
+  creatorsAtom,
+  currentFilterAtom,
+  customQueryParametersAtom,
+  expirationDateAtom,
+  usersAtom
+} from './atoms';
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
 import useBuildFilterValues from './useBuildFilterValues';
@@ -36,13 +45,17 @@ const Filter = (): JSX.Element => {
   const [creators, setCreators] = useAtom(creatorsAtom);
   const [users, setUsers] = useAtom(usersAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const [customQueryParameters, setCustomQueryParameters] = useAtom(
+    customQueryParametersAtom
+  );
   const [search, setSearch] = useAtom(searchAtom);
+  const { queryParameters, getSearchParameters } = useBuildParameters();
 
   const { initialize } = useInitializeFilter();
 
   useBuildFilterValues();
 
-  const wordToRegex = (input) => {
+  const wordToRegex = (input): string => {
     return input.replace(/\s/g, '\\s+');
   };
 
@@ -88,21 +101,22 @@ const Filter = (): JSX.Element => {
   };
 
   const handleSearch = (): void => {
-    if (!search) {
-      setCurrentFilter({ ...currentFilter, search: undefined });
-
-      return;
-    }
-
-    setCurrentFilter({
-      ...currentFilter,
-      search: buildSearchParameters(search)()
-    });
+    const searchValue = !search ? undefined : getSearchParameters();
+    setCurrentFilter({ ...currentFilter, search: searchValue });
+    setCustomQueryParameters(queryParameters);
   };
 
   return (
     <div className={classes.container}>
-      <DateCreationInput />
+      <CustomizeDateInput
+        label="creation date"
+        storageData={creationDateAtom}
+      />
+      <CustomizeDateInput
+        label="expiration date"
+        storageData={expirationDateAtom}
+      />
+
       <MultiConnectedAutocompleteField
         disableSortedOptions
         // allowUniqOption
@@ -141,14 +155,7 @@ const Filter = (): JSX.Element => {
       />
       <Status />
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          width: 320
-        }}
-      >
+      <div className={classes.buttonsContainer}>
         <Button
           data-testid={labelClear}
           labelSave={t(labelClear)}

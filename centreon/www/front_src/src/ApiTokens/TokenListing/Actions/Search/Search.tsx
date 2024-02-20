@@ -7,13 +7,13 @@ import { SearchField } from '@centreon/ui';
 
 import { renderEndAdornmentFilter } from '../../../../Resources/Filter';
 import { labelSearch } from '../../../translatedLabels';
-import { useStyles } from '../actions.styles';
-import { currentFilterAtom } from '../Filter/atoms';
+import { currentFilterAtom, customQueryParametersAtom } from '../Filter/atoms';
 import useInitializeFilter from '../Filter/useInitializeFilter';
+import { useStyles } from '../actions.styles';
 
 import { searchAtom } from './atoms';
+import useBuildParameters from './useBuildParametrs';
 import useSearch from './useSearch';
-import { buildSearchParameters } from './utils';
 
 const TokenSearch = (): JSX.Element => {
   const { classes } = useStyles();
@@ -21,7 +21,11 @@ const TokenSearch = (): JSX.Element => {
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const [customQueryParameters, setCustomQueryParameters] = useAtom(
+    customQueryParametersAtom
+  );
   const { initialize } = useInitializeFilter();
+  const { queryParameters, getSearchParameters } = useBuildParameters();
 
   useSearch();
 
@@ -42,8 +46,9 @@ const TokenSearch = (): JSX.Element => {
 
     setCurrentFilter({
       ...currentFilter,
-      search: buildSearchParameters(searchValue)()
+      search: getSearchParameters()
     });
+    setCustomQueryParameters(queryParameters);
   };
 
   useEffect(() => {
