@@ -61,8 +61,10 @@ const CheckActionButton = ({
 
   const handleCheckResource = (): void => {
     checkResource({
-      check: { is_forced: false },
-      resources: adjustCheckedResources({ resources })
+      payload: {
+        check: { is_forced: false },
+        resources: adjustCheckedResources({ resources })
+      }
     }).then(() => {
       onSuccessCheckAction?.();
     });
