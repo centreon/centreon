@@ -4,20 +4,6 @@
   </td>
 </tr>
 <tr>
-  <td class="FormRowField" style="padding-left:15px;">Persistent</td>
-  <td class="FormRowField" style="padding-left:15px;">
-    <input 
-      type="checkbox"
-      id="persistent"
-      value="{$ack_options.persistent}"
-      name="persistent"
-      {if $ack_options.persistent == 1}
-        checked
-      {/if}
-    </input>
-  </td>
-</tr>
-<tr>
   <td class="FormRowField" style="padding-left:15px;">Sticky</td>
   <td class="FormRowField" style="padding-left:15px;">
     <input 

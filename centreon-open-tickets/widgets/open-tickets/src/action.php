@@ -143,7 +143,6 @@ function format_popup()
                 'email' => $centreon->user->email
             ],
             'ack_options' => [
-                'persistent' => $centreon->optGen['monitoring_ack_persistent'],
                 'sticky' => $centreon->optGen['monitoring_ack_sticky'],
                 'notify' => $centreon->optGen['monitoring_ack_notify'],
                 'ack_services_linked_to_host' => $centreon->optGen['monitoring_ack_svc'],

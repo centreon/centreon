@@ -165,7 +165,7 @@ $selected = $rule->loadSelection(
 
 $sticky = isset($get_information['form']['sticky']) ? 2 : 1;
 $notify = isset($get_information['form']['notify']) ? 1 : 0;
-$persistent = isset($get_information['form']['persistent']) ? 1 : 0;
+$persistent = 1; // starting from 24.04, persistent will always be set to 1
 $scheduleForcedCheck = isset($get_information['form']['schedule_forced_check']) ? true : false;
 // below feature is not used at the moment. Just putting it here in case we add it some day
 //$ackServicesLinkedToHost = isset($get_information['form']['ack_services_linked_to_host']) ? true : false;
