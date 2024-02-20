@@ -41,7 +41,7 @@ runs:
         php-version: 8.1
         extensions: yaml, xml, mysql, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2
+        tools: composer:v2.6
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
