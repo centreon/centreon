@@ -1,5 +1,5 @@
 import pluralize from 'pluralize';
-import { always, cond, equals } from 'ramda';
+import { always, cond, equals, sortBy } from 'ramda';
 
 import { capitalize } from '@mui/material';
 
@@ -91,13 +91,15 @@ export const getStatusesCountFromResources = ({
   label: string;
   severityCode: number;
 }> => {
-  return statuses.map((status) => {
-    const formattedStatuse = Number(status);
+  const sortedStatuses = statuses.sort();
+
+  return sortedStatuses.map((status) => {
+    const formattedStatus = Number(status);
 
     return {
       count: resources.filter(({ status: resourceStatus }) =>
         equals(
-          formattedStatuse,
+          formattedStatus,
           getSeverityCodeFromMonitoringStatus({
             resourceType,
             status: resourceStatus
@@ -106,9 +108,9 @@ export const getStatusesCountFromResources = ({
       ).length,
       label: getSeverityCodeName({
         resourceType,
-        severityCode: formattedStatuse
+        severityCode: formattedStatus
       }),
-      severityCode: formattedStatuse
+      severityCode: formattedStatus
     };
   });
 };

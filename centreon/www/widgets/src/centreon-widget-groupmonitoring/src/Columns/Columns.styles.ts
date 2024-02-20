@@ -1,7 +1,10 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useStatusesColumnStyles = makeStyles()({
+export const useStatusesColumnStyles = makeStyles()((theme) => ({
   container: { display: 'flex', flexDirection: 'row', gap: '16px' },
+  count: {
+    width: theme.spacing(9.5)
+  },
   status: {
     alignItems: 'center',
     display: 'flex',
@@ -18,4 +21,4 @@ export const useStatusesColumnStyles = makeStyles()({
     justifyContent: 'center',
     width: '16px'
   }
-});
+}));

@@ -75,7 +75,7 @@ const Status = ({
           <strong>{label.slice(0, 1).toLocaleUpperCase()}</strong>
         </Typography>
       </Box>
-      <Typography>({formattedCount})</Typography>
+      <Typography className={classes.count}>({formattedCount})</Typography>
     </Link>
   );
 };
