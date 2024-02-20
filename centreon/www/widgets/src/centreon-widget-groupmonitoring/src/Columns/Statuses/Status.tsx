@@ -1,3 +1,5 @@
+import numeral from 'numeral';
+
 import { Box, Link, Typography, useTheme } from '@mui/material';
 
 import { SeverityCode, getStatusColors } from '@centreon/ui';
@@ -52,6 +54,8 @@ const Status = ({
     type: resourceType
   });
 
+  const formattedCount = numeral(count).format('0.[00]a');
+
   return (
     <Link
       className={classes.status}
@@ -71,7 +75,7 @@ const Status = ({
           <strong>{label.slice(0, 1).toLocaleUpperCase()}</strong>
         </Typography>
       </Box>
-      <Typography>({count})</Typography>
+      <Typography>({formattedCount})</Typography>
     </Link>
   );
 };
