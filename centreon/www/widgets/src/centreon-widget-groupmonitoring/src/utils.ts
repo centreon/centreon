@@ -1,5 +1,5 @@
 import pluralize from 'pluralize';
-import { always, cond, equals, sortBy } from 'ramda';
+import { always, cond, equals, reject } from 'ramda';
 
 import { capitalize } from '@mui/material';
 
@@ -91,7 +91,10 @@ export const getStatusesCountFromResources = ({
   label: string;
   severityCode: number;
 }> => {
-  const sortedStatuses = statuses.sort();
+  const filteredStatuses = equals(resourceType, 'host')
+    ? reject((status) => equals(SeverityCode.Medium, Number(status)), statuses)
+    : statuses;
+  const sortedStatuses = filteredStatuses.sort();
 
   return sortedStatuses.map((status) => {
     const formattedStatus = Number(status);
