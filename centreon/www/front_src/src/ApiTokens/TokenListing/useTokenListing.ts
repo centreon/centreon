@@ -25,8 +25,6 @@ export const useTokenListing = ({ enabled }: Props): UseTokenListing => {
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
   const customQueryParameters = useAtomValue(customQueryParametersAtom);
 
-  console.log('????', customQueryParameters);
-
   const getEndpoint = (): string => {
     return buildListEndpoint({
       customQueryParameters,
