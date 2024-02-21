@@ -1,7 +1,12 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStatusesColumnStyles = makeStyles()((theme) => ({
-  container: { display: 'flex', flexDirection: 'row', gap: '16px' },
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing(1)
+  },
   count: {
     width: theme.spacing(9.5)
   },
@@ -9,7 +14,7 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gap: '4px',
+    gap: theme.spacing(0.5),
     justifyContent: 'center'
   },
   statusLabel: {
@@ -17,8 +22,8 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
   },
   statusLabelContainer: {
     borderRadius: '50%',
-    height: '16px',
+    height: theme.spacing(2),
     justifyContent: 'center',
-    width: '16px'
+    width: theme.spacing(2)
   }
 }));

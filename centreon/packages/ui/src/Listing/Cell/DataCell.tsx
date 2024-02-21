@@ -64,7 +64,7 @@ const DataCell = ({
 
   const cellByColumnType = {
     [ColumnType.string]: (): JSX.Element => {
-      const { getFormattedString, isTruncated, getColSpan } = column;
+      const { getFormattedString, isTruncated, getColSpan, align } = column;
 
       const colSpan = getColSpan?.(isRowSelected);
 
@@ -87,6 +87,7 @@ const DataCell = ({
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
+            alignItems: align,
             gridColumn
           }}
           {...commonCellProps}
@@ -99,7 +100,7 @@ const DataCell = ({
       );
     },
     [ColumnType.component]: (): JSX.Element | null => {
-      const { getHiddenCondition, clickable } = column;
+      const { getHiddenCondition, clickable, align } = column;
       const Component = column.Component as (
         props: ComponentColumnProps
       ) => JSX.Element;
@@ -129,6 +130,9 @@ const DataCell = ({
           className={classes.cell}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
+          style={{
+            alignItems: align
+          }}
           onClick={(e): void => {
             if (!clickable) {
               return;

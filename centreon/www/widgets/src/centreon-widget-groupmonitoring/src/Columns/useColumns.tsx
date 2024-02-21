@@ -24,22 +24,25 @@ export const useColumns = ({
       Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Name groupType={groupType} row={row} />
       ),
+      align: 'start',
       clickable: false,
       id: 'name',
       label: t(groupTypeName),
       sortField: 'name',
       sortable: true,
       type: ColumnType.component,
-      width: '200px'
+      width: 'minmax(120px, 400px)'
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Statuses groupType={groupType} resourceType="host" row={row} />
       ),
+      align: 'start',
       clickable: false,
       id: 'host',
       label: t(labelHosts),
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'minmax(220px, 1fr)'
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
@@ -48,7 +51,8 @@ export const useColumns = ({
       clickable: false,
       id: 'service',
       label: t(labelServices),
-      type: ColumnType.component
+      type: ColumnType.component,
+      width: 'minmax(320px, 1fr)'
     }
   ];
 };

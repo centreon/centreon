@@ -61,6 +61,7 @@ const GroupMonitoring = ({
 
   return (
     <MemoizedListing
+      isResponsive
       columnConfiguration={{
         selectedColumnIds: columnsToDisplay,
         sortable: false
