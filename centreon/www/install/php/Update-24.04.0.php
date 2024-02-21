@@ -189,6 +189,23 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$insertGroupMonitoringWidget = function(CentreonDb $pearDB): void {
+    $statement = $pearDB->query(
+        <<<'SQL'
+            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-groupmonitoring'
+            SQL
+    );
+    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `dashboard_widgets` (`name`)
+                VALUES
+                    ('centreon-widget-groupmonitoring')
+                SQL
+        );
+    }
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -201,6 +218,7 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+    $insertGroupMonitoringWidget($pearDB)
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
