@@ -397,9 +397,17 @@ function setup_mysql() {
 
 	case "$detected_os_release" in
 		debian-release*)
-		log "INFO" "Install MySQL repository"
-		;;
+			log "INFO" "Install MySQL repository"
+			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+			$PKG_MGR install -y mysql-apt-config_0.8.29-1_all.deb
+			;;
+
+		almalinux-release*)
+			log "INFO" "Install MySQL repository"
+			;;
+
 	esac
+	$PKG_MGR install mysql-server
 }
 #========= end of function set_mysql_repos()
 
