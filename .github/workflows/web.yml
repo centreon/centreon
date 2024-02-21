@@ -871,7 +871,7 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-version.outputs.stability }}
+          stability: unstable
 
   deliver-deb:
     runs-on: [self-hosted, common]
