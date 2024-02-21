@@ -61,7 +61,11 @@ const Status = ({
       className={classes.status}
       color="inherit"
       component="a"
+      data-count={count}
+      data-group={groupName}
+      data-status={label}
       href={url}
+      rel="noopener noreferrer"
       target="_blank"
       underline="none"
     >

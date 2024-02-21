@@ -30,6 +30,7 @@ export const Name = ({ row, groupType }: RowProps): JSX.Element => {
         color="inherit"
         component="a"
         href={url}
+        rel="noopener noreferrer"
         target="_blank"
         underline="hover"
       >

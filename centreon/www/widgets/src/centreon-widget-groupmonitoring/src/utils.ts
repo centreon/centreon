@@ -73,7 +73,7 @@ const getSeverityCodeName = ({ resourceType, severityCode }): string => {
   return cond([
     [equals(SeverityCode.High), always(isService ? labelCritical : labelDown)],
     [equals(SeverityCode.Medium), always(labelWarning)],
-    [equals(SeverityCode.OK), always(isService ? labelUp : labelOk)],
+    [equals(SeverityCode.OK), always(isService ? labelOk : labelUp)],
     [
       equals(SeverityCode.None),
       always(isService ? labelUnknown : labelUnreachable)
