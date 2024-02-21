@@ -1223,9 +1223,9 @@ function install_poller() {
 #
 function update_centreon_packages() {
 	if [[ $database_system == "MariaDB" ]]; then
-		$CENTREON_PKG="centreon\*"
+		CENTREON_PKG="centreon\*"
 	else
-		$CENTREON_PKG="centreon-web"
+		CENTREON_PKG="centreon-web"
 	fi
 
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
