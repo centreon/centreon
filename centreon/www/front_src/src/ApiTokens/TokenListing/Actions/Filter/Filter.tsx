@@ -101,8 +101,7 @@ const Filter = (): JSX.Element => {
   };
 
   const handleSearch = (): void => {
-    const searchValue = !search ? undefined : getSearchParameters();
-    setCurrentFilter({ ...currentFilter, search: searchValue });
+    setCurrentFilter({ ...currentFilter, search: getSearchParameters() });
     setCustomQueryParameters(queryParameters);
   };
 

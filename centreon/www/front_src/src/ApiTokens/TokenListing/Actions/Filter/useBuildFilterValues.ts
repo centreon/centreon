@@ -57,6 +57,12 @@ const useBuildFilterValues = () => {
     }
   ];
 
+  const currentFullFields = useMemo(() => {
+    return defaultFields
+      .map(({ data, field }) => (!isNil(data) && !isEmpty(data) ? field : null))
+      .filter((item) => item);
+  }, [creationDate, isRevoked, expirationDate, users.length, creators.length]);
+
   const constructData = ({ value }) => {
     const newData = value
       .split(',')
@@ -68,13 +74,7 @@ const useBuildFilterValues = () => {
     return [...newData];
   };
 
-  const currentFullFields = useMemo(() => {
-    return defaultFields
-      .map(({ data, field }) => (!isNil(data) && !isEmpty(data) ? field : null))
-      .filter((item) => item);
-  }, [creationDate, isRevoked, expirationDate, users.length, creators.length]);
-
-  const initializeSpecificFields = (searchableField) => {
+  const initializeFullFields = (searchableField) => {
     const fieldsToInitialize = currentFullFields
       .map((item) => {
         return searchableField.every(({ field }) => item !== field)
@@ -85,27 +85,15 @@ const useBuildFilterValues = () => {
 
     defaultFields.forEach(({ field, update, initialValue }) => {
       fieldsToInitialize.forEach((item) => {
-        if (item === field) {
-          update(initialValue);
+        if (item !== field) {
+          return;
         }
+        update(initialValue);
       });
     });
   };
 
-  useMemo(() => {
-    const searchableField = getFoundFields({
-      fields: Object.values(Fields),
-      value: search
-    });
-
-    if (isEmpty(searchableField)) {
-      initialize();
-
-      return;
-    }
-
-    initializeSpecificFields(searchableField);
-
+  const updateContentFields = (searchableField) => {
     searchableField.forEach(({ field, value }) => {
       if (equals(Fields.CreatorName, field)) {
         setCreators(constructData({ value }));
@@ -136,6 +124,23 @@ const useBuildFilterValues = () => {
         setIsRevoked(convertToBoolean(result[result.length - 1].name));
       }
     });
+  };
+
+  useMemo(() => {
+    const searchableFieldInSearchInput = getFoundFields({
+      fields: Object.values(Fields),
+      value: search
+    });
+
+    if (isEmpty(searchableFieldInSearchInput)) {
+      initialize();
+
+      return;
+    }
+
+    initializeFullFields(searchableFieldInSearchInput);
+
+    updateContentFields(searchableFieldInSearchInput);
   }, [search]);
 };
 

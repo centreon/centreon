@@ -20,7 +20,7 @@ import { Fields } from '../Filter/models';
 import { searchAtom } from './atoms';
 
 interface UseButtonParameters {
-  getSearchParameters: () => SearchParameter;
+  getSearchParameters: () => SearchParameter | undefined;
   queryParameters: Array<QueryParameter> | null;
 }
 
@@ -37,14 +37,34 @@ const useBuildParameters = (): UseButtonParameters => {
     { data: isRevoked, field: Fields.IsRevoked }
   ];
 
-  const getSearchParameters = useCallback(() => {
-    // const updatedSearch = clearFields({ input: customQueriesData, search });
+  const excludeCustomQueriesFromSearchInput = (): string => {
+    return search
+      .split(' ')
+      .map((item) => {
+        const hasCustomField = getFoundFields({
+          fields: customQueriesData.map(({ field }) => field),
+          value: item
+        });
+        if (isEmpty(hasCustomField)) {
+          return item;
+        }
 
-    // console.log({ search, updatedSearch });
+        return null;
+      })
+      .filter((item) => item)
+      .join(' ');
+  };
+
+  const getSearchParameters = useCallback(() => {
+    const updatedSearch = excludeCustomQueriesFromSearchInput();
+
+    if (!updatedSearch) {
+      return undefined;
+    }
 
     const fieldMatches = getFoundFields({
       fields: [...Object.values(Fields)],
-      value: search
+      value: updatedSearch
     });
 
     const searchedWords = fieldMatches.map(({ field, value }) => {
@@ -75,7 +95,7 @@ const useBuildParameters = (): UseButtonParameters => {
     return {
       regex: {
         fields: [...Object.values(Fields)],
-        value: search
+        value: updatedSearch
       }
     };
   }, [search]);
