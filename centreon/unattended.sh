@@ -175,7 +175,7 @@ function parse_subcommand_options() {
 
 		l)
 			log_level=$OPTARG
-			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ]; then
+			if ! [[ ${SUPPORTED_LOG_LEVEL[$log_level]} ]]; then
 				log "ERROR" "Unsupported and ignored log level: $log_level"
 				usage
 			else
