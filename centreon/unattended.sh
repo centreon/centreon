@@ -407,7 +407,7 @@ function setup_mysql() {
 			;;
 
 	esac
-	$PKG_MGR install mysql-server
+	$PKG_MGR install -y mysql-server
 }
 #========= end of function set_mysql_repos()
 
@@ -1151,9 +1151,9 @@ function install_central() {
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
 	if [[ $database_system == "MariaDB" ]]; then
-		$CENTREON_PKG="centreon"
+		CENTREON_PKG="centreon"
 	else
-		$CENTREON_PKG="centreon-web"
+		CENTREON_PKG="centreon-web"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
