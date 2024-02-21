@@ -25,6 +25,16 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 23.10.8: ';
 $errorMessage = '';
 
+$dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void {
+    if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $pearDB->query(
+            <<<'SQL'
+                    ALTER TABLE dashboard_widgets
+                    DROP COLUMN `version`
+                SQL
+        );
+    }
+};
 
 $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
@@ -41,6 +51,7 @@ $insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): 
 
 try {
     $errorMessage = '';
+    $dropColumnVersionFromDashboardWidgetsTable($pearDB);
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
