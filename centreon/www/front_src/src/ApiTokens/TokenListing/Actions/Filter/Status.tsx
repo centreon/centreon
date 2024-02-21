@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -21,15 +19,9 @@ const Status = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const [activeToken, setActiveToken] = useState(false);
-  const [revokedToken, setRevokedToken] = useState(false);
   const [isRevoked, setIsRevoked] = useAtom(isRevokedAtom);
 
   const handleActiveToken = (event): void => {
-    if (revokedToken) {
-      setRevokedToken(false);
-    }
-    setActiveToken(event.target.checked);
     if (event.target.checked) {
       setIsRevoked(false);
 
@@ -39,10 +31,6 @@ const Status = (): JSX.Element => {
   };
 
   const handleRevokedToken = (event): void => {
-    if (activeToken) {
-      setActiveToken(false);
-    }
-    setRevokedToken(event.target.checked);
     if (event.target.checked) {
       setIsRevoked(true);
 
@@ -51,22 +39,6 @@ const Status = (): JSX.Element => {
     setIsRevoked(null);
   };
 
-  useEffect(() => {
-    if (isNil(isRevoked)) {
-      setRevokedToken(false);
-      setActiveToken(false);
-
-      return;
-    }
-
-    if (isRevoked) {
-      setRevokedToken(true);
-
-      return;
-    }
-    setActiveToken(true);
-  }, [isRevoked]);
-
   return (
     <div className={classes.statusContainer}>
       <Typography className={classes.labelStatus} variant="subtitle2">
@@ -74,13 +46,13 @@ const Status = (): JSX.Element => {
       </Typography>
       <div className={classes.checkboxContainer}>
         <Checkbox
-          checked={activeToken}
+          checked={!isNil(isRevoked) ? !isRevoked : false}
           label={t(labelActiveToken)}
           labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleActiveToken}
         />
         <Checkbox
-          checked={revokedToken}
+          checked={Boolean(isRevoked)}
           label={t(labelRevokedToken)}
           labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleRevokedToken}

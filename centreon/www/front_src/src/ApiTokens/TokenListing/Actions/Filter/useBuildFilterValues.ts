@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import dayjs from 'dayjs';
-import { useAtom } from 'jotai';
-import { equals, isEmpty, isNil } from 'ramda';
+import { useAtom, useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, last } from 'ramda';
 
-import { getFoundFields } from '@centreon/ui';
+import { getFoundFields, useDeepCompare } from '@centreon/ui';
 
-import { searchAtom } from '../Search/atoms';
 import { PersonalInformation } from '../../models';
-import { adjustData, convertToBoolean, getUniqData } from '../Search/utils';
+import { searchAtom } from '../Search/atoms';
+import { convertToBoolean } from '../Search/utils';
 
 import {
   creationDateAtom,
@@ -18,42 +18,46 @@ import {
   usersAtom
 } from './atoms';
 import { Fields } from './models';
-import useInitializeFilter from './useInitializeFilter';
 
 const useBuildFilterValues = () => {
-  const [search, setSearch] = useAtom(searchAtom);
   const [users, setUsers] = useAtom(usersAtom);
   const [creators, setCreators] = useAtom(creatorsAtom);
   const [expirationDate, setExpirationDate] = useAtom(expirationDateAtom);
   const [creationDate, setCreationDate] = useAtom(creationDateAtom);
   const [isRevoked, setIsRevoked] = useAtom(isRevokedAtom);
-  const { initialize } = useInitializeFilter();
+  const search = useAtomValue(searchAtom);
+
+  const creatorsRef = useRef(creators);
+  const usersRef = useRef(users);
+  const expirationDateRef = useRef(expirationDate);
+  const creationDateRef = useRef(creationDate);
+  const isRevokedRef = useRef(isRevoked);
 
   const defaultFields = [
     {
       data: creationDate,
       field: Fields.CreationDate,
       initialValue: null,
-      update: setCreationDate
+      ref: creationDateRef
     },
     {
       data: isRevoked,
       field: Fields.IsRevoked,
       initialValue: null,
-      update: setIsRevoked
+      ref: isRevokedRef
     },
     {
       data: expirationDate,
       field: Fields.ExpirationDate,
       initialValue: null,
-      update: setExpirationDate
+      ref: expirationDateRef
     },
-    { data: users, field: Fields.UserName, initialValue: [], update: setUsers },
+    { data: users, field: Fields.UserName, initialValue: [], ref: usersRef },
     {
       data: creators,
       field: Fields.CreatorName,
       initialValue: [],
-      update: setCreators
+      ref: creatorsRef
     }
   ];
 
@@ -63,15 +67,25 @@ const useBuildFilterValues = () => {
       .filter((item) => item);
   }, [creationDate, isRevoked, expirationDate, users.length, creators.length]);
 
-  const constructData = ({ value }) => {
+  const constructData = ({
+    value,
+    dataToUpdate
+  }): Array<PersonalInformation> => {
+    const data = dataToUpdate.map(({ name }) => name);
     const newData = value
       .split(',')
       .map((simpleValue) => {
-        return { id: crypto.randomUUID(), name: simpleValue };
+        return data.includes(simpleValue)
+          ? dataToUpdate.find(({ name }) => name === simpleValue)
+          : { id: crypto.randomUUID(), name: simpleValue };
       })
-      .filter((item) => item) as Array<PersonalInformation>;
+      .filter((item) => item);
 
     return [...newData];
+  };
+
+  const constructDataCustomQueries = ({ value }) => {
+    return last(value.split(','));
   };
 
   const initializeFullFields = (searchableField) => {
@@ -83,45 +97,46 @@ const useBuildFilterValues = () => {
       })
       .filter((item) => item);
 
-    defaultFields.forEach(({ field, update, initialValue }) => {
+    defaultFields.forEach(({ field, ref, initialValue }) => {
       fieldsToInitialize.forEach((item) => {
         if (item !== field) {
           return;
         }
-        update(initialValue);
+        ref.current = initialValue;
       });
     });
   };
 
-  const updateContentFields = (searchableField) => {
+  const updateContentFields = (searchableField): void => {
     searchableField.forEach(({ field, value }) => {
       if (equals(Fields.CreatorName, field)) {
-        setCreators(constructData({ value }));
+        const updatedCreators = constructData({
+          dataToUpdate: creators,
+          value
+        });
+        creatorsRef.current = updatedCreators;
       }
 
       if (equals(Fields.UserName, field)) {
-        setUsers(constructData({ value }));
+        const updatedUsers = constructData({ dataToUpdate: users, value });
+        usersRef.current = updatedUsers;
       }
       if (equals(Fields.ExpirationDate, field)) {
-        const result = constructData({
-          value
-        });
-        const date = dayjs(result[result.length - 1].name).toDate();
-        setExpirationDate(date);
+        const updatedExpirationDate = dayjs(
+          constructDataCustomQueries({ value })
+        ).toDate();
+        expirationDateRef.current = updatedExpirationDate;
       }
       if (equals(Fields.CreationDate, field)) {
-        const result = constructData({
-          value
-        });
-        const date = dayjs(result[result.length - 1].name).toDate();
-        setCreationDate(date);
+        const updatedCreationDate = dayjs(
+          constructDataCustomQueries({ value })
+        ).toDate();
+        creationDateRef.current = updatedCreationDate;
       }
       if (equals(Fields.IsRevoked, field)) {
-        const result = constructData({
-          value
-        });
+        const updatedIsRevoked = constructDataCustomQueries({ value });
 
-        setIsRevoked(convertToBoolean(result[result.length - 1].name));
+        isRevokedRef.current = convertToBoolean(updatedIsRevoked);
       }
     });
   };
@@ -133,7 +148,7 @@ const useBuildFilterValues = () => {
     });
 
     if (isEmpty(searchableFieldInSearchInput)) {
-      initialize();
+      initializeFullFields(searchableFieldInSearchInput);
 
       return;
     }
@@ -142,6 +157,23 @@ const useBuildFilterValues = () => {
 
     updateContentFields(searchableFieldInSearchInput);
   }, [search]);
+
+  useEffect(
+    () => {
+      setUsers(usersRef.current);
+      setCreators(creatorsRef.current);
+      setIsRevoked(isRevokedRef.current);
+      setCreationDate(creationDateRef.current);
+      setExpirationDate(expirationDateRef.current);
+    },
+    useDeepCompare([
+      usersRef.current,
+      creatorsRef.current,
+      isRevokedRef.current,
+      expirationDateRef.current,
+      creationDateRef.current
+    ])
+  );
 };
 
 export default useBuildFilterValues;
