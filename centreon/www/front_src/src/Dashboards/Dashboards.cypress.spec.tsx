@@ -517,6 +517,7 @@ describe('Dashboards', () => {
         .last()
         .click()
         .then(() => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           expect(navigate).to.not.be.called;
         });
 
