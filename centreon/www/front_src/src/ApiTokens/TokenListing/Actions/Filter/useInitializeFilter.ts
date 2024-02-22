@@ -27,7 +27,7 @@ const useInitializeFilter = (): Props => {
     setCreationDate(null);
     setExpirationDate(null);
     setIsRevoked(null);
-  }, [users, creators, users, expirationDate, creationDate, isRevoked]);
+  }, [creators.length, users.length, expirationDate, creationDate, isRevoked]);
 
   return { initialize };
 };

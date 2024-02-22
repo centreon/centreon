@@ -13,7 +13,8 @@ export const useStyles = makeStyles()((theme) => ({
   checkboxContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    width: '70%'
   },
   container: {
     alignItems: 'center',
@@ -24,13 +25,22 @@ export const useStyles = makeStyles()((theme) => ({
     minWidth: theme.spacing(44),
     padding: theme.spacing(2, 0)
   },
+  field: {
+    '& .MuiInputBase-root': {
+      '& .MuiInputBase-input': {
+        width: '100%'
+      },
+      backgroundColor: theme.palette.background.default,
+      width: theme.spacing(40)
+    }
+  },
   input: {
     marginBottom: theme.spacing(1.5),
     width: theme.spacing(40)
   },
   labelStatus: {
-    minWidth: theme.spacing(7),
-    paddingLeft: theme.spacing(0.25)
+    paddingLeft: theme.spacing(0.25),
+    width: '20%'
   },
   popper: {
     '& .MuiPaper-root': {

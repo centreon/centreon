@@ -4,8 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   SaveButton as Button,
-  MultiConnectedAutocompleteField,
-  QueryParameter
+  MultiConnectedAutocompleteField
 } from '@centreon/ui';
 
 import {
@@ -19,11 +18,10 @@ import {
   labelUser
 } from '../../../translatedLabels';
 import { PersonalInformation } from '../../models';
-import { searchAtom } from '../Search/atoms';
-import { getUniqData } from '../Search/utils';
 import useBuildParameters from '../Search/useBuildParametrs';
+import { getUniqData } from '../Search/utils';
 
-import CustomizeDateInput from './CustomizeDateInput';
+import DateInput from './DateInput';
 import Status from './Status';
 import {
   creationDateAtom,
@@ -48,14 +46,13 @@ const Filter = (): JSX.Element => {
   const [customQueryParameters, setCustomQueryParameters] = useAtom(
     customQueryParametersAtom
   );
-  const [search, setSearch] = useAtom(searchAtom);
   const { queryParameters, getSearchParameters } = useBuildParameters();
 
   const { initialize } = useInitializeFilter();
 
   useBuildFilterValues();
 
-  const wordToRegex = (input): string => {
+  const wordToRegex = (input: string): string => {
     return input.replace(/\s/g, '\\s+');
   };
 
@@ -107,27 +104,16 @@ const Filter = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <CustomizeDateInput
-        label="creation date"
-        storageData={creationDateAtom}
-      />
-      <CustomizeDateInput
-        label="expiration date"
-        storageData={expirationDateAtom}
-      />
-
+      <DateInput label="Creation date" storageData={creationDateAtom} />
+      <DateInput label="Expiration date" storageData={expirationDateAtom} />
       <MultiConnectedAutocompleteField
         disableSortedOptions
-        // allowUniqOption
         chipProps={{
           onDelete: deleteUser
         }}
         className={classes.input}
         dataTestId={labelUser}
         field="name"
-        // filterOptions={(options) => {
-        //   return getUniqData(options);
-        // }}
         getEndpoint={getEndpointConfiguredUser}
         id={Fields.UserName}
         isOptionEqualToValue={isOptionEqualToValue}
