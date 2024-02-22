@@ -1,5 +1,3 @@
-import { LegendConfiguration, LegendProps } from '../Legend/models';
-
 export interface ArcType {
   color: string;
   label: string;
@@ -7,12 +5,11 @@ export interface ArcType {
 }
 
 export interface PieProps {
-  Legend: ({ scale, configuration }: LegendProps) => JSX.Element;
+  Legend?: ({ scale, data, title, total }) => JSX.Element;
   data: Array<ArcType>;
   displayLegend?: boolean;
   displayValues?: boolean;
   innerRadius?: number;
-  legendConfiguration?: LegendConfiguration;
   onArcClick?: (ardata) => void;
   title?: string;
   tooltipContent?: (arcData) => JSX.Element | boolean | null;

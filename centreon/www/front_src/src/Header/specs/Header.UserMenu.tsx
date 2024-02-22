@@ -1,6 +1,12 @@
+import {
+  labelCopyAutologinLink,
+  labelEditProfile,
+  labelLogout
+} from '../UserMenu/translatedLabels';
+
 import { initialize } from './Header.testUtils';
 
-export default (): void =>
+export default (): void => {
   describe('User Menu', () => {
     beforeEach(() => {
       cy.intercept('PATCH', 'parameters', {
@@ -57,4 +63,54 @@ export default (): void =>
       );
       cy.makeSnapshot('User Menu -- using the light mode');
     });
+
+    it('navigates to the logout page when the button is clicked', () => {
+      const navigate = initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+      cy.contains(labelLogout)
+        .click()
+        .then(() => {
+          expect(navigate).to.have.been.calledWith('/logout');
+        });
+    });
+
+    it('copies the autologin link to the blipboard when the button is clicked', () => {
+      initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+      cy.contains(labelCopyAutologinLink).click();
+
+      cy.window().then((win) => {
+        win.navigator.clipboard.readText().then((text) => {
+          expect(text).to.eq('LKEY-autologin');
+        });
+      });
+    });
+
+    it('navigates to the edit profile page when the button is clicked', () => {
+      const navigates = initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+      cy.contains(labelEditProfile)
+        .click()
+        .then(() => {
+          expect(navigates).to.have.been.calledWith('/main.php?p=50104&o=c');
+        });
+    });
+
+    it('closes the menu when the user icon is clicked once again', () => {
+      initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+
+      cy.contains(labelEditProfile).should('be.visible');
+
+      cy.get('[data-cy=userIcon]').click();
+
+      cy.contains(labelEditProfile).should('not.exist');
+
+      cy.makeSnapshot();
+    });
   });
+};

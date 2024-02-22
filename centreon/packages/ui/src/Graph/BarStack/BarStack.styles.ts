@@ -10,14 +10,13 @@ export const useBarStackStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(3),
-    justifyContent: 'center',
-    padding: theme.spacing(2)
+    gap: theme.spacing(1),
+    justifyContent: 'center'
   },
   svgContainer: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.panelGroups,
-    borderRadius: theme.spacing(0.5),
+    borderRadius: theme.shape.borderRadius,
     display: 'flex',
     justifyContent: 'center'
   },
@@ -25,11 +24,11 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1)
+    justifyContent: 'center'
   },
   title: {
     fontSize: theme.typography.h6.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
+    fontWeight: theme.typography.fontWeightMedium,
     margin: 0,
     padding: 0
   }

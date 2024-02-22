@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import numeral from 'numeral';
@@ -13,19 +15,19 @@ import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
 import useResponsiveBarStack from './useResponsiveBarStack';
 
-const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
-  <LegendComponent configuration={configuration} scale={scale} />
+const DefaultLengd = ({ scale }: LegendProps): JSX.Element => (
+  <LegendComponent scale={scale} />
 );
 
 const BarStack = ({
   title,
   data,
-  width: barWidth,
-  height: barHeight,
+  width,
+  height,
+  size = 72,
   onSingleBarClick,
   displayLegend = true,
   tooltipContent,
-  legendConfiguration = { direction: 'column' },
   Legend = DefaultLengd,
   unit = 'number',
   displayValues,
@@ -33,40 +35,55 @@ const BarStack = ({
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { classes } = useBarStackStyles();
 
+  const titleRef = useRef(null);
+  const legendRef = useRef(null);
+
   const {
-    height,
-    width,
+    barSize,
     colorScale,
     input,
     keys,
     legendScale,
     total,
     xScale,
-    yScale
+    yScale,
+    svgWrapperWidth,
+    svgContainerSize
   } = useResponsiveBarStack({
-    barHeight,
-    barWidth,
     data,
+    height,
+    legendRef,
+    size,
+    titleRef,
     unit,
-    variant
+    variant,
+    width
   });
 
   return (
-    <div className={classes.container}>
-      <div className={classes.svgWrapper}>
+    <div className={classes.container} style={{ height, width }}>
+      <div
+        className={classes.svgWrapper}
+        style={{
+          height,
+          width: svgWrapperWidth
+        }}
+      >
         {title && (
-          <div className={classes.title}>
+          <div className={classes.title} data-testid="Title" ref={titleRef}>
             {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
         )}
         <div
           className={classes.svgContainer}
-          style={{
-            height: height + 16,
-            width: width + 16
-          }}
+          data-testid="barStack"
+          style={svgContainerSize}
         >
-          <svg height={height} width={width}>
+          <svg
+            data-variant={variant}
+            height={barSize.height}
+            width={barSize.width}
+          >
             <Group>
               {equals(variant, 'vertical') ? (
                 <BarStackVertical
@@ -97,7 +114,7 @@ const BarStack = ({
                             })}
                             position="right-start"
                           >
-                            <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                            <g data-testid={bar.key}>
                               <rect
                                 fill={bar.color}
                                 height={bar.height - 1}
@@ -115,6 +132,7 @@ const BarStack = ({
                                 bar.width > 10 && (
                                   <Text
                                     cursor="pointer"
+                                    data-testid="value"
                                     fill="#000"
                                     fontSize={12}
                                     textAnchor="middle"
@@ -154,6 +172,7 @@ const BarStack = ({
                           classes={{
                             tooltip: classes.barStackTooltip
                           }}
+                          data-testid={`tooltip-${bar.key}`}
                           followCursor={false}
                           key={`bar-stack-${barStack.index}-${bar.index}`}
                           label={tooltipContent?.({
@@ -165,7 +184,7 @@ const BarStack = ({
                           })}
                           position="bottom-start"
                         >
-                          <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                          <g data-testid={bar.key}>
                             <rect
                               fill={bar.color}
                               height={bar.height}
@@ -183,6 +202,7 @@ const BarStack = ({
                               bar.width > 10 && (
                                 <Text
                                   cursor="pointer"
+                                  data-testid="value"
                                   fill="#000"
                                   fontSize={12}
                                   textAnchor="middle"
@@ -209,11 +229,16 @@ const BarStack = ({
           </svg>
         </div>
       </div>
-      {displayLegend &&
-        Legend({
-          configuration: legendConfiguration,
-          scale: legendScale
-        })}
+      {displayLegend && (
+        <div data-testid="Legend" ref={legendRef}>
+          {Legend({
+            data,
+            scale: legendScale,
+            title,
+            total
+          })}
+        </div>
+      )}
     </div>
   );
 };

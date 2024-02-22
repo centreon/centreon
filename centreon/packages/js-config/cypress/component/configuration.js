@@ -31,6 +31,7 @@ module.exports = ({
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.name === 'chrome' && browser.isHeadless) {
             launchOptions.args.push('--headless=new');
+            launchOptions.args.push('--force-color-profile=srgb');
           }
 
           return launchOptions;

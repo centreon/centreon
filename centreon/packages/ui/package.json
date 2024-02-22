@@ -28,6 +28,7 @@
   "author": {
     "name": "centreon@centreon.com"
   },
+  "baseCodeCoveragePercentage": 60,
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/centreon/centreon/issues"
