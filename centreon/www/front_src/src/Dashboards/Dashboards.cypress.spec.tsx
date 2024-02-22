@@ -487,7 +487,7 @@ describe('Dashboards', () => {
     cy.makeSnapshot();
   });
 
-  describe.only('Navigation to dashboard', () => {
+  describe('Navigation to dashboard', () => {
     it('navigates to the dashboard page when the listing mode is activated and a row is clicked', () => {
       const { navigate } = initializeAndMount({
         ...administratorRole
