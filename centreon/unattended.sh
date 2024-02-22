@@ -682,19 +682,18 @@ function secure_db_system_setup() {
 	log "INFO" "Restarting $database_system service first"
 	if [[ $database_system == "MariaDB" ]]; then
 		systemctl restart mariadb
+		log "INFO" "Executing SQL requests"
+		mysql -u root <<-EOF
+			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
+			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+			DELETE FROM mysql.global_priv WHERE User='';
+			DROP DATABASE IF EXISTS test;
+			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+			FLUSH PRIVILEGES;
+		EOF
 	else
 		systemctl restart mysqld
 	fi
-
-	log "INFO" "Executing SQL requests"
-	mysql -u root <<-EOF
-		UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
-		DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-		DELETE FROM mysql.global_priv WHERE User='';
-		DROP DATABASE IF EXISTS test;
-		DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
-		FLUSH PRIVILEGES;
-	EOF
 
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not apply the requests"
