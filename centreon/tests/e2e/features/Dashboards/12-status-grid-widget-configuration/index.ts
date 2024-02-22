@@ -368,6 +368,7 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
+    cy.get('input[name="success"]').click();
   }
 );
 
