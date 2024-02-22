@@ -30,7 +30,10 @@ import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { Visualization } from '../models';
 import { resourcesEndpoint } from '../api/endpoint';
 
-import { labelShowMoreFilters } from './criteriasNewInterface/translatedLabels';
+import {
+  informationLabel,
+  labelShowMoreFilters
+} from './criteriasNewInterface/translatedLabels';
 import useFilter from './useFilter';
 
 import Filter from '.';
@@ -632,6 +635,28 @@ describe('Criterias', () => {
         }
       });
     });
+  });
+
+  it('syncs the information fields with the search bar', () => {
+    cy.waitForRequest('@filterRequest');
+
+    cy.findByPlaceholderText(labelSearch).clear();
+    cy.findByLabelText(labelSearchOptions).click();
+
+    cy.findByText(labelShowMoreFilters).click();
+
+    cy.findByPlaceholderText(informationLabel).type('Information');
+
+    cy.findByPlaceholderText(labelSearch).should(
+      'have.value',
+      ' information:Information'
+    );
+
+    cy.findByPlaceholderText(informationLabel).clear();
+
+    cy.findByPlaceholderText(labelSearch).should('have.value', ' ');
+
+    cy.findByLabelText(labelSearchOptions).click();
   });
 });
 
