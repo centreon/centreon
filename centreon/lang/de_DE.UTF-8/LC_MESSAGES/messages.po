@@ -16470,7 +16470,7 @@ msgstr "Erweiterter Modus"
 # msgid "Show fewer filters"
 # msgstr ""
 
-# msgid "Select a dataset to display the preview."
+# msgid "The preview remains empty until you select a data set."
 # msgstr ""
 
 # msgid "Not yet implemented"

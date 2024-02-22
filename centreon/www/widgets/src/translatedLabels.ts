@@ -6,4 +6,4 @@ export const labelCritical = 'Critical';
 export const labelValueDefinedByMetric = 'Value defined by {{metric}} metric';
 export const labelCustomValue = 'Custom value';
 export const labelPreviewRemainsEmpty =
-  'Select a dataset to display the preview.';
+  'The preview remains empty until you select a data set.';

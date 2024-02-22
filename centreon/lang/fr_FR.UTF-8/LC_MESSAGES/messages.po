@@ -18604,8 +18604,8 @@ msgstr "Afficher plus de filtres"
 msgid "Show fewer filters"
 msgstr "Afficher moins de filtres"
 
-msgid "Select a dataset to display the preview."
-msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+msgid "The preview remains empty until you select a data set."
+msgstr "La prévisualisation reste vide jusqu'à ce que vous sélectionniez un jeu de données."
 
 msgid "Not yet implemented"
 msgstr "Pas encore implémenté"
