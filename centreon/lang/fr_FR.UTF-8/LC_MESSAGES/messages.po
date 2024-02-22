@@ -18686,8 +18686,8 @@ msgstr "Affiche une vue détaillée du statut actuel des ressources sélectionn�
 msgid "Status chart"
 msgstr "Graphique de statut"
 
-msgid "Show number of resources"
-msgstr "Afficher le nombre de ressources"
+msgid "Show value on chart"
+msgstr "Afficher la valeur sur le graphique"
 
 msgid "Number"
 msgstr "Nombre"
@@ -18712,3 +18712,12 @@ msgstr "Camembert"
 
 msgid  "Donut chart"
 msgstr "Donut"
+
+msgid "Status:"
+msgstr "Statut :"
+
+msgid "are working fine"
+msgstr "fonctionnent correctement"
+
+msgid "No {{resourcesType}} found with this status"
+msgstr "Aucun {{resourcesType}} trouvé avec ce statut"

@@ -16878,7 +16878,7 @@ msgstr "Modo avanzado"
 # msgid "Status chart"
 # msgstr ""
 
-# msgid "Show number of resources"
+# msgid "Show value on chart"
 # msgstr ""
 
 # msgid "Number"
@@ -16904,3 +16904,9 @@ msgstr "Modo avanzado"
 
 # msgid  "Donut chart"
 # msgstr ""
+
+# msgid "are working fine"
+# msgstr
+
+# msgid "No {{resourcesType}} found with this status"
+# msgstr
