@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import data from '../../../fixtures/acls/acl-access-groups.json';
+import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
 
 const originalACLGroup = {
@@ -15,10 +15,6 @@ const modifiedACLGroup = {
 
 const duplicatedACLGroup = {
   name: originalACLGroup.name + '_1'
-};
-
-const ACLMenu = {
-  name: 'ACL_Menu'
 };
 
 beforeEach(() => {
@@ -100,10 +96,10 @@ When('the access group is saved with its properties', () => {
 });
 
 When('a menu access is linked with this group', () => {
-  cy.addACLMenu({ name: ACLMenu.name, rule: ['Home'] });
+  cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
   cy.addACLMenuToACLGroup({
     ACLGroupName: originalACLGroup.name,
-    ACLMenuName: ACLMenu.name
+    ACLMenuName: data.ACLMenu.name
   });
 });
 

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import { Action } from 'e2e/features/ACLs/commands';
+
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 
@@ -498,21 +500,53 @@ Cypress.Commands.add(
 
 interface ACLGroup {
   alias?: string | null;
+  contacts?: string[];
+  contactGroups?: string[];
   name: string;
 }
 
 Cypress.Commands.add(
   'addACLGroup',
-  ({ name, alias = null }: ACLGroup): Cypress.Chainable => {
+  ({
+    alias = null,
+    contacts = [],
+    contactGroups = [],
+    name
+  }: ACLGroup): Cypress.Chainable => {
     const ACLGroupALias = alias === null ? name : alias;
 
-    return cy.executeActionViaClapi({
-      bodyContent: {
-        action: 'ADD',
-        object: 'ACLGROUP',
-        values: `${name};${ACLGroupALias}`
-      }
-    });
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'ACLGROUP',
+          values: `${name};${ACLGroupALias}`
+        }
+      })
+      .then(() => {
+        if (contacts) {
+          contacts.map((contact) => {
+            cy.executeActionViaClapi({
+              bodyContent: {
+                action: 'ADDCONTACT',
+                object: 'ACLGROUP',
+                values: `${name};${contact}`
+              }
+            });
+          });
+        }
+        if (contactGroups) {
+          contactGroups.map((contactGroup) => {
+            cy.executeActionViaClapi({
+              bodyContent: {
+                action: 'ADDCONTACTGROUP',
+                object: 'ACLGROUP',
+                values: `${name};${contactGroup}`
+              }
+            });
+          });
+        }
+      });
   }
 );
 
@@ -566,9 +600,48 @@ Cypress.Commands.add(
   }
 );
 
+interface ACLAction {
+  name: string;
+  description: string;
+  actions?: Action[];
+}
+
+Cypress.Commands.add(
+  'addACLAction',
+  ({ name, description, actions = [] }: ACLAction): Cypress.Chainable => {
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'ACLACTION',
+          values: `${name};${description}`
+        }
+      })
+      .then(() => {
+        if (actions.length == 0) {
+          return cy.wrap(null);
+        }
+
+        let actionCommand = '';
+        actions.map((action, index) => {
+          actionCommand += action + (index == actions.length - 1 ? '' : '|');
+        });
+        cy.executeActionViaClapi({
+          bodyContent: {
+            action: 'GRANT',
+            object: 'ACLACTION',
+            values: `${name};${actionCommand}`
+          }
+        });
+        return cy.wrap(null);
+      });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      addACLAction: (props: ACLAction) => Cypress.Chainable;
       addACLGroup: (props: ACLGroup) => Cypress.Chainable;
       addACLMenu: (props: ACLMenu) => Cypress.Chainable;
       addCheckCommand: (props: CheckCommand) => Cypress.Chainable;

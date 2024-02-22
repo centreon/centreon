@@ -15,7 +15,7 @@ Feature: ACL Actions Access
     And all linked access group display the new actions access in authorized information tab
 
   Scenario: Creating action access by selecting authorized actions one by one
-    When I select one by one all action to authorize them in a action access record I create
+    When I select one by one all action to authorize them in an action access record I create
     Then all radio-buttons have to be checked
 
   Scenario: Creating actions access by selecting authorized actions by lots

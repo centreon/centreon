@@ -1,29 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
 
-const ACLGroups = {
-  ACLGroup1: {
-    name: 'ACL_group_1',
-    alias: 'ACL group 1'
-  },
-  ACLGroup2: {
-    name: 'ACL_group_2',
-    alias: 'ACL group 2'
-  },
-  ACLGroup3: {
-    name: 'ACL_group_3',
-    alias: 'ACL group 3'
-  }
-};
-
-const ACLMenu = {
-  name: 'ACL_Menu',
-  alias: 'ACL Menu',
-  comment: 'This is just a comment'
-};
-
 const duplicatedACLMenu = {
-  name: ACLMenu.name + '_1'
+  name: data.ACLMenu.name + '_1'
 };
 
 beforeEach(() => {
@@ -47,9 +27,9 @@ Given('I am logged in a Centreon server', () => {
 });
 
 Given('three ACL access groups have been created', () => {
-  cy.addACLGroup({ name: ACLGroups.ACLGroup1.name });
-  cy.addACLGroup({ name: ACLGroups.ACLGroup2.name });
-  cy.addACLGroup({ name: ACLGroups.ACLGroup3.name });
+  cy.addACLGroup({ name: data.ACLGroups.ACLGroup1.name });
+  cy.addACLGroup({ name: data.ACLGroups.ACLGroup2.name });
+  cy.addACLGroup({ name: data.ACLGroups.ACLGroup3.name });
 });
 
 When('I add a new menu access linked with two groups', () => {
@@ -65,18 +45,18 @@ When('I add a new menu access linked with two groups', () => {
   cy.getIframeBody()
     .find('input[name="acl_topo_name"]')
     .click()
-    .type(ACLMenu.name);
+    .type(data.ACLMenu.name);
   cy.getIframeBody()
     .find('input[name="acl_topo_alias"]')
     .click()
-    .type(ACLMenu.alias);
+    .type(data.ACLMenu.alias);
   cy.getIframeBody()
     .find('select[name="acl_groups-f[]"]')
-    .select(ACLGroups.ACLGroup1.name);
+    .select(data.ACLGroups.ACLGroup1.name);
   cy.getIframeBody().find('input[name="add"]').click();
   cy.getIframeBody()
     .find('select[name="acl_groups-f[]"]')
-    .select(ACLGroups.ACLGroup2.name);
+    .select(data.ACLGroups.ACLGroup2.name);
   cy.getIframeBody().find('input[name="add"]').click();
 
   // Add Home Rule
@@ -84,20 +64,20 @@ When('I add a new menu access linked with two groups', () => {
   cy.getIframeBody()
     .find('textarea[name="acl_comments"]')
     .click()
-    .type(ACLMenu.comment);
+    .type(data.ACLMenu.comment);
 
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
 });
 
 Then('the menu access is saved with its properties', () => {
   cy.wait('@getTimeZone');
-  cy.getIframeBody().should('contain', ACLMenu.name);
+  cy.getIframeBody().should('contain', data.ACLMenu.name);
 });
 
 Then(
   'only chosen linked access groups display the new menu access in Authorized information tab',
   () => {
-    Object.entries(ACLGroups).forEach((ACLGroup) => {
+    Object.entries(data.ACLGroups).forEach((ACLGroup) => {
       cy.navigateTo({
         page: 'Access Groups',
         rootItemNumber: 4,
@@ -114,28 +94,28 @@ Then(
       cy.wait('@getTimeZone');
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
-      ACLGroup[1].name != ACLGroups.ACLGroup3.name
+      ACLGroup[1].name != data.ACLGroups.ACLGroup3.name
         ? cy
             .getIframeBody()
             .find('select[name="menuAccess-t[]"]')
-            .should('contain', ACLMenu.name)
+            .should('contain', data.ACLMenu.name)
         : cy
             .getIframeBody()
             .find('select[name="menuAccess-t[]"]')
-            .should('not.contain', ACLMenu.name);
+            .should('not.contain', data.ACLMenu.name);
     });
   }
 );
 
 Given('one existing ACL Menu access linked with two access groups', () => {
-  cy.addACLMenu({ name: ACLMenu.name, rule: ['Home'] });
+  cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
   cy.addACLMenuToACLGroup({
-    ACLGroupName: ACLGroups.ACLGroup1.name,
-    ACLMenuName: ACLMenu.name
+    ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    ACLMenuName: data.ACLMenu.name
   });
   cy.addACLMenuToACLGroup({
-    ACLGroupName: ACLGroups.ACLGroup2.name,
-    ACLMenuName: ACLMenu.name
+    ACLGroupName: data.ACLGroups.ACLGroup2.name,
+    ACLMenuName: data.ACLMenu.name
   });
 });
 
@@ -148,7 +128,7 @@ When('I remove one access group', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLMenu.name)
+    .contains('tr', data.ACLMenu.name)
     .within(() => {
       cy.get('td.ListColLeft > a').eq(0).click();
     });
@@ -156,7 +136,7 @@ When('I remove one access group', () => {
   cy.wait('@getTimeZone');
   cy.getIframeBody()
     .find('select[name="acl_groups-t[]"]')
-    .select(ACLGroups.ACLGroup2.name);
+    .select(data.ACLGroups.ACLGroup2.name);
   cy.getIframeBody().find('input[name="remove"]').click();
 
   cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
@@ -171,10 +151,10 @@ Then('link between access group and Menu access must be broken', () => {
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
-      ACLGroups.ACLGroup2.name,
+      data.ACLGroups.ACLGroup2.name,
       ($body) => {
         cy.wrap($body)
-          .contains('tr', ACLGroups.ACLGroup2.name)
+          .contains('tr', data.ACLGroups.ACLGroup2.name)
           .within(() => {
             cy.get('td.ListColLeft > a').click();
           });
@@ -197,14 +177,14 @@ Then('link between access group and Menu access must be broken', () => {
 
   cy.getIframeBody()
     .find('select[name="menuAccess-t[]"]')
-    .should('not.contain', ACLMenu.name);
+    .should('not.contain', data.ACLMenu.name);
 });
 
 Given('one existing Menu access', () => {
-  cy.addACLMenu({ name: ACLMenu.name, rule: ['Home'] });
+  cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
   cy.addACLMenuToACLGroup({
-    ACLGroupName: ACLGroups.ACLGroup1.name,
-    ACLMenuName: ACLMenu.name
+    ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    ACLMenuName: data.ACLMenu.name
   });
 });
 
@@ -217,7 +197,7 @@ When('I duplicate the Menu access', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLMenu.name)
+    .contains('tr', data.ACLMenu.name)
     .within(() => {
       cy.get('td.ListColPicker').click();
     });
@@ -240,7 +220,7 @@ Then(
 
     const originalACLMenuValues: string[] = [];
     cy.getIframeBody()
-      .contains('tr', ACLMenu.name)
+      .contains('tr', data.ACLMenu.name)
       .within(() => {
         cy.get('td').each((td, index) => {
           if (1 <= index && index <= 5)
@@ -268,10 +248,10 @@ Then(
 );
 
 Given('one existing enabled Menu access', () => {
-  cy.addACLMenu({ name: ACLMenu.name, rule: ['Home'] });
+  cy.addACLMenu({ name: data.ACLMenu.name, rule: ['Home'] });
   cy.addACLMenuToACLGroup({
-    ACLGroupName: ACLGroups.ACLGroup1.name,
-    ACLMenuName: ACLMenu.name
+    ACLGroupName: data.ACLGroups.ACLGroup1.name,
+    ACLMenuName: data.ACLMenu.name
   });
 });
 
@@ -283,7 +263,7 @@ When('I disable it', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains(ACLMenu.name).click();
+  cy.getIframeBody().contains(data.ACLMenu.name).click();
 
   cy.wait('@getTimeZone');
 
@@ -298,7 +278,9 @@ When('I disable it', () => {
 Then('its status is modified', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains('tr', ACLMenu.name).should('contain', 'Disabled');
+  cy.getIframeBody()
+    .contains('tr', data.ACLMenu.name)
+    .should('contain', 'Disabled');
 });
 
 When('I delete the Menu access', () => {
@@ -310,7 +292,7 @@ When('I delete the Menu access', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLMenu.name)
+    .contains('tr', data.ACLMenu.name)
     .within(() => {
       cy.get('td.ListColPicker').click();
     });
@@ -331,7 +313,7 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody().should('not.contain', ACLMenu.name);
+    cy.getIframeBody().should('not.contain', data.ACLMenu.name);
   }
 );
 
@@ -344,7 +326,7 @@ Then('the link with access groups is broken', () => {
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLGroups.ACLGroup1.name)
+    .contains('tr', data.ACLGroups.ACLGroup1.name)
     .within(() => {
       cy.get('td.ListColLeft').click();
     });
@@ -354,5 +336,5 @@ Then('the link with access groups is broken', () => {
 
   cy.getIframeBody()
     .find('select[name="menuAccess-t[]"]')
-    .should('not.contain', ACLMenu.name);
+    .should('not.contain', data.ACLMenu.name);
 });

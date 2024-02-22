@@ -1,11 +1,11 @@
-interface LinkMeuToGroupProps {
+interface LinkMenuToGroupProps {
   ACLGroupName: string;
   ACLMenuName: string;
 }
 
 Cypress.Commands.add(
   'addACLMenuToACLGroup',
-  ({ ACLGroupName, ACLMenuName }: LinkMeuToGroupProps) => {
+  ({ ACLGroupName, ACLMenuName }: LinkMenuToGroupProps) => {
     return cy.executeActionViaClapi({
       bodyContent: {
         action: 'ADDMENU',
@@ -37,6 +37,64 @@ Cypress.Commands.add(
       .wait('@getNavigationList');
   }
 );
+
+type Action =
+  | 'top_counter'
+  | 'poller_stats'
+  | 'poller_listing'
+  | 'create_edit_poller_cfg'
+  | 'delete_poller_cfg'
+  | 'generate_cfg'
+  | 'generate_trap'
+  | 'all_engine'
+  | 'global_shutdown'
+  | 'global_restart'
+  | 'global_notifications'
+  | 'global_service_checks'
+  | 'global_service_passive_checks'
+  | 'global_host_checks'
+  | 'global_host_passive_checks'
+  | 'global_event_handler'
+  | 'global_flap_detection'
+  | 'global_service_obsess'
+  | 'global_host_obsess'
+  | 'global_perf_data'
+  | 'all_service'
+  | 'service_checks'
+  | 'service_notifications'
+  | 'service_acknowledgement'
+  | 'service_disacknowledgement'
+  | 'service_schedule_check'
+  | 'service_schedule_forced_check'
+  | 'service_schedule_downtime'
+  | 'service_comment'
+  | 'service_event_handler'
+  | 'service_flap_detection'
+  | 'service_passive_checks'
+  | 'service_submit_result'
+  | 'service_display_command'
+  | 'all_host'
+  | 'host_checks'
+  | 'host_notifications'
+  | 'host_acknowledgement'
+  | 'host_disacknowledgement'
+  | 'host_schedule_check'
+  | 'host_schedule_forced_check'
+  | 'host_schedule_downtime'
+  | 'host_comment'
+  | 'host_event_handler'
+  | 'host_flap_detection'
+  | 'host_checks_for_services'
+  | 'host_notifications_for_services'
+  | 'host_submit_result'
+  | 'manage_tokens';
+
+type ACLActionType = {
+  name: string;
+  description: string;
+  ACLGroups: string[];
+  actions: Action[];
+};
 
 Cypress.Commands.add(
   'executeActionOnIframe',
@@ -82,10 +140,31 @@ Cypress.Commands.add(
   }
 );
 
+interface LinkActionToGroupProps {
+  ACLGroupName: string;
+  ACLActionName: string;
+}
+
+Cypress.Commands.add(
+  'addACLActionToACLGroup',
+  ({ ACLGroupName, ACLActionName }: LinkActionToGroupProps) => {
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADDACTION',
+        object: 'ACLGROUP',
+        values: `${ACLGroupName};${ACLActionName}`
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
-      addACLMenuToACLGroup: (props: LinkMeuToGroupProps) => Cypress.Chainable;
+      addACLActionToACLGroup: (
+        props: LinkActionToGroupProps
+      ) => Cypress.Chainable;
+      addACLMenuToACLGroup: (props: LinkMenuToGroupProps) => Cypress.Chainable;
       executeActionOnIframe: (
         textToFind: string,
         action: (body: JQuery<HTMLElement>) => void,
@@ -97,4 +176,4 @@ declare global {
   }
 }
 
-export {};
+export { ACLActionType, Action };
