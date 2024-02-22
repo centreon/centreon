@@ -1,49 +1,35 @@
 import { includes } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { useRefreshInterval } from '@centreon/ui';
 
 import { StatusChartProps } from './models';
-import { Chart } from './Compontents/Chart';
+import { Chart } from './Compontents';
 import { useStyles } from './StatusChart.styles';
-
-const hosts = [
-  { color: '#88B922', label: 'Up', value: 148 },
-  { color: '#999999', label: 'Down', value: 13 },
-  { color: '#F7931A', label: 'UnReachable', value: 16 },
-  { color: '#FF6666', label: 'Pending', value: 62 }
-];
-
-const services = [
-  { color: '#88B922', label: 'Ok', value: 82 },
-  { color: '#F7931A', label: 'Warning', value: 112 },
-  { color: '#999999', label: 'Unknown', value: 165 },
-  { color: '#14f122', label: 'Pending', value: 42 },
-  { color: '#FF6666', label: 'Critical', value: 18 }
-];
+import { labelHosts, labelServices } from './translatedLabels';
 
 const StatusChart = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
   refreshCount,
-  changeViewMode,
   isFromPreview
 }: StatusChartProps): JSX.Element => {
-  const { resources } = panelData;
-
   const {
     displayType,
     refreshInterval,
     refreshIntervalCustom,
-    states,
     displayLegend,
     displayValues,
     resourceType,
-    unit,
-    displayPredominentInformation
+    unit
   } = panelOptions;
 
   const { classes } = useStyles({ displayType });
+
+  const { t } = useTranslation();
+
+  const { resources } = panelData;
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -55,27 +41,29 @@ const StatusChart = ({
     <div className={classes.container}>
       {includes('host', resourceType) && (
         <Chart
-          data={hosts}
           displayLegend={displayLegend}
-          displayPredominentInformation={displayPredominentInformation}
           displayType={displayType}
           displayValues={displayValues}
+          refreshCount={refreshCount}
+          refreshIntervalToUse={refreshIntervalToUse}
           resourceType={resourceType}
-          states={states}
-          title="hosts"
+          resources={resources}
+          title={t(labelHosts)}
+          type="host"
           unit={unit}
         />
       )}
       {includes('service', resourceType) && (
         <Chart
-          data={services}
           displayLegend={displayLegend}
-          displayPredominentInformation={displayPredominentInformation}
           displayType={displayType}
           displayValues={displayValues}
+          refreshCount={refreshCount}
+          refreshIntervalToUse={refreshIntervalToUse}
           resourceType={resourceType}
-          states={states}
-          title="services"
+          resources={resources}
+          title={t(labelServices)}
+          type="service"
           unit={unit}
         />
       )}

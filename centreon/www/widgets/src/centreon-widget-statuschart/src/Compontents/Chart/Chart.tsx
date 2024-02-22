@@ -2,49 +2,72 @@ import { equals } from 'ramda';
 
 import { PieChart, BarStack } from '@centreon/ui';
 
-import { DisplayType, PanelOptions } from '../../models';
+import { DisplayType, ChartType } from '../../models';
+import { Legend, TooltipContent, ChartSkeleton } from '..';
+import useLoadResources from '../../useLoadResources';
+import { useLegendStyles } from '../Legend/Legend.styles';
 
 import { useStyles } from './Chart.styles';
+import { useChart } from './useChart';
 
 const Chart = ({
   displayType,
-  states,
   displayLegend,
   displayValues,
   resourceType,
   unit,
-  data,
-  displayPredominentInformation,
-  title
-}: Omit<PanelOptions, 'refreshInterval' | 'refreshIntervalCustom'> & {
-  data?;
-  title?;
-}): JSX.Element => {
-  const { classes } = useStyles({
-    displaySingleChart: equals(resourceType.length, 1)
+  title,
+  type,
+  refreshCount,
+  refreshIntervalToUse,
+  resources
+}: ChartType): JSX.Element => {
+  const { classes } = useStyles();
+  const { classes: legendClasses } = useLegendStyles({
+    direction: equals(displayType, DisplayType.Horizontal) ? 'row' : 'column'
   });
+
+  const { data, isLoading } = useLoadResources({
+    refreshCount,
+    refreshIntervalToUse,
+    resources,
+    type
+  });
+
+  const { barStackDimensions, isPieCharts, pieChartDimensions } = useChart({
+    displayType,
+    resourceType
+  });
+
+  if (isLoading) {
+    return <ChartSkeleton />;
+  }
 
   return (
     <div className={classes.container}>
-      {equals(displayType, DisplayType.Pie) ||
-      equals(displayType, DisplayType.Donut) ? (
-        <div className={classes.pieChart}>
+      {isPieCharts ? (
+        <div className={classes.pieChart} style={pieChartDimensions}>
           <PieChart
+            Legend={Legend(legendClasses)}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
             title={title}
+            tooltipContent={TooltipContent}
             unit={unit}
             variant={displayType}
           />
         </div>
       ) : (
-        <div className={classes.barStack}>
+        <div style={barStackDimensions}>
           <BarStack
+            Legend={Legend(legendClasses)}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            size={80}
             title={title}
+            tooltipContent={TooltipContent}
             unit={unit}
             variant={displayType}
           />

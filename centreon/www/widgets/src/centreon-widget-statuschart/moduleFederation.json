@@ -3,7 +3,9 @@
     "path": "/widgets/statuschart",
     "federatedComponents": [
       "./statuschart"
-    ]
+    ],
+    "panelMinHeight": 5,
+    "panelMinWidth": 6
   }],
   "moduleFederationName": "widgetstatuschart",
   "moduleName": "centreon-widget-statuschart"

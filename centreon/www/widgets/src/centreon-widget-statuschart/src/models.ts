@@ -19,15 +19,48 @@ export interface PanelOptions {
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resourceType: Array<'host' | 'service'>;
-  states: Array<string>;
   unit: 'number' | 'percentage';
 }
 
 export interface StatusChartProps {
-  changeViewMode?: (displayType) => void;
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
   panelData: Data;
   panelOptions: PanelOptions;
   refreshCount: number;
 }
+
+export interface ChartType {
+  displayLegend: boolean;
+  displayType: DisplayType;
+  displayValues: boolean;
+  refreshCount: number;
+  refreshIntervalToUse: number | false;
+  resourceType: Array<'host' | 'service'>;
+  resources: Array<Resource>;
+  title?: string;
+  type: 'host' | 'service';
+  unit: 'number' | 'percentage';
+}
+
+type StatusDetail = {
+  acknowledged: number;
+  in_downtime: number;
+  total: number;
+};
+
+type Status =
+  | 'critical'
+  | 'warning'
+  | 'unknown'
+  | 'pending'
+  | 'ok'
+  | 'down'
+  | 'unreachable'
+  | 'up';
+
+export type StatusType = {
+  [key in Status]?: StatusDetail;
+} & {
+  total: number;
+};
