@@ -70,12 +70,20 @@ const BarStack = ({
         }}
       >
         {title && (
-          <div className={classes.title} ref={titleRef}>
+          <div className={classes.title} data-testid="Title" ref={titleRef}>
             {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
         )}
-        <div className={classes.svgContainer} style={svgContainerSize}>
-          <svg height={barSize.height} width={barSize.width}>
+        <div
+          className={classes.svgContainer}
+          data-testid="barStack"
+          style={svgContainerSize}
+        >
+          <svg
+            data-variant={variant}
+            height={barSize.height}
+            width={barSize.width}
+          >
             <Group>
               {equals(variant, 'vertical') ? (
                 <BarStackVertical
@@ -106,7 +114,7 @@ const BarStack = ({
                             })}
                             position="right-start"
                           >
-                            <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                            <g data-testid={bar.key}>
                               <rect
                                 fill={bar.color}
                                 height={bar.height - 1}
@@ -124,6 +132,7 @@ const BarStack = ({
                                 bar.width > 10 && (
                                   <Text
                                     cursor="pointer"
+                                    data-testid="value"
                                     fill="#000"
                                     fontSize={12}
                                     textAnchor="middle"
@@ -163,6 +172,7 @@ const BarStack = ({
                           classes={{
                             tooltip: classes.barStackTooltip
                           }}
+                          data-testid={`tooltip-${bar.key}`}
                           followCursor={false}
                           key={`bar-stack-${barStack.index}-${bar.index}`}
                           label={tooltipContent?.({
@@ -174,7 +184,7 @@ const BarStack = ({
                           })}
                           position="bottom-start"
                         >
-                          <g key={`bar-stack-${barStack.index}-${bar.index}`}>
+                          <g data-testid={bar.key}>
                             <rect
                               fill={bar.color}
                               height={bar.height}
@@ -192,6 +202,7 @@ const BarStack = ({
                               bar.width > 10 && (
                                 <Text
                                   cursor="pointer"
+                                  data-testid="value"
                                   fill="#000"
                                   fontSize={12}
                                   textAnchor="middle"
@@ -218,15 +229,16 @@ const BarStack = ({
           </svg>
         </div>
       </div>
-      <div ref={legendRef}>
-        {displayLegend &&
-          Legend({
+      {displayLegend && (
+        <div data-testid="Legend" ref={legendRef}>
+          {Legend({
             data,
             scale: legendScale,
             title,
             total
           })}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

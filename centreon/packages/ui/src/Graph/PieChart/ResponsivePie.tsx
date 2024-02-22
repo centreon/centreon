@@ -74,18 +74,19 @@ const ResponsivePie = ({
         }}
       >
         {equals(variant, 'pie') && title && (
-          <div className={classes.title} ref={titleRef}>
+          <div className={classes.title} data-testid="Title" ref={titleRef}>
             {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
         )}
         <div
           className={classes.svgContainer}
+          data-testid="pieChart"
           style={{
             height: svgContainerSize,
             width: svgContainerSize
           }}
         >
-          <svg height={svgSize} width={svgSize}>
+          <svg data-variant={variant} height={svgSize} width={svgSize}>
             <Group left={half} top={half}>
               <Pie
                 data={data}
@@ -126,7 +127,7 @@ const ResponsivePie = ({
                         })}
                       >
                         <g
-                          key={arc.data.label}
+                          data-testid={arc.data.label}
                           onClick={() => {
                             onArcClick?.(arc.data);
                           }}
@@ -137,6 +138,7 @@ const ResponsivePie = ({
                           />
                           {displayValues && angle > minAngle && (
                             <Text
+                              data-testid="value"
                               dy=".33em"
                               fill="#000"
                               fontSize={12}
@@ -170,6 +172,7 @@ const ResponsivePie = ({
                   </Text>
                   <Text
                     className={classes.title}
+                    data-testid="Title"
                     dy={15}
                     fill={theme.palette.text.primary}
                     textAnchor="middle"
@@ -182,15 +185,16 @@ const ResponsivePie = ({
           </svg>
         </div>
       </div>
-      <div ref={legendRef}>
-        {displayLegend &&
-          Legend({
+      {displayLegend && (
+        <div data-testid="Legend" ref={legendRef}>
+          {Legend({
             data,
             scale: legendScale,
             title,
             total
           })}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

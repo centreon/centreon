@@ -5,7 +5,7 @@ export interface BarType {
 }
 
 export type BarStackProps = {
-  Legend: ({ scale, data, title, total }) => JSX.Element;
+  Legend?: ({ scale, data, title, total }) => JSX.Element;
   data: Array<BarType>;
   displayLegend?: boolean;
   displayValues?: boolean;

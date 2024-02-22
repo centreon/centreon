@@ -5,7 +5,7 @@ export interface ArcType {
 }
 
 export interface PieProps {
-  Legend: ({ scale, data, title, total }) => JSX.Element;
+  Legend?: ({ scale, data, title, total }) => JSX.Element;
   data: Array<ArcType>;
   displayLegend?: boolean;
   displayValues?: boolean;
