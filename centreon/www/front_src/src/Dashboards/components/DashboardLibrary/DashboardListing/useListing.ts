@@ -12,6 +12,7 @@ import {
 } from '../../../api/models';
 import { useDeleteAccessRightsContact } from '../../../api/useDeleteAccessRightsContact';
 import { useDeleteAccessRightsContactGroup } from '../../../api/useDeleteAccessRightsContactGroup';
+import { routerHooks } from '../../../routerHooks';
 
 import {
   pageAtom,
@@ -20,7 +21,7 @@ import {
   sortFieldAtom,
   askBeforeRevokeAtom
 } from './atom';
-import { formatListingData, router } from './utils';
+import { formatListingData } from './utils';
 
 import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
@@ -56,7 +57,7 @@ const useListing = ({
   defaultColumnsIds: Array<string>;
   rows?: Array<Dashboard>;
 }): UseListing => {
-  const navigate = router.useNavigate();
+  const navigate = routerHooks.useNavigate();
 
   const [selectedColumnIds, setSelectedColumnIds] =
     useState<Array<string>>(defaultColumnsIds);

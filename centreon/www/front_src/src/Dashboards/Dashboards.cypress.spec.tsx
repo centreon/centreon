@@ -56,7 +56,10 @@ const initializeAndMount = ({
   canAdministrateDashboard = true,
   emptyList,
   layout = DashboardLayout.Library
-}: InitializeAndMountProps): ReturnType<typeof createStore> => {
+}: InitializeAndMountProps): {
+  navigate;
+  store;
+} => {
   const store = createStore();
 
   store.set(userAtom, {
@@ -143,6 +146,9 @@ const initializeAndMount = ({
     layout
   });
 
+  const navigate = cy.stub();
+  cy.stub(routerHooks, 'useNavigate').returns(navigate);
+
   cy.mount({
     Component: (
       <SnackbarProvider>
@@ -157,7 +163,10 @@ const initializeAndMount = ({
     )
   });
 
-  return store;
+  return {
+    navigate,
+    store
+  };
 };
 
 const editorRole = {
@@ -476,5 +485,42 @@ describe('Dashboards', () => {
     cy.contains(labelSharesSaved).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  describe.only('Navigation to dashboard', () => {
+    it('navigates to the dashboard page when the listing mode is activated and a row is clicked', () => {
+      const { navigate } = initializeAndMount({
+        ...administratorRole
+      });
+
+      cy.findByTestId('View as list').click();
+
+      cy.contains('Arnaud')
+        .click()
+        .then(() => {
+          expect(navigate).to.be.calledWith('/home/dashboards/library/1');
+        });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not navigate to the dashboard page when the listing mode is activated and a row is clicked on the actions cell', () => {
+      const { navigate } = initializeAndMount({
+        ...administratorRole
+      });
+
+      cy.findByTestId('View as list').click();
+
+      cy.get('.MuiTableRow-root')
+        .first()
+        .get('.MuiTableCell-body')
+        .last()
+        .click()
+        .then(() => {
+          expect(navigate).to.not.be.called;
+        });
+
+      cy.makeSnapshot();
+    });
   });
 });

@@ -30,7 +30,7 @@ const useColumns = (): {
   const columns = [
     {
       disablePadding: false,
-      getFormattedString: ({ name }) => name,
+      getFormattedString: ({ name, shares }) => shares && name,
       id: 'name',
       label: t(labelName),
       sortField: 'name',
