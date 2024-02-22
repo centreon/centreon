@@ -348,7 +348,7 @@ Then(
     cy.getByLabel({ label: 'Title' }).should('exist');
     cy.get('input[value="host"]').should('exist');
     cy.get('input[value="service"]').should('exist');
-    cy.get('input[name="ok"]').should('exist');
+    cy.get('input[name="success"]').should('exist');
     cy.get('input[name="problem"]').should('exist');
     cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
