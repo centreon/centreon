@@ -320,11 +320,20 @@ Then('link between access group and action access must be broken', () => {
   });
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', data.ACLGroups.ACLGroup1.name)
-    .within(() => {
-      cy.get('td.ListColLeft').click();
-    });
+  cy.wait('@getTimeZone').then(() => {
+    cy.executeActionOnIframe(
+      data.ACLGroups.ACLGroup1.name,
+      ($body) => {
+        cy.wrap($body)
+          .contains('tr', data.ACLGroups.ACLGroup1.name)
+          .within(() => {
+            cy.get('td.ListColLeft').click();
+          });
+      },
+      3,
+      3000
+    );
+  });
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
@@ -470,6 +479,8 @@ Then('the modifications are saved', () => {
     .within(() => {
       cy.get('td.ListColLeft > a').eq(0).click();
     });
+  cy.wait('@getTimeZone');
+
   // actions
   cy.getIframeBody()
     .find(`input[name="${modifiedACLAction.actions[0]}"]`)
