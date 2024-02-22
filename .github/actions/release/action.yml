@@ -4,8 +4,11 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
-  jira_token:
+  jira_api_token:
     description: "Token to authenticate to Jira"
+    required: true
+  jira_user_email:
+    description: "Email linked to token"
     required: true
   jira_project_id:
     description: "Jira project id to create release"
