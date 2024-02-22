@@ -1,4 +1,5 @@
 import { concat, equals, map, omit } from 'ramda';
+import { useNavigate } from 'react-router';
 
 import {
   Dashboard,
@@ -7,6 +8,10 @@ import {
   Shares,
   ShareType
 } from '../../../api/models';
+
+export const router = {
+  useNavigate
+};
 
 const formatShares = ({
   shares,

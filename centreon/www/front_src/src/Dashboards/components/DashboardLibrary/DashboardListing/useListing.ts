@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { generatePath } from 'react-router';
 
 import {
   Dashboard,
@@ -17,10 +18,11 @@ import {
   limitAtom,
   sortOrderAtom,
   sortFieldAtom,
-  selectedRowsAtom,
   askBeforeRevokeAtom
 } from './atom';
-import { formatListingData } from './utils';
+import { formatListingData, router } from './utils';
+
+import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
 interface ConfirmRevokeAccessRightProps {
   dashboardId: string | number;
@@ -37,13 +39,12 @@ interface UseListing {
   ) => () => void;
   formattedRows: Array<FormattedDashboard>;
   getRowProperty: (row) => string;
+  navigateToDashboard: (row: FormattedDashboard) => void;
   page?: number;
   resetColumns: () => void;
   selectedColumnIds: Array<string>;
-  selectedRows: Array<Dashboard>;
   setLimit;
   setSelectedColumnIds;
-  setSelectedRows;
   sortf: string;
   sorto: 'asc' | 'desc';
 }
@@ -55,6 +56,8 @@ const useListing = ({
   defaultColumnsIds: Array<string>;
   rows?: Array<Dashboard>;
 }): UseListing => {
+  const navigate = router.useNavigate();
+
   const [selectedColumnIds, setSelectedColumnIds] =
     useState<Array<string>>(defaultColumnsIds);
 
@@ -62,7 +65,6 @@ const useListing = ({
     setSelectedColumnIds(defaultColumnsIds);
   };
 
-  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -108,6 +110,14 @@ const useListing = ({
       closeAskRevokeAccessRight();
     };
 
+  const navigateToDashboard = (row: FormattedDashboard): void => {
+    navigate(
+      generatePath(routeMap.dashboard, {
+        dashboardId: row.id
+      })
+    );
+  };
+
   return {
     changePage,
     changeSort,
@@ -115,13 +125,12 @@ const useListing = ({
     confirmRevokeAccessRight,
     formattedRows: formatListingData(rows),
     getRowProperty,
+    navigateToDashboard,
     page,
     resetColumns,
     selectedColumnIds,
-    selectedRows,
     setLimit,
     setSelectedColumnIds,
-    setSelectedRows,
     sortf,
     sorto
   };
