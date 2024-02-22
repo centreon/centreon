@@ -83,6 +83,7 @@ describe('Bar stack', () => {
 
     cy.makeSnapshot();
   });
+
   it('conditionally displays values on rects based on displayValues prop', () => {
     initialize({ displayValues: true });
     data.forEach(({ value }, index) => {
