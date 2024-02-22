@@ -4,6 +4,7 @@ import { EllipsisTypography } from '@centreon/ui';
 
 import { RowProps } from '../models';
 import { getResourcesUrl } from '../../../utils';
+import { goToUrl } from '../utils';
 
 export const Name = ({ row, groupType }: RowProps): JSX.Element => {
   const url = getResourcesUrl({
@@ -33,6 +34,7 @@ export const Name = ({ row, groupType }: RowProps): JSX.Element => {
         rel="noopener noreferrer"
         target="_blank"
         underline="hover"
+        onClick={goToUrl(url)}
       >
         {row.name}
       </Link>

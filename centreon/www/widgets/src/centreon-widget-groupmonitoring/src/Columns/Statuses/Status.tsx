@@ -7,6 +7,7 @@ import { SeverityCode, getStatusColors } from '@centreon/ui';
 import { useStatusesColumnStyles } from '../Columns.styles';
 import { getResourcesUrl } from '../../../../utils';
 import { SeverityStatus } from '../../../../models';
+import { goToUrl } from '../../utils';
 
 interface Props {
   count: number;
@@ -68,6 +69,7 @@ const Status = ({
       rel="noopener noreferrer"
       target="_blank"
       underline="none"
+      onClick={goToUrl(url)}
     >
       <Box
         className={classes.statusLabelContainer}

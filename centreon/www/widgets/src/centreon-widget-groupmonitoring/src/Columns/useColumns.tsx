@@ -25,7 +25,7 @@ export const useColumns = ({
         <Name groupType={groupType} row={row} />
       ),
       align: 'start',
-      clickable: false,
+      clickable: true,
       id: 'name',
       label: t(groupTypeName),
       sortField: 'name',
@@ -38,7 +38,7 @@ export const useColumns = ({
         <Statuses groupType={groupType} resourceType="host" row={row} />
       ),
       align: 'start',
-      clickable: false,
+      clickable: true,
       id: 'host',
       label: t(labelHosts),
       type: ColumnType.component,
@@ -48,7 +48,7 @@ export const useColumns = ({
       Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Statuses groupType={groupType} resourceType="service" row={row} />
       ),
-      clickable: false,
+      clickable: true,
       id: 'service',
       label: t(labelServices),
       type: ColumnType.component,
