@@ -5,7 +5,9 @@ import { PieProps } from './models';
 
 const PieChart = (props: PieProps): JSX.Element => (
   <ParentSize>
-    {({ width }) => <ResponsivePie {...props} width={width} />}
+    {({ width, height }) => (
+      <ResponsivePie {...props} height={height} width={width} />
+    )}
   </ParentSize>
 );
 

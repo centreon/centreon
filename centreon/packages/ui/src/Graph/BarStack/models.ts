@@ -1,5 +1,3 @@
-import { LegendConfiguration, LegendProps } from '../Legend/models';
-
 export interface BarType {
   color: string;
   label: string;
@@ -7,12 +5,12 @@ export interface BarType {
 }
 
 export type BarStackProps = {
-  Legend: ({ scale, configuration }: LegendProps) => JSX.Element;
+  Legend: ({ scale, data, title, total }) => JSX.Element;
   data: Array<BarType>;
   displayLegend?: boolean;
   displayValues?: boolean;
-  legendConfiguration?: LegendConfiguration;
   onSingleBarClick?: (barData) => void;
+  size?: number;
   title?: string;
   tooltipContent?: (barData) => JSX.Element | boolean | null;
   unit?: 'percentage' | 'number';

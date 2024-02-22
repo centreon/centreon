@@ -1,8 +1,12 @@
+import { useRef } from 'react';
+
 import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { equals } from 'ramda';
+
+import { useTheme } from '@mui/material';
 
 import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
@@ -11,49 +15,77 @@ import { getValueByUnit } from '../common/utils';
 
 import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
+import { useResponsivePie } from './useResponsivePie';
 
-const DefaultLengd = ({ scale, configuration }: LegendProps): JSX.Element => (
-  <LegendComponent configuration={configuration} scale={scale} />
+const DefaultLengd = ({ scale }: LegendProps): JSX.Element => (
+  <LegendComponent scale={scale} />
 );
 
 const ResponsivePie = ({
   title,
   variant = 'pie',
   width,
+  height,
   data,
   unit = 'number',
   Legend = DefaultLengd,
-  legendConfiguration = { direction: 'column' },
   displayLegend = true,
   innerRadius = 40,
   onArcClick,
   displayValues,
   tooltipContent
-}: PieProps & { width: number }): JSX.Element => {
-  const { classes } = usePieStyles();
+}: PieProps & { height: number; width: number }): JSX.Element => {
+  const theme = useTheme();
 
-  const half = width / 2;
+  const titleRef = useRef(null);
+  const legendRef = useRef(null);
 
-  const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+  const {
+    half,
+    legendScale,
+    svgContainerSize,
+    svgSize,
+    svgWrapperWidth,
+    total
+  } = useResponsivePie({
+    data,
+    height,
+    legendRef,
+    titleRef,
+    unit,
+    width
+  });
 
-  const legendScale = {
-    domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
-    range: data.map(({ color }) => color)
-  };
+  const { classes } = usePieStyles({ svgSize });
 
   return (
-    <div className={classes.container}>
-      <div className={classes.svgWrapper}>
+    <div
+      className={classes.container}
+      style={{
+        height,
+        width
+      }}
+    >
+      <div
+        className={classes.svgWrapper}
+        style={{
+          height,
+          width: svgWrapperWidth
+        }}
+      >
         {equals(variant, 'pie') && title && (
-          <div className={classes.pieTitle}>
+          <div className={classes.title} ref={titleRef}>
             {`${numeral(total).format('0a').toUpperCase()} `} {title}
           </div>
         )}
         <div
           className={classes.svgContainer}
-          style={{ height: width + 30, width: width + 30 }}
+          style={{
+            height: svgContainerSize,
+            width: svgContainerSize
+          }}
         >
-          <svg height={width} width={width}>
+          <svg height={svgSize} width={svgSize}>
             <Group left={half} top={half}>
               <Pie
                 data={data}
@@ -75,7 +107,6 @@ const ResponsivePie = ({
                     const labelY = Math.sin(midAngle) * labelRadius;
 
                     const angle = arc.endAngle - arc.startAngle;
-
                     const minAngle = 0.2;
 
                     return (
@@ -100,7 +131,10 @@ const ResponsivePie = ({
                             onArcClick?.(arc.data);
                           }}
                         >
-                          <path d={pie.path(arc)} fill={arc.data.color} />
+                          <path
+                            d={pie.path(arc) as string}
+                            fill={arc.data.color}
+                          />
                           {displayValues && angle > minAngle && (
                             <Text
                               dy=".33em"
@@ -127,17 +161,17 @@ const ResponsivePie = ({
               {equals(variant, 'donut') && title && (
                 <>
                   <Text
+                    className={classes.title}
                     dy={-15}
-                    fontSize={20}
-                    fontWeight={700}
+                    fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
                     {numeral(total).format('0a').toUpperCase()}
                   </Text>
                   <Text
-                    dy={20}
-                    fontSize={20}
-                    fontWeight={700}
+                    className={classes.title}
+                    dy={15}
+                    fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
                     {title}
@@ -148,11 +182,15 @@ const ResponsivePie = ({
           </svg>
         </div>
       </div>
-      {displayLegend &&
-        Legend({
-          configuration: legendConfiguration,
-          scale: legendScale
-        })}
+      <div ref={legendRef}>
+        {displayLegend &&
+          Legend({
+            data,
+            scale: legendScale,
+            title,
+            total
+          })}
+      </div>
     </div>
   );
 };

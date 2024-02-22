@@ -2,24 +2,34 @@ import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { equals } from 'ramda';
 
 import { getValueByUnit } from '../common/utils';
+import { LegendScale } from '../Legend/models';
 
 import { BarType } from './models';
 
+interface Size {
+  height: number;
+  width: number;
+}
+
 interface useBarStackProps {
-  barHeight: number;
-  barWidth: number;
   data: Array<BarType>;
+  height: number;
+  legendRef;
+  size: number;
+  titleRef;
   unit?: 'percentage' | 'number';
   variant?: 'vertical' | 'horizontal';
+  width: number;
 }
 interface useBarStackState {
+  barSize: Size;
   colorScale;
-  height: number;
   input;
   keys: Array<string>;
-  legendScale;
+  legendScale: LegendScale;
+  svgContainerSize: Size;
+  svgWrapperWidth: number;
   total: number;
-  width: number;
   xScale;
   yScale;
 }
@@ -27,14 +37,29 @@ interface useBarStackState {
 const useResponsiveBarStack = ({
   data,
   variant,
-  barWidth,
-  barHeight,
-  unit = 'number'
+  height,
+  width,
+  unit = 'number',
+  titleRef,
+  legendRef,
+  size
 }: useBarStackProps): useBarStackState => {
   const isVerticalBar = equals(variant, 'vertical');
 
-  const width = isVerticalBar ? barHeight : barWidth;
-  const height = isVerticalBar ? 250 : barHeight;
+  const heightOfTitle = titleRef.current?.offsetHeight || 0;
+  const widthOfLegend = legendRef.current?.offsetWidth || 0 + 8;
+
+  const svgWrapperWidth = width - widthOfLegend;
+
+  const svgContainerSize = {
+    height: isVerticalBar ? height - heightOfTitle : size,
+    width: isVerticalBar ? size : width - widthOfLegend
+  };
+
+  const barSize = {
+    height: svgContainerSize.height - 16,
+    width: svgContainerSize.width - 16
+  };
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
 
@@ -72,8 +97,8 @@ const useResponsiveBarStack = ({
     range: colorsRange
   };
 
-  const xMax = width;
-  const yMax = height;
+  const xMax = barSize.width;
+  const yMax = barSize.height;
 
   xScale.rangeRound([0, xMax]);
   yScale.range([yMax, 0]);
@@ -85,13 +110,14 @@ const useResponsiveBarStack = ({
   }, {});
 
   return {
+    barSize,
     colorScale,
-    height,
     input,
     keys,
     legendScale,
+    svgContainerSize,
+    svgWrapperWidth,
     total,
-    width,
     xScale,
     yScale
   };

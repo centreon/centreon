@@ -42,7 +42,7 @@ const Tooltip = ({ label, color, value }: BarType): JSX.Element => {
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ height: '60px', width: '100%' }}>
+    <div style={{ height: '300px', width: '500px' }}>
       <BarStack {...args} />
     </div>
   );

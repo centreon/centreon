@@ -27,7 +27,7 @@ type Story = StoryObj<typeof PieChart>;
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ width: '20%' }}>
+    <div style={{ height: '350px', width: '350px' }}>
       <PieChart {...args} />
     </div>
   );
