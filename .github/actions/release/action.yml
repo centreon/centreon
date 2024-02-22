@@ -53,7 +53,7 @@ runs:
 
         curl --fail --request POST \
           --url 'https://centreon.atlassian.net/rest/api/3/version' \
-          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data ''$VERSION_DATA''
