@@ -189,18 +189,14 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
-$insertGroupMonitoringWidget = function(CentreonDb $pearDB): void {
-    $statement = $pearDB->query(
-        <<<'SQL'
-            SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-groupmonitoring'
-            SQL
-    );
-    if (false === (bool) $statement->fetch(\PDO::FETCH_COLUMN)) {
+$insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
+    if((bool) $statement->fetchColumn() === false) {
         $pearDB->query(
-            <<<'SQL'
-                INSERT INTO `dashboard_widgets` (`name`)
-                VALUES
-                    ('centreon-widget-groupmonitoring')
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-groupmonitoring')
                 SQL
         );
     }
@@ -218,7 +214,6 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
-    $insertGroupMonitoringWidget($pearDB)
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -228,6 +223,7 @@ try {
     $errorMessage = "Could not set core widgets to internal";
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
+    $insertGroupMonitoringWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 
