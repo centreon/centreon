@@ -123,7 +123,7 @@ describe('Bar stack', () => {
     cy.makeSnapshot();
   });
 
-  it('diplays the title when the title is giving', () => {
+  it('displays the title when the title is giving', () => {
     initialize({ title: 'host' });
     cy.findByTestId('Title').should('be.visible');
 

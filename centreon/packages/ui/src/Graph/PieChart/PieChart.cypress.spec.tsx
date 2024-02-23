@@ -124,12 +124,26 @@ describe('Pie chart', () => {
     cy.makeSnapshot();
   });
 
-  it('diplays the title when the title is giving', () => {
+  it('displays the title when the title is giving', () => {
     initialize({ title: 'host' });
     cy.findByTestId('Title').should('be.visible');
 
     initialize({});
     cy.findByTestId('Title').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('adjusts outer radius when chart dimensions are too small', () => {
+    initialize({
+      displayLegend: false,
+      height: '120px',
+      title: 'hosts',
+      variant: 'donut',
+      width: '120px'
+    });
+
+    cy.get('[data-variant="donut"]').should('have.css', 'width', '100px');
 
     cy.makeSnapshot();
   });

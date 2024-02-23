@@ -5,6 +5,7 @@ import { ArcType } from './models';
 
 interface ResponsivePieProps {
   data: Array<ArcType>;
+  defualtInnerRadius: number;
   height: number;
   legendRef;
   titleRef;
@@ -14,6 +15,7 @@ interface ResponsivePieProps {
 
 interface ResponsivePieState {
   half: number;
+  innerRadius: number;
   legendScale: LegendScale;
   svgContainerSize: number;
   svgSize: number;
@@ -26,7 +28,8 @@ export const useResponsivePie = ({
   height,
   width,
   data,
-  unit
+  unit,
+  defualtInnerRadius
 }: ResponsivePieProps): ResponsivePieState => {
   const heightOfTitle = titleRef.current?.offsetHeight || 0;
   const widthOfLegend = legendRef.current?.offsetWidth || 0;
@@ -37,11 +40,15 @@ export const useResponsivePie = ({
     width - widthOfLegend
   );
 
-  const svgSize = svgContainerSize - 32;
+  const outerRadius = Math.min(32, svgContainerSize / 6);
+
+  const svgSize = svgContainerSize - outerRadius;
 
   const half = svgSize / 2;
 
   const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+
+  const innerRadius = Math.min(defualtInnerRadius, svgSize / 5);
 
   const legendScale = {
     domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
@@ -50,6 +57,7 @@ export const useResponsivePie = ({
 
   return {
     half,
+    innerRadius,
     legendScale,
     svgContainerSize,
     svgSize,
