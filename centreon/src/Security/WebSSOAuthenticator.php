@@ -187,7 +187,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 ),
                 200
             );
-        } catch (SSOAuthenticationException $exception) { // @todo: what then if a different exception?
+        } catch (SSOAuthenticationException $exception) {
             throw new AuthenticationException($exception->getMessage(), $exception->getCode());
         }
 
