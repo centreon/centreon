@@ -254,6 +254,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/broker/{brokerId}/outputs:
     $ref: "./v24.04/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+    $ref: "./v24.04/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
