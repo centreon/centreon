@@ -5,14 +5,15 @@ export interface ArcType {
 }
 
 export interface PieProps {
-  Legend?: ({ scale, data, title, total }) => JSX.Element;
+  Legend?: ({ scale, direction, data, title, total, unit }) => JSX.Element;
+  TooltipContent?: (arcData) => JSX.Element | boolean | null;
   data: Array<ArcType>;
   displayLegend?: boolean;
   displayValues?: boolean;
   innerRadius?: number;
+  legendDirection?: 'row' | 'column';
   onArcClick?: (ardata) => void;
   title?: string;
-  tooltipContent?: (arcData) => JSX.Element | boolean | null;
   unit?: 'percentage' | 'number';
   variant?: 'pie' | 'donut';
 }

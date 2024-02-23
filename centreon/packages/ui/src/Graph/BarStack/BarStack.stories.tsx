@@ -32,7 +32,7 @@ const meta: Meta<typeof BarStack> = {
 export default meta;
 type Story = StoryObj<typeof BarStack>;
 
-const Tooltip = ({ label, color, value }: BarType): JSX.Element => {
+const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
   return (
     <div style={{ color }}>
       {label} : {value}
@@ -75,36 +75,36 @@ export const withDisplayedValues: Story = {
 };
 
 export const WithTooltip: Story = {
-  args: { data, title: 'hosts', tooltipContent: Tooltip },
+  args: { TooltipContent, data, title: 'hosts' },
   render: Template
 };
 
 export const WithBigNumbers: Story = {
   args: {
+    TooltipContent,
     data: dataWithBigNumbers,
     displayValues: true,
-    title: 'hosts',
-    tooltipContent: Tooltip
+    title: 'hosts'
   },
   render: Template
 };
 
 export const WithSmallNumbers: Story = {
   args: {
+    TooltipContent,
     data: dataWithSmallNumber,
     displayValues: true,
-    title: 'hosts',
-    tooltipContent: Tooltip
+    title: 'hosts'
   },
   render: Template
 };
 
 export const Horizontal: Story = {
   args: {
+    TooltipContent,
     data,
     displayValues: true,
     title: 'hosts',
-    tooltipContent: Tooltip,
     variant: 'horizontal'
   },
   render: Template
@@ -112,11 +112,11 @@ export const Horizontal: Story = {
 
 export const HorizontalWithoutLegend: Story = {
   args: {
+    TooltipContent,
     data,
     displayLegend: false,
     displayValues: true,
     title: 'hosts',
-    tooltipContent: Tooltip,
     variant: 'horizontal'
   },
   render: Template

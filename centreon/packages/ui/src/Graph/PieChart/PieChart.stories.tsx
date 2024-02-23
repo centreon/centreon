@@ -122,9 +122,9 @@ const TooltipContent = ({ label, color, value }: ArcType): JSX.Element => {
 
 export const PieWithTooltip: Story = {
   args: {
+    TooltipContent,
     data,
     displayValues: true,
-    tooltipContent: TooltipContent,
     unit: 'percentage'
   },
   render: Template
@@ -132,9 +132,9 @@ export const PieWithTooltip: Story = {
 
 export const DonutWithTooltip: Story = {
   args: {
+    TooltipContent,
     data,
     displayValues: true,
-    tooltipContent: TooltipContent,
     variant: 'donut'
   },
   render: Template
