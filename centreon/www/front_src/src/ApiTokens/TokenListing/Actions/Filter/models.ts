@@ -35,3 +35,8 @@ export interface User {
   id: number;
   name: string;
 }
+
+export enum Property {
+  in = 'In',
+  last = 'last'
+}

@@ -216,7 +216,8 @@ const AutocompleteField = React.forwardRef(
           ...params.inputProps,
           'aria-label': label,
           'data-testid': dataTestId || label,
-          id: getNormalizedId(label || '')
+          id: getNormalizedId(label || ''),
+          ...autocompleteProps?.inputProps
         }}
         label={label}
         placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}

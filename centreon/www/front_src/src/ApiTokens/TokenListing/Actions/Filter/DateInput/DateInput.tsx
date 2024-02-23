@@ -1,67 +1,101 @@
 import { useState } from 'react';
 
 import dayjs from 'dayjs';
-import { PrimitiveAtom, useAtom } from 'jotai';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
 import { useStyles } from '../filter.styles';
+import { Property } from '../models';
+
+import CustomField from './CustomField';
 
 interface Props {
+  dataDate;
   label: string;
-  storageData: PrimitiveAtom<Date | null>;
+  property: Property;
 }
 
-const DateInput = ({ storageData, label }: Props): JSX.Element => {
+const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
   const { classes } = useStyles();
+  const { date, setDate } = dataDate;
+  const defaultDate = dayjs().toDate();
   const [open, setOpen] = useState(false);
 
-  const [currentDate, setCurrentDate] = useAtom(storageData);
+  const [error, setError] = useState(false);
+  const [customizedDate, setCustomizedDate] = useState<Date | null>(null);
 
-  const changeDate = ({ date }): void => {
-    if (!dayjs(date).isValid) {
+  const changeDate = ({ date: time }): void => {
+    if (!dayjs(time).isValid()) {
+      setError(true);
+
       return;
     }
-    setCurrentDate(dayjs(date).toDate());
+    setError(false);
+    setCustomizedDate(dayjs(time).toDate());
   };
 
   const onClear = (): void => {
-    setCurrentDate(null);
+    setCustomizedDate(null);
+    setDate(null);
+    setOpen(false);
+    setError(false);
+  };
+
+  const onClose = (): void => {
     setOpen(false);
   };
-  const onOpen = (): void => {
-    setOpen(true);
+
+  const getIsDisplayingCalendar = (value): void => {
+    setOpen(value);
   };
-  const onClose = (): void => {
+
+  const onAccept = (): void => {
+    if (!dayjs(customizedDate).isValid()) {
+      setError(true);
+
+      return;
+    }
+    setDate(customizedDate);
+    setError(false);
     setOpen(false);
   };
 
   const slotProps = {
     actionBar: {
       actions: ['clear', 'accept'],
+      onAccept,
       onClear
+    },
+    field: {
+      className: classes.field,
+      customizedDate,
+      dataDate,
+      error,
+      getIsDisplayingCalendar,
+      label,
+      onClear,
+      property
     },
     popper: {
       className: classes.popper,
       placement: 'bottom'
-    },
-    textField: {
-      className: classes.field,
-      error: false,
-      label
     }
   };
 
+  const slots = {
+    field: CustomField
+  };
+
   return (
-    <div className={classes.input}>
+    <div className={classes.containerDate}>
       <DateTimePickerInput
         changeDate={changeDate}
         closeOnSelect={false}
-        date={currentDate}
+        date={customizedDate || date || defaultDate}
         open={open}
         slotProps={slotProps}
+        slots={slots}
         onClose={onClose}
-        onOpen={onOpen}
       />
     </div>
   );

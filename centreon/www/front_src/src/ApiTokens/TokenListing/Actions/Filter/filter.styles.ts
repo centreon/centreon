@@ -25,6 +25,10 @@ export const useStyles = makeStyles()((theme) => ({
     minWidth: theme.spacing(44),
     padding: theme.spacing(2, 0)
   },
+  containerDate: {
+    marginBottom: theme.spacing(1),
+    width: theme.spacing(40)
+  },
   field: {
     '& .MuiInputBase-root': {
       '& .MuiInputBase-input': {

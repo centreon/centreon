@@ -1,3 +1,3 @@
-import DateInput from './DateInput';
+import DateInputWrapper from './DateInputWrapper';
 
-export default DateInput;
+export default DateInputWrapper;

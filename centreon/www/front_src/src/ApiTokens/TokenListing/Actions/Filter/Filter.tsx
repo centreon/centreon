@@ -21,14 +21,12 @@ import { PersonalInformation } from '../../models';
 import useBuildParameters from '../Search/useBuildParametrs';
 import { getUniqData } from '../Search/utils';
 
-import DateInput from './DateInput';
+import DateInputWrapper from './DateInput';
 import Status from './Status';
 import {
-  creationDateAtom,
   creatorsAtom,
   currentFilterAtom,
   customQueryParametersAtom,
-  expirationDateAtom,
   usersAtom
 } from './atoms';
 import { useStyles } from './filter.styles';
@@ -104,8 +102,8 @@ const Filter = (): JSX.Element => {
 
   return (
     <div className={classes.container}>
-      <DateInput label="Creation date" storageData={creationDateAtom} />
-      <DateInput label="Expiration date" storageData={expirationDateAtom} />
+      <DateInputWrapper />
+
       <MultiConnectedAutocompleteField
         disableSortedOptions
         chipProps={{
