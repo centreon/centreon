@@ -25,6 +25,7 @@ interface useBarStackState {
   barSize: Size;
   colorScale;
   input;
+  isVerticalBar: boolean;
   keys: Array<string>;
   legendScale: LegendScale;
   svgContainerSize: Size;
@@ -113,6 +114,7 @@ const useResponsiveBarStack = ({
     barSize,
     colorScale,
     input,
+    isVerticalBar,
     keys,
     legendScale,
     svgContainerSize,
