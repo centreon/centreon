@@ -17,8 +17,8 @@ import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
 import { useResponsivePie } from './useResponsivePie';
 
-const DefaultLengd = ({ scale }: LegendProps): JSX.Element => (
-  <LegendComponent scale={scale} />
+const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
+  <LegendComponent direction={direction} scale={scale} />
 );
 
 const ResponsivePie = ({
@@ -33,7 +33,8 @@ const ResponsivePie = ({
   innerRadius: defualtInnerRadius = 40,
   onArcClick,
   displayValues,
-  tooltipContent
+  TooltipContent,
+  legendDirection = 'column'
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const theme = useTheme();
 
@@ -120,13 +121,17 @@ const ResponsivePie = ({
                         }}
                         followCursor={false}
                         key={arc.data.label}
-                        label={tooltipContent?.({
-                          color: arc.data.color,
-                          label: arc.data.label,
-                          title,
-                          total,
-                          value: arc.data.value
-                        })}
+                        label={
+                          TooltipContent && (
+                            <TooltipContent
+                              color={arc.data.color}
+                              label={arc.data.label}
+                              title={title}
+                              total={total}
+                              value={arc.data.value}
+                            />
+                          )
+                        }
                       >
                         <g
                           data-testid={arc.data.label}
@@ -189,12 +194,14 @@ const ResponsivePie = ({
       </div>
       {displayLegend && (
         <div data-testid="Legend" ref={legendRef}>
-          {Legend({
-            data,
-            scale: legendScale,
-            title,
-            total
-          })}
+          <Legend
+            data={data}
+            direction={legendDirection}
+            scale={legendScale}
+            title={title}
+            total={total}
+            unit={unit}
+          />
         </div>
       )}
     </div>

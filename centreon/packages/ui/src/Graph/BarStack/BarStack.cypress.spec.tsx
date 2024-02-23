@@ -71,7 +71,7 @@ describe('Bar stack', () => {
   });
 
   it('displays tooltip with correct information on hover', () => {
-    initialize({ tooltipContent: TooltipContent });
+    initialize({ TooltipContent });
 
     data.forEach(({ label, value }) => {
       cy.findByTestId(label).trigger('mouseover', { force: true });
