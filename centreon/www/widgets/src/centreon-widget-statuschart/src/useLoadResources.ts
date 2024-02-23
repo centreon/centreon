@@ -6,7 +6,7 @@ import { Resource } from '../../models';
 
 import { buildResourcesEndpoint } from './api/endpoint';
 import { StatusType } from './models';
-import { FormatedResponse, formatResponse } from './utils';
+import { FormattedResponse, formatResponse } from './utils';
 
 interface LoadResourcesProps {
   refreshCount: number;
@@ -16,7 +16,7 @@ interface LoadResourcesProps {
 }
 
 interface LoadResources {
-  data?: Array<FormatedResponse>;
+  data?: Array<FormattedResponse>;
   isLoading: boolean;
 }
 

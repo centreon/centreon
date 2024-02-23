@@ -2,10 +2,9 @@ import { equals } from 'ramda';
 
 import { PieChart, BarStack } from '@centreon/ui';
 
-import { DisplayType, ChartType } from '../../models';
+import { ChartType, DisplayType } from '../../models';
 import { Legend, TooltipContent, ChartSkeleton } from '..';
 import useLoadResources from '../../useLoadResources';
-import { useLegendStyles } from '../Legend/Legend.styles';
 
 import { useStyles } from './Chart.styles';
 import { useChart } from './useChart';
@@ -23,9 +22,6 @@ const Chart = ({
   resources
 }: ChartType): JSX.Element => {
   const { classes } = useStyles();
-  const { classes: legendClasses } = useLegendStyles({
-    direction: equals(displayType, DisplayType.Horizontal) ? 'row' : 'column'
-  });
 
   const { data, isLoading } = useLoadResources({
     refreshCount,
@@ -48,12 +44,12 @@ const Chart = ({
       {isPieCharts ? (
         <div className={classes.pieChart} style={pieChartDimensions}>
           <PieChart
-            Legend={Legend(legendClasses)}
+            Legend={Legend}
+            TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
             title={title}
-            tooltipContent={TooltipContent}
             unit={unit}
             variant={displayType}
           />
@@ -61,13 +57,16 @@ const Chart = ({
       ) : (
         <div style={barStackDimensions}>
           <BarStack
-            Legend={Legend(legendClasses)}
+            Legend={Legend}
+            TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            legendDirection={
+              equals(displayType, DisplayType.Horizontal) ? 'row' : 'column'
+            }
             size={80}
             title={title}
-            tooltipContent={TooltipContent}
             unit={unit}
             variant={displayType}
           />

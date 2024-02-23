@@ -1,4 +1,5 @@
-import { map, omit, pipe, toPairs } from 'ramda';
+import { equals, map, omit, pipe, toPairs } from 'ramda';
+import numeral from 'numeral';
 
 import type { Theme } from '@mui/material';
 
@@ -15,7 +16,7 @@ interface FormatResponseProps {
   theme: Theme;
 }
 
-export interface FormatedResponse {
+export interface FormattedResponse {
   color: string;
   label: string;
   value: number;
@@ -24,7 +25,7 @@ export interface FormatedResponse {
 export const formatResponse = ({
   statuses,
   theme
-}: FormatResponseProps): Array<FormatedResponse> => {
+}: FormatResponseProps): Array<FormattedResponse> => {
   const filteredStatuses = omit(['total'], statuses);
 
   const result = pipe(
@@ -59,4 +60,22 @@ export const getStatusColors = ({ theme, label }: StatusColorProps): string => {
   };
 
   return colorMapping[label];
+};
+
+interface ValueByUnitProps {
+  total: number;
+  unit: 'percentage' | 'number';
+  value: number;
+}
+
+export const getValueByUnit = ({
+  unit,
+  value,
+  total
+}: ValueByUnitProps): string => {
+  if (equals(unit, 'number')) {
+    return numeral(value).format('0a').toUpperCase();
+  }
+
+  return `${((value * 100) / total).toFixed(1)}%`;
 };
