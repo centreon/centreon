@@ -13,7 +13,7 @@ interface UseFullscreenState {
   fullscreenEnabled: boolean;
   isFullscreenActivated: boolean;
   resetVariables: () => void;
-  toggleFullscreen: (element: HTMLElement | null) => void;
+  toggleFullscreen: (element?: HTMLElement | null) => void;
 }
 
 export const useFullscreen = (): UseFullscreenState => {
@@ -59,13 +59,12 @@ export const useFullscreen = (): UseFullscreenState => {
   };
 
   const exitFullscreen = (): void => {
-    if (!document.fullscreenElement) {
-      return;
-    }
     document.exitFullscreen().then(resetVariables);
   };
 
-  const toggleFullscreen = (element: HTMLElement | null): void => {
+  const toggleFullscreen = (
+    element: HTMLElement | null = document.body
+  ): void => {
     if (isFullscreenActivated) {
       exitFullscreen();
 

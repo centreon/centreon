@@ -1,22 +1,28 @@
 import { useEffect } from 'react';
 
 import { equals } from 'ramda';
+import { useSearchParams } from 'react-router-dom';
 
-import { getUrlQueryParameters, useDeepCompare } from '../..';
+import { useDeepCompare } from '../useMemoComponent';
 
 import { useFullscreen } from './useFullscreen';
 
-export const useFullscreenListener = (): void => {
-  const { toggleFullscreen, resetVariables } = useFullscreen();
+export const router = {
+  useSearchParams
+};
 
-  const queryParameters = getUrlQueryParameters();
+export const useFullscreenListener = (): void => {
+  const { toggleFullscreen, resetVariables, isFullscreenActivated } =
+    useFullscreen();
+
+  const [searchParams] = useSearchParams();
 
   const toggle = (event: KeyboardEvent): void => {
     if (!event.altKey || !equals(event.code, 'KeyF')) {
       return;
     }
 
-    toggleFullscreen(document.body);
+    toggleFullscreen();
   };
 
   const changeFullscreen = (): void => {
@@ -29,19 +35,25 @@ export const useFullscreenListener = (): void => {
 
   useEffect(
     () => {
-      window.addEventListener('keypress', toggle);
       document.addEventListener('fullscreenchange', changeFullscreen);
 
       return () => {
-        window.removeEventListener('keypress', toggle);
         document.removeEventListener('fullscreenchange', changeFullscreen);
       };
     },
-    useDeepCompare([queryParameters])
+    useDeepCompare([document.fullscreenElement])
   );
 
   useEffect(() => {
-    if (!queryParameters.min) {
+    window.addEventListener('keypress', toggle);
+
+    return () => {
+      window.removeEventListener('keypress', toggle);
+    };
+  }, [isFullscreenActivated]);
+
+  useEffect(() => {
+    if (!searchParams.get('min')) {
       return;
     }
 
