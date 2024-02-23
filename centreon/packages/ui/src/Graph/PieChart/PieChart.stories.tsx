@@ -139,3 +139,29 @@ export const DonutWithTooltip: Story = {
   },
   render: Template
 };
+
+const TemplateForSmallDimensions = (args): JSX.Element => {
+  return (
+    <div style={{ height: '130px', width: '130px' }}>
+      <PieChart {...args} />
+    </div>
+  );
+};
+
+export const PieWithSmallDimensions: Story = {
+  args: {
+    data,
+    displayLegend: false
+  },
+  render: TemplateForSmallDimensions
+};
+
+export const DonutWithSmallDimensions: Story = {
+  args: {
+    data,
+    displayLegend: false,
+    title: 'hosts',
+    variant: 'donut'
+  },
+  render: TemplateForSmallDimensions
+};

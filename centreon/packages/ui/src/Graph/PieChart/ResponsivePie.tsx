@@ -4,7 +4,7 @@ import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
-import { equals } from 'ramda';
+import { equals, lt } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -30,7 +30,7 @@ const ResponsivePie = ({
   unit = 'number',
   Legend = DefaultLengd,
   displayLegend = true,
-  innerRadius = 40,
+  innerRadius: defualtInnerRadius = 40,
   onArcClick,
   displayValues,
   tooltipContent
@@ -46,9 +46,11 @@ const ResponsivePie = ({
     svgContainerSize,
     svgSize,
     svgWrapperWidth,
-    total
+    total,
+    innerRadius
   } = useResponsivePie({
     data,
+    defualtInnerRadius,
     height,
     legendRef,
     titleRef,
@@ -164,7 +166,7 @@ const ResponsivePie = ({
                 <>
                   <Text
                     className={classes.title}
-                    dy={-15}
+                    dy={lt(svgSize, 150) ? -10 : -15}
                     fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
@@ -173,7 +175,7 @@ const ResponsivePie = ({
                   <Text
                     className={classes.title}
                     data-testid="Title"
-                    dy={15}
+                    dy={lt(svgSize, 150) ? 10 : 15}
                     fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
