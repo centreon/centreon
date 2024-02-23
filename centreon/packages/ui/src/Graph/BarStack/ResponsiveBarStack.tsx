@@ -14,8 +14,8 @@ import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
 import useResponsiveBarStack from './useResponsiveBarStack';
 
-const DefaultLengd = ({ scale }: LegendProps): JSX.Element => (
-  <LegendComponent scale={scale} />
+const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
+  <LegendComponent direction={direction} scale={scale} />
 );
 
 const BarStack = ({
@@ -26,11 +26,12 @@ const BarStack = ({
   size = 72,
   onSingleBarClick,
   displayLegend = true,
-  tooltipContent,
+  TooltipContent,
   Legend = DefaultLengd,
   unit = 'number',
   displayValues,
-  variant = 'vertical'
+  variant = 'vertical',
+  legendDirection = 'column'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { classes } = useBarStackStyles();
 
@@ -110,13 +111,17 @@ const BarStack = ({
                           }}
                           followCursor={false}
                           key={`bar-stack-${barStack.index}-${bar.index}`}
-                          label={tooltipContent?.({
-                            color: bar.color,
-                            label: bar.key,
-                            title,
-                            total,
-                            value: barStack.bars[0].bar.data[barStack.key]
-                          })}
+                          label={
+                            TooltipContent && (
+                              <TooltipContent
+                                color={bar.color}
+                                label={bar.key}
+                                title={title}
+                                total={total}
+                                value={barStack.bars[0].bar.data[barStack.key]}
+                              />
+                            )
+                          }
                           position={
                             isVerticalBar ? 'right-start' : 'bottom-start'
                           }
@@ -170,12 +175,14 @@ const BarStack = ({
       </div>
       {displayLegend && (
         <div data-testid="Legend" ref={legendRef}>
-          {Legend({
-            data,
-            scale: legendScale,
-            title,
-            total
-          })}
+          <Legend
+            data={data}
+            direction={legendDirection}
+            scale={legendScale}
+            title={title}
+            total={total}
+            unit={unit}
+          />
         </div>
       )}
     </div>
