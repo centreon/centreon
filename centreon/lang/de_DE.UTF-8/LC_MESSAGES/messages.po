@@ -16695,7 +16695,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Dashboard deleted"
-# msgstr 
+# msgstr
 
 # msgid "Dashboard duplicated"
 # msgstr ""
@@ -16744,3 +16744,18 @@ msgstr "Erweiterter Modus"
 
 # msgid "All resources selected"
 # msgstr ""
+
+#  msgid "Error while updating a broker output"
+#  msgstr ""
+
+#  msgid "Action not permitted for output of type '%s'"
+#  msgstr ""
+
+#  msgid "Content is not a valid JSON string"
+#  msgstr ""
+
+#  msgid "An error occured while creating the file '%s'"
+#  msgstr ""
+
+#  msgid "An error occured while deleting the file '%s'"
+#  msgstr ""

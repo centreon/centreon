@@ -18880,3 +18880,18 @@ msgstr "Toutes les ressources"
 
 msgid "All resources selected"
 msgstr "Toutes les ressources sont sélectionnées"
+
+msgid "Error while updating a broker output"
+msgstr "Erreur lors de la mise à jour d'une sortie Centreon Broker"
+
+msgid "Action not permitted for output of type '%s'"
+msgstr "Action non autorisée pour une sortie de type '%s'"
+
+msgid "Content is not a valid JSON string"
+msgstr "Le contenu n'est pas une chaîne de charactère JSON valide"
+
+msgid "An error occured while creating the file '%s'"
+msgstr "Une erreur est survenue lors de la creation du fichier '%s'"
+
+msgid "An error occured while deleting the file '%s'"
+msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
