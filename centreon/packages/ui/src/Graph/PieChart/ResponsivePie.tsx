@@ -114,11 +114,9 @@ const ResponsivePie = ({
 
                     return (
                       <Tooltip
-                        hasCaret
                         classes={{
                           tooltip: classes.pieChartTooltip
                         }}
-                        followCursor={false}
                         key={arc.data.label}
                         label={tooltipContent?.({
                           color: arc.data.color,
