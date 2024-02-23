@@ -32,3 +32,4 @@ jobs:
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
