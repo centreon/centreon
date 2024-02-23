@@ -174,21 +174,89 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @return array<SqlConcatenator>
+     */
+    private function findServiceCategoriesRequest(): array
+    {
+        $concatenatorA = new SqlConcatenator();
+        $concatenatorA->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                LEFT JOIN service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                LEFT JOIN host_service_relation hsr
+                    ON scr.service_service_id = hsr.service_service_id
+                LEFT JOIN host
+                    ON host.host_id = hsr.host_host_id
+                LEFT JOIN hostgroup_relation hr
+                    ON hr.host_host_id = host.host_id
+                LEFT JOIN hostgroup
+                    ON hostgroup.hg_id = hr.hostgroup_hg_id
+                LEFT JOIN hostcategories_relation hcr
+                    ON hcr.host_host_id = host.host_id
+                LEFT JOIN hostcategories
+                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                SQL
+        )->appendWhere(
+            <<<'SQL'
+                WHERE host.host_register = '1'
+                SQL
+        );
+
+        $concatenatorB = new SqlConcatenator();
+        $concatenatorB->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                LEFT JOIN service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                LEFT JOIN service s
+                    ON scr.service_service_id = s.service_template_model_stm_id
+                LEFT JOIN host_service_relation hsr
+                    ON s.service_id = hsr.service_service_id
+                LEFT JOIN host
+                    ON host.host_id = hsr.host_host_id
+                LEFT JOIN hostgroup_relation hr
+                    ON hr.host_host_id = host.host_id
+                LEFT JOIN hostgroup
+                    ON hostgroup.hg_id = hr.hostgroup_hg_id
+                LEFT JOIN hostcategories_relation hcr
+                    ON hcr.host_host_id = host.host_id
+                LEFT JOIN hostcategories
+                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                SQL
+        )->appendWhere(
+            <<<'SQL'
+                WHERE host.host_register = '1'
+                SQL
+        );
+
+        return [$concatenatorA, $concatenatorB];
+    }
+
+    /**
      * @inheritDoc
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all service categories');
 
-        $concatenator = new SqlConcatenator();
-        $concatenator->withCalcFoundRows(true);
-        $concatenator->defineSelect(<<<'SQL'
-            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            SQL
-        );
+        $concatenators = $this->findServiceCategoriesRequest();
 
-        return $this->retrieveServiceCategories($concatenator, $requestParameters);
+        return $this->retrieveServiceCategories($concatenators, $requestParameters);
     }
 
     /**
@@ -218,24 +286,30 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             return $this->findByRequestParameter($requestParameters);
         }
 
-        $concatenator = new SqlConcatenator();
-        $concatenator->withCalcFoundRows(true);
-        $concatenator->defineSelect(
-            'SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc
-            INNER JOIN `:db`.acl_resources_sc_relations arhr
-                ON sc.sc_id = arhr.sc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
-        );
-        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+        $concatenators = $this->findServiceCategoriesRequest($accessGroupIds);
 
-        return $this->retrieveServiceCategories($concatenator, $requestParameters);
+        foreach ($concatenators as $concatenator) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_sc_relations arcr
+                        ON sc.sc_id = arcr.sc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL
+            );
+            $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+                ->appendWhere(
+                    <<<'SQL'
+                        ag.acl_group_id IN (:access_group_ids)
+                        SQL
+                );
+        }
+
+        return $this->retrieveServiceCategories($concatenators, $requestParameters);
     }
 
     /**
@@ -489,33 +563,54 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @param SqlConcatenator $concatenator
+     * @param array<SqlConcatenator> $concatenators
      * @param RequestParametersInterface $requestParameters
      *
      * @return ServiceCategory[]
      */
     private function retrieveServiceCategories(
-        SqlConcatenator $concatenator,
+        array $concatenators,
         RequestParametersInterface $requestParameters
     ): array {
-        // Exclude severities from the results
-        $concatenator->appendWhere('sc.level IS NULL');
+        $concatenatorsAsString = [];
+        foreach ($concatenators as $concatenator) {
+            // Exclude severities from the results
+            $concatenator->appendWhere('sc.level IS NULL');
 
-        // Settup for search, pagination, order
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->setConcordanceArray([
-            'id' => 'sc.sc_id',
-            'name' => 'sc.sc_name',
-            'alias' => 'sc.sc_description',
-            'is_activated' => 'sc.sc_activate',
-        ]);
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
-        $sqlTranslator->translateForConcatenator($concatenator);
+            // Settup for search, pagination, order
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->setConcordanceArray([
+                'id' => 'sc.sc_id',
+                'name' => 'sc.sc_name',
+                'alias' => 'sc.sc_description',
+                'is_activated' => 'sc.sc_activate',
+                'host.id' => 'host.host_id',
+                'host.name' => 'host.host_name',
+                'hostgroup.id' => 'hostgroup.hg_id',
+                'hostgroup.name' => 'hostgroup.hg_name',
+                'hostcategory.id' => 'hostcategories.hc_id',
+                'hostcategory.name' => 'hostcategories.hc_name',
+            ]);
+            $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
+            $sqlTranslator->translateForConcatenator($concatenator);
+            $concatenator->withCalcFoundRows(false);
+            $concatenatorsAsString[] = $concatenator->concatForUnion();
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator->withCalcFoundRows(true);
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT *
+                SQL
+        )->defineFrom('(' . \implode(' UNION ', $concatenatorsAsString) . ') AS union_table');
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
 
         $sqlTranslator->bindSearchValues($statement);
-        $concatenator->bindValuesToStatement($statement);
+        foreach ($concatenators as $concatenator) {
+            $concatenator->bindValuesToStatement($statement);
+        }
         $statement->execute();
 
         $sqlTranslator->calculateNumberOfRows($this->db);
