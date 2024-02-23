@@ -200,13 +200,21 @@ Then('link between access group and Resources access must be broken', () => {
     rootItemNumber: 4,
     subMenu: 'ACL'
   });
-  cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .contains('tr', ACLResource.ACLGroups[1])
-    .within(() => {
-      cy.get('td.ListColLeft').click();
-    });
+  cy.wait('@getTimeZone').then(() => {
+    cy.executeActionOnIframe(
+      ACLResource.ACLGroups[1],
+      ($body) => {
+        cy.wrap($body)
+          .contains('tr', ACLResource.ACLGroups[1])
+          .within(() => {
+            cy.get('td.ListColLeft').click();
+          });
+      },
+      3,
+      3000
+    );
+  });
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
