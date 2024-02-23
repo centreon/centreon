@@ -4,11 +4,17 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
-  jira_token:
+  jira_api_token:
     description: "Token to authenticate to Jira"
+    required: true
+  jira_user_email:
+    description: "Email linked to token"
     required: true
   jira_project_id:
     description: "Jira project id to create release"
+    required: true
+  jira_base_url:
+    description: "Jira base url"
     required: true
 
 runs:
@@ -52,8 +58,8 @@ runs:
         VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
 
         curl --fail --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/version' \
-          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+          --url '${{ inputs.jira_base_url }}/rest/api/3/version' \
+          --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data ''$VERSION_DATA''
