@@ -16923,3 +16923,24 @@ msgstr "Modo avanzado"
 
 # msgid "The resource access rule was successfully deleted"
 # msgstr ""
+
+#  msgid "Error while adding a broker output"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a broker configuration"
+#  msgstr ""
+
+#  msgid "Broker configuration #%d not found"
+#  msgstr ""
+
+#  msgid "Missing output parameter: %s"
+#  msgstr ""
+
+#  msgid "Parameter '%s' (%s) is invali"
+#  msgstr ""
+
+#  msgid "Parameter '%s' of type %s is invalid"
+#  msgstr ""
+
+#  msgid "Output #%d not found for broker configuration #%d"
+#  msgstr ""
