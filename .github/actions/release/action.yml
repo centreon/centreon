@@ -13,6 +13,10 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
+  jira_base_url:
+    description: "Jira base url"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -54,7 +58,7 @@ runs:
         VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
 
         curl --fail --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          --url '${{ inputs.jira_base_url }}/rest/api/3/version' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
