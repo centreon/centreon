@@ -160,7 +160,31 @@ When('I add a new action access linked with the access groups', () => {
 
 Then('the action access record is saved with its properties', () => {
   cy.wait('@getTimeZone');
-  cy.getIframeBody().should('contain', ACLAction.name);
+
+  cy.getIframeBody()
+    .contains('tr', ACLAction.name)
+    .within(() => {
+      cy.get('td.ListColLeft > a').eq(0).click();
+    });
+  cy.wait('@getTimeZone');
+
+  cy.getIframeBody()
+    .find('input[name="acl_action_name"]')
+    .should('have.value', ACLAction.name);
+
+  cy.getIframeBody()
+    .find('input[name="acl_action_description"]')
+    .should('have.value', ACLAction.description);
+
+  ACLAction.ACLGroups.map((ACLGroup) => {
+    cy.getIframeBody()
+      .find('select[name="acl_groups-t[]"]')
+      .should('contain', ACLGroup);
+  });
+
+  ACLAction.actions.map((action) => {
+    cy.getIframeBody().find(`input[name="${action}"]`).should('be.checked');
+  });
 });
 
 Then(

@@ -46,5 +46,10 @@
   "ACLAction": {
     "name": "ACL_Action_1",
     "description": "This is just a description"
+  },
+  "ACLResource": {
+    "name": "ACL_Resources_1",
+    "description": "This is just a description",
+    "comment": "This is just a comment"
   }
 }

@@ -1,4 +1,3 @@
-@ignore
 Feature: ACL Resources Access administration
   As a Centreon administrator
   I want to administrate Resources Access

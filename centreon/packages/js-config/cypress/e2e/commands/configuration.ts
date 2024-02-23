@@ -638,12 +638,32 @@ Cypress.Commands.add(
   }
 );
 
+interface ACLResource {
+  name: string;
+  alias?: string | null;
+}
+
+Cypress.Commands.add(
+  'addACLResource',
+  ({ name, alias = null }: ACLResource): Cypress.Chainable => {
+    const ACLResourcesAlias = alias === null ? name : alias;
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADD',
+        object: 'ACLRESOURCE',
+        values: `${name};${ACLResourcesAlias}`
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
       addACLAction: (props: ACLAction) => Cypress.Chainable;
       addACLGroup: (props: ACLGroup) => Cypress.Chainable;
       addACLMenu: (props: ACLMenu) => Cypress.Chainable;
+      addACLResource: (props: ACLResource) => Cypress.Chainable;
       addCheckCommand: (props: CheckCommand) => Cypress.Chainable;
       addContact: (props: Contact) => Cypress.Chainable;
       addContactGroup: (props: ContactGroup) => Cypress.Chainable;

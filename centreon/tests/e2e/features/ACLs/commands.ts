@@ -158,6 +158,24 @@ Cypress.Commands.add(
   }
 );
 
+interface LinkResourceToGroupProps {
+  ACLGroupName: string;
+  ACLResourceName: string;
+}
+
+Cypress.Commands.add(
+  'addACLResourceToACLGroup',
+  ({ ACLGroupName, ACLResourceName }: LinkResourceToGroupProps) => {
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADDRESOURCE',
+        object: 'ACLGROUP',
+        values: `${ACLGroupName};${ACLResourceName}`
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -165,6 +183,9 @@ declare global {
         props: LinkActionToGroupProps
       ) => Cypress.Chainable;
       addACLMenuToACLGroup: (props: LinkMenuToGroupProps) => Cypress.Chainable;
+      addACLResourceToACLGroup: (
+        props: LinkResourceToGroupProps
+      ) => Cypress.Chainable;
       executeActionOnIframe: (
         textToFind: string,
         action: (body: JQuery<HTMLElement>) => void,
