@@ -4,7 +4,7 @@ import { Pie } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
-import { equals, lt } from 'ramda';
+import { always, equals, gt, ifElse, lt } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -20,6 +20,24 @@ import { useResponsivePie } from './useResponsivePie';
 const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
   <LegendComponent direction={direction} scale={scale} />
 );
+
+type Placement = 'left' | 'right' | 'top' | 'bottom';
+
+const getTooltipPlacement = ({ radianX, radianY }): Placement => {
+  if (gt(Math.abs(radianX), Math.abs(radianY))) {
+    return ifElse<[b: number], Placement, Placement>(
+      lt(0),
+      always<Placement>('right'),
+      always<Placement>('left')
+    )(radianX);
+  }
+
+  return ifElse<[b: number], Placement, Placement>(
+    lt(0),
+    always<Placement>('bottom'),
+    always<Placement>('top')
+  )(radianY);
+};
 
 const ResponsivePie = ({
   title,
@@ -132,6 +150,10 @@ const ResponsivePie = ({
                             />
                           )
                         }
+                        placement={getTooltipPlacement({
+                          radianX: Math.cos(midAngle),
+                          radianY: Math.sin(midAngle)
+                        })}
                       >
                         <g
                           data-testid={arc.data.label}
