@@ -4,7 +4,7 @@ import 'intl-pluralrules';
 import { not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { LoadingSkeleton } from '@centreon/ui';
+import { LoadingSkeleton, useFullscreenListener } from '@centreon/ui';
 
 import PageLoader from '../components/PageLoader';
 
@@ -53,6 +53,8 @@ const App = (): JSX.Element => {
   const { classes } = useStyles();
   const { hasMinArgument } = useApp();
 
+  useFullscreenListener();
+
   const min = hasMinArgument();
 
   return (
@@ -69,7 +71,7 @@ const App = (): JSX.Element => {
               <Header />
             </Suspense>
           )}
-          <div className={classes.mainContent}>
+          <div className={classes.mainContent} id="maint-content">
             <MainRouter />
           </div>
         </div>
