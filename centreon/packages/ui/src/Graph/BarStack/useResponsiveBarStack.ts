@@ -1,5 +1,5 @@
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { equals } from 'ramda';
+import { equals, pluck } from 'ramda';
 
 import { getValueByUnit } from '../common/utils';
 import { LegendScale } from '../Legend/models';
@@ -84,9 +84,9 @@ const useResponsiveBarStack = ({
         nice: true
       });
 
-  const keys = data.map(({ label }) => label);
+  const keys = pluck('label', data);
 
-  const colorsRange = data.map(({ color }) => color);
+  const colorsRange = pluck('color', data);
 
   const colorScale = scaleOrdinal({
     domain: keys,
