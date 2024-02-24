@@ -4,18 +4,12 @@ import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 
-// export const servicesCountEndpoint = 'monitoring/services/status';
-// export const hostsCountEndpoint = 'monitoring/hosts/status';
-export const hostsCountEndpoint =
-  'http://localhost:3000/api/latest/monitoring/hosts/status';
-export const servicesCountEndpoint =
-  'http://localhost:3000/api/latest/monitoring/services/status';
-
-export const resourcesEndpoint = './api/latest/monitoring/resources';
+export const serviceStatusesEndpoint = 'monitoring/services/status';
+export const hostStatusesEndpoint = 'monitoring/hosts/status';
+export const resourcesEndpoint = 'monitoring/resources';
 
 interface BuildResourcesEndpointProps {
   resources: Array<Resource>;
-  // states: Array<string>;
   type: 'host' | 'service';
 }
 
@@ -37,12 +31,11 @@ const resourcesSearchMapping = {
 
 export const buildResourcesEndpoint = ({
   type,
-  // states,
   resources
 }: BuildResourcesEndpointProps): string => {
   const baseEndpoint = equals(type, 'host')
-    ? hostsCountEndpoint
-    : servicesCountEndpoint;
+    ? hostStatusesEndpoint
+    : serviceStatusesEndpoint;
 
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
@@ -65,7 +58,6 @@ export const buildResourcesEndpoint = ({
   return buildListingEndpoint({
     baseEndpoint,
     customQueryParameters: [
-      // { name: 'states', value: states },
       ...resourcesToApplyToCustomParameters.map(
         ({ resourceType, resources: resourcesToApply }) => ({
           name: includes(resourceType, categories)

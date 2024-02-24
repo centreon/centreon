@@ -7,13 +7,12 @@ export enum DisplayType {
   Vertical = 'vertical'
 }
 
-interface Data {
+export interface Data {
   resources: Array<Resource>;
 }
 
 export interface PanelOptions {
   displayLegend: boolean;
-  displayPredominentInformation: boolean;
   displayType: DisplayType;
   displayValues: boolean;
   refreshInterval: 'default' | 'custom' | 'manual';
