@@ -103,6 +103,10 @@ const BarStack = ({
                 {(barStacks) =>
                   barStacks.map((barStack) =>
                     barStack.bars.map((bar) => {
+                      const onClick = (): void => {
+                        onSingleBarClick?.(bar);
+                      };
+
                       return (
                         <Tooltip
                           hasCaret
@@ -137,9 +141,7 @@ const BarStack = ({
                               width={isVerticalBar ? bar.width : bar.width - 1}
                               x={bar.x}
                               y={bar.y}
-                              onClick={() => {
-                                onSingleBarClick?.(bar);
-                              }}
+                              onClick={onClick}
                             />
                             {displayValues &&
                               bar.height > 10 &&

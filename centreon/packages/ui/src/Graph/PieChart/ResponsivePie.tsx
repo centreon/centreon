@@ -48,7 +48,7 @@ const ResponsivePie = ({
   unit = 'number',
   Legend = DefaultLengd,
   displayLegend = true,
-  innerRadius: defualtInnerRadius = 40,
+  innerRadius: defaultInnerRadius = 40,
   onArcClick,
   displayValues,
   TooltipContent,
@@ -69,7 +69,7 @@ const ResponsivePie = ({
     innerRadius
   } = useResponsivePie({
     data,
-    defualtInnerRadius,
+    defaultInnerRadius,
     height,
     legendRef,
     titleRef,
@@ -132,6 +132,10 @@ const ResponsivePie = ({
                     const angle = arc.endAngle - arc.startAngle;
                     const minAngle = 0.2;
 
+                    const onClick = (): void => {
+                      onArcClick?.(arc.data);
+                    };
+
                     return (
                       <Tooltip
                         hasCaret
@@ -156,12 +160,7 @@ const ResponsivePie = ({
                           radianY: Math.sin(midAngle)
                         })}
                       >
-                        <g
-                          data-testid={arc.data.label}
-                          onClick={() => {
-                            onArcClick?.(arc.data);
-                          }}
-                        >
+                        <g data-testid={arc.data.label} onClick={onClick}>
                           <path
                             d={pie.path(arc) as string}
                             fill={arc.data.color}
