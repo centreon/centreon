@@ -110,6 +110,7 @@ const ResponsivePie = ({
           <svg data-variant={variant} height={svgSize} width={svgSize}>
             <Group left={half} top={half}>
               <Pie
+                cornerRadius={4}
                 data={data}
                 innerRadius={() => {
                   return equals(variant, 'pie') ? 0 : half - innerRadius;
