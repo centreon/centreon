@@ -1,0 +1,23 @@
+{
+    "down" : {
+        "total" : 42 , 
+        "acknowledged" : 8,
+        "in_downtime" : 23
+    },
+    "unreachable" : {
+        "total" : 18 , 
+        "acknowledged" : 0,
+        "in_downtime" : 7
+    },
+    "pending" : {
+        "total" : 29 , 
+        "acknowledged" : 8,
+        "in_downtime" : 2
+    },
+    "up" : {
+        "total" : 123 , 
+        "acknowledged" : 8,
+        "in_downtime" : 4
+    },
+    "total" : 212
+}

@@ -1,0 +1,28 @@
+{
+    "critical" : {
+        "total" : 39 , 
+        "acknowledged" : 8,
+        "in_downtime" : 23
+    },
+    "warning" : {
+        "total" : 30 , 
+        "acknowledged" : 0,
+        "in_downtime" : 7
+    },
+    "unknown" : {
+        "total" : 99 , 
+        "acknowledged" : 8,
+        "in_downtime" : 4
+    },
+    "pending" : {
+        "total" : 99 , 
+        "acknowledged" : 8,
+        "in_downtime" : 2
+    },
+    "ok" : {
+        "total" : 411 , 
+        "acknowledged" : 8,
+        "in_downtime" : 2
+    },
+    "total" : 700
+}
