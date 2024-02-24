@@ -43,7 +43,7 @@ const TooltipContent = ({
   const isStatusOK = equals(label, 'ok') || equals(label, 'up');
 
   return (
-    <Box className={classes.tooltipContainer}>
+    <Box className={classes.tooltipContainer} data-testid={`tooltip-${label}`}>
       <Box className={classes.header}>
         <Typography
           sx={{
