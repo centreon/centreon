@@ -20,9 +20,13 @@ const title = 'Title';
 
 interface Props {
   canEdit?: boolean;
+  hasOptions?: boolean;
 }
 
-const initializeSimpleCheckboxes = ({ canEdit = true }: Props): void => {
+const initializeSimpleCheckboxes = ({
+  canEdit = true,
+  hasOptions = true
+}: Props): void => {
   const store = createStore();
 
   store.set(hasEditPermissionAtom, canEdit);
@@ -43,7 +47,7 @@ const initializeSimpleCheckboxes = ({ canEdit = true }: Props): void => {
           <WidgetRadio
             defaultValue={[]}
             label={title}
-            options={primaryOptions}
+            options={hasOptions ? primaryOptions : undefined}
             propertyName="radio"
             type=""
           />
@@ -73,6 +77,14 @@ describe('Simple radio', () => {
     cy.findByLabelText('A', { exact: true }).click();
 
     cy.findByLabelText('A', { exact: true }).should('be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not display options when the option list is empty', () => {
+    initializeSimpleCheckboxes({ hasOptions: false });
+
+    cy.findByLabelText('A', { exact: true }).should('not.exist');
 
     cy.makeSnapshot();
   });

@@ -22,12 +22,16 @@ const secondaryLabel = ['Secondary label', 'other label'];
 
 interface Props {
   canEdit?: boolean;
+  hasOptions?: boolean;
+  keepOneOptionSelected?: boolean;
   labels?: string | Array<string>;
 }
 
 const initializeSimpleCheckboxes = ({
   canEdit = true,
-  labels = secondaryLabel[0]
+  labels = secondaryLabel[0],
+  hasOptions = true,
+  keepOneOptionSelected
 }: Props): void => {
   const store = createStore();
 
@@ -41,15 +45,16 @@ const initializeSimpleCheckboxes = ({
           initialValues={{
             moduleName: 'widget',
             options: {
-              checkbox: []
+              checkbox: keepOneOptionSelected ? ['a', 'b'] : []
             }
           }}
           onSubmit={cy.stub()}
         >
           <WidgetCheckboxes
             defaultValue={[]}
+            keepOneOptionSelected={keepOneOptionSelected}
             label={title}
-            options={primaryOptions}
+            options={hasOptions ? primaryOptions : undefined}
             propertyName="checkbox"
             secondaryLabel={labels}
             type=""
@@ -122,6 +127,30 @@ describe('Simple checkboxes', () => {
 
     cy.findByLabelText('A', { exact: true }).should('not.be.checked');
     cy.findByLabelText('B', { exact: true }).should('not.be.checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not display options when the option list is empty', () => {
+    initializeSimpleCheckboxes({ hasOptions: false });
+
+    cy.contains(labelUnselectAll).should('not.exist');
+    cy.contains(labelSelectAll).should('not.exist');
+    cy.findByLabelText('A', { exact: true }).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('cannot unchecks the last checked option when the corresponding prop is set', () => {
+    initializeSimpleCheckboxes({ keepOneOptionSelected: true });
+
+    cy.findByLabelText('B', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
+
+    cy.findByLabelText('A', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
 
     cy.makeSnapshot();
   });

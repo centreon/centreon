@@ -54,7 +54,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.displayType]: DisplayType
 };
 
-const DefaultComponent = (): JSX.Element => <div />;
+const DefaultComponent = (): JSX.Element => (
+  <div data-testid="unknown widget property" />
+);
 
 export const useWidgetInputs = (
   widgetKey: string

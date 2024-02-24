@@ -31,6 +31,7 @@ const generateResources = (resourceLabel: string): object => ({
 });
 
 interface InitializeProps {
+  emptyData?: boolean;
   hasEditPermission?: boolean;
   isEditing?: boolean;
   restrictedResourceTypes?: Array<string>;
@@ -45,7 +46,8 @@ const initialize = ({
   singleResourceType = false,
   restrictedResourceTypes = [],
   singleHostPerMetric = false,
-  singleMetricSelection = false
+  singleMetricSelection = false,
+  emptyData = false
 }: InitializeProps): void => {
   const store = createStore();
   store.set(singleHostPerMetricAtom, singleHostPerMetric);
@@ -73,9 +75,11 @@ const initialize = ({
         <Provider store={store}>
           <Formik
             initialValues={{
-              data: {
-                resources: []
-              },
+              data: emptyData
+                ? {}
+                : {
+                    resources: []
+                  },
               moduleName: 'widget',
               options: {}
             }}
@@ -159,6 +163,37 @@ describe('Resources', () => {
     cy.contains(/^Service$/).should('not.exist');
     cy.contains(/^Host Category$/).should('not.exist');
     cy.contains(/^Service Group$/).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes a resource when the corresponding is clicked', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.waitForRequest('@getHosts');
+    cy.contains('Host 0').click();
+    cy.findByTestId('CancelIcon').click();
+
+    cy.contains('Host 0').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('selects a resource type and a resource when the data value does not exist', () => {
+    initialize({ emptyData: true });
+
+    cy.contains(labelAddFilter).click();
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.waitForRequest('@getHosts');
+    cy.contains('Host 0').click();
+
+    cy.findByTestId(labelResourceType).should('have.value', 'host');
+    cy.contains('Host 0').should('be.visible');
 
     cy.makeSnapshot();
   });

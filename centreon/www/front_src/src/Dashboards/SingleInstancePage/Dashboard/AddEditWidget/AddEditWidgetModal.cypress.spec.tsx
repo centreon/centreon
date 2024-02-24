@@ -906,4 +906,75 @@ describe('AddEditWidgetModal', () => {
       cy.contains(labelAddMetric).should('not.exist');
     });
   });
+
+  describe('No widgets', () => {
+    beforeEach(() => {
+      const jotaiStore = createStore();
+      jotaiStore.set(federatedWidgetsAtom, []);
+      jotaiStore.set(federatedWidgetsPropertiesAtom, []);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display widgets when any widgets are registered', () => {
+      cy.findByTestId(labelWidgetType).click();
+
+      cy.contains('No options').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Unrecognized widget property', () => {
+    beforeEach(() => {
+      const jotaiStore = initializeWidgets();
+      jotaiStore.set(federatedWidgetsPropertiesAtom, [
+        {
+          description: 'This is the description of the data widget',
+          moduleName: 'centreon-widget-data',
+          options: {
+            threshold: {
+              defaultValue: '',
+              label: 'threshold',
+              type: 'unknown'
+            }
+          },
+          title: 'Generic data (example)'
+        }
+      ]);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display the widget property when it is not recognized', () => {
+      cy.findByTestId(labelWidgetType).click();
+      cy.contains('Generic data').click();
+
+      cy.findByTestId('unknown widget property').should('exist');
+
+      cy.makeSnapshot();
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { isEmpty, isNotNil } from 'ramda';
 
 import { FormControlLabel, FormGroup, Checkbox } from '@mui/material';
 
@@ -40,7 +41,7 @@ const WidgetCheckboxes = ({
   return (
     <div>
       <Subtitle secondaryLabel={secondaryLabel}>{t(label)}</Subtitle>
-      {!keepOneOptionSelected && (
+      {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
         <Button
           disabled={!canEditField}
           size="small"
