@@ -112,6 +112,7 @@ const Resources = ({
                       })
                   }}
                   className={classes.resources}
+                  disableClearable={false}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint(

@@ -911,7 +911,7 @@ describe('AddEditWidgetModal', () => {
     beforeEach(() => {
       const jotaiStore = createStore();
       jotaiStore.set(federatedWidgetsAtom, []);
-      jotaiStore.set(federatedWidgetsPropertiesAtom, []);
+      jotaiStore.set(federatedWidgetsPropertiesAtom, null);
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
       jotaiStore.set(hasEditPermissionAtom, true);
       jotaiStore.set(isEditingAtom, true);

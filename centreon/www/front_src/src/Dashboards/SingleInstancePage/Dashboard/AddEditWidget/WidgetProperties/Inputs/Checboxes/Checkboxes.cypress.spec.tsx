@@ -21,6 +21,7 @@ const title = 'Title';
 const secondaryLabel = ['Secondary label', 'other label'];
 
 interface Props {
+  areValuesEmpty?: boolean;
   canEdit?: boolean;
   hasOptions?: boolean;
   keepOneOptionSelected?: boolean;
@@ -31,7 +32,8 @@ const initializeSimpleCheckboxes = ({
   canEdit = true,
   labels = secondaryLabel[0],
   hasOptions = true,
-  keepOneOptionSelected
+  keepOneOptionSelected,
+  areValuesEmpty = false
 }: Props): void => {
   const store = createStore();
 
@@ -44,9 +46,11 @@ const initializeSimpleCheckboxes = ({
         <Formik
           initialValues={{
             moduleName: 'widget',
-            options: {
-              checkbox: keepOneOptionSelected ? ['a', 'b'] : []
-            }
+            options: areValuesEmpty
+              ? undefined
+              : {
+                  checkbox: keepOneOptionSelected ? ['a', 'b'] : []
+                }
           }}
           onSubmit={cy.stub()}
         >
@@ -153,6 +157,20 @@ describe('Simple checkboxes', () => {
     cy.findByLabelText('A', { exact: true }).should('be.checked');
 
     cy.makeSnapshot();
+  });
+
+  it('selects all options when the data is empty and options are clicked', () => {
+    initializeSimpleCheckboxes({ areValuesEmpty: true });
+
+    cy.findByLabelText('A', { exact: true }).click();
+    cy.findByLabelText('B', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('be.checked');
+    cy.findByLabelText('B', { exact: true }).should('be.checked');
+
+    cy.findByLabelText('A', { exact: true }).click();
+
+    cy.findByLabelText('A', { exact: true }).should('not.be.checked');
   });
 });
 

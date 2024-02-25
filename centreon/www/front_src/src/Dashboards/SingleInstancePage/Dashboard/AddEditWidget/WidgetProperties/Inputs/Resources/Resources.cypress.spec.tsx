@@ -182,6 +182,22 @@ describe('Resources', () => {
     cy.makeSnapshot();
   });
 
+  it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
+    initialize({ singleHostPerMetric: true, singleMetricSelection: true });
+
+    cy.findAllByTestId(labelResourceType).eq(0).parent().click();
+    cy.contains(/^Host$/).click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).click();
+    cy.waitForRequest('@getHosts');
+    cy.contains('Host 0').click();
+    cy.findAllByTestId(labelSelectAResource).eq(0).focus();
+    cy.findAllByTestId('CloseIcon').eq(0).click();
+
+    cy.contains('Host 0').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
   it('selects a resource type and a resource when the data value does not exist', () => {
     initialize({ emptyData: true });
 
@@ -195,7 +211,9 @@ describe('Resources', () => {
     cy.findByTestId(labelResourceType).should('have.value', 'host');
     cy.contains('Host 0').should('be.visible');
 
-    cy.makeSnapshot();
+    cy.findByTestId('CancelIcon').click();
+
+    cy.contains('Host 0').should('not.exist');
   });
 });
 
