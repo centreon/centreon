@@ -103,13 +103,7 @@ const Resources = ({
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{
-                    color: 'primary',
-                    onDelete: (_, option): void =>
-                      deleteResourceItem({
-                        index,
-                        option,
-                        resources: resource.resources
-                      })
+                    color: 'primary'
                   }}
                   className={classes.resources}
                   disableClearable={false}
