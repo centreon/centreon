@@ -35,10 +35,10 @@ export interface ChartType {
   displayValues: boolean;
   refreshCount: number;
   refreshIntervalToUse: number | false;
-  resourceType: Array<'host' | 'service'>;
+  resourceType: 'host' | 'service';
+  resourceTypes: Array<'host' | 'service'>;
   resources: Array<Resource>;
   title?: string;
-  type: 'host' | 'service';
   unit: 'number' | 'percentage';
 }
 

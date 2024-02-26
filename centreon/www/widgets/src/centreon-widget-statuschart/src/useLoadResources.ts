@@ -11,8 +11,8 @@ import { FormattedResponse, formatResponse } from './utils';
 interface LoadResourcesProps {
   refreshCount: number;
   refreshIntervalToUse: number | false;
+  resourceType: 'host' | 'service';
   resources: Array<Resource>;
-  type: 'host' | 'service';
 }
 
 interface LoadResources {
@@ -24,7 +24,7 @@ const useLoadResources = ({
   resources,
   refreshCount,
   refreshIntervalToUse,
-  type
+  resourceType
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
@@ -32,14 +32,14 @@ const useLoadResources = ({
     getEndpoint: () => {
       return buildResourcesEndpoint({
         resources,
-        type
+        type: resourceType
       });
     },
     getQueryKey: () => [
       'statusChart',
       JSON.stringify(resources),
       refreshCount,
-      type
+      resourceType
     ],
     queryOptions: {
       refetchInterval: refreshIntervalToUse,

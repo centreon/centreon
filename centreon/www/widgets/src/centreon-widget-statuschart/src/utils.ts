@@ -6,8 +6,6 @@ import type { Theme } from '@mui/material';
 import { StatusType } from './models';
 
 interface Status {
-  acknowledged: number;
-  in_downtime: number;
   total: number;
 }
 

@@ -12,8 +12,7 @@ const StatusChart = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount,
-  isFromPreview
+  refreshCount
 }: StatusChartProps): JSX.Element => {
   const {
     displayType,
@@ -21,7 +20,7 @@ const StatusChart = ({
     refreshIntervalCustom,
     displayLegend,
     displayValues,
-    resourceType,
+    resourceType: resourceTypes,
     unit
   } = panelOptions;
 
@@ -39,34 +38,25 @@ const StatusChart = ({
 
   return (
     <div className={classes.container}>
-      {includes('host', resourceType) && (
-        <Chart
-          displayLegend={displayLegend}
-          displayType={displayType}
-          displayValues={displayValues}
-          refreshCount={refreshCount}
-          refreshIntervalToUse={refreshIntervalToUse}
-          resourceType={resourceType}
-          resources={resources}
-          title={t(labelHosts)}
-          type="host"
-          unit={unit}
-        />
-      )}
-      {includes('service', resourceType) && (
-        <Chart
-          displayLegend={displayLegend}
-          displayType={displayType}
-          displayValues={displayValues}
-          refreshCount={refreshCount}
-          refreshIntervalToUse={refreshIntervalToUse}
-          resourceType={resourceType}
-          resources={resources}
-          title={t(labelServices)}
-          type="service"
-          unit={unit}
-        />
-      )}
+      {resourceTypes.map((resourceType) => {
+        return (
+          <Chart
+            displayLegend={displayLegend}
+            displayType={displayType}
+            displayValues={displayValues}
+            key={resourceType}
+            refreshCount={refreshCount}
+            refreshIntervalToUse={refreshIntervalToUse}
+            resourceType={resourceType}
+            resourceTypes={resourceTypes}
+            resources={resources}
+            title={
+              includes('host', resourceType) ? t(labelHosts) : t(labelServices)
+            }
+            unit={unit}
+          />
+        );
+      })}
     </div>
   );
 };

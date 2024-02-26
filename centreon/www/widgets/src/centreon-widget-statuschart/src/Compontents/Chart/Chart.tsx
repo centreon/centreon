@@ -16,7 +16,7 @@ const Chart = ({
   resourceType,
   unit,
   title,
-  type,
+  resourceTypes,
   refreshCount,
   refreshIntervalToUse,
   resources
@@ -26,13 +26,13 @@ const Chart = ({
   const { data, isLoading } = useLoadResources({
     refreshCount,
     refreshIntervalToUse,
-    resources,
-    type
+    resourceType,
+    resources
   });
 
   const { barStackDimensions, isPieCharts, pieChartDimensions } = useChart({
     displayType,
-    resourceType
+    resourceTypes
   });
 
   if (isLoading) {
@@ -51,7 +51,7 @@ const Chart = ({
             displayValues={displayValues}
             title={title}
             unit={unit}
-            variant={displayType}
+            variant={displayType as 'pie' | 'donut'}
           />
         </div>
       ) : (
@@ -68,7 +68,7 @@ const Chart = ({
             size={80}
             title={title}
             unit={unit}
-            variant={displayType}
+            variant={displayType as 'horizontal' | 'vertical'}
           />
         </div>
       )}

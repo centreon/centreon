@@ -15,28 +15,26 @@ interface UseChartState {
 
 export const useChart = ({
   displayType,
-  resourceType
-}: Pick<ChartType, 'displayType' | 'resourceType'>): UseChartState => {
+  resourceTypes
+}: Pick<ChartType, 'displayType' | 'resourceTypes'>): UseChartState => {
+  const isSingleChart = equals(resourceTypes.length, 1);
+
   const isPieCharts =
     equals(displayType, DisplayType.Pie) ||
     equals(displayType, DisplayType.Donut);
 
   const barStackDimensions = {
     height:
-      equals(resourceType.length, 1) &&
-      equals(displayType, DisplayType.Horizontal)
+      isSingleChart && equals(displayType, DisplayType.Horizontal)
         ? '48%'
         : '96%',
     width:
-      equals(resourceType.length, 1) &&
-      equals(displayType, DisplayType.Vertical)
-        ? '48%'
-        : '96%'
+      isSingleChart && equals(displayType, DisplayType.Vertical) ? '48%' : '96%'
   };
 
   const pieChartDimensions = {
     height: '100%',
-    width: equals(resourceType.length, 1) ? '48%' : '96%'
+    width: isSingleChart ? '48%' : '96%'
   };
 
   return { barStackDimensions, isPieCharts, pieChartDimensions };
