@@ -264,4 +264,92 @@ class DbReadContactRepository extends AbstractRepositoryDRB implements ReadConta
 
         return $admins;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactIdsByAccessGroups(array $accessGroupIds): array
+    {
+        $bind = [];
+        foreach ($accessGroupIds as $key => $accessGroupId) {
+            $bind[':access_group_' . $key] = $accessGroupId;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $accessGroupIdsAsString = implode(',', array_keys($bind));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT c.contact_id
+                FROM `:db`.contact c
+                         LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                                   ON c.contact_id = ccr.contact_contact_id
+                         LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                                   ON c.contact_id = gcr.contact_contact_id
+                         LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                                   ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+                WHERE  gcr.acl_group_id IN ({$accessGroupIdsAsString})
+                    OR gcgr.acl_group_id IN ({$accessGroupIdsAsString});
+                SQL
+        ));
+        foreach ($bind as $token => $accessGroupId) {
+            $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAdminsByIds(array $contactIds): array
+    {
+        $bind = [];
+        foreach ($contactIds as $key => $contactId) {
+            $bind[':contact' . $key] = $contactId;
+        }
+        if ([] === $bind) {
+            return [];
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $query = <<<SQL
+            SELECT c.contact_id,
+                c.contact_name,
+                c.contact_email,
+                c.contact_admin
+            FROM `:db`.contact c
+            WHERE c.contact_admin = '1'
+              AND c.contact_oreon = '1'
+              AND c.contact_id IN ({$bindTokenAsString})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        foreach ($bind as $token => $contactId) {
+            $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $admins = [];
+        foreach ($statement as $admin) {
+            /** @var array{
+             *     contact_admin: string,
+             *     contact_name: string,
+             *     contact_id: int,
+             *     contact_email: string
+             * } $admin
+             */
+            $admins[] = (new Contact())
+                ->setAdmin(true)
+                ->setName($admin['contact_name'])
+                ->setId($admin['contact_id'])
+                ->setEmail($admin['contact_email']);
+        }
+
+        return $admins;
+    }
 }

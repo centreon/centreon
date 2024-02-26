@@ -32,9 +32,8 @@ const getPropertiesValidationSchema = ({
     (acc, { props }) => ({
       ...acc,
       [props.propertyName]: buildValidationSchema({
-        required: props.required,
-        t,
-        type: props.type
+        properties: props,
+        t
       })
     }),
     {}
