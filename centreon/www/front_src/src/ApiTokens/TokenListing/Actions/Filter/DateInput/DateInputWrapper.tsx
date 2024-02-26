@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -15,15 +17,25 @@ const DateInputWrapper = (): JSX.Element => {
   const [creationDate, setCreationDate] = useAtom(creationDateAtom);
   const [expirationDate, setExpirationDate] = useAtom(expirationDateAtom);
 
+  const dataCreationDate = useMemo(
+    () => ({ date: creationDate, setDate: setCreationDate }),
+    [creationDate]
+  );
+
+  const dataExpirationDate = useMemo(
+    () => ({ date: expirationDate, setDate: setExpirationDate }),
+    [expirationDate]
+  );
+
   return (
     <>
       <DateInput
-        dataDate={{ date: creationDate, setDate: setCreationDate }}
+        dataDate={dataCreationDate}
         label={t(labelCreationDate)}
         property={Property.last}
       />
       <DateInput
-        dataDate={{ date: expirationDate, setDate: setExpirationDate }}
+        dataDate={dataExpirationDate}
         label={t(labelExpirationDate)}
         property={Property.in}
       />

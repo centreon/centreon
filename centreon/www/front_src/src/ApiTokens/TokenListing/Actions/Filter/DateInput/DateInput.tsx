@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 import dayjs from 'dayjs';
 
@@ -87,18 +87,16 @@ const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
   };
 
   return (
-    <div className={classes.containerDate}>
-      <DateTimePickerInput
-        changeDate={changeDate}
-        closeOnSelect={false}
-        date={customizedDate || date || defaultDate}
-        open={open}
-        slotProps={slotProps}
-        slots={slots}
-        onClose={onClose}
-      />
-    </div>
+    <DateTimePickerInput
+      changeDate={changeDate}
+      closeOnSelect={false}
+      date={customizedDate || date || defaultDate}
+      open={open}
+      slotProps={slotProps}
+      slots={slots}
+      onClose={onClose}
+    />
   );
 };
 
-export default DateInput;
+export default memo(DateInput);
