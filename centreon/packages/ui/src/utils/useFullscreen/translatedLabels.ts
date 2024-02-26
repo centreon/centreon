@@ -1,1 +1,1 @@
-export const labelCannotEnterInFullscreen = 'Cannot enter in fullscreen';
+export const labelCannotEnterInFullscreen = 'Cannot enter fullscreen mode';

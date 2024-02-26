@@ -51,7 +51,7 @@ const initialize = (): void => {
 };
 
 describe('Fullscreen', () => {
-  it('enters in fullscreen mode when the button is clicked', () => {
+  it('enters fullscreen mode when the button is clicked', () => {
     initialize();
 
     cy.get('#test')
@@ -67,7 +67,7 @@ describe('Fullscreen', () => {
     cy.contains(labelExitFullscreen).realClick();
   });
 
-  it('exits the fullscreen mode when the button is clicked', () => {
+  it('exits fullscreen mode when the button is clicked', () => {
     initialize();
 
     cy.get('#test')
@@ -87,7 +87,7 @@ describe('Fullscreen', () => {
       .should('have.attr', 'data-fullscreenEnabled', 'true');
   });
 
-  it('toggles the fullscreen mode when the corresponding shortcut is pressed', () => {
+  it('toggles fullscreen mode when the corresponding shortcut is clicked', () => {
     initialize();
 
     cy.get('#test')
