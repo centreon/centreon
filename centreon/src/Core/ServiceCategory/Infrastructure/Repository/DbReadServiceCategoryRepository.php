@@ -626,24 +626,25 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         RequestParametersInterface $requestParameters
     ): array {
         $concatenatorsAsString = [];
+        // Settup for search, pagination, order
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'sc.sc_id',
+            'name' => 'sc.sc_name',
+            'alias' => 'sc.sc_description',
+            'is_activated' => 'sc.sc_activate',
+            'host.id' => 'host.host_id',
+            'host.name' => 'host.host_name',
+            'hostgroup.id' => 'hostgroup.hg_id',
+            'hostgroup.name' => 'hostgroup.hg_name',
+            'hostcategory.id' => 'hostcategories.hc_id',
+            'hostcategory.name' => 'hostcategories.hc_name',
+        ]);
+
         foreach ($concatenators as $concatenator) {
             // Exclude severities from the results
             $concatenator->appendWhere('sc.level IS NULL');
 
-            // Settup for search, pagination, order
-            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-            $sqlTranslator->setConcordanceArray([
-                'id' => 'sc.sc_id',
-                'name' => 'sc.sc_name',
-                'alias' => 'sc.sc_description',
-                'is_activated' => 'sc.sc_activate',
-                'host.id' => 'host.host_id',
-                'host.name' => 'host.host_name',
-                'hostgroup.id' => 'hostgroup.hg_id',
-                'hostgroup.name' => 'hostgroup.hg_name',
-                'hostcategory.id' => 'hostcategories.hc_id',
-                'hostcategory.name' => 'hostcategories.hc_name',
-            ]);
             $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
             $sqlTranslator->translateForConcatenator($concatenator);
             $concatenator->withCalcFoundRows(false);
