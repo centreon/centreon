@@ -17318,3 +17318,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
+# msgstr ""

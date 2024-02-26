@@ -18670,3 +18670,9 @@ msgstr "Ajouter des colonnes"
 
 msgid "Resource table"
 msgstr "Tableau des ressources"
+
+msgid "Expiration date"
+msgstr "Date d'expiration"
+
+msgid "Clear"
+msgstr "Supprimer"

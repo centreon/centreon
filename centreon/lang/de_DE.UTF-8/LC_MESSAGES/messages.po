@@ -16535,3 +16535,10 @@ msgstr "Erweiterter Modus"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
