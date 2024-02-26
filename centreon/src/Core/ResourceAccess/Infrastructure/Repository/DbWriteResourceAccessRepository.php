@@ -53,6 +53,21 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
+    public function delete(int $ruleId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'DELETE FROM `:db`.acl_groups WHERE acl_group_id = :ruleId AND cloud_specific = 1'
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function deleteDatasets(array $ids): void
     {
         $fields = '';
@@ -338,6 +353,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             \PDO::PARAM_STR
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
     }

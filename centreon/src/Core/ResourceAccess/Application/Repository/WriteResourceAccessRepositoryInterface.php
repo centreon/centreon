@@ -98,5 +98,10 @@ interface WriteResourceAccessRepositoryInterface
      * @param int $ruleId
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, string $resourceType, array $resourceIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function delete(int $ruleId): void;
 }
 
