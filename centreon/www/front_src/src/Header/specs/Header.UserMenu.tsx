@@ -112,5 +112,7 @@ export default (): void => {
 
       cy.makeSnapshot();
     });
+
+    it('enters in fullscreen mode when the corresponding icon is clicked', () => {});
   });
 };

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
 
 import { useSnackbar } from '../..';
 
@@ -13,14 +12,11 @@ interface UseFullscreenState {
   fullscreenEnabled: boolean;
   isFullscreenActivated: boolean;
   resetVariables: () => void;
-  toggleFullscreen: (element?: HTMLElement | null) => void;
+  toggleFullscreen: (element: HTMLElement | null) => void;
 }
 
 export const useFullscreen = (): UseFullscreenState => {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams(
-    window.location.search
-  );
 
   const { showErrorMessage } = useSnackbar();
 
@@ -30,8 +26,6 @@ export const useFullscreen = (): UseFullscreenState => {
 
   const resetVariables = (): void => {
     setIsFullscreenActivated(false);
-    searchParams.delete('min');
-    setSearchParams(searchParams);
   };
 
   const enterInFullscreen = (element: HTMLElement | null): void => {
@@ -47,13 +41,9 @@ export const useFullscreen = (): UseFullscreenState => {
       ?.requestFullscreen({ navigationUI: 'show' })
       .then(() => {
         setIsFullscreenActivated(true);
-        searchParams.set('min', '1');
-        setSearchParams(searchParams);
       })
       .catch(() => {
         showErrorMessage(t(labelCannotEnterInFullscreen));
-        searchParams.delete('min');
-        setSearchParams(searchParams);
         setIsFullscreenActivated(false);
       });
   };
@@ -62,9 +52,7 @@ export const useFullscreen = (): UseFullscreenState => {
     document.exitFullscreen().then(resetVariables);
   };
 
-  const toggleFullscreen = (
-    element: HTMLElement | null = document.body
-  ): void => {
+  const toggleFullscreen = (element: HTMLElement | null): void => {
     if (isFullscreenActivated) {
       exitFullscreen();
 

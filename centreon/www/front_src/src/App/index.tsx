@@ -51,26 +51,22 @@ const Navigation = lazy(() => import('../Navigation'));
 
 const App = (): JSX.Element => {
   const { classes } = useStyles();
-  const { hasMinArgument } = useApp();
+  useApp();
 
-  useFullscreenListener();
-
-  const min = hasMinArgument();
+  const isFullscreenActivated = useFullscreenListener();
 
   return (
     <Suspense fallback={<PageLoader />}>
       <div className={classes.wrapper}>
-        {not(min) && (
+        {!isFullscreenActivated && (
           <Suspense fallback={<LoadingSkeleton height="100%" width={45} />}>
             <Navigation />
           </Suspense>
         )}
         <div className={classes.content} id="content">
-          {not(min) && (
-            <Suspense fallback={<LoadingSkeleton height={56} width="100%" />}>
-              <Header />
-            </Suspense>
-          )}
+          <Suspense fallback={<LoadingSkeleton height={56} width="100%" />}>
+            <Header />
+          </Suspense>
           <div className={classes.mainContent} id="maint-content">
             <MainRouter />
           </div>

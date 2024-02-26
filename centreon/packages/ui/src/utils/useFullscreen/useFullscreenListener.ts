@@ -11,18 +11,16 @@ export const router = {
   useSearchParams
 };
 
-export const useFullscreenListener = (): void => {
+export const useFullscreenListener = (): boolean => {
   const { toggleFullscreen, resetVariables, isFullscreenActivated } =
     useFullscreen();
-
-  const [searchParams] = useSearchParams();
 
   const toggle = (event: KeyboardEvent): void => {
     if (!event.altKey || !equals(event.code, 'KeyF')) {
       return;
     }
 
-    toggleFullscreen();
+    toggleFullscreen(document.querySelector('body'));
   };
 
   const changeFullscreen = (): void => {
@@ -52,11 +50,5 @@ export const useFullscreenListener = (): void => {
     };
   }, [isFullscreenActivated]);
 
-  useEffect(() => {
-    if (!searchParams.get('min')) {
-      return;
-    }
-
-    resetVariables();
-  }, []);
+  return isFullscreenActivated;
 };
