@@ -46,7 +46,7 @@ const DataCell = ({
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
@@ -127,7 +127,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.cell}
+          className={cx(classes.cell, clickable && classes.clickable)}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
