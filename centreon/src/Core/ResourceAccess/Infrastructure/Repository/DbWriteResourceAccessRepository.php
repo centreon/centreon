@@ -53,6 +53,37 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
+    public function deleteRuleAndDatasets(int $ruleId): void
+    {
+
+        $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->deleteDatasets($datasetIds);
+            $this->deleteRule($ruleId);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param int[] $ids
+     */
     public function deleteDatasets(array $ids): void
     {
         $fields = '';
@@ -309,6 +340,44 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     }
 
     /**
+     * @param int $ruleId
+     *
+     * @return int[]
+     */
+    private function findDatasetIdsByRuleId(int $ruleId): array
+    {
+        // Retrieve first all the datasets linked to the rule
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        SELECT acl_res_id FROM `:db`.acl_res_group_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $ruleId
+     */
+    private function deleteRule(int $ruleId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'DELETE FROM `:db`.acl_groups WHERE acl_group_id = :ruleId AND cloud_specific = 1'
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
      * @inheritDoc
      */
     private function updateBasicInformation(Rule $rule): void
@@ -338,6 +407,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             \PDO::PARAM_STR
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
     }
