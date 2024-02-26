@@ -36,10 +36,14 @@ export const useResponsivePie = ({
   const heightOfTitle = titleRef.current?.offsetHeight || 0;
   const widthOfLegend = legendRef.current?.offsetWidth || 0;
 
-  const svgWrapperWidth = width - widthOfLegend;
+  const horizontalGap = widthOfLegend > 0 ? 16 : 0;
+  const verticalGap = heightOfTitle > 0 ? 8 : 0;
+
+  const svgWrapperWidth = width - widthOfLegend - horizontalGap;
+
   const svgContainerSize = Math.min(
-    height - heightOfTitle,
-    width - widthOfLegend
+    height - heightOfTitle - verticalGap,
+    width - widthOfLegend - horizontalGap
   );
 
   const outerRadius = Math.min(32, svgContainerSize / 6);

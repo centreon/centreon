@@ -10,7 +10,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: theme.spacing(1.5),
     justifyContent: 'center'
   },
   svgContainer: {
@@ -24,6 +24,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
+    gap: theme.spacing(1),
     justifyContent: 'center'
   },
   title: {

@@ -5,7 +5,8 @@ export const usePieStyles = makeStyles<{ svgSize: number }>()(
   (theme, { svgSize }) => ({
     container: {
       alignItems: 'center',
-      display: 'flex'
+      display: 'flex',
+      gap: theme.spacing(2)
     },
     pieChartTooltip: {
       backgroundColor: theme.palette.background.paper,
@@ -24,6 +25,7 @@ export const usePieStyles = makeStyles<{ svgSize: number }>()(
       alignItems: 'center',
       display: 'flex',
       flexDirection: 'column',
+      gap: theme.spacing(1),
       justifyContent: 'center'
     },
     title: {

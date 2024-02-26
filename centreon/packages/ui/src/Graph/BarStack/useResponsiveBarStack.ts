@@ -48,13 +48,18 @@ const useResponsiveBarStack = ({
   const isVerticalBar = equals(variant, 'vertical');
 
   const heightOfTitle = titleRef.current?.offsetHeight || 0;
-  const widthOfLegend = legendRef.current?.offsetWidth || 0 + 8;
+  const widthOfLegend = legendRef.current?.offsetWidth || 0;
 
-  const svgWrapperWidth = width - widthOfLegend;
+  const horizontalGap = widthOfLegend > 0 ? 12 : 0;
+  const verticalGap = heightOfTitle > 0 ? 8 : 0;
+
+  const svgWrapperWidth = isVerticalBar
+    ? size + 24
+    : width - widthOfLegend - horizontalGap;
 
   const svgContainerSize = {
-    height: isVerticalBar ? height - heightOfTitle : size,
-    width: isVerticalBar ? size : width - widthOfLegend
+    height: isVerticalBar ? height - heightOfTitle - verticalGap : size,
+    width: isVerticalBar ? size : width - widthOfLegend - horizontalGap
   };
 
   const barSize = {
