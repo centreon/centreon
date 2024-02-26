@@ -8,12 +8,12 @@ import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../../TokenListing/models';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
-import { AnchorElDuration, OpenPicker } from '../models';
+import { AnchorElDuration } from '../models';
 import { isInvalidDate as validateDate } from '../utils';
 
-import { useStyles } from './customTimePeriod.styles';
 import ActionList from './ActionsList';
 import InvisibleField from './InvisibleField';
+import { useStyles } from './customTimePeriod.styles';
 
 interface Props {
   anchorElDuration: AnchorElDuration;

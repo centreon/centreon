@@ -1,6 +1,6 @@
 import { KeyboardEvent, useEffect, useRef } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { SearchField } from '@centreon/ui';
@@ -21,9 +21,7 @@ const TokenSearch = (): JSX.Element => {
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const [customQueryParameters, setCustomQueryParameters] = useAtom(
-    customQueryParametersAtom
-  );
+  const setCustomQueryParameters = useSetAtom(customQueryParametersAtom);
   const { initialize } = useInitializeFilter();
   const { queryParameters, getSearchParameters } = useBuildParameters();
 

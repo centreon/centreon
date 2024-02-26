@@ -19,7 +19,7 @@ import {
 } from './atoms';
 import { Fields } from './models';
 
-const useBuildFilterValues = () => {
+const useBuildFilterValues = (): void => {
   const [users, setUsers] = useAtom(usersAtom);
   const [creators, setCreators] = useAtom(creatorsAtom);
   const [expirationDate, setExpirationDate] = useAtom(expirationDateAtom);
@@ -38,26 +38,41 @@ const useBuildFilterValues = () => {
       data: creationDate,
       field: Fields.CreationDate,
       initialValue: null,
-      ref: creationDateRef
+      update: (data): void => {
+        creationDateRef.current = data;
+      }
     },
     {
       data: isRevoked,
       field: Fields.IsRevoked,
       initialValue: null,
-      ref: isRevokedRef
+      update: (data): void => {
+        isRevokedRef.current = data;
+      }
     },
     {
       data: expirationDate,
       field: Fields.ExpirationDate,
       initialValue: null,
-      ref: expirationDateRef
+      update: (data): void => {
+        expirationDateRef.current = data;
+      }
     },
-    { data: users, field: Fields.UserName, initialValue: [], ref: usersRef },
+    {
+      data: users,
+      field: Fields.UserName,
+      initialValue: [],
+      update: (data): void => {
+        usersRef.current = data;
+      }
+    },
     {
       data: creators,
       field: Fields.CreatorName,
       initialValue: [],
-      ref: creatorsRef
+      update: (data): void => {
+        creatorsRef.current = data;
+      }
     }
   ];
 
@@ -90,11 +105,11 @@ const useBuildFilterValues = () => {
     return [...newData];
   };
 
-  const constructDataCustomQueries = ({ value }) => {
+  const constructDataCustomQueries = ({ value }): string => {
     return last(value.split(','));
   };
 
-  const initializeFullFields = (searchableField) => {
+  const initializeFullFields = (searchableField): void => {
     const fieldsToInitialize = currentFullFields
       .map((item) => {
         return searchableField.every(({ field }) => item !== field)
@@ -103,12 +118,12 @@ const useBuildFilterValues = () => {
       })
       .filter((item) => item);
 
-    defaultFields.forEach(({ field, ref, initialValue }) => {
+    defaultFields.forEach(({ field, update, initialValue }) => {
       fieldsToInitialize.forEach((item) => {
         if (item !== field) {
           return;
         }
-        ref.current = initialValue;
+        update(initialValue);
       });
     });
   };

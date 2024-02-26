@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -41,9 +41,7 @@ const Filter = (): JSX.Element => {
   const [creators, setCreators] = useAtom(creatorsAtom);
   const [users, setUsers] = useAtom(usersAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const [customQueryParameters, setCustomQueryParameters] = useAtom(
-    customQueryParametersAtom
-  );
+  const setCustomQueryParameters = useSetAtom(customQueryParametersAtom);
   const { queryParameters, getSearchParameters } = useBuildParameters();
 
   const { initialize } = useInitializeFilter();
