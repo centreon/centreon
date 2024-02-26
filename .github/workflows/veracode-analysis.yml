@@ -248,6 +248,7 @@ jobs:
       - uses: geekyeggo/delete-artifact@65041433121f7239077fa20be14c0690f70569de # v4.1.0
         with:
           name: "Veracode Pipeline-Scan Results"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   policy-scan:
     needs: [build]
