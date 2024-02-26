@@ -9,6 +9,7 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -66,11 +67,13 @@ const initialize = (): void => {
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <Provider store={store}>
-          <DashboardLayout displayedDashboardId={1} />
-        </Provider>
-      </TestQueryProvider>
+      <BrowserRouter>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <DashboardLayout displayedDashboardId={1} />
+          </Provider>
+        </TestQueryProvider>
+      </BrowserRouter>
     )
   });
 };

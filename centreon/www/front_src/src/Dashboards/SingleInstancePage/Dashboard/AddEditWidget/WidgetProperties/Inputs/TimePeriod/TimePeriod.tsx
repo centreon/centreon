@@ -30,6 +30,11 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const { canEditField } = useCanEditProperties();
 
+  const translatedOptions = options.map(({ id, name }) => ({
+    id,
+    name: t(name)
+  }));
+
   return (
     <div className={classes.container}>
       <Typography>
@@ -38,7 +43,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       <SelectField
         dataTestId={labelTimePeriod}
         disabled={!canEditField}
-        options={options}
+        options={translatedOptions}
         selectedOptionId={value.timePeriodType || ''}
         onChange={setTimePeriod}
       />

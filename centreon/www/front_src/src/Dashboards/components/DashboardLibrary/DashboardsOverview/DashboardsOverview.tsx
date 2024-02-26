@@ -5,9 +5,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 
-import AddIcon from '@mui/icons-material/Add';
-
-import { Button, DataTable, PageLayout } from '@centreon/ui/components';
+import { DataTable } from '@centreon/ui/components';
 
 import { useDashboardDelete } from '../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
@@ -22,10 +20,10 @@ import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 import { DashboardLayout } from '../../../models';
-import { isSharesOpenAtom } from '../../../atoms';
 import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
+import { isSharesOpenAtom } from '../../../atoms';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
@@ -121,30 +119,15 @@ const DashboardsOverview = (): ReactElement => {
   );
 
   return (
-    <>
-      <PageLayout.Actions>
-        {!isEmptyList && canCreateOrManageDashboards && (
-          <Button
-            aria-label="create"
-            data-testid="create-dashboard"
-            icon={<AddIcon />}
-            iconVariant="start"
-            onClick={createDashboard}
-          >
-            {labels.actions.create}
-          </Button>
-        )}
-      </PageLayout.Actions>
-      <div className={classes.container}>
-        <DashboardListing
-          customListingComponent={GridTable}
-          data={data}
-          displayCustomListing={equals(viewMode, ViewMode.Cards)}
-          loading={isLoading}
-          openConfig={createDashboard}
-        />
-      </div>
-    </>
+    <div className={classes.container}>
+      <DashboardListing
+        customListingComponent={GridTable}
+        data={data}
+        displayCustomListing={equals(viewMode, ViewMode.Cards)}
+        loading={isLoading}
+        openConfig={createDashboard}
+      />
+    </div>
   );
 };
 

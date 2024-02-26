@@ -92,7 +92,10 @@ export const labelYourRightsOnlyAllowToView =
   'Your rights only allow you to view the properties of a widget.';
 export const labelPleaseContactYourAdministrator =
   'Please contact your administrator for more information.';
-export const labelLastHour = 'Last hour (default)';
+export const labelLastHour = 'Last hour';
+export const labelLast3Hours = 'Last 3 hours';
+export const labelLast6Hours = 'Last 6 hours';
+export const labelLast12Hours = 'Last 12 hours';
 export const labelLast24Hours = 'Last 24 hours';
 export const labelLast7Days = 'Last 7 days';
 export const labelLast30Days = 'Last 30 days';
