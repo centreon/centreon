@@ -65,7 +65,13 @@ const useBuildFilterValues = () => {
     return defaultFields
       .map(({ data, field }) => (!isNil(data) && !isEmpty(data) ? field : null))
       .filter((item) => item);
-  }, [creationDate, isRevoked, expirationDate, users.length, creators.length]);
+  }, [
+    creationDateRef?.current,
+    isRevokedRef?.current,
+    expirationDateRef?.current,
+    usersRef?.current?.length,
+    creatorsRef?.current?.length
+  ]);
 
   const constructData = ({
     value,

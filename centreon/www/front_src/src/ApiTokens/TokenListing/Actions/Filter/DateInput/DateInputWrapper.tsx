@@ -18,8 +18,8 @@ const DateInputWrapper = (): JSX.Element => {
       />
       <DateInput
         dataDate={{ date: expirationDate, setDate: setExpirationDate }}
-        label="Creation date"
-        property={Property.last}
+        label="Expiration date"
+        property={Property.in}
       />
     </>
   );
