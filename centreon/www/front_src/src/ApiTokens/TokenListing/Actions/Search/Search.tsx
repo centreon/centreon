@@ -56,6 +56,7 @@ const TokenSearch = (): JSX.Element => {
       return;
     }
     setCurrentFilter({ ...currentFilter, search: undefined });
+    setCustomQueryParameters(queryParameters);
   }, [searchValue]);
 
   return (

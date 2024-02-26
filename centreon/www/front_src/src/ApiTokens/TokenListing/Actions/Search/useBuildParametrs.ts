@@ -3,12 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { equals, flatten, isEmpty, isNil } from 'ramda';
 
-import {
-  QueryParameter,
-  SearchParameter,
-  getFoundFields,
-  useLocaleDateTimeFormat
-} from '@centreon/ui';
+import { QueryParameter, SearchParameter, getFoundFields } from '@centreon/ui';
 
 import {
   creationDateAtom,
@@ -18,6 +13,7 @@ import {
 import { Fields } from '../Filter/models';
 
 import { searchAtom } from './atoms';
+import { convertToBoolean } from './utils';
 
 interface UseButtonParameters {
   getSearchParameters: () => SearchParameter | undefined;
@@ -29,7 +25,6 @@ const useBuildParameters = (): UseButtonParameters => {
   const creationDate = useAtomValue(creationDateAtom);
   const expirationDate = useAtomValue(expirationDateAtom);
   const isRevoked = useAtomValue(isRevokedAtom);
-  const { toIsoString } = useLocaleDateTimeFormat();
 
   const customQueriesData = [
     { data: creationDate, field: Fields.CreationDate },
@@ -41,11 +36,11 @@ const useBuildParameters = (): UseButtonParameters => {
     return search
       .split(' ')
       .map((item) => {
-        const hasCustomField = getFoundFields({
+        const hasCustomQueryField = getFoundFields({
           fields: customQueriesData.map(({ field }) => field),
           value: item
         });
-        if (isEmpty(hasCustomField)) {
+        if (isEmpty(hasCustomQueryField)) {
           return item;
         }
 
@@ -101,25 +96,30 @@ const useBuildParameters = (): UseButtonParameters => {
   }, [search]);
 
   const queryParameters = useMemo(() => {
-    const result = customQueriesData
-      .map(({ data, field }) => {
-        if (isNil(data)) {
+    const customQueryField = getFoundFields({
+      fields: customQueriesData.map(({ field }) => field),
+      value: search
+    });
+
+    const result = customQueryField
+      .map(({ value, field }) => {
+        if (isNil(value)) {
           return null;
         }
 
-        const value = equals(typeof data, 'boolean')
-          ? (data as boolean)
-          : toIsoString(data as Date);
+        const newValue = equals(field, Fields.IsRevoked)
+          ? convertToBoolean(value)
+          : value;
 
         return {
           name: field as string,
-          value
+          value: newValue
         };
       })
       .filter((item) => !isNil(item));
 
     return isEmpty(result) ? null : (result as Array<QueryParameter>);
-  }, [creationDate, expirationDate, isRevoked]);
+  }, [search]);
 
   return { getSearchParameters, queryParameters };
 };
