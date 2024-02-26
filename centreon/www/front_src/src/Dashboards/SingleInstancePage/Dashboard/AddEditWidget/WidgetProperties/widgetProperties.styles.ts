@@ -13,6 +13,9 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   },
   previewPanelContainer: {
     height: '400px',
+    [theme.breakpoints.down('sm')]: {
+      height: '200px'
+    },
     padding: theme.spacing(1),
     position: 'relative',
     width: '100%'
