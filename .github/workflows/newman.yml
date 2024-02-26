@@ -49,7 +49,6 @@ on:
 jobs:
   newman-test-list:
     runs-on: ubuntu-22.04
-
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
     steps:
@@ -524,3 +523,91 @@ jobs:
           if [ -n "$summaries" ]; then
               echo -e "$summaries" >> $GITHUB_STEP_SUMMARY
           fi
+
+  adding-testCases-keys:
+    if: ${{ contains(fromJson('["testing","unstable"]'), inputs.stability) }}
+    needs: [newman-test-list, associate-test-cases, newman-test-run]
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: centreon/tests/rest_api
+        shell: bash
+    steps:
+      - name: Checkout Repository
+        with:
+          ref: ${{ github.head_ref }}
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Adding test cases key
+        run: |
+          collections=($(find ./collections -type f -name "*.postman_collection.json"))
+          echo "collections: $collections"
+
+          for collection_file in "${collections[@]}"; do
+              collection_name=$(basename "$collection_file" .postman_collection.json)
+              collection_name_sanitized="${collection_name//[^a-zA-Z0-9]/_}"
+              issue_ids= ${{ needs.associate-test-cases.outputs.issue_list_ids }}
+              echo "issue_ids content: $issue_ids"
+
+              for issue_id in "${issue_ids[@]}"; do
+                  echo "Processing issue ID: $issue_id"
+                  jira_issue_url="https://centreon.atlassian.net/rest/api/2/issue/$issue_id"
+
+                  response=$(curl --request GET \
+                      --url "$jira_issue_url" \
+                      --user "${{ secrets.jira_user }}:${{ secrets.jira_token_test }}" \
+                      --header 'Accept: application/json')
+
+                  if [ "$response_code" -eq 404 ]; then
+                      echo "The issue with ID $issue_id does not exist or you do not have permission to see it."
+                  else
+                      echo "The issue with ID $issue_id exists."
+                      summary=$(echo "$response" | jq -r '.fields.summary')
+                      key=$(echo "$response" | jq -r '.key')
+                      echo "Summary: $summary"
+                      echo "collection_name_sanitized: $collection_name_sanitized"
+
+                      if [ "$summary" == "$collection_name_sanitized" ]; then
+                          echo "Match found! Updating JSON file."
+                          new_file_name=$(echo "$collection_name_sanitized" | sed 's/_/-/g')
+                          new_file_name="${new_file_name}.postman_collection.json"
+                          echo "new file name: $new_file_name"
+                          full_file_path=$(find ./collections -type f -name "$new_file_name")
+
+                          if [ -n "$full_file_path" ]; then
+                              # Check if .info.description exists in the JSON file
+                              if jq -e '.info.description' "$full_file_path" >/dev/null; then
+                                  echo ".info.description already exists. Skip updating."
+                              else
+                                  # Access the JSON file and add .info.description with the Jira issue key
+                                  jq --arg new_description "$key" '.info.description = $new_description' "$full_file_path" > "$full_file_path.tmp" && mv "$full_file_path.tmp" "$full_file_path"
+                                  echo ".info.description added with the Jira issue key."
+                              fi
+                          else
+                              echo "The file $new_file_name was not found in the subdirectories of ./collections."
+                          fi
+                      fi
+                  fi
+              done
+           done
+
+      - name: Commit files
+        id: commit-changes
+        run: |
+             if git diff --quiet --exit-code collections; then
+               echo "No changes in the collections directory. Skipping commit."
+               echo "commit_status=false" >> $GITHUB_OUTPUT
+             else
+               echo "commit_status=true" >> $GITHUB_OUTPUT
+               git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+               git config --local user.name "github-actions[bot]"
+               git add -u collections
+               git commit -m "Add test cases keys into the collections"
+             fi
+
+      - name: Push changes
+        if: steps.commit-changes.outputs.commit_status == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
