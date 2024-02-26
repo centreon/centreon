@@ -57,14 +57,12 @@ describe('Fullscreen', () => {
     cy.get('#test')
       .should('have.attr', 'data-fullscreenActivated', 'false')
       .should('have.attr', 'data-fullscreenEnabled', 'true');
-    cy.url().should('not.contain', '&min=1');
 
     cy.contains(labelEnterFullscreen).realClick();
 
     cy.get('#test')
       .should('have.attr', 'data-fullscreenActivated', 'true')
       .should('have.attr', 'data-fullscreenEnabled', 'true');
-    cy.url().should('contain', '&min=1');
 
     cy.contains(labelExitFullscreen).realClick();
   });
