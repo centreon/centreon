@@ -19,7 +19,7 @@ import {
 } from '../../../translatedLabels';
 import { PersonalInformation } from '../../models';
 import useBuildParameters from '../Search/useBuildParametrs';
-import { getUniqData } from '../Search/utils';
+import { getUniqData, translateWhiteSpaceToRegex } from '../Search/utils';
 
 import DateInputWrapper from './DateInput';
 import Status from './Status';
@@ -48,14 +48,10 @@ const Filter = (): JSX.Element => {
 
   useBuildFilterValues();
 
-  const wordToRegex = (input: string): string => {
-    return input.replace(/\s/g, '\\s+');
-  };
-
   const changeUser = (_, value): void => {
     const formattedValues = value.map((item) => ({
       ...item,
-      name: wordToRegex(item.name)
+      name: translateWhiteSpaceToRegex(item.name)
     }));
     setUsers(formattedValues);
   };
@@ -63,7 +59,7 @@ const Filter = (): JSX.Element => {
   const changeCreator = (_, value): void => {
     const formattedValues = value.map((item) => ({
       ...item,
-      name: wordToRegex(item.name)
+      name: translateWhiteSpaceToRegex(item.name)
     }));
     setCreators(formattedValues);
   };
@@ -88,7 +84,7 @@ const Filter = (): JSX.Element => {
     return isNil(option)
       ? false
       : equals(
-          wordToRegex(option.name).toString(),
+          translateWhiteSpaceToRegex(option.name).toString(),
           selectedValue.name.toString()
         );
   };

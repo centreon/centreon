@@ -17,3 +17,7 @@ export const adjustData = (value): Array<SelectEntry> => {
 export const convertToBoolean = (input: string): boolean => {
   return input === 'true';
 };
+
+export const translateWhiteSpaceToRegex = (input: string): string => {
+  return input.replace(/\s/g, '\\s+');
+};

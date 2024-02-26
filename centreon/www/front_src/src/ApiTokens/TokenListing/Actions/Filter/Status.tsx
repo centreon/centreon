@@ -47,12 +47,14 @@ const Status = (): JSX.Element => {
       <div className={classes.checkboxContainer}>
         <Checkbox
           checked={!isNil(isRevoked) ? !isRevoked : false}
+          dataTestId={labelActiveToken}
           label={t(labelActiveToken)}
           labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleActiveToken}
         />
         <Checkbox
           checked={Boolean(isRevoked)}
+          dataTestId={labelRevokedToken}
           label={t(labelRevokedToken)}
           labelProps={{ classes: { root: classes.checkbox }, variant: 'body2' }}
           onChange={handleRevokedToken}

@@ -65,7 +65,7 @@ const TokenSearch = (): JSX.Element => {
         autoComplete="off"
         dataTestId={labelSearch}
         id="searchBar"
-        inputProps={{ 'data-testid': 'search' }}
+        inputProps={{ 'data-testid': 'inputSearch' }}
         inputRef={searchRef}
         placeholder={t(labelSearch) as string}
         value={searchValue}

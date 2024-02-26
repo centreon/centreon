@@ -9,14 +9,19 @@ import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import {
+  ListingParameters,
   Method,
+  QueryParameter,
   SnackbarProvider,
   TestQueryProvider,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { DefaultParameters } from './TokenListing/Actions/Filter/models';
+import {
+  DefaultParameters,
+  Fields
+} from './TokenListing/Actions/Filter/models';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {
@@ -27,17 +32,29 @@ import {
   listTokensEndpoint
 } from './api/endpoints';
 import {
+  labelActiveToken,
   labelCancel,
   labelCreateNewToken,
+  labelCreator,
   labelDeleteToken,
   labelDuration,
   labelGenerateNewToken,
   labelName,
+  labelRevokedToken,
+  labelSearch,
   labelSecurityToken,
   labelTokenCreated,
   labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
+import { translateWhiteSpaceToRegex } from './TokenListing/Actions/Search/utils';
+import { searchAtom } from './TokenListing/Actions/Search/atoms';
+import {
+  creationDateAtom,
+  expirationDateAtom,
+  isRevokedAtom
+} from './TokenListing/Actions/Filter/atoms';
+import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -165,16 +182,26 @@ const checkTokenInput = (token: string): void => {
 const tokenName = 'slack';
 const duration = { id: '1year', name: '1 year' };
 
+interface InterceptListTokens {
+  alias: string;
+  customQueryParameters?: Array<QueryParameter> | null;
+  dataPath: string;
+  method?: Method;
+  parameters?: ListingParameters;
+}
+
 const interceptListTokens = ({
   dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
+  customQueryParameters = undefined,
   alias = 'getListTokens',
   method = Method.GET
-}): void => {
+}: InterceptListTokens): void => {
   cy.fixture(dataPath).then((data) => {
     const endpoint = buildListEndpoint({
+      customQueryParameters,
       endpoint: listTokensEndpoint,
-      parameters: { ...parameters }
+      parameters
     });
     cy.interceptAPIRequest({
       alias,
@@ -524,4 +551,88 @@ describe('Api-token', () => {
     });
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
+
+  const searchableFieldsValues = [
+    { field: Fields.CreationDate, value: '2024-02-19T16:33:51Z' },
+    { field: Fields.ExpirationDate, value: '2024-02-19T16:33:51Z' },
+    { field: Fields.CreatorId, value: 1 },
+    { field: Fields.UserId, value: 14 },
+    { field: Fields.UserName, value: 'Guest' },
+    {
+      field: Fields.CreatorName,
+      value: translateWhiteSpaceToRegex('admin admin')
+    },
+    { field: Fields.TokenName, value: 'token1' },
+    { field: Fields.IsRevoked, value: 'false' }
+  ];
+
+  const constructSearchInput = (arr): string => {
+    return arr.map(({ field, value }) => `${field}:${value}`).join(' ');
+  };
+
+  it.only('executes a listing request with current search', () => {
+    cy.waitForRequest('@getListTokens');
+    const searchInput = constructSearchInput(searchableFieldsValues);
+
+    const search = renderHook(() => useAtomValue(searchAtom));
+    const creationDate = renderHook(() => useAtomValue(creationDateAtom));
+    const expirationDate = renderHook(() => useAtomValue(expirationDateAtom));
+    const isRevoked = renderHook(() => useAtomValue(isRevokedAtom));
+
+    search.result.current = searchInput;
+    creationDate.result.current = dayjs('2024-02-19T16:33:51Z').toDate();
+    expirationDate.result.current = dayjs('2024-02-19T16:33:51Z').toDate();
+    isRevoked.result.current = false;
+
+    const {
+      result: { current }
+    } = renderHook(() => useBuildParameters());
+
+    const { getSearchParameters, queryParameters } = current;
+    interceptListTokens({
+      alias: 'getListTokensWithBuildedParameters',
+      customQueryParameters: queryParameters,
+      dataPath: '',
+      parameters: { ...DefaultParameters, search: getSearchParameters() }
+    });
+
+    cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
+    cy.wait('@getListTokensWithBuildedParameters');
+    cy.getRequestCalls('@getListTokens').then((calls) => {
+      expect(calls[0].request.url.search.includes(defaultParameters));
+    });
+    searchableFieldsValues.forEach(({ value }) => {
+      cy.contains(value);
+    });
+  });
+
+  it.only('update the filter interface when changes are made to the search bar', () => {
+    cy.waitForRequest('@getListTokens');
+    const searchInput = 'user.name:User,Guest is_revoked:true';
+    cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
+    cy.findByTestId('Filteroption').click();
+    cy.findByTestId(labelUser).contains('User');
+    cy.findByTestId(labelUser).contains('Guest');
+    cy.findAllByTestId(labelActiveToken).should('be.checked');
+  });
+  it.only('update the search bar when changes are made to the filter interface', () => {
+    cy.waitForRequest('@getListTokens');
+
+    cy.findByTestId('Filteroption').click();
+    cy.findAllByTestId(labelRevokedToken).check();
+
+    cy.findByTestId(labelCreator).click();
+    cy.findByRole('option', { name: 'admin admin' }).click();
+
+    cy.findByTestId(labelUser).click();
+    cy.findByRole('option', { name: 'Guest' }).click();
+    cy.findByRole('option', { name: 'centreon-gorgone' }).click();
+
+    const expectedSearch = `is_revoked:true creator.name:${translateWhiteSpaceToRegex(
+      'admin admin'
+    )} user.name:Guest,centreon-gorgone`;
+
+    cy.findByTestId('inputSearch').should('have.value', expectedSearch);
+  });
+  // it.only('executes a listing request with selected filters', () => {});
 });
