@@ -1,5 +1,5 @@
 name: "release action"
-description: "Create git release tags, github releases, jira version and push release communication. "
+description: "Create git release tags, github releases, jira version and push release communication."
 inputs:
   github_ref_name:
     description: "Github ref name"
@@ -40,7 +40,7 @@ runs:
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
         echo "Curent stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
-        # Get previous version tags for components
+        # Get previous version and new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
           if [[ $component == "centreon-web" ]]; then
             COMPONENT_DIR="centreon"
@@ -49,6 +49,7 @@ runs:
           fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
+          # Previous stable tags array
           PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
         done
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
