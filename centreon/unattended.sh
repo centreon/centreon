@@ -20,7 +20,7 @@ tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as t
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
 version=${ENV_CENTREON_VERSION:-"24.04"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
-database_system=${ENV_CENTREON_DBS:-"MariaDB"}  #Default database system to be used
+database_system=${ENV_CENTREON_DBS:-"MySQL"}  #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
@@ -682,7 +682,7 @@ function secure_db_system_setup() {
 	log "INFO" "Restarting $database_system service first"
 	if [[ $database_system == "MariaDB" ]]; then
 		systemctl restart mariadb
-		log "INFO" "Executing SQL requests"
+		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
 			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
@@ -693,6 +693,9 @@ function secure_db_system_setup() {
 		EOF
 	else
 		systemctl restart mysqld
+		log "INFO" "Executing SQL requests for $database_system"
+		mysql -e 
+
 	fi
 
 	if [ $? -ne 0 ]; then
@@ -1334,7 +1337,7 @@ if [ "$operation" == "install" ]; then
 			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
 		else
 			test_password_policy
-   			echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
+   		echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
 		fi
 		# Set from ENV or Administrator first name
 		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
