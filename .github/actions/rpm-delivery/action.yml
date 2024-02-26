@@ -42,9 +42,6 @@ runs:
       run: |
         FILES="*.rpm"
 
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
-
         if [ -z "${{ inputs.module_name }}" ]; then
           echo "module name is required"
           exit 1
@@ -54,6 +51,11 @@ runs:
           echo "distrib is required"
           exit 1
         fi
+
+        # DEBUG
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
 
         mkdir noarch x86_64
 
@@ -73,6 +75,16 @@ runs:
           exit 0
         fi
 
+        # Set subrepo
+        case in "${{ inputs.release_type }}"
+          "hotfix")
+          UPLOAD_TARGET_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/${{ inpu/$ARCH/${{ inputs.module_name }}/${{ inputs.release_type }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/${{ inputs.release_type }}/" --flat"
+          ;;
+          "release")
+          ;;
+        esac
+
+
         for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
@@ -86,4 +98,13 @@ runs:
             fi
           done
         done
+
+        # Handle cloud specific delivery
+        if 
+        case in "$ROOT_REPO_PATH"
+          "rpm-standard")
+
+          ;;
+        esac
+
       shell: bash
