@@ -174,80 +174,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @return array<SqlConcatenator>
-     */
-    private function findServiceCategoriesRequest(): array
-    {
-        $concatenatorA = new SqlConcatenator();
-        $concatenatorA->defineSelect(
-            <<<'SQL'
-                SELECT sc.sc_id,
-                    sc.sc_name,
-                    sc.sc_description,
-                    sc.sc_activate
-                FROM `:db`.service_categories sc
-                SQL
-        )->appendJoins(
-            <<<'SQL'
-                LEFT JOIN service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                LEFT JOIN host_service_relation hsr
-                    ON scr.service_service_id = hsr.service_service_id
-                LEFT JOIN host
-                    ON host.host_id = hsr.host_host_id
-                LEFT JOIN hostgroup_relation hr
-                    ON hr.host_host_id = host.host_id
-                LEFT JOIN hostgroup
-                    ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN hostcategories_relation hcr
-                    ON hcr.host_host_id = host.host_id
-                LEFT JOIN hostcategories
-                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
-                SQL
-        )->appendWhere(
-            <<<'SQL'
-                WHERE host.host_register = '1'
-                SQL
-        );
-
-        $concatenatorB = new SqlConcatenator();
-        $concatenatorB->defineSelect(
-            <<<'SQL'
-                SELECT sc.sc_id,
-                    sc.sc_name,
-                    sc.sc_description,
-                    sc.sc_activate
-                FROM `:db`.service_categories sc
-                SQL
-        )->appendJoins(
-            <<<'SQL'
-                LEFT JOIN service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                LEFT JOIN service s
-                    ON scr.service_service_id = s.service_template_model_stm_id
-                LEFT JOIN host_service_relation hsr
-                    ON s.service_id = hsr.service_service_id
-                LEFT JOIN host
-                    ON host.host_id = hsr.host_host_id
-                LEFT JOIN hostgroup_relation hr
-                    ON hr.host_host_id = host.host_id
-                LEFT JOIN hostgroup
-                    ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN hostcategories_relation hcr
-                    ON hcr.host_host_id = host.host_id
-                LEFT JOIN hostcategories
-                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
-                SQL
-        )->appendWhere(
-            <<<'SQL'
-                WHERE host.host_register = '1'
-                SQL
-        );
-
-        return [$concatenatorA, $concatenatorB];
-    }
-
-    /**
      * @inheritDoc
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
@@ -291,14 +217,14 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         foreach ($concatenators as $concatenator) {
             $concatenator->appendJoins(
                 <<<'SQL'
-                    INNER JOIN `:db`.acl_resources_sc_relations arcr
-                        ON sc.sc_id = arcr.sc_id
+                    INNER JOIN `:db`.acl_resources_sc_relations arscr
+                        ON arscr.sc_id = sc.sc_id
                     INNER JOIN `:db`.acl_resources res
-                        ON arhr.acl_res_id = res.acl_res_id
+                        ON res.acl_res_id = arscr.acl_res_id
                     INNER JOIN `:db`.acl_res_group_relations argr
-                        ON res.acl_res_id = argr.acl_res_id
+                        ON argr.acl_res_id = res.acl_res_id
                     INNER JOIN `:db`.acl_groups ag
-                        ON argr.acl_group_id = ag.acl_group_id
+                        ON ag.acl_group_id = argr.acl_group_id
                     SQL
             );
             $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
@@ -310,6 +236,72 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         return $this->retrieveServiceCategories($concatenators, $requestParameters);
+    }
+
+    /**
+     * @return array<SqlConcatenator>
+     */
+    private function findServiceCategoriesRequest(): array
+    {
+        $concatenatorA = new SqlConcatenator();
+        $concatenatorA->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                LEFT JOIN service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                LEFT JOIN host_service_relation hsr
+                    ON hsr.service_service_id = scr.service_service_id
+                LEFT JOIN host
+                    ON host.host_id = hsr.host_host_id
+                LEFT JOIN hostgroup_relation hr
+                    ON hr.host_host_id = host.host_id
+                LEFT JOIN hostgroup
+                    ON hostgroup.hg_id = hr.hostgroup_hg_id
+                LEFT JOIN hostcategories_relation hcr
+                    ON hcr.host_host_id = host.host_id
+                LEFT JOIN hostcategories
+                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                SQL
+        );
+
+        $concatenatorB = new SqlConcatenator();
+        $concatenatorB->defineSelect(
+            <<<'SQL'
+                SELECT sc.sc_id,
+                    sc.sc_name,
+                    sc.sc_description,
+                    sc.sc_activate
+                FROM `:db`.service_categories sc
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                LEFT JOIN service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                LEFT JOIN service s
+                    ON s.service_template_model_stm_id = scr.service_service_id
+                LEFT JOIN host_service_relation hsr
+                    ON hsr.service_service_id = s.service_id
+                LEFT JOIN host
+                    ON host.host_id = hsr.host_host_id
+                LEFT JOIN hostgroup_relation hr
+                    ON hr.host_host_id = host.host_id
+                LEFT JOIN hostgroup
+                    ON hostgroup.hg_id = hr.hostgroup_hg_id
+                LEFT JOIN hostcategories_relation hcr
+                    ON hcr.host_host_id = host.host_id
+                LEFT JOIN hostcategories
+                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                SQL
+        );
+
+        return [$concatenatorA, $concatenatorB];
     }
 
     /**
