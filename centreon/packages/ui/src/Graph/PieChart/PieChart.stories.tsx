@@ -165,3 +165,30 @@ export const DonutWithSmallDimensions: Story = {
   },
   render: TemplateForSmallDimensions
 };
+
+const dataWidthOneNoZeroValue = [
+  { color: '#88B922', label: 'Ok', value: 13 },
+  { color: '#999999', label: 'Unknown', value: 0 },
+  { color: '#F7931A', label: 'Warning', value: 0 },
+  { color: '#FF6666', label: 'Down', value: 0 }
+];
+
+export const PieWithOneNoZeroValue: Story = {
+  args: {
+    data: dataWidthOneNoZeroValue,
+    displayLegend: false,
+    title: 'hosts',
+    variant: 'pie'
+  },
+  render: Template
+};
+
+export const donutWithOneNoZeroValue: Story = {
+  args: {
+    data: dataWidthOneNoZeroValue,
+    displayLegend: false,
+    title: 'hosts',
+    variant: 'donut'
+  },
+  render: Template
+};

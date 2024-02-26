@@ -3,14 +3,23 @@ import numeral from 'numeral';
 import PieChart from './PieChart';
 import { ArcType, PieProps } from './models';
 
-const data = [
+const defaultData = [
   { color: '#88B922', label: 'Ok', value: 148 },
   { color: '#999999', label: 'Unknown', value: 13 },
   { color: '#F7931A', label: 'Warning', value: 16 },
   { color: '#FF6666', label: 'Down', value: 62 }
 ];
 
-const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+const dataWithNullValues = [
+  { color: '#88B922', label: 'Ok', value: 0 },
+  { color: '#999999', label: 'Unknown', value: 0 },
+  { color: '#F7931A', label: 'Warning', value: 0 },
+  { color: '#FF6666', label: 'Down', value: 0 }
+];
+
+const total = Math.floor(
+  defaultData.reduce((acc, { value }) => acc + value, 0)
+);
 
 const TooltipContent = ({ label, color, value }: ArcType): JSX.Element => {
   return (
@@ -23,8 +32,10 @@ const TooltipContent = ({ label, color, value }: ArcType): JSX.Element => {
 const initialize = ({
   width = '500px',
   height = '500px',
+  data = defaultData,
   ...args
 }: Omit<PieProps, 'data'> & {
+  data?;
   height?: string;
   width?: string;
 }): void => {
@@ -41,7 +52,7 @@ describe('Pie chart', () => {
   it('renders pie chart correctly with provided data', () => {
     initialize({});
 
-    data.forEach(({ label }) => {
+    defaultData.forEach(({ label }) => {
       cy.findByTestId(label).should('be.visible');
     });
 
@@ -75,7 +86,7 @@ describe('Pie chart', () => {
   it('displays tooltip with correct information on hover', () => {
     initialize({ TooltipContent });
 
-    data.forEach(({ label, value }) => {
+    defaultData.forEach(({ label, value }) => {
       cy.findByTestId(label).trigger('mouseover', { force: true });
 
       cy.findByTestId(`tooltip-${label}`)
@@ -87,7 +98,7 @@ describe('Pie chart', () => {
   });
   it('conditionally displays values on arcs based on displayValues prop', () => {
     initialize({ displayValues: true });
-    data.forEach(({ value }, index) => {
+    defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
         .children()
@@ -103,7 +114,7 @@ describe('Pie chart', () => {
 
   it('displays values on arcs in percentage unit when displayValues is set to true and unit to percentage', () => {
     initialize({ displayValues: true, unit: 'percentage' });
-    data.forEach(({ value }, index) => {
+    defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
         .children()
@@ -144,6 +155,14 @@ describe('Pie chart', () => {
     });
 
     cy.get('[data-variant="donut"]').should('have.css', 'width', '100px');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a message "No Data Available" when all values are null', () => {
+    initialize({ data: dataWithNullValues, title: 'host' });
+
+    cy.contains('No Data Available');
 
     cy.makeSnapshot();
   });
