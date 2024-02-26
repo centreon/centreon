@@ -11,18 +11,20 @@ import Statuses from './Statuses/Statuses';
 interface Props {
   groupType: string;
   groupTypeName: string;
+  isFromPreview?: boolean;
 }
 
 export const useColumns = ({
   groupTypeName,
-  groupType
+  groupType,
+  isFromPreview
 }: Props): Array<Column> => {
   const { t } = useTranslation();
 
   return [
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
-        <Name groupType={groupType} row={row} />
+        <Name groupType={groupType} isFromPreview={isFromPreview} row={row} />
       ),
       align: 'start',
       clickable: true,
@@ -35,7 +37,12 @@ export const useColumns = ({
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
-        <Statuses groupType={groupType} resourceType="host" row={row} />
+        <Statuses
+          groupType={groupType}
+          isFromPreview={isFromPreview}
+          resourceType="host"
+          row={row}
+        />
       ),
       align: 'start',
       clickable: true,
@@ -46,7 +53,12 @@ export const useColumns = ({
     },
     {
       Component: ({ row }: Pick<RowProps, 'row'>) => (
-        <Statuses groupType={groupType} resourceType="service" row={row} />
+        <Statuses
+          groupType={groupType}
+          isFromPreview={isFromPreview}
+          resourceType="service"
+          row={row}
+        />
       ),
       clickable: true,
       id: 'service',

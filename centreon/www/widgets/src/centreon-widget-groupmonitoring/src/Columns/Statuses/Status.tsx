@@ -13,6 +13,7 @@ interface Props {
   count: number;
   groupName: string;
   groupType: string;
+  isFromPreview?: boolean;
   label: string;
   resourceType: string;
   severityCode: number;
@@ -32,7 +33,8 @@ const Status = ({
   count,
   groupType,
   groupName,
-  resourceType
+  resourceType,
+  isFromPreview
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes } = useStatusesColumnStyles();
@@ -57,7 +59,32 @@ const Status = ({
 
   const formattedCount = numeral(count).format('0.[00]a');
 
-  return (
+  const content = (
+    <>
+      <Box
+        className={classes.statusLabelContainer}
+        sx={{
+          backgroundColor: getStatusColors({ severityCode, theme })
+        }}
+      >
+        <Typography className={classes.statusLabel} variant="body2">
+          <strong>{label.slice(0, 1).toLocaleUpperCase()}</strong>
+        </Typography>
+      </Box>
+      <Typography className={classes.count}>({formattedCount})</Typography>
+    </>
+  );
+
+  return isFromPreview ? (
+    <div
+      className={classes.status}
+      data-count={count}
+      data-group={groupName}
+      data-status={label}
+    >
+      {content}
+    </div>
+  ) : (
     <Link
       className={classes.status}
       color="inherit"
@@ -71,17 +98,7 @@ const Status = ({
       underline="none"
       onClick={goToUrl(url)}
     >
-      <Box
-        className={classes.statusLabelContainer}
-        sx={{
-          backgroundColor: getStatusColors({ severityCode, theme })
-        }}
-      >
-        <Typography className={classes.statusLabel} variant="body2">
-          <strong>{label.slice(0, 1).toLocaleUpperCase()}</strong>
-        </Typography>
-      </Box>
-      <Typography className={classes.count}>({formattedCount})</Typography>
+      {content}
     </Link>
   );
 };

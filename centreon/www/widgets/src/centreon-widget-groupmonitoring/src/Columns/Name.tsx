@@ -6,7 +6,11 @@ import { RowProps } from '../models';
 import { getResourcesUrl } from '../../../utils';
 import { goToUrl } from '../utils';
 
-export const Name = ({ row, groupType }: RowProps): JSX.Element => {
+export const Name = ({
+  row,
+  groupType,
+  isFromPreview
+}: RowProps): JSX.Element => {
   const url = getResourcesUrl({
     allResources: [
       {
@@ -27,17 +31,21 @@ export const Name = ({ row, groupType }: RowProps): JSX.Element => {
 
   return (
     <EllipsisTypography>
-      <Link
-        color="inherit"
-        component="a"
-        href={url}
-        rel="noopener noreferrer"
-        target="_blank"
-        underline="hover"
-        onClick={goToUrl(url)}
-      >
-        {row.name}
-      </Link>
+      {isFromPreview ? (
+        row.name
+      ) : (
+        <Link
+          color="inherit"
+          component="a"
+          href={url}
+          rel="noopener noreferrer"
+          target="_blank"
+          underline="hover"
+          onClick={goToUrl(url)}
+        >
+          {row.name}
+        </Link>
+      )}
     </EllipsisTypography>
   );
 };

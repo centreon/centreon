@@ -44,7 +44,8 @@ const GroupMonitoring = ({
 
   const columns = useColumns({
     groupType,
-    groupTypeName
+    groupTypeName,
+    isFromPreview
   });
 
   setStatuses(panelOptions.statuses || []);

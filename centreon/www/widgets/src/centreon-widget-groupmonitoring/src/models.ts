@@ -38,5 +38,6 @@ export interface Group extends NamedEntity {
 
 export interface RowProps {
   groupType: string;
+  isFromPreview?: boolean;
   row: Group;
 }

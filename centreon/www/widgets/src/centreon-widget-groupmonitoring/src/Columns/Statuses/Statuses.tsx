@@ -30,7 +30,8 @@ const getResources = ({
 const Statuses = ({
   row,
   groupType,
-  resourceType
+  resourceType,
+  isFromPreview
 }: { resourceType: string } & RowProps): JSX.Element => {
   const { classes } = useStatusesColumnStyles();
 
@@ -51,6 +52,7 @@ const Statuses = ({
           {...status}
           groupName={row.name}
           groupType={groupType}
+          isFromPreview={isFromPreview}
           key={status.label}
           resourceType={resourceType}
         />
