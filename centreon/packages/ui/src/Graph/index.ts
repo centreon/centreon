@@ -4,3 +4,5 @@ export { SingleBar } from './SingleBar';
 export { Text as GraphText } from './Text';
 
 export { HeatMap } from './HeatMap';
+export { BarStack } from './BarStack';
+export { PieChart } from './PieChart';
