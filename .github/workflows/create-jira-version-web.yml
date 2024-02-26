@@ -7,8 +7,11 @@ on:
       - closed
     branches:
       - master
+      - develop
+      - MON-21232-add-a-check-to-make-sure-jira-previous-version-and-tag-previous-version-are-the-exact-same-before-creating-jira-version-and-tagging
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - "centreon/.github/create-jira-version-web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
       - "!centreon/features"
@@ -22,7 +25,7 @@ env:
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout sources
