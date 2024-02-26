@@ -108,8 +108,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     {
         $concatenator = $this->getFindHostGroupConcatenator();
 
-        if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'host.category.id')) {
-            $concatenator->appendJoins(
+        $concatenator->appendJoins(
                 <<<'SQL'
                         LEFT JOIN `:db`.hostgroup_relation hgr
                             ON hg.hg_id = hgr.hostgroup_hg_id
@@ -122,7 +121,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                             AND hc.level IS NOT NULL
                     SQL
             );
-        }
 
         return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
     }
@@ -363,7 +361,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT DISTINCT
+                    SELECT
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
@@ -451,8 +449,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'alias' => 'hg.hg_alias',
             'name' => 'hg.hg_name',
             'is_activated' => 'hg.hg_activate',
-            'host.category.id' => 'hc.hc_id',
-            'host.category.name' => 'hc.hc_name',
+            'hostcategory.id' => 'hc.hc_id',
+            'hostcategory.name' => 'hc.hc_name',
         ]);
 
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
