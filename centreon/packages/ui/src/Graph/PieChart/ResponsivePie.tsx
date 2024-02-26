@@ -5,13 +5,15 @@ import { Group } from '@visx/group';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
 
 import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
+import { labelNoDataFound } from '../translatedLabels';
 
 import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
@@ -54,6 +56,7 @@ const ResponsivePie = ({
   TooltipContent,
   legendDirection = 'column'
 }: PieProps & { height: number; width: number }): JSX.Element => {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const titleRef = useRef(null);
@@ -66,7 +69,9 @@ const ResponsivePie = ({
     svgSize,
     svgWrapperWidth,
     total,
-    innerRadius
+    innerRadius,
+    isContainsExactlyOneNonZeroValue,
+    areAllValuesNull
   } = useResponsivePie({
     data,
     defaultInnerRadius,
@@ -78,6 +83,14 @@ const ResponsivePie = ({
   });
 
   const { classes } = usePieStyles({ svgSize });
+
+  if (areAllValuesNull) {
+    return (
+      <div className={classes.container} style={{ height, width }}>
+        <Typography variant="h3">{t(labelNoDataFound)}</Typography>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -116,7 +129,6 @@ const ResponsivePie = ({
                   return equals(variant, 'pie') ? 0 : half - innerRadius;
                 }}
                 outerRadius={half}
-                padAngle={0.01}
                 pieValue={(items) => items.value}
               >
                 {(pie) => {
@@ -131,6 +143,9 @@ const ResponsivePie = ({
 
                     const angle = arc.endAngle - arc.startAngle;
                     const minAngle = 0.2;
+
+                    const x = equals(variant, 'donut') ? centroidX : labelX;
+                    const y = equals(variant, 'donut') ? centroidY : labelY;
 
                     const onClick = (): void => {
                       onArcClick?.(arc.data);
@@ -155,6 +170,7 @@ const ResponsivePie = ({
                             />
                           )
                         }
+                        leaveDelay={200}
                         placement={getTooltipPlacement({
                           radianX: Math.cos(midAngle),
                           radianY: Math.sin(midAngle)
@@ -165,24 +181,26 @@ const ResponsivePie = ({
                             d={pie.path(arc) as string}
                             fill={arc.data.color}
                           />
-                          {displayValues && angle > minAngle && (
-                            <Text
-                              data-testid="value"
-                              dy=".33em"
-                              fill="#000"
-                              fontSize={12}
-                              pointerEvents="none"
-                              textAnchor="middle"
-                              x={equals(variant, 'donut') ? centroidX : labelX}
-                              y={equals(variant, 'donut') ? centroidY : labelY}
-                            >
-                              {getValueByUnit({
-                                total,
-                                unit,
-                                value: arc.data.value
-                              })}
-                            </Text>
-                          )}
+                          {displayValues &&
+                            !isContainsExactlyOneNonZeroValue &&
+                            angle > minAngle && (
+                              <Text
+                                data-testid="value"
+                                dy=".33em"
+                                fill="#000"
+                                fontSize={12}
+                                pointerEvents="none"
+                                textAnchor="middle"
+                                x={x}
+                                y={y}
+                              >
+                                {getValueByUnit({
+                                  total,
+                                  unit,
+                                  value: arc.data.value
+                                })}
+                              </Text>
+                            )}
                         </g>
                       </Tooltip>
                     );

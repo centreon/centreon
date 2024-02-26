@@ -4,11 +4,15 @@ import { BarStack as BarStackVertical, BarStackHorizontal } from '@visx/shape';
 import { Group } from '@visx/group';
 import numeral from 'numeral';
 import { Text } from '@visx/text';
+import { useTranslation } from 'react-i18next';
+
+import { Typography } from '@mui/material';
 
 import { Tooltip } from '../../components';
 import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
 import { getValueByUnit } from '../common/utils';
+import { labelNoDataFound } from '../translatedLabels';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
@@ -33,6 +37,7 @@ const BarStack = ({
   variant = 'vertical',
   legendDirection = 'column'
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
+  const { t } = useTranslation();
   const { classes } = useBarStackStyles();
 
   const titleRef = useRef(null);
@@ -49,7 +54,8 @@ const BarStack = ({
     yScale,
     svgWrapperWidth,
     svgContainerSize,
-    isVerticalBar
+    isVerticalBar,
+    areAllValuesNull
   } = useResponsiveBarStack({
     data,
     height,
@@ -64,6 +70,14 @@ const BarStack = ({
   const BarStackComponent = isVerticalBar
     ? BarStackVertical
     : BarStackHorizontal;
+
+  if (areAllValuesNull) {
+    return (
+      <div className={classes.container} style={{ height, width }}>
+        <Typography variant="h3">{t(labelNoDataFound)}</Typography>
+      </div>
+    );
+  }
 
   return (
     <div className={classes.container} style={{ height, width }}>

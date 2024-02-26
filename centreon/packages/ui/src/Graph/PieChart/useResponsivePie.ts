@@ -1,4 +1,4 @@
-import { pluck } from 'ramda';
+import { equals, isEmpty, pluck, reject } from 'ramda';
 
 import { LegendScale } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
@@ -16,8 +16,10 @@ interface ResponsivePieProps {
 }
 
 interface ResponsivePieState {
+  areAllValuesNull: boolean;
   half: number;
   innerRadius: number;
+  isContainsExactlyOneNonZeroValue: boolean;
   legendScale: LegendScale;
   svgContainerSize: number;
   svgSize: number;
@@ -61,9 +63,20 @@ export const useResponsivePie = ({
     range: pluck('color', data)
   };
 
+  const values = pluck('value', data);
+
+  const isContainsExactlyOneNonZeroValue = equals(
+    reject((value) => equals(value, 0), values).length,
+    1
+  );
+
+  const areAllValuesNull = isEmpty(reject((value) => equals(value, 0), values));
+
   return {
+    areAllValuesNull,
     half,
     innerRadius,
+    isContainsExactlyOneNonZeroValue,
     legendScale,
     svgContainerSize,
     svgSize,

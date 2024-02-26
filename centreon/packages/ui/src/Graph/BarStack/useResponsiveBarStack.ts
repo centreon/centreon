@@ -1,5 +1,5 @@
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
-import { equals, pluck } from 'ramda';
+import { equals, isEmpty, pluck, reject } from 'ramda';
 
 import { getValueByUnit } from '../common/utils';
 import { LegendScale } from '../Legend/models';
@@ -22,6 +22,7 @@ interface useBarStackProps {
   width: number;
 }
 interface useBarStackState {
+  areAllValuesNull: boolean;
   barSize: Size;
   colorScale;
   input;
@@ -115,7 +116,12 @@ const useResponsiveBarStack = ({
     return acc;
   }, {});
 
+  const values = pluck('value', data);
+
+  const areAllValuesNull = isEmpty(reject((value) => equals(value, 0), values));
+
   return {
+    areAllValuesNull,
     barSize,
     colorScale,
     input,

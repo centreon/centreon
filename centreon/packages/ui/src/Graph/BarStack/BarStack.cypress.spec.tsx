@@ -3,14 +3,23 @@ import numeral from 'numeral';
 import BarStack from './BarStack';
 import { BarType, BarStackProps } from './models';
 
-const data = [
+const defaultData = [
   { color: '#88B922', label: 'Ok', value: 148 },
   { color: '#999999', label: 'Unknown', value: 13 },
   { color: '#F7931A', label: 'Warning', value: 16 },
   { color: '#FF6666', label: 'Down', value: 62 }
 ];
 
-const total = Math.floor(data.reduce((acc, { value }) => acc + value, 0));
+const dataWithNullValues = [
+  { color: '#88B922', label: 'Ok', value: 0 },
+  { color: '#999999', label: 'Unknown', value: 0 },
+  { color: '#F7931A', label: 'Warning', value: 0 },
+  { color: '#FF6666', label: 'Down', value: 0 }
+];
+
+const total = Math.floor(
+  defaultData.reduce((acc, { value }) => acc + value, 0)
+);
 
 const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
   return (
@@ -23,8 +32,10 @@ const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
 const initialize = ({
   width = '400px',
   height = '400px',
+  data = defaultData,
   ...args
 }: Omit<BarStackProps, 'data'> & {
+  data?;
   height?: string;
   width?: string;
 }): void => {
@@ -41,7 +52,7 @@ describe('Bar stack', () => {
   it('renders Bar stack correctly with provided data', () => {
     initialize({});
 
-    data.forEach(({ label }) => {
+    defaultData.forEach(({ label }) => {
       cy.findByTestId(label).should('be.visible');
     });
 
@@ -73,7 +84,7 @@ describe('Bar stack', () => {
   it('displays tooltip with correct information on hover', () => {
     initialize({ TooltipContent });
 
-    data.forEach(({ label, value }) => {
+    defaultData.forEach(({ label, value }) => {
       cy.findByTestId(label).trigger('mouseover', { force: true });
 
       cy.findByTestId(`tooltip-${label}`)
@@ -86,7 +97,7 @@ describe('Bar stack', () => {
 
   it('conditionally displays values on rects based on displayValues prop', () => {
     initialize({ displayValues: true });
-    data.forEach(({ value }, index) => {
+    defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
         .children()
@@ -102,7 +113,7 @@ describe('Bar stack', () => {
 
   it('displays values on rects in percentage unit when displayValues is set to true and unit to percentage', () => {
     initialize({ displayValues: true, unit: 'percentage' });
-    data.forEach(({ value }, index) => {
+    defaultData.forEach(({ value }, index) => {
       cy.findAllByTestId('value')
         .eq(index)
         .children()
@@ -129,6 +140,14 @@ describe('Bar stack', () => {
 
     initialize({});
     cy.findByTestId('Title').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a message "No Data Available" when all values are null', () => {
+    initialize({ data: dataWithNullValues, title: 'host' });
+
+    cy.contains('No Data Available');
 
     cy.makeSnapshot();
   });
