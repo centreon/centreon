@@ -624,6 +624,9 @@ importers:
       '@visx/group':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
+      '@visx/legend':
+        specifier: ^3.5.0
+        version: 3.5.0(react@18.2.0)
       '@visx/pattern':
         specifier: ^3.0.0
         version: 3.3.0(react@18.2.0)
@@ -633,6 +636,9 @@ importers:
       '@visx/shape':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
+      '@visx/text':
+        specifier: ^3.3.0
+        version: 3.3.0(react@18.2.0)
       '@visx/threshold':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
@@ -667,7 +673,7 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0)
       numeral:
-        specifier: 2.x
+        specifier: ^2.0.6
         version: 2.0.6
       ramda:
         specifier: 0.29.1
@@ -3718,6 +3724,13 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.0
+
+  /@babel/runtime@7.23.4:
+    resolution: {integrity: sha512-2Yv65nlWnWlSpe3fXEyX5i7fx5kIKo4Qbcj+hMO0odwaneFjfXw5fdum+4yL20O0QiaHpia0cYQ9xpNMqrBwHg==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.14.0
+    dev: false
 
   /@babel/runtime@7.23.6:
     resolution: {integrity: sha512-zHd0eUrf5GZoOWVCXp6koAKQTfZV07eit6bGPmJgnZdnSAvvZee6zniW2XMF7Cmc4ISOOnPy3QaSiIJGJkVEDQ==}
@@ -9242,6 +9255,12 @@ packages:
       '@types/geojson': 7946.0.13
     dev: false
 
+  /@types/d3-geo@3.1.0:
+    resolution: {integrity: sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==}
+    dependencies:
+      '@types/geojson': 7946.0.13
+    dev: false
+
   /@types/d3-hierarchy@1.1.11:
     resolution: {integrity: sha512-lnQiU7jV+Gyk9oQYk0GGYccuexmQPTp08E0+4BidgFdiJivjEvf+esPSdZqCZ2C7UwTWejWpqetVaU8A+eX3FA==}
     dev: false
@@ -10093,7 +10112,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/drag': 2.10.0(react@18.2.0)
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
@@ -10129,7 +10148,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
       '@visx/scale': 2.2.2
@@ -10162,7 +10181,7 @@ packages:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
       react-dom: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@types/react-dom': 18.2.15
       prop-types: 15.8.1
       react: 18.2.0
@@ -10217,7 +10236,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -10280,7 +10299,7 @@ packages:
     peerDependencies:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/event': 2.6.0
       '@visx/point': 2.6.0
       prop-types: 15.8.1
@@ -10302,14 +10321,14 @@ packages:
   /@visx/event@2.6.0:
     resolution: {integrity: sha512-WGp91g82s727g3NAnENF1ppC3ZAlvWg+Y+GG0WFg34NmmOZbvPI/PTOqTqZE3x6B8EUn8NJiMxRjxIMbi+IvRw==}
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/point': 2.6.0
     dev: false
 
   /@visx/event@3.3.0:
     resolution: {integrity: sha512-fKalbNgNz2ooVOTXhvcOx5IlEQDgVfX66rI7bgZhBxI2/scy+5rWcXJXpwkheRF68SMx9R93SjKW6tmiD0h+jA==}
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/point': 3.3.0
     dev: false
 
@@ -10320,7 +10339,7 @@ packages:
     dependencies:
       '@types/d3-geo': 1.12.7
       '@types/geojson': 7946.0.13
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-geo: 1.12.1
@@ -10349,7 +10368,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-shape': 1.3.11
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-shape: 1.3.7
@@ -10376,7 +10395,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
@@ -10396,7 +10415,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/curve': 2.1.0
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/point': 2.6.0
@@ -10428,7 +10447,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       prop-types: 15.8.1
       react: 18.2.0
@@ -10461,7 +10480,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -10486,7 +10505,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-hierarchy': 1.1.11
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       d3-hierarchy: 1.1.9
@@ -10513,7 +10532,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/scale': 2.2.2
       classnames: 2.3.2
@@ -10534,12 +10553,25 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@visx/legend@3.5.0(react@18.2.0):
+    resolution: {integrity: sha512-bRQNF3M2VCTxTmRkRVjeQSDqvjgUT1CMU3T1apf2UmZJ7zo73anwqDBtSJx+csarDij0DbcoWvKY4NdTp7Uepg==}
+    peerDependencies:
+      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.45
+      '@visx/group': 3.3.0(react@18.2.0)
+      '@visx/scale': 3.5.0
+      classnames: 2.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/marker@2.12.2(react@18.2.0):
     resolution: {integrity: sha512-yvJDMBw9oKQDD2gX5q7O+raR9qk/NYqKFDZ0GtS4ZVH87PfNe0ZyTXt0vWbIaDaix/r58SMpv38GluIOxWE7jg==}
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/shape': 2.12.2(react@18.2.0)
       classnames: 2.3.2
@@ -10579,7 +10611,7 @@ packages:
     peerDependencies:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/group': 2.10.0(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -10603,7 +10635,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       prop-types: 15.8.1
       react: 18.2.0
@@ -10635,7 +10667,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/axis': 2.14.0(react@18.2.0)
       '@visx/grid': 2.12.2(react@18.2.0)
       '@visx/scale': 2.2.2
@@ -10652,7 +10684,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/axis': 3.4.0(react@18.2.0)
       '@visx/grid': 3.3.0(react@18.2.0)
       '@visx/scale': 3.3.0
@@ -10669,7 +10701,7 @@ packages:
     dependencies:
       '@juggle/resize-observer': 3.4.0
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       lodash: 4.17.21
       prop-types: 15.8.1
       react: 18.2.0
@@ -10715,6 +10747,12 @@ packages:
       '@visx/vendor': 3.3.0
     dev: false
 
+  /@visx/scale@3.5.0:
+    resolution: {integrity: sha512-xo3zrXV2IZxrMq9Y9RUVJUpd93h3NO/r/y3GVi5F9AsbOzOhsLIbsPkunhO9mpUSR8LZ9TiumLEBrY+3frRBSg==}
+    dependencies:
+      '@visx/vendor': 3.5.0
+    dev: false
+
   /@visx/shape@2.12.2(react@18.2.0):
     resolution: {integrity: sha512-4gN0fyHWYXiJ+Ck8VAazXX0i8TOnLJvOc5jZBnaJDVxgnSIfCjJn0+Nsy96l9Dy/bCMTh4DBYUBv9k+YICBUOA==}
     peerDependencies:
@@ -10723,7 +10761,7 @@ packages:
       '@types/d3-path': 1.0.11
       '@types/d3-shape': 1.3.11
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/curve': 2.1.0
       '@visx/group': 2.10.0(react@18.2.0)
       '@visx/scale': 2.2.2
@@ -10781,7 +10819,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -10795,7 +10833,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -10808,7 +10846,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/clip-path': 2.10.0(react@18.2.0)
       '@visx/shape': 2.12.2(react@18.2.0)
       classnames: 2.3.2
@@ -10848,7 +10886,7 @@ packages:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
       react-dom: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/bounds': 2.16.0(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -10863,7 +10901,7 @@ packages:
       react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
       react-dom: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/bounds': 3.3.0(react-dom@18.2.0)(react@18.2.0)
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -10887,6 +10925,30 @@ packages:
       d3-color: 3.1.0
       d3-delaunay: 6.0.2
       d3-format: 3.1.0
+      d3-interpolate: 3.0.1
+      d3-scale: 4.0.2
+      d3-time: 3.1.0
+      d3-time-format: 4.1.0
+      internmap: 2.0.3
+    dev: false
+
+  /@visx/vendor@3.5.0:
+    resolution: {integrity: sha512-yt3SEZRVmt36+APsCISSO9eSOtzQkBjt+QRxNRzcTWuzwMAaF3PHCCSe31++kkpgY9yFoF+Gfes1TBe5NlETiQ==}
+    dependencies:
+      '@types/d3-array': 3.0.3
+      '@types/d3-color': 3.1.0
+      '@types/d3-delaunay': 6.0.1
+      '@types/d3-format': 3.0.1
+      '@types/d3-geo': 3.1.0
+      '@types/d3-interpolate': 3.0.1
+      '@types/d3-scale': 4.0.2
+      '@types/d3-time': 3.0.0
+      '@types/d3-time-format': 2.1.0
+      d3-array: 3.2.1
+      d3-color: 3.1.0
+      d3-delaunay: 6.0.2
+      d3-format: 3.1.0
+      d3-geo: 3.1.0
       d3-interpolate: 3.0.1
       d3-scale: 4.0.2
       d3-time: 3.1.0
@@ -10985,7 +11047,7 @@ packages:
       react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
       '@types/d3-voronoi': 1.1.12
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       classnames: 2.3.2
       d3-voronoi: 1.1.4
       prop-types: 15.8.1
@@ -11035,7 +11097,7 @@ packages:
     dependencies:
       '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
       '@types/lodash': 4.14.201
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@visx/annotation': 2.12.2(react-dom@18.2.0)(react@18.2.0)
       '@visx/axis': 2.14.0(react@18.2.0)
       '@visx/event': 2.6.0
@@ -11098,7 +11160,7 @@ packages:
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.2.45
       '@use-gesture/react': 10.3.0(react@18.2.0)
       '@visx/event': 2.6.0
       prop-types: 15.8.1
@@ -13722,6 +13784,13 @@ packages:
     resolution: {integrity: sha512-XG4d1c/UJSEX9NfU02KwBL6BYPj8YKHxgBEw5om2ZnTRSbIcego6dhHwcxuSR3clxh0EpE38os1DVPOmnYtTPg==}
     dependencies:
       d3-array: 1.2.4
+    dev: false
+
+  /d3-geo@3.1.0:
+    resolution: {integrity: sha512-JEo5HxXDdDYXCaWdwLRt79y7giK8SbhZJbFWXqbRTolCHFI5jRqteLzCsq51NKbUoX0PjBVSohxrx+NoOUujYA==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-array: 3.2.4
     dev: false
 
   /d3-hierarchy@1.1.9:
