@@ -694,6 +694,10 @@ function secure_db_system_setup() {
 	else
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
+		mysql -u root <<-EOF
+			SET PASSWORD FOR root@localhost = "$db_root_password";
+			FLUSH PRIVILEGES;
+		EOF
 		mysql_secure_installation -u root --password="$db_root_password" --use-default
 	fi
 
