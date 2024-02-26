@@ -79,19 +79,19 @@ class PartialUpdateServiceValidation
     }
 
     /**
-     * @param PartialUpdateServiceRequest $request
+     * @param string $name
      * @param Service $service
      *
      * @throws \Throwable
      */
-    public function assertIsValidName(PartialUpdateServiceRequest $request, Service $service): void
+    public function assertIsValidName(string $name, Service $service): void
     {
-        if ($service->isNameIdentical($request->name)) {
+        if ($service->isNameIdentical($name)) {
 
             return;
         }
 
-        $nameToCheck = new TrimmedString(Service::formatName($request->name));
+        $nameToCheck = new TrimmedString(Service::formatName($name));
 
         $serviceNamesByHost = $this->readServiceRepository->findServiceNamesByHost($service->getHostId());
         if ($serviceNamesByHost === null) {

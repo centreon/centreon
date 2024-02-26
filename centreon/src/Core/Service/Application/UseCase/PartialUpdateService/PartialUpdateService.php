@@ -208,7 +208,7 @@ final class PartialUpdateService
 
         // Must be called AFTER host validation
         if (! $dto->name instanceOf NoValue) {
-            $this->validation->assertIsValidName($dto, $service);
+            $this->validation->assertIsValidName($dto->name, $service);
             $service->setName($dto->name);
         }
 

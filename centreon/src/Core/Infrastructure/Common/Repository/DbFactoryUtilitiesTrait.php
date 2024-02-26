@@ -75,4 +75,24 @@ trait DbFactoryUtilitiesTrait
     {
         return ($property !== null) ? (float) $property : null;
     }
+
+    /**
+     * @param string|null $property
+     *
+     * @return int[]|array{}
+     */
+    public static function fromStringToArrayOfInts(?string $property): array
+    {
+        if (
+            $property === null
+            || $property === ''
+        ) {
+            return [];
+        }
+
+        return array_map(
+            fn (string $value): int => (int) $value,
+            explode(',', $property)
+        );
+    }
 }

@@ -309,6 +309,8 @@ final class SqlConcatenator implements \Stringable
      */
     public function storeBindValueMultiple(string $param, array $values, int $type = \PDO::PARAM_STR): self
     {
+        // reindex the array to avoid problems with index bindings
+        $values = array_values($values);
         $param = ':' . ltrim($param, ':');
         $names = [];
 

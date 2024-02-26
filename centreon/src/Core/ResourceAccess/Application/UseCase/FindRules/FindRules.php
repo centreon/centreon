@@ -31,32 +31,40 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
-use Core\ResourceAccess\Domain\Model\Rule;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\TinyRule;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindRules
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ContactInterface $user
-     * @param ReadRuleRepositoryInterface $repository
+     * @param ReadResourceAccessRepositoryInterface $repository
      * @param RequestParametersInterface $requestParameters
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      */
     public function __construct(
         private readonly ContactInterface $user,
-        private readonly ReadRuleRepositoryInterface $repository,
+        private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
     /**
      * @param FindRulesPresenterInterface $presenter
      */
-    public function __invoke(FindRulesPresenterInterface $presenter): void {
+    public function __invoke(FindRulesPresenterInterface $presenter): void
+    {
         $this->info('Finding resource access rules', ['request_parameters' => $this->requestParameters]);
 
-        if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)) {
+        // check if current user is authorized to perform the action.
+        // Only users linked to AUTHORIZED_ACL_GROUPS and having access in RW to the page are authorized
+        if (! $this->isAuthorized()) {
             $this->error(
                 "User doesn't have sufficient rights to list resource access rules",
                 [
@@ -85,15 +93,15 @@ final class FindRules
     }
 
     /**
-     * @param Rule[] $rules
+     * @param TinyRule[] $rules
      *
      * @return FindRulesResponse
      */
-    private function createResponse(array $rules): FindRulesResponse 
+    private function createResponse(array $rules): FindRulesResponse
     {
         $response = new FindRulesResponse();
         foreach ($rules as $rule) {
-            $dto = new RuleDto(
+            $dto = new TinyRuleDto(
                 $rule->getId(),
                 $rule->getName(),
                 $rule->isEnabled()
@@ -105,5 +113,18 @@ final class FindRules
 
         return $response;
     }
-}
 
+    /**
+     * @return bool
+     */
+    private function isAuthorized(): bool
+    {
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+    }
+}

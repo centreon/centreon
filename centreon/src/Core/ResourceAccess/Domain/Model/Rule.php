@@ -25,30 +25,44 @@ namespace Core\ResourceAccess\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 
-class Rule
+class Rule extends NewRule
 {
-    public const MAX_NAME_LENGTH = 255;
-
-    private ?string $description = null;
+    private string $shortName = '';
 
     /**
      * @param int $id
      * @param string $name
+     * @param ?string $description
+     * @param int[] $linkedContacts
+     * @param int[] $linkedContactGroups
+     * @param DatasetFilter[] $datasets
      * @param bool $isEnabled
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private int $id,
-        private string $name,
-        private bool $isEnabled
+        private readonly int $id,
+        string $name,
+        ?string $description = null,
+        array $linkedContacts = [],
+        array $linkedContactGroups = [],
+        array $datasets = [],
+        bool $isEnabled = true
     ) {
-        $shortName = (new \ReflectionClass($this))->getShortName();
+        $this->shortName = (new \ReflectionClass($this))->getShortName();
 
-        Assertion::positiveInt($id, "{$shortName}::id");
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        Assertion::positiveInt($id, "{$this->shortName}::id");
+
+        parent::__construct(
+            name: $name,
+            description: $description,
+            linkedContactIds: $linkedContacts,
+            linkedContactGroupIds: $linkedContactGroups,
+            datasetFilters: $datasets,
+            isEnabled: $isEnabled
+        );
     }
 
     /**
@@ -60,39 +74,66 @@ class Rule
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
      * @param null|string $description
-     *
-     * @return self
      */
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
-
-        return $this;
     }
 
     /**
-     * @return null|string
+     * @param string $name
+     *
+     * @throws AssertionFailedException
      */
-    public function getDescription(): ?string
+    public function setName(string $name): void
     {
-        return $this->description;
+        $this->name = $name;
+        Assertion::notEmptyString($this->name, "{$this->shortName}::name");
+        Assertion::minLength($this->name, 1, "{$this->shortName}::name");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
     }
 
     /**
-     * @return bool
+     * @param bool $isEnabled
      */
-    public function isEnabled(): bool
+    public function setIsEnabled(bool $isEnabled): void
     {
-        return $this->isEnabled;
+        $this->isEnabled = $isEnabled;
+    }
+
+    /**
+     * @param int[] $contacts
+     */
+    public function setLinkedContacts(array $contacts): void
+    {
+        $this->linkedContactIds = $contacts;
+    }
+
+    /**
+     * @param int[] $contactGroups
+     */
+    public function setLinkedContactGroups(array $contactGroups): void
+    {
+        $this->linkedContactGroupIds = $contactGroups;
+    }
+
+    /**
+     * @param DatasetFilter $datasetFilter
+     */
+    public function addDataset(DatasetFilter $datasetFilter): void
+    {
+        $this->datasetFilters[] = $datasetFilter;
+    }
+
+    /**
+     * @param DatasetFilter[] $datasets
+     */
+    public function setDatasets(array $datasets): void
+    {
+        foreach ($datasets as $dataset) {
+            $this->addDataset($dataset);
+        }
     }
 }
 

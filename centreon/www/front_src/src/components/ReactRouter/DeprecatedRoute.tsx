@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { generatePath, useNavigate, useParams } from 'react-router';
+import { isNil } from 'ramda';
 
 import { PageSkeleton } from '@centreon/ui';
 
@@ -14,6 +15,11 @@ const DeprecatedRoute = ({
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isNil(newRoute.parameters)) {
+      navigate(newRoute.path);
+
+      return;
+    }
     const newRouteParameters = newRoute.parameters.reduce(
       (acc, { property, defaultValue }): object => {
         if (defaultValue) {

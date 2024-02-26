@@ -61,12 +61,12 @@ class UserInformationFetcher implements AttributePathFetcherInterface
         if (! $customConfiguration instanceof OpenIdCustomConfigurationInterface) {
             throw ConfigurationException::unexpectedCustomConfiguration($customConfiguration::class);
         }
-        $url = str_starts_with($customConfiguration->getUserInformationEndpoint(), '/')
+        $url = str_starts_with($customConfiguration->getUserInformationEndpoint() ?? '', '/')
             ? $customConfiguration->getBaseUrl() . $customConfiguration->getUserInformationEndpoint()
             : $customConfiguration->getUserInformationEndpoint();
 
         try {
-            return $this->attributePathRepository->getData($url, $accessToken, $configuration, $endpoint->getType());
+            return $this->attributePathRepository->getData($url ?? '', $accessToken, $configuration, $endpoint->getType());
         } catch (InvalidResponseException) {
             throw SSOAuthenticationException::requestForUserInformationFail();
         } catch (InvalidStatusCodeException $invalidStatusCodeException) {

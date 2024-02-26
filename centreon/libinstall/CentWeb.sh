@@ -95,7 +95,7 @@ if [ "$?" -eq 1 ] ; then
     echo_info "\n\t$(gettext "You must first install the composer's dependencies")"
 
     echo -e "\n\t$(gettext "composer install --no-dev --optimize-autoloader")"
-    echo -e "\t$(gettext "Please read the documentation available here") : documentation.centreon.com"
+    echo -e "\t$(gettext "Please read the documentation available here") : https://docs.centreon.com/docs/installation/installation-of-a-central-server/using-sources/#php-dependencies-installation"
 
     echo -e "\n\t$(gettext "Installation aborted")"
     purge_centreon_tmp_dir
@@ -107,8 +107,8 @@ check_frontend_application
 if [ "$?" -eq 1 ] ; then
     echo_info "\n\t$(gettext "You must first build the frontend application")"
 
-    echo -e "\n\t$(gettext "Using npm install and then npm build")"
-    echo -e "\t$(gettext "Please read the documentation available here") : documentation.centreon.com"
+    echo -e "\n\t$(gettext "Using pnpm install --frozen-lockfile and then pnpm run build")"
+    echo -e "\t$(gettext "Please read the documentation available here") : https://docs.centreon.com/docs/installation/installation-of-a-central-server/using-sources/#javascript-dependencies-installation"
 
     echo -e "\n\t$(gettext "Installation aborted")"
     purge_centreon_tmp_dir

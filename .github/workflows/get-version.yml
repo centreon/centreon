@@ -35,14 +35,29 @@ jobs:
       dockerize_matrix: ${{ steps.get_version.outputs.dockerize_matrix }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
           php-version: 8.1
           extensions: none
           tools: none
+
+      - name: install gh cli on self-hosted runner
+        run: |
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GH CLI."
+            type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh -y
+          else
+            echo "GH CLI is already installed."
+          fi
+        shell: bash
 
       - id: get_version
         run: |
@@ -86,9 +101,24 @@ jobs:
             BRANCHNAME="$GITHUB_HEAD_REF"
           fi
 
+          echo "BRANCHNAME is: $BRANCHNAME"
+
           case "$BRANCHNAME" in
-            master | [2-9][0-9].[0-9][0-9].x | release* | hotfix*)
+            master | [2-9][0-9].[0-9][0-9].x)
               echo "release=1" >> $GITHUB_OUTPUT
+              ;;
+            release* | hotfix*)
+              # Handle workflow_dispatch run triggers
+              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+              echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
+              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
+              echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
+              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
+              # This case is specific to cloud release
+                echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              else
+                echo "release=1" >> $GITHUB_OUTPUT
+              fi
               ;;
             *)
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
@@ -120,9 +150,11 @@ jobs:
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
 
-          DOCKERIZE_MATRIX='["alma9"]'
+          DOCKERIZE_MATRIX='["bookworm"]'
           if [ "${{ github.event_name }}" = "schedule" ]; then
             DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
           fi
           echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}

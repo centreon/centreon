@@ -1,0 +1,8 @@
+in: path
+name: service_severity_id
+required: true
+description: "Service severity ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

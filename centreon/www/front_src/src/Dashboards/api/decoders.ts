@@ -13,7 +13,9 @@ import {
   DashboardRole,
   DashboardsContact,
   DashboardsContactGroup,
-  NamedEntity
+  NamedEntity,
+  Shares,
+  UserRole
 } from './models';
 
 const namedEntityDecoder = {
@@ -53,6 +55,19 @@ const dashboardPanelDecoder = JsonDecoder.object<DashboardPanel>(
   }
 );
 
+const userRoleDecoder = JsonDecoder.object<UserRole>(
+  {
+    email: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    role: JsonDecoder.enumeration<DashboardRole>(
+      DashboardRole,
+      'dashboard role'
+    )
+  },
+  'user role'
+);
+
 /**
  * dashboard entity
  */
@@ -68,6 +83,16 @@ export const dashboardEntityDecoder = {
   ),
   panels: JsonDecoder.optional(
     JsonDecoder.array(dashboardPanelDecoder, 'Panels')
+  ),
+  shares: JsonDecoder.object<Shares>(
+    {
+      contactGroups: JsonDecoder.array(userRoleDecoder, 'contact groups'),
+      contacts: JsonDecoder.array(userRoleDecoder, 'contacts')
+    },
+    'shares',
+    {
+      contactGroups: 'contact_groups'
+    }
   ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Application\Configuration\MetaService\Repository;
 
 use Core\Domain\Configuration\Model\MetaService;
+use Core\Domain\Configuration\Model\MetaServiceNamesById;
 
 interface ReadMetaServiceRepositoryInterface
 {
@@ -45,4 +46,20 @@ interface ReadMetaServiceRepositoryInterface
      * @return MetaService|null
      */
     public function findMetaServiceByIdAndAccessGroupIds(int $metaId, array $accessGroupIds): ?MetaService;
+
+    /**
+     * @param int[] $metaIds
+     *
+     * @return int[]
+     */
+    public function exist(array $metaIds): array;
+
+    /**
+     * Find Meta Services names by their IDs.
+     *
+     * @param int ...$ids
+     *
+     * @return MetaServiceNamesById
+     */
+    public function findNames(int ...$ids): MetaServiceNamesById;
 }

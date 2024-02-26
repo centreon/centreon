@@ -38,7 +38,7 @@ use Utility\SqlConcatenator;
 class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-    private const RESOURCE_TYPE = 'hostgroup';
+    private const RESOURCE_TYPE = NotificationResource::HOSTGROUP_RESOURCE_TYPE;
     private const EVENT_ENUM = NotificationHostEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationHostEventConverter::class;
 

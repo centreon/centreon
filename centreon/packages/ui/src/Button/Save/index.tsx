@@ -1,13 +1,13 @@
 import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import { LoadingButton, LoadingButtonProps } from '@mui/lab';
 import { Theme, Tooltip } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 
 import { getNormalizedId } from '../../utils';
 
-import StartIcon from './StartIcon';
 import Content from './Content';
+import StartIcon from './StartIcon';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loadingButton: {
@@ -15,13 +15,14 @@ const useStyles = makeStyles()((theme: Theme) => ({
   }
 }));
 
-interface Props extends Record<string, unknown> {
+interface Props {
   className?: string;
   labelLoading?: string;
   labelSave?: string;
   labelSucceeded?: string;
   loading?: boolean;
   size?: 'small' | 'medium' | 'large';
+  startIcon?: boolean;
   succeeded?: boolean;
   tooltip?: string;
   tooltipLabel?: string;
@@ -45,8 +46,9 @@ const SaveButton = ({
   labelSave = '',
   size = 'small',
   className,
+  startIcon = true,
   ...rest
-}: Props): JSX.Element => {
+}: Props & LoadingButtonProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
 
@@ -73,7 +75,9 @@ const SaveButton = ({
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}
-          startIcon={<StartIcon startIconConfig={startIconConfig} />}
+          startIcon={
+            startIcon && <StartIcon startIconConfig={startIconConfig} />
+          }
           variant="contained"
           {...rest}
         >

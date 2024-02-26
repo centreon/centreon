@@ -25,10 +25,21 @@ namespace Core\Security\AccessGroup\Infrastructure\Repository;
 
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * @phpstan-type _AccessGroupRecord array{
+ *     acl_group_id: int|string,
+ *     acl_group_name: string,
+ *     acl_group_alias: string,
+ *     acl_group_activate: string,
+ *     acl_group_changed: int,
+ *     claim_value: string,
+ *     priority: int,
+ * }
+ */
 class DbAccessGroupFactory
 {
     /**
-     * @param array<string, string|int> $record
+     * @param _AccessGroupRecord $record
      *
      * @return AccessGroup
      */

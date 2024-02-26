@@ -31,19 +31,44 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRules;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRulesResponse;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\ResourceAccess\Infrastructure\API\FindRules\FindRulesPresenterStub;
 
 beforeEach(closure: function (): void {
+    foreach ([
+        HostFilterType::class,
+        HostGroupFilterType::class,
+        HostCategoryFilterType::class,
+        ServiceFilterType::class,
+        ServiceGroupFilterType::class,
+        ServiceCategoryFilterType::class,
+        MetaServiceFilterType::class,
+    ] as $className) {
+        $this->filterTypes[] = new $className();
+    }
+
+    $this->datasetValidator = new DatasetFilterValidator(new \ArrayObject($this->filterTypes));
+
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
-    $this->repository = $this->createMock(ReadRuleRepositoryInterface::class);
+    $this->repository = $this->createMock(ReadResourceAccessRepositoryInterface::class);
     $this->presenter = new FindRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 
-    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters);
+    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository);
 });
 
 it('should present a Forbidden response when user does not have sufficient rights', function (): void {
@@ -107,7 +132,15 @@ it('should present a FindRulesResponse when no error occurs', function (): void 
         ->with(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
         ->willReturn(true);
 
-    $rule = (new Rule(1, 'name', true))->setDescription('description');
+    $rule = new Rule(
+        id: 1,
+        name: 'name',
+        description: 'description',
+        linkedContacts: [1],
+        linkedContactGroups: [2],
+        datasets: [new DatasetFilter('host', [3, 4], $this->datasetValidator)],
+        isEnabled: true
+    );
 
     $rulesFound = [$rule];
     $this->repository

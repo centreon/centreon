@@ -15,7 +15,7 @@ type Story = StoryObj<typeof ConfirmationTooltip>;
 
 export const Default: Story = {
   args: {
-    children: (toggleTooltip) => (
+    children: ({ toggleTooltip }) => (
       <IconButton icon={<SaveIcon />} onClick={toggleTooltip} />
     ),
     labels: {
@@ -30,7 +30,7 @@ export const Default: Story = {
 
 export const WithConfirmVariant: Story = {
   args: {
-    children: (toggleTooltip) => (
+    children: ({ toggleTooltip }) => (
       <IconButton icon={<DeleteIcon color="error" />} onClick={toggleTooltip} />
     ),
     confirmVariant: 'error',
@@ -46,7 +46,7 @@ export const WithConfirmVariant: Story = {
 
 export const WithSecondaryLabel: Story = {
   args: {
-    children: (toggleTooltip) => (
+    children: ({ toggleTooltip }) => (
       <IconButton icon={<DeleteIcon color="error" />} onClick={toggleTooltip} />
     ),
     confirmVariant: 'error',

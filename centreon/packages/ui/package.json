@@ -85,6 +85,8 @@
     "identity-obj-proxy": "^3.0.0",
     "jest-transform-stub": "^2.0.0",
     "mochawesome": "^7.1.3",
+    "msw": "1.3.2",
+    "msw-storybook-addon": "^1.10.0",
     "puppeteer": "^13.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -157,5 +159,8 @@
   "jest-junit": {
     "suiteName": "jest tests",
     "output": "./junit.xml"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

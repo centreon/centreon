@@ -141,126 +141,132 @@ type Multiple = boolean;
 type DisableClearable = boolean;
 type FreeSolo = boolean;
 
-const AutocompleteField = ({
-  options,
-  label,
-  placeholder,
-  loading = false,
-  onTextChange = (): void => undefined,
-  endAdornment = undefined,
-  inputValue,
-  displayOptionThumbnail = false,
-  required = false,
-  error,
-  displayPopupIcon = true,
-  autoFocus = false,
-  hideInput = false,
-  dataTestId,
-  autoSize = false,
-  autoSizeDefaultWidth = 0,
-  autoSizeCustomPadding,
-  getOptionItemLabel = (option) => option.name,
-  ...autocompleteProps
-}: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ hideInput });
-  const { t } = useTranslation();
-  const theme = useTheme();
+const AutocompleteField = React.forwardRef(
+  (
+    {
+      options,
+      label,
+      placeholder,
+      loading = false,
+      onTextChange = (): void => undefined,
+      endAdornment = undefined,
+      inputValue,
+      displayOptionThumbnail = false,
+      required = false,
+      error,
+      displayPopupIcon = true,
+      autoFocus = false,
+      hideInput = false,
+      dataTestId,
+      autoSize = false,
+      autoSizeDefaultWidth = 0,
+      autoSizeCustomPadding,
+      getOptionItemLabel = (option) => option.name,
+      ...autocompleteProps
+    }: Props,
+    ref?: React.ForwardedRef<HTMLDivElement>
+  ): JSX.Element => {
+    const { classes, cx } = useStyles({ hideInput });
+    const { t } = useTranslation();
+    const theme = useTheme();
 
-  const areSelectEntriesEqual = (option, value): boolean => {
-    const identifyingProps = ['id', 'name'];
+    const areSelectEntriesEqual = (option, value): boolean => {
+      const identifyingProps = ['id', 'name'];
 
-    return equals(
-      pick(identifyingProps, option),
-      pick(identifyingProps, value)
+      return equals(
+        pick(identifyingProps, option),
+        pick(identifyingProps, value)
+      );
+    };
+
+    const renderInput = (params): JSX.Element => (
+      <TextField
+        {...params}
+        InputLabelProps={{
+          classes: {
+            marginDense: classes.inputLabel,
+            shrink: classes.inputLabelShrink
+          }
+        }}
+        InputProps={{
+          ...params.InputProps,
+          endAdornment: (
+            <>
+              {endAdornment && (
+                <InputAdornment position="end">{endAdornment}</InputAdornment>
+              )}
+              {params.InputProps.endAdornment}
+            </>
+          ),
+          style: {
+            background: 'transparent',
+            paddingRight: theme.spacing(5)
+          }
+        }}
+        autoFocus={autoFocus}
+        autoSize={autoSize}
+        autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
+        autoSizeDefaultWidth={autoSizeDefaultWidth}
+        classes={{
+          root: classes.textfield
+        }}
+        error={error}
+        externalValueForAutoSize={autocompleteProps?.value?.name}
+        inputProps={{
+          ...params.inputProps,
+          'aria-label': label,
+          'data-testid': dataTestId || label,
+          id: getNormalizedId(label || '')
+        }}
+        label={label}
+        placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
+        required={required}
+        value={inputValue || undefined}
+        onChange={onTextChange}
+      />
     );
-  };
 
-  const renderInput = (params): JSX.Element => (
-    <TextField
-      {...params}
-      InputLabelProps={{
-        classes: {
-          marginDense: classes.inputLabel,
-          shrink: classes.inputLabelShrink
+    return (
+      <Autocomplete
+        disableClearable
+        classes={{
+          groupLabel: classes.inputLabel,
+          inputRoot: cx([
+            classes.input,
+            label ? classes.inputWithLabel : classes.inputWithoutLabel
+          ]),
+          popper: classes.popper,
+          root: classes.textfield
+        }}
+        forcePopupIcon={displayPopupIcon}
+        getOptionLabel={(option): string =>
+          (option as SelectEntry)?.name?.toString() || ''
         }
-      }}
-      InputProps={{
-        ...params.InputProps,
-        endAdornment: (
-          <>
-            {endAdornment && (
-              <InputAdornment position="end">{endAdornment}</InputAdornment>
-            )}
-            {params.InputProps.endAdornment}
-          </>
-        ),
-        style: {
-          background: 'transparent',
-          paddingRight: theme.spacing(5)
-        }
-      }}
-      autoFocus={autoFocus}
-      autoSize={autoSize}
-      autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
-      autoSizeDefaultWidth={autoSizeDefaultWidth}
-      classes={{
-        root: classes.textfield
-      }}
-      error={error}
-      externalValueForAutoSize={autocompleteProps?.value?.name}
-      inputProps={{
-        ...params.inputProps,
-        'aria-label': label,
-        'data-testid': dataTestId || label,
-        id: getNormalizedId(label || '')
-      }}
-      label={label}
-      placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
-      required={required}
-      value={inputValue || undefined}
-      onChange={onTextChange}
-    />
-  );
-
-  return (
-    <Autocomplete
-      disableClearable
-      classes={{
-        groupLabel: classes.inputLabel,
-        inputRoot: cx([
-          classes.input,
-          label ? classes.inputWithLabel : classes.inputWithoutLabel
-        ]),
-        popper: classes.popper,
-        root: classes.textfield
-      }}
-      forcePopupIcon={displayPopupIcon}
-      getOptionLabel={(option): string =>
-        (option as SelectEntry)?.name?.toString() || ''
-      }
-      isOptionEqualToValue={areSelectEntriesEqual}
-      loading={loading}
-      loadingText={<LoadingIndicator />}
-      options={options}
-      renderInput={renderInput}
-      renderOption={(props, option): JSX.Element => {
-        return (
-          <li
-            className={classes.options}
-            {...(props as React.HTMLAttributes<HTMLLIElement>)}
-          >
-            <Option
-              thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+        isOptionEqualToValue={areSelectEntriesEqual}
+        loading={loading}
+        loadingText={<LoadingIndicator />}
+        options={options}
+        ref={ref}
+        renderInput={renderInput}
+        renderOption={(props, option): JSX.Element => {
+          return (
+            <li
+              className={classes.options}
+              {...(props as React.HTMLAttributes<HTMLLIElement>)}
             >
-              {getOptionItemLabel(option)}
-            </Option>
-          </li>
-        );
-      }}
-      size="small"
-      {...autocompleteProps}
-    />
-  );
-};
+              <Option
+                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+              >
+                {getOptionItemLabel(option)}
+              </Option>
+            </li>
+          );
+        }}
+        size="small"
+        {...autocompleteProps}
+      />
+    );
+  }
+);
 
 export default AutocompleteField;

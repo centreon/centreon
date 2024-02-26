@@ -44,6 +44,9 @@ jobs:
           - package_extension: deb
             image: packaging-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: packaging-bookworm
+            distrib: bookworm
 
     uses: ./.github/workflows/package.yml
     with:
@@ -68,7 +71,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -92,7 +95,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -112,10 +115,10 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
+        distrib: [bullseye, bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -133,11 +136,11 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        distrib: [el8, el9, bullseye, bookworm]
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -148,3 +151,4 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+          github_base_ref: ${{ github.base_ref }}

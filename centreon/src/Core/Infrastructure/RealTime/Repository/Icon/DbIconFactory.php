@@ -24,11 +24,17 @@ declare(strict_types=1);
 namespace Core\Infrastructure\RealTime\Repository\Icon;
 
 use Core\Domain\RealTime\Model\Icon;
+use Core\Infrastructure\RealTime\Repository\Host\DbHostFactory;
+use Core\Infrastructure\RealTime\Repository\Service\DbServiceFactory;
 
+/**
+ * @phpstan-import-type _dataHost from DbHostFactory
+ * @phpstan-import-type _dataService from DbServiceFactory
+ */
 class DbIconFactory
 {
     /**
-     * @param array<string, string|null> $data
+     * @param _dataHost|_dataService $data
      *
      * @return Icon|null
      */

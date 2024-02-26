@@ -48,6 +48,7 @@ export const userDecoder = JsonDecoder.object<User>(
     default_page: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
+    id: JsonDecoder.number,
     isExportButtonEnabled: JsonDecoder.boolean,
     locale: JsonDecoder.string,
     name: JsonDecoder.string,
@@ -112,6 +113,7 @@ export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
     dashboard: JsonDecoder.optional(JsonDecoder.boolean),
+    dashboard_playlist: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusFilterRevamp: JsonDecoder.optional(JsonDecoder.boolean),
     resourceStatusTreeView: JsonDecoder.optional(JsonDecoder.boolean),

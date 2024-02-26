@@ -29,7 +29,7 @@ import {
 } from '../../translatedLabels';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useDeleteWidgetModal from '../../hooks/useDeleteWidget';
 
 interface Props {
@@ -58,7 +58,7 @@ const MorePanelActions = ({
 
   const { deleteWidget } = useDeleteWidgetModal();
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const { openModal } = useWidgetForm();
 
@@ -133,12 +133,10 @@ const MorePanelActions = ({
         labels={confirmationLabels}
         onConfirm={deleteWidget(id)}
       >
-        {(openConfirmationTooltip) => (
+        {({ toggleTooltip }) => (
           <ActionsList
             actions={
-              displayEditButtons
-                ? editActions(openConfirmationTooltip)
-                : viewActions
+              displayEditButtons ? editActions(toggleTooltip) : viewActions
             }
           />
         )}

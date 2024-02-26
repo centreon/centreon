@@ -5,8 +5,6 @@ import '@centreon/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import { apiActionV1 } from '../commons';
 import '../features/Dashboards/commands';
-import metricsGraphWidget from '../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
-import statusGridWidget from '../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 
 Cypress.Commands.add(
   'getByLabel',
@@ -195,128 +193,11 @@ Cypress.Commands.add('executeSqlRequestInContainer', (request) => {
   );
 });
 
-Cypress.Commands.add(
-  'insertDashboardWithMetricsGraphWidget',
-  (dashboardBody, patchBody) => {
-    cy.request({
-      body: {
-        ...dashboardBody
-      },
-      method: 'POST',
-      url: '/centreon/api/latest/configuration/dashboards'
-    }).then((response) => {
-      const dashboardId = response.body.id;
-      cy.waitUntil(
-        () => {
-          return cy
-            .request({
-              method: 'GET',
-              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-            })
-            .then((getResponse) => {
-              return getResponse.body && getResponse.body.id === dashboardId;
-            });
-        },
-        {
-          timeout: 10000
-        }
-      );
-      cy.request({
-        body: patchBody,
-        method: 'PATCH',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-      });
-    });
-  }
-);
-
-Cypress.Commands.add(
-  'insertDashboardWithSingleMetricWidget',
-  (dashboardBody, patchBody) => {
-    cy.request({
-      body: {
-        ...dashboardBody
-      },
-      method: 'POST',
-      url: '/centreon/api/latest/configuration/dashboards'
-    }).then((response) => {
-      const dashboardId = response.body.id;
-      cy.waitUntil(
-        () => {
-          return cy
-            .request({
-              method: 'GET',
-              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-            })
-            .then((getResponse) => {
-              return getResponse.body && getResponse.body.id === dashboardId;
-            });
-        },
-        {
-          timeout: 10000
-        }
-      );
-      cy.request({
-        body: patchBody,
-        method: 'PATCH',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-      });
-    });
-  }
-);
-
-Cypress.Commands.add(
-  'insertDashboardWithStatusGridWidget',
-  (dashboardBody, patchBody) => {
-    cy.request({
-      body: {
-        ...dashboardBody
-      },
-      method: 'POST',
-      url: '/centreon/api/latest/configuration/dashboards'
-    }).then((response) => {
-      const dashboardId = response.body.id;
-      cy.waitUntil(
-        () => {
-          return cy
-            .request({
-              method: 'GET',
-              url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-            })
-            .then((getResponse) => {
-              return getResponse.body && getResponse.body.id === dashboardId;
-            });
-        },
-        {
-          timeout: 10000
-        }
-      );
-      cy.request({
-        body: patchBody,
-        method: 'PATCH',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
-      });
-    });
-  }
-);
-
-Cypress.Commands.add('enableDashboardFeature', () => {
-  cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
-  });
-});
-
 export enum PatternType {
   contains = '*',
   endsWith = '$',
   equals = '',
   startsWith = '^'
-}
-
-interface Dashboard {
-  description?: string;
-  name: string;
 }
 
 interface GetByLabelProps {
@@ -336,14 +217,10 @@ interface requestOnDatabaseProps {
   query: string;
 }
 
-type metricsGraphWidgetJSONData = typeof metricsGraphWidget;
-type statusGridWidget = typeof statusGridWidget;
-
 declare global {
   namespace Cypress {
     interface Chainable {
       disableListingAutoRefresh: () => Cypress.Chainable;
-      enableDashboardFeature: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({
         patternType,
@@ -355,18 +232,6 @@ declare global {
         tag,
         testId
       }: GetByTestIdProps) => Cypress.Chainable;
-      insertDashboardWithMetricsGraphWidget: (
-        dashboard: Dashboard,
-        patch: metricsGraphWidgetJSONData
-      ) => Cypress.Chainable;
-      insertDashboardWithSingleMetricWidget: (
-        dashboard: Dashboard,
-        patch: string
-      ) => Cypress.Chainable;
-      insertDashboardWithStatusGridWidget: (
-        dashboard: Dashboard,
-        patch: statusGridWidget
-      ) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => void;

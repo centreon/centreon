@@ -28,6 +28,9 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
 use Core\Domain\RealTime\Model\Service;
 
+/**
+ * @phpstan-import-type _dataService from DbServiceFactory
+ */
 class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServiceRepositoryInterface
 {
     /**
@@ -152,7 +155,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
         $statement->execute();
 
         if ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            /** @var array<string,int|string|null> $row */
+            /** @var _dataService $row */
             return DbServiceFactory::createFromRecord($row);
         }
 

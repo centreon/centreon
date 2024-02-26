@@ -1,10 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import 'cypress-real-events/support';
 
+import { checkServicesAreMonitored } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
-import singleMetricWidget from '../../../fixtures/dashboards/creation/widgets/singleWidgetText.json';
+import metrics from '../../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
 import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
@@ -30,12 +31,19 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+
+  checkServicesAreMonitored([
+    {
+      name: 'Ping',
+      status: 'ok'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -45,7 +53,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -73,7 +81,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -105,7 +113,7 @@ Then(
     cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
     cy.contains('Value settings').should('exist');
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-    cy.get('[class*="graphTypeContainer"]').should('be.visible');
+    cy.get('[class*="displayTypeContainer"]').should('be.visible');
   }
 );
 
@@ -116,17 +124,17 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).realClick();
-    cy.getByLabel({ label: 'Host Group' }).click();
-    cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.get('[class^="MuiAutocomplete-listbox"]').click();
-    cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.get('[class^="MuiAutocomplete-option"]').eq(0).click();
+    cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
+    cy.contains('Centreon-Server').realClick();
+    cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+    cy.contains('Ping').realClick();
+    cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+    cy.contains('rta (ms)').realClick();
   }
 );
 
 Then('information about this metric is displayed in the widget preview', () => {
-  cy.verifyGraphContainer(singleMetricWidget);
+  cy.verifyGraphContainer(metrics);
 });
 
 When('the user saves the Single metric widget', () => {
@@ -138,15 +146,12 @@ Then("the Single metric widget is added in the dashboard's layout", () => {
 });
 
 Then('the information about the selected metric is displayed', () => {
-  cy.verifyGraphContainer(singleMetricWidget);
+  cy.verifyGraphContainer(metrics);
 });
 
 Given('a dashboard featuring a single Single Metric widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(
-    dashboards.default,
-    singleMetricPayload
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
+  cy.visit('/centreon/home/dashboards');
   cy.getByLabel({
     label: 'view',
     tag: 'button'
@@ -162,9 +167,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -183,17 +188,14 @@ Then('the second widget reports on the same metric as the first widget', () => {
 });
 
 Then('the second widget has the same properties as the first widget', () => {
-  cy.verifyDuplicatesGraphContainer(singleMetricWidget);
+  cy.verifyDuplicatesGraphContainer(metrics);
 });
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
   () => {
-    cy.insertDashboardWithSingleMetricWidget(
-      dashboards.default,
-      singleMetricPayloadRta
-    );
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+    cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
     cy.getByLabel({
       label: 'view',
@@ -205,7 +207,7 @@ Given(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'
@@ -235,11 +237,8 @@ Then(
 );
 
 Given('a dashboard containing a Single Metric widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(
-    dashboards.default,
-    singleMetricPayloadRta
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -273,7 +272,7 @@ Then(
     cy.get('[class*="MuiTypography-h5"]')
       .invoke('show')
       .eq(3)
-      .should('contain', singleMetricWidget.customValues.warning);
+      .should('contain', metrics.customValues.warning);
   }
 );
 
@@ -296,16 +295,13 @@ Then(
     cy.get('[class*="MuiTypography-h5"]')
       .invoke('show')
       .eq(4)
-      .should('contain', singleMetricWidget.customValues.critical);
+      .should('contain', metrics.customValues.critical);
   }
 );
 
 Given('a dashboard featuring a Single Metric widget', () => {
-  cy.insertDashboardWithSingleMetricWidget(
-    dashboards.default,
-    singleMetricPayloadRta
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',
@@ -350,11 +346,8 @@ Then(
 );
 
 Given('a dashboard featuring two Single Metric widgets', () => {
-  cy.insertDashboardWithSingleMetricWidget(
-    dashboards.default,
-    singleMetricDoubleWidgets
-  );
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
+  cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
     label: 'view',

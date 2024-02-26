@@ -33,6 +33,9 @@ use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationServiceEvent;
 
+/**
+ * @phpstan-import-type _Resource from FindNotificationResponse
+ */
 class FindNotificationPresenter extends AbstractPresenter implements FindNotificationPresenterInterface
 {
     public function presentResponse(FindNotificationResponse|ResponseStatusInterface $response): void
@@ -59,14 +62,7 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
     /**
      * format Resources.
      *
-     * @param array<array{
-     *     type: string,
-     *     events: array<NotificationServiceEvent>|array<NotificationHostEvent>,
-     *     ids: array<array{id: int, name: string}>,
-     *     extra?: array{
-     *         event_services: NotificationServiceEvent[]
-     *     }
-     * }> $resources
+     * @param array<_Resource> $resources
      *
      * @return array<array{
      *     type: string,
@@ -83,11 +79,20 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
         $formatted = [];
 
         foreach ($resources as $index => $resource) {
+            if ($resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE) {
+                /** @var array<NotificationHostEvent> $events */
+                $events = $resource['events'];
+                $eventBitFlags = NotificationHostEventConverter::toBitFlags($events);
+
+            } else {
+                /** @var array<NotificationServiceEvent> $events */
+                $events = $resource['events'];
+                $eventBitFlags = NotificationServiceEventConverter::toBitFlags($events);
+            }
+
             $formatted[$index] = [
                 'type' => $resource['type'],
-                'events' => $resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
-                    ? NotificationHostEventConverter::toBitFlags($resource['events'])
-                    : NotificationServiceEventConverter::toBitFlags($resource['events']),
+                'events' => $eventBitFlags,
                 'ids' => $resource['ids'],
             ];
 

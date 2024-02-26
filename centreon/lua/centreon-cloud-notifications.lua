@@ -63,16 +63,25 @@ local function login()
   if not ok then
     broker_log:error(0, "Unable to get a token for the '" .. data.user .. "' user")
   end
+  c:close()
 end
 
---- Callback called when a response is get from the configuration api. As a
+--- Function called when a response is get from the configuration api. As a
 --  callback, it cannot be declared as local.
--- @param resp A json response message with the configuration.
-function update_conf(resp)
-  broker_log:info(1, "Reading notification configuration: " .. tostring(resp))
-  local content = broker.json_decode(resp)
+-- @param full A table with a string inside named resp. Initially it is empty and
+--        when we have the full answer from the API, it is a full json result.
+-- @param resp A string with some json inside. It may be complete or not.
+function fill_conf(full, resp)
+  full.resp = full.resp .. resp
+end
+
+--- Function called when a full response is get from the configuration api.
+-- @param full_conf A json response message with the configuration.
+local function update_conf(full_conf)
+  broker_log:info(1, "Reading notification configuration: " .. tostring(full_conf))
+  local content = broker.json_decode(full_conf)
   if not content then
-    broker_log:error("Unable to decode '" .. tostring(resp) .. "'. Is the URL still accessible?")
+    broker_log:error(0, "Unable to decode '" .. tostring(resp) .. "'. Is the URL still accessible?")
     return
   end
   local uid = content.uid
@@ -126,12 +135,14 @@ local function get_configuration()
         'x-notifiable-resources-UID: ' .. tostring(data.current_uid),
         'x-AUTH-TOKEN: ' .. tostring(data.token),
       },
-      writefunction = update_conf,
     }
+    local full = { resp = "" }
+    c:setopt_writefunction(fill_conf, full)
     ok, err = c:perform()
     if not ok then
       broker_log:error(0, "Unable to call the API to get the configuration.: " .. tostring(err))
     end
+    update_conf(full.resp)
     local resp_code = c:getinfo(cURL.INFO_RESPONSE_CODE)
     broker_log:info(2, "Response code: " .. resp_code)
     if resp_code == 401 then
@@ -140,6 +151,7 @@ local function get_configuration()
     else
       loop = false
     end
+    c:close()
   end
 
   if resp_code == 304 then
@@ -185,6 +197,7 @@ local function get_notification(id)
     else
       loop = false
     end
+    c:close()
   end
   return content
 end

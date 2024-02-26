@@ -18,7 +18,7 @@ import {
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
 import { isGenericText } from '../../utils';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
@@ -29,11 +29,11 @@ const Preview = (): JSX.Element | null => {
 
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 
-  const { values } = useFormikContext<Widget>();
+  const { values, setFieldValue } = useFormikContext<Widget>();
 
   if (isNil(values.id)) {
     return (
@@ -44,6 +44,10 @@ const Preview = (): JSX.Element | null => {
   }
 
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
+
+  const changePanelOptions = (field, value): void => {
+    setFieldValue(`options.${field}`, value);
+  };
 
   return (
     <div className={classes.previewPanelContainer} ref={previewRef}>
@@ -95,6 +99,7 @@ const Preview = (): JSX.Element | null => {
               panelData={values.data}
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
+              setPanelOptions={changePanelOptions}
             />
           </div>
         )}

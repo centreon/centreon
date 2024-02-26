@@ -1,10 +1,11 @@
 const routeMap = {
   about: '/administration/about',
+  apiTokens: '/administration/api-token',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
   cloudNotificationConfiguration: '/configuration/notifications',
-  dashboard: '/home/dashboards/:layout/:dashboardId',
-  dashboards: '/home/dashboards/:layout',
+  dashboard: '/home/dashboards/library/:dashboardId',
+  dashboards: '/home/dashboards/library',
   extensionsManagerPage: '/administration/extensions/manager',
   install: '/install/install.php',
   login: '/login',

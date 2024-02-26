@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Resource access rule ID"
+    example: 1
+  name:
+    type: string
+    description: "Resource access rule name"
+    example: "Rule_for_viewers"
+  description:
+    type: string
+    description: "Resource access rule description"
+    example: "Rule that will be applied to all viewers"
+  is_enabled:
+    type: boolean
+    description: "Indicates whether the resource access rule is activated or not"

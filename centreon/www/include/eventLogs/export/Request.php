@@ -34,7 +34,7 @@ class Request
     private const STATUS_WARNING = 1;
     private const STATUS_CRITICAL = 2;
     private const STATUS_UNKNOWN = 3;
-
+    private const STATUS_ACKNOWLEDGEMENT = 5;
     private ?int $is_admin;
     /**
      * @var array<string,mixed>
@@ -57,6 +57,7 @@ class Request
     private string $critical = 'true';
     private string $unknown = 'true';
     private string $notification = 'false';
+    private string $acknowledgement = 'true';
     private string $alert = 'true';
     private string $oh = 'false';
     private string $error = 'false';
@@ -313,6 +314,18 @@ class Request
     /**
      * @return string
      */
+    public function getAcknowledgement(): string
+    {
+        if ($this->getEngine() === 'true') {
+            return 'false';
+        }
+
+        return htmlentities($this->acknowledgement);
+    }
+
+    /**
+     * @return string
+     */
     public function getUnknown(): string
     {
         if ($this->getEngine() === 'true') {
@@ -442,7 +455,9 @@ class Request
         if ($this->getUnknown() === 'true') {
             $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_UNKNOWN);
         }
-
+        if ($this->getAcknowledgement() === 'true') {
+            $this->svcMsgStatusSet[] = sprintf("'%s'", self::STATUS_ACKNOWLEDGEMENT);
+        }
         return $this->svcMsgStatusSet;
     }
 
@@ -582,7 +597,7 @@ class Request
             'EndDate' => $this->sanitizeGetParameter('EndDate'),
             'StartTime' => $this->sanitizeGetParameter('StartTime'),
             'EndTime' => $this->sanitizeGetParameter('EndTime'),
-            'period' => filter_input(INPUT_GET, 'num', FILTER_VALIDATE_INT),
+            'period' => filter_input(INPUT_GET, 'period', FILTER_VALIDATE_INT),
             'engine' => $this->sanitizeGetParameter('engine'),
             'up' => $this->sanitizeGetParameter('up'),
             'down' => $this->sanitizeGetParameter('down'),
@@ -590,6 +605,7 @@ class Request
             'ok' => $this->sanitizeGetParameter('ok'),
             'warning' => $this->sanitizeGetParameter('warning'),
             'critical' => $this->sanitizeGetParameter('critical'),
+            'acknowledgement' => $this->sanitizeGetParameter('acknowledgement'),
             'unknown' => $this->sanitizeGetParameter('unknown'),
             'notification' => $this->sanitizeGetParameter('notification'),
             'alert' => $this->sanitizeGetParameter('alert'),
@@ -612,7 +628,7 @@ class Request
             'EndDate' => $this->sanitizePostParameter('EndDate'),
             'StartTime' => $this->sanitizePostParameter('StartTime'),
             'EndTime' => $this->sanitizePostParameter('EndTime'),
-            'period' => filter_input(INPUT_POST, 'num', FILTER_VALIDATE_INT),
+            'period' => filter_input(INPUT_POST, 'period', FILTER_VALIDATE_INT),
             'engine' => $this->sanitizePostParameter('engine'),
             'up' => $this->sanitizePostParameter('up'),
             'down' => $this->sanitizePostParameter('down'),
@@ -620,6 +636,7 @@ class Request
             'ok' => $this->sanitizePostParameter('ok'),
             'warning' => $this->sanitizePostParameter('warning'),
             'critical' => $this->sanitizePostParameter('critical'),
+            'acknowledgement' => $this->sanitizePostParameter('acknowledgement'),
             'unknown' => $this->sanitizePostParameter('unknown'),
             'notification' => $this->sanitizePostParameter('notification'),
             'alert' => $this->sanitizePostParameter('alert'),

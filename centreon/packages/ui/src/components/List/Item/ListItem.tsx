@@ -22,7 +22,9 @@ export const ListItem = forwardRef(
         disableGutters
         className={cx(classes.listItem, className)}
         ref={ref}
-        secondaryAction={action}
+        secondaryAction={
+          action && <div className={classes.secondary}>{action}</div>
+        }
         {...attr}
       >
         {children}

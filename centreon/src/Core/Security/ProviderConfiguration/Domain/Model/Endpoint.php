@@ -25,6 +25,12 @@ namespace Core\Security\ProviderConfiguration\Domain\Model;
 
 use Core\Security\ProviderConfiguration\Domain\Exception\InvalidEndpointException;
 
+/**
+ * @phpstan-type _EndpointArray array{
+ *     type: string,
+ *     custom_endpoint:string|null
+ * }
+ */
 class Endpoint
 {
     public const INTROSPECTION = 'introspection_endpoint';
@@ -75,7 +81,7 @@ class Endpoint
     }
 
     /**
-     * @return array{"type": string, "custom_endpoint":string|null}
+     * @return _EndpointArray
      */
     public function toArray(): array
     {

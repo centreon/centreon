@@ -27,6 +27,8 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsEx
 
 /**
  * ACL condition block regarding OpenID.
+ *
+ * @phpstan-import-type _EndpointArray from Endpoint
  */
 class ACLConditions
 {
@@ -34,7 +36,7 @@ class ACLConditions
      * @param bool $isEnabled
      * @param bool $applyOnlyFirstRole
      * @param string $attributePath
-     * @param Endpoint $endpoint
+     * @param ?Endpoint $endpoint
      * @param AuthorizationRule[] $relations
      *
      * @throws ACLConditionsException
@@ -94,11 +96,16 @@ class ACLConditions
      */
     public function getClaimValues(): array
     {
-        return array_map(fn ($relation) => $relation->getClaimValue(), $this->relations);
+        return array_map(static fn($relation) => $relation->getClaimValue(), $this->relations);
     }
 
     /**
-     * @return array<string, array<array<string,int|string>|string>|bool|string>
+     * @return array{
+     *     is_enabled: bool,
+     *     apply_only_first_role: bool,
+     *     attribute_path: string,
+     *     endpoint: _EndpointArray|null,
+     * }
      */
     public function toArray(): array
     {
@@ -106,7 +113,7 @@ class ACLConditions
             'is_enabled' => $this->isEnabled,
             'apply_only_first_role' => $this->applyOnlyFirstRole,
             'attribute_path' => $this->attributePath,
-            'endpoint' => $this->endpoint->toArray(),
+            'endpoint' => $this->endpoint?->toArray(),
         ];
     }
 

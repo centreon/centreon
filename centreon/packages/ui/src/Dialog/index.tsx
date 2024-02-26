@@ -43,7 +43,7 @@ export type Props = {
   dialogTitleClassName?: string;
   labelCancel?: string | null;
   labelConfirm?: string | null;
-  labelTitle?: string | null;
+  labelTitle?: ReactNode;
   onCancel?: () => void;
   onClose?: () => void;
   onConfirm: (event, value?) => void;

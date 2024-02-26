@@ -116,7 +116,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
-            $providerToken->getExpirationDate()->getTimestamp(),
+            $providerToken->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(':tokenId', $providerToken->getId(), \PDO::PARAM_INT);
@@ -131,7 +131,7 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $updateTokenStatement->bindValue(
             ':expirationDate',
-            $providerRefreshToken->getExpirationDate()->getTimestamp(),
+            $providerRefreshToken->getExpirationDate()?->getTimestamp(),
             \PDO::PARAM_INT
         );
         $updateTokenStatement->bindValue(':tokenId', $providerRefreshToken->getId(), \PDO::PARAM_INT);

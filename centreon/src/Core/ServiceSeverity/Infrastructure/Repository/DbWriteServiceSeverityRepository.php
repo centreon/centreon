@@ -29,6 +29,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
+use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 
 class DbWriteServiceSeverityRepository extends AbstractRepositoryRDB implements WriteServiceSeverityRepositoryInterface
 {
@@ -86,5 +87,34 @@ class DbWriteServiceSeverityRepository extends AbstractRepositoryRDB implements 
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(ServiceSeverity $severity): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.service_categories
+                SET
+                    `sc_name` = :name,
+                    `sc_description` = :alias,
+                    `level` = :level,
+                    `icon_id` = :icon_id,
+                    `sc_activate` = :activate
+                WHERE sc_id = :severity_id
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':name', $severity->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $severity->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':level', $severity->getLevel(), \PDO::PARAM_INT);
+        $statement->bindValue(':icon_id', $severity->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($severity->isActivated()));
+        $statement->bindValue(':severity_id', $severity->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 }

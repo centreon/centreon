@@ -4,6 +4,8 @@ import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
+import { useDeepCompare } from '@centreon/ui';
+
 import {
   ConditionalOptions,
   ShowInput,
@@ -17,13 +19,13 @@ import {
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 
 import {
   WidgetMetrics,
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
-  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
@@ -31,11 +33,9 @@ import {
   WidgetTopBottomSettings,
   WidgetRadio,
   WidgetCheckboxes,
-  WidgetTiles
+  WidgetTiles,
+  DisplayType
 } from './Inputs';
-
-import { useDeepCompare } from 'packages/ui/src';
-import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -58,14 +58,13 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]:
-    WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
-  [FederatedWidgetOptionType.tiles]: WidgetTiles
+  [FederatedWidgetOptionType.tiles]: WidgetTiles,
+  [FederatedWidgetOptionType.displayType]: DisplayType
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
