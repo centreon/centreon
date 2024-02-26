@@ -11,32 +11,6 @@
  *
  */
 
-/**
- * This returns an anonymous class to manage alternate CSS class for table lines TR.
- */
-function getLineTemplate(string $evenCssClass, string $oddCssClass): object
-{
-    return new class($evenCssClass, $oddCssClass)
-    {
-        private int $counter = 0;
-
-        public function __construct(private string $evenCssClass, private string $oddCssClass)
-        {
-        }
-
-        public function get(): string
-        {
-            return ($this->counter++ % 2) ? $this->oddCssClass : $this->evenCssClass;
-        }
-
-        public function reset(): string
-        {
-            $this->counter = 0;
-            return '';
-        }
-    };
-}
-
 function versionCentreon($pearDB)
 {
     if (is_null($pearDB)) {
