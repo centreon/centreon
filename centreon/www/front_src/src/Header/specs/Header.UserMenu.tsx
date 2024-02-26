@@ -114,7 +114,7 @@ export default (): void => {
       cy.makeSnapshot();
     });
 
-    it('enters in fullscreen mode when the corresponding icon is clicked', () => {
+    it('enters fullscreen mode when the corresponding icon is clicked', () => {
       initialize();
 
       cy.get('[data-cy=userIcon]').click();
