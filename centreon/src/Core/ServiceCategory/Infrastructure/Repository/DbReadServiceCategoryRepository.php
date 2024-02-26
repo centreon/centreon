@@ -489,10 +489,65 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @param int[] $accesGroupIds
+     *
      * @return array<SqlConcatenator>
      */
-    private function findServiceCategoriesRequest(): array
+    private function findServiceCategoriesRequest(array $accessGroupIds = []): array
     {
+        $hostAcls = '';
+        $hostGroupAcls = '';
+        $hostCategoryAcls = '';
+        if ([] !== $accessGroupIds) {
+            if (! $this->hasAccessToAllHosts($accessGroupIds)) {
+                $hostAcls = <<<'SQL'
+                    AND hsr.host_host_id IN (
+                        SELECT arhr.host_host_id
+                        FROM `:db`.acl_resources_host_relations arhr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
+                $hostGroupAcls = <<<'SQL'
+                    AND hr.hostgroup_hg_id IN (
+                        SELECT arhgr.hg_hg_id
+                        FROM `:db`.acl_resources_hg_relations arhgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhgr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM `:db`.acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhcr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+        }
+
         $concatenatorA = new SqlConcatenator();
         $concatenatorA->defineSelect(
             <<<'SQL'
@@ -503,19 +558,22 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                 FROM `:db`.service_categories sc
                 SQL
         )->appendJoins(
-            <<<'SQL'
+            <<<SQL
                 LEFT JOIN service_categories_relation scr
                     ON scr.sc_id = sc.sc_id
                 LEFT JOIN host_service_relation hsr
                     ON hsr.service_service_id = scr.service_service_id
+                    {$hostAcls}
                 LEFT JOIN host
                     ON host.host_id = hsr.host_host_id
                 LEFT JOIN hostgroup_relation hr
                     ON hr.host_host_id = host.host_id
+                    {$hostGroupAcls}
                 LEFT JOIN hostgroup
                     ON hostgroup.hg_id = hr.hostgroup_hg_id
                 LEFT JOIN hostcategories_relation hcr
                     ON hcr.host_host_id = host.host_id
+                    {$hostCategoryAcls}
                 LEFT JOIN hostcategories
                     ON hostcategories.hc_id = hcr.hostcategories_hc_id
                 SQL
@@ -531,21 +589,24 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                 FROM `:db`.service_categories sc
                 SQL
         )->appendJoins(
-            <<<'SQL'
+            <<<SQL
                 LEFT JOIN service_categories_relation scr
                     ON scr.sc_id = sc.sc_id
                 LEFT JOIN service s
                     ON s.service_template_model_stm_id = scr.service_service_id
                 LEFT JOIN host_service_relation hsr
                     ON hsr.service_service_id = s.service_id
+                    {$hostAcls}
                 LEFT JOIN host
                     ON host.host_id = hsr.host_host_id
                 LEFT JOIN hostgroup_relation hr
                     ON hr.host_host_id = host.host_id
+                    {$hostGroupAcls}
                 LEFT JOIN hostgroup
                     ON hostgroup.hg_id = hr.hostgroup_hg_id
                 LEFT JOIN hostcategories_relation hcr
                     ON hcr.host_host_id = host.host_id
+                    {$hostCategoryAcls}
                 LEFT JOIN hostcategories
                     ON hostcategories.hc_id = hcr.hostcategories_hc_id
                 SQL
@@ -614,6 +675,149 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         return $serviceCategories;
+    }
+
+    /**
+     * Determines if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                SQL
+        )->appendWhere(
+            <<<'SQL'
+                WHERE ag.acl_group_id IN (:access_group_ids)
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple('access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if access groups give access to all hosts
+     * true: all hosts are accessible
+     * false: all hosts are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHosts(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hosts
+                FROM `:db`.acl_resources res
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                SQL
+        )->appendWhere(
+            <<<'SQL'
+                WHERE ag.acl_group_id IN (:access_group_ids)
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are NOT filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                SQL
+        )->appendJoins(
+            <<<'SQL'
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arhcr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                SQL
+        )->appendWhere(
+            <<<'SQL'
+                WHERE ag.acl_group_id IN (:access_group_ids)
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
