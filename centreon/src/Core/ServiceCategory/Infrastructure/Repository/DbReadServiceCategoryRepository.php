@@ -489,7 +489,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @param int[] $accesGroupIds
+     * @param int[] $accessGroupIds
      *
      * @return array<SqlConcatenator>
      */
