@@ -671,7 +671,7 @@ paths:
         * name
         * alias
         * is_activated
-        * host_category_id
+        * host.category.id
 
         Changes in 23.04 :
 
