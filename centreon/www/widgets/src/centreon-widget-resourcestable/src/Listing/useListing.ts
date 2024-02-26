@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
 
-import { Resource } from '../../../models';
+import { Resource, SortOrder } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, ResourceListing, SortOrder } from './models';
+import { DisplayType, ResourceListing } from './models';
 import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 

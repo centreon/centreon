@@ -10,7 +10,8 @@ import {
   propEq,
   reject,
   pluck,
-  includes
+  includes,
+  isNotNil
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
@@ -19,6 +20,7 @@ import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 import {
   Widget,
   WidgetDataResource,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
 import {
@@ -117,7 +119,13 @@ const resourceQueryParameters = [
   }
 ];
 
-const useResources = (propertyName: string): UseResourcesState => {
+const useResources = ({
+  propertyName,
+  restrictedResourceTypes
+}: Pick<
+  WidgetPropertyProps,
+  'propertyName' | 'restrictedResourceTypes'
+>): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
@@ -154,7 +162,7 @@ const useResources = (propertyName: string): UseResourcesState => {
         `data.${propertyName}.${index}.resourceType`,
         e.target.value
       );
-      setFieldValue(`data.${propertyName}.${index}.resources`, []);
+      setFieldValue(`data.${propertyName}.${index}.resources`, [], false);
     };
 
   const changeResources =
@@ -214,12 +222,20 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
+  const hasRestrictedTypes = useMemo(
+    () =>
+      isNotNil(restrictedResourceTypes) && !isEmpty(restrictedResourceTypes),
+    [restrictedResourceTypes]
+  );
+
   const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
     const resourcetypesIds = pluck('resourceType', value || []);
 
     const newResourceTypeOptions = reject(
       ({ id }) =>
-        !equals(id, resource.resourceType) && includes(id, resourcetypesIds),
+        (!equals(id, resource.resourceType) &&
+          includes(id, resourcetypesIds)) ||
+        (hasRestrictedTypes && !includes(id, restrictedResourceTypes || [])),
       resourceTypeOptions
     );
 
