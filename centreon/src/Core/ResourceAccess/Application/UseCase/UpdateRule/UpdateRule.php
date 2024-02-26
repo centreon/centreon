@@ -39,10 +39,6 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -110,7 +106,6 @@ final class UpdateRule
             }
 
             $this->updateInTransaction($rule, $request);
-            $this->info('End of resource access rule update process', ['id' => $request->id]);
             $presenter->presentResponse(new NoContentResponse());
         } catch (AssertionFailedException|\ValueError $exception) {
             $presenter->presentResponse(new InvalidArgumentResponse($exception));
@@ -239,55 +234,6 @@ final class UpdateRule
     }
 
     /**
-     * @param DatasetFilter $filter
-     *
-     * @return DatasetFilter[]
-     */
-    private function findApplicableFilters(DatasetFilter $filter): array
-    {
-        $lastLevelFilter = null;
-        $parentLastLevelFilter = null;
-
-        // recursive method to find the last 'stage' of filter (descending filter)
-
-        $findApplicableFilters = function (DatasetFilter $filter) use (&$findApplicableFilters, &$lastLevelFilter, &$parentLastLevelFilter): array {
-            // initialize the $applicableFilter which is initially NULL
-            if ($lastLevelFilter === null) {
-                $lastLevelFilter = $filter;
-                $findApplicableFilters($filter);
-            }
-            // if there is a level then keep digging
-            elseif ($filter->getDatasetFilter() !== null) {
-                $parentLastLevelFilter = $filter;
-                $lastLevelFilter = $filter->getDatasetFilter();
-                $findApplicableFilters($lastLevelFilter);
-            }
-
-            return [$parentLastLevelFilter, $lastLevelFilter];
-        };
-
-        return $findApplicableFilters($filter);
-    }
-
-    /**
-     * @param DatasetFilter $filter
-     *
-     * @return bool
-     */
-    private function isGroupOrCategoryFilter(DatasetFilter $filter): bool
-    {
-        return in_array(
-            $filter->getType(),
-            [
-                HostGroupFilterType::TYPE_NAME,
-                HostCategoryFilterType::TYPE_NAME,
-                ServiceCategoryFilterType::TYPE_NAME,
-                ServiceGroupFilterType::TYPE_NAME,
-            ], true
-        );
-    }
-
-    /**
      * @param int $ruleId
      * @param int $datasetId
      * @param DatasetFilter $filter
@@ -360,15 +306,19 @@ final class UpdateRule
             $this->saveDatasetFiltersHierarchy($updateRequest->id, $datasetId, $datasetFilter);
 
             // Extract from the DatasetFilter the final filter level and its parent.
-            [$parentApplicableFilter, $applicableFilter] = $this->findApplicableFilters($datasetFilter);
+            [
+                'parent' => $parentApplicableFilter,
+                'last' => $applicableFilter
+            ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
             /* Specific behaviour when the last level of filtering is of type
              * *Category|*Group and that the parent of this filter is also of the same type.
              * Then we need to save both types as those are on the same hierarchy level.
              */
             if (
-                $this->isGroupOrCategoryFilter($applicableFilter)
-                && $this->isGroupOrCategoryFilter($parentApplicableFilter)
+                DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
+                && $parentApplicableFilter !== null
+                && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
             ) {
                 // link parent resources to the dataset
                 $this->writeRepository->linkResourcesToDataset(
