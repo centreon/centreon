@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\Authentication\UseCase;
 
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Authentication\UseCase\Logout;
 use Centreon\Domain\Authentication\UseCase\LogoutRequest;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
+use PHPUnit\Framework\TestCase;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
+use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 
 /**
  * @package Tests\Centreon\Domain\Authentication\UseCase
@@ -57,10 +57,6 @@ class LogoutTest extends TestCase
         $logout = new Logout($this->authenticationService, $this->authenticationRepository);
 
         $logoutRequest = new LogoutRequest('abc123');
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->authenticationRepository
             ->expects($this->once())

@@ -63,7 +63,6 @@ class AuthenticateApi
     public function execute(AuthenticateApiRequest $request, AuthenticateApiResponse $response): void
     {
         $this->info(sprintf("[AUTHENTICATE API] Beginning API authentication for contact '%s'", $request->getLogin()));
-        $this->deleteExpiredToken();
 
         $localProvider = $this->findLocalProviderOrFail();
         $this->authenticateOrFail($localProvider, $request);
@@ -86,21 +85,6 @@ class AuthenticateApi
                 "contact_alias" => $contact->getAlias()
             ]
         );
-    }
-
-    /**
-     * Delete all expired Security tokens.
-     */
-    private function deleteExpiredToken(): void
-    {
-        /**
-         * Remove all expired token before starting authentication process.
-         */
-        try {
-            $this->authenticationService->deleteExpiredSecurityTokens();
-        } catch (AuthenticationException $ex) {
-            $this->notice('[AUTHENTICATE API] Unable to delete expired security tokens');
-        }
     }
 
     /**

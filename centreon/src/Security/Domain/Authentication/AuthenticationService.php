@@ -119,18 +119,6 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @inheritDoc
      */
-    public function deleteExpiredSecurityTokens(): void
-    {
-        try {
-            $this->writeTokenRepository->deleteExpiredSecurityTokens();
-        } catch (\Exception $ex) {
-            throw AuthenticationException::deleteExpireToken($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens
     {
         try {

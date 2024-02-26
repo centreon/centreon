@@ -56,7 +56,6 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
-        $this->writeTokenRepository->deleteExpiredSecurityTokens();
         $this->writeSessionTokenRepository->deleteSession($this->session->getId());
         $centreon = $this->session->get('centreon');
         $this->session->invalidate();

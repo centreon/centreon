@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Authentication\UseCase;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Authentication\UseCase\LogoutRequest;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 
@@ -60,7 +60,6 @@ class Logout
     public function execute(LogoutRequest $request): void
     {
         $this->info('Processing api logout...');
-        $this->authenticationService->deleteExpiredSecurityTokens();
         $this->authenticationRepository->deleteSecurityToken($request->getToken());
     }
 }

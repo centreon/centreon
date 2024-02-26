@@ -28,8 +28,8 @@ use Centreon\Domain\Authentication\UseCase\AuthenticateApiRequest;
 use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -105,10 +105,6 @@ class AuthenticateApiTest extends TestCase
         $authenticateApiRequest = new AuthenticateApiRequest('admin', 'centreon');
         $authenticateApiResponse = new AuthenticateApiResponse();
 
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
-
         $this->providerFactory
             ->expects($this->once())
             ->method('create')
@@ -129,10 +125,6 @@ class AuthenticateApiTest extends TestCase
         $authenticateApi = $this->createAuthenticationAPI();
         $authenticateApiRequest = new AuthenticateApiRequest('admin', 'centreon');
         $authenticateApiResponse = new AuthenticateApiResponse();
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->providerFactory
             ->expects($this->once())
@@ -160,10 +152,6 @@ class AuthenticateApiTest extends TestCase
         $authenticateApi = $this->createAuthenticationAPI();
         $authenticateApiRequest = new AuthenticateApiRequest('admin', 'centreon');
         $authenticateApiResponse = new AuthenticateApiResponse();
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->providerFactory
             ->expects($this->once())
@@ -195,10 +183,6 @@ class AuthenticateApiTest extends TestCase
         $authenticateApi = $this->createAuthenticationAPI();
         $authenticateApiRequest = new AuthenticateApiRequest('admin', 'centreon');
         $authenticateApiResponse = new AuthenticateApiResponse();
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->providerFactory
             ->expects($this->once())
@@ -237,10 +221,6 @@ class AuthenticateApiTest extends TestCase
         $authenticateApi = $this->createAuthenticationAPI();
         $authenticateApiRequest = new AuthenticateApiRequest('admin', 'centreon');
         $authenticateApiResponse = new AuthenticateApiResponse();
-
-        $this->authenticationService
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
 
         $this->providerFactory
             ->expects($this->once())

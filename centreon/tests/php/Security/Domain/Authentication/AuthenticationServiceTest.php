@@ -22,9 +22,11 @@ declare(strict_types=1);
 
 namespace Tests\Security\Domain\Authentication;
 
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
@@ -33,8 +35,6 @@ use Security\Domain\Authentication\AuthenticationService;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
 
 /**
  * @package Tests\Security\Domain\Authentication
@@ -310,38 +310,6 @@ class AuthenticationServiceTest extends TestCase
             ->with('abc123');
 
         $authenticationService->deleteSession('abc123');
-    }
-
-    /**
-     * test deleteExpiredSecurityTokens on failure
-     */
-    public function testDeleteExpiredSecurityTokensFailed(): void
-    {
-        $authenticationService = $this->createAuthenticationService();
-
-        $this->writeTokenRepository
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens')
-            ->willThrowException(new \Exception());
-
-        $this->expectException(AuthenticationException::class);
-        $this->expectExceptionMessage('Error while deleting expired token');
-
-        $authenticationService->deleteExpiredSecurityTokens();
-    }
-
-    /**
-     * test deleteExpiredSecurityTokens on success
-     */
-    public function testDeleteExpiredSecurityTokensSucceed(): void
-    {
-        $authenticationService = $this->createAuthenticationService();
-
-        $this->writeTokenRepository
-            ->expects($this->once())
-            ->method('deleteExpiredSecurityTokens');
-
-        $authenticationService->deleteExpiredSecurityTokens();
     }
 
     /**
