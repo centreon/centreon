@@ -51,21 +51,10 @@ runs:
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # Previous stable tags array
           PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
-        done
-        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
-
-        # Get new version tags for components
-        for component in ${COMPONENTS_OSS[@]}; do
-          if [[ $component == "centreon-web" ]]; then
-            COMPONENT_DIR="centreon"
-          else
-            COMPONENT_DIR=$component
-          fi
-          MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
-          MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
+          # New stable tags array
           NEW_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
-
+        echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
 
         # TODO: Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
@@ -127,6 +116,11 @@ runs:
       run: |
         set -eu
 
+        # Rebuild NEW_STABLE_TAGS as an array
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          NEW_RELEASE_TAGS+=("$i")
+        done
+
         # Call JIRA to provide new jira versions to create
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
@@ -140,19 +134,34 @@ runs:
         # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
         # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
 
+        # Build JSON vars for JIRA_RELEASE_DATA
+        JIRA_RELEASE_ARCHIVED="false"
+        JIRA_RELEASE_DESCRIPTION=""
+        JIRA_RELEASE_DATE="$(date +%Y-%m-%d)"
+        JIRA_RELEASE_NAME=""
+        JIRA_PROJECT_ID="${{ inputs.jira_project_id }}"
+        JIRA_RELEASE_RELEASED="false"
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
           echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
-
-          JIRA_VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"$TAG\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
-          echo "Sending to JIRA release: $JIRA_VERSION_DATA"
-          # curl --fail --request POST \
+          # Build JSON with release information for JIRA API
+          JIRA_RELEASE_DATA=$(jq -nc \
+            --arg archived "$JIRA_RELEASE_ARCHIVED" \
+            --arg description "$TAG" \
+            --arg releaseDate "$JIRA_RELEASE_DATE" \
+            --arg name "$TAG" \
+            --arg projectId "$JIRA_PROJECT_ID" \
+            --arg released "$JIRA_RELEASE_RELEASED" \
+            '$ARGS.named' )
+          # Send to JIRA API release
+          echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
+          curl --fail --request POST \
             --url 'https://centreon.atlassian.net/rest/api/3/version' \
-            --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+            --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
             --header 'Accept: application/json' \
             --header 'Content-Type: application/json' \
-            --data ''$VERSION_DATA''
+            --data "$JIRA_RELEASE_DATA"
         done
       shell: bash
 
