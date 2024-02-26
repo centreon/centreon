@@ -1,6 +1,7 @@
 import {
   labelCopyAutologinLink,
   labelEditProfile,
+  labelFullscreen,
   labelLogout
 } from '../UserMenu/translatedLabels';
 
@@ -113,6 +114,14 @@ export default (): void => {
       cy.makeSnapshot();
     });
 
-    it('enters in fullscreen mode when the corresponding icon is clicked', () => {});
+    it('enters in fullscreen mode when the corresponding icon is clicked', () => {
+      initialize();
+
+      cy.get('[data-cy=userIcon]').click();
+
+      cy.contains(labelFullscreen).realClick();
+
+      cy.contains(labelFullscreen).should('not.exist');
+    });
   });
 };
