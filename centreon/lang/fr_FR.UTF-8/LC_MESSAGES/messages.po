@@ -18683,5 +18683,5 @@ msgstr "Tableau des ressources"
 msgid "Fullscreen (Alt+F)"
 msgstr "Plein écran (Alt+F)"
 
-msgid "No Data Available"
+msgid "No data available"
 msgstr "Aucune donnée disponible"
