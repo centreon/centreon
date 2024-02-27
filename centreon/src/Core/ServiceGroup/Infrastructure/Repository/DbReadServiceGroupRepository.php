@@ -359,7 +359,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT DISTINCT
+                    SELECT
                         sg.sg_id,
                         sg.sg_name,
                         sg.sg_alias,
@@ -443,10 +443,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             'is_activated' => 'sg.sg_activate',
             'host.id' => 'h.host_id',
             'host.name' => 'h.host_name',
-            'hostgroup_id' => 'hg.hg_id',
-            'hostgroup_name' => 'hg.hg_name',
-            'hostcategory_id' => 'hc.hc_id',
-            'hostcategory_name' => 'hc.hc_name',
+            'hostgroup.id' => 'hg.hg_id',
+            'hostgroup.name' => 'hg.hg_name',
+            'hostcategory.id' => 'hc.hc_id',
+            'hostcategory.name' => 'hc.hc_name',
         ]);
         if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'host_group_id')) {
             $concatenator->appendJoins(
