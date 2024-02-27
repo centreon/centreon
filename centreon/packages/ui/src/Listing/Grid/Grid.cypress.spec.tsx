@@ -1,8 +1,6 @@
-import { Box } from '@mui/material';
-
-import { ColumnType } from '../../Listing/Listing/models';
-
-import { DataTable } from '.';
+import Grid from './Grid';
+import GridEmptyState from './EmptyState/GridEmptyState';
+import GridItem from './Item/GridItem';
 
 const data = Array(5)
   .fill(0)
@@ -20,24 +18,16 @@ const initializeDataTableGrid = ({
   cy.viewport(1200, 590);
   cy.mount({
     Component: (
-      <DataTable variant="grid">
+      <Grid variant="grid" >
         {data.map(({ title, description }) => (
-          <DataTable.Item
+          <GridItem
+            actions={<div />}
             description={description}
-            hasActions={hasActions}
-            hasCardAction={hasCardAction}
             key={title}
-            labelsDelete={{
-              cancel: 'Cancel',
-              confirm: {
-                label: 'Delete'
-              }
-            }}
             title={title}
-            onDelete={canDelete ? cy.stub() : undefined}
           />
         ))}
-      </DataTable>
+      </Grid>
     )
   });
 };
@@ -46,8 +36,8 @@ const initializeDataTableEmpty = (canCreate = false): void => {
   cy.viewport(1200, 590);
   cy.mount({
     Component: (
-      <DataTable isEmpty variant="grid">
-        <DataTable.EmptyState
+      <Grid isEmpty variant="grid">
+        <GridEmptyState
           canCreate={canCreate}
           labels={{
             actions: {
@@ -57,36 +47,7 @@ const initializeDataTableEmpty = (canCreate = false): void => {
           }}
           onCreate={cy.stub()}
         />
-      </DataTable>
-    )
-  });
-};
-
-const initializeDataTableListing = (): void => {
-  cy.viewport(1200, 590);
-  cy.mount({
-    Component: (
-      <Box sx={{ height: '100vh' }}>
-        <DataTable variant="listing">
-          <DataTable.Listing
-            columns={[
-              {
-                getFormattedString: (row) => row.title,
-                id: 'title',
-                label: 'Title',
-                type: ColumnType.string
-              },
-              {
-                getFormattedString: (row) => row.description,
-                id: 'description',
-                label: 'Description',
-                type: ColumnType.string
-              }
-            ]}
-            rows={data}
-          />
-        </DataTable>
-      </Box>
+      </Grid>
     )
   });
 };
@@ -174,19 +135,6 @@ describe('DataTable: Empty', () => {
 
     cy.contains('Welcome').should('be.visible');
     cy.contains('Create').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-});
-
-describe('DataTable: Listing', () => {
-  it('displays the listing', () => {
-    initializeDataTableListing();
-
-    data.forEach(({ title, description }) => {
-      cy.contains(title).should('be.visible');
-      cy.contains(description).should('be.visible');
-    });
 
     cy.makeSnapshot();
   });

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -9,64 +8,16 @@ import Divider from '@mui/material/Divider';
 
 import { userAtom, ListingVariant } from '@centreon/ui-context';
 
-import { ListingProps, IconButton } from '../..';
-import { labelOf, labelRowsPerPage } from '../translatedLabels';
+import { IconButton } from '../..';
+import { labelOf, labelRowsPerPage } from '../Listing/translatedLabels';
 import { useMemoComponent } from '../../utils';
+import { Props as ListingProps } from '../Listing/Listing';
 
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
 import ColumnMultiSelect from './ColumnMultiSelect';
-
-interface StyleProps {
-  marginWidthTableListing: number;
-  width: number;
-}
-
-const useStyles = makeStyles<StyleProps>()(
-  (theme, { width, marginWidthTableListing }) => ({
-    ModeViewer: {
-      paddingLeft: theme.spacing(1)
-    },
-    actions: {
-      padding: theme.spacing(1, 0)
-    },
-    container: {
-      alignItems: 'center',
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      width: '100%'
-    },
-    iconMode: {
-      '& .MuiSvgIcon-root': {
-        height: theme.spacing(1.5)
-      },
-      display: 'flex',
-      flexDirection: 'column'
-    },
-    mode: {
-      flexDirection: 'column-reverse'
-    },
-    moving: {
-      marginRight: theme.spacing((width - marginWidthTableListing) / 8)
-    },
-    pagination: {
-      '& .MuiToolbar-root': {
-        paddingLeft: 0
-      },
-      padding: 0
-    },
-    selectMenu: {
-      '& .MuiMenuItem-root': {
-        lineHeight: 1
-      }
-    },
-    subContainer: {
-      alignItems: 'center',
-      display: 'flex'
-    }
-  })
-);
+import useStyles from './ActionBar.styles';
+import ViewModeSwitch from './ViewModeSwitch';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -87,6 +38,9 @@ type Props = Pick<
   | 'customPaginationClassName'
   | 'listingVariant'
   | 'viewerModeConfiguration'
+  | 'viewModeConfiguration'
+  | 'viewMode'
+  | 'visualizationActions'
 >;
 
 const MemoListingActionBar = ({
@@ -107,8 +61,11 @@ const MemoListingActionBar = ({
   actionsBarMemoProps = [],
   viewerModeConfiguration,
   listingVariant,
-  visualizationActions
+  visualizationActions,
+  viewModeConfiguration,
+  viewMode
 }: Props): JSX.Element => {
+  console.log('viewerModeConfiguration: ', viewerModeConfiguration);
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
     marginWidthTableListing,
@@ -135,6 +92,15 @@ const MemoListingActionBar = ({
       <div className={classes.container}>
         <div className={classes.actions}>
           <div>{actions}</div>
+          <div>
+            {!isEmpty(viewModeConfiguration) &&
+              !isNil(viewModeConfiguration) && (
+                <ViewModeSwitch
+                  setViewMode={viewModeConfiguration?.onViewModeChange}
+                  viewMode={viewMode}
+                />
+              )}
+          </div>
         </div>
         {visualizationActions && <div>{visualizationActions}</div>}
         <div className={classes.subContainer}>
@@ -174,6 +140,7 @@ const MemoListingActionBar = ({
               </IconButton>
             )}
           <div className={classes.ModeViewer} />
+
           {columnConfiguration?.selectedColumnIds && (
             <ColumnMultiSelect
               columnConfiguration={columnConfiguration}
@@ -182,6 +149,7 @@ const MemoListingActionBar = ({
               onSelectColumns={onSelectColumns}
             />
           )}
+
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
@@ -223,6 +191,8 @@ const MemoListingActionBar = ({
       ),
       columnConfiguration,
       customPaginationClassName,
+      viewMode,
+      viewModeConfiguration,
       ...actionsBarMemoProps
     ]
   });
@@ -246,7 +216,9 @@ const ListingActionBar = ({
   customPaginationClassName,
   listingVariant,
   viewerModeConfiguration,
-  visualizationActions
+  visualizationActions,
+  viewMode,
+  viewModeConfiguration
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -269,6 +241,8 @@ const ListingActionBar = ({
       moveTablePagination={moveTablePagination}
       paginated={paginated}
       totalRows={totalRows}
+      viewMode={viewMode}
+      viewModeConfiguration={viewModeConfiguration}
       viewerModeConfiguration={viewerModeConfiguration}
       visualizationActions={visualizationActions}
       widthToMoveTablePagination={widthToMoveTablePagination}

@@ -15,7 +15,7 @@ import { ListingProps } from '..';
 
 import { Column, ColumnType, SortOrder } from './models';
 
-import Listing from '.';
+import Listing from '..';
 
 const meta: Meta<typeof Listing> = {
   argTypes: {

@@ -3,11 +3,10 @@ import { useState } from 'react';
 import { prop } from 'ramda';
 
 import { render, fireEvent, within } from '../../test/testRenderer';
+import Listing from '..';
 
 import { ColumnType } from './models';
 import { labelAddColumns } from './translatedLabels';
-
-import Listing from '.';
 
 describe('Listing', () => {
   const getAllCheckboxes = (container): Array<HTMLElement> => {

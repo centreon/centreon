@@ -16,7 +16,7 @@ import {
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { IconButton } from '../..';
+import { IconButton } from '../../..';
 import { getTextStyleByViewMode } from '../useStyleTable';
 import { subItemsPivotsAtom } from '../tableAtoms';
 

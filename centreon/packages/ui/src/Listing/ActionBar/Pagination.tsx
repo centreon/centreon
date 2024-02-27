@@ -1,20 +1,13 @@
 import { memo } from 'react';
 
 import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import TablePagination from '@mui/material/TablePagination';
 
-const useStyles = makeStyles()((theme) => ({
-  toolbar: {
-    height: theme.spacing(4),
-    overflow: 'hidden',
-    paddingLeft: 5
-  }
-}));
+import { usePaginationStyles } from './ActionBar.styles';
 
 const Pagination = (props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes } = usePaginationStyles();
 
   return (
     <TablePagination

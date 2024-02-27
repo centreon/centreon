@@ -1,6 +1,6 @@
 import React from 'react';
 
-import LoadingSkeleton from '../../LoadingSkeleton';
+import LoadingSkeleton from '../../../LoadingSkeleton';
 
 import { EmptyRow } from './EmptyRow';
 

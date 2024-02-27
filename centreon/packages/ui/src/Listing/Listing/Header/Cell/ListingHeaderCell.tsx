@@ -9,7 +9,7 @@ import {
   Tooltip
 } from '@mui/material';
 
-import { Props as ListingProps } from '../..';
+import { Props as ListingProps } from '../../..';
 import { Column } from '../../models';
 import HeaderLabel from '../_internals/Label';
 import { DraggableIconButton } from '../_internals/DraggableIconButton';

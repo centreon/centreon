@@ -8,9 +8,10 @@ import { TableHead, TableRow } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { getVisibleColumns, Props as ListingProps } from '..';
-import SortableItems from '../../SortableItems';
+import SortableItems from '../../../SortableItems';
 import { Column } from '../models';
+import { Props as ListingProps } from '../Listing';
+import { getVisibleColumns } from '../utils';
 
 import ListingHeaderCell from './Cell/ListingHeaderCell';
 import { useStyles } from './ListingHeader.styles';

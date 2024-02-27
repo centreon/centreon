@@ -3,11 +3,12 @@ import { isNil, prop } from 'ramda';
 
 import ColumnIcon from '@mui/icons-material/ViewColumn';
 
-import { getVisibleColumns, Props as ListingProps } from '..';
 import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';
-import { labelAddColumns } from '../translatedLabels';
+import { labelAddColumns } from '../Listing/translatedLabels';
 import { SelectEntry } from '../../InputField/Select';
-import { Column } from '../models';
+import { Column } from '../Listing/models';
+import { Props as ListingProps } from '../Listing/Listing';
+import { getVisibleColumns } from '../Listing/utils';
 
 type Props = Pick<
   ListingProps<unknown>,
