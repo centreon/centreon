@@ -476,15 +476,7 @@ const registerMsUnitToNumeral = (): null => {
 
 registerMsUnitToNumeral();
 
-const formatMetricValue = ({
-  value,
-  unit,
-  base = 1000
-}: FormatMetricValueProps): string | null => {
-  if (isNil(value)) {
-    return null;
-  }
-
+const getBase1024 = ({ unit, base }): boolean => {
   const base2Units = [
     'B',
     'bytes',
@@ -497,7 +489,19 @@ const formatMetricValue = ({
     'b'
   ];
 
-  const base1024 = base2Units.includes(unit) || Number(base) === 1024;
+  return base2Units.includes(unit) || Number(base) === 1024;
+};
+
+const formatMetricValue = ({
+  value,
+  unit,
+  base = 1000
+}: FormatMetricValueProps): string | null => {
+  if (isNil(value)) {
+    return null;
+  }
+
+  const base1024 = getBase1024({ base, unit });
 
   const formatSuffix = cond([
     [equals('ms'), always(' ms')],
@@ -525,6 +529,8 @@ const formatMetricValueWithUnit = ({
     return null;
   }
 
+  const base1024 = getBase1024({ base, unit });
+
   if (isRaw) {
     const unitText = equals('%', unit) ? unit : ` ${unit}`;
 
@@ -537,7 +543,9 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return formattedMetricValue;
+  return base1024 || !unit || equals(unit, 'ms')
+    ? formattedMetricValue
+    : `${formattedMetricValue} ${unit}`;
 };
 
 const getStackedYScale = ({

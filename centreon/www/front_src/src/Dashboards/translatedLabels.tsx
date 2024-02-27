@@ -1,4 +1,4 @@
-export const labelDashboardLibrary = 'Dashboard library';
+export const labelDashboards = 'Dashboards';
 export const labelCreateADashboard = 'Create a dashboard';
 export const labelWelcomeToDashboardInterface =
   'Welcome to the Dashboards interface!';

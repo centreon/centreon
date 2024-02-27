@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { isEmpty, isNotNil } from 'ramda';
 
 import { FormControlLabel, FormGroup, Checkbox } from '@mui/material';
 
@@ -16,7 +17,8 @@ const WidgetCheckboxes = ({
   options,
   label,
   defaultValue,
-  secondaryLabel
+  secondaryLabel,
+  keepOneOptionSelected
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -29,19 +31,26 @@ const WidgetCheckboxes = ({
     unselectAll,
     areAllOptionsSelected,
     optionsToDisplay
-  } = useCheckboxes({ defaultValue, options: options || [], propertyName });
+  } = useCheckboxes({
+    defaultValue,
+    keepOneOptionSelected,
+    options: options || [],
+    propertyName
+  });
 
   return (
     <div>
       <Subtitle secondaryLabel={secondaryLabel}>{t(label)}</Subtitle>
-      <Button
-        disabled={!canEditField}
-        size="small"
-        variant="ghost"
-        onClick={areAllOptionsSelected ? unselectAll : selectAll}
-      >
-        {areAllOptionsSelected ? t(labelUnselectAll) : t(labelSelectAll)}
-      </Button>
+      {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
+        <Button
+          disabled={!canEditField}
+          size="small"
+          variant="ghost"
+          onClick={areAllOptionsSelected ? unselectAll : selectAll}
+        >
+          {areAllOptionsSelected ? t(labelUnselectAll) : t(labelSelectAll)}
+        </Button>
+      )}
       <FormGroup>
         {optionsToDisplay.map(({ id, name }) => (
           <FormControlLabel

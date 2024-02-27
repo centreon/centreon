@@ -24,14 +24,15 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
 import useResources from './useResources';
 
-interface Props {
-  propertyName: string;
-}
-
-const Resources = ({ propertyName }: Props): JSX.Element => {
+const Resources = ({
+  propertyName,
+  singleResourceType,
+  restrictedResourceTypes
+}: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResource,
     singleMetricSelection,
     singleHostPerMetric
-  } = useResources(propertyName);
+  } = useResources({ propertyName, restrictedResourceTypes });
 
   const { canEditField } = useCanEditProperties();
 
@@ -72,7 +73,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={!canEditField}
+          addButtonHidden={!canEditField || singleResourceType}
           addbuttonDisabled={!areResourcesFullfilled(value)}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
@@ -102,15 +103,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{
-                    color: 'primary',
-                    onDelete: (_, option): void =>
-                      deleteResourceItem({
-                        index,
-                        option,
-                        resources: resource.resources
-                      })
+                    color: 'primary'
                   }}
                   className={classes.resources}
+                  disableClearable={false}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
                   getEndpoint={getResourceResourceBaseEndpoint(

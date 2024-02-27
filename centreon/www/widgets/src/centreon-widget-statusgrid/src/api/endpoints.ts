@@ -3,6 +3,7 @@ import { equals, flatten, includes, pluck } from 'ramda';
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
+import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 
@@ -38,7 +39,7 @@ export const buildResourcesEndpoint = ({
   limit,
   resources
 }: BuildResourcesEndpointProps): string => {
-  const formattedStatuses = statuses.map((state) => state.toLocaleUpperCase());
+  const formattedStatuses = formatStatus(statuses);
 
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)

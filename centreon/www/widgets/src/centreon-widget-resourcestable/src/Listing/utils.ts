@@ -1,17 +1,8 @@
-import { T, always, cond, equals, map } from 'ramda';
+import { cond, equals, map } from 'ramda';
 
 import { SeverityCode } from '@centreon/ui';
 
 import { ResourceListing, DisplayType } from './models';
-
-export const formatStatusFilter = cond([
-  [equals('success'), always(['ok', 'up'])],
-  [equals('warning'), always(['warning'])],
-  [equals('problem'), always(['down', 'critical'])],
-  [equals('undefined'), always(['unreachable', 'unknown'])],
-  [equals('pending'), always(['pending'])],
-  [T, always([])]
-]);
 
 interface FormatRessourcesProps {
   data?: ResourceListing;

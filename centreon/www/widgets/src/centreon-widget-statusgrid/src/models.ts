@@ -1,4 +1,4 @@
-import { GlobalRefreshInterval, Resource } from '../../models';
+import { CommonWidgetProps, Resource } from '../../models';
 
 export interface Data {
   resources: Array<Resource>;
@@ -14,12 +14,9 @@ export interface PanelOptions {
   tiles: number;
 }
 
-export interface StatusGridProps {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+export interface StatusGridProps extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
   panelOptions: PanelOptions;
-  refreshCount: number;
 }
 
 interface Icon {

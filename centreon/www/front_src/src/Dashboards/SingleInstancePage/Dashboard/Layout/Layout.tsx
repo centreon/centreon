@@ -51,13 +51,12 @@ const PanelsLayout = ({
                   changeViewMode={() => changeViewMode(options?.displayType)}
                   displayMoreActions={displayMoreActions}
                   id={i}
-                  linkToResourceStatus={getLinkToResourceStatusPage(
-                    data,
-                    name,
-                    options
-                  )}
+                  linkToResourceStatus={
+                    data?.resources
+                      ? getLinkToResourceStatusPage(data, name, options)
+                      : undefined
+                  }
                   setRefreshCount={setRefreshCount}
-                  widgetName={name}
                 />
               ) : undefined
             }

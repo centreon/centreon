@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals, includes } from 'ramda';
+import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
 
 import { CardHeader } from '@mui/material';
@@ -17,7 +17,6 @@ import {
   isEditingAtom
 } from '../../atoms';
 import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
-import { resourceBasedWidgets } from '../../utils';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -28,7 +27,6 @@ interface PanelHeaderProps {
   id: string;
   linkToResourceStatus?: string;
   setRefreshCount?: (id) => void;
-  widgetName?: string;
 }
 
 const PanelHeader = ({
@@ -36,7 +34,6 @@ const PanelHeader = ({
   setRefreshCount,
   linkToResourceStatus,
   displayMoreActions,
-  widgetName,
   changeViewMode
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
@@ -69,7 +66,7 @@ const PanelHeader = ({
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
-            {includes(widgetName, resourceBasedWidgets) && (
+            {linkToResourceStatus && (
               <Link
                 data-testid={labelSeeMore}
                 style={{ all: 'unset' }}

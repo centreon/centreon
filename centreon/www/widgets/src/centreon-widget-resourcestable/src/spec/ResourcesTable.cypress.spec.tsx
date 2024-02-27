@@ -3,10 +3,11 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { Method } from '@centreon/ui';
 
+import { SortOrder } from '../../../models';
 import { Data, PanelOptions } from '../models';
 import ResourcesTable from '..';
 import { resourcesEndpoint, viewByHostEndpoint } from '../api/endpoints';
-import { DisplayType, SortOrder } from '../Listing/models';
+import { DisplayType } from '../Listing/models';
 
 import {
   options as resourcesOptions,

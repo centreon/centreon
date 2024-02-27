@@ -15,6 +15,7 @@ export interface ComponentColumnProps {
 
 export interface Column {
   Component?: (props: ComponentColumnProps) => JSX.Element | null;
+  align?: 'start' | 'end' | 'center';
   clickable?: boolean;
   compact?: boolean;
   disablePadding?: boolean;

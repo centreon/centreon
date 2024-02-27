@@ -5,7 +5,7 @@ import { redirectDecoder } from './api/decoder';
 import { loginEndpoint } from './api/endpoint';
 
 interface UsePostLoginState {
-  sendLogin: (payload: unknown) => Promise<Redirect | ResponseError>;
+  sendLogin: ({ payload }) => Promise<Redirect | ResponseError>;
 }
 
 const usePostLogin = (): UsePostLoginState => {

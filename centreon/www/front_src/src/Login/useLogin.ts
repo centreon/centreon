@@ -162,8 +162,10 @@ const useLogin = (): UseLoginState => {
     { setSubmitting }
   ): void => {
     sendLogin({
-      login: values.alias,
-      password: values.password
+      payload: {
+        login: values.alias,
+        password: values.password
+      }
     })
       .then((response) => {
         if ((response as ResponseError).isError) {

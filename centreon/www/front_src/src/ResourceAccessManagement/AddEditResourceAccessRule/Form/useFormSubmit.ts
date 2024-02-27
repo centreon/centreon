@@ -54,7 +54,9 @@ const useFormSubmit = (): UseFormState => {
   ): Promise<object> => {
     const payload = adaptResourceAccessRule({ ...values });
 
-    return mutateAsync(payload).finally(() => setSubmitting(false));
+    return mutateAsync({
+      payload
+    }).finally(() => setSubmitting(false));
   };
 
   return { submit };

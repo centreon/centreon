@@ -8,7 +8,7 @@ interface MakeStylesProps {
 
 export const legendWidth = 21;
 const legendItemHeight = 5.25;
-const legendItemHeightCompact = 1.75;
+const legendItemHeightCompact = 2;
 
 export const useStyles = makeStyles<MakeStylesProps>()(
   (theme, { limitLegendRows }) => ({

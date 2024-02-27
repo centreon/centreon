@@ -69,7 +69,9 @@ const useDeleteRequest = ({
   });
 
   const submit = (): void => {
-    mutateAsync(payload || {})
+    mutateAsync({
+      payload: payload || {}
+    })
       .then((response) => {
         const { isError, statusCode, message, data } =
           response as ResponseError;

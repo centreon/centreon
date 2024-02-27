@@ -53,7 +53,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
 
   const panelConfigurations = getPanelConfigurations(id);
 
-  const changePanelOptions = (field, value): void => {
+  const changePanelOptions = (partialOptions: object): void => {
     switchPanelsEditionMode(true);
     searchParams.set('edit', 'true');
     setSearchParams(searchParams);
@@ -61,7 +61,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
     setPanelOptions({
       data: panelOptionsAndData?.data,
       id,
-      options: { ...panelOptionsAndData?.options, [field]: value }
+      options: { ...panelOptionsAndData?.options, ...partialOptions }
     });
   };
 

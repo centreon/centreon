@@ -27,7 +27,7 @@ const StatusGrid = ({
   panelOptions,
   refreshCount,
   isFromPreview
-}: StatusGridProps): JSX.Element => {
+}: Omit<StatusGridProps, 'store'>): JSX.Element => {
   const theme = useTheme();
 
   const {

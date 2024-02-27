@@ -1,10 +1,10 @@
-import { equals, flatten, includes, map, pipe, pluck } from 'ramda';
+import { equals, flatten, includes, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { formatStatusFilter } from '../Listing/utils';
 import { DisplayType } from '../Listing/models';
 import { Resource } from '../../../models';
+import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const viewByHostEndpoint = '/monitoring/resources/hosts';
@@ -48,11 +48,7 @@ export const buildResourcesEndpoint = ({
     : resourcesEndpoint;
 
   const formattedType = equals(type, 'all') ? ['host', 'service'] : [type];
-  const formattedStatuses = pipe(
-    map((state) => formatStatusFilter(state)),
-    flatten,
-    map((state) => state.toLocaleUpperCase())
-  )(statuses);
+  const formattedStatuses = formatStatus(statuses);
 
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)

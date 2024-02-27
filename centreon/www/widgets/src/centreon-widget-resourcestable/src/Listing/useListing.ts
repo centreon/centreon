@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
 
-import { Resource } from '../../../models';
+import { Resource, SortOrder } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import { DisplayType, ResourceListing, SortOrder } from './models';
+import { DisplayType, ResourceListing } from './models';
 import { defaultSelectedColumnIds, useColumns } from './Columns';
 import useLoadResources from './useLoadResources';
 
@@ -33,7 +33,7 @@ interface UseListingProps {
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
-  setPanelOptions?: (field, value) => void;
+  setPanelOptions?: (partialOptions: object) => void;
   sortField?: string;
   sortOrder?: SortOrder;
   states: Array<string>;
@@ -93,13 +93,12 @@ const useListing = ({
     window.open(url);
   };
 
-  const changeSort = ({ sortOrder: sortO, sortField: sortF }): void => {
-    setPanelOptions?.('sortField', sortF);
-    setPanelOptions?.('sortOrder', sortO);
+  const changeSort = (sortParameters): void => {
+    setPanelOptions?.(sortParameters);
   };
 
   const changeLimit = (value): void => {
-    setPanelOptions?.('limit', value);
+    setPanelOptions?.({ limit: value });
   };
 
   const changePage = (updatedPage): void => {
@@ -117,11 +116,11 @@ const useListing = ({
       return;
     }
 
-    setPanelOptions?.('selectedColumnIds', updatedColumnIds);
+    setPanelOptions?.({ selectedColumnIds: updatedColumnIds });
   };
 
   const resetColumns = (): void => {
-    setPanelOptions?.('selectedColumnIds', defaultSelectedColumnIds);
+    setPanelOptions?.({ selectedColumnIds: defaultSelectedColumnIds });
   };
 
   return {

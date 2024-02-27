@@ -52,7 +52,9 @@ const OpenidForm = ({
     formikValues: OpenidConfiguration,
     { setSubmitting }
   ): Promise<void> =>
-    mutateAsync(adaptOpenidConfigurationToAPI(formikValues))
+    mutateAsync({
+      payload: adaptOpenidConfigurationToAPI(formikValues)
+    })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: [Provider.Openid] });
         loadOpenidConfiguration();

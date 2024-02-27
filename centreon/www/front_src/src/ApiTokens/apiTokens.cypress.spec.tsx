@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
@@ -12,6 +12,8 @@ import {
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import { labelCustomize } from '../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 
 import { DefaultParameters } from './TokenListing/Actions/Search/Filter/models';
 import { Column } from './TokenListing/ComponentsColumn/models';
@@ -28,6 +30,7 @@ import {
   labelDuration,
   labelGenerateNewToken,
   labelName,
+  labelOk,
   labelSecurityToken,
   labelTokenCreated,
   labelUser
@@ -187,20 +190,23 @@ const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 describe('Api-token', () => {
   beforeEach(() => {
-    const userData = renderHook(() => useAtomValue(userAtom));
-
-    userData.result.current.timezone = 'Europe/Paris';
-    userData.result.current.locale = 'en_US';
+    const store = createStore();
+    store.set(userAtom, {
+      locale: 'en_US',
+      timezone: 'Europe/Paris'
+    });
 
     interceptListTokens({});
 
     cy.mount({
       Component: (
-        <Router>
-          <TestQueryProvider>
-            <TokenListing />
-          </TestQueryProvider>
-        </Router>
+        <Provider store={store}>
+          <Router>
+            <TestQueryProvider>
+              <TokenListing />
+            </TestQueryProvider>
+          </Router>
+        </Provider>
       )
     });
   });
@@ -337,9 +343,48 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
+
+  it('accepts a customized date when the Customize option is selected and a date is selected', () => {
+    cy.clock(new Date(2024, 0, 1).getTime());
+    cy.viewport(1280, 1000);
+
+    cy.findByTestId(labelCreateNewToken).click();
+    cy.findByTestId(labelDuration).click();
+    cy.contains(labelCustomize).click();
+    cy.contains(/^15$/).click({ force: true });
+    cy.contains(/^02$/).click({ force: true });
+    cy.contains('59').click({ force: true });
+
+    cy.contains(labelOk).click();
+
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'January 15, 2024 2:59 AM'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('does not accept a customized date when the Customize option is selected and a date is selected', () => {
+    cy.clock(new Date(2024, 0, 1).getTime());
+    cy.viewport(1280, 1000);
+
+    cy.findByTestId(labelCreateNewToken).click();
+    cy.findByTestId(labelDuration).click();
+    cy.contains(labelCustomize).click();
+    cy.contains(/^15$/).click({ force: true });
+    cy.contains(/^02$/).click({ force: true });
+    cy.contains('59').click({ force: true });
+
+    cy.findAllByTestId(labelCancel).eq(1).click();
+
+    cy.findByTestId(labelDuration).should('be.enabled');
+
+    cy.makeSnapshot();
+  });
+
   it('displays the modal when clicking on token creation button', () => {
     openDialog();
-
     cy.findByTestId('tokenName').contains(labelName);
 
     cy.findByTestId('tokenNameInput').should('have.attr', 'required');

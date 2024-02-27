@@ -73,7 +73,9 @@ const AddCommentArea = ({
       }
     ];
     mutateAsync({
-      resources: payload
+      payload: {
+        resources: payload
+      }
     });
   };
 

@@ -17,7 +17,6 @@ import useIsViewerUser from '../useIsViewerUser';
 
 import Actions from './Actions/Actions';
 import Description from './Decription';
-import Name from './Name';
 import Share from './Share';
 import Role from './Role';
 
@@ -30,14 +29,13 @@ const useColumns = (): {
 
   const columns = [
     {
-      Component: Name,
-      clickable: true,
       disablePadding: false,
+      getFormattedString: ({ name, shares }) => shares && name,
       id: 'name',
       label: t(labelName),
       sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      type: ColumnType.string
     },
     ...(isViewer
       ? []

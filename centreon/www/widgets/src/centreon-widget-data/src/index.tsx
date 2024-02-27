@@ -3,10 +3,11 @@ import { createStore } from 'jotai';
 import { FluidTypography, Module } from '@centreon/ui';
 
 interface Props {
+  children: JSX.Element;
   store: ReturnType<typeof createStore>;
 }
 
-const Data = ({ store }: Props): JSX.Element => {
+const Data = ({ store, children }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="text" store={store}>
       <div
@@ -16,7 +17,7 @@ const Data = ({ store }: Props): JSX.Element => {
         }}
       >
         <FluidTypography text="Hello world" />
-        <FluidTypography text="Hello world" variant="h2" />
+        {children}
       </div>
     </Module>
   );

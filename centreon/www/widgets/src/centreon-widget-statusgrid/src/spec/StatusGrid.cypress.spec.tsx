@@ -21,6 +21,7 @@ import {
   hostOptions,
   linkToAllRessource,
   linkToResourceCentreonPass,
+  linkToResourceCentreonServer,
   linkToResourcePing,
   noResources,
   resources,
@@ -419,6 +420,22 @@ describe('Link to resource status page', () => {
       'have.attr',
       'href',
       linkToAllRessource
+    );
+  });
+});
+
+describe('Link to resource status page: host', () => {
+  it('navigates to resources status page with predefined filters when resource tile is clicked', () => {
+    cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
+    hostsRequests();
+    initialize({ data: { resources }, options: hostOptions });
+
+    cy.contains('Centreon-Server').should('be.visible');
+
+    cy.findByTestId('link to Centreon-Server').should(
+      'have.attr',
+      'href',
+      linkToResourceCentreonServer
     );
   });
 });

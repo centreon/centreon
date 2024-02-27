@@ -39,7 +39,7 @@ const WidgetValueFormat = ({
       <RadioGroup value={value} onChange={changeType}>
         {options.map(({ optionValue, label }) => (
           <FormControlLabel
-            control={<Radio data-testid={value} />}
+            control={<Radio data-testid={optionValue} />}
             disabled={!canEditField}
             key={optionValue}
             label={label}

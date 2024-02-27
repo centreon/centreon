@@ -105,6 +105,11 @@ jobs:
           echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Install action dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./.github/actions/code-coverage-gate-keeper
+        shell: bash
+
       - name: Archive HTML code coverage
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
@@ -120,6 +125,13 @@ jobs:
           title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
           delete-old-comments: true
           filter-changed-files: true
+
+      - name: Check Code coverage
+        uses: ./.github/actions/code-coverage-gate-keeper
+        with:
+          module_path: ${{ inputs.module_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ steps.title.outputs.replaced }}
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]

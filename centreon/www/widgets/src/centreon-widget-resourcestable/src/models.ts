@@ -1,6 +1,6 @@
-import { GlobalRefreshInterval, Resource } from '../../models';
+import { CommonWidgetProps, Resource, SortOrder } from '../../models';
 
-import { DisplayType, SortOrder } from './Listing/models';
+import { DisplayType } from './Listing/models';
 
 export interface Data {
   resources: Array<Resource>;
@@ -18,12 +18,8 @@ export interface PanelOptions {
   statuses: Array<string>;
 }
 
-export interface ResourcesTableProps {
+export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
   changeViewMode?: (displayType) => void;
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
   panelData: Data;
   panelOptions: PanelOptions;
-  refreshCount: number;
-  setPanelOptions?: (panelOptions: PanelOptions) => void;
 }

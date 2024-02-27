@@ -1,4 +1,4 @@
-import { useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
@@ -17,7 +17,7 @@ const ContactSwitch = ({ labels }: Props): JSX.Element => {
   const { classes } = useContactSwitchStyles();
   const { t } = useTranslation();
 
-  const setContactType = useSetAtom(contactTypeAtom);
+  const [contactType, setContactType] = useAtom(contactTypeAtom);
 
   const change = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setContactType(event.target.value as ContactType);
@@ -29,7 +29,7 @@ const ContactSwitch = ({ labels }: Props): JSX.Element => {
       <RadioGroup
         row
         className={classes.inputs}
-        defaultValue={ContactType.Contact}
+        value={contactType}
         onChange={change}
       >
         <FormControlLabel

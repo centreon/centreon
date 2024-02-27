@@ -102,6 +102,7 @@ export interface Props<TRow> {
   getId?: (row: TRow) => RowId;
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
+  isResponsive?: boolean;
   limit?: number;
   listingVariant?: ListingVariant;
   loading?: boolean;
@@ -147,6 +148,7 @@ const Listing = <TRow extends { id: RowId }>({
   columns,
   columnConfiguration = defaultColumnConfiguration,
   customPaginationClassName,
+  isResponsive = false,
   onResetColumns,
   onSelectColumns,
   rows = [],
@@ -233,7 +235,7 @@ const Listing = <TRow extends { id: RowId }>({
   const { classes } = useListingStyles({
     dataStyle,
     getGridTemplateColumn,
-    listingVariant,
+    isResponsive,
     rows: rowsToDisplay
   });
 

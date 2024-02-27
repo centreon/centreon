@@ -52,9 +52,11 @@ const useCreateToken = (): UseCreateToken => {
       const expirationDate = toIsoString(customizeDate as Date);
 
       mutateAsync({
-        expiration_date: expirationDate,
-        name: tokenName,
-        user_id: user?.id
+        payload: {
+          expiration_date: expirationDate,
+          name: tokenName,
+          user_id: user?.id
+        }
       });
 
       return;

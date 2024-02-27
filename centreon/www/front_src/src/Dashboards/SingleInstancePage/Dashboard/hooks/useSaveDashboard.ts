@@ -68,7 +68,9 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   });
 
   const saveDashboard = (): void => {
-    mutateAsync({ panels: formatPanelsToAPI(dashboard.layout) }).then(() => {
+    mutateAsync({
+      payload: { panels: formatPanelsToAPI(dashboard.layout) }
+    }).then(() => {
       showSuccessMessage(t(labelYourDashboardHasBeenSaved));
       switchPanelsEditionMode(false);
       queryClient.invalidateQueries({
