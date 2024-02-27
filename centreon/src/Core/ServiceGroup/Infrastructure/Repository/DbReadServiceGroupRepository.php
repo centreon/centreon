@@ -66,6 +66,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     {
         $concatenator = $this->getFindServiceGroupConcatenator();
         
+        
         $concatenator->appendJoins(
             <<<'SQL'
                     LEFT JOIN `:db`.servicegroup_relation sgr
