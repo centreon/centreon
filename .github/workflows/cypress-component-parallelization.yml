@@ -85,11 +85,12 @@ jobs:
         uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
           pattern: ${{ inputs.name }}-test-coverage-*
-          path: .nyc_output/
+          path: ${{ inputs.module_name }}/.nyc_output/
           merge-multiple: true
 
       - name: Merge coverage reports
         run: |
+          mv ${{ inputs.module_name }}/.nyc_output .nyc_output
           pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
         shell: bash
