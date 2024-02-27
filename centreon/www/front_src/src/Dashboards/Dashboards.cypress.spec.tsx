@@ -9,8 +9,8 @@ import {
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
-import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
+import { DashboardRole } from './api/models';
 import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,

@@ -59,8 +59,8 @@ const ResponsivePie = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const titleRef = useRef(null);
   const legendRef = useRef(null);
+  const titleRef = useRef(null);
 
   const {
     half,
