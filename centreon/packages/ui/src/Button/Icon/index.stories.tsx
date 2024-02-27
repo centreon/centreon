@@ -33,7 +33,6 @@ const TemplateIconButton: ComponentStory<typeof IconButton> = (args) => (
 );
 
 export const PlaygroundIconButton = TemplateIconButton.bind({});
-
 PlaygroundIconButton.args = { ariaLabel: 'aria-label', title: 'Icon' };
 
 const CustomIconButton = (): JSX.Element => {
