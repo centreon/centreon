@@ -51,4 +51,11 @@ interface ReadResourceAccessRepositoryInterface
      * @return null|Rule
      */
     public function findById(int $ruleId): ?Rule;
+
+    /**
+     * @param int $ruleId
+     *
+     * @return int[]
+     */
+    public function findDatasetIdsByRuleId(int $ruleId): array;
 }
