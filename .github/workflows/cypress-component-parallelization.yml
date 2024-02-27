@@ -128,6 +128,7 @@ jobs:
 
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
