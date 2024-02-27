@@ -8,6 +8,9 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap'
   },
+  clickable: {
+    cursor: 'default'
+  },
   componentColumn: {
     width: theme.spacing(2.75)
   },

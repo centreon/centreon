@@ -9,7 +9,7 @@ import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
 import {
   labelCreateADashboard,
-  labelDashboardLibrary
+  labelDashboards
 } from '../../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import { DashboardLayout } from '../../../models';
@@ -49,7 +49,7 @@ const DashboardsQuickAccessMenu = ({
       isActive={(id) => equals(id, Number(dashboard?.id))}
       labels={{
         create: labelCreateADashboard,
-        goBack: labelDashboardLibrary
+        goBack: labelDashboards
       }}
       navigateToElement={navigateToDashboard}
     />
