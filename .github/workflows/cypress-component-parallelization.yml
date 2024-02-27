@@ -165,22 +165,22 @@ jobs:
           format: cypress
           urlFilePrefix: centreon
 
-  # regroup-artifacts:
-  #   needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-  #   if: always()
-  #   runs-on: ubuntu-22.04
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       type_of_report: [test-reports, test-coverage]
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+  regroup-artifacts:
+    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-reports, test-coverage]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - name: Merging Artifacts
-  #       uses: ./.github/actions/merge-artifacts
-  #       if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
-  #       with:
-  #         target_name: ${{ inputs.name }}-${{ matrix.type_of_report }}
-  #         source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
-  #         source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
+        if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+        with:
+          target_name: ${{ inputs.name }}-${{ matrix.type_of_report }}
+          source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
+          source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
