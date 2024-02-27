@@ -3,7 +3,13 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { Provider, createStore } from 'jotai';
+import {
+  Provider,
+  createStore,
+  useAtom,
+  useAtomValue,
+  useSetAtom
+} from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -34,10 +40,13 @@ import {
 import {
   labelActiveToken,
   labelCancel,
+  labelClear,
   labelCreateNewToken,
+  labelCreationDate,
   labelCreator,
   labelDeleteToken,
   labelDuration,
+  labelExpirationDate,
   labelGenerateNewToken,
   labelName,
   labelRevokedToken,
@@ -55,6 +64,7 @@ import {
   isRevokedAtom
 } from './TokenListing/Actions/Filter/atoms';
 import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
+import { fieldDelimiter } from './TokenListing/Actions/Search/models';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -217,7 +227,10 @@ const firstPageParameter = 'page=1&limit=10';
 const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-
+const parametersWithAllSearchableFields =
+  'page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"admin\\s+admin"}}]},{"$or":[{"token_name":{"$rg":"test"}},{"token_name":{"$rg":"token1"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"User"}},{"user.name":{"$rg":"Guest"}}]}]}&creation_date="2024-02-20T11:57:53Z"&expiration_date="2024-03-28T11:57:55Z"&is_revoked=false';
+const parametersWithSelectedFilters =
+  '?page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"user.name":{"$rg":"User"}}]}&creation_date="2024-02-20T12:42:31Z"&expiration_date="2024-03-28T12:42:33Z"';
 const tokenToDelete = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
@@ -557,76 +570,104 @@ describe('Api-token', () => {
   });
 
   const searchableFieldsValues = [
-    { field: Fields.CreationDate, value: '2024-02-19T16:33:51Z' },
-    { field: Fields.ExpirationDate, value: '2024-02-19T16:33:51Z' },
-    { field: Fields.CreatorId, value: 1 },
-    { field: Fields.UserId, value: 14 },
-    { field: Fields.UserName, value: 'Guest' },
+    { field: Fields.CreationDate, values: ['2024-02-20T11:57:53Z'] },
+    { field: Fields.ExpirationDate, values: ['2024-03-28T11:57:55Z'] },
+    { field: Fields.CreatorId, values: [1] },
+    { field: Fields.UserId, values: [18, 17] },
+    { field: Fields.UserName, values: ['Guest', 'User'] },
     {
       field: Fields.CreatorName,
-      value: translateWhiteSpaceToRegex('admin admin')
+      values: [translateWhiteSpaceToRegex('admin admin')]
     },
-    { field: Fields.TokenName, value: 'token1' },
-    { field: Fields.IsRevoked, value: 'false' }
+    { field: Fields.TokenName, values: ['token1', 'test'] },
+    { field: Fields.IsRevoked, values: ['false'] }
   ];
 
   const constructSearchInput = (arr): string => {
-    return arr.map(({ field, value }) => `${field}:${value}`).join(' ');
+    return arr
+      .map(({ field, values }) => {
+        const value = values.join(',');
+
+        return `${field}:${value}`;
+      })
+      .join(' ');
   };
 
-  it.only('executes a listing request with current search', () => {
+  it.only('executes a listing request with all searchable fields', () => {
     cy.waitForRequest('@getListTokens');
     const searchInput = constructSearchInput(searchableFieldsValues);
 
-    const search = renderHook(() => useAtomValue(searchAtom));
-    const creationDate = renderHook(() => useAtomValue(creationDateAtom));
-    const expirationDate = renderHook(() => useAtomValue(expirationDateAtom));
-    const isRevoked = renderHook(() => useAtomValue(isRevokedAtom));
+    const search = renderHook(() => useSetAtom(searchAtom));
+    const creationDate = renderHook(() => useSetAtom(creationDateAtom));
+    const expirationDate = renderHook(() => useSetAtom(expirationDateAtom));
+    const isRevoked = renderHook(() => useSetAtom(isRevokedAtom));
 
-    search.result.current = searchInput;
-    creationDate.result.current = dayjs('2024-02-19T16:33:51Z').toDate();
-    expirationDate.result.current = dayjs('2024-02-19T16:33:51Z').toDate();
-    isRevoked.result.current = false;
+    search.result.current(searchInput);
+    creationDate.result.current(dayjs('2024-02-19T16:33:51Z').toDate());
+    expirationDate.result.current(dayjs('2024-02-19T16:33:51Z').toDate());
+    isRevoked.result.current(false);
 
     const {
       result: { current }
     } = renderHook(() => useBuildParameters());
 
     const { getSearchParameters, queryParameters } = current;
+
     interceptListTokens({
-      alias: 'getListTokensWithBuildedParameters',
+      alias: 'getListTokensWithSearchableFields',
       customQueryParameters: queryParameters,
-      dataPath: '',
+      dataPath: 'apiTokens/listing/search/listWithAllSearchableFields.json',
       parameters: { ...DefaultParameters, search: getSearchParameters() }
     });
 
     cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
     cy.wait('@getListTokensWithBuildedParameters');
-    cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(defaultParameters));
+    cy.getRequestCalls('@getListTokensWithSearchableFields').then((calls) => {
+      expect(
+        calls[0].request.url.search.includes(parametersWithAllSearchableFields)
+      );
     });
-    searchableFieldsValues.forEach(({ value }) => {
-      cy.contains(value);
+    searchableFieldsValues.forEach(({ values }) => {
+      values.forEach((value) => {
+        cy.contains(value);
+      });
     });
+
+    // cy.makeSnapshot();
   });
 
-  it.only('update the filter interface when changes are made to the search bar', () => {
+  it('display the filter interface', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filteroption').click();
+    cy.findByTestId(labelCreationDate).should('be.visible');
+    cy.findByTestId(labelExpirationDate).should('be.visible');
+    cy.findByTestId(labelUser).should('be.visible');
+    cy.findByTestId(labelCreator).should('be.visible');
+    cy.findByTestId(labelActiveToken).should('be.visible');
+    cy.findByTestId(labelRevokedToken).should('be.visible');
+    // cy.makeSnapshot()
+  });
+
+  it('update the filter interface when changes are made to the search bar', () => {
     cy.waitForRequest('@getListTokens');
     const searchInput = 'user.name:User,Guest is_revoked:true';
     cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
     cy.findByTestId('Filteroption').click();
-    cy.findByTestId(labelUser).contains('User');
-    cy.findByTestId(labelUser).contains('Guest');
+    cy.findByTestId(labelUser).should('have.value', 'User');
+    cy.findByTestId(labelUser).should('have.value', 'Guest');
     cy.findAllByTestId(labelActiveToken).should('be.checked');
+    // cy.makeSnapshot();
   });
-  it.only('update the search bar when changes are made to the filter interface', () => {
+
+  it('update the search bar when changes are made to the filter interface', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.findByTestId('Filteroption').click();
     cy.findAllByTestId(labelRevokedToken).check();
 
-    cy.findByTestId(labelCreator).click();
-    cy.findByRole('option', { name: 'admin admin' }).click();
+    // cy.findByTestId(labelCreator).click();
+    // cy.findByRole('option', { name: 'admin admin' }).click();
+    cy.findByTestId(labelCreator).select('admin admin');
 
     cy.findByTestId(labelUser).click();
     cy.findByRole('option', { name: 'Guest' }).click();
@@ -637,6 +678,53 @@ describe('Api-token', () => {
     )} user.name:Guest,centreon-gorgone`;
 
     cy.findByTestId('inputSearch').should('have.value', expectedSearch);
+
+    // cy.makeSnapshot();
   });
-  // it.only('executes a listing request with selected filters', () => {});
+
+  it('executes a listing request with selected filters', () => {
+    cy.waitForRequest('@getListTokens');
+    const {
+      result: { current }
+    } = renderHook(() => useBuildParameters());
+
+    const { getSearchParameters, queryParameters } = current;
+
+    cy.findByTestId('Filteroption').click();
+
+    cy.findByTestId(labelUser).select('User');
+    cy.findByTestId(labelCreationDate).select('Last 7 days');
+    cy.findByTestId(labelExpirationDate).select('In 30 days');
+    cy.findByTestId(labelActiveToken).check();
+
+    interceptListTokens({
+      alias: 'getListTokensWithSelectedFilters',
+      customQueryParameters: queryParameters,
+      dataPath: 'apiTokens/listing/search/listWithSelectedFields.json',
+      parameters: { ...DefaultParameters, search: getSearchParameters() }
+    });
+
+    cy.findByTestId(labelSearch).click();
+
+    cy.getRequestCalls('@getListTokensWithSelectedFilters').then((calls) => {
+      expect(
+        calls[0].request.url.search.includes(parametersWithSelectedFilters)
+      );
+    });
+
+    cy.contains('User');
+    // cy.contains(expirationDate);
+    // cy.contains(creationDate)
+    // cy.contains('User');
+  });
+
+  it('clear the selected filter when clicking on the clear button', () => {
+    cy.waitForRequest('@getListTokens');
+
+    cy.findByTestId(labelCreator).select('admin admin');
+    cy.findAllByTestId(labelRevokedToken).check();
+    cy.findByTestId(labelClear).click();
+    cy.findByTestId(labelCreator).should('not.have.value');
+    cy.findByTestId(labelRevokedToken).should('not.be.checked');
+  });
 });
