@@ -254,18 +254,26 @@ class CentreonAuthLDAP
                         'LDAP AUTH : Updating user DN of ' . $userDisplay
                     );
                     $stmt = $this->pearDB->prepare(
-                        'UPDATE contact SET
+                        <<<'SQL'
+                        UPDATE contact SET
                         contact_ldap_dn = :userDn,
                         contact_name = :userDisplay,
                         contact_email = :userEmail,
                         contact_pager = :userPager,
+                        reach_api_rt = :reachApiRt,
                         ar_id = :arId
-                        WHERE contact_id = :contactId'
+                        WHERE contact_id = :contactId
+                        SQL
                     );
                     $stmt->bindValue(':userDn', $userDn, \PDO::PARAM_STR);
                     $stmt->bindValue(':userDisplay', $userDisplay, \PDO::PARAM_STR);
                     $stmt->bindValue(':userEmail', $userEmail, \PDO::PARAM_STR);
                     $stmt->bindValue(':userPager', $userPager, \PDO::PARAM_STR);
+                    $stmt->bindValue(
+                        ':reachApiRt',
+                        $this->contactInfos['contact_oreon'] === '1' ? 1 : 0,
+                        \PDO::PARAM_INT
+                    );
                     $stmt->bindValue(':arId', $this->arId, \PDO::PARAM_INT);
                     $stmt->bindValue(':contactId', $this->contactInfos['contact_id'], \PDO::PARAM_INT);
                     $stmt->execute();
@@ -327,16 +335,15 @@ class CentreonAuthLDAP
 
                 // Inserting the new user in the database
                 $stmt = $this->pearDB->prepare(
-                    "INSERT INTO contact
-                    (contact_template_id, contact_alias, contact_name,
-                    contact_auth_type, contact_ldap_dn, ar_id,
-                    contact_email, contact_pager, contact_oreon,
-                    contact_activate, contact_register, contact_enable_notifications)
+                    <<<'SQL'
+                    INSERT INTO contact
+                        (contact_template_id, contact_alias, contact_name, contact_auth_type, contact_ldap_dn, ar_id,
+                        contact_email, contact_pager, contact_oreon, reach_api_rt, contact_activate, contact_register,
+                        contact_enable_notifications)
                     VALUES
-                    (:templateId, :contactAlias, :userDisplay,
-                    'ldap', :userDn, :arId,
-                    :userEmail, :userPager, '1',
-                    '1', '1', '2')"
+                        (:templateId, :contactAlias, :userDisplay, 'ldap', :userDn, :arId, :userEmail, :userPager, '1',
+                        1, '1', '1', '2')
+                    SQL
                 );
                 try {
                     $stmt->bindValue(':templateId', $tmplId, \PDO::PARAM_INT);

@@ -163,10 +163,15 @@ interface Props {
   headerRef?: RefObject<HTMLElement>;
 }
 
+export const testUtils = {
+  useNavigate,
+  useNavigation
+};
+
 const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
-  const { allowedPages } = useNavigation();
+  const { allowedPages } = testUtils.useNavigation();
 
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
@@ -181,7 +186,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     request: getData
   });
 
-  const navigate = useNavigate();
+  const navigate = testUtils.useNavigate();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
 
   const loadUserData = (): void => {
