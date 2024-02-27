@@ -88,7 +88,7 @@ runs:
         # if non-cloud, delivery to testing as usual
         if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "release" ]] ;then
           ROOT_REPO_PATH="rpm-standard-internal"
-          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
           ROOT_REPO_PATH="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/"
