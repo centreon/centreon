@@ -63,6 +63,7 @@ jobs:
 
       - id: get_version
         run: |
+          set -x
           if [[ "${{ inputs.version_file }}" == */.version ]]; then
             . .version
             . ${{ inputs.version_file }}
@@ -112,7 +113,7 @@ jobs:
             release* | hotfix*)
               # Set default release values
               GITHUB_RELEASE_CLOUD=0
-              GITHUB_RELEASE_TYPE="$(echo $BRANCHNAME |cut -d '-' -f 1)"
+              GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
 
               # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
               GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
