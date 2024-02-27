@@ -24,14 +24,9 @@ import DeleteDashboard from './DeleteDashboard';
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
-  const { name: dashboardName, ownRole } = row;
-  const {
-    editDashboard,
-    isNestedRow,
-    deleteDashboard,
-    editAccessRights,
-    openAskBeforeRevoke
-  } = useActions(row);
+  const { ownRole } = row;
+  const { editDashboard, isNestedRow, editAccessRights, openAskBeforeRevoke } =
+    useActions(row);
 
   const actions = [
     {

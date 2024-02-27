@@ -73,13 +73,13 @@ const MorePanelActions = ({
   };
 
   const openDeleteModal = (): void => {
-    const panel = dashboard.layout.find((panel) =>
+    const panelToDelete = dashboard.layout.find((panel) =>
       equals(panel.i, id)
     ) as Panel;
 
     setWidgetToDelete({
       id,
-      name: panel.options?.name
+      name: panelToDelete.options?.name
     });
   };
 

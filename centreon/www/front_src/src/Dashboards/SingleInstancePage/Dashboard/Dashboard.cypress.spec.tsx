@@ -10,6 +10,8 @@ import widgetInputProperties from 'centreon-widgets/centreon-widget-input/proper
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import { BrowserRouter } from 'react-router-dom';
+import { initReactI18next } from 'react-i18next';
+import i18next from 'i18next';
 
 import {
   DashboardGlobalRole,
@@ -41,7 +43,6 @@ import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
   labelDeleteWidget,
-  labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
@@ -154,6 +155,11 @@ const initializeAndMount = ({
     user_interface_density: ListingVariant.compact
   });
   store.set(refreshIntervalAtom, 15);
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
 
   cy.viewport('macbook-13');
 
@@ -333,13 +339,13 @@ describe('Dashboard', () => {
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
-          assert.equal(dashboard.layout.length, 2);
-          assert.exists(dashboard.layout[1].data);
+          assert.equal(dashboard.layout.length, 3);
+          assert.exists(dashboard.layout[2].data);
           assert.equal(
-            dashboard.layout[1].options?.text,
+            dashboard.layout[2].options?.text,
             'Text for the new widget'
           );
-          assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
         });
 
       cy.makeSnapshot();
@@ -355,11 +361,28 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
-      cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
+      cy.contains('The Widget text widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.findByLabelText(labelDelete).click();
 
       cy.contains(labelAddAWidget).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('does not displays the name of the widget a widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findAllByLabelText(labelMoreActions).eq(2).click();
+      cy.contains(labelDeleteWidget).click();
+
+      cy.contains('The widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.makeSnapshot();
     });

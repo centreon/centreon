@@ -1,5 +1,7 @@
 import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
+import { initReactI18next } from 'react-i18next';
+import i18next from 'i18next';
 
 import {
   DashboardGlobalRole,
@@ -23,6 +25,7 @@ import {
   labelCreate,
   labelDashboardDeleted,
   labelDelete,
+  labelDeleteDashboard,
   labelDeleteUser,
   labelName,
   labelSave,
@@ -76,6 +79,11 @@ const initializeAndMount = ({
     timezone: 'Europe/Paris',
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
+  });
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
   });
 
   cy.viewport('macbook-13');
@@ -446,7 +454,7 @@ describe('Dashboards', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByLabelText('delete').eq(0).click();
-    cy.contains(labelDelete).click();
+    cy.findByLabelText(labelDelete).click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -460,7 +468,38 @@ describe('Dashboards', () => {
     cy.contains(labelCancel).click();
 
     cy.contains(labelCancel).should('not.exist');
-    cy.contains(labelDelete).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
+  });
+
+  it('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).eq(1).click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard in the listing when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findByLabelText(labelDelete).click();
+
+    cy.contains(labelDeleteDashboard).should('be.visible');
+    cy.contains(
+      'The My Dashboard dashboard will be permanently deleted.'
+    ).should('be.visible');
+
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
   });
 
   it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
