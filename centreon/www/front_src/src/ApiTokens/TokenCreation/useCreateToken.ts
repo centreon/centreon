@@ -66,9 +66,11 @@ const useCreateToken = (): UseCreateToken => {
     });
 
     mutateAsync({
-      expiration_date: expirationDate,
-      name: tokenName,
-      user_id: user?.id
+      payload: {
+        expiration_date: expirationDate,
+        name: tokenName,
+        user_id: user?.id
+      }
     });
   };
 
