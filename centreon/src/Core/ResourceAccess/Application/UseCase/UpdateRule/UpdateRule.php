@@ -351,7 +351,7 @@ final class UpdateRule
     {
         // Do not do uneccessary database calls if nothing has changed
         if (
-            ! $this->shouldUpdateContactOrContactGroupRelations(
+            $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactGroupIds(),
                 $updateRequest->contactGroupIds
             )
@@ -382,7 +382,7 @@ final class UpdateRule
     {
         // Do not do uneccessary database calls if nothing has changed
         if (
-            ! $this->shouldUpdateContactOrContactGroupRelations(
+            $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactIds(),
                 $updateRequest->contactIds
             )
@@ -446,7 +446,7 @@ final class UpdateRule
         sort($current);
         sort($update);
 
-        return array_diff($current, $update) === [];
+        return array_diff($current, $update) !== [];
     }
 
     /**
