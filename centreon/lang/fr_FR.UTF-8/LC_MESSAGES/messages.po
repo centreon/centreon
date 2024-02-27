@@ -18680,5 +18680,8 @@ msgstr "Ajouter des colonnes"
 msgid "Resource table"
 msgstr "Tableau des ressources"
 
-msgid "No Data Available"
-msgstr "Pas de données disponibles"
+msgid "Fullscreen (Alt+F)"
+msgstr "Plein écran (Alt+F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
