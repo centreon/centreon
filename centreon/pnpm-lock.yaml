@@ -630,6 +630,9 @@ importers:
       '@visx/group':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
+      '@visx/legend':
+        specifier: ^3.5.0
+        version: 3.5.0(react@18.2.0)
       '@visx/pattern':
         specifier: ^3.0.0
         version: 3.3.0(react@18.2.0)
@@ -639,6 +642,9 @@ importers:
       '@visx/shape':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
+      '@visx/text':
+        specifier: ^3.3.0
+        version: 3.3.0(react@18.2.0)
       '@visx/threshold':
         specifier: ^2.12.2
         version: 2.18.0(react@18.2.0)
@@ -673,7 +679,7 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0)
       numeral:
-        specifier: 2.x
+        specifier: ^2.0.6
         version: 2.0.6
       ramda:
         specifier: 0.29.1

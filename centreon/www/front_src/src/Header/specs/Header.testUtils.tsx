@@ -14,6 +14,7 @@ import type {
 import type { PollersIssuesList } from '../api/models';
 import { retrievedNavigation } from '../../Navigation/mocks';
 import type Navigation from '../../Navigation/models';
+import { testUtils } from '../UserMenu';
 
 export type DeepPartial<Thing> =
   Thing extends Array<infer InferredArrayMember>
@@ -65,7 +66,7 @@ const serviceStatusStub: ServiceStatusResponse = {
 };
 
 const userStub = {
-  autologinkey: null,
+  autologinkey: 'LKEY-autologin',
   fullname: 'admin admin',
   hasAccessToProfile: true,
   isExportButtonEnabled: false,
@@ -168,7 +169,13 @@ const requestHandler =
     return undefined;
   };
 
-export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
+export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
+  const navigate = cy.stub();
+  cy.stub(testUtils, 'useNavigate').returns(navigate);
+  cy.stub(testUtils, 'useNavigation').returns({
+    allowedPages: ['50104']
+  });
+
   cy.interceptRequest(
     Method.GET,
     '**/internal.php',
@@ -198,6 +205,8 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
   });
 
   cy.viewport(1200, 300);
+
+  return navigate;
 };
 
 export const submenuShouldBeClosed = (label: string): void => {
