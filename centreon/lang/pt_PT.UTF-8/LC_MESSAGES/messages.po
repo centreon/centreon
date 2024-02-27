@@ -17274,3 +17274,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
