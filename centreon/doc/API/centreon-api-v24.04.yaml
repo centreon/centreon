@@ -811,9 +811,12 @@ paths:
         * name
         * alias
         * is_activated
-        * host_id
-        * host_group_id
-        * host_category_id
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
       responses:
         "200":
           description: "OK"
