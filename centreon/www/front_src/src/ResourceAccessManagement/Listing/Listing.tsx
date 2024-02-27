@@ -10,6 +10,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
     columns,
     data,
     loading,
+    onRowClick,
     page,
     predefinedRowsSelection,
     resetColumns,
@@ -51,6 +52,7 @@ const ResourceAccessRulesListing = (): JSX.Element => {
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
+      onRowClick={onRowClick}
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}
