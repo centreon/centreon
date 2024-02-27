@@ -129,7 +129,7 @@ jobs:
                 echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
                 echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
                 # Github ouputs
-                echo "release=`$GITHUB_RELEASE_BRANCH_PR_NUMBER.`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+                echo "release=`$GITHUB_RELEASE_BRANCH_PR_NUMBER`.`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
                 echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
