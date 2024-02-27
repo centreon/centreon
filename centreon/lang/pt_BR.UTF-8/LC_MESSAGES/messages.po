@@ -17334,3 +17334,6 @@ msgstr ""
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
