@@ -28,21 +28,21 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\Response\ContactGroupsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 
 final class FindDashboardContactGroups
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
     ) {
     }
 
@@ -72,25 +72,30 @@ final class FindDashboardContactGroups
     /**
      * @throws \Throwable
      *
-     * @return array<ContactGroup>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsAdmin(): array
     {
-        return $this->readContactGroupRepository->findAll();
+        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByRequestParameters(
+            $this->requestParameters
+        );
     }
 
     /**
      * @throws \Throwable
      *
-     * @return array<ContactGroup>
+     * @return DashboardContactGroupRole[]
      */
     private function findContactGroupsAsContact(): array
     {
-        return $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByUserAndRequestParameters(
+            $this->requestParameters,
+            $this->contact->getId()
+        );
     }
 
     /**
-     * @param ContactGroup[] $groups
+     * @param DashboardContactGroupRole[] $groups
      */
     private function createResponse(array $groups): FindDashboardContactGroupsResponse
     {
@@ -98,8 +103,9 @@ final class FindDashboardContactGroups
 
         foreach ($groups as $group) {
             $response->contactGroups[] = new ContactGroupsResponseDto(
-                $group->getId(),
-                $group->getName(),
+                $group->getContactGroupId(),
+                $group->getContactGroupName(),
+                $group->getMostPermissiverole()
             );
         }
 

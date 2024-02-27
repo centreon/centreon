@@ -120,9 +120,11 @@ final class FindDashboardContacts
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
             $this->requestParameters
         );
+        $total = $this->requestParameters->getTotal();
         $admins = $this->readContactRepository->findAdminWithRequestParameters(
             $this->requestParameters
         );
+        $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
         $adminContactRoles = [];
         foreach ($admins as $admin) {
             $adminContactRoles[] = new DashboardContactRole(

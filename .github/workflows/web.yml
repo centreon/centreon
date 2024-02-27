@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
+      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a # v3.0.1
         id: filter
         with:
           filters: |
@@ -237,12 +237,12 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           node-version: 20
           cache: pnpm
@@ -284,7 +284,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
           php-version: 8.1
           coverage: none
@@ -316,7 +316,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
           php-version: 8.1
           coverage: none
@@ -538,6 +538,9 @@ jobs:
             PACKAGE_EXTENSION=deb
           elif [ "${{ matrix.os }}" = "bookworm" ]; then
             DISTRIB=bookworm
+            PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.os }}" = "jammy" ]; then
+            DISTRIB=jammy
             PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.os }} is not managed"
@@ -798,7 +801,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -886,7 +889,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources

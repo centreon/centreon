@@ -635,6 +635,9 @@ function insertContact($ret = array())
         $ret = $form->getSubmitValues();
     }
     $ret["contact_name"] = $centreon->checkIllegalChar($ret["contact_name"]);
+    if (isset($ret['contact_oreon']['contact_oreon']) && $ret['contact_oreon']['contact_oreon'] === '1') {
+        $ret['reach_api_rt']['reach_api_rt'] = '1';
+    }
 
     $bindParams = sanitizeFormContactParameters($ret);
     $params = [];
@@ -1084,8 +1087,9 @@ function insertLdapContactInDB($tmpContacts = array())
 
             // Insert the relation between contact and contactgroups
             $query = <<<SQL
-                        INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id) VALUES (:contactgroup_cg_id, :contact_contact_id)" 
-                      SQL;
+                INSERT INTO contactgroup_contact_relation (contactgroup_cg_id, contact_contact_id)
+                VALUES (:contactgroup_cg_id, :contact_contact_id)
+                SQL;
             $statement = $pearDB->prepare($query);
             while ($row = $res->fetch()) {
                 $statement->bindValue(':contactgroup_cg_id', (int) $row['cg_id'], \PDO::PARAM_INT);

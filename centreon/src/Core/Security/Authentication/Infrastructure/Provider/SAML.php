@@ -494,6 +494,9 @@ class SAML implements ProviderAuthenticationInterface
 
         $alias = $this->username;
         $user = new NewUser($alias, $fullname, $email);
+        if ($user->canReachFrontend()) {
+            $user->setCanReachRealtimeApi(true);
+        }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [

@@ -62,7 +62,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         $concatenator = new SqlConcatenator();
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
+                SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     contact_id,
                     contact_alias,
                     contact_name,
@@ -129,7 +129,7 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         $concatenator = new SqlConcatenator();
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS
+                SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     contact_id,
                     contact_alias,
                     contact_name,

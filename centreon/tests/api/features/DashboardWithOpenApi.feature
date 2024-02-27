@@ -1577,6 +1577,7 @@ Feature:
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
+    ACLGROUP;setcontactgroup;name-viewer-ACLGROUP;Guest;
     CG;add;GC-Name;alias-admin-CG;
     CG;addcontact;GC-Name;usr-admin;
     CG;addcontact;GC-Name;usr-viewer;
@@ -1638,7 +1639,8 @@ Feature:
         "result": [
             {
                 "id": 3,
-                "name": "Guest"
+                "name": "Guest",
+                "most_permissive_role": "viewer"
             }
         ],
         "meta": {

@@ -1552,6 +1552,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/shares:
+    $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
