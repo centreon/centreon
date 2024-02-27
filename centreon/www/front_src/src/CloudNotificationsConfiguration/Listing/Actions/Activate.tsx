@@ -49,7 +49,9 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
     const value = event.target.checked;
     setChecked(value);
 
-    mutateAsync({ is_activated: value }).then((response) => {
+    mutateAsync({
+      payload: { is_activated: value }
+    }).then((response) => {
       if ((response as ResponseError).isError) {
         setChecked(!value);
 
