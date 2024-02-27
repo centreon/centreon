@@ -65,8 +65,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable
     {
         $concatenator = $this->getFindServiceGroupConcatenator();
-        
-        
+
         $concatenator->appendJoins(
             <<<'SQL'
                     LEFT JOIN `:db`.servicegroup_relation sgr
