@@ -1,10 +1,9 @@
-import { equals, includes } from 'ramda';
+import { equals } from 'ramda';
 import { useSetAtom } from 'jotai';
 
 import {
   getResourcesUrlForMetricsWidgets,
-  getUrlForResourcesOnlyWidgets,
-  resourceBasedWidgets
+  getUrlForResourcesOnlyWidgets
 } from '../utils';
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
 import { Visualization } from '../../../../Resources/models';
@@ -25,7 +24,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options): string => {
-    if (!includes(name, resourceBasedWidgets)) {
+    if (!data?.resources) {
       return '';
     }
 
