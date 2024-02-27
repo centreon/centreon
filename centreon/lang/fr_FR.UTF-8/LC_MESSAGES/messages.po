@@ -18532,3 +18532,6 @@ msgstr "Tableau des ressources"
 
 msgid "See more on the Resources Status page"
 msgstr "Voir plus dans la page Statut des ressources"
+
+msgid "Fullscreen (Alt+F)"
+msgstr "Plein écran (Alt+F)"

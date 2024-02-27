@@ -16490,3 +16490,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
