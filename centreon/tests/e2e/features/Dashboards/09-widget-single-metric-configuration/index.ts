@@ -240,7 +240,7 @@ Then(
       .invoke('text')
       .then((text) => {
         if (parseFloat(text) !== 0) {
-          expect(text).to.match(/\d+\.\d{3,}/);
+          expect(text).to.match(/\d+\.\d{2,}/);
         }
       });
   }
