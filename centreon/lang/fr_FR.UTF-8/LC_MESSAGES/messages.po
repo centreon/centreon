@@ -18686,3 +18686,5 @@ msgstr "Plein écran (Alt+F)"
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
 
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
