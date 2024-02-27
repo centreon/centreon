@@ -23,6 +23,13 @@ on:
       dockerize_matrix:
         description: "matrix to use for dockerize job"
         value: ${{ jobs.get-version.outputs.dockerize_matrix }}
+      release_type:
+        description: "type of release (hotfix, release)"
+        value: ${{ jobs.get-version.outputs.release_type }}
+      release_cloud:
+        description: "context of release (cloud or not cloud)"
+        value: ${{ jobs.get-version.outputs.release_cloud }}
+
 jobs:
   get-version:
     runs-on: ubuntu-22.04
