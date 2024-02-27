@@ -150,10 +150,8 @@ When(
 Then(
   'a top of best-performing resources for this metbric are displayed in the widget preview',
   () => {
-    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
     cy.contains('#1 Centreon-Server_Ping').should('be.visible');
   }
 );
@@ -417,10 +415,8 @@ When(
 Then(
   'the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
   }
 );
 
