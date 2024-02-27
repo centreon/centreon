@@ -29,5 +29,5 @@ Examples:
   | widgetType      |
   | single metric   |
   | metrics graph   |
-  | top buttom  |
-  | status grid    |
+  | top button      |
+  | status grid     |
