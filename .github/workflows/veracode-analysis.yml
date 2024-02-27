@@ -216,7 +216,6 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
