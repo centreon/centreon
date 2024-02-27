@@ -420,7 +420,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT DISTINCT
+                    SELECT
                         sg.sg_id,
                         sg.sg_name,
                         sg.sg_alias,
