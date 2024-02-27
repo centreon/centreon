@@ -303,7 +303,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 
