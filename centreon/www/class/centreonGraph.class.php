@@ -1685,6 +1685,12 @@ class CentreonGraph
                 replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
                 FROM virtual_metrics WHERE " . $lWhere . " ORDER BY metric_name"
         );
+        if (is_null($vId)) {
+            $lPqy->bindParam(':vName', $vName, PDO::PARAM_STR);
+            $lPqy->bindParam(':indexId', $indexId, PDO::PARAM_INT);
+        } else {
+            $lPqy->bindParam(':vId', $vId, PDO::PARAM_INT);
+        }
         $lPqy->execute();
         /*
          * There is only one metric_id
