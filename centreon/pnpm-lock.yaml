@@ -64,6 +64,7 @@ importers:
       cypress: 12.13.0
       cypress-msw-interceptor: 2.1.0
       cypress-plugin-tab: ^1.0.5
+      cypress-real-events: ^1.11.0
       d3-array: 3.2.0
       d3-color: ^3.1.0
       d3-format: ^3.1.0
@@ -244,6 +245,7 @@ importers:
       cypress: 12.13.0
       cypress-msw-interceptor: 2.1.0_cypress@12.13.0+msw@0.49.1
       cypress-plugin-tab: 1.0.5
+      cypress-real-events: 1.11.0_cypress@12.13.0
       eslint: 8.40.0
       eslint-config-airbnb: 19.0.4_bpcxrudljlqusjwrxiqvxpun2y
       eslint-config-prettier: 8.8.0_eslint@8.40.0
@@ -9874,6 +9876,14 @@ packages:
     resolution: {integrity: sha512-QtTJcifOVwwbeMP3hsOzQOKf3EqKsLyjtg9ZAGlYDntrCRXrsQhe4ZQGIthRMRLKpnP6/tTk6G0gJ2sZUfRliQ==}
     dependencies:
       ally.js: 1.4.1
+    dev: true
+
+  /cypress-real-events/1.11.0_cypress@12.13.0:
+    resolution: {integrity: sha512-4LXVRsyq+xBh5TmlEyO1ojtBXtN7xw720Pwb9rEE9rkJuXmeH3VyoR1GGayMGr+Itqf11eEjfDewtDmcx6PWPQ==}
+    peerDependencies:
+      cypress: ^4.x || ^5.x || ^6.x || ^7.x || ^8.x || ^9.x || ^10.x || ^11.x || ^12.x || ^13.x
+    dependencies:
+      cypress: 12.13.0
     dev: true
 
   /cypress-real-events/1.11.0_cypress@13.5.0:
