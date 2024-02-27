@@ -43,6 +43,8 @@ runs:
 
     - name: Publish RPMs
       run: |
+        set -eux
+
         FILES="*.rpm"
 
         if [ -z "${{ inputs.module_name }}" ]; then
