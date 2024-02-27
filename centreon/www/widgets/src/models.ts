@@ -1,3 +1,5 @@
+import { createStore } from 'jotai';
+
 import { SelectEntry } from '@centreon/ui';
 
 export interface FormThreshold {
@@ -48,6 +50,11 @@ export interface Metric {
   warningLowThreshold: number | null;
 }
 
+export enum SortOrder {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
 }
@@ -59,4 +66,20 @@ export interface Data {
 
 export interface DataWithoutMetrics {
   resources: Array<Resource>;
+}
+
+export enum SeverityStatus {
+  Pending = 'pending',
+  Problem = 'problem',
+  Success = 'success',
+  Undefined = 'undefined',
+  Warning = 'warning'
+}
+
+export interface CommonWidgetProps<T extends object> {
+  globalRefreshInterval: GlobalRefreshInterval;
+  isFromPreview?: boolean;
+  refreshCount: number;
+  setPanelOptions?: (panelOptions: Partial<T>) => void;
+  store: ReturnType<typeof createStore>;
 }
