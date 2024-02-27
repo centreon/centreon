@@ -84,7 +84,7 @@ runs:
         fi
 
         # Build upload taget path based on release_cloud and release_type values
-        # if cloud, deliver to testing/<release_type>
+        # if cloud, deliver to testing-<release_type>
         # if non-cloud, delivery to testing as usual
         if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "release" ]] ;then
           ROOT_REPO_PATH="rpm-standard-internal"
