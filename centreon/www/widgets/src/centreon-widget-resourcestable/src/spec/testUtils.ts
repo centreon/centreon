@@ -1,5 +1,5 @@
-import { Resource } from '../../../models';
-import { DisplayType, SortOrder } from '../Listing/models';
+import { Resource, SortOrder } from '../../../models';
+import { DisplayType } from '../Listing/models';
 import { PanelOptions } from '../models';
 
 export const resources: Array<Resource> = [
