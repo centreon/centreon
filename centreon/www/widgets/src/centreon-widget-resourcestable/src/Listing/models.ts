@@ -1,10 +1,5 @@
 import type { ListingModel } from '@centreon/ui';
 
-export enum SortOrder {
-  Asc = 'asc',
-  Desc = 'desc'
-}
-
 export enum DisplayType {
   All = 'all',
   Host = 'host',
