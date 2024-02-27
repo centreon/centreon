@@ -63,7 +63,7 @@ jobs:
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@a8a3f3a # v3.1.3
         with:
           name: ${{ inputs.name }}-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
@@ -81,7 +81,7 @@ jobs:
           version: 8
 
       - name: Download coverage reports
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@9bc31d5 # v3.0.2
         with:
           pattern: ${{ inputs.name }}-test-coverage-*
           path: .nyc_output/
