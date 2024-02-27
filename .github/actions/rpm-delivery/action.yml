@@ -100,6 +100,7 @@ runs:
           echo "Invalid combination of release_type and release_cloud"
         fi
 
+        # Deliver based on inputs
         #for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
         for ROOT_REPO_PATH in "test-rpm-standard" "test-rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
