@@ -25,9 +25,9 @@ Feature: Configuring dashboard with all widgets
     When the dashboard administrator clicks on view resource status button from '<widgetType>' widget
     Then the dashboard administrator should be redirected to '<widgetType>' widget resources
 
-  Examples:
-    | widgetType      |
-    | single metric   |
-    | metrics graph   |
-    | top button      |
-    | status grid     |
+    Examples:
+      | widgetType      |
+      | single metric   |
+      | metrics graph   |
+      | top button      |
+      | status grid     |
