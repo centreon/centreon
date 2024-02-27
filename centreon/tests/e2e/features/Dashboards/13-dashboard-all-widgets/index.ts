@@ -309,6 +309,7 @@ When(
     cy.get('.react-grid-item')
       .eq(3)
       .find('.react-resizable-handle-se')
+      .trigger('dragstart')
       .trigger('mousedown', { button: 0 })
       .trigger('mousemove', { clientX: 486, force: true })
       .wait('@resourceRequest');
@@ -318,6 +319,7 @@ When(
     cy.get('.react-grid-item')
       .eq(4)
       .find('.react-resizable-handle-se')
+      .trigger('dragstart')
       .trigger('mousedown', { button: 0 })
       .trigger('mousemove', { clientX: 486, force: true });
 
@@ -328,6 +330,7 @@ When(
       .find('[data-testid*="_move_panel"]')
       .then((element) => {
         cy.wrap(element)
+          .trigger('dragstart')
           .trigger('mousedown', { button: 0, force: true })
           .trigger('mousemove', { clientX: 836, clientY: 840, force: true });
       });
