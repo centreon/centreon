@@ -16871,3 +16871,6 @@ msgstr "Modo avanzado"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""

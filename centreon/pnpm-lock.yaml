@@ -303,6 +303,9 @@ importers:
       cypress-plugin-tab:
         specifier: ^1.0.5
         version: 1.0.5
+      cypress-real-events:
+        specifier: ^1.11.0
+        version: 1.11.0(cypress@13.6.4)
       eslint:
         specifier: ^8.56.0
         version: 8.56.0
