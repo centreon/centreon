@@ -25,6 +25,7 @@ namespace Core\ResourceAccess\Application\Repository;
 
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\NewRule;
+use Core\ResourceAccess\Domain\Model\Rule;
 
 interface WriteResourceAccessRepositoryInterface
 {
@@ -36,10 +37,20 @@ interface WriteResourceAccessRepositoryInterface
     public function add(NewRule $rule): int;
 
     /**
+     * @param Rule $rule
+     */
+    public function update(Rule $rule): void;
+
+    /**
      * @param int $ruleId
      * @param int[] $contactIds
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function deleteContactRuleRelations(int $ruleId): void;
 
     /**
      * @param int $ruleId
@@ -48,11 +59,21 @@ interface WriteResourceAccessRepositoryInterface
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void;
 
     /**
+     * @param int $ruleId
+     */
+    public function deleteContactGroupRuleRelations(int $ruleId): void;
+
+    /**
      * @param string $name
      *
      * @return int
      */
     public function addDataset(string $name): int;
+
+    /**
+     * @param int[] $ids
+     */
+    public function deleteDatasets(array $ids): void;
 
     /**
      * @param int $ruleId

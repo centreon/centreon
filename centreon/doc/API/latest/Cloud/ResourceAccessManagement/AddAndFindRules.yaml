@@ -44,7 +44,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'Schema/AddRuleRequest.yaml'
+          $ref: 'Schema/AddOrUpdateRuleRequest.yaml'
   responses:
     '201':
       description: "Object created"
