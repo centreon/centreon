@@ -45,8 +45,10 @@ const Preview = (): JSX.Element | null => {
 
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
 
-  const changePanelOptions = (field, value): void => {
-    setFieldValue(`options.${field}`, value);
+  const changePanelOptions = (partialOptions: object): void => {
+    Object.entries(partialOptions).forEach(([key, value]) => {
+      setFieldValue(`options.${key}`, value, false);
+    });
   };
 
   return (
