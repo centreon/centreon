@@ -20,7 +20,7 @@ interface Props {
   dataDate;
   getIsDisplayingCalendar: (value: boolean) => void;
   label: string;
-  onClear;
+  onClear: () => void;
   property: Property;
 }
 

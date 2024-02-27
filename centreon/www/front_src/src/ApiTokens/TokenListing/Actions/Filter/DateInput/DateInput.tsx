@@ -94,6 +94,7 @@ const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
       open={open}
       slotProps={slotProps}
       slots={slots}
+      timeSteps={{ minutes: 1 }}
       onClose={onClose}
     />
   );
