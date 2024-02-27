@@ -698,7 +698,7 @@ function secure_db_system_setup() {
 			SET PASSWORD FOR root@localhost = "$db_root_password";
 			FLUSH PRIVILEGES;
 		EOF
-		echo -e "\ny\ny\n$db_root_password\n$db_root_password\ny\nn\ny\ny" | ./usr/bin/mysql_secure_installation
+		mysql_secure_installation -u root --password="$db_root_password" --use-default
 	fi
 
 	if [ $? -ne 0 ]; then
