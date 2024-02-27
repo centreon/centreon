@@ -198,7 +198,6 @@ after(() => {
 });
 
 Given('the dashboard administrator redirected to dashboard interface', () => {
-  cy.visit('/centreon/home/dashboards');
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
