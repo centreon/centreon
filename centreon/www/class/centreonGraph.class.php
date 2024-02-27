@@ -211,23 +211,30 @@ class CentreonGraph
         unset($opt);
 
         /* Get RRDCacheD options */
-        $result = $this->DB->query(
+        $statement = $this->DB->prepare(
             "SELECT config_key, config_value
-            FROM cfg_centreonbroker_info AS cbi
-            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
-            INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
-            WHERE ns.localhost = '1'
-            AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
+             FROM cfg_centreonbroker_info AS cbi
+             INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
+             INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
+             WHERE ns.localhost = '1'
+             AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
         );
-        while ($row = $result->fetch()) {
+        $statement->execute();
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($result as $row) {
             $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
         }
+        $statement->closeCursor();
 
         if (isset($index)) {
-            $DBRESULT = $this->DB->query("SELECT `metric_id`
-                                          FROM `ods_view_details`
-                                          WHERE `index_id` = '" . $this->index . "'
-                                          AND `contact_id` = '" . $this->user_id . "'");
+            $DBRESULT = $this->DB->prepare("SELECT `metric_id`
+              FROM `ods_view_details`
+              WHERE `index_id` = :index_id
+              AND `contact_id` = :user_id");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $DBRESULT->execute();
             $metrics_cache = array();
             if ($DBRESULT->rowCount()) {
                 while ($tmp_metrics = $DBRESULT->fetch()) {
@@ -235,11 +242,14 @@ class CentreonGraph
                 }
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DBC->query("SELECT metric_id
-                                           FROM metrics
-                                           WHERE index_id = '" . $this->index . "'
-                                           AND `hidden` = '0'
-                                           ORDER BY `metric_name`");
+
+            $DBRESULT = $this->DBC->prepare("SELECT metric_id
+              FROM metrics
+              WHERE index_id = :index_id
+              AND `hidden` = '0'
+              RDER BY `metric_name`");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             $count = 0;
             $odsm = array();
             while ($milist = $DBRESULT->fetch()) {
@@ -251,12 +261,14 @@ class CentreonGraph
                 $this->onecurve = true;
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DB->query("SELECT vmetric_id metric_id
-                                          FROM virtual_metrics
-                                          WHERE index_id = '" . $this->index . "'
-                                          AND ( `hidden` = '0' OR `hidden` IS NULL )
-                                          AND vmetric_activate = '1'
-                                          ORDER BY 'metric_name'");
+            $DBRESULT = $this->DB->prepare("SELECT vmetric_id metric_id
+              FROM virtual_metrics
+              WHERE index_id = :index_id
+              AND (`hidden` = '0' OR `hidden` IS NULL)
+              AND vmetric_activate = '1'
+              ORDER BY `metric_name`");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             while ($milist = $DBRESULT->fetch()) {
                 $vmilist = "v" . $milist["metric_id"];
                 $odsm[$vmilist] = 1;
@@ -477,11 +489,16 @@ class CentreonGraph
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            $DBRESULT = $this->DB->query("SELECT vmetric_id
-                                          FROM virtual_metrics
-                                          WHERE " . $l_vselector . "
-                                          ORDER BY vmetric_name");
-            while ($vmetric = $DBRESULT->fetch()) {
+            $DBRESULT = $this->DB->prepare(
+                "SELECT vmetric_id
+                FROM virtual_metrics
+                WHERE :l_vselector
+                ORDER BY vmetric_name");
+            $DBRESULT->bindParam(':vselector', $l_vselector, \PDO::PARAM_STR);
+            $DBRESULT->execute();
+            $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($vmetrics as $vmetric) {
                 $this->manageVMetric($vmetric["vmetric_id"], null, null);
             }
             $DBRESULT->closeCursor();
@@ -579,14 +596,15 @@ class CentreonGraph
                         /** *******************************************
                          * Get default info in default template
                          */
-                        $DBRESULT3 = $this->DB->query(
+                        $DBRESULT3 = $this->DB->prepare(
                             "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total, ds_tickness,
-                                ds_color_line_mode, ds_color_line
-                                FROM giv_components_template
-                                WHERE default_tpl1 = '1' LIMIT 1"
+                              ds_color_line_mode, ds_color_line
+                              FROM giv_components_template
+                              WHERE default_tpl1 = '1' LIMIT 1"
                         );
+                        $DBRESULT3->execute();
                         if ($DBRESULT3->rowCount()) {
-                            foreach ($DBRESULT3->fetch() as $key => $ds_val) {
+                            foreach ($DBRESULT3->fetchAll(\PDO::FETCH_ASSOC) as $key => $ds_val) {
                                 $ds[$key] = $ds_val;
                             }
                         }
@@ -1091,7 +1109,8 @@ class CentreonGraph
             $statement->closeCursor();
             unset($command_id);
         }
-        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+        $DBRESULT = $this->DB->prepare("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+        $DBRESULT->execute();
         if ($DBRESULT->rowCount()) {
             $data = $DBRESULT->fetch();
             $this->templateId = $data["graph_id"];
@@ -1191,16 +1210,20 @@ class CentreonGraph
         }
 
         $this->log("index_data for " . $svc_instance);
-        $DBRESULT = $this->DBC->query("SELECT * FROM index_data WHERE id = '" . $svc_instance . "' LIMIT 1");
+        $DBRESULT = $this->DBC->prepare("SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1");
+        $DBRESULT->bindParam(':svc_instance', $svc_instance, PDO::PARAM_INT);
+        $DBRESULT->execute();
+
         if ($DBRESULT->rowCount()) {
             $this->indexData = $DBRESULT->fetch();
             /*
              * Check Meta Service description
              */
             if (preg_match("/meta_([0-9]*)/", $this->indexData["service_description"], $matches)) {
-                $DBRESULT_meta = $this->DB->query(
-                    "SELECT meta_name FROM meta_service WHERE `meta_id` = '" . $matches[1] . "'"
-                );
+                $DBRESULT_meta = $this->DB->prepare("SELECT meta_name FROM meta_service WHERE `meta_id` = :meta_id");
+                $DBRESULT_meta->bindParam(':meta_id', $matches[1], PDO::PARAM_INT);
+                $DBRESULT_meta->execute();
+
                 $meta = $DBRESULT_meta->fetch();
                 $this->indexData["service_description"] = $meta["meta_name"];
                 unset($meta);
@@ -1499,12 +1522,15 @@ class CentreonGraph
         if (is_null($this->colorCache)) {
             $this->colorCache = array();
 
-            $DBRESULT = $this->DB->query(
-                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = '" . $this->index . "'"
+            $DBRESULT = $this->DB->prepare(
+                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = :index_id"
             );
-            while (($row = $DBRESULT->fetchRow())) {
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
+            while (($row = $DBRESULT->fetchAll())) {
                 $this->colorCache[$row['metric_id']] = $row['rnd_color'];
             }
+            $DBRESULT->closeCursor();
         }
         
         if (isset($this->colorCache[$metricId]) && preg_match("/^\#[a-f0-9]{6,6}/i", $this->colorCache[$metricId])) {
@@ -1654,11 +1680,12 @@ class CentreonGraph
         }
 
 
-        $lPqy = $this->DB->query(
+        $lPqy = $this->DB->prepare(
             "SELECT vmetric_id metric_id, index_id, vmetric_name metric_name, unit_name,
                 replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit, def_type, rpn_function
                 FROM virtual_metrics WHERE " . $lWhere . " ORDER BY metric_name"
         );
+        $lPqy->execute();
         /*
          * There is only one metric_id
          */
@@ -1672,9 +1699,11 @@ class CentreonGraph
                 /*
                  * Find Host/Service For this metric_id
                  */
-                $l_poqy = $this->DBC->query(
-                    "SELECT host_id, service_id FROM index_data WHERE id = '" . $lVmetric["index_id"] . "'"
+                $l_poqy = $this->DBC->prepare(
+                    "SELECT host_id, service_id FROM index_data WHERE id = :index_id"
                 );
+                $l_poqy->bindParam(':index_id', $lVmetric["index_id"], PDO::PARAM_INT);
+                $l_poqy->execute();
                 $l_indd = $l_poqy->fetch();
                 $l_poqy->closeCursor();
                 /* Check for real or virtual metric(s) in the RPN function */
@@ -1683,16 +1712,19 @@ class CentreonGraph
                     /*
                      * Check for a real metric
                      */
-                    $l_poqy = $this->DBC->query(
+                    $l_poqy = $this->DBC->prepare(
                         "SELECT host_id, service_id, metric_id, metric_name, unit_name,
                             replace(format(warn,9),',','') warn, replace(format(crit,9),',','') crit
                             FROM metrics AS m, index_data as i
-                            WHERE index_id = id AND index_id = '" . $lVmetric["index_id"] . "'
-                                AND metric_name = '" . $l_mnane . "'"
+                            WHERE index_id = id AND index_id = :index_id
+                                AND metric_name = :metric_name"
                     );
+                    $l_poqy->bindParam(':index_id', $lVmetric["index_id"], PDO::PARAM_INT);
+                    $l_poqy->bindParam(':metric_name', $l_mnane, PDO::PARAM_STR);
+                    $l_poqy->execute();
                     if ($l_poqy->rowCount() == 1) {
                         /* Find a real metric in the RPN function */
-                        $l_rmetric = $l_poqy->fetchrow();
+                        $l_rmetric = $l_poqy->fetchAll();
                         $l_poqy->closeCursor();
                         $l_rmetric["need"] = 1; /* 1 : Need this real metric - hidden */
                         if (!isset($this->mlist[$l_rmetric["metric_id"]])) {
@@ -1851,10 +1883,12 @@ class CentreonGraph
      */
     public function getIndexDataId($hostId, $serviceId)
     {
-        $sql = "SELECT id FROM index_data
-            WHERE host_id = " . $this->DBC->escape($hostId) . "
-                AND service_id = " . $this->DBC->escape($serviceId);
-        $res = $this->DBC->query($sql);
+        $sql = "SELECT id FROM index_data WHERE host_id = :host_id AND service_id = :service_id";
+        $res = $this->DBC->prepare($sql);
+        $res->bindParam(':host_id', $hostId, PDO::PARAM_INT);
+        $res->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $res->execute();
+
         if ($res->rowCount()) {
             $row = $res->fetch();
             return $row['id'];
