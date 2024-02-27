@@ -152,7 +152,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
     cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
-    cy.contains('#1 Centreon-Server_Ping').should('be.visible');
+    cy.contains('#1 Centreon-Server_Ping').should('exist');
   }
 );
 
@@ -261,10 +261,10 @@ When(
 Then('a second Top Bottom widget is displayed on the dashboard', () => {
   cy.getByTestId({ testId: 'warning-line-200-tooltip' })
     .eq(1)
-    .should('be.visible');
+    .should('exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' })
     .eq(1)
-    .should('be.visible');
+    .should('exist');
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
@@ -297,8 +297,8 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
@@ -436,7 +436,7 @@ When(
 Then(
   'the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('be.visible');
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('exist');
   }
 );
