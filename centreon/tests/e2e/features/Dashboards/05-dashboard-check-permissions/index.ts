@@ -637,7 +637,7 @@ When('the dashboard editor user deletes the newly created dashboard', () => {
     .find('button[aria-label="delete"]')
     .click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
 });
 

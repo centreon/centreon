@@ -59,7 +59,7 @@ Then('a confirmation poppin appears', () => {
   cy.contains('Delete').should('be.visible');
   cy.getByLabel({ label: 'Cancel', tag: 'button' }).should('be.visible');
   cy.contains(
-    `The ${dashboardToDelete.name} will be permanently deleted.`
+    `The ${dashboardToDelete.name} dashboard will be permanently deleted.`
   ).should('be.visible');
 });
 
