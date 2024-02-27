@@ -479,7 +479,7 @@ function set_required_prerequisite() {
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
-			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
+			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/test-rpm-standard/$version/el9/centreon-$version.repo"
 			OS_SPEC_SERVICES="php-fpm httpd"
 			PKG_MGR="dnf"
 
