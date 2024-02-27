@@ -71,8 +71,10 @@ const useResetPassword = (): UseResetPasswordState => {
       .then(() => {
         showSuccessMessage(t(labelPasswordRenewed));
         sendLogin({
-          login: passwordResetInformations?.alias as string,
-          password: values.newPassword
+          payload: {
+            login: passwordResetInformations?.alias as string,
+            password: values.newPassword
+          }
         }).then(({ redirectUri }) => {
           showSuccessMessage(t(labelLoginSucceeded));
           loadUser()?.then(() => navigate(redirectUri));

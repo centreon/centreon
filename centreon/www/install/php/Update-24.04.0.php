@@ -189,6 +189,19 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-groupmonitoring')
+                SQL
+        );
+    }
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -210,6 +223,7 @@ try {
     $errorMessage = "Could not set core widgets to internal";
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
+    $insertGroupMonitoringWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 

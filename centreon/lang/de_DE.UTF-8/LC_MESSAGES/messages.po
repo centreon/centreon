@@ -16047,7 +16047,22 @@ msgstr "Erweiterter Modus"
 # msgid "View widget properties"
 # msgstr ""
 
-# msgid "Dashboard library"
+# msgid "Create dashboard"
+# msgstr ""
+
+# msgid "Create a dashboard"
+# msgstr ""
+
+# msgid "Update dashboard"
+# msgstr ""
+
+# msgid "Dashboard updated"
+# msgstr ""
+
+# msgid "Manage access rights"
+# msgstr ""
+
+# msgid "Select a widget type to activate the preview."
 # msgstr ""
 
 # msgid "Welcome to the Dashboards interface!"
@@ -16248,7 +16263,7 @@ msgstr "Erweiterter Modus"
 # msgid "Status grid"
 # msgstr ""
 
-# msgid "Displays a status overview for selected resources."
+# msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
 # msgid "Display with this resource type"

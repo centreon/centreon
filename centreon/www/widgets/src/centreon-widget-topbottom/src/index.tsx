@@ -1,15 +1,11 @@
-import { createStore } from 'jotai';
-
 import { Module } from '@centreon/ui';
 
-import { Data, FormThreshold, GlobalRefreshInterval } from '../../models';
+import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
 import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+interface Props extends CommonWidgetProps<object> {
   panelData: Data;
   panelOptions: {
     refreshInterval: 'default' | 'custom';
@@ -18,8 +14,6 @@ interface Props {
     topBottomSettings: TopBottomSettings;
     valueFormat: ValueFormat;
   };
-  refreshCount: number;
-  store: ReturnType<typeof createStore>;
 }
 
 const Widget = ({

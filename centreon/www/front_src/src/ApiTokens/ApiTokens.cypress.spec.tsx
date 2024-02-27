@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -229,22 +229,26 @@ describe('Api-token', () => {
       lng: 'en',
       resources: {}
     });
-    const userData = renderHook(() => useAtomValue(userAtom));
+    const store = createStore();
 
-    userData.result.current.timezone = 'Europe/Paris';
-    userData.result.current.locale = 'en_US';
+    store.set(userAtom, {
+      locale: 'en_US',
+      timezone: 'Europe/Paris'
+    });
 
     interceptListTokens({});
 
     cy.mount({
       Component: (
-        <Router>
+        <Provider store={store}>
           <SnackbarProvider>
-            <TestQueryProvider>
-              <TokenListing />
-            </TestQueryProvider>
+            <Router>
+              <TestQueryProvider>
+                <TokenListing />
+              </TestQueryProvider>
+            </Router>
           </SnackbarProvider>
-        </Router>
+        </Provider>
       )
     });
   });
