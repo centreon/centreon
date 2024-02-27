@@ -67,7 +67,6 @@ jobs:
         with:
           name: ${{ inputs.name }}-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
-          retention-days: 1
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
