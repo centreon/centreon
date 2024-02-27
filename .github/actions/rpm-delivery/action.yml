@@ -87,16 +87,19 @@ runs:
         # if cloud, deliver to testing-<release_type>
         # if non-cloud, delivery to testing as usual
         if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ release_type }} == "release" ]] ;then
-          ROOT_REPO_PATH="rpm-standard-internal"
+          #ROOT_REPO_PATH="rpm-standard-internal"
+          ROOT_REPO_PATH="test-rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
-          ROOT_REPO_PATH="rpm-standard"
+          #ROOT_REPO_PATH="rpm-standard"
+          ROOT_REPO_PATH="test-rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         else
           echo "Invalid combination of release_type and release_cloud"
         fi
 
-        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+        #for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+        for ROOT_REPO_PATH in "test-rpm-standard" "test-rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
