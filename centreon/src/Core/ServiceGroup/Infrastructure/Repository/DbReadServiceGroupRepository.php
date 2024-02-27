@@ -65,7 +65,32 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable
     {
         $concatenator = $this->getFindServiceGroupConcatenator();
-
+        
+        $concatenator->appendJoins(
+            <<<SQL
+                LEFT JOIN `:db`.servicegroup_relation sgr
+                    ON sg.sg_id = sgr.servicegroup_sg_id
+                LEFT JOIN `:db`.host h
+                    ON sgr.host_host_id = h.host_id
+            SQL
+        )
+        ->appendJoins(
+            <<<SQL
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON h.host_id = hcr.host_host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hcr.hostcategories_hc_id = hc.hc_id
+                    AND hc.level IS NOT NULL
+            SQL
+        )
+        ->appendJoins(
+            <<<SQL
+                LEFT JOIN `:db`.hostgroup_relation hgr
+                    ON  h.host_id = hgr.host_host_id
+                LEFT JOIN `:db`.hostgroup hg
+                    ON hgr.hostgroup_hg_id = hg.hg_id
+            SQL
+        );
         return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
 
@@ -448,47 +473,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             'hostcategory.id' => 'hc.hc_id',
             'hostcategory.name' => 'hc.hc_name',
         ]);
-        if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'host_group_id')) {
-            $concatenator->appendJoins(
-                <<<'SQL'
-                    LEFT JOIN `:db`.acl_resources_sg_relations arsr
-                        ON sg.sg_id = arsr.sg_id
-                    LEFT JOIN `:db`.acl_resources res
-                            ON arsr.acl_res_id = res.acl_res_id
-                    LEFT JOIN `:db`.acl_resources_hg_relations arhgr
-                        ON res.acl_res_id = arhgr.acl_res_id
-                    LEFT JOIN `:db`.hostgroup hg
-                        ON arhgr.hg_hg_id = hg.hg_id
-                    SQL
-            );
-        } else if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'host_id')) {
-            $concatenator->appendJoins(
-                <<<'SQL'
-                    LEFT JOIN `:db`.acl_resources_sg_relations arsr
-                        ON sg.sg_id = arsr.sg_id
-                    LEFT JOIN `:db`.acl_resources res
-                            ON arsr.acl_res_id = res.acl_res_id
-                    LEFT JOIN `:db`.acl_resources_host_relations arhr
-                        ON res.acl_res_id = arhr.acl_res_id
-                    LEFT JOIN `:db`.host h
-                        ON arhr.host_host_id = h.host_id
-                    SQL
-            );
-        } else if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'host_category_id')) {
-            $concatenator->appendJoins(
-                <<<'SQL'
-                    LEFT JOIN `:db`.acl_resources_sg_relations arsr
-                        ON sg.sg_id = arsr.sg_id
-                    LEFT JOIN `:db`.acl_resources res
-                            ON arsr.acl_res_id = res.acl_res_id
-                    LEFT JOIN `:db`.acl_resources_hc_relations arhcr
-                        ON res.acl_res_id = arhcr.acl_res_id
-                    LEFT JOIN `:db`.hostcategories hc
-                        ON arhcr.hc_id = hc.hc_id
-                        AND hc.level IS NOT NULL
-                    SQL
-            );
-        }
+        
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
