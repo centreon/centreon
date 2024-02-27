@@ -11,6 +11,7 @@ import {
   lte,
   pluck
 } from 'ramda';
+import numeral from 'numeral';
 
 import { Theme } from '@mui/material';
 
@@ -72,4 +73,22 @@ export const getColorFromDataAndTresholds = ({
     [gt(criticalValue), always(theme.palette.warning.main)],
     [T, always(theme.palette.error.main)]
   ])(data);
+};
+
+interface ValueByUnitProps {
+  total: number;
+  unit: 'percentage' | 'number';
+  value: number;
+}
+
+export const getValueByUnit = ({
+  unit,
+  value,
+  total
+}: ValueByUnitProps): string => {
+  if (equals(unit, 'number')) {
+    return numeral(value).format('0a').toUpperCase();
+  }
+
+  return `${((value * 100) / total).toFixed(1)}%`;
 };
