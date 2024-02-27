@@ -12,7 +12,7 @@ export const labelCreateDashboard = 'Create dashboard';
 export const labelUpdateDashboard = 'Update dashboard';
 export const labelDeleteDashboard = 'Delete dashboard';
 export const labelDescriptionDeleteDashboard =
-  'Are you sure you want to delete <strong>{{name}}</strong> ?';
+  'The {{name}} Dashboard will be permanently deleted.';
 
 export const labelDashboardCreated = 'Dashboard created';
 export const labelDashboardUpdated = 'Dashboard updated';

@@ -73,10 +73,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         );
       })}
 
-      <DeleteDashboard
-        dashboardName={dashboardName}
-        deleteDashboard={deleteDashboard}
-      />
+      <DeleteDashboard row={row} />
     </Box>
   );
 };
