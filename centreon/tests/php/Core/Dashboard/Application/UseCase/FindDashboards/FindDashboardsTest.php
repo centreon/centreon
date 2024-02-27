@@ -37,6 +37,7 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardsPresenterStub();
@@ -46,7 +47,8 @@ beforeEach(function (): void {
         $this->createMock(RequestParametersInterface::class),
         $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
     );
 
     $this->testedDashboard = new Dashboard(
