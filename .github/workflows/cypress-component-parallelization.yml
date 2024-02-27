@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload components tests Results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ inputs.name }}-test-reports-${{ matrix.spec }}
           path: centreon/cypress/results/*.json
@@ -63,10 +63,11 @@ jobs:
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ inputs.name }}-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+          retention-days: 1
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
@@ -81,7 +82,7 @@ jobs:
           version: 8
 
       - name: Download coverage reports
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
         with:
           pattern: ${{ inputs.name }}-test-coverage-*
           path: .nyc_output/
@@ -127,7 +128,6 @@ jobs:
 
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
-        if: ${{ github.event_name == 'pull_request' }}
         with:
           module_path: ${{ inputs.module_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -165,22 +165,22 @@ jobs:
           format: cypress
           urlFilePrefix: centreon
 
-  # regroup-artifacts:
-  #   needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-  #   if: always()
-  #   runs-on: ubuntu-22.04
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       type_of_report: [test-reports, test-coverage]
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+  regroup-artifacts:
+    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-reports, test-coverage]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-  #     - name: Merging Artifacts
-  #       uses: ./.github/actions/merge-artifacts
-  #       if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
-  #       with:
-  #         target_name: ${{ inputs.name }}-${{ matrix.type_of_report }}
-  #         source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
-  #         source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
+        if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+        with:
+          target_name: ${{ inputs.name }}-${{ matrix.type_of_report }}
+          source_paths: ${{ inputs.name }}-${{ matrix.type_of_report }}/**/*.json
+          source_name_pattern: ${{ inputs.name }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
