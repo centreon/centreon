@@ -3,14 +3,15 @@ import { ReactElement } from 'react';
 
 import { equals, flatten, isEmpty } from 'ramda';
 
+import { Divider } from '@mui/material';
+
 import useDatasetFilters from '../hooks/useDatasetFilters';
 import { Dataset } from '../../../models';
 import { useDatasetFiltersStyles } from '../styles/DatasetFilters.styles';
 
 import DatasetFilter from './DatasetFilter';
-import AddDatasetButton from './AddDatasetButton';
 import DeleteDatasetButton from './DeleteDatasetButton';
-import DatasetFilterDivider from './DatasetFilterDivider';
+import AddDatasetButton from './AddDatasetButton';
 
 const DatasetFilters = (): ReactElement => {
   const { classes } = useDatasetFiltersStyles();
@@ -41,7 +42,10 @@ const DatasetFilters = (): ReactElement => {
             )}
           </div>
           {!equals(datasetFilters.length - 1, index) && (
-            <DatasetFilterDivider />
+            <Divider
+              className={classes.datasetFiltersDivider}
+              variant="middle"
+            />
           )}
         </div>
       ))}
