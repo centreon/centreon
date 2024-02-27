@@ -79,7 +79,7 @@ runs:
         done
 
         # Custom delivery
-        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
+        if [[ "${{ inputs.stability }}" == "pkgtest" ]]; then
           ROOT_REPO_PATH="installers"
           jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
           exit 0
