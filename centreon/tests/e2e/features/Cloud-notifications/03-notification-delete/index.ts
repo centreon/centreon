@@ -12,7 +12,7 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
-  cy.startWebContainer({ useSlim: false });
+  cy.startContainers({ useSlim: false });
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     name: 'central-cloud-notifications-output',
@@ -63,7 +63,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('a user with access to the Notification Rules page', () => {
