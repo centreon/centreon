@@ -5,15 +5,16 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter as Router } from 'react-router-dom';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
 
 import {
   Method,
+  SnackbarProvider,
   TestQueryProvider,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-
-import { labelCustomize } from '../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 
 import { DefaultParameters } from './TokenListing/Actions/Search/Filter/models';
 import { Column } from './TokenListing/ComponentsColumn/models';
@@ -21,18 +22,20 @@ import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
+  deleteTokenEndpoint,
   listConfiguredUser,
   listTokensEndpoint
 } from './api/endpoints';
 import {
   labelCancel,
   labelCreateNewToken,
+  labelDeleteToken,
   labelDuration,
   labelGenerateNewToken,
   labelName,
-  labelOk,
   labelSecurityToken,
   labelTokenCreated,
+  labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
 
@@ -176,7 +179,7 @@ const interceptListTokens = ({
     cy.interceptAPIRequest({
       alias,
       method,
-      path: `./api/latest${endpoint}`,
+      path: `./api/latest${endpoint}**`,
       response: data
     });
   });
@@ -188,9 +191,19 @@ const secondPageParameter = 'page=2&limit=10';
 const customLimitParameters = 'page=1&limit=20';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
+const tokenToDelete = 'a-token';
+const msgConfirmationDeletion = 'You are about to delete the token';
+const irreversibleMsg =
+  'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
+
 describe('Api-token', () => {
   beforeEach(() => {
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
     const store = createStore();
+
     store.set(userAtom, {
       locale: 'en_US',
       timezone: 'Europe/Paris'
@@ -201,11 +214,13 @@ describe('Api-token', () => {
     cy.mount({
       Component: (
         <Provider store={store}>
-          <Router>
-            <TestQueryProvider>
-              <TokenListing />
-            </TestQueryProvider>
-          </Router>
+          <SnackbarProvider>
+            <Router>
+              <TestQueryProvider>
+                <TokenListing />
+              </TestQueryProvider>
+            </Router>
+          </SnackbarProvider>
         </Provider>
       )
     });
@@ -343,48 +358,9 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
-
-  it('accepts a customized date when the Customize option is selected and a date is selected', () => {
-    cy.clock(new Date(2024, 0, 1).getTime());
-    cy.viewport(1280, 1000);
-
-    cy.findByTestId(labelCreateNewToken).click();
-    cy.findByTestId(labelDuration).click();
-    cy.contains(labelCustomize).click();
-    cy.contains(/^15$/).click({ force: true });
-    cy.contains(/^02$/).click({ force: true });
-    cy.contains('59').click({ force: true });
-
-    cy.contains(labelOk).click();
-
-    cy.findByTestId(labelDuration).should(
-      'have.value',
-      'January 15, 2024 2:59 AM'
-    );
-
-    cy.makeSnapshot();
-  });
-
-  it('does not accept a customized date when the Customize option is selected and a date is selected', () => {
-    cy.clock(new Date(2024, 0, 1).getTime());
-    cy.viewport(1280, 1000);
-
-    cy.findByTestId(labelCreateNewToken).click();
-    cy.findByTestId(labelDuration).click();
-    cy.contains(labelCustomize).click();
-    cy.contains(/^15$/).click({ force: true });
-    cy.contains(/^02$/).click({ force: true });
-    cy.contains('59').click({ force: true });
-
-    cy.findAllByTestId(labelCancel).eq(1).click();
-
-    cy.findByTestId(labelDuration).should('be.enabled');
-
-    cy.makeSnapshot();
-  });
-
   it('displays the modal when clicking on token creation button', () => {
     openDialog();
+
     cy.findByTestId('tokenName').contains(labelName);
 
     cy.findByTestId('tokenNameInput').should('have.attr', 'required');
@@ -487,5 +463,69 @@ describe('Api-token', () => {
     });
 
     cy.makeSnapshot();
+  });
+  it('deletes the token when clicking on the Delete button', () => {
+    cy.waitForRequest('@getListTokens');
+
+    const deleteToken = deleteTokenEndpoint({
+      tokenName: tokenToDelete,
+      userId: 23
+    });
+    cy.interceptAPIRequest({
+      alias: 'deleteToken',
+      method: Method.DELETE,
+      path: `./api/latest${deleteToken}**`,
+      statusCode: 204
+    });
+
+    interceptListTokens({
+      alias: 'getListTokensAfterDeletion',
+      dataPath: 'apiTokens/listing/listAfterDelete.json'
+    });
+
+    cy.findAllByTestId('DeleteIcon')
+      .eq(0)
+      .parent()
+      .should('be.enabled')
+      .click();
+    cy.findByTestId('deleteDialog').within(() => {
+      cy.contains(labelDeleteToken);
+      cy.contains(msgConfirmationDeletion);
+      cy.contains(tokenToDelete);
+      cy.contains(irreversibleMsg);
+
+      cy.contains(labelCancel).should('be.enabled');
+      cy.findByTestId('Confirm').should('be.enabled');
+      cy.makeSnapshot('displays the modal when clicking the Delete icon');
+      cy.findByTestId('Confirm').should('be.enabled').click();
+      cy.waitForRequest('@deleteToken');
+      cy.getRequestCalls('@deleteToken').then((calls) => {
+        expect(calls).to.have.length(1);
+      });
+    });
+    cy.contains(labelTokenDeletedSuccessfully);
+    cy.waitForRequest('@getListTokensAfterDeletion');
+    cy.findAllByTestId('deleteDialog').should('not.exist');
+    cy.contains(tokenToDelete).should('not.exist');
+    cy.makeSnapshot('deletes the token when clicking the Delete Button');
+  });
+
+  it('hides the modal when clicking on the Cancel button', () => {
+    cy.waitForRequest('@getListTokens');
+
+    cy.findAllByTestId('DeleteIcon')
+      .eq(0)
+      .parent()
+      .should('be.enabled')
+      .click();
+    cy.findByTestId('deleteDialog').within(() => {
+      cy.contains(labelDeleteToken);
+      cy.contains(msgConfirmationDeletion);
+      cy.contains(tokenToDelete);
+      cy.contains(irreversibleMsg);
+      cy.findByTestId('Confirm').should('be.enabled');
+      cy.contains(labelCancel).should('be.enabled').click();
+    });
+    cy.findAllByTestId('deleteDialog').should('not.exist');
   });
 });

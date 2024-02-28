@@ -59,7 +59,7 @@ const initializeResourceData = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
-const initializeAckChildRessources = (): Cypress.Chainable => {
+const initializeAckChildResources = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host3/01-add.json',
     'resources/clapi/host3/02-enable-passive-check.json',
@@ -73,7 +73,7 @@ const initializeAckChildRessources = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
-const initializeAckRessources = (): Cypress.Chainable => {
+const initializeAckResources = (): Cypress.Chainable => {
   const files = [
     'resources/clapi/host1/01-add.json',
     'resources/clapi/host1/02-enable-passive-check.json',
@@ -98,18 +98,20 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
 
   return cy
     .setUserTokenApiV1()
-    .then(initializeAckRessources)
-    .then(applyConfigurationViaClapi)
-    .then(initializeAckChildRessources)
+    .then(initializeAckResources)
+    .then(initializeAckChildResources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
     .then(() =>
       checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
     )
     .then(() => submitResultsViaClapi(results))
-    .refreshListing()
-    .then(() => cy.contains(serviceInAcknowledgementName, { timeout: 30000 }))
-    .then(() => cy.contains('submit_status_2', { timeout: 30000 }));
+    .then(() =>
+      checkServicesAreMonitored([
+        { name: serviceInAcknowledgementName, output: 'submit_status_2' }
+      ])
+    )
+    .refreshListing();
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -169,17 +171,13 @@ const checkIfUserNotificationsAreEnabled = (): void => {
 
   const query = `SELECT contact_enable_notifications FROM contact WHERE contact_id = 1`;
 
-  cy.requestOnDatabase({ database: 'centreon', query }).then(
-    (value): Cypress.Chainable<null> | null => {
-      const notificationAreEnabled = value === 1;
-
-      if (notificationAreEnabled) {
-        return null;
-      }
-
-      throw new Error(`User notifications are disabled.`);
+  cy.requestOnDatabase({ database: 'centreon', query }).then(([rows]) => {
+    if (rows.length && rows[0].contact_enable_notifications === '1') {
+      return null;
     }
-  );
+
+    throw new Error(`User notifications are disabled.`);
+  });
 };
 
 const submitCustomResultsViaClapi = (
@@ -197,11 +195,10 @@ const submitCustomResultsViaClapi = (
 };
 
 const clearCentengineLogs = (): Cypress.Chainable => {
-  return cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} truncate -s 0 /var/log/centreon-engine/centengine.log`
-  );
+  return cy.execInContainer({
+    command: 'truncate -s 0 /var/log/centreon-engine/centengine.log',
+    name: 'web'
+  });
 };
 
 const checkIfNotificationsAreNotBeingSent = (): void => {
@@ -209,12 +206,11 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
 
   const logToSearch = '[notifications] [info]';
 
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} sh -c "grep -iw '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1"`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    if (!stdout) {
+  cy.execInContainer({
+    command: `grep -iw '${logToSearch}' /var/log/centreon-engine/centengine.log | tail -1`,
+    name: 'web'
+  }).then(({ output }): Cypress.Chainable<null> | null => {
+    if (!output) {
       return null;
     }
 
