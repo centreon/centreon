@@ -14,7 +14,7 @@ const useResourceAccessRuleConfig = (): UseResourceAccessRuleConfig => {
   const [modalState, setModalState] = useAtom(modalStateAtom);
 
   const closeModal = (): void => {
-    setModalState({ ...modalState, isOpen: false });
+    setModalState({ isOpen: false, mode: ModalMode.Create });
   };
 
   const createResourceAccessRule = (): void => {
