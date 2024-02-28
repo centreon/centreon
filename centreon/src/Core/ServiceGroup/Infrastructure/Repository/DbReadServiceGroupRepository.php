@@ -91,6 +91,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                             ON hgr.hostgroup_hg_id = hg.hg_id
                     SQL
             );
+
         return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
 
