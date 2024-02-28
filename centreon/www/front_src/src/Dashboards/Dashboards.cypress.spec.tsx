@@ -484,7 +484,7 @@ describe('Dashboards', () => {
     cy.contains(labelDashboardDeleted).should('be.visible');
   });
 
-  it('does not delete a dashboard in the listing when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+  it('does not delete a dashboard in the listing view when the corresponding icon button is clicked and the cancellation button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findByLabelText(labelListView).click();
