@@ -73,8 +73,7 @@ final class AddRule
     public function __invoke(
         AddRuleRequest $request,
         AddRulePresenterInterface $presenter
-    ): void
-    {
+    ): void {
         try {
             /**
              * Check if current user is authorized to perform the action.
@@ -96,6 +95,8 @@ final class AddRule
             }
 
             try {
+                $this->info('Starting resource access rule creation process');
+                $this->debug('Starting resource access rule transaction');
                 $this->dataStorageEngine->startTransaction();
 
                 /**
@@ -164,33 +165,6 @@ final class AddRule
     }
 
     /**
-     * @param DatasetFilter $filter
-     *
-     * @return DatasetFilter
-     */
-    private function findLastLevelOfFilter(DatasetFilter $filter): DatasetFilter
-    {
-        $applicableFilter = null;
-        // recursive method to find the last 'stage' of filter (descending filter)
-        $findApplicableFilter = function (DatasetFilter $filter) use (&$findApplicableFilter, &$applicableFilter): DatasetFilter {
-            // initialize the $applicableFilter which is initially NULL
-            if ($applicableFilter === null) {
-                $applicableFilter = $filter;
-                $findApplicableFilter($applicableFilter);
-            }
-            // if there is a level then keep digging
-            elseif ($filter->getDatasetFilter() !== null) {
-                $applicableFilter = $filter->getDatasetFilter();
-                $findApplicableFilter($applicableFilter);
-            }
-
-            return $applicableFilter;
-        };
-
-        return $findApplicableFilter($filter);
-    }
-
-    /**
      * @param int $ruleId
      * @param int $datasetId
      * @param DatasetFilter $filter
@@ -223,9 +197,6 @@ final class AddRule
         $index = 0;
 
         foreach ($rule->getDatasetFilters() as $datasetFilter) {
-            // The last level of filtering is the one that needs to be saved.
-            $applicableFilter = $this->findLastLevelOfFilter($datasetFilter);
-
             // create formatted name for dataset
             $datasetName = 'dataset_for_rule_' . $ruleId . '_' . $index;
 
@@ -237,6 +208,30 @@ final class AddRule
 
             // dedicated table used in order to keep filters hierarchy for GET matters
             $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
+
+            // Extract from the DatasetFilter the final filter level and its parent.
+            [
+                'parent' => $parentApplicableFilter,
+                'last' => $applicableFilter
+            ] = DatasetFilter::findApplicableFilters($datasetFilter);
+
+            /* Specific behaviour when the last level of filtering is of type
+             * *Category|*Group and that the parent of this filter is also of the same type.
+             * Then we need to save both types as those are on the same hierarchy level.
+             */
+            if (
+                DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
+                && $parentApplicableFilter !== null
+                && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
+            ) {
+                // link parent resources to the dataset
+                $this->writeRepository->linkResourcesToDataset(
+                    $ruleId,
+                    $datasetId,
+                    $parentApplicableFilter->getType(),
+                    $parentApplicableFilter->getResourceIds()
+                );
+            }
 
             // link resources to the dataset
             $this->writeRepository->linkResourcesToDataset(
@@ -257,7 +252,7 @@ final class AddRule
      */
     private function addRule(NewRule $rule): int
     {
-        $this->info('Adding new rule');
+        $this->debug('Adding new rule with basic information');
 
         return $this->writeRepository->add($rule);
     }
@@ -268,7 +263,7 @@ final class AddRule
      */
     private function linkContacts(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contacts to the resource access rule',
             ['ruleId' => $ruleId, 'contact_ids' => $rule->getLinkedContactIds()]
         );
@@ -282,7 +277,7 @@ final class AddRule
      */
     private function linkContactGroups(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contact groups to the resource access rule',
             ['ruleId' => $ruleId, 'contact_group_ids' => $rule->getLinkedContactGroupIds()]
         );
@@ -355,7 +350,7 @@ final class AddRule
             }
         };
 
-        foreach ($request->datasetFilters as $dataset)  {
+        foreach ($request->datasetFilters as $dataset) {
             $datasetFilter = null;
             $validateAndBuildDatasetFilter($dataset, $datasetFilter);
 
@@ -393,6 +388,7 @@ final class AddRule
      */
     private function createResponse(int $ruleId): AddRuleResponse
     {
+        $this->debug('Fetching information post creation', ['rule_id' => $ruleId]);
         $rule = $this->readRepository->findById($ruleId);
 
         if (! $rule) {
@@ -400,8 +396,7 @@ final class AddRule
         }
 
         // convert recursively DatasetFilter entities to array
-        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array
-        {
+        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array {
             $data['type'] = $datasetFilter->getType();
             $data['resources'] = $datasetFilter->getResourceIds();
             $data['dataset_filter'] = null;
