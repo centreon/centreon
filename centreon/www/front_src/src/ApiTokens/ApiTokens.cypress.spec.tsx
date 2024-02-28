@@ -1,19 +1,13 @@
-import { equals } from 'ramda';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import {
-  Provider,
-  createStore,
-  useAtom,
-  useAtomValue,
-  useSetAtom
-} from 'jotai';
-import { BrowserRouter as Router } from 'react-router-dom';
 import i18next from 'i18next';
+import { Provider, createStore, useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import {
   ListingParameters,
@@ -29,6 +23,11 @@ import {
   DefaultParameters,
   Fields
 } from './TokenListing/Actions/Filter/models';
+import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
+import {
+  convertToBoolean,
+  translateWhiteSpaceToRegex
+} from './TokenListing/Actions/Search/utils';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {
@@ -57,18 +56,6 @@ import {
   labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
-import {
-  convertToBoolean,
-  translateWhiteSpaceToRegex
-} from './TokenListing/Actions/Search/utils';
-import { searchAtom } from './TokenListing/Actions/Search/atoms';
-import {
-  creationDateAtom,
-  expirationDateAtom,
-  isRevokedAtom
-} from './TokenListing/Actions/Filter/atoms';
-import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
-import { fieldDelimiter } from './TokenListing/Actions/Search/models';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -106,6 +93,8 @@ const columns = [
 ];
 
 const checkInformationRow = (data): void => {
+  const userData = renderHook(() => useAtomValue(userAtom));
+  userData.result.current.locale = 'en_US';
   const localDateTimeFormat = renderHook(() => useLocaleDateTimeFormat());
 
   const { format } = localDateTimeFormat.result.current;
@@ -257,7 +246,7 @@ const searchableFieldsValues = [
   {
     field: Fields.CreatorName,
     type: 'string',
-    values: [translateWhiteSpaceToRegex('admin admin')]
+    values: ['admin admin']
   },
   { field: Fields.TokenName, type: 'string', values: ['token1', 'test'] },
   { field: Fields.IsRevoked, type: 'boolean', values: ['false'] }
@@ -266,7 +255,13 @@ const searchableFieldsValues = [
 const constructSearchInput = (arr): string => {
   return arr
     .map(({ field, values }) => {
-      const value = values.join(',');
+      const value = values
+        .map((item) =>
+          equals(typeof item, 'string')
+            ? translateWhiteSpaceToRegex(item)
+            : item
+        )
+        .join(',');
 
       return `${field}:${value}`;
     })
@@ -275,9 +270,6 @@ const constructSearchInput = (arr): string => {
 
 describe('Api-token', () => {
   beforeEach(() => {
-    const now = new Date(2024, 2, 27, 4, 16, 33);
-
-    cy.clock(now);
     i18next.use(initReactI18next).init({
       lng: 'en',
       resources: {}
@@ -609,25 +601,9 @@ describe('Api-token', () => {
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
 
-  it.only('executes a listing request with all searchable fields', () => {
+  it('executes a listing request with all searchable fields', () => {
     cy.waitForRequest('@getListTokens');
     const searchInput = constructSearchInput(searchableFieldsValues);
-
-    const {
-      result: {
-        current: { format }
-      }
-    } = renderHook(() => useLocaleDateTimeFormat());
-
-    // const search = renderHook(() => useSetAtom(searchAtom));
-    // const creationDate = renderHook(() => useSetAtom(creationDateAtom));
-    // const expirationDate = renderHook(() => useSetAtom(expirationDateAtom));
-    // const isRevoked = renderHook(() => useSetAtom(isRevokedAtom));
-
-    // search.result.current(searchInput);
-    // creationDate.result.current(dayjs('2024-02-19T16:33:51Z').toDate());
-    // expirationDate.result.current(dayjs('2024-02-19T16:33:51Z').toDate());
-    // isRevoked.result.current(false);
 
     const {
       result: { current }
@@ -651,20 +627,21 @@ describe('Api-token', () => {
       );
     });
 
-    searchableFieldsValues.forEach(({ values, type }) => {
+    searchableFieldsValues.forEach(({ field, values, type }) => {
       values.forEach((value) => {
         if (equals(type, 'date')) {
           cy.contains(
-            format({ date: dayjs(value).toDate(), formatString: 'l' })
+            equals(field, Fields.CreationDate) ? '02/20/2024' : '03/28/2024'
           );
 
           return;
         }
         if (equals(type, 'boolean')) {
-          cy.contains(
-            convertToBoolean(value) ? labelRevokedToken : labelActiveToken
-          );
+          cy.contains(convertToBoolean(value) ? 'Revoked' : 'Active');
 
+          return;
+        }
+        if (!equals(type, 'string')) {
           return;
         }
         cy.contains(value);
@@ -676,7 +653,7 @@ describe('Api-token', () => {
 
   it('display the filter interface', () => {
     cy.waitForRequest('@getListTokens');
-    cy.findByTestId('Filteroption').click();
+    cy.findByTestId('Filter options').click();
     cy.findByTestId(labelCreationDate).should('be.visible');
     cy.findByTestId(labelExpirationDate).should('be.visible');
     cy.findByTestId(labelUser).should('be.visible');
@@ -686,44 +663,50 @@ describe('Api-token', () => {
     // cy.makeSnapshot()
   });
 
-  it('update the filter interface when changes are made to the search bar', () => {
+  it.only('update the filter interface when changes are made to the search bar', () => {
     cy.waitForRequest('@getListTokens');
 
     const searchInput =
-      'user.name:User,Guest is_revoked:true creation_date:2024-02-27T15:05:52Z';
+      'user.name:centreon-gorgone,Guest is_revoked:true creation_date:2024-02-27T16:30:52Z';
 
     cy.findByTestId('inputSearch').type(`${searchInput}`);
 
-    cy.findByTestId('Filteroption').click();
+    cy.findByTestId('Filter options').click();
+    cy.findAllByTestId('FilterContainer').as('filterInterface');
 
-    cy.findByTestId(labelUser).should('have.value', 'User');
-    cy.findByTestId(labelUser).should('have.value', 'Guest');
-    cy.findAllByTestId(labelActiveToken).should('be.checked');
+    cy.get('@filterInterface').contains('centreon-gorgone');
+
+    cy.get('@filterInterface').contains('Guest');
+
+    cy.get('input[id="Revoked token"]').should('be.checked');
     cy.findAllByTestId(labelCreationDate).should(
       'have.value',
-      'February 27, 2024 3:05 PM'
+      'February 27, 2024 5:30 PM'
     );
 
     // cy.makeSnapshot();
-    cy.findByTestId(labelCreationDate).select('Customize');
-    cy.findByRole('gridcell', { name: '27' }).should('be.selected');
 
-    cy.findByLabelText('Select hours').as('listHours');
-    cy.get('@listHours')
-      .findByRole('option', { name: '15' })
-      .should('be.selected');
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
 
-    cy.findByLabelText('Select minutes').as('listMinutes');
-    cy.get('@listMinutes')
-      .findByRole('option', { name: '05' })
-      .should('be.selected');
+    cy.findByRole('gridcell', { name: '27' })
+      .should('have.attr', 'aria-selected', 'true')
+      .click();
 
-    // cy.makeSnapshot(verifier la date dans calendrier pour le cas du customize);
+    cy.findByLabelText('5 hours')
+      .should('have.attr', 'aria-selected', 'true')
+      .click();
+
+    cy.findByLabelText('30 minutes').should(
+      'have.attr',
+      'aria-selected',
+      'true'
+    );
+
+    cy.contains('OK').click();
   });
 
   it('update the search bar when changes are made to the filter interface', () => {
-    const now = new Date(2024, 2, 27, 4, 16);
-
     cy.waitForRequest('@getListTokens');
 
     const {
@@ -732,17 +715,18 @@ describe('Api-token', () => {
       }
     } = renderHook(() => useLocaleDateTimeFormat());
 
-    cy.findByTestId('Filteroption').click();
+    cy.findByTestId('Filter options').click();
+    const now = new Date(2024, 2, 27, 4, 16, 33);
+
+    cy.clock(now);
 
     cy.findByTestId(labelCreationDate).select('Customize');
 
-    cy.findByRole('gridcell', { name: '15' }).click();
+    cy.findByRole('gridcell', { name: '5' }).click();
 
-    cy.findByLabelText('Select hours').as('listHours');
-    cy.get('@listHours').findByRole('option', { name: '07' }).click();
+    cy.findByRole('option', { name: '7' }).click();
 
-    cy.findByLabelText('Select minutes').as('listMinutes');
-    cy.get('@listMinutes').findByRole('option', { name: '20' }).click();
+    cy.findByRole('option', { name: '20' }).click();
 
     cy.findByTestId(labelCreationDate).should(
       'have.value',
