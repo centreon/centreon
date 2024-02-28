@@ -7,14 +7,19 @@ inputs:
   module_name:
     description: "The package module name"
     required: true
-  jira_token:
+  jira_api_token:
     description: "Token to authenticate to Jira"
+    required: true
+  jira_user_email:
+    description: "Email linked to token"
     required: true
   jira_project_id:
     description: "Jira project id to create release"
     required: true
   jira_webhook_url:
     description: "Jira release webhook"
+  jira_base_url:
+    description: "Jira base url"
     required: true
 
 runs:

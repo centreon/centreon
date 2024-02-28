@@ -10,8 +10,9 @@ import {
 import { getUserContactId } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer();
-  initializeConfigACLAndGetLoginPage();
+  cy.startContainers().then(() => {
+    return initializeConfigACLAndGetLoginPage();
+  });
 });
 
 beforeEach(() => {
@@ -38,8 +39,18 @@ beforeEach(() => {
       cy.get('@user1Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
-        }).as('user1CreationPasswordDate');
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
+        })
+          .then(([rows]) => {
+            if (rows.length === 0) {
+              throw new Error(
+                `Password creation date not found for contact id ${userid}`
+              );
+            }
+
+            return rows[0].creation_date;
+          })
+          .as('user1CreationPasswordDate');
       });
     });
 
@@ -49,8 +60,18 @@ beforeEach(() => {
       cy.get('@user2Id').then((userid) => {
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}';`
-        }).as('user2CreationPasswordDate');
+          query: `SELECT creation_date FROM contact_password WHERE contact_id = '${userid}'`
+        })
+          .then(([rows]) => {
+            if (rows.length === 0) {
+              throw new Error(
+                `Password creation date not found for contact id ${userid}`
+              );
+            }
+
+            return rows[0].creation_date;
+          })
+          .as('user2CreationPasswordDate');
       });
     });
 });
@@ -203,7 +224,7 @@ When(
           Number(userPasswordCreationDate) - millisecondsValueForSixMonth;
         cy.requestOnDatabase({
           database: 'centreon',
-          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}';`
+          query: `UPDATE contact_password SET creation_date = '${newDateOfCreationDate}' WHERE contact_id = '${idUser}'`
         });
       });
     });
@@ -506,5 +527,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

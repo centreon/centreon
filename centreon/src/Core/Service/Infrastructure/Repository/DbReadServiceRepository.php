@@ -470,6 +470,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     {
         $categoryAcls = '';
         $groupAcls = '';
+        $hostGroupAcls = '';
+        $hostCategoryAcls = '';
         if ($accessGroupIds !== []) {
             if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
                 $categoryAcls = <<<'SQL'
@@ -486,6 +488,21 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     )
                     SQL;
             }
+            if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON arhcr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON res.acl_res_id = argr.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON argr.acl_group_id = ag.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
             if (! $this->hasAccessToAllServiceGroups($accessGroupIds)) {
                 $groupAcls = <<<'SQL'
                     AND sgr.servicegroup_sg_id in (
@@ -493,6 +510,21 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                         FROM `:db`.acl_resources_sg_relations arsgr
                         INNER JOIN `:db`.acl_resources res
                             ON arsgr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON res.acl_res_id = argr.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON argr.acl_group_id = ag.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+            if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
+                $hostGroupAcls = <<<'SQL'
+                    AND hgr.hostgroup_hg_id IN (
+                        SELECT arhgr.hg_hg_id
+                        FROM `:db`.acl_resources_hg_relations arhgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON arhgr.acl_res_id = res.acl_res_id
                         INNER JOIN `:db`.acl_res_group_relations argr
                             ON res.acl_res_id = argr.acl_res_id
                         INNER JOIN `:db`.acl_groups ag
@@ -555,6 +587,17 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     LEFT JOIN `:db`.host
                         ON host.host_id = hsr.host_host_id
                         AND host.host_register = '1'
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hgr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hgr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                        AND hostcategories.level IS NULL
                     SQL
             )
             ->appendWhere(
@@ -593,6 +636,10 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             'severity.name' => 'severity.sc_name',
             'group.id' => 'servicegroup.sg_id',
             'group.name' => 'servicegroup.sg_name',
+            'hostgroup.id' => 'hostgroup.hg_id',
+            'hostgroup.name' => 'hostgroup.hg_name',
+            'hostcategory.id' => 'hostcategories.hc_id',
+            'hostcategory.name' => 'hostcategories.hc_name',
         ]);
         $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->translateForConcatenator($concatenator);
@@ -703,6 +750,44 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     }
 
     /**
+     * Determine if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are not filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                INNER JOIN `:db`.acl_resources res
+                    ON arhcr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * Determine if accessGroups give access to all serviceGroups
      * true: all service groups are accessible
      * false: all service groups are NOT accessible.
@@ -721,6 +806,48 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<'SQL'
                 SELECT res.all_servicegroups
                 FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                    FROM `:db`.acl_resources res
                 INNER JOIN `:db`.acl_res_group_relations argr
                     ON res.acl_res_id = argr.acl_res_id
                 INNER JOIN `:db`.acl_groups ag
