@@ -218,9 +218,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('svg[data-icon="View by host"]')
-      .should('exist')
-      .click({ force: true });
+    cy.get('svg[data-icon="View by host"]').should('exist').realClick();
     cy.wait('@resourceRequest');
   }
 );
@@ -236,9 +234,7 @@ Then('only the hosts must be displayed', () => {
 When(
   'the dashboard administrator user selects view by service as a display type',
   () => {
-    cy.get('svg[data-icon="View by service"]')
-      .should('exist')
-      .click({ force: true });
+    cy.get('svg[data-icon="View by service"]').should('exist').realClick();
     cy.wait('@resourceRequest');
   }
 );
@@ -454,8 +450,8 @@ Then(
           }),
       { interval: 2000, timeout: 10000 }
     );
-})
-
+  }
+);
 
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
