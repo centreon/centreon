@@ -10,7 +10,7 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 // import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member-4.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 afterEach(() => {

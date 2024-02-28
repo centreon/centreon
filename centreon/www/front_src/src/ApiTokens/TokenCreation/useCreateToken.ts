@@ -9,9 +9,8 @@ import {
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { createTokenEndpoint } from '../api/endpoints';
-import useRefetch from '../useRefetch';
 import { createdTokenDecoder } from '../api/decoder';
+import { createTokenEndpoint } from '../api/endpoints';
 
 import { CreatedToken, dataDuration } from './models';
 
@@ -34,8 +33,6 @@ const useCreateToken = (): UseCreateToken => {
     method: Method.POST
   });
 
-  useRefetch((data as CreatedToken)?.token);
-
   const getExpirationDate = ({ value, unit }): string => {
     const formattedDate = dayjs().add(value, unit).toDate();
 
@@ -52,9 +49,11 @@ const useCreateToken = (): UseCreateToken => {
       const expirationDate = toIsoString(customizeDate as Date);
 
       mutateAsync({
-        expiration_date: expirationDate,
-        name: tokenName,
-        user_id: user?.id
+        payload: {
+          expiration_date: expirationDate,
+          name: tokenName,
+          user_id: user?.id
+        }
       });
 
       return;
@@ -67,9 +66,11 @@ const useCreateToken = (): UseCreateToken => {
     });
 
     mutateAsync({
-      expiration_date: expirationDate,
-      name: tokenName,
-      user_id: user?.id
+      payload: {
+        expiration_date: expirationDate,
+        name: tokenName,
+        user_id: user?.id
+      }
     });
   };
 

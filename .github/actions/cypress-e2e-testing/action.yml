@@ -4,6 +4,9 @@ inputs:
   name:
     description: "test name"
     required: true
+  database_image:
+    description: "docker database image"
+    required: true
   web_image_os:
     description: "Web image operating system"
     required: true
@@ -12,6 +15,9 @@ inputs:
     required: true
   openid_image_version:
     description: "Openid image version"
+    required: true
+  saml_image_version:
+    description: "SAML image version"
     required: true
   module:
     description: "module"
@@ -67,16 +73,18 @@ runs:
         publish-summary: false
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
+        CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
+        CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
 
     - name: Rename JSON report
       if: ${{ always() }}
       run: |
         feature_name=$(basename "${{ inputs.feature_file_path }}")
-        report_path="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/report.json"
-        report_path_updated="${{ inputs.module }}/tests/e2e/cypress/cucumber-logs/${feature_name}-report.json"
+        report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
+        report_path_updated="${{ inputs.module }}/tests/e2e/results/cucumber-logs/${feature_name}-report.json"
 
         jq 'if length > 0 then .[0] |= (.tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end)) | (.[] |= (if has("elements") then .elements[].tags |= map(if .name | startswith("@REQ_MON-") then .name |= "@${{ inputs.test_execution_key }}" else . end) else . end)) else . end' "$report_path" > "$report_path_updated"
 

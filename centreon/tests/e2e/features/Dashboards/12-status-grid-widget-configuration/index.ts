@@ -62,7 +62,7 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -147,7 +147,7 @@ before(() => {
     : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
 });
 
@@ -190,7 +190,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
@@ -219,7 +219,7 @@ When(
   'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -258,7 +258,7 @@ When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -267,8 +267,8 @@ Then(
   'the list of available statuses to display is updated in the configuration properties',
   () => {
     cy.get('input[name="warning"]').should('exist');
-    cy.get('input[name="critical"]').should('exist');
-    cy.get('input[name="unknown"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
   }
 );
@@ -332,7 +332,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -348,12 +348,10 @@ Then(
     cy.getByLabel({ label: 'Title' }).should('exist');
     cy.get('input[value="host"]').should('exist');
     cy.get('input[value="service"]').should('exist');
-    cy.get('input[name="up"]').should('exist');
-    cy.get('input[name="down"]').should('exist');
-    cy.get('input[name="unreachable"]').should('exist');
+    cy.get('input[name="success"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
-    cy.get('input[name="acknowledged"]').should('exist');
-    cy.get('input[name="in_downtime"]').should('exist');
     cy.get('input[value="status_severity_code"]').should('exist');
     cy.get('input[value="name"]').should('exist');
   }
@@ -370,6 +368,7 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
+    cy.get('input[name="success"]').click();
   }
 );
 

@@ -1,0 +1,7 @@
+ShareDashboard:
+  methods: PUT
+  path: /configuration/dashboards/{dashboardId}/shares
+  requirements:
+    dashboardId: '\d+'
+  controller: 'Core\Dashboard\Infrastructure\API\ShareDashboard\ShareDashboardController'
+  condition: "request.attributes.get('version') >= 23.10"

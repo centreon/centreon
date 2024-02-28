@@ -5,7 +5,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 // import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
@@ -36,7 +36,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
