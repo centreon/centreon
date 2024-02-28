@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "aaea2561-bcd3-4d88-a1d6-a27354f0934a",
-		"name": "Service Severity",
+		"name": "0 - Service Severity",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-aaea2561-bcd3-4d88-a1d6-a27354f0934a?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-aaea2561-bcd3-4d88-a1d6-a27354f0934a?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -131,7 +131,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -182,7 +182,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -233,7 +233,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -284,7 +284,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -335,7 +335,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -386,7 +386,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -437,7 +437,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -473,57 +473,6 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right Tokens",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"RW;1;Administration;API Tokens\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Link RW to RW_ALL",
 					"event": [
 						{
@@ -539,7 +488,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -647,7 +596,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -698,7 +647,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -749,7 +698,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -800,7 +749,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -851,7 +800,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -902,7 +851,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -953,7 +902,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1061,7 +1010,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1112,7 +1061,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1163,7 +1112,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1214,7 +1163,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1265,7 +1214,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1316,7 +1265,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1367,7 +1316,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1418,7 +1367,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1526,7 +1475,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1577,7 +1526,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1628,7 +1577,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1679,7 +1628,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1730,7 +1679,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1781,7 +1730,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1889,7 +1838,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1940,7 +1889,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1991,7 +1940,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2042,7 +1991,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2093,7 +2042,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2144,7 +2093,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2195,7 +2144,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2225,103 +2174,6 @@
 							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get authentication cookie",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"login\":\"{{api_login}}\", \r\n    \"password\":\"{{api_password}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/authentication/providers/configurations/local",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"authentication",
-								"providers",
-								"configurations",
-								"local"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Install base monitoring connectors",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.installed.length).to.eql(12);\r",
-									"    pm.expect(responseJson.updated).to.be.empty;\r",
-									"    pm.expect(responseJson.failed).to.be.empty;\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "    {\r\n    \"pluginpack\": [\r\n      {\r\n       \"slug\": \"base-generic\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"operatingsystems-linux-snmp\",\r\n       \"version\": \"23.09.2\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"operatingsystems-windows-snmp\",\r\n       \"version\": \"23.09.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-central\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-databases-mysql\",\r\n       \"version\": \"23.10.1\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-database\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-poller\",\r\n       \"version\": \"23.05.1\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-pacemaker-ssh\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-ha\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"network-cisco-standard-snmp\",\r\n       \"version\": \"23.07.0\",\r\n        \"action\": \"install\"\r\n      },\r\n      {\r\n        \"slug\": \"hardware-printers-standard-rfc3805-snmp\",\r\n        \"version\": \"23.04.0\",\r\n        \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"hardware-ups-standard-rfc1628-snmp\",\r\n       \"version\": \"23.08.0\",\r\n       \"action\": \"install\"\r\n      }\r\n     ]\r\n    }",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/internal.php?object=centreon_pp_manager_pluginpack&action=installupdate",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"internal.php"
-							],
-							"query": [
-								{
-									"key": "object",
-									"value": "centreon_pp_manager_pluginpack"
-								},
-								{
-									"key": "action",
-									"value": "installupdate"
-								}
 							]
 						}
 					},
@@ -2388,10 +2240,6 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-<<<<<<< HEAD
-=======
-									"console.log(responseJson);\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"\r",
 									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
@@ -2574,11 +2422,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"{{ServiceSeverity2Name}}\",\n    \"alias\":\"{{ServiceSeverity2Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 2\n}"
-=======
-							"raw": "{\n\"name\":\"{{ServiceSeverity2Name}}\",\n\"alias\":\"{{ServiceSeverity2Alias}}\",\n\"level\": 1,\n\"icon_id\": 2\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2676,11 +2520,7 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Creation of a new service severity without name, level or icon_id (error)",
-=======
-					"name": "Creation of a new service severity without name, leval or icon_id (error)",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"event": [
 						{
 							"listen": "test",
@@ -2716,11 +2556,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "{\n    \"alias\":\"Oh I'm your third severity!\"\n}"
-=======
-							"raw": "{\n\"alias\":\"Oh I'm your third severity!\"\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2773,11 +2609,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"\",\n    \"alias\":\"Hello, I'm your fourth severity!\",\n    \"level\":0,\n    \"icon_id\":1,\n    \"is_activated\": true\n}"
-=======
-							"raw": "{\n\"name\":\"\",\n\"alias\":\"Hello, I'm your fourth severity!\",\n\"level\":0,\n\"icon_id\":1,\n\"is_activated\": true\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2830,11 +2662,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "{\n    \"name\":\"Test_S_Severity_2.5\",\n    \"level\": 4,\n    \"icon_id\": 5\n}"
-=======
-							"raw": "{\n\"name\":\"Test_S_Severity_2.5\",\n\"level\": 4,\n\"icon_id\": 5\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2887,11 +2715,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "{\n    \"name\":true,\n    \"alias\":null,\n    \"level\": \"un\",\n    \"icon_id\": null,\n    \"is_activated\":\"true\"\n}"
-=======
-							"raw": "{\n\"name\":true,\n\"alias\":null,\n\"level\": \"un\",\n\"icon_id\": null,\n\"is_activated\":\"true\"\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -2957,11 +2781,7 @@
 						],
 						"body": {
 							"mode": "raw",
-<<<<<<< HEAD
 							"raw": "    {\n    \"name\":\"{{ServiceSeverity3Name}}\",\n    \"alias\":\"{{ServiceSeverity3Alias}}\",\n    \"level\": 3,\n    \"icon_id\": 1\n}"
-=======
-							"raw": "{\n\"name\":\"{{ServiceSeverity3Name}}\",\n\"alias\":\"{{ServiceSeverity3Alias}}\",\n\"level\": 3,\n\"icon_id\": 1\n}"
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/severities",
@@ -3069,7 +2889,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Update a service severity (successful)",
 					"event": [
 						{
@@ -3123,8 +2942,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (successful)",
 					"event": [
 						{
@@ -3205,15 +3022,9 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
@@ -3398,11 +3209,7 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Creation of a new service severity by user Read/Write (successful)",
-=======
-					"name": "Creation of a new service severity bu user Read/Write (successful)",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"event": [
 						{
 							"listen": "test",
@@ -3496,15 +3303,9 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
@@ -3621,7 +3422,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Update a service severity (successful)",
 					"event": [
 						{
@@ -3675,8 +3475,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Show available service severities (2)",
 					"event": [
 						{
@@ -3703,30 +3501,18 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 1,\r",
 									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 5,\r",
-									"        \"icon_id\": 3,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"})"
@@ -3973,7 +3759,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The service severity has been granted to ACL resource.\", function () {",
+											"pm.test(\"The service severity has been added to ACL resource.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});"
 										],
@@ -4245,15 +4031,9 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"    \r",
 									"})"
@@ -4298,7 +4078,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -4352,8 +4131,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -4591,7 +4368,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -4646,8 +4422,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -4727,30 +4501,18 @@
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 2,\r",
 									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-<<<<<<< HEAD
 									"        \"level\": 1,\r",
 									"        \"icon_id\": 1,\r",
 									"        \"is_activated\": true\r",
-=======
-									"        \"level\": 5,\r",
-									"        \"icon_id\": 3,\r",
-									"        \"is_activated\": false\r",
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.eql({\r",
@@ -5003,7 +4765,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The service severity has been granted to ACL resource.\", function () {",
+											"pm.test(\"The service severity has been added to ACL resource.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});"
 										],
@@ -5310,7 +5072,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Update a service severity (error)",
 					"event": [
 						{
@@ -5365,8 +5126,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Deletion of a service severity (error)",
 					"event": [
 						{
@@ -5606,7 +5365,6 @@
 					"response": []
 				},
 				{
-<<<<<<< HEAD
 					"name": "Creation of a new service severity (error)",
 					"event": [
 						{
@@ -5767,8 +5525,6 @@
 					"response": []
 				},
 				{
-=======
->>>>>>> 76dcb94a05b3ffd47158d8f09a2f062173003153
 					"name": "Logout from user with no access",
 					"event": [
 						{
@@ -5917,6 +5673,9 @@
 								"exec": [
 									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \" has successfully been deleted.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity1Name\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity1Alias\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity1Id\");\r",
 									"});\r",
 									""
 								],
@@ -5960,6 +5719,9 @@
 								"exec": [
 									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \" has successfully been deleted.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity4Name\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity4Alias\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity4Id\");\r",
 									"});\r",
 									""
 								],
@@ -6003,6 +5765,9 @@
 								"exec": [
 									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity5Name\") + \" has successfully been deleted.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity5Name\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverity5Alias\");\r",
+									"    pm.collectionVariables.unset(\"ServiceSeverit53Id\");\r",
 									"});\r",
 									""
 								],
