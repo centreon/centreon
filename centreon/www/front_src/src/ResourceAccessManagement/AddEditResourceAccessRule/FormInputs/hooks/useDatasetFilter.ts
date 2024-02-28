@@ -1,24 +1,30 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { FormikValues, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import {
   T,
   always,
   cond,
   equals,
   flatten,
+  init,
   isEmpty,
   isNil,
   last,
   path,
   pluck,
+  prop,
   propEq,
   reject
 } from 'ramda';
 
-import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import {
+  QueryParameter,
+  SelectEntry,
+  buildListingEndpoint
+} from '@centreon/ui';
 
-import { Dataset, ResourceTypeEnum } from '../../../models';
+import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
   labelAllResources,
   labelHost,
@@ -127,19 +133,44 @@ export const resourceTypeBaseEndpoints = {
   [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups'
 };
 
-const resourceQueryParameters = [
-  {
-    name: 'limit',
-    value: 30
+const searchParametersBySelectedResourceType = {
+  [ResourceTypeEnum.HostGroup]: {
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id'
+  },
+  [ResourceTypeEnum.HostCategory]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id'
+  },
+  [ResourceTypeEnum.Host]: {
+    [ResourceTypeEnum.HostGroup]: 'group.id',
+    [ResourceTypeEnum.HostCategory]: 'category.id'
+  },
+  [ResourceTypeEnum.ServiceGroup]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
+  },
+  [ResourceTypeEnum.ServiceCategory]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceGroup]: 'group.id'
+  },
+  [ResourceTypeEnum.Service]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceGroup]: 'group.id',
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
   }
-];
+};
 
 const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
 ): UseDatasetFilterState => {
   const { values, setFieldValue, setFieldTouched, touched } =
-    useFormikContext<FormikValues>();
+    useFormikContext<ResourceAccessRule>();
 
   const value = useMemo<Array<Dataset> | undefined>(
     () =>
@@ -242,14 +273,42 @@ const useDatasetFilter = (
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
   };
 
+  const buildSearchParameters = (): Array<QueryParameter> | undefined => {
+    const previousDataset = last(
+      init(values.datasetFilters[datasetFilterIndex])
+    );
+    if (isNil(previousDataset)) {
+      return undefined;
+    }
+
+    const ids = previousDataset?.resources.map((resource) =>
+      prop('id', resource)
+    );
+
+    const currentResourceType = last(value as Array<Dataset>)?.resourceType;
+    if (isNil(currentResourceType)) {
+      return undefined;
+    }
+
+    const searchParameter =
+      searchParametersBySelectedResourceType[currentResourceType][
+        previousDataset?.resourceType
+      ];
+
+    return [
+      {
+        name: 'search',
+        value: { [searchParameter]: { $in: ids } }
+      }
+    ];
+  };
+
   const getResourceBaseEndpoint =
     (resourceType: ResourceTypeEnum) =>
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: equals(resourceType, ResourceTypeEnum.Service)
-          ? resourceQueryParameters
-          : undefined,
+        customQueryParameters: buildSearchParameters(),
         parameters: {
           ...parameters,
           limit: 30
