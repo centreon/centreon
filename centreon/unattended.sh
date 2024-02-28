@@ -700,7 +700,7 @@ function secure_db_system_setup() {
 		EOF
 		mysql_secure_installation -u root --password="$db_root_password" --use-default
 		mysql -u root -p${db_root_password} <<-EOF
-			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			FLUSH PRIVILEGES;
 		EOF
 	fi
