@@ -502,7 +502,7 @@ describe('Dashboards', () => {
     cy.contains(labelDeleteDashboard).should('not.exist');
   });
 
-  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+  it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByTestId('edit-access-rights').eq(0).click();
