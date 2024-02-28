@@ -19,6 +19,7 @@
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
 /usr/share/perl5
+/usr/share/httpd
 /var/www/html
 /usr/lib64/httpd/modules
 /var/lib/php/session
@@ -33,8 +34,6 @@
 /var/lib/centreon-engine
 /var/lib/centreon-broker
 /var/lib/centreon-gorgone
-/var/lib/mysql/centreon
-/var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
 /usr/lib/rpm
