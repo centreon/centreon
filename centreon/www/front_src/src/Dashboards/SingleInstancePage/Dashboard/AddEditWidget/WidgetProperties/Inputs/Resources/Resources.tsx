@@ -138,6 +138,7 @@ const Resources = ({
                   )}
                   label={t(labelSelectAResource)}
                   limitTags={2}
+                  placeholder=""
                   queryKey={`${resource.resourceType}-${index}`}
                   value={resource.resources || []}
                   onChange={changeResources(index)}

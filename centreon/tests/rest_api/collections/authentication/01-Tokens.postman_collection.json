@@ -2635,13 +2635,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/administration/tokens",
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"administration",
 								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
 							]
 						}
 					},
@@ -2799,13 +2805,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/administration/tokens",
+							"raw": "{{baseUrl}}/administration/tokens?sort_by={\"token_name\":\"ASC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"administration",
 								"tokens"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"token_name\":\"ASC\"}"
+								}
 							]
 						}
 					},

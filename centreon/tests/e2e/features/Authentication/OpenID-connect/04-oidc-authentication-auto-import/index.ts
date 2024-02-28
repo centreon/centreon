@@ -8,11 +8,9 @@ import {
 } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer()
-    .startOpenIdProviderContainer()
-    .then(() => {
-      configureProviderAcls();
-    });
+  cy.startContainers({ profiles: ['openid'] }).then(() => {
+    configureProviderAcls();
+  });
 });
 
 beforeEach(() => {
@@ -156,5 +154,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer().stopOpenIdProviderContainer();
+  cy.stopContainers();
 });

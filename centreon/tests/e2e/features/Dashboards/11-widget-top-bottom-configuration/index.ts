@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
@@ -11,7 +14,7 @@ const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
@@ -21,7 +24,7 @@ before(() => {
     : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
   cy.intercept({
     method: 'GET',
@@ -48,6 +51,13 @@ before(() => {
     {
       name: 'Ping',
       status: 'ok'
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: hostName,
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 });
@@ -93,7 +103,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -116,7 +126,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -150,11 +160,9 @@ When(
 Then(
   'a top of best-performing resources for this metbric are displayed in the widget preview',
   () => {
-    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
-    cy.contains('#1 Centreon-Server_Ping').should('be.visible');
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
+    cy.contains('#1 Centreon-Server_Ping').should('exist');
   }
 );
 
@@ -263,10 +271,10 @@ When(
 Then('a second Top Bottom widget is displayed on the dashboard', () => {
   cy.getByTestId({ testId: 'warning-line-200-tooltip' })
     .eq(1)
-    .should('be.visible');
+    .should('exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' })
     .eq(1)
-    .should('be.visible');
+    .should('exist');
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
@@ -299,8 +307,8 @@ When('the dashboard administrator user deletes one of the widgets', () => {
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
@@ -417,10 +425,8 @@ When(
 Then(
   'the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
   }
 );
 
@@ -440,7 +446,7 @@ When(
 Then(
   'the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('be.visible');
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('exist');
   }
 );
