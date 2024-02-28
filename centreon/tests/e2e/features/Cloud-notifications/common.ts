@@ -3,7 +3,7 @@ import notificationBody from '../../fixtures/notifications/notification-creation
 const enableNotificationFeature = (): Cypress.Chainable => {
   return cy.execInContainer({
     command: `sed -i 's@"notification" : 2@"notification" : 3@' /usr/share/centreon/config/features.json`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
 };
 
@@ -54,7 +54,7 @@ const setBrokerNotificationsOutput = ({
   modifyLuaFileCommands.forEach((command) => {
     cy.execInContainer({
       command: command,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
   });
 
@@ -119,7 +119,7 @@ const notificationSentCheck = ({
   return cy
     .execInContainer({
       command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     })
     .then(({ stdout }) => {
       contain
@@ -134,7 +134,7 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
   return cy
     .execInContainer({
       command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     })
     .then((result) => {
       initialContent = result.stdout.trim();
@@ -144,7 +144,7 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
           return cy
             .execInContainer({
               command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-              name: Cypress.env('dockerName')
+              name: 'web'
             })
             .then((result) => {
               const currentContent = result.stdout.trim();
