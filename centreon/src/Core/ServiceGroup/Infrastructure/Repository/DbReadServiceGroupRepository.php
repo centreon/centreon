@@ -67,7 +67,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $concatenator = $this->getFindServiceGroupConcatenator();
         
         $concatenator->appendJoins(
-            <<<SQL
+            <<<'SQL'
                     LEFT JOIN `:db`.servicegroup_relation sgr
                         ON sg.sg_id = sgr.servicegroup_sg_id
                     LEFT JOIN `:db`.host h
@@ -75,7 +75,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                 SQL
         )
         ->appendJoins(
-            <<<SQL
+            <<<'SQL'
                     LEFT JOIN `:db`.hostcategories_relation hcr
                         ON h.host_id = hcr.host_host_id
                     LEFT JOIN `:db`.hostcategories hc
@@ -84,7 +84,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                 SQL
         )
         ->appendJoins(
-            <<<SQL
+            <<<'SQL'
                     LEFT JOIN `:db`.hostgroup_relation hgr
                         ON  h.host_id = hgr.host_host_id
                     LEFT JOIN `:db`.hostgroup hg
@@ -110,37 +110,37 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $hostCategoryAcls = '';
         if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
-            $hostCategoryAcls =
-             <<<'SQL'
-                    AND hcr.hostcategories_hc_id IN (
-                        SELECT arhcr.hc_id
-                        FROM acl_resources_hc_relations arhcr
-                        INNER JOIN `:db`.acl_resources res
-                            ON arhcr.acl_res_id = res.acl_res_id
-                        INNER JOIN `:db`.acl_res_group_relations argr
-                            ON res.acl_res_id = argr.acl_res_id
-                        INNER JOIN `:db`.acl_groups ag
-                            ON argr.acl_group_id = ag.acl_group_id
-                        WHERE ag.acl_group_id IN (:access_group_ids)
-                    )
-                SQL;
+            $hostCategoryAcls
+                = <<<'SQL'
+                        AND hcr.hostcategories_hc_id IN (
+                            SELECT arhcr.hc_id
+                            FROM acl_resources_hc_relations arhcr
+                            INNER JOIN `:db`.acl_resources res
+                                ON arhcr.acl_res_id = res.acl_res_id
+                            INNER JOIN `:db`.acl_res_group_relations argr
+                                ON res.acl_res_id = argr.acl_res_id
+                            INNER JOIN `:db`.acl_groups ag
+                                ON argr.acl_group_id = ag.acl_group_id
+                            WHERE ag.acl_group_id IN (:access_group_ids)
+                        )
+                    SQL;
         }
-        $hostCategoryAcls = '';
+        $hostGroupAcls = '';
         if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
-            $hostGroupAcls =
-             <<<'SQL'
-                    AND hgr.hostgroup_hg_id IN (
-                        SELECT arhgr.hg_hg_id
-                        FROM `:db`.acl_resources_hg_relations arhgr
-                        INNER JOIN `:db`.acl_resources res
-                            ON arhgr.acl_res_id = res.acl_res_id
-                        INNER JOIN `:db`.acl_res_group_relations argr
-                            ON res.acl_res_id = argr.acl_res_id
-                        INNER JOIN `:db`.acl_groups ag
-                            ON argr.acl_group_id = ag.acl_group_id
-                        WHERE ag.acl_group_id IN (:access_group_ids)
-                    )
-                SQL;
+            $hostGroupAcls
+                = <<<'SQL'
+                        AND hgr.hostgroup_hg_id IN (
+                            SELECT arhgr.hg_hg_id
+                            FROM `:db`.acl_resources_hg_relations arhgr
+                            INNER JOIN `:db`.acl_resources res
+                                ON arhgr.acl_res_id = res.acl_res_id
+                            INNER JOIN `:db`.acl_res_group_relations argr
+                                ON res.acl_res_id = argr.acl_res_id
+                            INNER JOIN `:db`.acl_groups ag
+                                ON argr.acl_group_id = ag.acl_group_id
+                            WHERE ag.acl_group_id IN (:access_group_ids)
+                        )
+                    SQL;
         }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
