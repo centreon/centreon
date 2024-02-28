@@ -1279,7 +1279,7 @@ class CentreonCustomView
             'WHERE c1.custom_view_id = c2.custom_view_id ' .
             'AND c1.is_owner = 1 ' .
             'AND c2.usergroup_id in (' . $cgString . ') ' .
-            'GROUP BY custom_view_id';
+            'GROUP BY c1.custom_view_id, c1.user_id, c2.usergroup_id';
         $stmt = $db->prepare($query);
         $dbResult = $stmt->execute($queryValue);
         if (!$dbResult) {
