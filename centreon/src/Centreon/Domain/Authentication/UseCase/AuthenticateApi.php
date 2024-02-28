@@ -30,11 +30,9 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInte
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Exceptions\ProviderException;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Security\Encryption;
 
@@ -43,12 +41,10 @@ class AuthenticateApi
     use LoggerTrait;
 
     /**
-     * @param AuthenticationServiceInterface $authenticationService
      * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private AuthenticationServiceInterface $authenticationService,
         private WriteTokenRepositoryInterface $writeTokenRepository,
         private ProviderAuthenticationFactoryInterface $providerFactory
     ) {

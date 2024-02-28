@@ -34,20 +34,13 @@ class Logout
     use LoggerTrait;
 
     /**
-     * @var AuthenticationServiceInterface
-     */
-    private $authenticationService;
-
-    /**
      * @var AuthenticationRepositoryInterface
      */
     private $authenticationRepository;
 
     public function __construct(
-        AuthenticationServiceInterface $authenticationService,
         AuthenticationRepositoryInterface $authenticationRepository
     ) {
-        $this->authenticationService = $authenticationService;
         $this->authenticationRepository = $authenticationRepository;
     }
 
