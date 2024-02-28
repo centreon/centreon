@@ -28,6 +28,12 @@ on:
         required: true
       veracode_srcclr_token:
         required: true
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   build:
@@ -84,8 +90,10 @@ jobs:
     runs-on: [self-hosted, common]
 
     steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Get build binary
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -134,7 +142,8 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@35aecef76c5365b8dea83c150852cdebc0991d2d # v1.0.10
+        id: pipeline-scan
+        uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -151,7 +160,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: ( success() && vars.VERACODE_BACKUP_DEBUG == 'true' ) || failure()
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -205,6 +214,16 @@ jobs:
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
+      - name: Create jira ticket
+        # In case of QG failure, a ticket must be created
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        uses: ./.github/actions/veracode-create-jira-ticket
+        with:
+          jira_base_url: ${{ secrets.jira_base_url }}
+          jira_user_email: ${{ secrets.jira_user_email }}
+          jira_api_token: ${{ secrets.jira_api_token }}
+          module_name: ${{ inputs.module_name }}
+
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
@@ -226,9 +245,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af # v2.0.0
+      - uses: geekyeggo/delete-artifact@65041433121f7239077fa20be14c0690f70569de # v4.1.0
         with:
           name: "Veracode Pipeline-Scan Results"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   policy-scan:
     needs: [build]
@@ -239,14 +259,14 @@ jobs:
 
     steps:
       - name: Get build binary
-        uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
           fail-on-cache-miss: true
 
       - name: Sandbox scan
-        uses: veracode/veracode-uploadandscan-action@3589e72d91d1084857f2eb18eb7162cf96a93898 # master
+        uses: veracode/veracode-uploadandscan-action@f7e1fbf02c5c899fba9f12e3f537b62f2f1230e1 # master
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
@@ -270,7 +290,7 @@ jobs:
           VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
 
-        # Action forked as API call hardcode '.com' route
+        # Action forked due to an API call hardcoding the '.com' route
         uses: sc979/veracode-sandboxes-helper@cf67241c27cbe6405ad8705111121ece9a48c4ff # v0.2
         with:
           activity: "promote-latest-scan"
@@ -307,7 +327,7 @@ jobs:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: sc979/veracode-sca@d3cf7437b198b0e861785f2568d50aeed45bb99b # v1.10
+        uses: sc979/veracode-sca@c407924976db886ffb1bfdbbbf3463f0939f835d # v1.11
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:

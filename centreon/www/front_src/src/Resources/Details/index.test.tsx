@@ -193,7 +193,6 @@ const retrievedNotificationContacts = {
 };
 
 const retrievedDetails = {
-  acknowledged: false,
   acknowledgement: {
     author_name: 'Admin',
     comment: 'Acknowledged by Admin',
@@ -228,9 +227,10 @@ const retrievedDetails = {
   fqdn: 'central.centreon.com',
   groups,
   id: resourceServiceId,
-  in_downtime: true,
   information:
     'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
+  is_acknowledged: false,
+  is_in_downtime: true,
   last_check: '2020-05-18T16:00Z',
   last_notification: '2020-07-18T17:30:00Z',
   last_status_change: '2020-04-18T15:00Z',

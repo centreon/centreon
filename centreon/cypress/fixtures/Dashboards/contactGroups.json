@@ -2,16 +2,18 @@
   "result": [
     {
       "id": 3,
-      "name": "Guest"
+      "name": "Guest",
+      "most_permissive_role": "editor"
     },
     {
       "id": 5,
-      "name": "Supervisors"
+      "name": "Supervisors",
+      "most_permissive_role": "viewer"
     }
   ],
   "meta": {
     "page": 1,
-    "limit": 1000,
+    "limit": 10,
     "search": {},
     "sort_by": {},
     "total": 2

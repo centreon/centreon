@@ -296,36 +296,17 @@ contents:
     file_info:
       mode: 0644
 
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/cache"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/compile"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/GPL_LIB/SmartyCache/config"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
   - src: "../GPL_LIB"
     dst: "/usr/share/centreon/GPL_LIB"
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
-      mode: 0664
+      mode: 0775
 
   - src: "../src"
     dst: "/usr/share/centreon/src"
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -333,27 +314,7 @@ contents:
 
   - src: "../www"
     dst: "/usr/share/centreon/www"
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/www"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/www/install"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
-  - dst: "/usr/share/centreon/www/img/media"
-    type: dir
+    type: tree
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -443,8 +404,8 @@ overrides:
       - bc
       - cronie
       - initscripts
+      - "(mariadb or mysql)"
       - httpd
-      - mariadb
       - php-common >= 8.1
       - php-cli
       - php-pdo
@@ -526,6 +487,7 @@ overrides:
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
+      - "mariadb-client | mysql-client"
       - apache2
       - php8.1
       - php8.1-cli

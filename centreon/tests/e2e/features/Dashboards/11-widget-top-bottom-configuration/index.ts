@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
@@ -11,7 +14,7 @@ const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
@@ -21,7 +24,7 @@ before(() => {
     : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
   cy.intercept({
     method: 'GET',
@@ -29,7 +32,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
@@ -50,6 +53,13 @@ before(() => {
       status: 'ok'
     }
   ]);
+  checkMetricsAreMonitored([
+    {
+      host: hostName,
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -59,7 +69,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -93,7 +103,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -116,7 +126,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -142,7 +152,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@dashboardMetricsTop');
   }
 );
@@ -192,6 +202,7 @@ When(
     cy.contains(hostName)
       .parent()
       .getByTestId({ testId: 'CancelIcon' })
+      .eq(0)
       .click();
   }
 );
@@ -217,7 +228,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
     cy.getByTestId({ testId: 'Select metric' }).click();
-    cy.contains('rta (ms) / Includes 1 resources').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 
@@ -252,9 +263,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );

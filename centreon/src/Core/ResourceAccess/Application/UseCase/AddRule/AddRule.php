@@ -33,11 +33,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
-use Core\ResourceAccess\Application\Repository\WriteRuleRepositoryInterface;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
-use Core\ResourceAccess\Domain\Model\DatasetFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilterTypeConverter;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -48,20 +47,22 @@ final class AddRule
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
-     * @param ReadRuleRepositoryInterface $readRepository
-     * @param WriteRuleRepositoryInterface $writeRepository
+     * @param ReadResourceAccessRepositoryInterface $readRepository
+     * @param WriteResourceAccessRepositoryInterface $writeRepository
      * @param ContactInterface $user
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param AddRuleValidation $validator
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param DatasetFilterValidator $datasetValidator
      */
     public function __construct(
-        private readonly ReadRuleRepositoryInterface $readRepository,
-        private readonly WriteRuleRepositoryInterface $writeRepository,
+        private readonly ReadResourceAccessRepositoryInterface $readRepository,
+        private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly AddRuleValidation $validator,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly DatasetFilterValidator $datasetValidator
     ) {
     }
 
@@ -72,11 +73,13 @@ final class AddRule
     public function __invoke(
         AddRuleRequest $request,
         AddRulePresenterInterface $presenter
-    ): void
-    {
+    ): void {
         try {
-            // check if current user is authorized to perform the action.
-            // Only users linked to AUTHORIZED_ACL_GROUPS and having access in RW to the page are authorized
+            /**
+             * Check if current user is authorized to perform the action.
+             * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+             * are authorized to add a Resource Access Rule.
+             */
             if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to create a resource access rule",
@@ -92,6 +95,8 @@ final class AddRule
             }
 
             try {
+                $this->info('Starting resource access rule creation process');
+                $this->debug('Starting resource access rule transaction');
                 $this->dataStorageEngine->startTransaction();
 
                 /**
@@ -99,6 +104,13 @@ final class AddRule
                  * Validate that ids provided for contact and contactgroups are valid (exist).
                  */
                 $this->validator->assertIsValidName($request->name);
+
+                // At least one ID must be provided for contact or contactgroup
+                $this->validator->assertContactsAndContactGroupsAreNotEmpty(
+                    $request->contactIds,
+                    $request->contactGroupIds
+                );
+
                 $this->validator->assertContactIdsAreValid($request->contactIds);
                 $this->validator->assertContactGroupIdsAreValid($request->contactGroupIds);
 
@@ -153,33 +165,6 @@ final class AddRule
     }
 
     /**
-     * @param DatasetFilter $filter
-     *
-     * @return DatasetFilter
-     */
-    private function findLastLevelOfFilter(DatasetFilter $filter): DatasetFilter
-    {
-        $applicableFilter = null;
-        // recursive method to find the last 'stage' of filter (descending filter)
-        $findApplicableFilter = function (DatasetFilter $filter) use (&$findApplicableFilter, &$applicableFilter): DatasetFilter {
-            // initialize the $applicableFilter which is initially NULL
-            if ($applicableFilter === null) {
-                $applicableFilter = $filter;
-                $findApplicableFilter($applicableFilter);
-            }
-            // if there is a level then keep digging
-            elseif ($filter->getDatasetFilter() !== null) {
-                $applicableFilter = $filter->getDatasetFilter();
-                $findApplicableFilter($applicableFilter);
-            }
-
-            return $applicableFilter;
-        };
-
-        return $findApplicableFilter($filter);
-    }
-
-    /**
      * @param int $ruleId
      * @param int $datasetId
      * @param DatasetFilter $filter
@@ -202,45 +187,6 @@ final class AddRule
     }
 
     /**
-     * @param int $datasetId
-     * @param DatasetFilterType $type
-     * @param int[] $resourceIds
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function addDatasetRelations(int $datasetId, DatasetFilterType $type, array $resourceIds): void
-    {
-        match ($type) {
-            DatasetFilterType::Host => $this->writeRepository->linkHostsToDataset($datasetId, $resourceIds),
-            DatasetFilterType::Hostgroup => $this->writeRepository->linkHostgroupsToDataset(
-                $datasetId,
-                $resourceIds
-            ),
-            DatasetFilterType::HostCategory => $this->writeRepository->linkHostCategoriesToDataset(
-                $datasetId,
-                $resourceIds
-            ),
-            DatasetFilterType::Servicegroup => $this->writeRepository->linkServicegroupsToDataset(
-                $datasetId,
-                $resourceIds
-            ),
-            DatasetFilterType::ServiceCategory => $this->writeRepository->linkServiceCategoriesToDataset(
-                $datasetId,
-                $resourceIds
-            ),
-            DatasetFilterType::MetaService => $this->writeRepository->linkMetaServicesToDataset(
-                $datasetId,
-                $resourceIds
-            ),
-            // @todo DatasetFilterType::Services => $this->writeRepository->linkServicesToDataset(
-            //     $datasetId,
-            //     $resourceIds
-            // ),
-            default => throw new \InvalidArgumentException('Unsupported dataset filter type provided')
-        };
-    }
-
-    /**
      * @param int $ruleId
      * @param NewRule $rule
      *
@@ -251,9 +197,6 @@ final class AddRule
         $index = 0;
 
         foreach ($rule->getDatasetFilters() as $datasetFilter) {
-            // The last level of filtering is the one that needs to be saved.
-            $applicableFilter = $this->findLastLevelOfFilter($datasetFilter);
-
             // create formatted name for dataset
             $datasetName = 'dataset_for_rule_' . $ruleId . '_' . $index;
 
@@ -266,9 +209,35 @@ final class AddRule
             // dedicated table used in order to keep filters hierarchy for GET matters
             $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
 
-            $this->addDatasetRelations(
+            // Extract from the DatasetFilter the final filter level and its parent.
+            [
+                'parent' => $parentApplicableFilter,
+                'last' => $applicableFilter
+            ] = DatasetFilter::findApplicableFilters($datasetFilter);
+
+            /* Specific behaviour when the last level of filtering is of type
+             * *Category|*Group and that the parent of this filter is also of the same type.
+             * Then we need to save both types as those are on the same hierarchy level.
+             */
+            if (
+                DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
+                && $parentApplicableFilter !== null
+                && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
+            ) {
+                // link parent resources to the dataset
+                $this->writeRepository->linkResourcesToDataset(
+                    $ruleId,
+                    $datasetId,
+                    $parentApplicableFilter->getType(),
+                    $parentApplicableFilter->getResourceIds()
+                );
+            }
+
+            // link resources to the dataset
+            $this->writeRepository->linkResourcesToDataset(
+                $ruleId,
                 $datasetId,
-                DatasetFilterTypeConverter::fromString($applicableFilter->getType()),
+                $applicableFilter->getType(),
                 $applicableFilter->getResourceIds()
             );
 
@@ -283,7 +252,7 @@ final class AddRule
      */
     private function addRule(NewRule $rule): int
     {
-        $this->info('Adding new rule');
+        $this->debug('Adding new rule with basic information');
 
         return $this->writeRepository->add($rule);
     }
@@ -294,7 +263,7 @@ final class AddRule
      */
     private function linkContacts(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contacts to the resource access rule',
             ['ruleId' => $ruleId, 'contact_ids' => $rule->getLinkedContactIds()]
         );
@@ -308,7 +277,7 @@ final class AddRule
      */
     private function linkContactGroups(int $ruleId, NewRule $rule): void
     {
-        $this->info(
+        $this->debug(
             'AddRule: Linking contact groups to the resource access rule',
             ['ruleId' => $ruleId, 'contact_group_ids' => $rule->getLinkedContactGroupIds()]
         );
@@ -335,15 +304,20 @@ final class AddRule
             array $data,
             ?DatasetFilter $parentDatasetFilter
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
-            // In any case we want to make sure that resources provided are valid
-            // Then at DatasetFilter creation the hierarchy is validated
+            /**
+             * In any case we want to make sure that
+             *     - resources provided are valid (exist)
+             *     - the datasetfilter type provided is valid (validated by entity)
+             *     - that the dataset filter hierarchy is valid (validated by entity).
+             */
             $this->validator->assertIdsAreValid($data['type'], $data['resources']);
 
             // first iteration we want to create the root filter
             if ($datasetFilter === null) {
                 $datasetFilter = new DatasetFilter(
                     type: $data['type'],
-                    resourceIds: $data['resources']
+                    resourceIds: $data['resources'],
+                    validator: $this->datasetValidator
                 );
                 if ($data['dataset_filter'] !== null) {
                     $validateAndBuildDatasetFilter($data['dataset_filter'], null);
@@ -351,16 +325,20 @@ final class AddRule
             } else {
                 // we want to create the first children
                 if ($parentDatasetFilter === null) {
-                    $filter = new DatasetFilter(type: $data['type'], resourceIds: $data['resources']);
+                    $filter = new DatasetFilter(
+                        type: $data['type'],
+                        resourceIds: $data['resources'],
+                        validator: $this->datasetValidator
+                    );
                     $datasetFilter->setDatasetFilter($filter);
                     if ($data['dataset_filter'] !== null) {
                         $validateAndBuildDatasetFilter($data['dataset_filter'], $datasetFilter->getDatasetFilter());
                     }
                 } else {
-                    // create any children available and assign it to the parent
                     $childrenDatasetFilter = new DatasetFilter(
                         type: $data['type'],
-                        resourceIds: $data['resources']
+                        resourceIds: $data['resources'],
+                        validator: $this->datasetValidator
                     );
 
                     $parentDatasetFilter->setDatasetFilter($childrenDatasetFilter);
@@ -372,7 +350,7 @@ final class AddRule
             }
         };
 
-        foreach ($request->datasetFilters as $dataset)  {
+        foreach ($request->datasetFilters as $dataset) {
             $datasetFilter = null;
             $validateAndBuildDatasetFilter($dataset, $datasetFilter);
 
@@ -410,6 +388,7 @@ final class AddRule
      */
     private function createResponse(int $ruleId): AddRuleResponse
     {
+        $this->debug('Fetching information post creation', ['rule_id' => $ruleId]);
         $rule = $this->readRepository->findById($ruleId);
 
         if (! $rule) {
@@ -417,8 +396,7 @@ final class AddRule
         }
 
         // convert recursively DatasetFilter entities to array
-        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array
-        {
+        $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array {
             $data['type'] = $datasetFilter->getType();
             $data['resources'] = $datasetFilter->getResourceIds();
             $data['dataset_filter'] = null;

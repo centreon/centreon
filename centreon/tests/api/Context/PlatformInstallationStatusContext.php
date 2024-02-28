@@ -33,11 +33,11 @@ class PlatformInstallationStatusContext extends ApiContext
     public function centreonWebIsNotInstalled()
     {
         $this->getContainer()->execute(
-            'mysql -e "DROP DATABASE centreon_storage"',
+            'bash -c \'mysql -h$MYSQL_HOST -uroot -p$MYSQL_PASSWORD -e "DROP DATABASE centreon_storage"\'',
             'web'
         );
         $this->getContainer()->execute(
-            'mysql -e "DROP DATABASE centreon"',
+            'bash -c \'mysql -h$MYSQL_HOST -uroot -p$MYSQL_PASSWORD -e "DROP DATABASE centreon"\'',
             'web'
         );
         $this->getContainer()->execute(

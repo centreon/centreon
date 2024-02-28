@@ -8,7 +8,7 @@ import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import { AddEditWidgetModal } from '../AddEditWidget';
 
 import PanelsLayout from './Layout';
@@ -36,7 +36,7 @@ const DashboardPageLayout = (): JSX.Element => {
   const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const changeLayout = (layout: Array<Layout>): void => {
     const isOneColumnDisplay = equals(getColumnsFromScreenSize(), 1);

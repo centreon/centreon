@@ -71,7 +71,7 @@ final class AddContactGroupDashboardShare
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 }
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
                     $this->info(
                         'Add a contact group share for dashboard',

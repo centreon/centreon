@@ -33,8 +33,8 @@ import {
 } from './model';
 import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
 import {
-  labelCloseMoreFilters,
-  labelOpenMoreFilters
+  labelShowFewerFilters,
+  labelShowMoreFilters
 } from './translatedLabels';
 
 export { CheckboxGroup } from '@centreon/ui';
@@ -158,7 +158,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
           variant="ghost"
           onClick={controlFilterInterface}
         >
-          {t(open ? labelCloseMoreFilters : labelOpenMoreFilters)}
+          {t(open ? labelShowFewerFilters : labelShowMoreFilters)}
         </Button>
       </div>
       <div className={cx(classes.small, { [classes.extended]: open })}>

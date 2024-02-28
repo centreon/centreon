@@ -9,10 +9,9 @@ import Divider from '@mui/material/Divider';
 
 import { userAtom, ListingVariant } from '@centreon/ui-context';
 
-import { ListingProps } from '../..';
+import { ListingProps, IconButton } from '../..';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
 import { useMemoComponent } from '../../utils';
-import IconButton from '../../Button/Icon/index';
 
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
@@ -175,14 +174,15 @@ const MemoListingActionBar = ({
               </IconButton>
             )}
           <div className={classes.ModeViewer} />
-          {columnConfiguration?.selectedColumnIds && (
-            <ColumnMultiSelect
-              columnConfiguration={columnConfiguration}
-              columns={columns}
-              onResetColumns={onResetColumns}
-              onSelectColumns={onSelectColumns}
-            />
-          )}
+          {columnConfiguration?.selectedColumnIds &&
+            columnConfiguration?.sortable && (
+              <ColumnMultiSelect
+                columnConfiguration={columnConfiguration}
+                columns={columns}
+                onResetColumns={onResetColumns}
+                onSelectColumns={onSelectColumns}
+              />
+            )}
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
