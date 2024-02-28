@@ -359,6 +359,16 @@ $form->addElement('select2', 'service_hPars', _('Host Templates'), [], $attribut
 // # Check information
 //
 $form->addElement('header', 'check', _('Service State'));
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+
+if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
+    $checkCommandSelect->addJsCallback(
+        'change',
+        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+    );
+} else {
+    $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
+}
 
 if (! $isCloudPlatform) {
     $serviceIV = [
@@ -370,17 +380,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-
-    if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-        $checkCommandSelect->addJsCallback(
-            'change',
-            'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-        );
-    } else {
-        $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
-    }
-
     $serviceEHE = [
         $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),

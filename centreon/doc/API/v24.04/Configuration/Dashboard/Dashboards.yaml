@@ -9,6 +9,9 @@ get:
     
     * id
     * name
+    * created_by
+    * created_at
+    * updated_at
     
     `Since Centreon web 23.10`
   parameters:

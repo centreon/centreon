@@ -66,7 +66,7 @@ const resourceTypeOptions = [
       { id: ResourceTypeEnum.HostGroup, name: labelHostGroup },
       { id: ResourceTypeEnum.Host, name: labelHost },
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
       { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.HostCategory,
@@ -77,7 +77,7 @@ const resourceTypeOptions = [
       { id: ResourceTypeEnum.HostCategory, name: labelHostCategory },
       { id: ResourceTypeEnum.Host, name: labelHost },
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
-      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
       { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.HostGroup,
@@ -103,7 +103,7 @@ const resourceTypeOptions = [
   },
   {
     availableResourceTypeOptions: [
-      { id: ResourceTypeEnum.ServiceCategory, name: labelHostCategory },
+      { id: ResourceTypeEnum.ServiceCategory, name: labelServiceCategory },
       { id: ResourceTypeEnum.Service, name: labelService }
     ],
     id: ResourceTypeEnum.ServiceGroup,

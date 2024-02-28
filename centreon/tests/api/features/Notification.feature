@@ -77,11 +77,11 @@ Feature:
                         "email_address": "guest@localhost",
                         "full_name": "Guest"
                     }, {
-                        "email_address": "user@localhost",
-                        "full_name": "User"
-                    }, {
                         "email_address": "admin@centreon.com",
                         "full_name": "admin admin"
+                    }, {
+                        "email_address": "user@localhost",
+                        "full_name": "User"
                     }
                 ]
             },

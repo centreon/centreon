@@ -67,5 +67,5 @@ runs:
         path: |
           ${{ inputs.module }}/cypress/results/videos
           ${{ inputs.module }}/cypress/screenshots
-          ${{ inputs.module }}/cypress/visual-testing-snapshots
+          ${{ inputs.module }}/cypress/visual-testing-snapshots/**/*.diff.png
         retention-days: 1

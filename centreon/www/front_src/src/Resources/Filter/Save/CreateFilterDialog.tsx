@@ -87,6 +87,7 @@ const CreateFilterDialog = ({
       <TextField
         autoFocus
         ariaLabel={t(labelName) as string}
+        dataTestId={labelName}
         disabled={isUpdatingFilter}
         error={form.touched.name ? form.errors.name : undefined}
         label={t(labelName)}

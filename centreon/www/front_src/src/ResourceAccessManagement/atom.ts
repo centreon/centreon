@@ -2,9 +2,6 @@ import { atom } from 'jotai';
 
 import { ModalMode, ResourceAccessRuleType } from './models';
 
-export const resourceAccessRuleModalModeAtom = atom<ModalMode>(
-  ModalMode.Create
-);
 export const editedResourceAccessRuleIdAtom = atom<number | null>(null);
 
 export const modalStateAtom = atom<{
