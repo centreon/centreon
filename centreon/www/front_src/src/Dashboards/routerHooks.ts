@@ -1,5 +1,6 @@
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 
 export const routerHooks = {
+  useNavigate,
   useParams
 };

@@ -20,6 +20,7 @@ properties:
     type: string
     description: "Host template alias"
     example: "generic-active-host"
+    nullable: true
   snmp_community:
     type: string
     nullable: true

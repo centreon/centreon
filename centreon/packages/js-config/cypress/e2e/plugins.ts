@@ -11,7 +11,7 @@ export default (
     const width = 1920;
     const height = 1080;
 
-    if (browser.family === 'chromium') {
+    if (browser.family === 'chromium' && browser.name !== 'electron') {
       if (browser.isHeadless) {
         launchOptions.args.push('--headless=new');
       }
