@@ -24,11 +24,11 @@ declare(strict_types = 1);
 namespace Core\Media\Infrastructure\Command\MigrateAllMedias;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Option\Interfaces\OptionRepositoryInterface;
 use Core\Common\Infrastructure\Command\AbstractMigrationCommand;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMedias;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMediasRequest;
 use Core\Media\Infrastructure\Repository\ApiWriteMediaRepository;
+use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -46,14 +46,14 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
     private int $postMax;
 
     public function __construct(
-        OptionRepositoryInterface $optionRepository,
+        ReadProxyRepositoryInterface $readProxyRepository,
         readonly private ApiWriteMediaRepository $apiWriteMediaRepository,
         readonly private MigrateAllMedias $useCase,
         readonly private int $maxFile,
         string $maxFilesize,
         string $postMax,
     ) {
-        parent::__construct($optionRepository);
+        parent::__construct($readProxyRepository);
         $this->maxFilesize = $this->parseSize($maxFilesize);
         $this->postMax = $this->parseSize($postMax);
     }

@@ -44,6 +44,7 @@ parameters:
                 - src/Core/Notification/Application/UseCase/AddNotification/AddNotification.php
                 - src/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotification.php
                 - src/Core/Service/Application/UseCase/DeleteService/DeleteService.php
+                - src/Core/ResourceAccess/Application/UseCase/AddRule/AddRule.php
 
         - # [CENTREON-RULE]: The logging is already done in a parent try catch block.
             reportUnmatched: false

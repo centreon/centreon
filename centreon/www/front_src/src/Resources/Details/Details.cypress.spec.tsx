@@ -1,14 +1,25 @@
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
 import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method, setUrlQueryParameters } from '@centreon/ui';
-import { userAtom, refreshIntervalAtom } from '@centreon/ui-context';
-
-import { ResourceType } from '../models';
 import {
+  Method,
+  SnackbarProvider,
+  TestQueryProvider,
+  setUrlQueryParameters
+} from '@centreon/ui';
+import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+
+import { commentEndpoint } from '../Actions/api/endpoint';
+import { resourcesEndpoint } from '../api/endpoint';
+import {
+  labelAcknowledge,
+  labelAcknowledgeCommandSent,
   labelAcknowledgedBy,
   labelAlias,
   labelAt,
+  labelCancel,
   labelCategories,
   labelCheck,
   labelCheckDuration,
@@ -16,7 +27,14 @@ import {
   labelComment,
   labelCurrentNotificationNumber,
   labelCurrentStatusDuration,
+  labelDisacknowledge,
+  labelDisacknowledgementCommandSent,
+  labelDowntime,
+  labelDowntimeCommandSent,
   labelDowntimeDuration,
+  labelDuration,
+  labelFixed,
+  labelForcedCheck,
   labelFqdn,
   labelFrom,
   labelGroups,
@@ -27,156 +45,48 @@ import {
   labelLatency,
   labelMore,
   labelNextCheck,
+  labelNotify,
+  labelNotifyHelpCaption,
   labelPerformanceData,
+  labelResourceDetailsCheckCommandSent,
+  labelResourceDetailsCheckDescription,
+  labelResourceDetailsForcedCheckCommandSent,
+  labelResourceDetailsForcedCheckDescription,
+  labelSave,
+  labelSetDowntime,
   labelStatusChangePercentage,
   labelStatusInformation,
+  labelSticky,
   labelTimezone,
-  labelTo
+  labelTo,
+  labelYourCommentSent
 } from '../translatedLabels';
 
-import useDetails from './useDetails';
-import useLoadDetails from './useLoadDetails';
 import {
+  panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import useDetails from './useDetails';
+import useLoadDetails from './useLoadDetails';
 
 import Details from '.';
 
-const resourceHostId = 1;
-const resourceHostType = 'host';
-const resourceServiceUuid = 'h1-s1';
 const resourceServiceId = 1;
-const resourceServiceType = ResourceType.service;
-const groups = [
-  {
-    configuration_uri: '/centreon/main.php?p=60102&o=c&hg_id=53',
-    id: 0,
-    name: 'Linux-servers'
-  }
-];
-
-const categories = [
-  {
-    configuration_uri: '/centreon/main.php?p=60102&o=c&hg_id=53',
-    id: 0,
-    name: 'Windows'
-  }
-];
 
 const selectedResource = {
-  parentResourceId: resourceHostId,
-  parentResourceType: resourceHostType,
+  parentResourceId: undefined,
+  parentResourceType: undefined,
   resourceId: resourceServiceId,
-  resourcesDetailsEndpoint: '/centreon/api/latest/monitoring/resources/hosts/1'
-};
-
-const retrievedDetails = {
-  acknowledged: false,
-  acknowledgement: {
-    author_name: 'Admin',
-    comment: 'Acknowledged by Admin',
-    entry_time: '2020-03-18T18:57:59Z',
-    is_persistent: true,
-    is_sticky: true
-  },
-  active_checks: false,
-  alias: 'Central-Centreon',
-  categories,
-  checked: true,
-  command_line: 'base_host_alive',
-  downtimes: [
-    {
-      author_name: 'admin',
-      comment: 'First downtime set by Admin',
-      end_time: '2020-01-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-      start_time: '2020-01-18T17:57:59Z'
-    },
-    {
-      author_name: 'admin',
-      comment: 'Second downtime set by Admin',
-      end_time: '2020-02-18T18:57:59Z',
-      entry_time: '2020-01-18T17:57:59Z',
-      start_time: '2020-02-18T17:57:59Z'
-    }
-  ],
-  duration: '22m',
-  execution_time: 0.070906,
-  flapping: true,
-  fqdn: 'central.centreon.com',
-  groups,
-  id: resourceServiceId,
-  in_downtime: true,
-  information:
-    'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
-  last_check: '2020-05-18T16:00Z',
-  last_notification: '2020-07-18T17:30:00Z',
-  last_status_change: '2020-04-18T15:00Z',
-  last_time_with_no_issue: '2021-09-23T15:49:50+02:00',
-  last_update: '2020-03-18T16:30:00Z',
-  latency: 0.005,
-  links: {
-    endpoints: {
-      details: '/centreon/api/latest/monitoring/resources/hosts/1/services/1',
-      notification_policy: 'notification_policy',
-      performance_graph: 'performance_graph',
-      timeline: 'timeline',
-      timeline_download: 'timeline/download'
-    },
-    externals: {
-      action_url: undefined,
-      notes: undefined
-    },
-    uris: {
-      configuration: undefined,
-      logs: undefined,
-      reporting: undefined
-    }
-  },
-  monitoring_server_name: 'Poller',
-  name: 'Central',
-  next_check: '2020-06-18T17:15:00Z',
-  notification_number: 3,
-  parent: {
-    id: resourceHostId,
-    links: {
-      endpoints: {
-        performance_graph: 'performance_graph',
-        timeline: 'timeline'
-      },
-      externals: {
-        action_url: undefined,
-        notes: undefined
-      },
-      uris: {
-        configuration: undefined,
-        logs: undefined,
-        reporting: undefined
-      }
-    },
-    name: 'Centreon',
-    short_type: 'h',
-    status: { name: 'S1', severity_code: 1 },
-    type: resourceHostType,
-    uuid: 'h1'
-  },
-  passive_checks: false,
-  percent_state_change: 3.5,
-  performance_data:
-    'rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100',
-  status: { name: 'Critical', severity_code: 1 },
-  timezone: 'Europe/Paris',
-  tries: '3/3 (Hard)',
-  type: resourceServiceType,
-  uuid: resourceServiceUuid
+  resourcesDetailsEndpoint:
+    '/api/latest/monitoring/resources/hosts/1/services/1'
 };
 
 const retrievedUser = {
   alias: 'Admin',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: true,
-  locale: 'en_US.UTF8',
+  locale: 'en',
   name: 'Admin',
   timezone: 'Europe/Paris',
   use_deprecated_pages: false,
@@ -190,6 +100,28 @@ const serviceDetailsUrlParameters = {
   tab: 'details',
   type: 'service',
   uuid: 'h1-s1'
+};
+const mockAcl = {
+  actions: {
+    host: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
+    service: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    }
+  }
 };
 
 const mockRefreshInterval = 60;
@@ -205,13 +137,33 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const initialize = (): void => {
-  cy.viewport('macbook-13');
-
+const getStore = (): unknown => {
   const store = createStore();
   store.set(userAtom, retrievedUser);
+  store.set(aclAtom, mockAcl);
   store.set(refreshIntervalAtom, mockRefreshInterval);
   store.set(selectedResourcesDetailsAtom, selectedResource);
+
+  return store;
+};
+
+const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
+  const selectedResourceDetailsEndpoint = store.get(
+    selectedResourceDetailsEndpointDerivedAtom
+  );
+
+  cy.fixture(dataPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias,
+      method: Method.GET,
+      path: `**/${selectedResourceDetailsEndpoint}`,
+      response: data
+    });
+  });
+};
+
+const initialize = (store): void => {
+  cy.viewport('macbook-13');
 
   setUrlQueryParameters([
     {
@@ -220,31 +172,59 @@ const initialize = (): void => {
     }
   ]);
 
-  const selectedResourceDetailsEndpoint = store.get(
-    selectedResourceDetailsEndpointDerivedAtom
-  );
-
-  cy.interceptAPIRequest({
-    alias: 'getDetails',
-    method: Method.GET,
-    path: selectedResourceDetailsEndpoint,
-    response: retrievedDetails
-  });
-
   cy.mount({
     Component: (
-      <Provider store={store}>
-        <BrowserRouter>
-          <DetailsTest />
-        </BrowserRouter>
-      </Provider>
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <BrowserRouter>
+              <DetailsTest />
+            </BrowserRouter>
+          </Provider>
+        </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 };
 
+const initializeTimeLine = (): void => {
+  const store = getStore();
+  interceptDetailsRequest({
+    alias: 'getDetails',
+    dataPath: 'resources/details/tabs/details/details.json',
+    store
+  });
+
+  cy.fixture('resources/details/tabs/timeLine/timeLine.json').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'getTimeLine',
+      method: Method.GET,
+      path: `**/timeline**`,
+      response: data
+    });
+  });
+
+  initialize(store);
+};
+
+const checkActionsButton = (): void => {
+  cy.findByTestId('mainAcknowledge').should('be.visible').should('be.disabled');
+  cy.findByTestId('mainDisacknowledge')
+    .should('be.visible')
+    .should('be.enabled');
+  cy.findByTestId('mainSetDowntime').should('be.visible').should('be.disabled');
+  cy.findByTestId('mainCheck').should('be.visible').should('be.enabled');
+};
+
 describe('Details', () => {
-  it('displays resource details information', () => {
-    initialize();
+  it.only('displays resource details information', () => {
+    const store = getStore();
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/tabs/details/details.json',
+      store
+    });
+    initialize(store);
 
     cy.waitForRequest('@getDetails');
 
@@ -322,6 +302,356 @@ describe('Details', () => {
     ).should('exist');
 
     cy.contains(labelCommand).should('exist');
-    cy.contains('base_host_alive').should('exist');
+    cy.contains(/^base_host_alive$/).should('exist');
+    cy.contains('--test').should('exist');
+    cy.contains('-n').should('exist');
+    cy.contains('-w').should('exist');
+    cy.contains('3000,80').should('exist');
+    cy.contains('-c').should('exist');
+    cy.contains('5000,100').should('exist');
+    cy.contains('-t').should('exist');
+    cy.contains('host').should('exist');
+    cy.contains(/^--test2="ok"$/).should('exist');
+    cy.makeSnapshot();
+  });
+  it('displays actions as icons when the panel width is less than 615 px', () => {
+    const store = getStore();
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/tabs/details/details.json',
+      store
+    });
+    initialize(store);
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    checkActionsButton();
+    cy.makeSnapshot();
+  });
+  it('displays actions as buttons when panel width exceeds 615 px', () => {
+    const store = getStore();
+    store.set(panelWidthStorageAtom, 800);
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/tabs/details/details.json',
+      store
+    });
+    initialize(store);
+
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    checkActionsButton();
+    cy.makeSnapshot();
+  });
+  it('displays the acknowledgment modal when the "Acknowledge" button is clicked and sends the acknowledgment action', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath:
+        'resources/details/tabs/details/detailsWithoutAcknowledgment.json',
+      store
+    });
+    initialize(store);
+    cy.waitForRequest('@getDetailsWithoutAcknowledgement');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainAcknowledge')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('mainDisacknowledge').should('be.disabled');
+
+    cy.findByTestId('dialogAcknowledge').should('be.visible');
+
+    cy.contains(labelCancel).should('be.visible');
+    cy.contains(labelAcknowledge).should('be.visible');
+    cy.contains(labelComment).should('be.visible');
+    cy.contains(labelNotify).should('be.visible');
+    cy.contains(labelNotifyHelpCaption).should('be.visible');
+    cy.contains(labelSticky);
+
+    cy.makeSnapshot(
+      'displays the acknowledgment modal when the "Acknowledge" button is clicked'
+    );
+
+    cy.interceptAPIRequest({
+      alias: 'sendAcknowledgmentAction',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/acknowledge`,
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendAcknowledgmentAction');
+
+    cy.getRequestCalls('@sendAcknowledgmentAction').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelAcknowledgeCommandSent);
+
+    cy.makeSnapshot('sends the acknowledgment action');
+  });
+
+  it('displays the disacknowledgment modal when the "Disacknowledge" button is clicked and sends the disacknowledgment action', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithAcknowledgement',
+      dataPath: 'resources/details/tabs/details/detailsWithAcknowledgment.json',
+      store
+    });
+    initialize(store);
+    cy.waitForRequest('@getDetailsWithAcknowledgement');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainDisacknowledge')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('mainAcknowledge').should('be.disabled');
+
+    cy.findByTestId('modalDisacknowledge').should('be.visible');
+
+    cy.contains(labelDisacknowledge).should('be.visible');
+    cy.contains(labelCancel).should('be.visible');
+
+    cy.makeSnapshot(
+      'displays the disacknowledgment modal when the "Disacknowledge" button is clicked'
+    );
+
+    cy.interceptAPIRequest({
+      alias: 'sendDisacknowledgeAction',
+      method: Method.DELETE,
+      path: `${resourcesEndpoint}/acknowledgements`,
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendDisacknowledgeAction');
+
+    cy.getRequestCalls('@sendDisacknowledgeAction').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelDisacknowledgementCommandSent);
+
+    cy.makeSnapshot('sends the disacknowledgment action');
+  });
+
+  it('displays the downtime modal when the "Downtime" button is clicked and sends the downtime action', () => {
+    const now = new Date(2023, 1, 14, 10, 55);
+    cy.clock(now);
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutDowntime',
+      dataPath: 'resources/details/tabs/details/detailsWithoutDownTime.json',
+      store
+    });
+
+    const defaultEndDate = dayjs(now).add(3600, 'seconds').toDate();
+    const startTime = dayjs.tz(now, 'Europe/Paris').format('L LT');
+    const endTime = dayjs.tz(defaultEndDate, 'Europe/Paris').format('L LT');
+
+    initialize(store);
+
+    cy.waitForRequest('@getDetailsWithoutDowntime');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainSetDowntime')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('dialogDowntime').should('be.visible');
+
+    cy.contains(labelDowntime).should('be.visible');
+    cy.findByDisplayValue(startTime).should('be.visible');
+    cy.contains(labelTo);
+    cy.findByDisplayValue(endTime).should('be.visible');
+    cy.contains(labelDuration).should('be.visible');
+    cy.contains(labelFixed).should('be.visible');
+    cy.contains(labelComment).should('be.visible');
+    cy.contains(labelCancel).should('be.visible');
+    cy.contains(labelSetDowntime).should('be.visible');
+
+    cy.makeSnapshot(
+      'displays the downtime modal when the "Downtime" button is clicked'
+    );
+
+    cy.interceptAPIRequest({
+      alias: 'sendDowntimeAction',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/downtime`,
+      statusCode: 204
+    });
+
+    cy.findByTestId('Confirm').click();
+    cy.waitForRequest('@sendDowntimeAction');
+
+    cy.getRequestCalls('@sendDowntimeAction').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelDowntimeCommandSent);
+
+    cy.makeSnapshot('sends the downtime action');
+  });
+
+  it('sends the forced/check command when it is chosen and clicked', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetails',
+      dataPath: 'resources/details/tabs/details/details.json',
+      store
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'sendForcedCheckCommand',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/check`,
+      statusCode: 204
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'sendCheckCommand',
+      method: Method.POST,
+      path: `${resourcesEndpoint}/check`,
+      statusCode: 204
+    });
+
+    initialize(store);
+
+    cy.waitForRequest('@getDetails');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('mainCheck').should('be.visible').should('be.enabled');
+    cy.findByTestId('arrow').click();
+    cy.findByRole('tooltip').should('be.visible').as('list');
+
+    cy.get('@list').contains(labelCheck).should('be.visible');
+    cy.get('@list')
+      .contains(labelResourceDetailsCheckDescription)
+      .should('be.visible');
+    cy.get('@list').contains(labelForcedCheck).should('be.visible');
+    cy.get('@list')
+      .contains(labelResourceDetailsForcedCheckDescription)
+      .should('be.visible');
+
+    cy.contains(labelForcedCheck).click();
+    cy.findByTestId('arrow').click();
+    cy.get('@list').should('not.exist');
+
+    cy.findByTestId('mainCheck').click();
+    cy.waitForRequest('@sendForcedCheckCommand');
+
+    cy.getRequestCalls('@sendForcedCheckCommand').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelResourceDetailsForcedCheckCommandSent);
+
+    cy.makeSnapshot('sends forced check command');
+
+    cy.findByTestId('arrow').click();
+    cy.findByRole('tooltip').should('be.visible').as('list');
+
+    cy.get('@list').contains(labelCheck).click();
+    cy.findByTestId('arrow').click();
+    cy.get('@list').should('not.exist');
+
+    cy.findByTestId('mainCheck').click();
+
+    cy.waitForRequest('@sendCheckCommand');
+
+    cy.contains(labelResourceDetailsCheckCommandSent);
+    cy.makeSnapshot('sends check command');
+  });
+
+  it('displays the comment area when the corresponding button is clicked', () => {
+    initializeTimeLine();
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('be.visible');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+    cy.findByTestId('headerWrapper').scrollIntoView();
+
+    cy.makeSnapshot();
+  });
+
+  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
+    initializeTimeLine();
+    cy.interceptAPIRequest({
+      alias: 'sendsCommentRequest',
+      method: Method.POST,
+      path: commentEndpoint,
+      statusCode: 204
+    });
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').type('comment from centreon web');
+    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+    cy.findByTestId(labelSave)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.waitForRequest('@sendsCommentRequest');
+
+    cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
+      expect(calls).to.have.length(1);
+    });
+
+    cy.contains(labelYourCommentSent);
+    cy.findByTestId('headerWrapper').scrollIntoView();
+
+    cy.makeSnapshot();
+  });
+
+  it('hides the comment area when the cancel button is clicked', () => {
+    initializeTimeLine();
+    cy.waitForRequest('@getDetails');
+    cy.findByTestId(2).click();
+
+    cy.waitForRequest('@getTimeLine');
+    cy.contains('Critical').should('be.visible');
+
+    cy.findByTestId('addComment')
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+
+    cy.findByTestId('commentArea').should('exist');
+
+    cy.findByTestId(labelSave).should('be.visible').should('be.disabled');
+    cy.findByTestId(labelCancel)
+      .should('be.visible')
+      .should('be.enabled')
+      .click();
+    cy.findByTestId('commentArea').should('not.exist');
   });
 });

@@ -1,7 +1,0 @@
-ListPlaylistShares:
-  methods: GET
-  path: /configuration/dashboards/playlists/{playlistId}/shares
-  requirements:
-    playlistId: '\d+'
-  controller: 'Core\Dashboard\Playlist\Infrastructure\API\ListPlaylistShares\ListPlaylistSharesController'
-  condition: "request.attributes.get('version') >= 23.10"

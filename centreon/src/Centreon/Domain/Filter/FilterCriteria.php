@@ -127,8 +127,8 @@ class FilterCriteria
     }
 
     /**
-     * @param mixed[]|null $searchData 
-     * @return FilterCriteria 
+     * @param mixed[]|null $searchData
+     * @return FilterCriteria
      */
     public function setSearchData($searchData): FilterCriteria
     {

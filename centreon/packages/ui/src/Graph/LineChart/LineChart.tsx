@@ -43,6 +43,7 @@ interface Props extends LineChartProps {
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
+  limitLegend?: false | number;
   marginBottom: number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
@@ -73,7 +74,8 @@ const LineChart = ({
   curve,
   marginBottom,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  limitLegend
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -301,6 +303,7 @@ const LineChart = ({
           <Legend
             base={baseAxis}
             displayAnchor={displayAnchor?.displayGuidingLines ?? true}
+            limitLegend={limitLegend}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}

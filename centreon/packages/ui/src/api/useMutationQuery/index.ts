@@ -22,6 +22,11 @@ export enum Method {
   PUT = 'PUT'
 }
 
+interface Variables<TMeta, T> {
+  _meta?: TMeta;
+  payload?: T;
+}
+
 export type UseMutationQueryProps<T, TMeta> = {
   baseEndpoint?: string;
   catchError?: (props: CatchErrorProps) => void;
@@ -33,30 +38,36 @@ export type UseMutationQueryProps<T, TMeta> = {
   method: Method;
   onError?: (
     error: ResponseError,
-    variables: T & { _meta: TMeta },
+    variables: Variables<TMeta, T>,
     context: unknown
   ) => unknown;
-  onMutate?: (variables: T & { _meta: TMeta }) => Promise<unknown> | unknown;
+  onMutate?: (variables: Variables<TMeta, T>) => Promise<unknown> | unknown;
   onSuccess?: (
     data: ResponseError | T,
-    variables: T & {
-      _meta: TMeta;
-    },
+    variables: Variables<TMeta, T>,
     context: unknown
   ) => unknown;
 } & Omit<
-  UseMutationOptions<T & { _meta?: TMeta }>,
-  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess'
+  UseMutationOptions<{ _meta?: TMeta; payload: T }>,
+  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
 
 const log = anylogger('API Request');
 
-export type UseMutationQueryState<T> = Omit<
+export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,
-  'isError'
+  'isError' | 'mutate' | 'mutateAsync'
 > & {
   isError: boolean;
   isMutating: boolean;
+  mutate: (variables: Variables<TMeta, T>) => ResponseError | T;
+  mutateAsync: (
+    variables: Variables<TMeta, T>,
+    rest?: Pick<
+      UseMutationQueryProps<T, TMeta>,
+      'onError' | 'onMutate' | 'onSettled' | 'onSuccess'
+    >
+  ) => Promise<ResponseError | T>;
 };
 
 const useMutationQuery = <T extends object, TMeta>({
@@ -72,18 +83,18 @@ const useMutationQuery = <T extends object, TMeta>({
   onSuccess,
   onSettled,
   baseEndpoint
-}: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T> => {
+}: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T, TMeta> => {
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useMutation<
     T | ResponseError,
     ResponseError,
-    T & { _meta: TMeta }
+    Variables<TMeta, T>
   >({
     mutationFn: (
-      _payload: T & { _meta: TMeta }
+      variables: Variables<TMeta, T>
     ): Promise<T | ResponseError> => {
-      const { _meta, ...payload } = _payload || {};
+      const { _meta, payload } = variables || {};
 
       return customFetch<T>({
         baseEndpoint,
@@ -103,7 +114,14 @@ const useMutationQuery = <T extends object, TMeta>({
     onError,
     onMutate,
     onSettled,
-    onSuccess
+    onSuccess: (data, variables, context) => {
+      if (data?.isError) {
+        onError?.(data, variables, context);
+
+        return;
+      }
+      onSuccess?.(data, variables, context);
+    }
   });
 
   const manageError = (): void => {

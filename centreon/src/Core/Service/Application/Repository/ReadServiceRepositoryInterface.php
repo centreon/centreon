@@ -29,6 +29,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\Service\Domain\Model\TinyService;
 
 interface ReadServiceRepositoryInterface
 {
@@ -42,6 +43,17 @@ interface ReadServiceRepositoryInterface
      * @return bool
      */
     public function exists(int $serviceId): bool;
+
+    /**
+     * Indicates whether the services already exists.
+     *
+     * @param int[] $serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $serviceIds): array;
 
     /**
      * Indicates whether the service already exists by access groups.
@@ -71,6 +83,8 @@ interface ReadServiceRepositoryInterface
      *
      * @param int $hostId Host ID for which the services are linked
      *
+     * @throws \Throwable
+     *
      * @return list<int>
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array;
@@ -96,6 +110,26 @@ interface ReadServiceRepositoryInterface
      * @return Service|null
      */
     public function findById(int $serviceId): ?Service;
+
+    /**
+     * Find services based on given IDs.
+     *
+     * @param int ...$serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<TinyService>
+     */
+    public function findByIds(int ...$serviceIds): array;
+
+    /**
+     * Find all services.
+     *
+     * @throws \Throwable
+     *
+     * @return \Traversable<int, TinyService>&\Countable
+     */
+    public function findAll(): \Traversable&\Countable;
 
     /**
      * Retrieves all service inheritances from a service.

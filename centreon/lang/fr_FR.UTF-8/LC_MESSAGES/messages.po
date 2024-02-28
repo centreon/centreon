@@ -3852,10 +3852,6 @@ msgstr ""
 "Vous pouvez visualiser la liste complète à partir de du projet Centreonsur "
 "Github"
 
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:87
-msgid "Last 3 hours"
-msgstr "Les 3 dernières heures"
-
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:88
 msgid "Today"
 msgstr "Aujourd'hui"
@@ -3876,10 +3872,6 @@ msgstr "La dernière semaine"
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:92
 msgid "Last month"
 msgstr "Le dernier mois"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:93
-msgid "Last 6 months"
-msgstr "Les 6 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
@@ -7106,24 +7098,6 @@ msgstr "Liste des métriques connues"
 msgid "Choose the source to graph"
 msgstr "Choisissez la source à grapher"
 
-#: centreon-web/www/include/views/graphs/graphs.php:173
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:102
-#: centreon-web/www/include/eventLogs/viewLog.php:168
-msgid "Last 3 Hours"
-msgstr "Les 3 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:174
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:103
-#: centreon-web/www/include/eventLogs/viewLog.php:169
-msgid "Last 6 Hours"
-msgstr "Les 6 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:175
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
-#: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 hours"
-msgstr "Les 12 dernières heures"
-
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
@@ -7173,12 +7147,6 @@ msgstr "Les 2 précédents mois"
 #: centreon-web/www/include/eventLogs/viewLog.php:180
 msgid "Last 4 Months"
 msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:188
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:115
-#: centreon-web/www/include/eventLogs/viewLog.php:181
-msgid "Last 6 Months"
-msgstr "Les 6 précédents mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:189
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
@@ -13555,8 +13523,8 @@ msgstr "Configurer une plage de maintenance pour les services des hôtes"
 #~ msgid " element(s) found"
 #~ msgstr "élément(s) trouvé(s)"
 
-#~ msgid "Select all"
-#~ msgstr "Tout sélectionner"
+msgid "Select all"
+msgstr "Tout sélectionner"
 
 #~ msgid "Add "
 #~ msgstr "Ajouter"
@@ -17987,8 +17955,8 @@ msgstr "Afficher les seuils"
 msgid "Custom"
 msgstr "Personnalisé"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units"
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+msgid "Thresholds are automatically hidden as soon as you select 2 metric units."
+msgstr "Les seuils sont automatiquement masqués dès que vous sélectionnez 2 unités métriques."
 
 msgid "Show description"
 msgstr "Afficher la description"
@@ -18003,7 +17971,7 @@ msgid "You have too many metrics, please filter more resources to optimize platf
 msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme."
 
 msgid "You can select a maximum of two metric units"
-msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
+msgstr "Vous pouvez sélectionner un maximum de 2 unités de métrique"
 
 msgid "Add resource"
 msgstr "Ajouter une ressource"
@@ -18173,8 +18141,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18216,32 +18199,41 @@ msgstr "Affiche le top ou le bottom x des hôtes, pour une métrique sélectionn
 msgid "Thresholds"
 msgstr "Seuils"
 
-msgid "Thresholds are automatically hidden if you select 2 metric units."
-msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique."
-
 msgid "Value format"
 msgstr "Format de la valeur"
 
 msgid "Time period"
 msgstr "Période temporelle"
 
-msgid "Last hour (default)"
-msgstr "Dernière heure (par défaut)"
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 3 hours"
+msgstr "Les 3 dernières heures"
+
+msgid "Last 6 hours"
+msgstr "Les 6 dernières heures"
+
+msgid "Last 12 hours"
+msgstr "Les 12 dernières heures"
 
 msgid "Last 24 hours"
-msgstr "Dernières 24 heures"
+msgstr "Les 24 dernières heures"
 
 msgid "Last 7 days"
-msgstr "7 derniers jours"
+msgstr "Les 7 derniers jours"
 
 msgid "Last 30 days"
-msgstr "30 derniers jours"
+msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
-msgstr "3 derniers mois"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 6 months"
+msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
-msgstr "12 derniers mois"
+msgstr "Les 12 derniers mois"
 
 msgid "Customize"
 msgstr "Personnaliser"
@@ -18372,8 +18364,8 @@ msgstr "Nom de la métrique"
 msgid "Status grid"
 msgstr "Grille de statut"
 
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
 
 msgid "Display with this resource type"
 msgstr "Afficher avec ce type de ressource"
@@ -18447,6 +18439,12 @@ msgstr "Erreur lors de la recherche de médias"
 msgid "You are not allowed to list media"
 msgstr "Vous n'êtes pas autorisé à lister les médias"
 
+msgid "API token"
+msgstr "Jeton d'API"
+
+msgid "Create new token"
+msgstr "Créer un nouveau jeton"
+
 msgid "Error while updating playlist shares"
 msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
 
@@ -18473,39 +18471,6 @@ msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
 
 msgid "You are not in the following contact group: [%s]"
 msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
-
-msgid "Playlists"
-msgstr "Listes de diffusion"
-
-msgid "Welcome to the Playlist interface!"
-msgstr "Bienvenue dans l'interface des listes de diffusion !"
-
-msgid "Create a playlist"
-msgstr "Ajouter une liste de diffusion"
-
-msgid "Playlist name"
-msgstr "Nom de la liste de diffusion"
-
-msgid "Playlist properties"
-msgstr "Propriétés de la liste de diffusion"
-
-msgid "Rotation time"
-msgstr "Temps de rotation"
-
-msgid "Select dashboards"
-msgstr "Sélectionner des tableaux de bord"
-
-msgid "Define the order of dashboards"
-msgstr "Définir l'ordre des tableaux de bord"
-
-msgid "Add a dashboard"
-msgstr "Ajouter un tableau de bord"
-
-msgid "Playlist created"
-msgstr "Liste de diffusion créée"
-
-msgid "Playlist updated"
-msgstr "Liste de diffusion mise à jour"
 
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
@@ -18570,8 +18535,159 @@ msgstr "Editor"
 msgid "Create"
 msgstr "Créer"
 
-msgid "Publish your playlist"
-msgstr "Publier votre liste de diffusion"
-
 msgid "Settings"
 msgstr "Paramètres"
+
+msgid "Revoked"
+msgstr "Révoqué"
+
+msgid "For security reasons, the token can only be displayed once. Store it carefully."
+msgstr "Pour des raisons de sécurité, le jeton ne peut être affiché qu'une seule fois. Stockez-le soigneusement."
+
+msgid "Generate new token"
+msgstr "Générer un nouveau jeton"
+
+msgid "Token copied to the clipboard"
+msgstr "Jeton copié dans le presse-papiers"
+
+msgid "Token could not be copied"
+msgstr "Le jeton n'a pas pu être copié"
+
+msgid "The end date must be greater than the current date by at least one day"
+msgstr "La date de fin doit être supérieure à la date actuelle d'au moins un jour"
+
+msgid "This field is required"
+msgstr "Ce champ est obligatoire"
+
+msgid "Token"
+msgstr "Jeton"
+
+msgid "Token has been created"
+msgstr "Le jeton a été créé"
+
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
+msgid "Failed to copy link"
+msgstr "Échec de la copie du lien"
+
+msgid "Link copied"
+msgstr "Lien copié"
+
+msgid "Add a contact"
+msgstr "Ajouter un contact"
+
+msgid "Add a contact group"
+msgstr "Ajouter un contact group"
+
+msgid "Share with"
+msgstr "Partager avec"
+
+msgid "Removed"
+msgstr "Supprimé"
+
+msgid "Updated"
+msgstr "Mis à jour"
+
+msgid "User rights"
+msgstr "Droits d'utilisateur"
+
+msgid "The share list is empty"
+msgstr "La liste de partages est vide"
+
+msgid "Failed to save shares"
+msgstr "La sauvegarde des partages a échoué"
+
+msgid "Shares saved"
+msgstr "Partages sauvegardés"
+
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
+msgid "Select a dataset to display the preview."
+msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
+
+msgid "Not yet implemented"
+msgstr "Pas encore implémenté"
+
+msgid "View as list"
+msgstr "Vue en liste"
+
+msgid "View as cards"
+msgstr "Vue en cartes"
+
+msgid "Edit properties"
+msgstr "Éditer les propriétés"
+
+msgid "Delete user"
+msgstr "Supprimer un utilisateur"
+
+msgid "User deleted"
+msgstr "Utilisateur supprimé"
+
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
+msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+
+msgid "Your comment has been saved."
+msgstr "Votre commentaire a été enregistré."
+
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+msgid "Edit resource access rule"
+msgstr "Modifier la règle d'accès aux ressources"
+
+msgid "Rule properties"
+msgstr "Propriétés de la règle"
+
+msgid "Resource selection"
+msgstr "Sélection des ressources"
+
+msgid "Contacts/Contact groups"
+msgstr "Contacts/Groupes de contacts"
+
+msgid "The resource access rule was successfully created"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+msgid "Metaservice"
+msgstr "Métaservice"
+
+msgid "Select resource type"
+msgstr "Sélectionnez un type de ressource"
+
+msgid "Displays data on resource status and events, centralized in a table."
+msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Problem (Down/Critical)"
+msgstr "Problème (Indisponible/Critique)"
+
+msgid "Undefined (Unreachable/Unknown)"
+msgstr "Indéfini (Injoignable/Inconnu)"
+
+msgid "Add columns"
+msgstr "Ajouter des colonnes"
+
+msgid "Resource table"
+msgstr "Tableau des ressources"
+
+msgid "Fullscreen (Alt+F)"
+msgstr "Plein écran (Alt+F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"

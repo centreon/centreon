@@ -25,6 +25,8 @@ namespace Core\ResourceAccess\Application\Exception;
 
 class RuleException extends \Exception
 {
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
@@ -39,5 +41,56 @@ class RuleException extends \Exception
     public static function errorWhileSearchingRules(): self
     {
         return new self(_('Error while search resource access rules'));
+    }
+
+    /**
+     * @param string $formattedName
+     * @param string $originalName
+     *
+     * @return self
+     */
+    public static function nameAlreadyExists(string $formattedName, string $originalName = 'undefined'): self
+    {
+        return new self(
+            sprintf(_('The name %s (original name: %s) already exists'), $formattedName, $originalName),
+            self::CODE_CONFLICT
+        );
+    }
+
+    public static function errorWhileRetrievingARule(): self
+    {
+        return new self(_('Error while retrieving a resource access rule'));
+    }
+
+    public static function addRule(): self
+    {
+        return new self(_('Error while adding a resource access rule'));
+    }
+
+    public static function updateRule(): self
+    {
+        return new self(_('Error while updating the resource access rule'));
+    }
+
+    /**
+     * @param string $propertyName
+     * @param int[] $propertyValues
+     *
+     * @return self
+     */
+    public static function idsDoNotExist(string $propertyName, array $propertyValues): self
+    {
+        return new self(
+            sprintf(
+                _("The %s does not exist with ID(s) '%s'"),
+                $propertyName,
+                implode(',', $propertyValues)
+            )
+        );
+    }
+
+    public static function noLinkToContactsOrContactGroups(): self
+    {
+        return new self(_('At least one contact or contactgroup should be linked to the rule'));
     }
 }

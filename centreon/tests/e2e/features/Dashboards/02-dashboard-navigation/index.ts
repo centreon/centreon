@@ -4,7 +4,7 @@ import { last } from 'ramda';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -12,7 +12,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
@@ -38,11 +38,11 @@ afterEach(() => {
 });
 
 Given('a user with access to the dashboards overview page', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/monitoring/resources`);
+  cy.visit('/centreon/monitoring/resources');
 });
 
 When('the user accesses the dashboard overview page with no dashboards', () => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -63,7 +63,7 @@ Then(
 
 Given('a list of dashboards', () => {
   cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When('the user clicks on the dashboard they want to select', () => {

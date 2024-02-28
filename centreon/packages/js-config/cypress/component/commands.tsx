@@ -10,12 +10,22 @@ import { ThemeProvider } from '@centreon/ui';
 
 import '@testing-library/cypress/add-commands';
 import 'cypress-msw-interceptor';
+import 'cypress-real-events';
 
 import disableMotion from './disableCssTransitions';
 
 interface MountProps {
   Component: React.ReactNode;
   options?: object;
+}
+interface Resolution {
+  height: number;
+  width: number;
+}
+
+interface MakeSnapshotWithCustomResolution {
+  resolution: Resolution;
+  title: string;
 }
 
 export enum Method {
@@ -148,6 +158,15 @@ Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.matchImageSnapshot(title);
 });
 
+Cypress.Commands.add(
+  'makeSnapshotWithCustomResolution',
+  ({ title, resolution }: MakeSnapshotWithCustomResolution) => {
+    const { width, height } = resolution;
+    cy.viewport(width, height);
+    cy.matchImageSnapshot(title);
+  }
+);
+
 Cypress.Commands.add('cssDisableMotion', (): void => {
   Cypress.on('window:before:load', (cyWindow) => {
     disableMotion(cyWindow);
@@ -159,11 +178,16 @@ declare global {
     interface Chainable {
       adjustViewport: () => Cypress.Chainable;
       cssDisableMotion: () => Cypress.Chainable;
+      getRequestCalls: (alias) => Cypress.Chainable;
       interceptAPIRequest: <T extends object>(
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       makeSnapshot: (title?: string) => void;
+      makeSnapshotWithCustomResolution: ({
+        title,
+        resolution
+      }: MakeSnapshotWithCustomResolution) => Cypress.Chainable;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({
         element,

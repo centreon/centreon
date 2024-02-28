@@ -23,6 +23,7 @@ require_once $centreon_path . "/www/class/centreonDB.class.php";
 
 class CentreonDBManager extends CentreonDB
 {
+    #[\ReturnTypeWillChange]
     public function lastinsertId($name = null)
     {
         $dbResult = $this->query("SELECT LAST_INSERT_ID() AS last_id FROM " . $name);

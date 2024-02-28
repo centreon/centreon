@@ -9,7 +9,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Paper, Slide, Divider, AppBar, Tabs } from '@mui/material';
 import IconClose from '@mui/icons-material/Clear';
 
-import IconButton from '../Button/Icon';
+import { IconButton } from '..';
 
 import { minTabHeight } from './Tab';
 

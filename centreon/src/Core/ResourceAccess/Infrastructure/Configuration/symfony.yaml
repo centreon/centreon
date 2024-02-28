@@ -1,0 +1,37 @@
+services:
+    _defaults:
+        public: false
+        autowire: true
+        autoconfigure: true
+
+    Core\ResourceAccess\:
+        resource: '../../../../Core/ResourceAccess/*'
+
+    _instanceof:
+        Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterTypeInterface:
+            tags: ['resource.access.dataset.filter.types']
+        Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface:
+            tags: ['resource.access.dataset.filter.resource.repository.providers']
+        Core\ResourceAccess\Application\Providers\DatasetProviderInterface:
+            tags: ['resource.access.dataset.providers']
+
+    Core\ResourceAccess\Application\UseCase\AddRule\AddRuleValidation:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
+
+    Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRuleValidation:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
+
+    Core\ResourceAccess\Application\UseCase\FindRule\FindRule:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
+
+    Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator:
+        arguments:
+          $datasetFilterTypes: !tagged_iterator 'resource.access.dataset.filter.types'
+
+    Core\ResourceAccess\Infrastructure\Repository\DbWriteResourceAccessRepository:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.filter.resource.repository.providers'
+

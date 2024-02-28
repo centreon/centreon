@@ -25,19 +25,19 @@ namespace Centreon\Infrastructure\Monitoring;
 use Centreon\Domain\Acknowledgement\Acknowledgement;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Downtime\Downtime;
-use Centreon\Domain\Monitoring\HostGroup;
-use Centreon\Domain\Monitoring\ServiceGroup;
-use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Entity\EntityCreator;
 use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
-use Centreon\Domain\Monitoring\ResourceStatus;
+use Centreon\Domain\Monitoring\HostGroup;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\ResourceStatus;
+use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\ServiceGroup;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the real time monitoring of services and host.
@@ -137,27 +137,115 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                 AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
         }
 
-        $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT
-              1 AS REALTIME,
-              h.*,
-              cv.value AS criticality,
-              i.name AS poller_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'Meta\', h.display_name) AS display_name,
-              IF (h.display_name LIKE \'_Module_Meta%\', \'0\', h.state) AS state
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                1 AS REALTIME,
+                h.host_id,
+                h.name,
+                h.instance_id, 
+                h.acknowledged,
+                h.acknowledgement_type,
+                h.action_url,
+                h.active_checks,  
+                h.address,   
+                h.alias,    
+                h.check_attempt, 
+                h.check_command,  
+                h.check_freshness, 
+                h.check_interval,  
+                h.check_period,    
+                h.check_type,     
+                h.checked,       
+                h.command_line,  
+                h.default_active_checks,  
+                h.default_event_handler_enabled,
+                h.default_failure_prediction, 
+                h.default_flap_detection,    
+                h.default_notify,          
+                h.default_passive_checks,   
+                h.default_process_perfdata,  
+                h.display_name,          
+                h.enabled,               
+                h.event_handler,          
+                h.event_handler_enabled,   
+                h.execution_time,         
+                h.failure_prediction,     
+                h.first_notification_delay,  
+                h.flap_detection,          
+                h.flap_detection_on_down,  
+                h.flap_detection_on_unreachable, 
+                h.flap_detection_on_up,    
+                h.flapping,              
+                h.freshness_threshold,  
+                h.high_flap_threshold, 
+                h.icon_image,          
+                h.icon_image_alt,      
+                h.last_check,         
+                h.last_hard_state,     
+                h.last_hard_state_change, 
+                h.last_notification,      
+                h.last_state_change,     
+                h.last_time_down,         
+                h.last_time_unreachable,    
+                h.last_time_up,           
+                h.last_update,           
+                h.latency,               
+                h.low_flap_threshold,     
+                h.max_check_attempts,     
+                h.modified_attributes,     
+                h.next_check,             
+                h.next_host_notification,   
+                h.no_more_notifications,   
+                h.notes,                    
+                h.notes_url,               
+                h.notification_interval,   
+                h.notification_number,     
+                h.notification_period,     
+                h.notify,                 
+                h.notify_on_down,         
+                h.notify_on_downtime,       
+                h.notify_on_flapping,      
+                h.notify_on_recovery,      
+                h.notify_on_unreachable,    
+                h.obsess_over_host,        
+                h.output,                  
+                h.passive_checks,          
+                h.percent_state_change,     
+                h.perfdata,                
+                h.process_perfdata,         
+                h.retain_nonstatus_information, 
+                h.retain_status_information, 
+                h.retry_interval,             
+                h.scheduled_downtime_depth,   
+                h.should_be_scheduled,       
+                h.stalk_on_down,            
+                h.stalk_on_unreachable,     
+                h.stalk_on_up,             
+                h.state,                   
+                h.state_type,             
+                h.statusmap_image,         
+                h.timezone,               
+                h.real_state,
+                cv.value AS criticality,
+                i.name AS poller_name,
+                IF (h.display_name LIKE '_Module_Meta%', 'Meta', h.display_name) AS display_name,
+                IF (h.display_name LIKE '_Module_Meta%', '0', h.state) AS state
             FROM `:dbstg`.`instances` i
             INNER JOIN `:dbstg`.`hosts` h
-              ON h.instance_id = i.instance_id
-              AND h.enabled = \'1\'
-              AND h.name NOT LIKE \'_Module_BAM%\''
-            . $accessGroupFilter
-            . ' LEFT JOIN `:dbstg`.`services` srv
-              ON srv.host_id = h.host_id
-              AND srv.enabled = \'1\'
+                ON h.instance_id = i.instance_id
+                AND h.enabled = '1'
+                AND h.name NOT LIKE '_Module_BAM%'
+            {$accessGroupFilter}
+            LEFT JOIN `:dbstg`.`services` srv
+                ON srv.host_id = h.host_id
+                AND srv.enabled = '1'
             LEFT JOIN `:dbstg`.`hosts_hostgroups` hg
-              ON hg.host_id = h.host_id
+                ON hg.host_id = h.host_id
             LEFT JOIN `:dbstg`.`customvariables` cv
-            ON (cv.host_id = h.host_id AND cv.service_id IS NULL AND cv.name = \'CRITICALITY_LEVEL\')';
+                ON cv.host_id = h.host_id
+                AND (cv.service_id = 0 OR cv.service_id IS NULL)
+                AND cv.name = 'CRITICALITY_LEVEL'
+            SQL;
 
         $request = $this->translateDbName($request);
 
@@ -166,7 +254,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $request .= !is_null($searchRequest) ? $searchRequest : '';
 
         // Group
-        $request .= ' GROUP BY h.host_id';
+        $request .= ' GROUP BY h.host_id, cv.value';
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
@@ -412,14 +500,14 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON gcgr.acl_group_id = grp.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id 
+                    AND cgcr.contact_contact_id = :contact_id
                     OR gcr.contact_contact_id = :contact_id';
         }
 
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
         if ($shouldJoinHost || $shouldJoinService) {
             $subRequest .=
-                ' INNER JOIN `:dbstg`.hosts_hostgroups hhg 
+                ' INNER JOIN `:dbstg`.hosts_hostgroups hhg
                     ON hhg.hostgroup_id = hg.hostgroup_id
                 INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = hhg.host_id
@@ -1419,7 +1507,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         // This join will only be added if a search parameter corresponding to one of the host or Service parameter
         if ($shouldJoinHost || $shouldJoinService) {
             $subRequest .=
-                ' INNER JOIN `:dbstg`.services_servicegroups ssg 
+                ' INNER JOIN `:dbstg`.services_servicegroups ssg
                     ON ssg.servicegroup_id = sg.servicegroup_id
                     INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = ssg.host_id
@@ -1648,9 +1736,9 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'SELECT DISTINCT
                 1 AS REALTIME,
 		        ssg.servicegroup_id,
-                srv.service_id, 
-                srv.display_name, 
-                srv.description, 
+                srv.service_id,
+                srv.display_name,
+                srv.description,
                 srv.host_id,
                 srv.state
             FROM `:dbstg`.`services` srv
@@ -1725,12 +1813,12 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
                     ON gcgr.acl_group_id = grp.acl_group_id
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                     ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
-                    AND cgcr.contact_contact_id = :contact_id 
+                    AND cgcr.contact_contact_id = :contact_id
                     OR gcr.contact_contact_id = :contact_id';
         }
 
         $subRequest .=
-            ' INNER JOIN `:dbstg`.services_servicegroups ssg 
+            ' INNER JOIN `:dbstg`.services_servicegroups ssg
                     ON ssg.servicegroup_id = sg.servicegroup_id
                 INNER JOIN `:dbstg`.hosts h
                     ON h.host_id = ssg.host_id';
@@ -1752,7 +1840,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $subRequest .= ' WHERE srv.service_id = :serviceId AND srv.host_id = :hostId';
 
         $request =
-            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.* 
+            'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.*
             FROM `:dbstg`.`servicegroups` sg ' . $subRequest;
         $request = $this->translateDbName($request);
 

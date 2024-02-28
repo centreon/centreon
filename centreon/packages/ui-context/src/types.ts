@@ -22,6 +22,7 @@ export interface User {
   alias: string;
   dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
+  id?: number;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
@@ -84,6 +85,7 @@ export interface Downtime {
 export interface FeatureFlags {
   adExclusionPeriods?: boolean;
   dashboard?: boolean;
+  dashboardPlayList?: boolean;
   notification?: boolean;
   resourceStatusFilterRevamp?: boolean;
   resourceStatusTreeView?: boolean;

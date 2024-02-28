@@ -117,9 +117,9 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = new Auth($this->formatter->format($customConfiguration));
-        $this->auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
-        $errors = $this->auth->getErrors();
+        $this->auth = $auth = new Auth($this->formatter->format($customConfiguration));
+        $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
+        $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
             $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors)]);
@@ -127,14 +127,14 @@ class SAML implements ProviderAuthenticationInterface
             throw $ex;
         }
 
-        if (! $this->auth->isAuthenticated()) {
+        if (! $auth->isAuthenticated()) {
             $ex = UserNotAuthenticatedException::create();
             $this->loginLogger->error(Provider::SAML, $ex->getMessage());
 
             throw $ex;
         }
 
-        $settings = $this->auth->getSettings();
+        $settings = $auth->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
         if (! empty($errors)) {
@@ -146,25 +146,25 @@ class SAML implements ProviderAuthenticationInterface
 
         $this->loginLogger->info(
             Provider::SAML,
-            'User information: ' . json_encode($this->auth->getAttributes())
+            'User information: ' . json_encode($auth->getAttributes())
         );
-        $this->info('User information: ', $this->auth->getAttributes());
+        $this->info('User information: ', $auth->getAttributes());
 
-        $attrs = $this->auth->getAttribute($customConfiguration->getUserIdAttribute());
+        $attrs = $auth->getAttribute($customConfiguration->getUserIdAttribute());
         if (! is_array($attrs) || ! is_string($attrs[0] ?? null)) {
             throw InvalidUserIdAttributeException::create();
         }
 
         $this->username = $attrs[0];
         CentreonSession::writeSessionClose('saml', [
-            'samlSessionIndex' => $this->auth->getSessionIndex(),
-            'samlNameId' => $this->auth->getNameId(),
+            'samlSessionIndex' => $auth->getSessionIndex(),
+            'samlNameId' => $auth->getNameId(),
         ]);
 
         $this->loginLogger->info(Provider::SAML, 'checking security access rules');
-        $this->conditions->validate($this->configuration, $this->auth->getAttributes());
-        $this->rolesMapping->validate($this->configuration, $this->auth->getAttributes());
-        $this->groupsMapping->validate($this->configuration, $this->auth->getAttributes());
+        $this->conditions->validate($this->configuration, $auth->getAttributes());
+        $this->rolesMapping->validate($this->configuration, $auth->getAttributes());
+        $this->groupsMapping->validate($this->configuration, $auth->getAttributes());
     }
 
     /**
@@ -242,8 +242,9 @@ class SAML implements ProviderAuthenticationInterface
         if ($this->isAutoImportEnabled() === true && $user === null) {
             $this->info('Start auto import');
             $this->createUser();
-            $user = $this->getAuthenticatedUser();
-            $this->info('User imported: ' . $user->getName());
+            if ($user = $this->getAuthenticatedUser()) {
+                $this->info('User imported: ' . $user->getName());
+            }
         }
     }
 
@@ -291,7 +292,7 @@ class SAML implements ProviderAuthenticationInterface
     public function getProviderToken(?string $token = null): NewProviderToken
     {
         return new NewProviderToken(
-            $token,
+            $token ?? '',
             new DateTimeImmutable(),
             (new DateTimeImmutable())->add(new DateInterval('PT28800M'))
         );
@@ -481,8 +482,10 @@ class SAML implements ProviderAuthenticationInterface
             ['user' => $this->username]
         );
 
-        $usernameAttrs = $this->auth->getAttribute($customConfiguration->getUserNameBindAttribute());
-        $emailAttrs = $this->auth->getAttribute($customConfiguration->getEmailBindAttribute());
+        $auth = $this->auth ?? throw new \LogicException('Property auth MUST be initialized');
+
+        $usernameAttrs = $auth->getAttribute($customConfiguration->getUserNameBindAttribute() ?? '');
+        $emailAttrs = $auth->getAttribute($customConfiguration->getEmailBindAttribute() ?? '');
         if (! isset($usernameAttrs[0]) || ! isset($emailAttrs[0])) {
             throw InvalidArgumentProvidedException::create('invalid bind attributes provided for auto import');
         }
@@ -491,6 +494,9 @@ class SAML implements ProviderAuthenticationInterface
 
         $alias = $this->username;
         $user = new NewUser($alias, $fullname, $email);
+        if ($user->canReachFrontend()) {
+            $user->setCanReachRealtimeApi(true);
+        }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [

@@ -1,0 +1,572 @@
+name: "centreon-web"
+arch: "all"
+platform: "linux"
+version_schema: "none"
+version: "${VERSION}"
+release: "${RELEASE}${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  This package contains WebUI files.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+  - dst: "/etc/centreon/centreon.conf.php"
+    type: ghost
+
+  - src: "./src/instCentPlugins.conf"
+    dst: "/etc/centreon/instCentPlugins.conf"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
+
+  - src: "./src/instCentWeb.conf"
+    dst: "/etc/centreon/instCentWeb.conf"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
+
+  - src: "./src/install.conf.php"
+    dst: "/usr/share/centreon/www/install/install.conf.php"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../tmpl/install/centreon.cron"
+    dst: "/etc/cron.d/centreon"
+    file_info:
+      mode: 0644
+
+  - src: "../tmpl/install/centstorage.cron"
+    dst: "/etc/cron.d/centstorage"
+    file_info:
+      mode: 0644
+
+  - src: "../logrotate/centreon"
+    dst: "/etc/logrotate.d/centreon"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+
+  - src: "./src/centreon-apache.conf"
+    dst: "/etc/httpd/conf.d/10-centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: rpm
+  - src: "./src/centreon-apache.conf"
+    dst: "/etc/apache2/sites-available/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: "./src/php.ini"
+    dst: "/etc/php.d/50-centreon.ini"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: rpm
+  - src: "./src/php.ini"
+    dst: "/etc/php/8.1/mods-available/centreon.ini"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: deb
+  - src: "/etc/php/8.1/mods-available/centreon.ini"
+    dst: "/etc/php/8.1/fpm/conf.d/50-centreon.ini"
+    type: symlink
+    packager: deb
+  - src: "/etc/php/8.1/mods-available/centreon.ini"
+    dst: "/etc/php/8.1/cli/conf.d/50-centreon.ini"
+    type: symlink
+    packager: deb
+
+  - src: "./src/php-fpm.rpm.conf"
+    dst: "/etc/php-fpm.d/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: rpm
+  - src: "./src/php-fpm.deb.conf"
+    dst: "/etc/php/8.1/fpm/pool.d/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: "./src/php-fpm-systemd.conf"
+    dst: "/etc/systemd/system/php-fpm.service.d/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: rpm
+  - src: "./src/php-fpm-systemd.conf"
+    dst: "/lib/systemd/system/php8.1-fpm.service.d/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: "../.env"
+    dst: "/usr/share/centreon/.env"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
+
+  - src: "../.env.local.php"
+    dst: "/usr/share/centreon/.env.local.php"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0664
+
+  - src: "../bin/{centFillTrapDB,centreon_trap_send}"
+    dst: "/usr/share/centreon/bin/"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centFillTrapDB"
+    dst: "/usr/bin/centFillTrapDB"
+    type: symlink
+  - src: "/usr/share/centreon/bin/centreon_trap_send"
+    dst: "/usr/bin/centreon_trap_send"
+    type: symlink
+
+  - src: "../bin/centreon_health"
+    dst: "/usr/share/centreon/bin/centreon_health"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreonSyncPlugins"
+    dst: "/usr/share/centreon/bin/centreonSyncPlugins"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreonSyncPlugins"
+    dst: "/usr/bin/centreonSyncPlugins"
+    type: symlink
+
+  - src: "../bin/centreonSyncArchives"
+    dst: "/usr/share/centreon/bin/centreonSyncArchives"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreonSyncArchives"
+    dst: "/usr/bin/centreonSyncArchives"
+    type: symlink
+
+  - src: "../bin/generateSqlLite"
+    dst: "/usr/share/centreon/bin/generateSqlLite"
+    file_info:
+      mode: 0755
+  - src: "/usr/share/centreon/bin/generateSqlLite"
+    dst: "/usr/bin/generateSqlLite"
+    type: symlink
+
+  - src: "../bin/changeRrdDsName.pl"
+    dst: "/usr/share/centreon/bin/changeRrdDsName.pl"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/migrateWikiPages.php"
+    dst: "/usr/share/centreon/bin/migrateWikiPages.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-partitioning.php"
+    dst: "/usr/share/centreon/bin/centreon-partitioning.php"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  - src: "../bin/logAnalyserBroker"
+    dst: "/usr/share/centreon/bin/logAnalyserBroker"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-sanitize-images.php"
+    dst: "/usr/share/centreon/bin/centreon-sanitize-images.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon-remove-duplicate-host-service-relations.php"
+    dst: "/usr/share/centreon/bin/centreon-remove-duplicate-host-service-relations.php"
+    file_info:
+      mode: 0755
+
+  - src: "../bin/centreon"
+    dst: "/usr/share/centreon/bin/centreon"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+  - src: "/usr/share/centreon/bin/centreon"
+    dst: "/usr/bin/centreon"
+    type: symlink
+
+  - src: "../bin/console"
+    dst: "/usr/share/centreon/bin/console"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  - src: "../bin/migration"
+    dst: "/usr/share/centreon/bin/migration"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
+  - src: "../composer.json"
+    dst: "/usr/share/centreon/composer.json"
+    file_info:
+      mode: 0664
+
+  - src: "../composer.lock"
+    dst: "/usr/share/centreon/composer.lock"
+    file_info:
+      mode: 0664
+
+  - src: "../symfony.lock"
+    dst: "/usr/share/centreon/symfony.lock"
+    file_info:
+      mode: 0664
+
+  - src: "../bootstrap.php"
+    dst: "/usr/share/centreon/bootstrap.php"
+    file_info:
+      mode: 0664
+
+  - src: "../container.php"
+    dst: "/usr/share/centreon/container.php"
+    file_info:
+      mode: 0664
+
+  - src: "../vendor"
+    dst: "/usr/share/centreon/vendor"
+    file_info:
+      mode: 0664
+
+  - src: "../config"
+    dst: "/usr/share/centreon/config"
+    file_info:
+      mode: 0664
+
+  - src: "../cron"
+    dst: "/usr/share/centreon/cron"
+    file_info:
+      mode: 0755
+
+  - src: "../lib"
+    dst: "/usr/share/centreon/lib"
+    file_info:
+      mode: 0664
+
+  - dst: "/usr/share/centreon/examples"
+    type: dir
+    file_info:
+      mode: 0755
+
+  - src: "../tmpl/install/systemd/centreontrapd.rpm.systemd"
+    dst: "/usr/share/centreon/examples/centreontrapd.systemd"
+    file_info:
+      mode: 0644
+    packager: rpm
+  - src: "../tmpl/install/systemd/centreontrapd.deb.systemd"
+    dst: "/usr/share/centreon/examples/centreontrapd.systemd"
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: "./src/centreon-apache.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache.conf"
+    file_info:
+      mode: 0644
+
+  - src: "./src/centreon-apache-https.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-https.conf"
+    file_info:
+      mode: 0644
+
+  - src: "../GPL_LIB"
+    dst: "/usr/share/centreon/GPL_LIB"
+    type: tree
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../src"
+    dst: "/usr/share/centreon/src"
+    type: tree
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../www"
+    dst: "/usr/share/centreon/www"
+    type: tree
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../api"
+    dst: "/usr/share/centreon/api"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - src: "../lua/centreon-cloud-notifications.lua"
+    dst: "/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua"
+    file_info:
+      owner: "centreon-broker"
+      group: "centreon-broker"
+
+  - dst: "/var/lib/centreon/installs"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/log"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/metrics"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/nagios-perf"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/status"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/centcore"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/lib/centreon/perfdata"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+  - dst: "/var/run/centreon"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
+scripts:
+  preinstall: ./scripts/centreon-web-preinstall.sh
+  postinstall: ./scripts/centreon-web-postinstall.sh
+
+overrides:
+  rpm:
+    depends:
+      - centreon-common = ${VERSION}-${RELEASE}${DIST}
+      - centreon-perl-libs = ${VERSION}-${RELEASE}${DIST}
+      - centreon-poller = ${VERSION}-${RELEASE}${DIST}
+      - centreon-broker-cbd >= ${MAJOR_VERSION}
+      - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
+      - bc
+      - cronie
+      - initscripts
+      - "(mariadb or mysql)"
+      - httpd
+      - php-common >= 8.1
+      - php-cli
+      - php-pdo
+      - php-mysqlnd
+      - php-gd
+      - php-xml
+      - php-mbstring
+      - php-ldap
+      - php-snmp
+      - php-intl
+      - php-fpm
+      - php-curl
+      - php-zip
+      - php-pear
+      - php-json
+      - openssl
+      - perl-DBD-MySQL
+      - perl-DBI
+      - perl-HTML-Parser
+      - rrdtool
+      - rrdtool-perl
+      - net-snmp
+      - net-snmp-perl
+      - net-snmp-utils
+      - rsync
+      - brotli
+      - lua-curl
+    provides:
+      - centreon-backup
+      - centreon-clapi
+      - centreon-knowledgebase
+      - centreon-partitioning
+      - centreon-widget-engine-status
+      - centreon-widget-global-health
+      - centreon-widget-graph-monitoring
+      - centreon-widget-grid-map
+      - centreon-widget-httploader
+      - centreon-widget-host-monitoring
+      - centreon-widget-hostgroup-monitoring
+      - centreon-widget-live-top10-cpu-usage
+      - centreon-widget-live-top10-memory-usage
+      - centreon-widget-ntopng-listing
+      - centreon-widget-service-monitoring
+      - centreon-widget-servicegroup-monitoring
+      - centreon-widget-single-metric
+      - centreon-widget-tactical-overview
+    conflicts:
+      - centreon-bi-server < ${MAJOR_VERSION}
+      - centreon-bam-server < ${MAJOR_VERSION}
+      - centreon-map4-web-client < ${MAJOR_VERSION}
+      - centreon-poller-display
+      - centreon-poller-display-central
+      - centreon-pp-manager < ${MAJOR_VERSION}
+    replaces:
+      - centreon-backup
+      - centreon-clapi
+      - centreon-knowledgebase
+      - centreon-partitioning
+      - centreon-widget-engine-status
+      - centreon-widget-global-health
+      - centreon-widget-graph-monitoring
+      - centreon-widget-grid-map
+      - centreon-widget-httploader
+      - centreon-widget-host-monitoring
+      - centreon-widget-hostgroup-monitoring
+      - centreon-widget-live-top10-cpu-usage
+      - centreon-widget-live-top10-memory-usage
+      - centreon-widget-ntopng-listing
+      - centreon-widget-service-monitoring
+      - centreon-widget-servicegroup-monitoring
+      - centreon-widget-single-metric
+      - centreon-widget-tactical-overview
+
+  deb:
+    depends:
+      - centreon-common (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-perl-libs (= ${VERSION}-${RELEASE}${DIST})
+      - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
+      - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - lsb-release
+      - "mariadb-client | mysql-client"
+      - apache2
+      - php8.1
+      - php8.1-cli
+      - php8.1-fpm
+      - php8.1-curl
+      - php8.1-intl
+      - php8.1-xml
+      - php8.1-dom
+      - php8.1-gd
+      - php8.1-mbstring
+      - php8.1-xml
+      - php8.1-mysql
+      - php8.1-zip
+      - php8.1-snmp
+      - php8.1-ldap
+      - php8.1-readline
+      - php8.1-sqlite3
+      - php-pear
+      - rrdtool
+      - locales
+      - gettext
+      - rsync
+      - brotli
+      - lua-curl
+    provides:
+      - centreon-web-apache
+      - centreon-web-common
+      - centreon-widget-engine-status
+      - centreon-widget-global-health
+      - centreon-widget-graph-monitoring
+      - centreon-widget-grid-map
+      - centreon-widget-httploader
+      - centreon-widget-host-monitoring
+      - centreon-widget-hostgroup-monitoring
+      - centreon-widget-live-top10-cpu-usage
+      - centreon-widget-live-top10-memory-usage
+      - centreon-widget-ntopng-listing
+      - centreon-widget-service-monitoring
+      - centreon-widget-servicegroup-monitoring
+      - centreon-widget-single-metric
+      - centreon-widget-tactical-overview
+    conflicts:
+      - centreon-web-apache
+      - centreon-web-common
+      - centreon-widget-engine-status
+      - centreon-widget-global-health
+      - centreon-widget-graph-monitoring
+      - centreon-widget-grid-map
+      - centreon-widget-httploader
+      - centreon-widget-host-monitoring
+      - centreon-widget-hostgroup-monitoring
+      - centreon-widget-live-top10-cpu-usage
+      - centreon-widget-live-top10-memory-usage
+      - centreon-widget-ntopng-listing
+      - centreon-widget-service-monitoring
+      - centreon-widget-servicegroup-monitoring
+      - centreon-widget-single-metric
+      - centreon-widget-tactical-overview
+    replaces:
+      - centreon-web-apache
+      - centreon-web-common
+      - centreon-widget-engine-status
+      - centreon-widget-global-health
+      - centreon-widget-graph-monitoring
+      - centreon-widget-grid-map
+      - centreon-widget-httploader
+      - centreon-widget-host-monitoring
+      - centreon-widget-hostgroup-monitoring
+      - centreon-widget-live-top10-cpu-usage
+      - centreon-widget-live-top10-memory-usage
+      - centreon-widget-ntopng-listing
+      - centreon-widget-service-monitoring
+      - centreon-widget-servicegroup-monitoring
+      - centreon-widget-single-metric
+      - centreon-widget-tactical-overview
+
+rpm:
+  summary: Centreon WebUI
+  compression: zstd
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

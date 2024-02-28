@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -11,7 +11,7 @@ before(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 beforeEach(() => {
@@ -40,7 +40,7 @@ afterEach(() => {
 Given(
   'a user with update rights on a dashboard featured in the dashboards library',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -109,7 +109,7 @@ Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToEdit.name)
       .parent()
       .find('button[aria-label="edit"]')
@@ -162,7 +162,7 @@ Then(
 Given('a user with dashboard update rights in a dashboard update form', () => {
   const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.contains(dashboardToEdit.name)
     .parent()
     .find('button[aria-label="edit"]')
@@ -189,7 +189,7 @@ Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToEdit.name)
       .parent()
       .find('button[aria-label="edit"]')

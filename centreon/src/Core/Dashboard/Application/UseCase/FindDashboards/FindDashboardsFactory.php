@@ -27,6 +27,8 @@ use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponse
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 final class FindDashboardsFactory
@@ -35,6 +37,8 @@ final class FindDashboardsFactory
      * @param list<Dashboard> $dashboards
      * @param array<int, array{id: int, name: string}> $contactNames
      * @param array<int, DashboardSharingRoles> $sharingRolesList
+     * @param array<int, array<DashboardContactShare>> $contactShares
+     * @param array<int, array<DashboardContactGroupShare>> $contactGroupShares
      * @param DashboardSharingRole $defaultRole
      *
      * @return FindDashboardsResponse
@@ -43,6 +47,8 @@ final class FindDashboardsFactory
         array $dashboards,
         array $contactNames,
         array $sharingRolesList,
+        array $contactShares,
+        array $contactGroupShares,
         DashboardSharingRole $defaultRole
     ): FindDashboardsResponse {
         $response = new FindDashboardsResponse();
@@ -69,6 +75,27 @@ final class FindDashboardsFactory
                 $dto->updatedBy = new UserResponseDto();
                 $dto->updatedBy->id = $contactId;
                 $dto->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
+            }
+
+            // Add shares only if the user if editor, as the viewers should not be able to see shares.
+            if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactShares)) {
+                $dto->shares['contacts'] = array_map(static fn (DashboardContactShare $contactShare): array => [
+                    'id' => $contactShare->getContactId(),
+                    'name' => $contactShare->getContactName(),
+                    'email' => $contactShare->getContactEmail(),
+                    'role' => $contactShare->getRole(),
+                ]
+                , $contactShares[$dashboard->getId()]);
+            }
+
+            if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {
+                $dto->shares['contact_groups'] = array_map(
+                    static fn (DashboardContactGroupShare $contactGroupShare): array => [
+                        'id' => $contactGroupShare->getContactGroupId(),
+                        'name' => $contactGroupShare->getContactGroupName(),
+                        'role' => $contactGroupShare->getRole(),
+                    ],
+                    $contactGroupShares[$dashboard->getId()]);
             }
 
             $response->dashboards[] = $dto;

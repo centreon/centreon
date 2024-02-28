@@ -71,7 +71,7 @@ class OpenId implements ProviderAuthenticationInterface
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
-        $this->username = $this->provider->authenticateOrFail($request->code, $request->clientIp);
+        $this->username = $this->provider->authenticateOrFail($request->code, $request->clientIp ?? '');
     }
 
     /**
@@ -141,8 +141,9 @@ class OpenId implements ProviderAuthenticationInterface
         if ($this->isAutoImportEnabled() === true && $user === null) {
             $this->info('Start auto import');
             $this->provider->createUser();
-            $user = $this->provider->getUser();
-            $this->info('User imported: ' . $user->getName());
+            if ($user = $this->provider->getUser()) {
+                $this->info('User imported: ' . $user->getName());
+            }
         }
     }
 

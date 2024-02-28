@@ -10,7 +10,7 @@ const service = 'Ping';
 const host = 'Centreon-Server';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 });
 
 beforeEach(() => {
@@ -41,6 +41,23 @@ When(
 
 When('I reload the web server', () => {
   reloadWebServer();
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .request({
+          failOnStatusCode: false,
+          method: 'GET',
+          url: '/monitor'
+        })
+        .then((response) => {
+          return /^[2-3]\d{2}/.test(response.status.toString());
+        });
+    },
+    {
+      timeout: 10000
+    }
+  );
 });
 
 Then('I can authenticate to the centreon platform', () => {
@@ -141,5 +158,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

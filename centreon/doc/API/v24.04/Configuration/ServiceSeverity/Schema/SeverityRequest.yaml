@@ -1,0 +1,22 @@
+type: object
+required: ["name", "alias", "level", "icon_id"]
+properties:
+  name:
+    type: string
+    description: "Service severity name"
+    example: "service-severity"
+  alias:
+    type: string
+    description: "Service severity alias"
+    example: "service-severity"
+  level:
+    type: integer
+    description: "Service severity priority"
+    example: 2
+  icon_id:
+    type: integer
+    description: "Define the image ID associated with this severity"
+    example: 1
+  is_activated:
+    type: boolean
+    description: "Indicates whether this service severity is enabled or not"

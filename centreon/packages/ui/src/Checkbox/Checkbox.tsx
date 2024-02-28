@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 import { T, always, cond, equals } from 'ramda';
 
 import { SvgIconComponent } from '@mui/icons-material';
-import Typography, { TypographyTypeMap } from '@mui/material/Typography';
+import Typography, { TypographyProps } from '@mui/material/Typography';
 import { FormControlLabel, Checkbox as MuiCheckbox, Box } from '@mui/material';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
@@ -56,7 +56,7 @@ interface Props {
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
-  labelProps?: TypographyTypeMap['props'];
+  labelProps?: TypographyProps;
   onChange?: (e) => void;
 }
 

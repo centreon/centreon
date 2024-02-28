@@ -35,49 +35,49 @@ use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
 
 /**
  * @phpstan-type _Metrics array{
- *      index_id: int,
- *      metric_id: int,
- *      metric: string,
- *      metric_legend: string,
- *      unit: string,
- *      hidden: int,
- *      legend: string,
- *      virtual: int,
- *      stack: int,
- *      ds_order: int,
- *      ds_data: array{
- *        ds_min: ?string,
- *        ds_max: ?string,
- *        ds_minmax_int: ?string,
- *        ds_last: ?string,
- *        ds_average: ?string,
- *        ds_total: ?string,
- *        ds_tickness: int,
- *        ds_color_line_mode: string,
- *        ds_color_line: string
- *      },
- *      warn: ?float,
- *      warn_low: ?float,
- *      crit: ?float,
- *      crit_low: ?float,
- *      ds_color_area_warn: string,
- *      ds_color_area_crit: string,
- *      data: array<float|null>,
- *      prints: array<array<string>>,
- *      min: ?float,
- *      max: ?float,
- *      last_value: ?float,
- *      minimum_value: ?float,
- *      maximum_value: ?float,
- *      average_value: ?float
+ *     index_id: int,
+ *     metric_id: int,
+ *     metric: string,
+ *     metric_legend: string,
+ *     unit: string,
+ *     hidden: int,
+ *     legend: string,
+ *     virtual: int,
+ *     stack: int,
+ *     ds_order: int,
+ *     ds_data: array{
+ *         ds_min: ?string,
+ *         ds_max: ?string,
+ *         ds_minmax_int: ?string,
+ *         ds_last: ?string,
+ *         ds_average: ?string,
+ *         ds_total: ?string,
+ *         ds_tickness: int,
+ *         ds_color_line_mode: string,
+ *         ds_color_line: string
+ *     },
+ *     warn: ?float,
+ *     warn_low: ?float,
+ *     crit: ?float,
+ *     crit_low: ?float,
+ *     ds_color_area_warn: string,
+ *     ds_color_area_crit: string,
+ *     data: array<float|null>,
+ *     prints: array<array<string>>,
+ *     min: ?float,
+ *     max: ?float,
+ *     last_value: ?float,
+ *     minimum_value: ?float,
+ *     maximum_value: ?float,
+ *     average_value: ?float
  *  }
  * @phpstan-type _MetricData array{
- *  global: array{
- *      base: int,
- *      title: string
- *  },
- *  metrics: array<_Metrics>,
- *  times: string[]
+ *     global: array{
+ *         base: int,
+ *         title: string
+ *     },
+ *     metrics: array<_Metrics>,
+ *     times: string[]
  * }
  */
 class PerformanceMetricsDataFactory
@@ -87,6 +87,8 @@ class PerformanceMetricsDataFactory
     /**
      * @param array<_MetricData> $metricsData
      * @param string[] $metricNames
+     *
+     * @throws MetricException
      *
      * @return PerformanceMetricsData
      */
@@ -102,9 +104,10 @@ class PerformanceMetricsDataFactory
             $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
-        $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->createMetricInformations($metrics, $metricNames);
-        $times = $this->getTimes($times);
+
+        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = ! empty($times) ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }

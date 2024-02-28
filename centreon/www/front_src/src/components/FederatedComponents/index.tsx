@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 
 import {
   concat,
@@ -26,6 +26,7 @@ import {
 } from '../../federatedModules/models';
 
 interface Props extends Record<string, unknown> {
+  children?: ReactNode;
   federatedModulesConfigurations: Array<FederatedModule>;
   isFederatedWidget?: boolean;
   styleMenuSkeleton?: StyleMenuSkeleton;
@@ -47,6 +48,7 @@ const FederatedModules = ({
   federatedModulesConfigurations,
   styleMenuSkeleton,
   isFederatedWidget,
+  children,
   ...rest
 }: Props): JSX.Element | null => {
   return useMemoComponent({
@@ -72,7 +74,9 @@ const FederatedModules = ({
                     remoteEntry={remoteEntry}
                     styleMenuSkeleton={styleMenuSkeleton}
                     {...rest}
-                  />
+                  >
+                    {children}
+                  </Remote>
                 );
               }
             );
@@ -86,6 +90,7 @@ const FederatedModules = ({
 
 interface LoadableComponentsContainerProps extends Record<string, unknown> {
   [props: string]: unknown;
+  children?: ReactNode;
   isFederatedWidget?: boolean;
   path: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
@@ -135,16 +140,11 @@ const getLoadableComponents = ({
     : components;
 };
 
-const defaultStyleMenuSkeleton = {
-  className: undefined,
-  height: undefined,
-  width: undefined
-};
-
 const LoadableComponentsContainer = ({
   path,
-  styleMenuSkeleton = defaultStyleMenuSkeleton,
+  styleMenuSkeleton,
   isFederatedWidget,
+  children,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
   const federatedModules = useAtomValue(federatedModulesAtom);
@@ -172,7 +172,9 @@ const LoadableComponentsContainer = ({
       isFederatedWidget={isFederatedWidget}
       styleMenuSkeleton={styleMenuSkeleton}
       {...props}
-    />
+    >
+      {children}
+    </FederatedModules>
   );
 };
 

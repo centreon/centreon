@@ -1,7 +1,0 @@
-DeletePlaylist:
-  methods: DELETE
-  path: /configuration/dashboards/playlists/{playlistId}
-  requirements:
-    playlistId: '\d+'
-  controller: 'Core\Dashboard\Playlist\Infrastructure\API\DeletePlaylist\DeletePlaylistController'
-  condition: "request.attributes.get('version') >= 23.10"

@@ -68,7 +68,7 @@ it('should raise an exception when the new name already exists', function (): vo
         ->method('findServiceNamesByHost')
         ->willReturn($serviceNamesByHost);
 
-    $this->validation->assertIsValidName($request, $service);
+    $this->validation->assertIsValidName($request->name, $service);
 })->throws(
     ServiceException::class,
     ServiceException::nameAlreadyExists('new_name', 1)->getMessage()

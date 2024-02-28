@@ -1,3 +1,0 @@
-#!/usr/bin/dh-exec
-
-packaging/src/sudoersCentreonPlugins => etc/sudoers.d/centreon-plugins

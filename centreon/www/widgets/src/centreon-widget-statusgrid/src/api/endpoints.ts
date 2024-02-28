@@ -1,8 +1,9 @@
-import { flatten, includes, pluck } from 'ramda';
+import { equals, flatten, includes, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
+import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 
@@ -23,6 +24,8 @@ const resourceTypesCustomParameters = [
 ];
 const resourceTypesSearchParameters = ['host', 'service'];
 
+const categories = ['host-category', 'service-category'];
+
 const resourcesSearchMapping = {
   host: 'parent_name',
   service: 'name'
@@ -36,7 +39,7 @@ export const buildResourcesEndpoint = ({
   limit,
   resources
 }: BuildResourcesEndpointProps): string => {
-  const formattedStatuses = statuses.map((state) => state.toLocaleUpperCase());
+  const formattedStatuses = formatStatus(statuses);
 
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
@@ -56,6 +59,8 @@ export const buildResourcesEndpoint = ({
     }
   );
 
+  const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
+
   return buildListingEndpoint({
     baseEndpoint: resourcesEndpoint,
     customQueryParameters: [
@@ -64,7 +69,9 @@ export const buildResourcesEndpoint = ({
       { name: 'states', value: states },
       ...resourcesToApplyToCustomParameters.map(
         ({ resourceType, resources: resourcesToApply }) => ({
-          name: `${resourceType.replace('-', '')}_names`,
+          name: includes(resourceType, categories)
+            ? `${resourceType.replace('-', '_')}_names`
+            : `${resourceType.replace('-', '')}_names`,
           value: pluck('name', resourcesToApply)
         })
       )
@@ -76,7 +83,7 @@ export const buildResourcesEndpoint = ({
         conditions: flatten(searchConditions)
       },
       sort: {
-        [sortBy]: 'ASC'
+        [sortBy]: sortOrder
       }
     }
   });
@@ -107,7 +114,7 @@ export const buildServicesEndpoint = ({
         ]
       },
       sort: {
-        status: 'ASC'
+        status: 'DESC'
       }
     }
   });

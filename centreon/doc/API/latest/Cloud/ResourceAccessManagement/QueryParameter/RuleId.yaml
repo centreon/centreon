@@ -1,0 +1,9 @@
+in: path
+name: rule_id
+required: true
+description: "Resource access rule ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1
+
