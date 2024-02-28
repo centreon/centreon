@@ -372,7 +372,7 @@ describe('Dashboard', () => {
       cy.makeSnapshot();
     });
 
-    it('does not displays the name of the widget a widget when the corresponding button is clicked', () => {
+    it('does not display the name of the widget when the corresponding button is clicked', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
