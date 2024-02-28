@@ -1163,7 +1163,7 @@ function install_central() {
 	if [[ $database_system == "MariaDB" ]]; then
 		CENTREON_PKG="centreon"
 	else
-		CENTREON_PKG="centreon-web"
+		CENTREON_PKG="centreon-central"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
@@ -1235,7 +1235,7 @@ function update_centreon_packages() {
 	if [[ $database_system == "MariaDB" ]]; then
 		CENTREON_PKG="centreon\*"
 	else
-		CENTREON_PKG="centreon-web"
+		CENTREON_PKG="centreon-central"
 	fi
 
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
