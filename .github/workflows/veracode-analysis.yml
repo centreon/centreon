@@ -143,8 +143,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@651b8c3a9c9b32b3b1e7c334c8b34d3cabc2da3f # v1.0.12
+        uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -161,7 +160,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || failure()
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -217,7 +216,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || failure()
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
@@ -327,7 +326,7 @@ jobs:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: sc979/veracode-sca@d3cf7437b198b0e861785f2568d50aeed45bb99b # v1.10
+        uses: sc979/veracode-sca@c407924976db886ffb1bfdbbbf3463f0939f835d # v1.11
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
