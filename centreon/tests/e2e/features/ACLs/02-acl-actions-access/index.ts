@@ -73,7 +73,7 @@ const allActions: Action[] = [
 const allActionsByLots: Action[] = ['all_engine', 'all_host', 'all_service'];
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -85,7 +85,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('I am logged in a Centreon server', () => {
