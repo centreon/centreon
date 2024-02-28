@@ -644,7 +644,7 @@ describe('Api-token', () => {
 
     cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
 
-    cy.wait('@getListTokensWithSearchableFields');
+    cy.waitForRequest('@getListTokensWithSearchableFields');
     cy.getRequestCalls('@getListTokensWithSearchableFields').then((calls) => {
       expect(
         calls[0].request.url.search.includes(parametersWithAllSearchableFields)
