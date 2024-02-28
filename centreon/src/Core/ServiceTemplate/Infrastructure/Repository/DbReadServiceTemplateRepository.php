@@ -159,7 +159,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                     AND host.host_register = '0'
                 WHERE service.service_id = :id
                     AND service.service_register = '0'
-                    GROUP BY
+                GROUP BY
                     service.service_id,
                     esi.esi_action_url,
                     esi.esi_icon_image,
