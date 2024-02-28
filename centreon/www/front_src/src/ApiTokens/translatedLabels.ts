@@ -21,3 +21,7 @@ export const labelCancel = 'Cancel';
 export const labelTokenCreated = 'Token has been created';
 export const labelSecurityToken =
   'For security reasons, the token can only be displayed once. Store it carefully.';
+export const labelMsgConfirmationDeletionToken =
+  'You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?';
+export const labelDeleteToken = 'Delete token';
+export const labelTokenDeletedSuccessfully = 'Token deleted successfully';

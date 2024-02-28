@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      database_image:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -134,9 +137,11 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
+          database_image: ${{ inputs.database_image }}
           web_image_os: ${{ inputs.os }}
           web_image_version: ${{ github.head_ref || github.ref_name }}
           openid_image_version: ${{ inputs.major_version }}
+          saml_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
@@ -172,7 +177,7 @@ jobs:
         uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
   # This action is only for NIGHTLY and testing branches

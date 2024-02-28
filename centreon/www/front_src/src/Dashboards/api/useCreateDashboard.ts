@@ -56,10 +56,15 @@ const useCreateDashboard = (): UseCreateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    return mutateAsync(variables, {
-      onSettled: onSettledWithInvalidateQueries,
-      ...restOptions
-    });
+    return mutateAsync(
+      {
+        payload: variables
+      },
+      {
+        onSettled: onSettledWithInvalidateQueries,
+        ...restOptions
+      }
+    );
   };
 
   return {
