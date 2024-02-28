@@ -40,6 +40,25 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'waitUntilPingExists',
+  () => {
+    const attemptPingClick: () => Cypress.Chainable<boolean> = () => {
+      cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+      return cy.contains('Ping').should('be.visible').then(() => {
+        cy.contains('Ping').click();
+        return true;
+      });
+    };
+
+    return cy.waitUntil(() => attemptPingClick(), {
+      errorMsg: 'The "Ping" element does not exist',
+      interval: 3000,
+      timeout: 30000
+    });
+  }
+);
+
 Cypress.Commands.add('verifyGraphContainer', () => {
   cy.get('[class*="graphContainer"]')
     .should('be.visible')
@@ -151,6 +170,8 @@ declare global {
         accessRightsTestId: string,
         expectedElementCount: number
       ) => Cypress.Chainable;
+      waitUntilPingExists: () => Cypress.Chainable;
+
     }
   }
 }
