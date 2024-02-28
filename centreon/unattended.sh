@@ -409,10 +409,7 @@ function setup_mysql() {
 	esac
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now mysqld
-	cat <<EOF >> /etc/my.cnf.d/mysql-server.cnf
-		general_log_file       = /var/log/mysql/general-query.log
-		general_log            = 1
-EOF
+
 }
 #========= end of function set_mysql_repos()
 
@@ -699,6 +696,7 @@ function secure_db_system_setup() {
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
+			SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 			SET PASSWORD FOR root@localhost = "$db_root_password";
 			FLUSH PRIVILEGES;
 		EOF
