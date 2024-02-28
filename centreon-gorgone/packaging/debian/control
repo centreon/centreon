@@ -39,6 +39,7 @@ Depends:
   libssh-4,
   libev-perl,
   libzmq-ffi-perl,
+  libclone-choose-perl,
   sudo,
   ${shlibs:Depends},
   ${misc:Depends}
