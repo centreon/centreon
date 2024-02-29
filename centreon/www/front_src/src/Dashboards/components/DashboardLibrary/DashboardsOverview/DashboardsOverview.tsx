@@ -7,13 +7,9 @@ import { equals } from 'ramda';
 
 import { DataTable } from '@centreon/ui/components';
 
-import { useDashboardDelete } from '../../../hooks/useDashboardDelete';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
-  labelCancel,
   labelCreateADashboard,
-  labelDelete,
-  labelDescriptionDeleteDashboard,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
 import { Dashboard } from '../../../api/models';
@@ -23,7 +19,7 @@ import { DashboardLayout } from '../../../models';
 import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
-import { isSharesOpenAtom } from '../../../atoms';
+import { dashboardToDeleteAtom, isSharesOpenAtom } from '../../../atoms';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
@@ -37,13 +33,17 @@ const DashboardsOverview = (): ReactElement => {
 
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
-  const deleteDashboard = useDashboardDelete();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
 
   const navigate = useNavigate();
 
   const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
+  const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
+
+  const openDeleteModal = (dashboard) => (): void => {
+    setDashboardToDelete(dashboard);
+  };
 
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
     navigate(
@@ -67,18 +67,6 @@ const DashboardsOverview = (): ReactElement => {
     }),
     []
   );
-
-  const getLabelsDelete = useCallback((dashboard: Dashboard) => {
-    return {
-      cancel: t(labelCancel),
-      confirm: {
-        label: t(labelDelete),
-        secondaryLabel: t(labelDescriptionDeleteDashboard, {
-          name: dashboard.name
-        })
-      }
-    };
-  }, []);
 
   const editAccessRights = useCallback(
     (dashboard) => () => setIsSharesOpenAtom(dashboard),
@@ -107,10 +95,9 @@ const DashboardsOverview = (): ReactElement => {
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
-          labelsDelete={getLabelsDelete(dashboard)}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}
-          onDelete={deleteDashboard(dashboard)}
+          onDelete={openDeleteModal(dashboard)}
           onEdit={editDashboard(dashboard)}
           onEditAccessRights={editAccessRights(dashboard)}
         />
