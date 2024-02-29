@@ -11,7 +11,7 @@ const serviceInDtName = 'service1';
 const secondServiceInDtName = 'service2';
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.intercept({
     method: 'GET',
@@ -46,7 +46,7 @@ Given('the user have the necessary rights to page Resource Status', () => {
 });
 
 Given('the user have the necessary rights to set downtime', () => {
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).should('be.visible');
+  cy.getByTestId({ testId: 'mainSetDowntime' }).should('be.visible');
 });
 
 Given('minimally one resource with notifications enabled on user', () => {
@@ -99,7 +99,7 @@ Given('a resource is selected', () => {
 });
 
 When('the user click on the "Set downtime" action', () => {
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByTestId({ testId: 'mainSetDowntime' }).last().click();
 });
 
 When(
@@ -184,7 +184,7 @@ Given('a resource is in downtime', () => {
     .find('input[type="checkbox"]:first')
     .click();
 
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByTestId({ testId: 'mainSetDowntime' }).last().click();
 
   cy.getByLabel({ label: 'Set downtime' }).last().click();
 
@@ -298,7 +298,7 @@ Given('multiple resources are in downtime', () => {
     .find('input[type="checkbox"]:first')
     .click();
 
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByTestId({ testId: 'mainSetDowntime' }).last().click();
 
   cy.getByLabel({ label: 'Set downtime' }).last().click();
 
@@ -410,5 +410,5 @@ Then('the resources should not be in Downtime anymore', () => {
 });
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

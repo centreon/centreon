@@ -125,7 +125,7 @@ it(
         $this->readServiceGroupRepository
             ->expects($this->once())
             ->method('findAll')
-            ->willReturn([$this->testedServiceGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedServiceGroup]));
 
         ($this->useCase)($this->presenter);
 
@@ -155,7 +155,7 @@ it(
         $this->readServiceGroupRepository
             ->expects($this->once())
             ->method('findAllByAccessGroups')
-            ->willReturn([$this->testedServiceGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedServiceGroup]));
 
         ($this->useCase)($this->presenter);
 
@@ -185,7 +185,7 @@ it(
         $this->readServiceGroupRepository
             ->expects($this->once())
             ->method('findAllByAccessGroups')
-            ->willReturn([$this->testedServiceGroup]);
+            ->willReturn(new \ArrayIterator([$this->testedServiceGroup]));
 
         ($this->useCase)($this->presenter);
 

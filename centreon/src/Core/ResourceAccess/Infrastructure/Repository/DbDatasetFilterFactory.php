@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Infrastructure\Repository;
 
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 
 /**
- * @phpstan-import-type _DatasetFilter from DbReadRuleRepository
+ * @phpstan-import-type _DatasetFilter from DbReadResourceAccessRepository
  */
 class DbDatasetFilterFactory
 {
@@ -35,20 +36,29 @@ class DbDatasetFilterFactory
 
     /**
      * @param non-empty-array<_DatasetFilter> $record
+     * @param DatasetFilterValidator $datasetValidator
      *
      * @throws \InvalidArgumentException
      *
      * @return DatasetFilter
      */
-    public static function createFromRecord(array $record): DatasetFilter
+    public static function createFromRecord(array $record, DatasetFilterValidator $datasetValidator): DatasetFilter
     {
         $datasetFilter = null;
 
-        $buildDatasetFilterWithHierarchy = function (array $data, ?int $parentId, ?DatasetFilter $parentDatasetFilter) use (&$datasetFilter, &$buildDatasetFilterWithHierarchy): void {
+        $buildDatasetFilterWithHierarchy = function (
+            array $data,
+            ?int $parentId,
+            ?DatasetFilter $parentDatasetFilter
+        ) use (&$datasetFilter, &$buildDatasetFilterWithHierarchy, $datasetValidator): void {
             if ($datasetFilter === null) {
                 /** @var non-empty-array<_DatasetFilter> $data */
                 $rootData = self::findRootFilter($data);
-                $datasetFilter = new DatasetFilter($rootData['dataset_filter_type'], self::fromStringToArrayOfInts($rootData['dataset_filter_resources']));
+                $datasetFilter = new DatasetFilter(
+                    $rootData['dataset_filter_type'],
+                    self::fromStringToArrayOfInts($rootData['dataset_filter_resources']),
+                    $datasetValidator
+                );
                 $buildDatasetFilterWithHierarchy($data, $rootData['dataset_filter_id'], $datasetFilter);
             } elseif (
                 $parentId !== null
@@ -58,7 +68,11 @@ class DbDatasetFilterFactory
                 $childrenData = self::findSubFilter($parentId, $data);
 
                 if ($childrenData !== []) {
-                    $childrenFilter = new DatasetFilter($childrenData['dataset_filter_type'], self::fromStringToArrayOfInts($childrenData['dataset_filter_resources']));
+                    $childrenFilter = new DatasetFilter(
+                        $childrenData['dataset_filter_type'],
+                        self::fromStringToArrayOfInts($childrenData['dataset_filter_resources']),
+                        $datasetValidator
+                    );
                     $parentDatasetFilter->setDatasetFilter($childrenFilter);
 
                     $buildDatasetFilterWithHierarchy($data, $childrenData['dataset_filter_id'], $parentDatasetFilter->getDatasetFilter());

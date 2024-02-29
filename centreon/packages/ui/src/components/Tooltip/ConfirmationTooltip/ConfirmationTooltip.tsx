@@ -49,7 +49,7 @@ export const ConfirmationTooltip = ({
   return (
     <ClickAwayListener onClickAway={close}>
       <div>
-        {children(isOpen ? close : open)}
+        {children({ isOpen, toggleTooltip: isOpen ? close : open })}
         <Popper
           anchorEl={anchorElement}
           className={classes.popper}

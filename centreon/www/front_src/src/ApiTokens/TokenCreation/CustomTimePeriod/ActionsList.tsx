@@ -28,14 +28,12 @@ const ActionList = (
   return (
     <div className={cx(className, classes.container)}>
       <Button
-        className={classes.button}
         labelSave={t(labelCancel)}
         startIcon={false}
         variant="text"
         onClick={cancel}
       />
       <Button
-        className={classes.button}
         disabled={isInvalidDate}
         labelSave={t(labelOk)}
         startIcon={false}

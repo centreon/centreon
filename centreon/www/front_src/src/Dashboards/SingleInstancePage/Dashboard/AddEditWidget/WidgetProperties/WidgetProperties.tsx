@@ -32,23 +32,23 @@ const WidgetProperties = (): JSX.Element => {
   const hasProperties = !isEmpty(widgetProperties);
 
   return (
-    <>
+    <div className={classes.widgetPropertiesContainer}>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <div className={classes.widgetProperties}>
             <WidgetTextField label={labelTitle} propertyName="name" />
             <div>
               <Subtitle>{t(labelDescription)}</Subtitle>
-              <WidgetSwitch
-                label={labelShowDescription}
-                propertyName="description.enabled"
-              />
               <div className={classes.widgetDescription}>
                 <WidgetRichTextEditor
                   label={labelDescription}
                   propertyName="description.content"
                 />
               </div>
+              <WidgetSwitch
+                label={labelShowDescription}
+                propertyName="description.enabled"
+              />
               <WidgetSwitch
                 endAdornment={
                   <Tooltip
@@ -79,7 +79,7 @@ const WidgetProperties = (): JSX.Element => {
           </div>
         </CollapsibleItem>
       )}
-    </>
+    </div>
   );
 };
 

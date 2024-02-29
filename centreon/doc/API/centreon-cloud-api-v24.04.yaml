@@ -48,4 +48,6 @@ tags:
 paths:
   /administration/resource-access/rules:
     $ref: "./latest/Cloud/ResourceAccessManagement/AddAndFindRules.yaml"
+  /administration/resource-access/rules/{rule_id}:
+    $ref: "./latest/Cloud/ResourceAccessManagement/FindAndUpdateRule.yaml"
 

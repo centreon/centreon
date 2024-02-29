@@ -28,32 +28,49 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Domain\Configuration\User\Model\User;
+use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboardContacts
 {
     use LoggerTrait;
 
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param DashboardRights $rights
+     * @param ContactInterface $contact
+     * @param ReadDashboardShareRepositoryInterface $readDashboardShareRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadContactRepositoryInterface $readContactRepository
+     */
     public function __construct(
-        private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository
     ) {
     }
 
+    /**
+     * @param FindDashboardContactsPresenterInterface $presenter
+     */
     public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
     {
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $this->contact->isAdmin()
-                    ? $users = $this->readUserRepository->findAllUsers()
-                    : $users = $this->readUserRepository->findByContactGroups($this->contact);
+                $users = $this->contact->isAdmin()
+                    ? $this->findContactAsAdmin()
+                    : $this->findContactsAsNonAdmin();
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(
@@ -62,14 +79,18 @@ final class FindDashboardContacts
                 );
                 $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
             }
-        } catch (\Throwable $ex) {
+        } catch (\UnexpectedValueException $ex) {
+            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            }
+        catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
 
     /**
-     * @param User[] $users
+     * @param DashboardContactRole[] $users
      */
     private function createResponse(array $users): FindDashboardContactsResponse
     {
@@ -77,11 +98,61 @@ final class FindDashboardContacts
 
         foreach ($users as $user) {
             $response->contacts[] = new ContactsResponseDto(
-                $user->getId(),
-                $user->getName(),
+                $user->getContactId(),
+                $user->getContactName(),
+                $user->getContactEmail(),
+                $user->getMostPermissiveRole()
             );
         }
 
         return $response;
+    }
+
+    /**
+     * Find contacts with their Dashboards roles.
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactRole[]
+     */
+    private function findContactAsAdmin(): array
+    {
+        $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
+            $this->requestParameters
+        );
+        $total = $this->requestParameters->getTotal();
+        $admins = $this->readContactRepository->findAdminWithRequestParameters(
+            $this->requestParameters
+        );
+        $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
+        $adminContactRoles = [];
+        foreach ($admins as $admin) {
+            $adminContactRoles[] = new DashboardContactRole(
+                $admin->getId(),
+                $admin->getName(),
+                $admin->getEmail(),
+                [DashboardGlobalRole::Administrator]
+            );
+        }
+
+        return [...$users, ...$adminContactRoles];
+    }
+
+    /**
+     * Find contacts with their Dashboards roles.
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactRole[]
+     */
+    private function findContactsAsNonAdmin(): array
+    {
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
+        return $this->readDashboardShareRepository->findContactsWithAccessRightByACLGroupsAndRequestParameters(
+            $this->requestParameters,
+            $accessGroupIds
+        );
     }
 }

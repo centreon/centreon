@@ -10,6 +10,7 @@
 /etc/profile.d
 /etc/inputrc
 /etc/httpd
+/etc/ld.so.conf
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
@@ -18,6 +19,7 @@
 /usr/libexec/sudo
 /usr/lib64/perl5/vendor_perl
 /usr/share/perl5
+/usr/share/httpd
 /var/www/html
 /usr/lib64/httpd/modules
 /var/lib/php/session
@@ -32,7 +34,10 @@
 /var/lib/centreon-engine
 /var/lib/centreon-broker
 /var/lib/centreon-gorgone
-/var/lib/mysql/centreon
-/var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/lib/rpm
+/usr/lib/python3.9
+/usr/lib64/python3.9
+/etc/yum.repos.d
+/usr/lib64/libdnf

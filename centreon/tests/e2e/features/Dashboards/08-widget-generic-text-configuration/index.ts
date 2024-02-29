@@ -1,12 +1,13 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '../../../support/commands';
+import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
+
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
@@ -60,7 +61,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -80,7 +81,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -153,7 +154,10 @@ Given('a dashboard featuring a single Generic text widget', () => {
 When('the dashboard administrator user duplicates the widget', () => {
   cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
   cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
-  cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
+  cy.get('*[class^="react-grid-layout"]')
+    .should('exist')
+    .children()
+    .should('have.length', 2);
   cy.getByTestId({ testId: 'save_dashboard' }).click({ force: true });
   cy.wait('@updateDashboard');
 });
@@ -165,18 +169,12 @@ Then(
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
-      .should('contain.text', genericTextWidget.default.title);
-    cy.get('*[class^="react-grid-layout"]')
-      .children()
-      .eq(0)
+      .should('contain.text', genericTextWidget.default.title)
       .should('contain.text', genericTextWidget.default.description);
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
-      .should('contain.text', genericTextWidget.default.title);
-    cy.get('*[class^="react-grid-layout"]')
-      .children()
-      .eq(1)
+      .should('contain.text', genericTextWidget.default.title)
       .should('contain.text', genericTextWidget.default.description);
   }
 );
@@ -226,10 +224,7 @@ Then(
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(0)
-      .should('not.contain.text', `${genericTextWidget.default.title}-edited`);
-    cy.get('*[class^="react-grid-layout"]')
-      .children()
-      .eq(0)
+      .should('not.contain.text', `${genericTextWidget.default.title}-edited`)
       .should(
         'not.contain.text',
         `${genericTextWidget.default.description}-edited`
@@ -237,10 +232,7 @@ Then(
     cy.get('*[class^="react-grid-layout"]')
       .children()
       .eq(1)
-      .should('contain.text', `${genericTextWidget.default.title}-edited`);
-    cy.get('*[class^="react-grid-layout"]')
-      .children()
-      .eq(1)
+      .should('contain.text', `${genericTextWidget.default.title}-edited`)
       .should(
         'contain.text',
         `${genericTextWidget.default.description}-edited`
@@ -260,10 +252,7 @@ Then('only the contents of the other widget are displayed', () => {
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
-    .should('not.contain.text', `${genericTextWidget.default.title}-edited`);
-  cy.get('*[class^="react-grid-layout"]')
-    .children()
-    .eq(0)
+    .should('not.contain.text', `${genericTextWidget.default.title}-edited`)
     .should(
       'not.contain.text',
       `${genericTextWidget.default.description}-edited`
@@ -286,10 +275,7 @@ Then('the description is hidden and only the title is displayed', () => {
   cy.get('*[class^="react-grid-layout"]')
     .children()
     .eq(0)
-    .should('contain.text', `${genericTextWidget.default.title}`);
-  cy.get('*[class^="react-grid-layout"]')
-    .children()
-    .eq(0)
+    .should('contain.text', `${genericTextWidget.default.title}`)
     .should('not.contain.text', `${genericTextWidget.default.description}`);
 
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
