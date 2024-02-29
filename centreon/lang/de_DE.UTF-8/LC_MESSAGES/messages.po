@@ -16553,3 +16553,12 @@ msgstr "Erweiterter Modus"
 
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
+
+# msgid "The {{name}} widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard will be permanently deleted."
+# msgstr ""
