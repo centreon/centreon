@@ -95,9 +95,9 @@ Cypress.Commands.add('waitUntilPingExists', () => {
   // Use cy.waitUntil to repeatedly execute the check
   return cy.waitUntil(
     () => {
-      cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
-      cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+      cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@resourceRequest').then((interception) => {
         // Check if the interception object and response property are defined
@@ -141,7 +141,7 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     {
       errorMsg: 'Timed out waiting for Ping to exist',
       interval: 3000,
-      timeout: 30000
+      timeout: 60000
     }
   );
 });
