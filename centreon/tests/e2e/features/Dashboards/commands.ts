@@ -95,6 +95,8 @@ Cypress.Commands.add('waitUntilPingExists', () => {
   // Use cy.waitUntil to repeatedly execute the check
   return cy.waitUntil(
     () => {
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
+      cy.contains('Centreon-Server').realClick();
       cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
 
       return cy.wait('@resourceRequest').then((interception) => {

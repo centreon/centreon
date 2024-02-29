@@ -231,8 +231,6 @@ When('the dashboard administrator add single metric widget', () => {
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Single metric').click();
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-  cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
-  cy.contains('Centreon-Server').realClick();
   cy.waitUntilPingExists();
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
   cy.contains('rta (ms)').realClick();
