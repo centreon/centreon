@@ -548,8 +548,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             }
         }
 
-        $concatenatorA = new SqlConcatenator();
-        $concatenatorA->defineSelect(
+        $findCategoryByServiceConcatenator = new SqlConcatenator();
+        $findCategoryByServiceConcatenator->defineSelect(
             <<<'SQL'
                 SELECT sc.sc_id,
                     sc.sc_name,
@@ -559,28 +559,28 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                 SQL
         )->appendJoins(
             <<<SQL
-                LEFT JOIN service_categories_relation scr
+                LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.sc_id = sc.sc_id
-                LEFT JOIN host_service_relation hsr
+                LEFT JOIN `:db`.host_service_relation hsr
                     ON hsr.service_service_id = scr.service_service_id
                     {$hostAcls}
-                LEFT JOIN host
+                LEFT JOIN `:db`.host
                     ON host.host_id = hsr.host_host_id
-                LEFT JOIN hostgroup_relation hr
+                LEFT JOIN `:db`.hostgroup_relation hr
                     ON hr.host_host_id = host.host_id
                     {$hostGroupAcls}
-                LEFT JOIN hostgroup
+                LEFT JOIN `:db`.hostgroup
                     ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN hostcategories_relation hcr
+                LEFT JOIN `:db`.hostcategories_relation hcr
                     ON hcr.host_host_id = host.host_id
                     {$hostCategoryAcls}
-                LEFT JOIN hostcategories
+                LEFT JOIN `:db`.hostcategories
                     ON hostcategories.hc_id = hcr.hostcategories_hc_id
                 SQL
         );
 
-        $concatenatorB = new SqlConcatenator();
-        $concatenatorB->defineSelect(
+        $findCategoryByServiceTemplateConcatenator = new SqlConcatenator();
+        $findCategoryByServiceTemplateConcatenator->defineSelect(
             <<<'SQL'
                 SELECT sc.sc_id,
                     sc.sc_name,
@@ -590,29 +590,29 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                 SQL
         )->appendJoins(
             <<<SQL
-                LEFT JOIN service_categories_relation scr
+                LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.sc_id = sc.sc_id
-                LEFT JOIN service s
+                LEFT JOIN `:db`.service s
                     ON s.service_template_model_stm_id = scr.service_service_id
-                LEFT JOIN host_service_relation hsr
+                LEFT JOIN `:db`.host_service_relation hsr
                     ON hsr.service_service_id = s.service_id
                     {$hostAcls}
-                LEFT JOIN host
+                LEFT JOIN `:db`.host
                     ON host.host_id = hsr.host_host_id
-                LEFT JOIN hostgroup_relation hr
+                LEFT JOIN `:db`.hostgroup_relation hr
                     ON hr.host_host_id = host.host_id
                     {$hostGroupAcls}
-                LEFT JOIN hostgroup
+                LEFT JOIN `:db`.hostgroup
                     ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN hostcategories_relation hcr
+                LEFT JOIN `:db`.hostcategories_relation hcr
                     ON hcr.host_host_id = host.host_id
                     {$hostCategoryAcls}
-                LEFT JOIN hostcategories
+                LEFT JOIN `:db`.hostcategories
                     ON hostcategories.hc_id = hcr.hostcategories_hc_id
                 SQL
         );
 
-        return [$concatenatorA, $concatenatorB];
+        return [$findCategoryByServiceConcatenator, $findCategoryByServiceTemplateConcatenator];
     }
 
     /**
