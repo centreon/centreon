@@ -29,7 +29,7 @@
       ],
       "defaultValue": "donut"
     },
-    "resourceType": {
+    "resourceTypes": {
       "type": "checkbox",
       "label": "Display resources with this type",
       "options": [
@@ -42,7 +42,8 @@
           "name": "Service" 
         }
       ],
-      "defaultValue": ["host" , "service"]
+      "defaultValue": ["host" , "service"],
+      "keepOneOptionSelected": true
     },
     "unit": {
       "type": "radio",
