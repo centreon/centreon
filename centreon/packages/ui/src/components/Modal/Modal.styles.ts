@@ -28,6 +28,7 @@ const useStyles = makeStyles<{
       left: props?.left ?? 0,
       margin: 0,
       maxWidth: 'unset',
+      paddingBottom: theme.spacing(8),
       position: 'absolute',
       right: props?.right ?? 0,
       top: props?.top ?? 0,
@@ -50,14 +51,18 @@ const useStyles = makeStyles<{
   },
   modalActions: {
     '&[data-fixed="true"]': {
-      position: 'fixed'
+      background: theme.palette.background.paper,
+      position: 'fixed',
+      width: '100%'
     },
-    bottom: theme.spacing(2),
+    bottom: 0,
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(2),
     justifyContent: 'flex-end',
-    right: theme.spacing(2.5)
+    padding: theme.spacing(1, 2.5, 2.5, 0),
+    right: 0,
+    zIndex: theme.zIndex.modal
   },
   modalBody: {
     '& > p': {

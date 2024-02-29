@@ -26,6 +26,10 @@ namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 
 class DatasetFilter
 {
@@ -92,6 +96,60 @@ class DatasetFilter
     public function getDatasetFilter(): ?self
     {
         return $this->datasetFilter;
+    }
+
+    /**
+     * @param DatasetFilter $filter
+     *
+     * @return array{parent: DatasetFilter|null, last: DatasetFilter}
+     */
+    public static function findApplicableFilters(self $filter): array
+    {
+        $lastLevelFilter = null;
+        $parentLastLevelFilter = null;
+
+        /**
+         * Recursive method to find the last 'stage' of filters (descending filters) that should be applied
+         * and its parent.
+         * Uses $findApplicableFilters for recursivity, lastLevelFilter and parentLastLevelFilter
+         * which are DatasetFilters entities (or null for parent).
+         */
+        $findApplicableFilters = function (DatasetFilter $filter) use (&$findApplicableFilters, &$lastLevelFilter, &$parentLastLevelFilter): array {
+            // initialize the $applicableFilter which is initially NULL
+            if ($lastLevelFilter === null) {
+                $lastLevelFilter = $filter;
+                $findApplicableFilters($filter);
+            }
+            // if there is a level then keep digging
+            elseif ($filter->getDatasetFilter() !== null) {
+                $parentLastLevelFilter = $filter;
+                $lastLevelFilter = $filter->getDatasetFilter();
+                $findApplicableFilters($lastLevelFilter);
+            }
+
+            return ['parent' => $parentLastLevelFilter, 'last' => $lastLevelFilter];
+        };
+
+        return $findApplicableFilters($filter);
+    }
+
+    /**
+     * @param DatasetFilter $filter
+     *
+     * @return bool
+     */
+    public static function isGroupOrCategoryFilter(self $filter): bool
+    {
+        return in_array(
+            $filter->getType(),
+            [
+                HostGroupFilterType::TYPE_NAME,
+                HostCategoryFilterType::TYPE_NAME,
+                ServiceCategoryFilterType::TYPE_NAME,
+                ServiceGroupFilterType::TYPE_NAME,
+            ],
+            true
+        );
     }
 
     /**

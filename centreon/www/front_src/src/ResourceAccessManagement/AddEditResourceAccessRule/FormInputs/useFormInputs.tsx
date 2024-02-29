@@ -11,7 +11,7 @@ import {
   labelContactsAndContactGroups,
   labelDescription,
   labelName,
-  labelResourceSelection,
+  labelAddResourceDatasets,
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
@@ -45,7 +45,7 @@ const useFormInputs = (): UseFormInputsState => {
       titleAttributes
     },
     {
-      name: t(labelResourceSelection),
+      name: t(labelAddResourceDatasets),
       order: 2,
       titleAttributes
     },
@@ -117,7 +117,7 @@ const useFormInputs = (): UseFormInputsState => {
               className: classes.resourceSelection,
               columns: [
                 {
-                  dataTestId: t(labelResourceSelection),
+                  dataTestId: t(labelAddResourceDatasets),
                   fieldName: 'resourceSelection',
                   grid: {
                     alignItems: 'left',
@@ -127,14 +127,14 @@ const useFormInputs = (): UseFormInputsState => {
                         custom: {
                           Component: () => <ResourceSelection />
                         },
-                        dataTestId: t(labelResourceSelection),
+                        dataTestId: t(labelAddResourceDatasets),
                         fieldName: 'datasetFilters',
-                        label: t(labelResourceSelection),
+                        label: t(labelAddResourceDatasets),
                         type: InputType.Custom
                       }
                     ]
                   },
-                  label: t(labelResourceSelection),
+                  label: t(labelAddResourceDatasets),
                   type: InputType.Grid
                 },
                 {

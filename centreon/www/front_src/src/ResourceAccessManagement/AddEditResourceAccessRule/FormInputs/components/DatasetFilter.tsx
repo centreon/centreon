@@ -4,7 +4,7 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText } from '@mui/material';
-import FilterIcon from '@mui/icons-material/Tune';
+import AddIcon from '@mui/icons-material/Add';
 
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
@@ -51,7 +51,7 @@ const DatasetFilter = ({
   return (
     <div className={classes.resourceComposition}>
       <ItemComposition
-        IconAdd={<FilterIcon />}
+        IconAdd={<AddIcon />}
         addbuttonDisabled={
           !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }

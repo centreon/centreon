@@ -74,9 +74,6 @@ class SmallHost
         $shortName = 'Host';
         Assertion::positiveInt($id, "{$shortName}::id");
         Assertion::notEmptyString($name->value, "{$shortName}::name");
-        if ($alias !== null) {
-            Assertion::notEmptyString($alias->value, "{$shortName}::alias");
-        }
         Assertion::notEmptyString($ipAddress->value, "{$shortName}::ipAddress");
 
         if ($normalCheckInterval !== null) {

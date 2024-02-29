@@ -19,6 +19,10 @@ services:
         arguments:
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
 
+    Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRuleValidation:
+        arguments:
+          $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
+
     Core\ResourceAccess\Application\UseCase\FindRule\FindRule:
         arguments:
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
