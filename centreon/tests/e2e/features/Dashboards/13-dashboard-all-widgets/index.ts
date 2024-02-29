@@ -279,6 +279,7 @@ When('the dashboard administrator add Status grid widget', () => {
   cy.getByLabel({ label: 'Host Group' }).click();
   cy.getByTestId({ testId: 'Select resource' }).click();
   cy.contains('Linux-Servers').realClick();
+  cy.get('input[name="success"]').click();
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.get('.MuiAlert-message').should('not.exist');
 });
