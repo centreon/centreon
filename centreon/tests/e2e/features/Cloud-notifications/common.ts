@@ -137,10 +137,11 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
       name: 'web'
     })
     .then((result) => {
-      cy.log('Initial result:', result);
+      cy.wrap(result);
+      cy.wrap(result.output);
 
       if (result.output === undefined) {
-        throw new Error('No output found in log file');
+        throw new Error('No initial output found in log file');
       }
 
       initialContent = result.output.trim();
@@ -153,7 +154,12 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
               name: 'web'
             })
             .then((result) => {
-              cy.log('Current result:', result);
+              cy.wrap(result);
+              cy.wrap(result.output);
+
+              if (result.output === undefined) {
+                throw new Error('No current output found in log file');
+              }
 
               const currentContent = result.output.trim();
               return cy.wrap(currentContent !== initialContent);
