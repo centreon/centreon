@@ -25,8 +25,7 @@ const StatusGrid = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount,
-  isFromPreview
+  refreshCount
 }: Omit<StatusGridProps, 'store'>): JSX.Element => {
   const theme = useTheme();
 
@@ -149,7 +148,6 @@ const StatusGrid = ({
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
           data={resourceData}
-          isFromPreview={isFromPreview}
           isSmallestSize={isSmallestSize}
           resources={resources}
           states={states}

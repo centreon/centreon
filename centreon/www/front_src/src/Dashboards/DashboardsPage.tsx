@@ -10,6 +10,7 @@ import { DashboardConfigModal } from './components/DashboardLibrary/DashboardCon
 import { DashboardAccessRightsModal } from './components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import DashboardPageLayout from './components/DashboardPageLayout';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
+import DeleteDashboardModal from './components/DashboardLibrary/DeleteDashboardModal';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -33,6 +34,7 @@ const DashboardsPage = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal />
       <DashboardAccessRightsModal />
+      <DeleteDashboardModal />
     </PageLayout>
   );
 };

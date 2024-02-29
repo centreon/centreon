@@ -16759,6 +16759,12 @@ msgstr "Modo avanzado"
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -16854,6 +16860,7 @@ msgstr "Modo avanzado"
 
 # msgid "Select resource type"
 # msgstr ""
+
 # msgid "Your comment has been saved."
 # msgstr ""
 
@@ -16940,3 +16947,90 @@ msgstr "Modo avanzado"
 
 # msgid "unreachable"
 # msgstr ""
+
+# msgid "Displays a detailed view of the current status for selected resources as a chart."
+# msgstr ""
+
+# msgid "Status chart"
+# msgstr ""
+
+# msgid "Show value on chart"
+# msgstr ""
+
+# msgid "Number"
+# msgstr ""
+
+# msgid "Show legend"
+# msgstr ""
+
+# msgid "Percentage"
+# msgstr ""
+
+# msgid "Display resources with this type"
+# msgstr ""
+
+# msgid  "Horizontal bar chart"
+# msgstr ""
+
+# msgid  "Vertical bar chart"
+# msgstr ""
+
+# msgid  "Pie chart"
+# msgstr ""
+
+# msgid  "Donut chart"
+# msgstr ""
+
+# msgid "are working fine"
+# msgstr ""
+
+# msgid "No {{resourcesType}} found with this status"
+# msgstr ""
+
+# msgid "No host found"
+# msgstr ""
+
+# msgid "No service found"
+# msgstr ""
+
+# msgid "are working fine."
+# msgstr ""
+
+# msgid "down"
+# msgstr ""
+
+# msgid "pending"
+# msgstr ""
+
+# msgid "warning"
+# msgstr ""
+
+# msgid "critical"
+# msgstr ""
+
+# msgid "unknown"
+# msgstr ""
+
+# msgid "up"
+# msgstr ""
+
+# msgid "unreachable"
+# msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
+
+# msgid "The {{name}} widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard will be permanently deleted."
+# msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""

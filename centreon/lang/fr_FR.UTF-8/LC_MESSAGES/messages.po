@@ -18565,6 +18565,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18720,35 +18726,20 @@ msgstr "Statut :"
 msgid "No {{resourcesType}} found with this status"
 msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
 
+msgid "Fullscreen (Alt+F)"
+msgstr "Plein écran (Alt+F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "The {{name}} widget will be permanently deleted."
+msgstr "Le widget {{name}} sera définitivement supprimé."
+
+msgid "The widget will be permanently deleted."
+msgstr "Le widget sera définitivement supprimé."
+
+msgid "The {{name}} dashboard will be permanently deleted."
+msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
-
-msgid "are working fine."
-msgstr "fonctionnent correctement."
-
-msgid "No host found"
-msgstr "Aucun hôte trouvé"
-
-msgid "No service found"
-msgstr "Aucun service trouvé"
-
-msgid "down"
-msgstr "indisponible"
-
-msgid "pending"
-msgstr "en attente"
-
-msgid "warning"
-msgstr "alerte"
-
-msgid "critical"
-msgstr "critique"
-
-msgid "unknown"
-msgstr "inconnu"
-
-msgid "up"
-msgstr "disponible"
-
-msgid "unreachable"
-msgstr "injoignable"
