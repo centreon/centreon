@@ -121,10 +121,10 @@ const notificationSentCheck = ({
       command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
       name: 'web'
     })
-    .then(({ stdout }) => {
+    .then((result) => {
       contain
-        ? expect(stdout).to.contain(log)
-        : expect(stdout).to.not.contain(log);
+        ? expect(result.output).to.contain(log)
+        : expect(result.output).to.not.contain(log);
     });
 };
 
@@ -137,9 +137,6 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
       name: 'web'
     })
     .then((result) => {
-      cy.wrap(result);
-      cy.wrap(result.output);
-
       if (result.output === undefined) {
         throw new Error('No initial output found in log file');
       }
@@ -154,9 +151,6 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
               name: 'web'
             })
             .then((result) => {
-              cy.wrap(result);
-              cy.wrap(result.output);
-
               if (result.output === undefined) {
                 throw new Error('No current output found in log file');
               }
