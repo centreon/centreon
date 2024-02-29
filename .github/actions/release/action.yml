@@ -136,7 +136,7 @@ runs:
         done
 
         # Create new JIRA versions (old way of doing it)
-        # TODO: add a future capacity to determine wether the release is hotfix or standard (using TYPE)
+        # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
         # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
 
         # Build JSON vars for JIRA_RELEASE_DATA
