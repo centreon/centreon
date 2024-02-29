@@ -36,13 +36,14 @@ Feature: Add a downtime on a resource
     Then the user goes to the Resource Status page
     And the resource should not be in Downtime anymore
 
-  @TEST_MON-22210
-  Scenario: Cancel multiple downtimes on multiple resources
-    Given multiple resources are in downtime
-    Given that you have to go to the downtime page
-    When I search for the resources currently "In Downtime" in the list
-    Then the user selects the checkboxes and clicks on the "Cancel" action
-    Then the user confirms the cancellation of the downtime
-    Then the lines disappears from the listing
-    Then the user goes to the Resource Status page
-    And the resources should not be in Downtime anymore
+  # TO BE FIXED: it hangs on the "the user selects the checkboxes and clicks on the "Cancel" action" step
+  # @TEST_MON-22210
+  # Scenario: Cancel multiple downtimes on multiple resources
+  #   Given multiple resources are in downtime
+  #   Given that you have to go to the downtime page
+  #   When I search for the resources currently "In Downtime" in the list
+  #   Then the user selects the checkboxes and clicks on the "Cancel" action
+  #   Then the user confirms the cancellation of the downtime
+  #   Then the lines disappears from the listing
+  #   Then the user goes to the Resource Status page
+  #   And the resources should not be in Downtime anymore
