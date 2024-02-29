@@ -16,8 +16,8 @@ An environment file, which is suffixed by `.postman_environment.json`, must be a
 A docker environment file `.env` can be added at the same level than the postman collection.
 
 The main usage is to set following environment variables :
-* CENTREON_DATASET=0 # avoid to create sample resources (hosts, services...)
-* MYSQL_IMAGE=binami/mysql:8.3 # use mysql instead of mariadb
+* `CENTREON_DATASET=0` # avoid to create sample resources (hosts, services...)
+* `MYSQL_IMAGE=bitnami/mysql:8.3` # use mysql instead of mariadb
 
 ## Docker setup script (optional)
 

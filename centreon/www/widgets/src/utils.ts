@@ -144,7 +144,7 @@ export const getResourcesUrl = ({
   );
 
   if (!isForOneResource) {
-    return `${centreonBaseURL}/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
@@ -153,7 +153,7 @@ export const getResourcesUrl = ({
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
@@ -210,7 +210,7 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 export const formatStatusFilter = cond([
@@ -227,3 +227,7 @@ export const formatStatus = pipe(
   flatten,
   map((status) => status.toLocaleUpperCase())
 );
+
+export const goToUrl = (url) => (): void => {
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
