@@ -83,16 +83,13 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
 });
 
 Cypress.Commands.add('waitUntilPingExists', () => {
-  // Click on "Select resource"
   cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
 
-  // Use cy.intercept to wait for the API request and check the response
   cy.intercept({
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
 
-  // Use cy.waitUntil to repeatedly execute the check
   return cy.waitUntil(
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
@@ -100,14 +97,9 @@ Cypress.Commands.add('waitUntilPingExists', () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@resourceRequest').then((interception) => {
-        // Check if the interception object and response property are defined
         if (interception && interception.response) {
-          // Log the contents of the response body for debugging
           cy.log('Response Body:', interception.response.body);
-
-          // Check if "Ping" is present in the response
           const responseBody = interception.response.body;
-
           if (
             Array.isArray(responseBody.result) &&
             responseBody.result.length > 0
@@ -117,24 +109,17 @@ Cypress.Commands.add('waitUntilPingExists', () => {
             );
 
             if (pingFound) {
-              // If "Ping" is found, click on it
               cy.contains('Ping').click();
-              // Return true to break out of the loop
               return cy.wrap(true);
             }
-            // If "Ping" is not found, log a message and return false to continue the loop
             cy.log('Ping not found in the API response');
 
             return cy.wrap(false);
           }
-          // If the response is not an array or is empty, log a message and return false to continue the loop
           cy.log('Response is not an array or is empty');
-
           return cy.wrap(false);
         }
-        // Log a message and return false if interception or response is undefined
         cy.log('Interception or response is undefined');
-
         return cy.wrap(false);
       });
     },
