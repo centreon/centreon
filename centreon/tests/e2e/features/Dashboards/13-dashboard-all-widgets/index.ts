@@ -12,6 +12,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
+
 const hostGroupName = 'Linux-Servers';
 
 const services = {
