@@ -164,6 +164,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 FROM `:db`.notification_user_relation
                 JOIN contact ON user_id = contact_id
                 WHERE notification_id = :notificationId
+                ORDER BY user_id
                 SQL
         );
         $statement = $this->db->prepare($request);

@@ -40,7 +40,7 @@ class Centreon_Object_DependencyServiceParent extends Centreon_Object
         $result = $this->getResult($query, array($serviceId), "fetch");
 
         //is last parent
-        if ($result['nb_dependency'] == 1) {
+        if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
             $this->db->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
         }
     }
