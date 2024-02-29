@@ -10,6 +10,7 @@ import { ThemeProvider } from '@centreon/ui';
 
 import '@testing-library/cypress/add-commands';
 import 'cypress-msw-interceptor';
+import 'cypress-real-events';
 
 import disableMotion from './disableCssTransitions';
 

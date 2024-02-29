@@ -11,7 +11,7 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 
 import { useTextStyles } from './Text.styles';
 
-interface Props {
+export interface Props {
   baseColor?: string;
   data?: LineChartData;
   displayAsRaw?: boolean;

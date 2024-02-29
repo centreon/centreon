@@ -7,3 +7,7 @@
 /usr/bin/apt
 /usr/bin/apt-get
 /usr/bin/dpkg
+/usr/bin/mydumper
+/usr/bin/myloader
+/usr/bin/zstd
+/usr/bin/gpg

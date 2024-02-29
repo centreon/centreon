@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig/index.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "declaration": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "emitDeclarationOnly": true,
+    "types": ["cypress", "cypress-wait-until"],
+    "esModuleInterop": true,
+    "paths": {
+      "@badeball/cypress-cucumber-preprocessor/*": ["./node_modules/@badeball/cypress-cucumber-preprocessor/dist/subpath-entrypoints/*"]
+    }
+  },
+  "exclude": [
+    "./node_modules",
+    "./dist",
+    "../../node_modules"
+  ],
+}
