@@ -13,7 +13,7 @@ import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
-import { labelNoDataFound } from '../translatedLabels';
+import { labelNoDataFound as defaultlabelNoDataFound } from '../translatedLabels';
 
 import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
@@ -54,7 +54,8 @@ const ResponsivePie = ({
   onArcClick,
   displayValues,
   TooltipContent,
-  legendDirection = 'column'
+  legendDirection = 'column',
+  labelNoDataFound = defaultlabelNoDataFound
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -178,6 +179,7 @@ const ResponsivePie = ({
                       >
                         <g data-testid={arc.data.label} onClick={onClick}>
                           <path
+                            cursor="pointer"
                             d={pie.path(arc) as string}
                             fill={arc.data.color}
                           />

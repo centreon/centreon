@@ -12,7 +12,7 @@ import { Tooltip } from '../../components';
 import { LegendProps } from '../Legend/models';
 import { Legend as LegendComponent } from '../Legend';
 import { getValueByUnit } from '../common/utils';
-import { labelNoDataFound } from '../translatedLabels';
+import { labelNoDataFound as defaultlabelNoDataFound } from '../translatedLabels';
 
 import { BarStackProps } from './models';
 import { useBarStackStyles } from './BarStack.styles';
@@ -35,7 +35,8 @@ const BarStack = ({
   unit = 'number',
   displayValues,
   variant = 'vertical',
-  legendDirection = 'column'
+  legendDirection = 'column',
+  labelNoDataFound = defaultlabelNoDataFound
 }: BarStackProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useBarStackStyles();
@@ -90,7 +91,7 @@ const BarStack = ({
       >
         {title && (
           <div className={classes.title} data-testid="Title" ref={titleRef}>
-            {`${numeral(total).format('0a').toUpperCase()} `} {title}
+            {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
         )}
         <div
@@ -146,6 +147,7 @@ const BarStack = ({
                         >
                           <g data-testid={bar.key}>
                             <rect
+                              cursor="pointer"
                               fill={bar.color}
                               height={
                                 isVerticalBar ? bar.height - 1 : bar.height
