@@ -1,10 +1,9 @@
-import { Link } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 import { EllipsisTypography } from '@centreon/ui';
 
 import { RowProps } from '../models';
-import { getResourcesUrl } from '../../../utils';
-import { goToUrl } from '../utils';
+import { getResourcesUrl, goToUrl } from '../../../utils';
 
 export const Name = ({
   row,
@@ -36,11 +35,9 @@ export const Name = ({
       ) : (
         <Link
           color="inherit"
-          component="a"
-          href={url}
           rel="noopener noreferrer"
           target="_blank"
-          underline="hover"
+          to={url}
           onClick={goToUrl(url)}
         >
           {row.name}

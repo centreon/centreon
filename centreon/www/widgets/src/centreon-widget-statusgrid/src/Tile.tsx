@@ -84,7 +84,6 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <Box className={classes.container}>
           {displayStatusTile ? (
@@ -108,7 +107,6 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         {displayStatusTile && (
           <Box

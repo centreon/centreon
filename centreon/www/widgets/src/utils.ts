@@ -12,8 +12,6 @@ import {
   map
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
-
 import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
@@ -44,8 +42,8 @@ export const getDetailsPanelQueriers = ({ resource, type }): object => {
 
   const resourcesDetailsEndpoint =
     equals(type, 'host') || equals(resourceType, 'host')
-      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+      ? `/api/latest/monitoring/resources/hosts/${id}`
+      : `/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
@@ -144,7 +142,7 @@ export const getResourcesUrl = ({
   );
 
   if (!isForOneResource) {
-    return `${centreonBaseURL}/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
@@ -153,7 +151,7 @@ export const getResourcesUrl = ({
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
@@ -161,7 +159,7 @@ const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
   const hostId = uuid?.split('-')[0]?.slice(1);
   const serviceId = uuid?.split('-')[1]?.slice(1);
 
-  const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+  const resourcesDetailsEndpoint = `/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
   const queryParameters = {
     id: serviceId,
@@ -210,7 +208,7 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 export const formatStatusFilter = cond([
@@ -227,3 +225,7 @@ export const formatStatus = pipe(
   flatten,
   map((status) => status.toLocaleUpperCase())
 );
+
+export const goToUrl = (url) => (): void => {
+  window?.open(url, '_blank,noopener,noreferrer');
+};

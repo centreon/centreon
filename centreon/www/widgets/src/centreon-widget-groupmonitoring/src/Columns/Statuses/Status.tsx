@@ -1,13 +1,13 @@
 import numeral from 'numeral';
+import { Link } from 'react-router-dom';
 
-import { Box, Link, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
 import { SeverityCode, getStatusColors } from '@centreon/ui';
 
 import { useStatusesColumnStyles } from '../Columns.styles';
-import { getResourcesUrl } from '../../../../utils';
+import { getResourcesUrl, goToUrl } from '../../../../utils';
 import { SeverityStatus } from '../../../../models';
-import { goToUrl } from '../../utils';
 
 interface Props {
   count: number;
@@ -88,14 +88,12 @@ const Status = ({
     <Link
       className={classes.status}
       color="inherit"
-      component="a"
       data-count={count}
       data-group={groupName}
       data-status={label}
-      href={url}
       rel="noopener noreferrer"
       target="_blank"
-      underline="none"
+      to={url}
       onClick={goToUrl(url)}
     >
       {content}
