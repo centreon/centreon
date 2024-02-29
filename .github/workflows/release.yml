@@ -23,6 +23,12 @@ jobs:
     #if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Checkout sources
+        if: success()
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+
       - name: Check base_ref
         run: |
           set -eu
@@ -37,12 +43,6 @@ jobs:
             exit 1
           fi
         shell: bash
-
-      - name: Checkout sources
-        if: success()
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          fetch-depth: 0
 
       - name: Release
         if: success()
