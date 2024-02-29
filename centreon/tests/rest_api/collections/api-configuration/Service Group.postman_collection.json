@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "473e694b-68c0-4ae3-b817-1d6248189717",
-		"name": "Service Group",
+		"name": "0 - Service Group",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-473e694b-68c0-4ae3-b817-1d6248189717?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-473e694b-68c0-4ae3-b817-1d6248189717?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -61,7 +61,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights    ",
+			"name": "user_with_RW_rights",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights",
@@ -131,7 +131,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -182,7 +182,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -233,7 +233,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -284,7 +284,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -335,7 +335,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -386,7 +386,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -437,7 +437,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -473,57 +473,6 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right Tokens",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"RW;1;Administration;API Tokens\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Link RW to RW_ALL",
 					"event": [
 						{
@@ -539,7 +488,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -577,7 +526,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights_filters    ",
+			"name": "user_with_RW_rights_filters",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights_filters",
@@ -647,7 +596,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -698,7 +647,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -749,7 +698,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -800,7 +749,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -851,7 +800,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -902,7 +851,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -953,7 +902,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -991,7 +940,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights    ",
+			"name": "user_with_R_rights",
 			"item": [
 				{
 					"name": "Add user_with_R_rights",
@@ -1061,7 +1010,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1112,7 +1061,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1163,7 +1112,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1214,7 +1163,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1265,7 +1214,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1316,7 +1265,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1367,7 +1316,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1418,7 +1367,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1456,7 +1405,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights_filters    ",
+			"name": "user_with_R_rights_filters",
 			"item": [
 				{
 					"name": "Add user_with_R_rights_filters",
@@ -1526,7 +1475,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1577,7 +1526,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1628,7 +1577,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1679,7 +1628,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1730,7 +1679,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1781,7 +1730,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1819,7 +1768,7 @@
 			]
 		},
 		{
-			"name": "user_nothing    ",
+			"name": "user_nothing",
 			"item": [
 				{
 					"name": "Add user_nothing",
@@ -1889,7 +1838,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1940,7 +1889,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1991,7 +1940,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2042,7 +1991,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2093,7 +2042,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2144,7 +2093,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2195,7 +2144,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2225,6 +2174,169 @@
 							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get authentication cookie",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\":\"{{api_login}}\", \r\n    \"password\":\"{{api_password}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authentication/providers/configurations/local",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authentication",
+								"providers",
+								"configurations",
+								"local"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List monitoring connectors",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    //pm.expect(responseJson.installed.length).to.eql(12);\r",
+									"    //pm.expect(responseJson.updated).to.be.empty;\r",
+									"    //pm.expect(responseJson.failed).to.be.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonApi}}/internal.php?object=centreon_pp_manager_pluginpack&locale=en&action=ListInstalledOrdered",
+							"host": [
+								"{{baseUriCentreonApi}}"
+							],
+							"path": [
+								"internal.php"
+							],
+							"query": [
+								{
+									"key": "object",
+									"value": "centreon_pp_manager_pluginpack"
+								},
+								{
+									"key": "locale",
+									"value": "en"
+								},
+								{
+									"key": "action",
+									"value": "ListInstalledOrdered"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Install base monitoring connectors",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The base monitoring connectors all have been successfully installed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.installed.length).to.eql(12);\r",
+									"    pm.expect(responseJson.updated).to.be.empty;\r",
+									"    pm.expect(responseJson.failed).to.be.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n    \"pluginpack\": [\r\n      {\r\n       \"slug\": \"base-generic\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"operatingsystems-linux-snmp\",\r\n       \"version\": \"23.09.2\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"operatingsystems-windows-snmp\",\r\n       \"version\": \"23.09.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-central\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-databases-mysql\",\r\n       \"version\": \"23.10.1\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-database\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-poller\",\r\n       \"version\": \"23.05.1\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-pacemaker-ssh\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"applications-monitoring-centreon-ha\",\r\n       \"version\": \"23.04.0\",\r\n       \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"network-cisco-standard-snmp\",\r\n       \"version\": \"23.07.0\",\r\n        \"action\": \"install\"\r\n      },\r\n      {\r\n        \"slug\": \"hardware-printers-standard-rfc3805-snmp\",\r\n        \"version\": \"23.04.0\",\r\n        \"action\": \"install\"\r\n      },\r\n      {\r\n       \"slug\": \"hardware-ups-standard-rfc1628-snmp\",\r\n       \"version\": \"23.08.0\",\r\n       \"action\": \"install\"\r\n      }\r\n     ]\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonApi}}/internal.php?object=centreon_pp_manager_pluginpack&action=installupdate",
+							"host": [
+								"{{baseUriCentreonApi}}"
+							],
+							"path": [
+								"internal.php"
+							],
+							"query": [
+								{
+									"key": "object",
+									"value": "centreon_pp_manager_pluginpack"
+								},
+								{
+									"key": "action",
+									"value": "installupdate"
+								}
 							]
 						}
 					},
@@ -5690,88 +5802,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup2Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroup4Id",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "servicesGroupCreated",
-			"value": ""
-		},
-		{
-			"key": "ServiceGroupTotal",
-			"value": ""
-		},
-		{
-			"key": "currentServiceGroup",
-			"value": ""
 		}
 	]
 }

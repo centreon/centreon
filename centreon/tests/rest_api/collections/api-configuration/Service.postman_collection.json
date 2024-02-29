@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "0480d171-5d7d-40ef-b162-c1e5d60b41a2",
-		"name": "Service",
+		"name": "0 - Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-0480d171-5d7d-40ef-b162-c1e5d60b41a2?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-0480d171-5d7d-40ef-b162-c1e5d60b41a2?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -72,6 +72,8 @@
 											"/  Check code status\r",
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
+											"console.log(responseJson);\r",
+											"\r",
 											"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
 											"\r",
@@ -2754,24 +2756,32 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a command",
+					"name": "Add a new command (successful)",
 					"event": [
 						{
-							"listen": "test",
+							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
+									"pm.collectionVariables.set(\"Command1Name\", \"check-host-alive\");\r",
+									""
 								],
 								"type": "text/javascript"
 							}
 						},
 						{
-							"listen": "prerequest",
+							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new command \r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"CommandId\", response.id);\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -2781,81 +2791,30 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}"
+								"value": "{{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive;check;$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\n}"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
+							"raw": "{{baseUrl}}/configuration/commands",
 							"host": [
-								"{{baseUriCentreonCLAPI}}"
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Retrieve id of the command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"",
-									"    var response = pm.response.json();",
-									"    pm.collectionVariables.set(\"CommandId\", response.result[response.result.length-1].id);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new host with all properties defined",
+					"name": "Add a new host",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2977,7 +2936,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new service template with all properties defined",
+					"name": "Add a new service template",
 					"event": [
 						{
 							"listen": "prerequest",
