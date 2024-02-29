@@ -18,9 +18,6 @@ inputs:
     required: true
   jira_webhook_url:
     description: "Jira release webhook"
-  jira_base_url:
-    description: "Jira base url"
-    required: true
 
 runs:
   using: "composite"
