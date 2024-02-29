@@ -19,15 +19,31 @@ on:
 
 jobs:
   release:
-    if: ${{ github.event.pull_request.merged == true && (github.base_ref == 'master' || github.base_ref == '[2-9][0-9].[0-9][0-9].x') }}
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Check base_ref
+        run: |
+          set -eu
+
+          # Check if github.base_ref is either master or any of the supported version ones
+          # This must never run on any other than master and supported version base_ref
+          if [[ ${{ github.base_ref }} == 'master' || ${{ github.base_ref }} =~ '[2-9][0-9].[0-9][0-9].x' ]];then
+            echo "[DEBUG] base_ref is valid: ${{ github.base_ref }}"
+          else
+            echo "[DEBUG] base_ref is not valid, exiting."
+            exit 1
+          done
+        shell: bash
+
       - name: Checkout sources
+        if: ${{ success() }}
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
 
       - name: Release
+        if: ${{ success() }}
         id: release
         uses: ./.github/actions/release
         with:
