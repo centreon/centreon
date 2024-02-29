@@ -5146,7 +5146,8 @@ components:
     FilterPageName:
       in: path
       name: page_name
-      description: "name of the page"
+      description: |
+        name of the page. Currently only 'events-view' is allowed.
       required: true
       schema:
         type: string

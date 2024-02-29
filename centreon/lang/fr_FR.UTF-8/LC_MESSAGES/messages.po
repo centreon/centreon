@@ -18535,3 +18535,9 @@ msgstr "Voir plus dans la page Statut des ressources"
 
 msgid "Fullscreen (Alt+F)"
 msgstr "Plein écran (Alt+F)"
+
+msgid "Invalid page name. Valid page names are: %s"
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"
+
+msgid "You are not allowed to access the Resources Status page"
+msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
