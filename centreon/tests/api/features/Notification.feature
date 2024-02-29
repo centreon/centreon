@@ -68,20 +68,20 @@ Feature:
                 "formatted_message": "a formatted message",
                 "contacts": [
                     {
+                        "email_address": "admin@centreon.com",
+                        "full_name": "admin admin"
+                    }, {
+                        "email_address": "guest@localhost",
+                        "full_name": "Guest"
+                    }, {
+                        "email_address": "user@localhost",
+                        "full_name": "User"
+                    }, {
                         "email_address": "user1@mail.com",
                         "full_name": "user-name1"
                     }, {
                         "email_address": "user2@mail.com",
                         "full_name": "user-name2"
-                    }, {
-                        "email_address": "guest@localhost",
-                        "full_name": "Guest"
-                    }, {
-                        "email_address": "admin@centreon.com",
-                        "full_name": "admin admin"
-                    }, {
-                        "email_address": "user@localhost",
-                        "full_name": "User"
                     }
                 ]
             },
