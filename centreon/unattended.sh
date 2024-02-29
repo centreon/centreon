@@ -409,7 +409,10 @@ function setup_mysql() {
 	esac
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now mysqld
-
+	cat <<EOF >> /etc/my.cnf.d/mysql-server.cnf
+			general_log_file       = /var/log/mysql/general-query.log
+			general_log            = 1
+EOF
 }
 #========= end of function set_mysql_repos()
 
