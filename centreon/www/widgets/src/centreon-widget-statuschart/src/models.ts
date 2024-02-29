@@ -17,7 +17,7 @@ export interface PanelOptions {
   displayValues: boolean;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
-  resourceType: Array<'host' | 'service'>;
+  resourceTypes: Array<'host' | 'service'>;
   unit: 'number' | 'percentage';
 }
 
@@ -33,6 +33,7 @@ export interface ChartType {
   displayLegend: boolean;
   displayType: DisplayType;
   displayValues: boolean;
+  labelNoDataFound: string;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';

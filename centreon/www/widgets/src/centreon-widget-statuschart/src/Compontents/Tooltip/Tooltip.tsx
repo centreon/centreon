@@ -50,7 +50,7 @@ const TooltipContent = ({
             color
           }}
         >
-          <strong>{`${t(labelStatus)} ${label}`}</strong>
+          <strong>{`${t(labelStatus)} ${t(label)}`}</strong>
         </Typography>
       </Box>
       <Box className={classes.body}>
@@ -62,8 +62,8 @@ const TooltipContent = ({
           <>
             <Typography className={classes.listContainer}>
               {isStatusOK
-                ? `${value}/${total} ${title} ${labelAreWorkingFine}.`
-                : `${value} ${title}`}
+                ? `${value}/${total} ${t(title)} ${t(labelAreWorkingFine)}`
+                : `${value} ${t(title)}`}
             </Typography>
             {!isStatusOK && (
               <Box className={classes.listContainer}>

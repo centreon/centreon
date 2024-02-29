@@ -1,3 +1,5 @@
+import { isNil } from 'ramda';
+
 import { useTheme } from '@mui/material';
 
 import { useFetchQuery } from '@centreon/ui';
@@ -47,7 +49,10 @@ const useLoadResources = ({
     }
   });
 
-  return { data: formatResponse({ statuses, theme }), isLoading };
+  return {
+    data: isNil(statuses) ? statuses : formatResponse({ statuses, theme }),
+    isLoading
+  };
 };
 
 export default useLoadResources;

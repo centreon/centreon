@@ -32,7 +32,7 @@ export const options: PanelOptions = {
   displayValues: true,
   refreshInterval: 'manual',
   refreshIntervalCustom: 30,
-  resourceType: ['host', 'service'],
+  resourceTypes: ['host', 'service'],
   unit: 'percentage'
 };
 

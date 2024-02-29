@@ -6,7 +6,12 @@ import { useRefreshInterval } from '@centreon/ui';
 import { StatusChartProps } from './models';
 import { Chart } from './Compontents';
 import { useStyles } from './StatusChart.styles';
-import { labelHosts, labelServices } from './translatedLabels';
+import {
+  labelHosts,
+  labelServices,
+  labelNoHostsFound,
+  labelNoServicesFound
+} from './translatedLabels';
 
 const StatusChart = ({
   globalRefreshInterval,
@@ -20,7 +25,7 @@ const StatusChart = ({
     refreshIntervalCustom,
     displayLegend,
     displayValues,
-    resourceType: resourceTypes,
+    resourceTypes,
     unit
   } = panelOptions;
 
@@ -39,20 +44,23 @@ const StatusChart = ({
   return (
     <div className={classes.container}>
       {resourceTypes.map((resourceType) => {
+        const isOfTypeHost = includes('host', resourceType);
+
         return (
           <Chart
             displayLegend={displayLegend}
             displayType={displayType}
             displayValues={displayValues}
             key={resourceType}
+            labelNoDataFound={
+              isOfTypeHost ? t(labelNoHostsFound) : t(labelNoServicesFound)
+            }
             refreshCount={refreshCount}
             refreshIntervalToUse={refreshIntervalToUse}
             resourceType={resourceType}
             resourceTypes={resourceTypes}
             resources={resources}
-            title={
-              includes('host', resourceType) ? t(labelHosts) : t(labelServices)
-            }
+            title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
           />
         );

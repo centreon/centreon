@@ -113,7 +113,7 @@ displayTypes.map(({ displayType, label }) => {
         options: {
           ...resourcesOptions,
           displayType,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -151,7 +151,7 @@ displayTypes.map(({ displayType, label }) => {
         options: {
           ...resourcesOptions,
           displayType,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -168,7 +168,7 @@ displayTypes.map(({ displayType, label }) => {
         options: {
           ...resourcesOptions,
           displayType,
-          resourceType: ['host']
+          resourceTypes: ['host']
         }
       });
 
@@ -186,7 +186,7 @@ displayTypes.map(({ displayType, label }) => {
           ...resourcesOptions,
           displayLegend: false,
           displayType,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -198,7 +198,7 @@ displayTypes.map(({ displayType, label }) => {
           ...resourcesOptions,
           displayLegend: true,
           displayType,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -216,7 +216,7 @@ displayTypes.map(({ displayType, label }) => {
           ...resourcesOptions,
           displayType,
           displayValues: false,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -228,7 +228,7 @@ displayTypes.map(({ displayType, label }) => {
           ...resourcesOptions,
           displayType,
           displayValues: true,
-          resourceType: ['service']
+          resourceTypes: ['service']
         }
       });
 
@@ -249,7 +249,7 @@ displayTypes.map(({ displayType, label }) => {
         options: {
           ...resourcesOptions,
           displayType,
-          resourceType: ['service'],
+          resourceTypes: ['service'],
           unit: 'number'
         }
       });
@@ -281,7 +281,7 @@ displayTypes.map(({ displayType, label }) => {
             options: {
               ...resourcesOptions,
               displayType,
-              resourceType: [resourceType]
+              resourceTypes: [resourceType]
             }
           });
 

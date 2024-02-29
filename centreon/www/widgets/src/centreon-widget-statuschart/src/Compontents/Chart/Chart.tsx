@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { PieChart, BarStack } from '@centreon/ui';
 
@@ -19,7 +19,8 @@ const Chart = ({
   resourceTypes,
   refreshCount,
   refreshIntervalToUse,
-  resources
+  resources,
+  labelNoDataFound
 }: ChartType): JSX.Element => {
   const { classes } = useStyles();
 
@@ -35,8 +36,12 @@ const Chart = ({
     resourceTypes
   });
 
-  if (isLoading) {
+  if (isLoading && isNil(data)) {
     return <ChartSkeleton />;
+  }
+
+  if (isNil(data)) {
+    return <div />;
   }
 
   return (
@@ -49,6 +54,7 @@ const Chart = ({
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            labelNoDataFound={labelNoDataFound}
             title={title}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
@@ -62,6 +68,7 @@ const Chart = ({
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            labelNoDataFound={labelNoDataFound}
             legendDirection={
               equals(displayType, DisplayType.Horizontal) ? 'row' : 'column'
             }
