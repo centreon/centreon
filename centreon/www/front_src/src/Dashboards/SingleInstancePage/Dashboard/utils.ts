@@ -114,38 +114,47 @@ export const getUrlForResourcesOnlyWidgets = ({
   states,
   resources
 }): string => {
-  const resourcesCriterias = equals(type, 'all')
-    ? {
-        name: 'resource_types',
-        value: [
-          { id: 'service', name: 'Service' },
-          { id: 'host', name: 'Host' }
-        ]
-      }
-    : {
-        name: 'resource_types',
-        value: [
-          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
-        ]
+  const formattedTypes = cond([
+    [equals('host'), always(['host'])],
+    [equals('service'), always(['service'])],
+    [equals('all'), always(['host', 'service'])],
+    [T, identity]
+  ])(type);
+
+  const resourcesCriterias = {
+    name: 'resource_types',
+    value: formattedTypes?.map((item) => {
+      return {
+        id: item,
+        name: `${item.charAt(0).toUpperCase()}${item.slice(1)}`
       };
+    })
+  };
 
   const formatStatusFilter = cond([
     [equals('success'), always(['ok', 'up'])],
     [equals('problem'), always(['down', 'critical'])],
     [equals('undefined'), always(['unreachable', 'unknown'])],
+    [equals('1'), always(['down', 'critical'])],
+    [equals('2'), always(['warning'])],
+    [equals('4'), always(['pending'])],
+    [equals('5'), always(['ok', 'up'])],
+    [equals('6'), always(['unreachable', 'unknown'])],
     [T, identity]
   ]);
 
-  const formattedStatuses = pipe(
-    map((status) => formatStatusFilter(status)),
-    flatten,
-    map((status: string) => {
-      return {
-        id: status.toLocaleUpperCase(),
-        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-      };
-    })
-  )(statuses);
+  const formattedStatuses =
+    statuses &&
+    pipe(
+      map((status) => formatStatusFilter(status)),
+      flatten,
+      map((status: string) => {
+        return {
+          id: status.toLocaleUpperCase(),
+          name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+        };
+      })
+    )(statuses);
 
   const formattedStates = states?.map((state) => {
     return {
@@ -183,11 +192,19 @@ export const getUrlForResourcesOnlyWidgets = ({
     }
   );
 
+  const statusesQueryParameter = statuses
+    ? [{ name: 'statuses', value: formattedStatuses }]
+    : [];
+
+  const statesQueryParameter = states
+    ? [{ name: 'statuses', value: formattedStates }]
+    : [];
+
   const filterQueryParameter = {
     criterias: [
       resourcesCriterias,
-      { name: 'statuses', value: formattedStatuses },
-      { name: 'states', value: formattedStates },
+      ...statusesQueryParameter,
+      ...statesQueryParameter,
       ...resourcesFilters,
       { name: 'search', value: '' }
     ]
