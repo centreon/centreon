@@ -90,7 +90,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':dataset_id_');
 
         $request = <<<SQL
-                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ($bindQuery)
+                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ({$bindQuery})
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
