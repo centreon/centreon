@@ -99,7 +99,7 @@ const displayTypes = [
   }
 ];
 
-displayTypes.map(({ displayType, label }) => {
+displayTypes.forEach(({ displayType, label }) => {
   describe(label, () => {
     beforeEach(() => {
       cy.clock(new Date(2024, 1, 1, 0, 0, 0), ['Date']);
