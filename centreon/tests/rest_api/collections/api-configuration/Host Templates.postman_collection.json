@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "bc022583-0491-43af-856d-6f19a91dfeaf",
-		"name": "Host Templates",
+		"name": "0 - Host Templates",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc022583-0491-43af-856d-6f19a91dfeaf?action=share&source=collection_link&creator=16182525"
@@ -2414,14 +2414,12 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
 									"\r",
 									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
-									"    var response = JSON.parse(responseBody);\r",
-									"    pm.collectionVariables.set(\"Command1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2479,10 +2477,9 @@
 									"    pm.response.to.have.status(201);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new host template\r",
-									"    var response = JSON.parse(responseBody);\r",
-									"    pm.collectionVariables.set(\"HostTemplate1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostTemplate1Id\", responseJson.id);\r",
 									"\r",
-									"    pm.expect(response).to.include({\r",
+									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
@@ -2522,17 +2519,17 @@
 									"        \"is_locked\": false,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
-									"    pm.expect(response.check_command_args).to.include(\"OUTPUT2\");\r",
-									"    pm.expect(response.event_handler_command_args).to.include(\"%d\");\r",
-									"    pm.expect(response.categories[0]).to.include({\r",
+									"    pm.expect(responseJson.check_command_args).to.include(\"OUTPUT2\");\r",
+									"    pm.expect(responseJson.event_handler_command_args).to.include(\"%d\");\r",
+									"    pm.expect(responseJson.categories[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    });\r",
-									"    pm.expect(response.templates[0]).to.include({\r",
+									"    pm.expect(responseJson.templates[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"    });\r",
-									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
 									"\r",
 									"});"
 								],
@@ -5171,7 +5168,7 @@
 			]
 		},
 		{
-			"name": "user with no rights",
+			"name": "user with No Access",
 			"item": [
 				{
 					"name": "Login with user with no access",
@@ -6070,6 +6067,52 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "HostSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
 		}
 	]
 }
