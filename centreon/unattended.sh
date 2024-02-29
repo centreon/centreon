@@ -699,13 +699,13 @@ function secure_db_system_setup() {
 			SET GLOBAL sql_mode = '';
 			SELECT @@GLOBAL.sql_mode;
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
-			FLUSH PRIVILEGES;
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DROP DATABASE IF EXISTS test;
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
 		EOF
+		systemctl restart mysqld
 	fi
 
 	if [ $? -ne 0 ]; then
