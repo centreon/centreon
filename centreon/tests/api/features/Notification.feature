@@ -61,33 +61,37 @@ Feature:
     And the JSON should be equal to:
     """
     {
-        "notification_id": 1,
-        "channels": {
-            "email": {
-                "subject": "Hello world !",
-                "formatted_message": "a formatted message",
-                "contacts": [
-                    {
-                        "email_address": "admin@centreon.com",
-                        "full_name": "admin admin"
-                    }, {
-                        "email_address": "guest@localhost",
-                        "full_name": "Guest"
-                    }, {
-                        "email_address": "user@localhost",
-                        "full_name": "User"
-                    }, {
-                        "email_address": "user1@mail.com",
-                        "full_name": "user-name1"
-                    }, {
-                        "email_address": "user2@mail.com",
-                        "full_name": "user-name2"
-                    }
-                ]
+      "notification_id": 1,
+      "channels": {
+        "email": {
+          "subject": "Hello world !",
+          "formatted_message": "a formatted message",
+          "contacts": [
+            {
+              "email_address": "user1@mail.com",
+              "full_name": "user-name1"
             },
-            "slack": null,
-            "sms": null
-        }
+            {
+              "email_address": "user2@mail.com",
+              "full_name": "user-name2"
+            },
+            {
+              "email_address": "admin@centreon.com",
+              "full_name": "admin admin"
+            },
+            {
+              "email_address": "guest@localhost",
+              "full_name": "Guest"
+            },
+            {
+              "email_address": "user@localhost",
+              "full_name": "User"
+            }
+          ]
+        },
+        "slack": null,
+        "sms": null
+      }
     }
     """
 
