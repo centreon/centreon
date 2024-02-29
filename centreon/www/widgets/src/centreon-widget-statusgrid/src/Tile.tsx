@@ -17,7 +17,6 @@ import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
-  isFromPreview?: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   states: Array<string>;
@@ -35,8 +34,7 @@ const Tile = ({
   type,
   states,
   statuses,
-  resources,
-  isFromPreview
+  resources
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();

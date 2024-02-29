@@ -74,22 +74,24 @@ const initialize = ({
     Component: (
       <div style={{ height: '100vh' }}>
         <TestQueryProvider>
-          <Provider store={store}>
-            <GroupMonitoring
-              globalRefreshInterval={{
-                interval: 15,
-                type: 'manual'
-              }}
-              isFromPreview={isFromPreview}
-              panelData={panelData}
-              panelOptions={{
-                ...panelOptions,
-                refreshInterval: 'default'
-              }}
-              refreshCount={0}
-              setPanelOptions={setPanelOptions}
-            />
-          </Provider>
+          <BrowserRouter>
+            <Provider store={store}>
+              <GroupMonitoring
+                globalRefreshInterval={{
+                  interval: 15,
+                  type: 'manual'
+                }}
+                isFromPreview={isFromPreview}
+                panelData={panelData}
+                panelOptions={{
+                  ...panelOptions,
+                  refreshInterval: 'default'
+                }}
+                refreshCount={0}
+                setPanelOptions={setPanelOptions}
+              />
+            </Provider>
+          </BrowserRouter>
         </TestQueryProvider>
       </div>
     )
