@@ -695,15 +695,15 @@ function secure_db_system_setup() {
 	else
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
-		mysql -u root <<-EOF
+		mysql -u root -p${db_root_password} <<-EOF
 			SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';
 			SELECT @@sql_mode;
-			SET PASSWORD FOR root@localhost = "$db_root_password";
+			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
 			FLUSH PRIVILEGES;
-		EOF
-		mysql_secure_installation -u root --password="$db_root_password" --use-default
-		mysql -u root -p${db_root_password} <<-EOF
+			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+			DROP DATABASE IF EXISTS test;
+			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
 		EOF
 	fi
