@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        if: ${{ success() }}
+        if: success()
         id: release
         uses: ./.github/actions/release
         with:
