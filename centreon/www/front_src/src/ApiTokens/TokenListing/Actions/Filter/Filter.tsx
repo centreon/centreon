@@ -95,7 +95,7 @@ const Filter = (): JSX.Element => {
   };
 
   return (
-    <div className={classes.container}>
+    <div className={classes.container} data-testid="FilterContainer">
       <DateInputWrapper />
 
       <MultiConnectedAutocompleteField

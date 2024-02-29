@@ -11,6 +11,9 @@ export const useStyles = makeStyles()((theme) => ({
     flexWrap: 'wrap',
     rowGap: theme.spacing(0.5)
   },
+  popoverMenu: {
+    zIndex: theme.zIndex.modal
+  },
   search: {
     minWidth: theme.spacing(100)
   },

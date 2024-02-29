@@ -25,7 +25,6 @@ export const useStyles = makeStyles()((theme) => ({
     minWidth: theme.spacing(44),
     padding: theme.spacing(2, 0)
   },
-
   field: {
     '& .MuiInputBase-root': {
       '& .MuiInputBase-input': {

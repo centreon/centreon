@@ -20,10 +20,11 @@ const TokenFilter = (): JSX.Element => {
       fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
     >
       <PopoverMenu
-        className={classes.spacing}
+        className={classes.popoverMenu}
         dataTestId={labelSearchOptions}
         icon={<TuneIcon fontSize="small" />}
         popperPlacement="bottom-end"
+        popperProps={{ className: classes.popoverMenu }}
         title={t(labelSearchOptions) as string}
       >
         {(): JSX.Element => <Filter />}

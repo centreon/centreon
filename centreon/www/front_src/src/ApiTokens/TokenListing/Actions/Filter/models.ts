@@ -38,5 +38,5 @@ export interface User {
 
 export enum Property {
   in = 'In',
-  last = 'last'
+  last = 'Last'
 }

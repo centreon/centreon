@@ -663,7 +663,7 @@ describe('Api-token', () => {
     // cy.makeSnapshot()
   });
 
-  it.only('update the filter interface when changes are made to the search bar', () => {
+  it('update the filter interface when changes are made to the search bar', () => {
     cy.waitForRequest('@getListTokens');
 
     const searchInput =
@@ -693,21 +693,32 @@ describe('Api-token', () => {
       .should('have.attr', 'aria-selected', 'true')
       .click();
 
-    cy.findByLabelText('5 hours')
-      .should('have.attr', 'aria-selected', 'true')
-      .click();
+    cy.findByLabelText('5 hours').should('have.attr', 'aria-selected', 'true');
 
+    cy.findByLabelText('open previous view').click();
     cy.findByLabelText('30 minutes').should(
       'have.attr',
       'aria-selected',
       'true'
     );
 
-    cy.contains('OK').click();
+    // cy.makeSnapshot('update the calendar date when the corresponding date is entered in the search bar')
   });
 
   it('update the search bar when changes are made to the filter interface', () => {
     cy.waitForRequest('@getListTokens');
+
+    cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getListConfiguredUsers',
+        method: Method.GET,
+        path: `./api/latest${listConfiguredUser}**`,
+        response: data
+      });
+    });
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
 
     const {
       result: {
@@ -716,45 +727,36 @@ describe('Api-token', () => {
     } = renderHook(() => useLocaleDateTimeFormat());
 
     cy.findByTestId('Filter options').click();
-    const now = new Date(2024, 2, 27, 4, 16, 33);
 
-    cy.clock(now);
+    cy.findAllByTestId(labelRevokedToken).click();
 
-    cy.findByTestId(labelCreationDate).select('Customize');
-
-    cy.findByRole('gridcell', { name: '5' }).click();
-
-    cy.findByRole('option', { name: '7' }).click();
-
-    cy.findByRole('option', { name: '20' }).click();
-
-    cy.findByTestId(labelCreationDate).should(
-      'have.value',
-      'February 15, 2024 7:20 PM'
-    );
-
-    cy.findByTestId(labelExpirationDate).select('In 1 year');
-
-    cy.findByTestId(labelExpirationDate).should(
-      'have.value',
-      'February 27, 2025 4:16 PM'
-    );
-
-    cy.findByTestId(labelCreator).select('admin admin');
-    cy.findAllByTestId(labelRevokedToken).check();
+    cy.findByTestId(labelCreator).click();
+    cy.findByRole('option', { name: 'Jane Doe' }).click();
 
     cy.findByTestId(labelUser).click();
+
+    cy.waitForRequest('@getListConfiguredUsers');
+
     cy.findByRole('option', { name: 'Guest' }).click();
     cy.findByRole('option', { name: 'centreon-gorgone' }).click();
 
-    const expectedCreationDate = toIsoString(now);
-    const expectedExpirationDate = toIsoString(
-      dayjs(now).add(1, 'year').toDate()
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.findByRole('gridcell', { name: '5' }).click();
+
+    cy.contains('button', 'OK').click();
+
+    cy.findByTestId(labelCreationDate).should(
+      'have.value',
+      'February 5, 2024 7:16 PM'
     );
 
-    const expectedSearch = `creation_date:${expectedCreationDate} expiration_date:${expectedExpirationDate} creator.name:${translateWhiteSpaceToRegex(
-      'admin admin'
-    )} user.name:Guest,centreon-gorgone is_revoked:true`;
+    const expectedCreationDate = toIsoString(new Date(2024, 1, 5, 18, 16, 33));
+
+    const expectedSearch = `is_revoked:true creator.name:${translateWhiteSpaceToRegex(
+      'Jane Doe'
+    )} user.name:Guest,centreon-gorgone creation_date:${expectedCreationDate}`;
 
     cy.findByTestId('inputSearch').should('have.value', expectedSearch);
 
@@ -763,26 +765,25 @@ describe('Api-token', () => {
 
   it('executes a listing request with selected filters ', () => {
     cy.waitForRequest('@getListTokens');
-
+    const now = new Date(2024, 1, 27, 15, 16, 33);
     const expirationDate = 'March 28, 2024 4:16 PM';
     const creationDate = 'February 20, 2024 4:16 PM';
+
+    cy.clock(now);
+    cy.fixture('apiTokens/creation/configuredUsers.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getListConfiguredUsers',
+        method: Method.GET,
+        path: `./api/latest${listConfiguredUser}**`,
+        response: data
+      });
+    });
 
     const {
       result: { current }
     } = renderHook(() => useBuildParameters());
 
     const { getSearchParameters, queryParameters } = current;
-
-    cy.findByTestId('Filteroption').click();
-
-    cy.findByTestId(labelUser).select('User');
-    cy.findByTestId(labelCreationDate).select('Last 7 days');
-
-    cy.findByTestId(labelCreationDate).should('have.value', creationDate);
-    cy.findByTestId(labelExpirationDate).select('In 30 days');
-
-    cy.findByTestId(labelExpirationDate).should('have.value', expirationDate);
-
     interceptListTokens({
       alias: 'getListTokensWithSelectedFilters',
       customQueryParameters: queryParameters,
@@ -790,7 +791,30 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, search: getSearchParameters() }
     });
 
-    cy.findByTestId(labelSearch).click();
+    cy.findByTestId('Filter options').click();
+
+    cy.findByTestId(labelUser).click();
+
+    cy.waitForRequest('@getListConfiguredUsers');
+
+    cy.findByRole('option', { name: 'User' }).click();
+
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Last 7 days' }).click();
+
+    cy.findByTestId(labelCreationDate).should('have.value', creationDate);
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'In 30 days' }).click();
+
+    cy.findByTestId(labelExpirationDate).should('have.value', expirationDate);
+
+    cy.clock().then((clock) => {
+      clock.restore();
+    });
+
+    cy.findByTestId('FilterContainer').findByTestId(labelSearch).click();
+    cy.waitForRequest('@getListTokensWithSelectedFilters');
 
     cy.getRequestCalls('@getListTokensWithSelectedFilters').then((calls) => {
       expect(
@@ -808,11 +832,19 @@ describe('Api-token', () => {
 
   it('clear the selected filter when clicking on the clear button', () => {
     cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filter options').click();
 
-    cy.findByTestId(labelCreator).select('admin admin');
-    cy.findAllByTestId(labelRevokedToken).check();
+    cy.findByTestId(labelCreator).click();
+    cy.findByRole('option', { name: 'Jane Doe' }).click();
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'In 60 days' }).click();
+
     cy.findByTestId(labelClear).click();
+
     cy.findByTestId(labelCreator).should('not.have.value');
-    cy.findByTestId(labelRevokedToken).should('not.be.checked');
+    cy.findByTestId(labelExpirationDate).should('not.have.value');
+
+    cy.findByTestId('inputSearch').should('not.have.value');
   });
 });
