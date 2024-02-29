@@ -350,7 +350,6 @@ jobs:
             echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
             cat ${COLLECTION_DIRECTORY}/.env >> ../../../.github/docker/.env
             DOCKER_ENV_FILE_OPTION=""
-            cat .env.local
           fi
 
           docker compose ${DOCKER_ENV_FILE_OPTION} --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
