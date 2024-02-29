@@ -8,12 +8,14 @@ Feature: Listing Notification Rules
     Given a user with access to the Notification Rules page
     And the user is on the Notification Rules page
 
+  @TEST_MON-33219
   Scenario: Listing Notifications Rules without result
     Given no Notification Rules are configured
     When the user goes to Notification Rules Listing
     Then the user sees a message indicating "No result found" in the list
     And the pagination is disabled
 
+  @TEST_MON-33218
   Scenario Outline: Listing Notification Rules with Pagination
     Given the user has <count> Notification Rules
     When the user sets the number of results per page to <max_per_page>
