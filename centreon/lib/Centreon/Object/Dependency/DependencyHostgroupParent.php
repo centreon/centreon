@@ -32,10 +32,11 @@ class Centreon_Object_DependencyHostgroupParent extends Centreon_Object
 
     public function removeRelationLastHostgroupDependency(int $hgId): void
     {
-        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id 
-              FROM dependency_hostgroupParent_relation 
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation 
-                                         WHERE hostgroup_hg_id = ?)';
+        $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+              FROM dependency_hostgroupParent_relation
+              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostgroupParent_relation
+                                         WHERE hostgroup_hg_id = ?)
+              GROUP BY dependency_dep_id';
         $result = $this->getResult($query, array($hgId), "fetch");
 
         //is last parent
