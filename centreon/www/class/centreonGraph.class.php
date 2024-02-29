@@ -211,23 +211,30 @@ class CentreonGraph
         unset($opt);
 
         /* Get RRDCacheD options */
-        $result = $this->DB->query(
+        $statement = $this->DB->prepare(
             "SELECT config_key, config_value
-            FROM cfg_centreonbroker_info AS cbi
-            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
-            INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
-            WHERE ns.localhost = '1'
-            AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
+             FROM cfg_centreonbroker_info AS cbi
+             INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
+             INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
+             WHERE ns.localhost = '1'
+             AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
         );
-        while ($row = $result->fetch()) {
+        $statement->execute();
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($result as $row) {
             $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
         }
+        $statement->closeCursor();
 
         if (isset($index)) {
-            $DBRESULT = $this->DB->query("SELECT `metric_id`
-                                          FROM `ods_view_details`
-                                          WHERE `index_id` = '" . $this->index . "'
-                                          AND `contact_id` = '" . $this->user_id . "'");
+            $DBRESULT = $this->DB->prepare("SELECT `metric_id`
+              FROM `ods_view_details`
+              WHERE `index_id` = :index_id
+              AND `contact_id` = :user_id");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $DBRESULT->execute();
             $metrics_cache = array();
             if ($DBRESULT->rowCount()) {
                 while ($tmp_metrics = $DBRESULT->fetch()) {
@@ -235,11 +242,14 @@ class CentreonGraph
                 }
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DBC->query("SELECT metric_id
-                                           FROM metrics
-                                           WHERE index_id = '" . $this->index . "'
-                                           AND `hidden` = '0'
-                                           ORDER BY `metric_name`");
+
+            $DBRESULT = $this->DBC->prepare("SELECT metric_id
+              FROM metrics
+              WHERE index_id = :index_id
+              AND `hidden` = '0'
+              RDER BY `metric_name`");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             $count = 0;
             $odsm = array();
             while ($milist = $DBRESULT->fetch()) {
@@ -251,12 +261,14 @@ class CentreonGraph
                 $this->onecurve = true;
             }
             $DBRESULT->closeCursor();
-            $DBRESULT = $this->DB->query("SELECT vmetric_id metric_id
-                                          FROM virtual_metrics
-                                          WHERE index_id = '" . $this->index . "'
-                                          AND ( `hidden` = '0' OR `hidden` IS NULL )
-                                          AND vmetric_activate = '1'
-                                          ORDER BY 'metric_name'");
+            $DBRESULT = $this->DB->prepare("SELECT vmetric_id metric_id
+              FROM virtual_metrics
+              WHERE index_id = :index_id
+              AND (`hidden` = '0' OR `hidden` IS NULL)
+              AND vmetric_activate = '1'
+              ORDER BY `metric_name`");
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
             while ($milist = $DBRESULT->fetch()) {
                 $vmilist = "v" . $milist["metric_id"];
                 $odsm[$vmilist] = 1;
@@ -312,10 +324,11 @@ class CentreonGraph
     }
 
     /**
-     * @param $metrics
-     * @return void
+     *
+     * Enter description here ...
+     * @param unknown_type $metrics
      */
-    public function setMetricList($metrics): void
+    public function setMetricList($metrics)
     {
         if (is_array($metrics) && count($metrics)) {
             $this->metricsEnabled = array_keys($metrics);
@@ -455,7 +468,7 @@ class CentreonGraph
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
-            $statement = $this->DBC->prepare(
+            $DBRESULT = $this->DBC->prepare(
                 "SELECT host_id, service_id, metric_id, metric_name, unit_name, replace(format(warn,9),',','') warn,
                 replace(format(crit,9),',','') crit
                 FROM metrics AS m, index_data AS i
@@ -464,29 +477,24 @@ class CentreonGraph
                 AND m.hidden = '0'
                 ORDER BY m.metric_name"
             );
-            $statement->bindParam(':l_rselector', $l_rselector, \PDO::PARAM_STR);
-            $statement->execute();
-            $rmetrics = $statement->fetchAll(PDO::FETCH_ASSOC);
+            $DBRESULT->bindParam(':l_rselector', $l_rselector, \PDO::PARAM_STR);
+            $DBRESULT->execute();
+            $rmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($rmetrics as $rmetric) {
                 $this->mlist[$rmetric["metric_id"]] = $this->mpointer[0]++;
                 $this->rmetrics[] = $rmetric;
             }
-            $statement->closeCursor();
+            $DBRESULT->closeCursor();
         }
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            $DBRESULT = $this->DB->prepare(
-                "SELECT vmetric_id
-                FROM virtual_metrics
-                WHERE :l_vselector
-                ORDER BY vmetric_name");
-            $DBRESULT->bindParam(':vselector', $l_vselector, \PDO::PARAM_STR);
-            $DBRESULT->execute();
-            $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($vmetrics as $vmetric) {
+            $DBRESULT = $this->DB->query("SELECT vmetric_id
+                                          FROM virtual_metrics
+                                          WHERE " . $l_vselector . "
+                                          ORDER BY vmetric_name");
+            while ($vmetric = $DBRESULT->fetch()) {
                 $this->manageVMetric($vmetric["vmetric_id"], null, null);
             }
             $DBRESULT->closeCursor();
@@ -584,12 +592,13 @@ class CentreonGraph
                         /** *******************************************
                          * Get default info in default template
                          */
-                        $DBRESULT3 = $this->DB->query(
+                        $DBRESULT3 = $this->DB->prepare(
                             "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total, ds_tickness,
-                                ds_color_line_mode, ds_color_line
-                                FROM giv_components_template
-                                WHERE default_tpl1 = '1' LIMIT 1"
+                              ds_color_line_mode, ds_color_line
+                              FROM giv_components_template
+                              WHERE default_tpl1 = '1' LIMIT 1"
                         );
+                        $DBRESULT3->execute();
                         if ($DBRESULT3->rowCount()) {
                             foreach ($DBRESULT3->fetch() as $key => $ds_val) {
                                 $ds[$key] = $ds_val;
@@ -1096,7 +1105,8 @@ class CentreonGraph
             $statement->closeCursor();
             unset($command_id);
         }
-        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+        $DBRESULT = $this->DB->prepare("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+        $DBRESULT->execute();
         if ($DBRESULT->rowCount()) {
             $data = $DBRESULT->fetch();
             $this->templateId = $data["graph_id"];
@@ -1104,6 +1114,7 @@ class CentreonGraph
             $DBRESULT->closeCursor();
             return;
         }
+        $DBRESULT->closeCursor();
     }
 
     /**
@@ -1196,16 +1207,20 @@ class CentreonGraph
         }
 
         $this->log("index_data for " . $svc_instance);
-        $DBRESULT = $this->DBC->query("SELECT * FROM index_data WHERE id = '" . $svc_instance . "' LIMIT 1");
+        $DBRESULT = $this->DBC->prepare("SELECT * FROM index_data WHERE id = :svc_instance LIMIT 1");
+        $DBRESULT->bindParam(':svc_instance', $svc_instance, PDO::PARAM_INT);
+        $DBRESULT->execute();
+
         if ($DBRESULT->rowCount()) {
             $this->indexData = $DBRESULT->fetch();
             /*
              * Check Meta Service description
              */
             if (preg_match("/meta_([0-9]*)/", $this->indexData["service_description"], $matches)) {
-                $DBRESULT_meta = $this->DB->query(
-                    "SELECT meta_name FROM meta_service WHERE `meta_id` = '" . $matches[1] . "'"
-                );
+                $DBRESULT_meta = $this->DB->prepare("SELECT meta_name FROM meta_service WHERE `meta_id` = :meta_id");
+                $DBRESULT_meta->bindParam(':meta_id', $matches[1], PDO::PARAM_INT);
+                $DBRESULT_meta->execute();
+
                 $meta = $DBRESULT_meta->fetch();
                 $this->indexData["service_description"] = $meta["meta_name"];
                 unset($meta);
@@ -1511,7 +1526,7 @@ class CentreonGraph
                 $this->colorCache[$row['metric_id']] = $row['rnd_color'];
             }
         }
-        
+
         if (isset($this->colorCache[$metricId]) && preg_match("/^\#[a-f0-9]{6,6}/i", $this->colorCache[$metricId])) {
             return $this->colorCache[$metricId];
         }
@@ -1567,7 +1582,7 @@ class CentreonGraph
             '#ff66ff', '#ff9900', '#ff9933', '#ff9966', '#ff9999', '#ff99cc',
             '#ff99ff', '#ffcc00', '#ffcc33', '#ffcc66', '#ffcc99', '#ffcccc',
             '#ffccff');
-            return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
+        return $webSafeColors[rand(0, sizeof($webSafeColors) - 1)];
     }
 
     /**
@@ -1856,14 +1871,17 @@ class CentreonGraph
      */
     public function getIndexDataId($hostId, $serviceId)
     {
-        $sql = "SELECT id FROM index_data
-            WHERE host_id = " . $this->DBC->escape($hostId) . "
-                AND service_id = " . $this->DBC->escape($serviceId);
-        $res = $this->DBC->query($sql);
+        $sql = "SELECT id FROM index_data WHERE host_id = :host_id AND service_id = :service_id";
+        $res = $this->DBC->prepare($sql);
+        $res->bindParam(':host_id', $hostId, PDO::PARAM_INT);
+        $res->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $res->execute();
+
         if ($res->rowCount()) {
             $row = $res->fetch();
             return $row['id'];
         }
+        $res->closeCursor();
         return 0;
     }
 
