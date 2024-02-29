@@ -696,8 +696,6 @@ function secure_db_system_setup() {
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
-			SET GLOBAL sql_mode = '';
-			SELECT @@GLOBAL.sql_mode;
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
