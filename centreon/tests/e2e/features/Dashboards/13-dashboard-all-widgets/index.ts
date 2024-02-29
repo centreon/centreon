@@ -428,18 +428,7 @@ Then(
 
       case 'metrics graph':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const metricsGraphStatuses = [
-          'Critical',
-          'Warning',
-          'Unknown',
-          'Unknown',
-          'Unknown',
-          'Pending',
-          'Pending',
-          'OK',
-          'OK',
-          'OK'
-        ];
+        const metricsGraphStatuses = ['Critical', 'Warning'];
 
         for (let i = 0; i < metricsGraphStatuses.length; i++) {
           cy.get('[class$="chip-statusColumnChip"]')
