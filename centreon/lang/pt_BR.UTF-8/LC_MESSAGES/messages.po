@@ -17353,3 +17353,9 @@ msgstr ""
 
 # msgid "The {{name}} dashboard will be permanently deleted."
 # msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""
