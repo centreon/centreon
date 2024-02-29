@@ -182,7 +182,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_email: string
              * } $result
              */
-            $users[] = new ConfigurationUser(
+            $users[$result['user_id']] = new ConfigurationUser(
                 $result['user_id'],
                 $result['contact_name'],
                 $result['contact_email'],
@@ -225,7 +225,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_email: string
              * } $result
              */
-            $users[] = new ConfigurationUser(
+            $users[$result['contact_id']] = new ConfigurationUser(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
