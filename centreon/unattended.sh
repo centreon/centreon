@@ -853,7 +853,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
 	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${db_centreon_password}&db_password_confirm=${db_centreon_password}"
-	sed -i "s/\`macros_filter\` TEXT DEFAULT ''/\`macros_filter\` TEXT DEFAULT \(''),/" /usr/share/centreon/www/install/createTables.sql
+	sed -i "s/\`macros_filter\` TEXT DEFAULT ''/\`macros_filter\` TEXT DEFAULT \(''\),/" /usr/share/centreon/www/install/createTables.sql
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
