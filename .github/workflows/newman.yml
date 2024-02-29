@@ -351,6 +351,7 @@ jobs:
             cat ../../../.github/docker/.env > .env.local
             cat ${COLLECTION_DIRECTORY}/.env >> .env.local
             DOCKER_ENV_FILE_OPTION="--env-file .env.local"
+            cat .env.local
           fi
 
           docker compose ${DOCKER_ENV_FILE_OPTION} --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
