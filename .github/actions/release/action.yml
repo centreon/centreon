@@ -80,8 +80,8 @@ runs:
         echo "Creating release tags."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
-            git tag -a "$TAG" -m "$TAG"
-            git push --follow-tags
+            # git tag -a "$TAG" -m "$TAG"
+            # git push --follow-tags
             echo "::notice::Tagging stable branch with $TAG."
           else
             echo "::error::Release tag $TAG already exists, exiting."
@@ -110,7 +110,7 @@ runs:
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "::notice::Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
+          # gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
         done
       shell: bash
 

@@ -28,7 +28,8 @@ jobs:
 
           # Check if github.base_ref is either master or any of the supported version ones
           # This must never run on any other than master and supported version base_ref
-          if [[ "${{ github.base_ref }}" == 'master' || "${{ github.base_ref }}" =~ '[2-9][0-9].[0-9][0-9].x' ]];then
+          # if [[ "${{ github.base_ref }}" == 'master' || "${{ github.base_ref }}" =~ '[2-9][0-9].[0-9][0-9].x' ]];then
+          if [[ "${{ github.base_ref }}" == 'MON-34069-rework-release-communications' || "${{ github.base_ref }}" =~ '[2-9][0-9].[0-9][0-9].x' ]];then
             echo "[DEBUG] base_ref is valid: ${{ github.base_ref }}"
           else
             echo "[DEBUG] base_ref is not valid, exiting."
@@ -37,7 +38,7 @@ jobs:
         shell: bash
 
       - name: Checkout sources
-        if: ${{ success() }}
+        if: success()
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
