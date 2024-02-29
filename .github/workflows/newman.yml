@@ -355,7 +355,8 @@ jobs:
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
-            bash "${COLLECTION_DIRECTORY}/setup.sh"
+            docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup.sh web:/tmp/setup.sh
+            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash "/tmp/setup.sh"
           fi
         shell: bash
 
