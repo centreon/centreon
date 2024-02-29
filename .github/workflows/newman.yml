@@ -343,7 +343,20 @@ jobs:
       - name: Start Centreon Web and database containers
         env:
           MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
-        run: docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+        run: |
+          COLLECTION_DIRECTORY=$(dirname "collections/${{ matrix.feature }}")
+
+          if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
+            echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
+            DOCKER_ENV_FILE_OPTION="--env-file ${COLLECTION_DIRECTORY}/.env"
+          fi
+
+          docker compose ${DOCKER_ENV_FILE_OPTION} --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+
+          if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
+            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
+            bash "${COLLECTION_DIRECTORY}/setup.sh"
+          fi
         shell: bash
 
       - name: Run Postman Tests and Generate HTML Report
@@ -359,6 +372,7 @@ jobs:
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
           fi
+        shell: bash
 
       - name: Display container logs
         if: failure()
