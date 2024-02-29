@@ -5,7 +5,7 @@ import { equals, find, isNil } from 'ramda';
 
 import { mousePositionAtom } from '../InteractiveComponents/interactionWithGraphAtoms';
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getLineForMetric,
   getMetrics,
   getTimeValue
@@ -73,7 +73,7 @@ const useInteractiveValues = ({
       metric_id
     }) as Line;
 
-    const formattedValue = formatMetricValue({
+    const formattedValue = formatMetricValueWithUnit({
       base,
       unit,
       value

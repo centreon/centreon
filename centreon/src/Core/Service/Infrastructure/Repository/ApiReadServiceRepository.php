@@ -135,7 +135,8 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
          * @return \Generator<TinyService>
          */
         $serviceFactory = function (array $data): \Generator {
-            foreach ($data['host'] as $host) {
+            $propertyName = isset($data['hosts']) ? 'hosts' : 'host';
+            foreach ($data[$propertyName] as $host) {
                 yield TinyServiceFactory::createFromApi([
                     'id' => $data['id'],
                     'name' => $data['name'],

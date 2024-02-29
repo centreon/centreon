@@ -69,7 +69,6 @@ const MetricTop = ({
           data-testid={`link to ${metricTop?.name}`}
           target="_blank"
           to={getResourcesUrlForMetricsWidgets(metricTop)}
-          onClick={(e) => isFromPreview && e.preventDefault()}
         >
           <strong>
             #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}

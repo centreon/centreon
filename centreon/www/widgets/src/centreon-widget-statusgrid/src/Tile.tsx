@@ -17,7 +17,6 @@ import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
-  isFromPreview?: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
   states: Array<string>;
@@ -35,8 +34,7 @@ const Tile = ({
   type,
   states,
   statuses,
-  resources,
-  isFromPreview
+  resources
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles();
@@ -59,7 +57,6 @@ const Tile = ({
         className={classes.link}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: false })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <CardActionArea
           className={classes.seeMoreContainer}
@@ -84,7 +81,6 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <Box className={classes.container}>
           {displayStatusTile ? (
@@ -108,7 +104,6 @@ const Tile = ({
         data-testid={`link to ${data?.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         {displayStatusTile && (
           <Box

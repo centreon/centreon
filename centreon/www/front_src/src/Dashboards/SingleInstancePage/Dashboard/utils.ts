@@ -197,11 +197,3 @@ export const getUrlForResourcesOnlyWidgets = ({
     filterQueryParameter
   )}&fromTopCounter=true`;
 };
-
-export const resourceBasedWidgets = [
-  'centreon-widget-singlemetric',
-  'centreon-widget-statusgrid',
-  'centreon-widget-topbottom',
-  'centreon-widget-graph',
-  'centreon-widget-resourcestable'
-];

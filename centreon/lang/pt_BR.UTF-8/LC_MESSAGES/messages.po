@@ -16841,7 +16841,22 @@ msgstr ""
 # msgid "View widget properties"
 # msgstr ""
 
-# msgid "Dashboard library"
+# msgid "Create dashboard"
+# msgstr ""
+
+# msgid "Create a dashboard"
+# msgstr ""
+
+# msgid "Update dashboard"
+# msgstr ""
+
+# msgid "Dashboard updated"
+# msgstr ""
+
+# msgid "Manage access rights"
+# msgstr ""
+
+# msgid "Select a widget type to activate the preview."
 # msgstr ""
 
 # msgid "Welcome to the Dashboards interface!"
@@ -17042,7 +17057,7 @@ msgstr ""
 # msgid "Status grid"
 # msgstr ""
 
-# msgid "Displays a status overview for selected resources."
+# msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
 # msgid "Display with this resource type"
@@ -17207,6 +17222,12 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -17302,6 +17323,7 @@ msgstr ""
 
 # msgid "Select resource type"
 # msgstr ""
+
 # msgid "Your comment has been saved."
 # msgstr ""
 
@@ -17318,4 +17340,7 @@ msgstr ""
 # msgstr ""
 
 # msgid "Resource table"
+# msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
 # msgstr ""

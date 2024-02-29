@@ -14,7 +14,7 @@ import {
 
 import { centreonBaseURL } from '@centreon/ui';
 
-import { Resource } from './models';
+import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -33,18 +33,19 @@ const serviceCriteria = {
 interface GetResourcesUrlProps {
   allResources: Array<Resource>;
   isForOneResource: boolean;
-  resource;
+  resource?;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
-export const getDetailsPanelQueriers = ({ resource }): object => {
-  const { id, parentId, uuid, type } = resource;
+export const getDetailsPanelQueriers = ({ resource, type }): object => {
+  const { id, parentId, uuid, type: resourceType } = resource;
 
-  const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-    : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint =
+    equals(type, 'host') || equals(resourceType, 'host')
+      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
+      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
@@ -80,13 +81,6 @@ export const getResourcesUrl = ({
           { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
         ]
       };
-
-  const formatStatusFilter = cond([
-    [equals('success'), always(['ok', 'up'])],
-    [equals('problem'), always(['down', 'critical'])],
-    [equals('undefined'), always(['unreachable', 'unknown'])],
-    [T, identity]
-  ]);
 
   const formattedStatuses = pipe(
     map((status) => formatStatusFilter(status)),
@@ -153,7 +147,7 @@ export const getResourcesUrl = ({
     return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
-  const detailsPanelQueriers = getDetailsPanelQueriers({ resource });
+  const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
 
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)
@@ -217,4 +211,23 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
   );
 
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+};
+
+export const formatStatusFilter = cond([
+  [equals(SeverityStatus.Success), always(['ok', 'up'])],
+  [equals(SeverityStatus.Warning), always(['warning'])],
+  [equals(SeverityStatus.Problem), always(['down', 'critical'])],
+  [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
+  [equals(SeverityStatus.Pending), always(['pending'])],
+  [T, always([])]
+]);
+
+export const formatStatus = pipe(
+  map(formatStatusFilter),
+  flatten,
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const goToUrl = (url) => (): void => {
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
 };
