@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Column, useSnackbar } from '@centreon/ui';
+import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
 
 import { Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
@@ -87,7 +87,7 @@ const useListing = ({
     });
 
     changeViewMode?.(displayType);
-    goToUrl(linkToResourceStatus);
+    goToUrl(linkToResourceStatus)();
   };
 
   const changeSort = (sortParameters): void => {

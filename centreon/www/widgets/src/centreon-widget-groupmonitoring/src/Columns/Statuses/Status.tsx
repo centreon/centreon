@@ -37,7 +37,7 @@ const Status = ({
   isFromPreview
 }: Props): JSX.Element => {
   const theme = useTheme();
-  const { classes } = useStatusesColumnStyles();
+  const { classes, cx } = useStatusesColumnStyles();
 
   const url = getResourcesUrl({
     allResources: [
@@ -86,8 +86,7 @@ const Status = ({
     </div>
   ) : (
     <Link
-      className={classes.status}
-      color="inherit"
+      className={cx(classes.status, classes.link)}
       data-count={count}
       data-group={groupName}
       data-status={label}

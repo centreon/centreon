@@ -12,6 +12,8 @@ import {
   map
 } from 'ramda';
 
+import { centreonBaseURL } from '@centreon/ui';
+
 import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
@@ -42,8 +44,8 @@ export const getDetailsPanelQueriers = ({ resource, type }): object => {
 
   const resourcesDetailsEndpoint =
     equals(type, 'host') || equals(resourceType, 'host')
-      ? `/api/latest/monitoring/resources/hosts/${id}`
-      : `/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
+      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
@@ -159,7 +161,7 @@ const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
   const hostId = uuid?.split('-')[0]?.slice(1);
   const serviceId = uuid?.split('-')[1]?.slice(1);
 
-  const resourcesDetailsEndpoint = `/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
+  const resourcesDetailsEndpoint = `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${hostId}/services/${serviceId}`;
 
   const queryParameters = {
     id: serviceId,
@@ -227,5 +229,5 @@ export const formatStatus = pipe(
 );
 
 export const goToUrl = (url) => (): void => {
-  window?.open(url, '_blank,noopener,noreferrer');
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
 };

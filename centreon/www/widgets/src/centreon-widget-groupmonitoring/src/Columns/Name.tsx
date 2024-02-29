@@ -5,11 +5,14 @@ import { EllipsisTypography } from '@centreon/ui';
 import { RowProps } from '../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 
+import { useStatusesColumnStyles } from './Columns.styles';
+
 export const Name = ({
   row,
   groupType,
   isFromPreview
 }: RowProps): JSX.Element => {
+  const { classes } = useStatusesColumnStyles();
   const url = getResourcesUrl({
     allResources: [
       {
@@ -34,6 +37,7 @@ export const Name = ({
         row.name
       ) : (
         <Link
+          className={classes.link}
           color="inherit"
           rel="noopener noreferrer"
           target="_blank"

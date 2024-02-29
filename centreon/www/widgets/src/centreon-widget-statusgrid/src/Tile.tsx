@@ -59,7 +59,6 @@ const Tile = ({
         className={classes.link}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: false })}
-        onClick={(e) => isFromPreview && e.preventDefault()}
       >
         <CardActionArea
           className={classes.seeMoreContainer}
