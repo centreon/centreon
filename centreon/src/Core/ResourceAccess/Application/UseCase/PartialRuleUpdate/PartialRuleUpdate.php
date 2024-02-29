@@ -21,48 +21,62 @@
 
 declare(strict_types=1);
 
-namespace Core\ResourceAccess\Application\UseCase\DeleteRule;
+namespace Core\ResourceAccess\Application\UseCase\PartialRuleUpdate;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Type\NoValue;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\UseCase\UpdateRule\UpdateRuleValidation;
+use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-final class DeleteRule
+final class PartialRuleUpdate
 {
     use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
-     * @param ReadResourceAccessRepositoryInterface $readRepository
-     * @param WriteResourceAccessRepositoryInterface $writeRepository
      * @param ContactInterface $user
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param ReadResourceAccessRepositoryInterface $readRepository
+     * @param WriteResourceAccessRepositoryInterface $writeRepository
+     * @param UpdateRuleValidation $validator
      */
     public function __construct(
-        private readonly ReadResourceAccessRepositoryInterface $readRepository,
-        private readonly WriteResourceAccessRepositoryInterface $writeRepository,
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ReadResourceAccessRepositoryInterface $readRepository,
+        private readonly WriteResourceAccessRepositoryInterface $writeRepository,
+        private readonly UpdateRuleValidation $validator,
     ) {
     }
 
     /**
      * @param int $ruleId
+     * @param PartialRuleUpdateRequest $request
      * @param PresenterInterface $presenter
      */
-    public function __invoke(int $ruleId, PresenterInterface $presenter): void
-    {
+    public function __invoke(
+        int $ruleId,
+        PartialRuleUpdateRequest $request,
+        PresenterInterface $presenter
+    ): void {
         try {
+            $this->info('Start resource access rule update process');
+
             /**
              * Check if current user is authorized to perform the action.
              * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
@@ -70,7 +84,7 @@ final class DeleteRule
              */
             if (! $this->isAuthorized()) {
                 $this->error(
-                    "User doesn't have sufficient rights to delete a resource access rule",
+                    "User doesn't have sufficient rights to create a resource access rule",
                     [
                         'user_id' => $this->user->getId(),
                     ]
@@ -82,20 +96,60 @@ final class DeleteRule
                 return;
             }
 
-            $this->info('Starting resource access rule deletion', ['rule_id' => $ruleId]);
-            if (! $this->readRepository->exists($ruleId)) {
-                $this->error('Resource access rule not found', ['rule_id' => $ruleId]);
+            $this->debug('Find resource access rule to partially update', ['id' => $ruleId]);
+            $rule = $this->readRepository->findById($ruleId);
+
+            if ($rule === null) {
                 $presenter->setResponseStatus(new NotFoundResponse('Resource access rule'));
 
                 return;
             }
 
-            $this->deleteRule($ruleId);
+            $this->updatePropertiesInTransaction($rule, $request);
             $presenter->setResponseStatus(new NoContentResponse());
+        } catch (RuleException $exception) {
+            $presenter->setResponseStatus(
+                match ($exception->getCode()) {
+                    RuleException::CODE_CONFLICT => new ConflictResponse($exception),
+                    default => new ErrorResponse($exception),
+                }
+            );
+            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        } catch (AssertionFailedException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $exception) {
-            $presenter->setResponseStatus(new ErrorResponse(RuleException::errorWhileDeleting($exception)));
+            $presenter->setResponseStatus(new ErrorResponse(RuleException::addRule()));
             $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         }
+    }
+
+    /**
+     * @param Rule $rule
+     * @param PartialRuleUpdateRequest $request
+     *
+     * @throws RuleException
+     * @throws AssertionFailedException
+     * @throws \Exception
+     */
+    private function updatePropertiesInTransaction(Rule $rule, PartialRuleUpdateRequest $request): void
+    {
+        $this->info('Partial resource access rule update', ['rule_id' => $rule->getId()]);
+
+        if (! $request->name instanceof NoValue) {
+            $this->validator->assertIsValidName($request->name);
+            $rule->setName($request->name);
+        }
+
+        if (! $request->description instanceof NoValue) {
+            $rule->setDescription($request->description ?? '');
+        }
+
+        if (! $request->isEnabled instanceof NoValue) {
+            $rule->setIsEnabled($request->isEnabled);
+        }
+
+        $this->writeRepository->update($rule);
     }
 
     /**
@@ -108,31 +162,7 @@ final class DeleteRule
             $this->accessGroupRepository->findByContact($this->user)
         );
 
-        /**
-         * User must be
-         *     - An admin (belongs to the centreon_admin_acl ACL group)
-         *     - authorized to reach the Resource Access Management page.
-         */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
             && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
-    }
-
-    /**
-     * @param int $ruleId
-     *
-     * @throws \Exception
-     * @throws \Throwable
-     */
-    private function deleteRule(int $ruleId): void
-    {
-        $this->debug('Starting transaction');
-        /**
-         * Here are the deletions (on cascade or not) that will occur on rule deletion
-         *     - Contact relations (ON DELETE CASCADE)
-         *     - Contact Group relations (ON DELETE CASCADE)
-         *     - Datasets relations + datasets (NEED MANUAL DELETION)
-         *     - DatasetFilters (ON DELETE CASCADE).
-         */
-        $this->writeRepository->deleteRuleAndDatasets($ruleId);
     }
 }

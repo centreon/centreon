@@ -124,6 +124,7 @@ final class FindRule
         $response->id = $rule->getId();
         $response->name = $rule->getName();
         $response->description = $rule->getDescription();
+        $response->isEnabled = $rule->isEnabled();
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
