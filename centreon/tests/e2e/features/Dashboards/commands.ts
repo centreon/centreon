@@ -1,3 +1,4 @@
+/* eslint-disable newline-before-return */
 /* eslint-disable @typescript-eslint/no-namespace */
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayloadPl from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
@@ -34,25 +35,6 @@ Cypress.Commands.add(
 
     return cy.waitUntil(() => openModalAndCheck(), {
       errorMsg: 'The element does not exist',
-      interval: 3000,
-      timeout: 30000
-    });
-  }
-);
-
-Cypress.Commands.add(
-  'waitUntilPingExists',
-  () => {
-    const attemptPingClick: () => Cypress.Chainable<boolean> = () => {
-      cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
-      return cy.contains('Ping').should('be.visible').then(() => {
-        cy.contains('Ping').click();
-        return true;
-      });
-    };
-
-    return cy.waitUntil(() => attemptPingClick(), {
-      errorMsg: 'The "Ping" element does not exist',
       interval: 3000,
       timeout: 30000
     });
@@ -100,6 +82,67 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
     });
 });
 
+Cypress.Commands.add('waitUntilPingExists', () => {
+  // Click on "Select resource"
+  cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+
+  // Use cy.intercept to wait for the API request and check the response
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
+
+  // Use cy.waitUntil to repeatedly execute the check
+  return cy.waitUntil(
+    () => {
+      cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+
+      return cy.wait('@resourceRequest').then((interception) => {
+        // Check if the interception object and response property are defined
+        if (interception && interception.response) {
+          // Log the contents of the response body for debugging
+          cy.log('Response Body:', interception.response.body);
+
+          // Check if "Ping" is present in the response
+          const responseBody = interception.response.body;
+
+          if (
+            Array.isArray(responseBody.result) &&
+            responseBody.result.length > 0
+          ) {
+            const pingFound = responseBody.result.some(
+              (result) => result.name === 'Ping'
+            );
+
+            if (pingFound) {
+              // If "Ping" is found, click on it
+              cy.contains('Ping').click();
+              // Return true to break out of the loop
+              return cy.wrap(true);
+            }
+            // If "Ping" is not found, log a message and return false to continue the loop
+            cy.log('Ping not found in the API response');
+
+            return cy.wrap(false);
+          }
+          // If the response is not an array or is empty, log a message and return false to continue the loop
+          cy.log('Response is not an array or is empty');
+
+          return cy.wrap(false);
+        }
+        // Log a message and return false if interception or response is undefined
+        cy.log('Interception or response is undefined');
+
+        return cy.wrap(false);
+      });
+    },
+    {
+      errorMsg: 'Timed out waiting for Ping to exist',
+      interval: 3000,
+      timeout: 30000
+    }
+  );
+});
 Cypress.Commands.add(
   'insertDashboardWithWidget',
   (dashboardBody, patchBody) => {
@@ -171,7 +214,6 @@ declare global {
         expectedElementCount: number
       ) => Cypress.Chainable;
       waitUntilPingExists: () => Cypress.Chainable;
-
     }
   }
 }
