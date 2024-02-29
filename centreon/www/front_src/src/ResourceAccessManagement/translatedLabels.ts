@@ -39,3 +39,10 @@ export const labelSelectResource = 'Select resource';
 export const labelActiveOrInactive = 'Active / Inactive';
 export const labelEnabled = 'Enabled';
 export const labelDisabled = 'Disabled';
+export const labelDeleteResourceAccessRule = 'Delete resource access rule';
+export const labelCancel = 'Cancel';
+export const labelDeleteResourceAccessRuleWarning =
+  'This action cannot be undone';
+export const labelFailure = 'Failed to delete resource access rule';
+export const labelResourceAccessRuleDeletedSuccess =
+  'The resource access rule was successfully deleted';
