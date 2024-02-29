@@ -13,6 +13,9 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   },
   previewPanelContainer: {
     height: '400px',
+    [theme.breakpoints.down('sm')]: {
+      height: '200px'
+    },
     padding: theme.spacing(1),
     position: 'relative',
     width: '100%'
@@ -39,9 +42,14 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   },
   widgetDataContent: {
-    display: 'grid',
+    display: 'flex',
+    flexDirection: 'row',
+    [theme.breakpoints.down('lg')]: {
+      flexDirection: 'column'
+    },
     gap: theme.spacing(2),
-    gridTemplateColumns: '1fr 1fr'
+    maxHeight: '27vh',
+    overflow: 'auto'
   },
   widgetDataItem: {
     width: '100%'
@@ -53,6 +61,10 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(2)
+  },
+  widgetPropertiesContainer: {
+    backgroundColor: theme.palette.background.default,
+    borderRadius: theme.shape.borderRadius
   }
 }));
 
