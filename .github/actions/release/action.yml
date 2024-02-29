@@ -18,6 +18,7 @@ inputs:
     required: true
   jira_webhook_url:
     description: "Jira release webhook"
+    required: true
 
 runs:
   using: "composite"
@@ -40,9 +41,9 @@ runs:
 
         # Get current stable branch name
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
-        echo "Curent stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
+        echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
-        # Get previous version and new version tags for components
+        # Get previous and new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
           if [[ $component == "centreon-web" ]]; then
             COMPONENT_DIR="centreon"
@@ -109,7 +110,7 @@ runs:
         # Create GITHUB release for each release components
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          echo "::notice::Creating GITHUB release with title $TAG for tag $TAG."
+          echo "Creating GITHUB release with title $TAG for tag $TAG."
           gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
         done
       shell: bash
@@ -117,11 +118,6 @@ runs:
     - name: Create stable JIRA versions from new release tags
       run: |
         set -eu
-
-        # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
 
         # Call JIRA to provide new jira versions to create
         # Webhook url
