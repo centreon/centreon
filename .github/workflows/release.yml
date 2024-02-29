@@ -33,7 +33,7 @@ jobs:
           else
             echo "[DEBUG] base_ref is not valid, exiting."
             exit 1
-          done
+          fi
         shell: bash
 
       - name: Checkout sources
