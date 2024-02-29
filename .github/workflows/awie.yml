@@ -195,7 +195,7 @@ jobs:
   promote:
     needs: [get-version]
     #if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability)  && github.event_name != 'workflow_dispatch' }}
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -204,6 +204,14 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Get merged branch
+        run: |
+          set -eux
+
+          # Check what was the merged branch
+          MERGED_BRANCH="${{ github.event.pull_request.head_ref }}"
+          echo "[DEBUG] MERGED_BRANCH is: $MERGED_BRANCH"
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
