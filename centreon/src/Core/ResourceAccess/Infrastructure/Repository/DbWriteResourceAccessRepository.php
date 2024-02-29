@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
@@ -35,7 +36,7 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;
@@ -86,19 +87,16 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function deleteDatasets(array $ids): void
     {
-        $fields = '';
-        foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
-        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':dataset_id_');
 
         $request = <<<SQL
-                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ({$fields})
+                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ($bindQuery)
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
 
-        foreach ($ids as $index => $id) {
-            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
 
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
