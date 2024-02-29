@@ -348,7 +348,9 @@ jobs:
 
           if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
             echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
-            DOCKER_ENV_FILE_OPTION="--env-file ../../../.github/docker/.env --env-file ${COLLECTION_DIRECTORY}/.env"
+            cat ../../../.github/docker/.env > .env.local
+            cat ${COLLECTION_DIRECTORY}/.env >> .env.local
+            DOCKER_ENV_FILE_OPTION="--env-file .env.local"
           fi
 
           docker compose ${DOCKER_ENV_FILE_OPTION} --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
