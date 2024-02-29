@@ -696,7 +696,8 @@ function secure_db_system_setup() {
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
-			SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
+			SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';
+			SELECT @@sql_mode;
 			SET PASSWORD FOR root@localhost = "$db_root_password";
 			FLUSH PRIVILEGES;
 		EOF
