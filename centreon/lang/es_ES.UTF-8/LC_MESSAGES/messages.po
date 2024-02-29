@@ -16906,7 +16906,37 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "are working fine"
-# msgstr
+# msgstr ""
 
 # msgid "No {{resourcesType}} found with this status"
-# msgstr
+# msgstr ""
+
+# msgid "No host found"
+# msgstr ""
+
+# msgid "No service found"
+# msgstr ""
+
+# msgid "are working fine."
+# msgstr ""
+
+# msgid "down"
+# msgstr ""
+
+# msgid "pending"
+# msgstr ""
+
+# msgid "warning"
+# msgstr ""
+
+# msgid "critical"
+# msgstr ""
+
+# msgid "unknown"
+# msgstr ""
+
+# msgid "up"
+# msgstr ""
+
+# msgid "unreachable"
+# msgstr ""

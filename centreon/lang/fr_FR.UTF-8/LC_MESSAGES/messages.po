@@ -18716,11 +18716,39 @@ msgstr "Donut"
 msgid "Status:"
 msgstr "Statut :"
 
-msgid "are working fine"
-msgstr "fonctionnent correctement"
 
 msgid "No {{resourcesType}} found with this status"
 msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
 
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
+
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
+
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+msgid "down"
+msgstr "indisponible"
+
+msgid "pending"
+msgstr "en attente"
+
+msgid "warning"
+msgstr "alerte"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "up"
+msgstr "disponible"
+
+msgid "unreachable"
+msgstr "injoignable"
