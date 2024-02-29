@@ -164,7 +164,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 FROM `:db`.notification_user_relation
                 JOIN contact ON user_id = contact_id
                 WHERE notification_id = :notificationId
-                ORDER BY user_id
+                ORDER BY user_id ASC
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -182,7 +182,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              *     contact_email: string
              * } $result
              */
-            $users[$result['user_id']] = new ConfigurationUser(
+            $users[] = new ConfigurationUser(
                 $result['user_id'],
                 $result['contact_name'],
                 $result['contact_email'],
