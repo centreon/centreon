@@ -20,7 +20,7 @@ on:
 
 jobs:
   release:
-    #if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-22.04
     steps:
       - name: Check base_ref
@@ -33,19 +33,18 @@ jobs:
             echo "[DEBUG] base_ref is valid: ${{ github.base_ref }}"
           else
             echo "[DEBUG] base_ref is not valid (${{ github.base_ref }}), exiting."
-            exit 0
-            # exit 1
+            exit 1
           fi
         shell: bash
 
       - name: Checkout sources
-        if: success()
+        if: ${{ success() }}
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           fetch-depth: 0
 
       - name: Release
-        if: success()
+        if: ${{ success() }}
         id: release
         uses: ./.github/actions/release
         with:
