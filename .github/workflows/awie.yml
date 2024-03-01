@@ -195,7 +195,6 @@ jobs:
   promote:
     needs: [get-version]
     #if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability)  && github.event_name != 'workflow_dispatch' }}
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -209,9 +208,14 @@ jobs:
         run: |
           set -eux
 
-          # Check what was the merged branch
-          MERGED_BRANCH="${{ github.event.pull_request.head_ref }}"
+          # Check what was the merged branch (= last commit with "release(hotfix)" as a prefix)
           echo "[DEBUG] MERGED_BRANCH is: $MERGED_BRANCH"
+          echo ""
+        shell: bash
+        id: get_merged_branch
+        env:
+          RELEASE_TYPE_CUSTOM: release_type_custom
+          RELEASE_CLOUD_CUSTOM: release_cloud_custom
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -225,3 +229,5 @@ jobs:
           github_base_ref: ${{ github.base_ref }}
           release_type: ${{ needs.get-version.outputs.release_type }}
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          release_type_custom: ${{ needs.get-version.outputs.release_type }}
+          release_cloud_custom: ${{ needs.get-version.outputs.release_cloud  }}
