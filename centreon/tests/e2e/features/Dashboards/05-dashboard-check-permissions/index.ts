@@ -8,7 +8,7 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
@@ -65,7 +65,7 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 afterEach(() => {
@@ -243,7 +243,7 @@ When('the admin user deletes the newly created dashboard', () => {
     .find('button[aria-label="delete"]')
     .click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
 });
 
@@ -441,7 +441,7 @@ When(
       .find('button[aria-label="delete"]')
       .click();
 
-    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboards');
   }
 );
@@ -637,7 +637,7 @@ When('the dashboard editor user deletes the newly created dashboard', () => {
     .find('button[aria-label="delete"]')
     .click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
 });
 

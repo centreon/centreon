@@ -10,6 +10,10 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
   count: {
     width: theme.spacing(9.5)
   },
+  link: {
+    color: 'inherit',
+    textDecoration: 'none'
+  },
   status: {
     alignItems: 'center',
     display: 'flex',
