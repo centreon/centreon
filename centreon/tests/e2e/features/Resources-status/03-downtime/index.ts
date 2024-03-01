@@ -232,23 +232,22 @@ Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
 
   cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
+  cy.window().then((win) => {
+    cy.stub(win, 'confirm').returns(true);
+  });
+
   cy.get('@cancelButton').first().click();
 });
 
-Then('the user confirms the cancellation of the downtime', () => {
-  cy.on('window:confirm', () => {
-    return true;
-  });
-});
-
 Then('the line disappears from the listing', () => {
+  cy.wait('@getTimeZone');
   cy.waitUntil(
     () => {
-      cy.reload().wait('@getTimeZone');
+      cy.getIframeBody().find('input[name="SearchB"]').click();
+      cy.wait('@getTimeZone');
 
       return cy
-        .get('iframe#main-content')
-        .its('0.contentDocument.body')
+        .getIframeBody()
         .find('.ListTable tr:not(.ListHeader)')
         .first()
         .children()
@@ -257,7 +256,8 @@ Then('the line disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000
+      timeout: 15000,
+      interval: 5000
     }
   );
 });
@@ -365,14 +365,6 @@ Then(
         cy.get('input[type="checkbox"]').should('be.checked');
       });
 
-    // cy.get<HTMLIFrameElement>('iframe#main-content', { timeout: 10000 }).then(
-    //   (iframe: JQuery<HTMLIFrameElement>) => {
-    //     const win = iframe[0].contentWindow;
-
-    //     cy.stub<any>(win, 'confirm').returns(true);
-    //   }
-    // );
-
     cy.window().then((win) => {
       cy.stub(win, 'confirm').returns(true);
     });
@@ -382,13 +374,6 @@ Then(
 );
 
 Then('the lines disappears from the listing', () => {
-  // cy.getIframeBody()
-  //   .find('.ListTable tr:not(.ListHeader)')
-  //   .first()
-  //   .children()
-  //   .then((val) => {
-  //     return val.text().trim() != 'No downtime scheduled';
-  //   });
   cy.wait('@getTimeZone');
   cy.waitUntil(
     () => {
@@ -415,12 +400,10 @@ Then('the resources should not be in Downtime anymore', () => {
   checkServicesAreMonitored([
     {
       inDowntime: false,
-      // inDowntime: true,
       name: serviceInDtName
     },
     {
       inDowntime: false,
-      // inDowntime: true,
       name: secondServiceInDtName
     }
   ]);
@@ -430,13 +413,11 @@ Then('the resources should not be in Downtime anymore', () => {
     .parent()
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.normal;
-      // return val.css('background-color') != actionBackgroundColors.normal;
     })
     .then(() => cy.contains(secondServiceInDtName))
     .parent()
     .then((val) => {
       return val.css('background-color') === actionBackgroundColors.normal;
-      // return val.css('background-color') != actionBackgroundColors.normal;
     });
 });
 
