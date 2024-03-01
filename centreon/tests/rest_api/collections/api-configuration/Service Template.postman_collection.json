@@ -4499,7 +4499,6 @@
 									"        \"is_password\": true,\r",
 									"        \"description\": \"Miam\"\r",
 									"    });\r",
-									"    //Verifier groups\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4927,7 +4926,7 @@
 									"        \"icon_id\": null,\r",
 									"        \"icon_alternative\": null,\r",
 									"        \"severity_id\": null,\r",
-									"        \"host_templates\": [],\r",
+									"        \"host_templates\": [pm.collectionVariables.get(\"HostTemplate1Id\"), pm.collectionVariables.get(\"HostTemplate2Id\")],\r",
 									"        \"is_locked\": false\r",
 									"    });\r",
 									"\r",
