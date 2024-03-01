@@ -365,26 +365,19 @@ Then(
         cy.get('input[type="checkbox"]').should('be.checked');
       });
 
-    cy.get<HTMLIFrameElement>('iframe#main-content', { timeout: 10000 }).then(
-      (iframe: JQuery<HTMLIFrameElement>) => {
-        const win = iframe[0].contentWindow;
-
-        cy.stub<any>(win, 'confirm').returns(true);
-      }
-    );
-
     cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
   }
 );
 
 Then('the lines disappears from the listing', () => {
+  cy.wait('@getTimeZone');
   cy.waitUntil(
     () => {
-      cy.reload().wait('@getTimeZone');
+      cy.getIframeBody().find('input[name="SearchB"]').click();
+      cy.wait('@getTimeZone');
 
       return cy
-        .get('iframe#main-content')
-        .its('0.contentDocument.body')
+        .getIframeBody()
         .find('.ListTable tr:not(.ListHeader)')
         .first()
         .children()
@@ -393,7 +386,8 @@ Then('the lines disappears from the listing', () => {
         });
     },
     {
-      timeout: 15000
+      timeout: 15000,
+      interval: 5000
     }
   );
 });
