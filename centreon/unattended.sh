@@ -697,7 +697,6 @@ function secure_db_system_setup() {
 			FLUSH PRIVILEGES;
 		EOF
 	else
-		systemctl daemon-reload
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
