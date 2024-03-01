@@ -351,12 +351,17 @@ jobs:
             cat ${COLLECTION_DIRECTORY}/.env >> ../../../.github/docker/.env
           fi
 
-          docker compose ${DOCKER_ENV_FILE_OPTION} --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+          docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
-            docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup.sh web:/tmp/setup.sh
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash "/tmp/setup.sh"
+            bash -ex "${COLLECTION_DIRECTORY}/setup.sh"
+          fi
+
+          if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
+            echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
+            docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
+            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
           fi
         shell: bash
 
