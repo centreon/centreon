@@ -357,9 +357,7 @@ Then(
     cy.get('@secondServiceInDT').check();
     cy.get('@secondServiceInDT').should('be.checked');
 
-    cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
-
-    cy.get('@cancelButton').first().click();
+    cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
   }
 );
 
