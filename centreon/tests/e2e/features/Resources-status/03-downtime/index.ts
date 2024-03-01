@@ -365,6 +365,14 @@ Then(
         cy.get('input[type="checkbox"]').should('be.checked');
       });
 
+    cy.get<HTMLIFrameElement>('iframe#main-content', { timeout: 10000 }).then(
+      (iframe: JQuery<HTMLIFrameElement>) => {
+        const win = iframe[0].contentWindow;
+
+        cy.stub<any>(win, 'confirm').returns(true);
+      }
+    );
+
     cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
   }
 );
