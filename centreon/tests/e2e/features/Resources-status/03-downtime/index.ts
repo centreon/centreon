@@ -351,11 +351,19 @@ When('I search for the resources currently "In Downtime" in the list', () => {
 Then(
   'the user selects the checkboxes and clicks on the "Cancel" action',
   () => {
-    cy.get('@serviceInDT').check();
-    cy.get('@serviceInDT').should('be.checked');
+    cy.getIframeBody()
+      .contains('tr', serviceInDtName)
+      .within(() => {
+        cy.get('input[type="checkbox"]').check();
+        cy.get('input[type="checkbox"]').should('be.checked');
+      });
 
-    cy.get('@secondServiceInDT').check();
-    cy.get('@secondServiceInDT').should('be.checked');
+    cy.getIframeBody()
+      .contains('tr', secondServiceInDtName)
+      .within(() => {
+        cy.get('input[type="checkbox"]').check();
+        cy.get('input[type="checkbox"]').should('be.checked');
+      });
 
     cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
   }
