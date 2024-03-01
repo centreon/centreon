@@ -2615,8 +2615,7 @@
 									"        \"icon_id\": 1,\r",
 									"        \"icon_alternative\": \"3\",\r",
 									"        \"comment\": \"1, 2, 3\",\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
+									"        \"is_locked\": false\r",
 									"    });\r",
 									"    pm.expect(responseJson.check_command_args).to.include(\"OUTPUT2\");\r",
 									"    pm.expect(responseJson.event_handler_command_args).to.include(\"%d\");\r",
@@ -2624,10 +2623,7 @@
 									"        \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    });\r",
-									"    pm.expect(responseJson.templates[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostTemplate0Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostTemplate0Name\")\r",
-									"    });\r",
+									"    pm.expect(responseJson.templates).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
 									"\r",
 									"});"
@@ -2647,7 +2643,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate0Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2715,9 +2711,9 @@
 									"        \"first_notification_delay\": null,\r",
 									"        \"recovery_notification_delay\": null,\r",
 									"        \"acknowledgement_timeout\": null,\r",
-									"        \"freshness_checked\": null,\r",
+									"        \"freshness_checked\": 2,\r",
 									"        \"freshness_threshold\": null,\r",
-									"        \"flap_detection_enabled\": null,\r",
+									"        \"flap_detection_enabled\": 2,\r",
 									"        \"low_flap_threshold\": null,\r",
 									"        \"high_flap_threshold\": null,\r",
 									"        \"event_handler_enabled\": 2,\r",
@@ -2725,8 +2721,7 @@
 									"        \"icon_id\": null,\r",
 									"        \"icon_alternative\": null,\r",
 									"        \"comment\": null,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
+									"        \"is_locked\": false\r",
 									"    });\r",
 									"    pm.expect(response.check_command_args).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
