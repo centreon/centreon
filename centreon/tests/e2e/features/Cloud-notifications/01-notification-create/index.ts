@@ -9,8 +9,8 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
-var globalResourceType = '';
-var globalContactSettings = '';
+let globalResourceType = '';
+let globalContactSettings = '';
 
 beforeEach(() => {
   cy.startContainers({ useSlim: false });
