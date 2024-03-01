@@ -1513,7 +1513,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "/centreon/centreon/tests/rest_api/collections/api-administration/Admin-Potter.png"
+									"src": "../Admin-Potter.png"
 								},
 								{
 									"key": "directory",
@@ -1996,7 +1996,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "/centreon/centreon/tests/rest_api/collections/images/Salameche.png"
+									"src": "/../images/Salameche.png"
 								},
 								{
 									"key": "directory",
