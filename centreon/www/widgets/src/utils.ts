@@ -219,7 +219,7 @@ export const formatStatusFilter = cond([
   [equals(SeverityStatus.Problem), always(['down', 'critical'])],
   [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
   [equals(SeverityStatus.Pending), always(['pending'])],
-  [T, always([])]
+  [T, identity]
 ]);
 
 export const formatStatus = pipe(

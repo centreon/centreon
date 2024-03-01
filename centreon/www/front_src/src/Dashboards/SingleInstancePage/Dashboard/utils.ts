@@ -197,7 +197,7 @@ export const getUrlForResourcesOnlyWidgets = ({
     : [];
 
   const statesQueryParameter = states
-    ? [{ name: 'statuses', value: formattedStates }]
+    ? [{ name: 'states', value: formattedStates }]
     : [];
 
   const filterQueryParameter = {
