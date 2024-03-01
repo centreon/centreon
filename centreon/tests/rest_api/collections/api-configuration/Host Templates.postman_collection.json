@@ -2639,7 +2639,7 @@
 									"    });\r",
 									"    pm.expect(responseJson.macros[1]).to.include({\r",
 									"        \"name\": \"NAMEB\",\r",
-									"        \"value\": \"valueB\",\r",
+									"        \"value\": null,\r",
 									"        \"is_password\": true,\r",
 									"        \"description\": null\r",
 									"    });\r",
@@ -4134,7 +4134,7 @@
 									"    });\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
 									"        \"name\": \"COUCOU\",\r",
-									"        \"value\": \"Ohno\",\r",
+									"        \"value\": null,\r",
 									"        \"is_password\": true,\r",
 									"        \"description\": \"null\"\r",
 									"    });\r",
@@ -4155,7 +4155,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate4Name}}\",\r\n    \"alias\": \"{{HostTemplate4Alias}}\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Ohno\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate4Name}}\",\r\n    \"alias\": \"{{HostTemplate4Alias}}\",\r\n    \"snmp_version\": \"1\",\r\n    \"snmp_community\": \"\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ],\r\n    \"comment\": \"Blabloubli\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"Coucou\",\r\n        \"value\": \"Oh no\",\r\n        \"is_password\": true,\r\n        \"description\": \"null\"\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
