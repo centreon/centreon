@@ -409,8 +409,8 @@ function setup_mysql() {
 	esac
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now mysqld
-	echo "open_files_limit=32000" >> /etc/my.cnf.d/mysql-server.cnf
-	systemctl restart mysqld
+	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /systemd/system/mysqld.service
+	systemctl daemon-reload
 }
 #========= end of function set_mysql_repos()
 
