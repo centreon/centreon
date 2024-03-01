@@ -333,7 +333,7 @@ When(
     cy.getByTestId({ testId: 'DeleteIcon' }).click();
     cy.getByLabel({
       label: 'Delete',
-      tag: 'li'
+      tag: 'button'
     }).realClick();
   }
 );

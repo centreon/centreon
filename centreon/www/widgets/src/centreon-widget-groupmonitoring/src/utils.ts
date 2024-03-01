@@ -117,7 +117,3 @@ export const getStatusesCountFromResources = ({
     };
   });
 };
-
-export const goToUrl = (url) => (): void => {
-  window?.open(url, '_blank,noopener,noreferrer');
-};
