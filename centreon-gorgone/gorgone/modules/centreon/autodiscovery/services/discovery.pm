@@ -40,6 +40,7 @@ sub new {
     $connector->{internal_socket} = $options{internal_socket};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
+    $connector->{class_autodiscovery} = $options{class_autodiscovery};
     $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{mail_subject} = defined($connector->{config}->{mail_subject}) ? $connector->{config}->{mail_subject} : 'Centreon Auto Discovery';
     $connector->{mail_from} = defined($connector->{config}->{mail_from}) ? $connector->{config}->{mail_from} : 'centreon-autodisco';
@@ -937,6 +938,12 @@ sub launchdiscovery {
     $self->service_execute_commands(vault_count => $vault_count);
 
     return 0;
+}
+
+sub event {
+    my ($self, %options) = @_;
+
+    $self->{class_autodiscovery}->event();
 }
 
 1;
