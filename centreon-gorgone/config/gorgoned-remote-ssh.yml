@@ -3,11 +3,11 @@ description: Configuration example in a SSH environment for Remote server
 configuration:
   centreon:
     database:
-      db_configuration: 
+      db_configuration:
         dsn: "mysql:host=localhost;dbname=centreon"
         username: centreon
         password: centreon
-      db_realtime: 
+      db_realtime:
         dsn: "mysql:host=localhost;dbname=centreon_storage"
         username: centreon
         password: centreon
@@ -31,6 +31,7 @@ configuration:
           - ^centreon
           - ^mkdir
           - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --all --job-id=\d+ --export-conf --token=\S+$
+          - ^/usr/share/centreon/bin/centreon -u \"centreon-gorgone\" -p \S+ -w -o CentreonWorker -a processQueue$
 
       - name: proxy
         package: gorgone::modules::core::proxy::hooks

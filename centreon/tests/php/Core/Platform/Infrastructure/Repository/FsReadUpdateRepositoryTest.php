@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Platform\Infrastructure\Repository;
 
 use Core\Platform\Infrastructure\Repository\FsReadUpdateRepository;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -33,7 +32,7 @@ beforeEach(function () {
     $this->finder = $this->createMock(Finder::class);
 });
 
-it('should return an error when install directory does not exist', function () {
+it('should return an empty array when install directory does not exist', function () {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
 
     $this->filesystem
@@ -42,10 +41,8 @@ it('should return an error when install directory does not exist', function () {
         ->willReturn(false);
 
     $availableUpdates = $repository->findOrderedAvailableUpdates('22.04.0');
-})->throws(
-    UpdateNotFoundException::class,
-    UpdateNotFoundException::updatesNotFound()->getMessage(),
-);
+    expect($availableUpdates)->toEqual([]);
+});
 
 it('should order found updates', function () {
     $repository = new FsReadUpdateRepository(sys_get_temp_dir(), $this->filesystem, $this->finder);
