@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Platform\Application\UseCase\UpdateVersions;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
@@ -49,16 +51,20 @@ final class UpdateVersions
      * @param ReadUpdateRepositoryInterface $readUpdateRepository
      * @param WriteUpdateRepositoryInterface $writeUpdateRepository
      * @param Container $dependencyInjector
+     * @param ContactInterface $user
      */
     public function __construct(
-        private RequirementValidatorsInterface $requirementValidators,
-        private UpdateLockerRepositoryInterface $updateLocker,
-        private ReadVersionRepositoryInterface $readVersionRepository,
-        private ReadUpdateRepositoryInterface $readUpdateRepository,
-        private WriteUpdateRepositoryInterface $writeUpdateRepository,
+        private readonly RequirementValidatorsInterface $requirementValidators,
+        private readonly UpdateLockerRepositoryInterface $updateLocker,
+        private readonly ReadVersionRepositoryInterface $readVersionRepository,
+        private readonly ReadUpdateRepositoryInterface $readUpdateRepository,
+        private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
         Container $dependencyInjector,
+        private readonly ContactInterface $user
     ) {
-        $this->moduleService = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
+        /** @var CentreonModuleService $service */
+        $service = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
+        $this->moduleService = $service;
     }
 
     /**
@@ -67,6 +73,11 @@ final class UpdateVersions
     public function __invoke(UpdateVersionsPresenterInterface $presenter): void
     {
         try {
+            if (! $this->user->isAdmin()) {
+                $presenter->setResponseStatus(new ForbiddenResponse('Only admin user can perform upgrades'));
+
+                return;
+            }
             $this->validateRequirementsOrFail();
             $this->lockUpdate();
             $this->updateCentreonWeb();
@@ -217,8 +228,8 @@ final class UpdateVersions
             );
 
             foreach ($widgets['widget'] as $widget) {
-                    $this->debug('Updating widget', ['name' => $widget->getName()]);
-                    $this->moduleService->update($widget->getId(), 'widget');
+                $this->debug('Updating widget', ['name' => $widget->getName()]);
+                $this->moduleService->update($widget->getId(), 'widget');
             }
         } catch (\Throwable $exception) {
             throw UpdateVersionsException::errorWhenApplyingUpdate($exception->getMessage(), $exception);

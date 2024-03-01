@@ -24,9 +24,7 @@ declare(strict_types=1);
 namespace Core\Platform\Infrastructure\API\UpdateVersions;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Platform\Application\UseCase\UpdateVersions\{
     UpdateVersions,
     UpdateVersionsPresenterInterface,
@@ -47,17 +45,6 @@ final class UpdateVersionsController extends AbstractController
         UpdateVersionsPresenterInterface $presenter
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
-        if (! $contact->isAdmin()) {
-            $presenter->setResponseStatus(new UnauthorizedResponse('Only admin user can perform upgrades'));
-
-            return $presenter->show();
-        }
 
         $useCase($presenter);
 

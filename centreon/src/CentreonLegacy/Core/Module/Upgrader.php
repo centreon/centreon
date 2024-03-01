@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use Symfony\Component\Filesystem\Exception\IOException;
+
 class Upgrader extends Module
 {
     /**
@@ -71,7 +73,11 @@ class Upgrader extends Module
     }
 
     /**
+     * This method intends to generate routes from available route files eg copy the
+     * RouteFile.wait.yaml to the final RouteFile.yaml.
+     *
      * @throws \Exception
+     * @throws IOException
      */
     private function generateRoutes(): void
     {
