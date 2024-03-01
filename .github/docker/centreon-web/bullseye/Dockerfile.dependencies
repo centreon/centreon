@@ -6,7 +6,7 @@ ARG VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN bash -e <<EOF
+RUN <<EOF
 
 ######################################
 # additional configuration for apt   #
