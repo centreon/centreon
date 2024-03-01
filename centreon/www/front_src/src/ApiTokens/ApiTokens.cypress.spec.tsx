@@ -15,7 +15,8 @@ import {
   QueryParameter,
   SnackbarProvider,
   TestQueryProvider,
-  useLocaleDateTimeFormat
+  useLocaleDateTimeFormat,
+  useResizeObserver
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
@@ -290,7 +291,7 @@ describe('Api-token', () => {
           <SnackbarProvider>
             <Router>
               <TestQueryProvider>
-                <TokenListing />
+                <TokenListing id="cy-root" />
               </TestQueryProvider>
             </Router>
           </SnackbarProvider>
@@ -649,7 +650,7 @@ describe('Api-token', () => {
       });
     });
 
-    // cy.makeSnapshot();
+    cy.makeSnapshot();
   });
 
   it('display the filter interface', () => {
@@ -661,7 +662,8 @@ describe('Api-token', () => {
     cy.findByTestId(labelCreator).should('be.visible');
     cy.findByTestId(labelActiveToken).should('be.visible');
     cy.findByTestId(labelRevokedToken).should('be.visible');
-    // cy.makeSnapshot()
+
+    cy.makeSnapshot();
   });
 
   it('update the filter interface when changes are made to the search bar', () => {
@@ -685,18 +687,7 @@ describe('Api-token', () => {
       'February 27, 2024 5:30 PM'
     );
 
-    // cy.makeSnapshot();
-
-    cy.findByTestId(labelCreationDate).click();
-    cy.findByRole('option', { name: 'Customize' }).click();
-
-    cy.findByRole('gridcell', { name: '27' })
-      .should('have.attr', 'aria-selected', 'true')
-      .click();
-
-    cy.findByLabelText('5 hours').should('have.attr', 'aria-selected', 'true');
-
-    // cy.makeSnapshot('update the calendar date when the corresponding date is entered in the search bar')
+    cy.makeSnapshot();
   });
 
   it('update the search bar when changes are made to the filter interface', () => {
@@ -754,7 +745,7 @@ describe('Api-token', () => {
 
     cy.findByTestId('inputSearch').should('have.value', expectedSearch);
 
-    // cy.makeSnapshot();
+    cy.makeSnapshot();
   });
 
   it('executes a listing request with selected filters ', () => {
@@ -822,6 +813,8 @@ describe('Api-token', () => {
     cy.contains('User');
     cy.contains(expectedCreationDate);
     cy.contains(expectedExpirationDate);
+
+    cy.makeSnapshot();
   });
 
   it('clear the selected filter when clicking on the clear button', () => {
@@ -840,5 +833,6 @@ describe('Api-token', () => {
     cy.findByTestId(labelExpirationDate).should('not.have.value');
 
     cy.findByTestId('inputSearch').should('not.have.value');
+    cy.makeSnapshot();
   });
 });

@@ -16,13 +16,17 @@ import { selectedRowAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
 
-const TokenListing = (): JSX.Element | null => {
+interface Props {
+  id: string;
+}
+
+const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const setSelectRow = useSetAtom(selectedRowAtom);
 
   const { width } = useResizeObserver<HTMLElement>({
-    ref: document.getElementById('root')
+    ref: document.getElementById(id)
   });
 
   const {
