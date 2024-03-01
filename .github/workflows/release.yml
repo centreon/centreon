@@ -50,4 +50,3 @@ jobs:
           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
-          module_name: ${{ env.module }}

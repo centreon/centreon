@@ -4,9 +4,6 @@ inputs:
   github_ref_name:
     description: "Github ref name"
     required: true
-  module_name:
-    description: "The package module name"
-    required: true
   jira_api_token:
     description: "Token to authenticate to Jira"
     required: true
