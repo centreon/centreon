@@ -153,7 +153,7 @@ it('throws an exception when multiselect field value is not in the allowed value
     BrokerException::invalidParameter('multiselect-field_subfield', 'invalid-test')->getMessage()
 );
 
-it('throws an exception when group field does not contains expected subfield', function (): void {
+it('throws an exception when group field does not contain expected subfield', function (): void {
     $this->validator->validateParameters(
         fields: ['group-field' => $this->outputFields['group-field']],
         values: ['group-field' => [['unknownField' => 'azerty']]]

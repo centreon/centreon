@@ -18735,7 +18735,7 @@ msgid "Broker configuration #%d not found"
 msgstr "Configuration Broker #%d introuvable"
 
 msgid "Missing output parameter: %s"
-msgstr "Paramètres de sortie manquants: %s"
+msgstr "Paramètre de sortie manquant: %s"
 
 msgid "Parameter '%s' (%s) is invalid"
 msgstr "Le paramètre '%s' (%s) est invalide"

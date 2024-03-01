@@ -16936,7 +16936,7 @@ msgstr "Modo avanzado"
 #  msgid "Missing output parameter: %s"
 #  msgstr ""
 
-#  msgid "Parameter '%s' (%s) is invali"
+#  msgid "Parameter '%s' (%s) is invalid"
 #  msgstr ""
 
 #  msgid "Parameter '%s' of type %s is invalid"

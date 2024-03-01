@@ -23,7 +23,7 @@ properties:
   parameters:
     type: object
     description: |
-      Output parameters specifics to the output type.
+      Output parameters specific to the output type.
 
       For multiselect fields, the property name is a combination of the group field name and the sub field name (ex: "filters.category")
 

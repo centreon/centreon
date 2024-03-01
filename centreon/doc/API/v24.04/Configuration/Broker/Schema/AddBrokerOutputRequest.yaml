@@ -29,12 +29,12 @@ properties:
   parameters:
     type: object
     description: |
-      Output parameters specifics to the output type.
+      Output parameters specific to the output type.
 
       For multiselect fields the property name is a combination of
       the group field name and the sub field name as "{fieldName}_{subfieldName}" (ex: "filters_category")
 
-      All field must be provided, but can be null/empty if they are optional.
+      All fields must be provided, but can be null/empty if they are optional.
 
     example: |
       {
