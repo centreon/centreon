@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "1c883679-77b5-4515-b960-5d80dfa7c793",
-		"name": "Service Template",
+		"name": "0 - Service Template",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-23.10~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-1c883679-77b5-4515-b960-5d80dfa7c793?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-1c883679-77b5-4515-b960-5d80dfa7c793?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -457,57 +457,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Configuration\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Grant RW right Tokens",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"RW;1;Administration;API Tokens\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2284,7 +2233,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity with all properties defined (successful)",
+					"name": "Creation of a new service severity (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2350,7 +2299,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service category with all properties defined (successful)",
+					"name": "Creation of a new service category (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2413,7 +2362,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service group with all properties defined (successful)",
+					"name": "Creation of a first service group (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2479,7 +2428,7 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service group with all properties defined (successful)",
+					"name": "Creation of a second service group (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2545,24 +2494,32 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a command",
+					"name": "Add a new command (successful)",
 					"event": [
 						{
-							"listen": "test",
+							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
+									"pm.collectionVariables.set(\"Command1Name\", \"check-host-alive\");\r",
+									""
 								],
 								"type": "text/javascript"
 							}
 						},
 						{
-							"listen": "prerequest",
+							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new command \r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"CommandId\", response.id);\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -2572,74 +2529,23 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}"
+								"value": "{{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"CMD\",\n  \"values\": \"check-host-alive;check;$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\n}"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n"
 						},
 						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
+							"raw": "{{baseUrl}}/configuration/commands",
 							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Retrieve id of the command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"A command has been successfully created.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"",
-									"    var response = pm.response.json();",
-									"    pm.collectionVariables.set(\"CommandId\", response.result[response.result.length-1].id);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"CMD\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
 							]
 						}
 					},
@@ -2668,6 +2574,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new service template\r",
 									"    var response = JSON.parse(responseBody);\r",
+									"    console.log(response);\r",
 									"    pm.collectionVariables.set(\"ServiceTemplate1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.include({\r",
@@ -4279,7 +4186,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ServiceTemplate4Name}}\",\r\n    \"alias\": \"{{ServiceTemplate4Alias}}\",\r\n    \"notification_interval\": 2,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Coca Cola\",\r\n            \"value\": \"Normal\",\r\n            \"is_password\": false,\r\n            \"description\": \"Mieux que Pepsi\"\r\n        },\r\n        {\r\n            \"name\": \"Guacamole\",\r\n            \"value\": \"Nachos\",\r\n            \"is_password\": true,\r\n            \"description\": \"Miam\"\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ServiceTemplate4Name}}\",\r\n    \"alias\": \"{{ServiceTemplate4Alias}}\",\r\n    \"host_templates\": [3, 11],\r\n    \"notification_interval\": 2,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Coca Cola\",\r\n            \"value\": \"Normal\",\r\n            \"is_password\": false,\r\n            \"description\": \"Mieux que Pepsi\"\r\n        },\r\n        {\r\n            \"name\": \"Guacamole\",\r\n            \"value\": \"Nachos\",\r\n            \"is_password\": true,\r\n            \"description\": \"Miam\"\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 11\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/templates",
@@ -6343,6 +6250,78 @@
 		},
 		{
 			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Id",
 			"value": ""
 		}
 	]

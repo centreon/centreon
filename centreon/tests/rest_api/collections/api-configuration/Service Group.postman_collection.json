@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "473e694b-68c0-4ae3-b817-1d6248189717",
-		"name": "0 - Service Group",
+		"name": "Service Group",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-473e694b-68c0-4ae3-b817-1d6248189717?action=share&source=collection_link&creator=16182525"

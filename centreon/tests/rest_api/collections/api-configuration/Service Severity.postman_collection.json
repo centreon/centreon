@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "aaea2561-bcd3-4d88-a1d6-a27354f0934a",
-		"name": "0 - Service Severity",
+		"name": "Service Severity",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-aaea2561-bcd3-4d88-a1d6-a27354f0934a?action=share&source=collection_link&creator=16182525"
