@@ -41,11 +41,6 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        component_name="${{ inputs.module_name }}"
-        if [[ "${{ inputs.module_name }}" == "centreon" ]]; then
-          component_name="centreon-web"
-        fi
-
         DATA=$( cat <<-EOF
         {
           "fields": {
