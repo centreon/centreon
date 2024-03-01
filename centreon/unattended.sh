@@ -410,9 +410,9 @@ function setup_mysql() {
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now mysqld
 	cat <<EOF >> /etc/my.cnf.d/mysql-server.cnf
-			general_log_file       = /var/log/mysql/general-query.log
-			general_log            = 1
+	open_files_limit=32000
 EOF
+	systemctl restart mysqld
 }
 #========= end of function set_mysql_repos()
 
