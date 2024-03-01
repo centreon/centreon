@@ -180,7 +180,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     {
         $this->info('Getting all service categories');
 
-        $concatenators = $this->findServiceCategoriesRequest();
+        $concatenators = $this->findServiceCategoriesRequest($requestParameters);
 
         return $this->retrieveServiceCategories($concatenators, $requestParameters);
     }
@@ -212,7 +212,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             return $this->findByRequestParameter($requestParameters);
         }
 
-        $concatenators = $this->findServiceCategoriesRequest($accessGroupIds);
+        $concatenators = $this->findServiceCategoriesRequest($requestParameters, $accessGroupIds);
 
         foreach ($concatenators as $concatenator) {
             $concatenator->appendJoins(
@@ -489,11 +489,12 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
      *
      * @return array<SqlConcatenator>
      */
-    private function findServiceCategoriesRequest(array $accessGroupIds = []): array
+    private function findServiceCategoriesRequest(RequestParametersInterface $requestParameters, array $accessGroupIds = []): array
     {
         $hostAcls = '';
         $hostGroupAcls = '';
@@ -548,6 +549,9 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             }
         }
 
+        $searchAsString = $requestParameters->getSearchAsString();
+        \preg_match('/^[[:ascii:]]{10}([a-z]+).+$/', $searchAsString, $matches);
+
         $findCategoryByServiceConcatenator = new SqlConcatenator();
         $findCategoryByServiceConcatenator->defineSelect(
             <<<'SQL'
@@ -556,26 +560,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                     sc.sc_description,
                     sc.sc_activate
                 FROM `:db`.service_categories sc
-                SQL
-        )->appendJoins(
-            <<<SQL
-                LEFT JOIN `:db`.service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                LEFT JOIN `:db`.host_service_relation hsr
-                    ON hsr.service_service_id = scr.service_service_id
-                    {$hostAcls}
-                LEFT JOIN `:db`.host
-                    ON host.host_id = hsr.host_host_id
-                LEFT JOIN `:db`.hostgroup_relation hr
-                    ON hr.host_host_id = host.host_id
-                    {$hostGroupAcls}
-                LEFT JOIN `:db`.hostgroup
-                    ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN `:db`.hostcategories_relation hcr
-                    ON hcr.host_host_id = host.host_id
-                    {$hostCategoryAcls}
-                LEFT JOIN `:db`.hostcategories
-                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
                 SQL
         );
 
@@ -588,29 +572,121 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                     sc.sc_activate
                 FROM `:db`.service_categories sc
                 SQL
-        )->appendJoins(
-            <<<SQL
-                LEFT JOIN `:db`.service_categories_relation scr
-                    ON scr.sc_id = sc.sc_id
-                LEFT JOIN `:db`.service s
-                    ON s.service_template_model_stm_id = scr.service_service_id
-                LEFT JOIN `:db`.host_service_relation hsr
-                    ON hsr.service_service_id = s.service_id
-                    {$hostAcls}
-                LEFT JOIN `:db`.host
-                    ON host.host_id = hsr.host_host_id
-                LEFT JOIN `:db`.hostgroup_relation hr
-                    ON hr.host_host_id = host.host_id
-                    {$hostGroupAcls}
-                LEFT JOIN `:db`.hostgroup
-                    ON hostgroup.hg_id = hr.hostgroup_hg_id
-                LEFT JOIN `:db`.hostcategories_relation hcr
-                    ON hcr.host_host_id = host.host_id
-                    {$hostCategoryAcls}
-                LEFT JOIN `:db`.hostcategories
-                    ON hostcategories.hc_id = hcr.hostcategories_hc_id
-                SQL
         );
+
+        if ($matches[1] === 'host') {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    SQL
+            );
+        }
+
+        if ($matches[1] === 'hostgroup') {
+            $findCategoryByServiceConcatenator-> appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    SQL
+            );
+        }
+
+        if ($matches[1] === 'hostcategory') {
+            $findCategoryByServiceConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = scr.service_service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                    SQL
+            );
+
+            $findCategoryByServiceTemplateConcatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.service_categories_relation scr
+                        ON scr.sc_id = sc.sc_id
+                    LEFT JOIN `:db`.service s
+                        ON s.service_template_model_stm_id = scr.service_service_id
+                    LEFT JOIN `:db`.host_service_relation hsr
+                        ON hsr.service_service_id = s.service_id
+                        {$hostAcls}
+                    LEFT JOIN `:db`.host
+                        ON host.host_id = hsr.host_host_id
+                    LEFT JOIN `:db`.hostgroup_relation hr
+                        ON hr.host_host_id = host.host_id
+                        {$hostGroupAcls}
+                    LEFT JOIN `:db`.hostgroup
+                        ON hostgroup.hg_id = hr.hostgroup_hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = host.host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories
+                        ON hostcategories.hc_id = hcr.hostcategories_hc_id
+                    SQL
+            );
+        }
 
         return [$findCategoryByServiceConcatenator, $findCategoryByServiceTemplateConcatenator];
     }
