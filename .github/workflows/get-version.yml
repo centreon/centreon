@@ -144,8 +144,8 @@ jobs:
                 echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
                 echo "release=1" >> $GITHUB_OUTPUT
-                echo "release_cloud=0" >> $GITHUB_OUTPUT
-                echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               fi
               ;;
             *)
