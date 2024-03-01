@@ -58,4 +58,13 @@ interface ReadResourceAccessRepositoryInterface
      * @return int[]
      */
     public function findDatasetIdsByRuleId(int $ruleId): array;
+
+    /**
+     * Checks if the rule identified by ruleId exists.
+     *
+     * @param int $ruleId
+     *
+     * @return bool
+     */
+    public function exists(int $ruleId): bool;
 }
