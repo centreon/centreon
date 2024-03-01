@@ -6,7 +6,7 @@ ARG VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 ######################################
 # additional configuration for apt   #
@@ -102,6 +102,7 @@ apt-get install -y \
   libxml-sax-base-perl \
   libxml-sax-expat-perl \
   libxml-sax-perl \
+  libcarp-assert-perl \
   perl
 
 #############################
