@@ -17,6 +17,13 @@ export const useStyles = makeStyles()((theme) => ({
     opacity: 0,
     width: 0
   },
+  root: {
+    padding: theme.spacing(0.5, 0.75)
+  },
+  startIcon: {
+    marginLeft: 0,
+    marginRight: theme.spacing(0.25)
+  },
   title: {
     color: theme.palette.primary.main
   }

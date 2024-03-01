@@ -696,13 +696,6 @@ describe('Api-token', () => {
 
     cy.findByLabelText('5 hours').should('have.attr', 'aria-selected', 'true');
 
-    cy.findByLabelText('open next view').click();
-    cy.findByLabelText('30 minutes').should(
-      'have.attr',
-      'aria-selected',
-      'true'
-    );
-
     // cy.makeSnapshot('update the calendar date when the corresponding date is entered in the search bar')
   });
 

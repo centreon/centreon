@@ -5,20 +5,25 @@ import TokenFilter from './Filter';
 interface Props {
   buttonCreateToken: React.ReactNode;
   refresh: React.ReactNode;
+  width?: number;
 }
 
-const Actions = ({ refresh, buttonCreateToken }: Props): JSX.Element => {
-  const { classes } = useStyles();
+const Actions = ({
+  refresh,
+  buttonCreateToken,
+  width = 0
+}: Props): JSX.Element => {
+  const { classes } = useStyles({ width });
 
   return (
     <div className={classes.container}>
-      <div className={classes.subContainerSearch}>
-        <Search />
-        <TokenFilter />
-      </div>
       <div className={classes.subContainer}>
         {buttonCreateToken}
         {refresh}
+      </div>
+      <div className={classes.subContainerSearch}>
+        <Search />
+        <TokenFilter />
       </div>
     </div>
   );
