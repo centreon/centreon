@@ -373,7 +373,11 @@ Then(
     //   }
     // );
 
-    // cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
+    cy.window().then((win) => {
+      cy.stub(win, 'confirm').returns(true);
+    });
+
+    cy.getIframeBody().find('input[name="submit2"]').eq(0).click();
   }
 );
 
