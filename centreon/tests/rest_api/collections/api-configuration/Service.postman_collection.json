@@ -2794,7 +2794,7 @@
 									"    );\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
 									"            \"name\": \"TRY\",\r",
-									"            \"value\": \"essaye\",\r",
+									"            \"value\": null,\r",
 									"            \"is_password\": true,\r",
 									"            \"description\": \"some text\"\r",
 									"        }\r",
