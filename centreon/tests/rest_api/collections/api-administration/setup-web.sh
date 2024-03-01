@@ -10,4 +10,3 @@ SELECT vid.dir_id, vi.img_id FROM view_img_dir vid, view_img vi
 WHERE vid.dir_name = 'test'
 AND vi.img_name = 'Admin-Potter'
 "
-

@@ -19,8 +19,14 @@ The main usage is to set following environment variables :
 * `CENTREON_DATASET=0` # avoid to create sample resources (hosts, services...)
 * `MYSQL_IMAGE=bitnami/mysql:8.3` # use mysql instead of mariadb
 
-## Docker setup script (optional)
+## Global setup script (optional)
 
-A script `setup.sh` can be added t the same level than the postman collection.
+A script `setup.sh` can be added at the same level than the postman collection.
+It is run on the host machine once web container is started and healthy (before the postman collection is run).
+Usage example: `docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml cp $(dirname $0)/images/my_image.png web:/usr/share/centreon/www/img/media/my_image.png` in order to copy image in web container
+
+## Docker container web setup script (optional)
+
+A script `setup-web.sh` can be added at the same level than the postman collection.
 It is run in the web container once it is started and healthy (before the postman collection is run).
 Usage example: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json` in order to update dashboard feature flags
