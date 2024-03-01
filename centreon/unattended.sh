@@ -684,6 +684,7 @@ function secure_db_system_setup() {
 	log "WARN" "You can use mysqladmin in order to set a new password for user root"
 
 	log "INFO" "Restarting $database_system service first"
+	systemctl daemon-reload
 	if [[ $database_system == "MariaDB" ]]; then
 		systemctl restart mariadb
 		log "INFO" "Executing SQL requests for $database_system"
@@ -696,6 +697,7 @@ function secure_db_system_setup() {
 			FLUSH PRIVILEGES;
 		EOF
 	else
+		systemctl daemon-reload
 		systemctl restart mysqld
 		log "INFO" "Executing SQL requests for $database_system"
 		mysql -u root <<-EOF
@@ -706,7 +708,6 @@ function secure_db_system_setup() {
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
 		EOF
-		systemctl restart mysqld
 	fi
 
 	if [ $? -ne 0 ]; then
