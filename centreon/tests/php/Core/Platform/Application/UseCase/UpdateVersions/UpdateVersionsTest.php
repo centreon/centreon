@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Platform\Application\UseCase\UpdateVersions;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
@@ -38,25 +40,40 @@ use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 use Pimple\Container;
 
 beforeEach(function (): void {
-    $this->requirementValidators = $this->createMock(RequirementValidatorsInterface::class);
-    $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class);
-    $this->readVersionRepository = $this->createMock(ReadVersionRepositoryInterface::class);
-    $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class);
-    $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class);
-    $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
     $this->centreonModuleService = $this->createMock(CentreonModuleService::class);
-    $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]);
+
+    $this->useCase = new UpdateVersions(
+        $this->requirementValidators = $this->createMock(RequirementValidatorsInterface::class),
+        $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class),
+        $this->readVersionRepository = $this->createMock(ReadVersionRepositoryInterface::class),
+        $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class),
+        $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class),
+        $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]),
+        $this->user = $this->createMock(ContactInterface::class),
+    );
+
+    $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
+});
+
+it('should present a Forbidden Response when user is not admin', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->presenter
+        ->expects($this->once())
+        ->method('setResponseStatus')
+        ->with(new ForbiddenResponse('Only admin user can perform upgrades'));
+
+    ($this->useCase)($this->presenter);
 });
 
 it('should stop update process when an other update is already started', function (): void {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -68,18 +85,14 @@ it('should stop update process when an other update is already started', functio
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Update already in progress'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
 it('should present an error response if a requirement is not validated', function (): void {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->requirementValidators
         ->expects($this->once())
@@ -91,18 +104,14 @@ it('should present an error response if a requirement is not validated', functio
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Requirement is not validated'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
 it('should present an error response if current centreon version is not found', function (): void {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -119,18 +128,14 @@ it('should present an error response if current centreon version is not found', 
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Cannot retrieve the current version'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
 it('should run found updates', function (): void {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -173,5 +178,5 @@ it('should run found updates', function (): void {
         ->method('setResponseStatus')
         ->with(new NoContentResponse());
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
