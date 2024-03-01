@@ -4,7 +4,7 @@
 		"name": "0 - Media",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc49639a-9d43-4f34-b212-75150b3c1b33?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc49639a-9d43-4f34-b212-75150b3c1b33?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1559,6 +1559,7 @@
 									"});\r",
 									"\r",
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
 									"    // Check the number of media (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
