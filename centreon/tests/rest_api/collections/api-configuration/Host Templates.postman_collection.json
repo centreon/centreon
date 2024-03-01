@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "bc022583-0491-43af-856d-6f19a91dfeaf",
-		"name": "Host Templates",
+		"name": "0 - Host Templates",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc022583-0491-43af-856d-6f19a91dfeaf?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc022583-0491-43af-856d-6f19a91dfeaf?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2453,6 +2453,110 @@
 					"response": []
 				},
 				{
+					"name": "Add a new host template used in the creation of next template",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate0Name\", \"host_template_0\");\r",
+									"pm.collectionVariables.set(\"HostTemplate0Alias\", \"I'm a host template with nothing created to test creation wirth all properties defined in next request\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate0Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplat0Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    var response = JSON.parse(responseBody);\r",
+									"    pm.collectionVariables.set(\"HostTemplate0Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostTemplate0Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostTemplate0Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostTemplate0Alias\"),\r",
+									"        \"snmp_version\": null,\r",
+									"        \"snmp_community\": null,\r",
+									"        \"timezone_id\": null,\r",
+									"        \"severity_id\": null,\r",
+									"        \"check_command_id\": null,\r",
+									"        \"check_timeperiod_id\": null,\r",
+									"        \"note_url\": null,\r",
+									"        \"note\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"max_check_attempts\": null,\r",
+									"        \"normal_check_interval\": null,\r",
+									"        \"retry_check_interval\": null,\r",
+									"        \"active_check_enabled\": 2,\r",
+									"        \"passive_check_enabled\": 2,\r",
+									"        \"notification_enabled\": 2,\r",
+									"        \"notification_options\": null,\r",
+									"        \"notification_interval\": null,\r",
+									"        \"notification_timeperiod_id\": null,\r",
+									"        \"add_inherited_contact_group\": false,\r",
+									"        \"add_inherited_contact\": false,\r",
+									"        \"first_notification_delay\": null,\r",
+									"        \"recovery_notification_delay\": null,\r",
+									"        \"acknowledgement_timeout\": null,\r",
+									"        \"freshness_checked\": null,\r",
+									"        \"freshness_threshold\": null,\r",
+									"        \"flap_detection_enabled\": null,\r",
+									"        \"low_flap_threshold\": null,\r",
+									"        \"high_flap_threshold\": null,\r",
+									"        \"event_handler_enabled\": 2,\r",
+									"        \"event_handler_command_id\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_alternative\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_locked\": false,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    pm.expect(response.check_command_args).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.categories).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.templates).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"name\": \"{{HostTemplate0Name}}\",\r\n\"alias\": \"{{HostTemplate0Alias}}\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a new host template with all properties defined",
 					"event": [
 						{
@@ -2526,8 +2630,8 @@
 									"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"    });\r",
 									"    pm.expect(responseJson.templates[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\")\r",
+									"        \"id\": pm.collectionVariables.get(\"HostTemplate0Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostTemplate0Name\")\r",
 									"    });\r",
 									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
 									"\r",
@@ -2548,7 +2652,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate0Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/templates",
@@ -2691,7 +2795,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostTemplate2Name\", \"host template 2\");\r",
+									"pm.collectionVariables.set(\"HostTemplate2Name\", \"host_template_2\");\r",
 									"pm.collectionVariables.set(\"HostTemplate2Alias\", \"I'm the second host template created by admin\");\r",
 									""
 								],
@@ -3272,7 +3376,7 @@
 									"        \"first_notification_delay\": null,\r",
 									"        \"recovery_notification_delay\": null,\r",
 									"        \"acknowledgement_timeout\": null,\r",
-									"        \"freshness_checked\": null,\r",
+									"        \"freshness_checked\": 2,\r",
 									"        \"freshness_threshold\": null,\r",
 									"        \"flap_detection_enabled\": null,\r",
 									"        \"low_flap_threshold\": null,\r",
@@ -3999,7 +4103,7 @@
 									"        \"first_notification_delay\": null,\r",
 									"        \"recovery_notification_delay\": null,\r",
 									"        \"acknowledgement_timeout\": null,\r",
-									"        \"freshness_checked\": null,\r",
+									"        \"freshness_checked\": 2,\r",
 									"        \"freshness_threshold\": null,\r",
 									"        \"flap_detection_enabled\": null,\r",
 									"        \"low_flap_threshold\": null,\r",
@@ -6067,52 +6171,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "HostSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostSeverity1Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Id",
-			"value": ""
-		},
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
 		}
 	]
 }

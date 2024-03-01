@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "c9abdc91-3f82-4793-becb-4bbcc38f5198",
-		"name": "Host",
+		"name": "0 - Host",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-c9abdc91-3f82-4793-becb-4bbcc38f5198?action=share&source=collection_link&creator=16182525"
@@ -4193,7 +4193,7 @@
 											"        \"alias\": pm.collectionVariables.get(\"Host4Alias\"),\r",
 											"        \"address\": \"127.0.0.1\",\r",
 											"        \"monitoring_server_id\": 1,\r",
-											"        \"snmp_version\": \"2c\",\r",
+											"        \"snmp_version\": \"1\",\r",
 											"        \"snmp_community\": null,\r",
 											"        \"timezone_id\": null,\r",
 											"        \"severity_id\": null,\r",

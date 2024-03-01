@@ -2600,6 +2600,118 @@
 					"response": []
 				},
 				{
+					"name": "Add a new host template with all properties defined",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostTemplate1Name\", \"host-template-1\");\r",
+									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
+									"\r",
+									"pm.test(\"The host template has been successfully created, with name '\" + pm.collectionVariables.get(\"HostTemplate1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostTemplate1Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host template\r",
+									"    pm.collectionVariables.set(\"HostTemplate1Id\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
+									"        \"snmp_version\": \"2c\",\r",
+									"        \"snmp_community\": \"snmpCommunity-test\",\r",
+									"        \"timezone_id\": 1,\r",
+									"        \"severity_id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"        \"check_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"        \"check_timeperiod_id\": 1,\r",
+									"        \"note_url\": \"noteUrl-value\",\r",
+									"        \"note\": \"note-value\",\r",
+									"        \"action_url\": \"actionUrl-value\",\r",
+									"        \"max_check_attempts\": 3,\r",
+									"        \"normal_check_interval\": 5,\r",
+									"        \"retry_check_interval\": 2,\r",
+									"        \"active_check_enabled\": 1,\r",
+									"        \"passive_check_enabled\": 0,\r",
+									"        \"notification_enabled\": 2,\r",
+									"        \"notification_options\": 31,\r",
+									"        \"notification_interval\": 5,\r",
+									"        \"notification_timeperiod_id\": 2,\r",
+									"        \"add_inherited_contact_group\": true,\r",
+									"        \"add_inherited_contact\": true,\r",
+									"        \"first_notification_delay\": 2,\r",
+									"        \"recovery_notification_delay\": 1,\r",
+									"        \"acknowledgement_timeout\": 5,\r",
+									"        \"freshness_checked\": 1,\r",
+									"        \"freshness_threshold\": 2,\r",
+									"        \"flap_detection_enabled\": 1,\r",
+									"        \"low_flap_threshold\": 25,\r",
+									"        \"high_flap_threshold\": 75,\r",
+									"        \"event_handler_enabled\": 2,\r",
+									"        \"event_handler_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
+									"        \"icon_id\": 1,\r",
+									"        \"icon_alternative\": \"3\",\r",
+									"        \"comment\": \"1, 2, 3\",\r",
+									"        \"is_locked\": false,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    pm.expect(responseJson.check_command_args).to.include(\"OUTPUT2\");\r",
+									"    pm.expect(responseJson.event_handler_command_args).to.include(\"%d\");\r",
+									"    pm.expect(responseJson.categories[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.templates[0]).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostTemplate0Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostTemplate0Name\")\r",
+									"    });\r",
+									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"   snmpCommunity-test\",\r\n    \"timezone_id\": 1,\r\n    \"severity_id\": {{HostSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"OUTPUT\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"note_url\": \"noteUrl-value\",\r\n    \"note\": \"note-value\",\r\n    \"action_url\": \"actionUrl-value\",\r\n    \"max_check_attempts\": 3,\r\n    \"normal_check_interval\": 5,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"notification_options\": 31,\r\n    \"notification_interval\": 5,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"add_inherited_contact_group\": true,\r\n    \"add_inherited_contact\": true,\r\n    \"first_notification_delay\": 2,\r\n    \"recovery_notification_delay\": 1,\r\n    \"acknowledgement_timeout\": 5,\r\n    \"freshness_checked\": 1,\r\n    \"freshness_threshold\": 2,\r\n    \"flap_detection_enabled\": 1,\r\n    \"low_flap_threshold\": 25,\r\n    \"high_flap_threshold\": 75,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"%d\"],\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate0Id}} ],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/templates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a new host",
 					"event": [
 						{
@@ -2672,8 +2784,8 @@
 									"    pm.expect(response.categories).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.groups).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.templates[0]).to.include({\r",
-									"            \"id\": 4,\r",
-									"            \"name\": \"generic-passive-host-custom\"\r",
+									"            \"id\": pm.collectionVariables.get(\"HostTemplate1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"HostTemplate1Name\")\r",
 									"        }\r",
 									"    );\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
@@ -2707,7 +2819,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [4],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [{{HostTemplate1Id}}],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"nameA\",\r\n        \"value\": \"valueA\",\r\n        \"is_password\": false,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"nameB\",\r\n        \"value\": \"valueB\",\r\n        \"is_password\": true,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -11631,72 +11743,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "HostTotal",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "ServiceSeverity1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceSeverity1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceSeverity1Id",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
-		},
-		{
-			"key": "Service5Name",
-			"value": ""
 		}
 	]
 }
