@@ -21,17 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Tests\Core\ResourceAccess\Infrastructure\API\DeleteRule;
 
-use Centreon\Domain\Repository\RepositoryException;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-class UpdateNotFoundException extends RepositoryException
+class DeleteRulePresenterStub extends AbstractPresenter
 {
-    /**
-     * @return self
-     */
-    public static function updatesNotFound(): self
+    public ?ResponseStatusInterface $response;
+
+    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
     {
-        return new self(_('Updates not found'));
+        $this->response = $responseStatus;
     }
 }

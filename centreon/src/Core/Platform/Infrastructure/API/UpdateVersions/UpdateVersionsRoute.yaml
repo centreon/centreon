@@ -1,5 +1,5 @@
 UpdateVersions:
-  methods: PATCH
+  methods: POST
   path: /platform/updates
   controller: 'Core\Platform\Infrastructure\API\UpdateVersions\UpdateVersionsController'
   condition: "request.attributes.get('version') >= 22.04"

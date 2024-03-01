@@ -82,7 +82,7 @@ final class UpdateRule
          */
         if (! $this->isAuthorized()) {
             $this->error(
-                "User doesn't have sufficient rights to create a resource access rule",
+                "User doesn't have sufficient rights to update a resource access rule",
                 [
                     'user_id' => $this->user->getId(),
                 ]
@@ -474,6 +474,6 @@ final class UpdateRule
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }
