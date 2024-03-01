@@ -32,6 +32,7 @@ allowed_cmds:
   - ^centreon
   - ^mkdir
   - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host --all --job-id=\d+ --export-conf --token=\S+$
+  - ^/usr/share/centreon/bin/centreon -u \"centreon-gorgone\" -p \S+ -w -o CentreonWorker -a processQueue$
 ```
 
 ## Events
