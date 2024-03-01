@@ -490,11 +490,14 @@ class CentreonGraph
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            $DBRESULT = $this->DB->query("SELECT vmetric_id
+            $DBRESULT = $this->DB->prepare("SELECT vmetric_id
                                           FROM virtual_metrics
-                                          WHERE " . $l_vselector . "
+                                          WHERE :l_vselector
                                           ORDER BY vmetric_name");
-            while ($vmetric = $DBRESULT->fetch()) {
+            $DBRESULT->bindParam(':l_vselector', $l_vselector, \PDO::PARAM_STR);
+            $DBRESULT->execute();
+
+            while ($vmetric = $DBRESULT->fetchAll(PDO::FETCH_ASSOC)) {
                 $this->manageVMetric($vmetric["vmetric_id"], null, null);
             }
             $DBRESULT->closeCursor();
