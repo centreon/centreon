@@ -2617,7 +2617,7 @@
 									"        \"comment\": \"1, 2, 3\",\r",
 									"        \"is_locked\": false\r",
 									"    });\r",
-									"    pm.expect(responseJson.check_command_args).to.include(\"OUTPUT2\");\r",
+									"    pm.expect(responseJson.check_command_args).to.include(\"OUTPUT\");\r",
 									"    pm.expect(responseJson.event_handler_command_args).to.include(\"%d\");\r",
 									"    pm.expect(responseJson.categories).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(responseJson.templates).to.be.an('Array').that.is.empty;\r",
@@ -2931,7 +2931,7 @@
 									"\r",
 									"    pm.expect(response.check_command_args).to.include(\"arg31\",\"arg442\");\r",
 									"    pm.expect(response.event_handler_command_args).to.include(\"earg1\",\"earg2\");\r",
-									"    pm.expect(response.host_templates).to.include(3, 11);\r",
+									"    pm.expect(response.host_templates).to.include(parseInt(pm.collectionVariables.get(\"HostTemplate1Id\")), parseInt(pm.collectionVariables.get(\"HostTemplate2Id\")));\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
 									"            \"name\": \"POURQUOI\",\r",
 									"            \"value\": \"ABCDEFG3\",\r",
@@ -2975,7 +2975,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ServiceTemplate1Name}}\",\r\n    \"alias\": \"{{ServiceTemplate1Alias}}\",\r\n    \"comment\": \"Kouroukoukou roukoukou stach stach\",\r\n    \"service_template_id\": {{ServiceTemplate0Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"arg31\", \"arg442\"],\r\n    \"host_templates\": [3, 11],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 5,\r\n    \"normal_check_interval\": 3,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 1,\r\n    \"volatility_enabled\": 2,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": true,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 6,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 19,\r\n    \"recovery_notification_delay\": 9,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 2,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 2,\r\n    \"low_flap_threshold\": 49,\r\n    \"high_flap_threshold\": 51,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"earg1\", \"earg2\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"note\",\r\n    \"note_url\": \"note_url\",\r\n    \"action_url\": \"action url\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Pourquoi\",\r\n            \"value\": \"ABCDEFG3\",\r\n            \"is_password\": false,\r\n            \"description\": \"2f86451\"\r\n        },\r\n        {\r\n            \"name\": \"TOTO\",\r\n            \"value\": \"cacahuètes\",\r\n            \"is_password\": true,\r\n            \"description\": null\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 3\r\n        }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"name\": \"{{ServiceTemplate1Name}}\",\r\n    \"alias\": \"{{ServiceTemplate1Alias}}\",\r\n    \"comment\": \"Kouroukoukou roukoukou stach stach\",\r\n    \"service_template_id\": {{ServiceTemplate0Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"check_command_args\": [\"arg31\", \"arg442\"],\r\n    \"host_templates\": [{{HostTemplate1Id}}, {{HostTemplate2Id}}],\r\n    \"check_timeperiod_id\": 1,\r\n    \"max_check_attempts\": 5,\r\n    \"normal_check_interval\": 3,\r\n    \"retry_check_interval\": 2,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 1,\r\n    \"volatility_enabled\": 2,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": true,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 6,\r\n    \"notification_timeperiod_id\": 2,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 19,\r\n    \"recovery_notification_delay\": 9,\r\n    \"acknowledgement_timeout\": 8,\r\n    \"freshness_checked\": 2,\r\n    \"freshness_threshold\": 11,\r\n    \"flap_detection_enabled\": 2,\r\n    \"low_flap_threshold\": 49,\r\n    \"high_flap_threshold\": 51,\r\n    \"event_handler_enabled\": 2,\r\n    \"event_handler_command_id\": {{CommandId}},\r\n    \"event_handler_command_args\": [\"earg1\", \"earg2\"],\r\n    \"graph_template_id\": 1,\r\n    \"note\": \"note\",\r\n    \"note_url\": \"note_url\",\r\n    \"action_url\": \"action url\",\r\n    \"icon_id\": 1,\r\n    \"icon_alternative\": \"3\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Pourquoi\",\r\n            \"value\": \"ABCDEFG3\",\r\n            \"is_password\": false,\r\n            \"description\": \"2f86451\"\r\n        },\r\n        {\r\n            \"name\": \"TOTO\",\r\n            \"value\": \"cacahuètes\",\r\n            \"is_password\": true,\r\n            \"description\": null\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 3\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/templates",
@@ -3056,7 +3056,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[0].check_command_args).to.have.members([\"arg31\", \"arg442\"]);\r",
 									"    pm.expect(responseJson.result[0].event_handler_command_args).to.have.members([\"earg1\", \"earg2\"]);\r",
-									"    pm.expect(responseJson.result[0].host_templates).to.have.members([3, 11]);\r",
+									"    pm.expect(responseJson.result[0].host_templates).to.have.members([parseInt(pm.collectionVariables.get(\"HostTemplate1Id\")), parseInt(pm.collectionVariables.get(\"HostTemplate2Id\"))]);\r",
 									"\r",
 									"});\r",
 									"\r",
@@ -3335,7 +3335,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[1].check_command_args).to.have.members([\"arg31\", \"arg442\"]);\r",
 									"    pm.expect(responseJson.result[1].event_handler_command_args).to.have.members([\"earg1\", \"earg2\"]);\r",
-									"    pm.expect(responseJson.result[1].host_templates).to.have.members([3, 11]);\r",
+									"    pm.expect(responseJson.result[1].host_templates).to.have.members([parseInt(pm.collectionVariables.get(\"HostTemplate1Id\")), parseInt(pm.collectionVariables.get(\"HostTemplate2Id\"))]);\r",
 									"\r",
 									"});"
 								],
@@ -3928,7 +3928,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[2].check_command_args).to.have.members([\"arg31\", \"arg442\"]);\r",
 									"    pm.expect(responseJson.result[2].event_handler_command_args).to.have.members([\"earg1\", \"earg2\"]);\r",
-									"    pm.expect(responseJson.result[2].host_templates).to.have.members([3, 11]);\r",
+									"    pm.expect(responseJson.result[2].host_templates).to.have.members([parseInt(pm.collectionVariables.get(\"HostTemplate1Id\")), parseInt(pm.collectionVariables.get(\"HostTemplate2Id\"))]);\r",
 									"\r",
 									"});"
 								],
@@ -4467,7 +4467,7 @@
 									"    });\r",
 									"    pm.expect(response.check_command_args).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(response.host_templates).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.host_templates).to.include(parseInt(pm.collectionVariables.get(\"HostTemplate1Id\")), parseInt(pm.collectionVariables.get(\"HostTemplate2Id\")));\r",
 									"    pm.expect(response.groups).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.categories).to.be.an('Array').that.is.empty;\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
@@ -4499,7 +4499,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{ServiceTemplate4Name}}\",\r\n    \"alias\": \"{{ServiceTemplate4Alias}}\",\r\n    \"host_templates\": [3, 11],\r\n    \"notification_interval\": 2,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Coca Cola\",\r\n            \"value\": \"Normal\",\r\n            \"is_password\": false,\r\n            \"description\": \"Mieux que Pepsi\"\r\n        },\r\n        {\r\n            \"name\": \"Guacamole\",\r\n            \"value\": \"Nachos\",\r\n            \"is_password\": true,\r\n            \"description\": \"Miam\"\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 11\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{ServiceTemplate4Name}}\",\r\n    \"alias\": \"{{ServiceTemplate4Alias}}\",\r\n    \"host_templates\": [{{HostTemplate1Id}}, {{HostTemplate2Id}}],\r\n    \"notification_interval\": 2,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"Coca Cola\",\r\n            \"value\": \"Normal\",\r\n            \"is_password\": false,\r\n            \"description\": \"Mieux que Pepsi\"\r\n        },\r\n        {\r\n            \"name\": \"Guacamole\",\r\n            \"value\": \"Nachos\",\r\n            \"is_password\": true,\r\n            \"description\": \"Miam\"\r\n        }\r\n    ],\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"service_groups\": [ \r\n        {\r\n            \"service_group_id\": {{ServiceGroup1Id}},\r\n            \"host_template_id\": 11\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/templates",
