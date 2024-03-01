@@ -73,11 +73,10 @@ final class AddBrokerOutput
 
             $this->validator->brokerIsValidOrFail($request->brokerId);
 
-            if (! ($type = $this->readOutputRepository->findType($request->type))) {
-                throw BrokerException::idDoesNotExist('type', $request->type);
-            }
-
-            if (! ($outputFields = $this->readOutputRepository->findParametersByType($request->type, true))) {
+            if (
+                null === ($type = $this->readOutputRepository->findType($request->type))
+                || [] === ($outputFields = $this->readOutputRepository->findParametersByType($request->type))
+            ) {
                 throw BrokerException::idDoesNotExist('type', $request->type);
             }
 
@@ -110,6 +109,7 @@ final class AddBrokerOutput
             $presenter->presentResponse(
                 match ($ex->getCode()) {
                     BrokerException::CODE_CONFLICT => new ConflictResponse($ex),
+                    BrokerException::CODE_INVALID => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );

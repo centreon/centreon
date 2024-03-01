@@ -56,6 +56,8 @@ final class AddBrokerOutputController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $dto = new AddBrokerOutputRequest();
+
         try {
             /**
              * @var array{
@@ -66,13 +68,11 @@ final class AddBrokerOutputController extends AbstractController
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddBrokerOutputSchema.json');
 
-            $dto = new AddBrokerOutputRequest();
             $dto->brokerId = $brokerId;
             $dto->name = $data['name'];
             $dto->type = $data['type'];
             $dto->parameters = $data['parameters'];
 
-            $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
@@ -80,6 +80,8 @@ final class AddBrokerOutputController extends AbstractController
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse(BrokerException::addBrokerOutput()));
         }
+
+        $useCase($dto, $presenter);
 
         return $presenter->show();
     }

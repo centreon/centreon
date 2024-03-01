@@ -53,7 +53,7 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findParametersByType(int $typeId, bool $grouped = false): array
+    public function findParametersByType(int $typeId): array
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
@@ -118,7 +118,7 @@ class DbReadBrokerOutputRepository extends AbstractRepositoryRDB implements Read
                 listValues: $result['list_values'] ? explode(',', $result['list_values']) : [],
             );
 
-            if ($grouped && $result['groupname'] !== null) {
+            if ($result['groupname'] !== null) {
                 $groupedParameters[$result['groupname']][$result['fieldname']] = $outputField;
             } else {
                 $simpleParameters[$result['fieldname']] = $outputField;

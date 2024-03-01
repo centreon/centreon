@@ -7,6 +7,3 @@ services:
 
     Core\Broker\:
         resource: '../../../../Core/Broker/*'
-
-    # Core\Host\Application\Repository\ReadHostRepositoryInterface:
-    #     class: Core\Host\Infrastructure\Repository\DbReadHostRepository

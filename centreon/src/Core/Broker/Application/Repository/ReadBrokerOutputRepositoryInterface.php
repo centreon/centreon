@@ -31,18 +31,15 @@ interface ReadBrokerOutputRepositoryInterface
 {
     /**
      * Find parameters of an output by type.
-     * Result key is the parameter fieldname.
-     * When $grouped = true,
-     * the groupname is used as a key instead of the fieldname for fields that belong to the same group.
+     * Result key is the parameter fieldname, in case of grouped fields the groupname is used as a key.
      *
      * @param int $typeId
-     * @param bool $grouped
      *
      * @throws \Throwable
      *
      * @return array<string,BrokerOutputField|array<string,BrokerOutputField>>
      */
-    public function findParametersByType(int $typeId, bool $grouped = false): array;
+    public function findParametersByType(int $typeId): array;
 
     /**
      * Find an output stream type by its ID.

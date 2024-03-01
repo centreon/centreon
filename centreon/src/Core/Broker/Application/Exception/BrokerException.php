@@ -26,6 +26,7 @@ namespace Core\Broker\Application\Exception;
 class BrokerException extends \Exception
 {
     public const CODE_CONFLICT = 1;
+    public const CODE_INVALID = 2;
 
     /**
      * @return self
@@ -76,7 +77,7 @@ class BrokerException extends \Exception
     {
         return new self(
             sprintf(_('Missing output parameter: %s'), $propertyName),
-            self::CODE_CONFLICT
+            self::CODE_INVALID
         );
     }
 
@@ -94,7 +95,7 @@ class BrokerException extends \Exception
                 $propertyName,
                 is_scalar($propertyValue) ? $propertyValue : gettype($propertyValue)
             ),
-            self::CODE_CONFLICT
+            self::CODE_INVALID
         );
     }
 
@@ -108,7 +109,7 @@ class BrokerException extends \Exception
     {
         return new self(
             sprintf(_("Parameter '%s' of type %s is invalid"), $propertyName, gettype($propertyValue)),
-            self::CODE_CONFLICT
+            self::CODE_INVALID
         );
     }
 

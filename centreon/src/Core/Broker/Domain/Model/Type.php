@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Broker\Domain\Model;
 
+/**
+ * Minimalist object that contains output or input type id and name.
+ */
 class Type
 {
     /**

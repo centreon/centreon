@@ -100,7 +100,7 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
 
     /**
      * Build the insert elements of the add output query.
-     * Return an containing :
+     * Return an array containing :
      * - an array of the query elements
      * - an array of all the values to bind.
      *
