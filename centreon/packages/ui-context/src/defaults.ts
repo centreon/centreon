@@ -10,7 +10,8 @@ const defaultUser: User = {
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false,
-  user_interface_density: ListingVariant.compact
+  user_interface_density: ListingVariant.compact,
+  isAdmin:undefined
 };
 
 const defaultResourceStorageOptimizationMode = false;

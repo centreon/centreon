@@ -277,6 +277,7 @@ describe('Api-token', () => {
     const store = createStore();
 
     store.set(userAtom, {
+      isAdmin: true,
       locale: 'en_US',
       timezone: 'Europe/Paris'
     });
@@ -695,7 +696,7 @@ describe('Api-token', () => {
 
     cy.findByLabelText('5 hours').should('have.attr', 'aria-selected', 'true');
 
-    cy.findByLabelText('open previous view').click();
+    cy.findByLabelText('open next view').click();
     cy.findByLabelText('30 minutes').should(
       'have.attr',
       'aria-selected',

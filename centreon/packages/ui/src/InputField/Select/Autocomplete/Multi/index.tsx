@@ -85,7 +85,7 @@ const MultiAutocompleteField = ({
     return includes(id, valueIds);
   };
 
-  const sortByName = sortBy(compose(toLower, prop('name')));
+  const sortByName = sortBy(compose(toLower, prop(optionProperty)));
 
   const autocompleteOptions = disableSortedOptions
     ? options
