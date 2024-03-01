@@ -21,33 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\API\UpdateVersions;
+namespace Core\ResourceAccess\Infrastructure\API\DeleteRule;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Application\UseCase\UpdateVersions\{
-    UpdateVersions,
-    UpdateVersionsPresenterInterface,
-};
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\ResourceAccess\Application\UseCase\DeleteRule\DeleteRule;
+use Symfony\Component\HttpFoundation\Response;
 
-final class UpdateVersionsController extends AbstractController
+final class DeleteRuleController extends AbstractController
 {
-    use LoggerTrait;
-
-    /**
-     * @param UpdateVersions $useCase
-     * @param UpdateVersionsPresenterInterface $presenter
-     *
-     * @return object
-     */
     public function __invoke(
-        UpdateVersions $useCase,
-        UpdateVersionsPresenterInterface $presenter
-    ): object {
+        int $ruleId,
+        DeleteRule $useCase,
+        DefaultPresenter $presenter
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $useCase($presenter);
+        $useCase($ruleId, $presenter);
 
         return $presenter->show();
     }
 }
+

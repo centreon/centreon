@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\ResourceAccess\Application\UseCase\UpdateRule;
 
@@ -50,6 +50,7 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterT
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\UpdateRule\UpdateRulePresenterStub;
 
 beforeEach(closure: function (): void {
@@ -73,7 +74,7 @@ beforeEach(closure: function (): void {
 
     $this->useCase = new UpdateRule(
         user: $this->user = $this->createMock(ContactInterface::class),
-        accessGroupRepository: $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         readRepository: $this->readRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         validator: $this->validator = $this->createMock(UpdateRuleValidation::class),
@@ -139,26 +140,53 @@ beforeEach(closure: function (): void {
     );
 });
 
-it(
-    'should present a ForbiddenResponse when a user has insufficient rights',
-    function (): void {
-        $this->user
-            ->expects($this->once())
-            ->method('hasTopologyRole')
-            ->willReturn(false);
+it('should present a Forbidden response when user does not have sufficient rights (missing page access)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
 
-        ($this->useCase)($this->request, $this->presenter);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
 
-        expect($this->presenter->responseStatus)
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->responseStatus->getMessage())
-            ->toBe(RuleException::notAllowed()->getMessage());
-    }
-);
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->responseStatus)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->responseStatus->getMessage())
+        ->toBe(RuleException::notAllowed()->getMessage());
+});
+
+it('should present a Forbidden response when user does not have sufficient rights (not an admin)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'lame_acl', 'not an admin')]
+        );
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->responseStatus)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->responseStatus->getMessage())
+        ->toBe(RuleException::notAllowed()->getMessage());
+});
 
 it(
     'should present a NotFoundResponse when ruleId requested does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -178,6 +206,13 @@ it(
 it(
     'should present ConflictResponse when name provided is already used',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -195,7 +230,8 @@ it(
             ->method('assertIsValidName')
             ->willThrowException(
                 RuleException::nameAlreadyExists(
-                    NewRule::formatName($this->request->name), $this->request->name
+                    NewRule::formatName($this->request->name),
+                    $this->request->name
                 )
             );
 
@@ -206,7 +242,8 @@ it(
             ->and($this->presenter->responseStatus->getMessage())
             ->toBe(
                 RuleException::nameAlreadyExists(
-                    NewRule::formatName($this->request->name), $this->request->name
+                    NewRule::formatName($this->request->name),
+                    $this->request->name
                 )->getMessage()
             );
     }
@@ -215,6 +252,13 @@ it(
 it(
     'should present a RuleException when contacts and contactgroups are empty',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -249,6 +293,13 @@ it(
 it(
     'should present an ErrorResponse when contact ids provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -285,6 +336,13 @@ it(
 it(
     'should present an ErrorResponse when contact group ids provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -321,6 +379,13 @@ it(
 it(
     'should present an ErrorResponse when resources provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -362,6 +427,13 @@ it(
 it(
     'should present a NoContentResponse when everything goes well',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -378,4 +450,3 @@ it(
             ->toBeInstanceOf(NoContentResponse::class);
     }
 );
-

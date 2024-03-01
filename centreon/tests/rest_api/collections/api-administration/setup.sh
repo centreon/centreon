@@ -1,3 +1,4 @@
 #!/bin/bash
 
-mysql -hdb -uroot -pcentreon centreon -e "UPDATE options SET options.value = 1 WHERE options.key = 'inheritance_mode'"
+docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml exec web mkdir -p /usr/share/centreon/www/img/media/test
+docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml cp $(dirname $0)/images/Admin-Potter.png web:/usr/share/centreon/www/img/media/test/Admin-Potter.png
