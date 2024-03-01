@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Contact;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 
 class Contact implements UserInterface, ContactInterface
 {
@@ -98,6 +98,7 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R = 'ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R';
     public const ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW = 'ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW';
     public const ROLE_ADMINISTRATION_API_TOKENS_RW = 'ROLE_ADMINISTRATION_API_TOKENS_RW';
+    public const ROLE_MONITORING_RESOURCES_STATUS_RW = 'ROLE_MONITORING_RESOURCES_STATUS_RW';
 
     /**
      * @var string
