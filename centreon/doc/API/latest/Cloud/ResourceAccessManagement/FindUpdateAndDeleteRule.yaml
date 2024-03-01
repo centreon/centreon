@@ -90,3 +90,21 @@ put:
       $ref: '../../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
+delete:
+  tags:
+    - Resource Access Management
+  summary: "Delete a resource access rule configuration"
+  description: |
+    Delete a resource access rule configuration.
+  parameters:
+    - $ref: 'QueryParameter/RuleId.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+
