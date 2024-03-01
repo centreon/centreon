@@ -204,18 +204,19 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Get merged branch
-        run: |
-          set -eux
+      # This will be used in a second PR eventually
+      # - name: Get merged branch
+      #   run: |
+      #     set -eux
 
-          # Check what was the merged branch (= last commit with "release(hotfix)" as a prefix)
-          echo "[DEBUG] MERGED_BRANCH is: $MERGED_BRANCH"
-          echo ""
-        shell: bash
-        id: get_merged_branch
-        env:
-          RELEASE_TYPE_CUSTOM: release_type_custom
-          RELEASE_CLOUD_CUSTOM: release_cloud_custom
+      #     # Check what was the merged branch (= last commit with "release(hotfix)" as a prefix)
+      #     echo "[DEBUG] MERGED_BRANCH is: $MERGED_BRANCH"
+      #     echo ""
+      #   shell: bash
+      #   id: get_merged_branch
+      #   env:
+      #     RELEASE_TYPE_CUSTOM: release_type_custom
+      #     RELEASE_CLOUD_CUSTOM: release_cloud_custom
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -229,5 +230,3 @@ jobs:
           github_base_ref: ${{ github.base_ref }}
           release_type: ${{ needs.get-version.outputs.release_type }}
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
-          release_type_custom: ${{ needs.get-version.outputs.release_type }}
-          release_cloud_custom: ${{ needs.get-version.outputs.release_cloud  }}

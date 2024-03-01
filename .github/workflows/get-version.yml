@@ -113,15 +113,15 @@ jobs:
 
           echo "BRANCHNAME is: $BRANCHNAME"
 
+          # Set default release values
+          GITHUB_RELEASE_CLOUD=0
+          GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
+
           case "$BRANCHNAME" in
             master | [2-9][0-9].[0-9][0-9].x)
               echo "release=1" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
-              # Set default release values
-              GITHUB_RELEASE_CLOUD=0
-              GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
-
               # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
               GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
               echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
@@ -162,7 +162,7 @@ jobs:
               STABILITY="testing"
               ENV="testing"
               ;;
-            master | [2-9][0-9].[0-9][0-9].x |MON-35276-fix-release-pipeline-to-handle-concurrent-hotfix-and-release)
+            master | [2-9][0-9].[0-9][0-9].x)
               STABILITY="stable"
               ENV="production"
               ;;
