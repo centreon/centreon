@@ -16551,6 +16551,24 @@ msgstr "Erweiterter Modus"
 # msgid "Resource table"
 # msgstr ""
 
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
+
+# msgid "The {{name}} widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard will be permanently deleted."
+# msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""
+
 # msgid "Displays a detailed view of the current status for selected resources as a chart."
 # msgstr ""
 

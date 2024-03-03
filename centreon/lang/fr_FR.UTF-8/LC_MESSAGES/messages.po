@@ -18772,3 +18772,9 @@ msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
 
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
+
+msgid "Invalid page name. Valid page names are: %s"	
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"	
+
+msgid "You are not allowed to access the Resources Status page"	
+msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
