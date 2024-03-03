@@ -18722,9 +18722,38 @@ msgstr "Donut"
 msgid "Status:"
 msgstr "Statut :"
 
-
 msgid "No {{resourcesType}} found with this status"
 msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
+
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
+
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid "down"
+msgstr "indisponible"
+
+msgid "pending"
+msgstr "en attente"
+
+msgid "warning"
+msgstr "alerte"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "up"
+msgstr "disponible"
+
+msgid "unreachable"
+msgstr "injoignable"
 
 msgid "Fullscreen (Alt+F)"
 msgstr "Plein écran (Alt+F)"
