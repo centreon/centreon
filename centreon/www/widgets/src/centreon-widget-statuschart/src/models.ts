@@ -33,6 +33,7 @@ export interface ChartType {
   displayLegend: boolean;
   displayType: DisplayType;
   displayValues: boolean;
+  getLinkToResourceStatusPage: (resourcesType, status) => string;
   labelNoDataFound: string;
   refreshCount: number;
   refreshIntervalToUse: number | false;

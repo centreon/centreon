@@ -5,6 +5,7 @@ import { PieChart, BarStack } from '@centreon/ui';
 import { ChartType, DisplayType } from '../../models';
 import { Legend, TooltipContent, ChartSkeleton } from '..';
 import useLoadResources from '../../useLoadResources';
+import { goToUrl } from '../../../../utils';
 
 import { useStyles } from './Chart.styles';
 import { useChart } from './useChart';
@@ -20,7 +21,8 @@ const Chart = ({
   refreshCount,
   refreshIntervalToUse,
   resources,
-  labelNoDataFound
+  labelNoDataFound,
+  getLinkToResourceStatusPage
 }: ChartType): JSX.Element => {
   const { classes } = useStyles();
 
@@ -36,6 +38,12 @@ const Chart = ({
     resourceTypes
   });
 
+  const goToResourceStatusPage = (status): void => {
+    const url = getLinkToResourceStatusPage(status, resourceType);
+
+    goToUrl(url)();
+  };
+
   if (isLoading && isNil(data)) {
     return <ChartSkeleton />;
   }
@@ -49,7 +57,9 @@ const Chart = ({
       {isPieCharts ? (
         <div className={classes.pieChart} style={pieChartDimensions}>
           <PieChart
-            Legend={Legend}
+            Legend={Legend((status) =>
+              getLinkToResourceStatusPage(status, resourceType)
+            )}
             TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
@@ -58,12 +68,17 @@ const Chart = ({
             title={title}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
+            onArcClick={({ label: status }) => {
+              goToResourceStatusPage(status);
+            }}
           />
         </div>
       ) : (
         <div style={barStackDimensions}>
           <BarStack
-            Legend={Legend}
+            Legend={Legend((status) =>
+              getLinkToResourceStatusPage(status, resourceType)
+            )}
             TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
@@ -76,6 +91,9 @@ const Chart = ({
             title={title}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
+            onSingleBarClick={({ key: status }) => {
+              goToResourceStatusPage(status);
+            }}
           />
         </div>
       )}

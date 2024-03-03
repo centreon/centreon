@@ -145,7 +145,7 @@ const BarStack = ({
                             isVerticalBar ? 'right-start' : 'bottom-start'
                           }
                         >
-                          <g data-testid={bar.key}>
+                          <g data-testid={bar.key} onClick={onClick}>
                             <rect
                               cursor="pointer"
                               fill={bar.color}
@@ -157,7 +157,6 @@ const BarStack = ({
                               width={isVerticalBar ? bar.width : bar.width - 1}
                               x={bar.x}
                               y={bar.y}
-                              onClick={onClick}
                             />
                             {displayValues &&
                               bar.height > 10 &&

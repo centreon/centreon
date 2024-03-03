@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
@@ -10,6 +12,7 @@ import { useLegendStyles } from './Legend.styles';
 interface Props {
   data: Array<FormattedResponse>;
   direction: 'row' | 'column';
+  getLinkToResourceStatusPage: (status) => string;
   title: string;
   total: number;
   unit: 'number' | 'percentage';
@@ -20,7 +23,8 @@ const Legend = ({
   title,
   total,
   unit,
-  direction
+  direction,
+  getLinkToResourceStatusPage
 }: Props): JSX.Element => {
   const { classes } = useLegendStyles({
     direction
@@ -28,7 +32,7 @@ const Legend = ({
 
   return (
     <div className={classes.legend}>
-      {data.map(({ value, color, label }) => {
+      {data.map(({ value, color, label: status }) => {
         return (
           <div className={classes.legendItems} key={color}>
             <Tooltip
@@ -40,7 +44,7 @@ const Legend = ({
               label={
                 <TooltipContent
                   color={color}
-                  label={label}
+                  label={status}
                   title={title}
                   total={total}
                   value={value}
@@ -48,10 +52,12 @@ const Legend = ({
               }
               position="bottom"
             >
-              <div
-                className={classes.legendItem}
-                style={{ background: color }}
-              />
+              <Link target="_blank" to={getLinkToResourceStatusPage(status)}>
+                <div
+                  className={classes.legendItem}
+                  style={{ background: color }}
+                />
+              </Link>
             </Tooltip>
             <Typography>
               {getValueByUnit({
@@ -67,4 +73,20 @@ const Legend = ({
   );
 };
 
-export default Legend;
+export default (getLinkToResourceStatusPage) =>
+  ({
+    data,
+    title,
+    total,
+    unit,
+    direction
+  }: Omit<Props, 'getLinkToResourceStatusPage'>) => (
+    <Legend
+      data={data}
+      direction={direction}
+      getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+      title={title}
+      total={total}
+      unit={unit}
+    />
+  );
