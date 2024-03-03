@@ -34,7 +34,7 @@ const initialize = ({ options, data }: Props): void => {
   cy.mount({
     Component: (
       <BrowserRouter>
-        <div style={{ height: '100vh', width: '100%' }}>
+        <div style={{ height: '90vh', width: '90%' }}>
           <StatusChart
             globalRefreshInterval={{
               interval: 30,
