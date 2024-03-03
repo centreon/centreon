@@ -110,7 +110,7 @@ const ResponsivePie = ({
       >
         {equals(variant, 'pie') && title && (
           <div className={classes.title} data-testid="Title" ref={titleRef}>
-            {`${numeral(total).format('0a').toUpperCase()} `} {title}
+            {`${numeral(total).format('0a').toUpperCase()} `} {t(title)}
           </div>
         )}
         <div
@@ -226,7 +226,7 @@ const ResponsivePie = ({
                     fill={theme.palette.text.primary}
                     textAnchor="middle"
                   >
-                    {title}
+                    {t(title)}
                   </Text>
                 </>
               )}

@@ -17420,3 +17420,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "Display resources with this unit"
+# msgstr ""

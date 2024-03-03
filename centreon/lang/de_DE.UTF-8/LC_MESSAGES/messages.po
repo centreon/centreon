@@ -16637,3 +16637,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "unreachable"
 # msgstr ""
+
+# msgid "Display resources with this unit"
+# msgstr ""

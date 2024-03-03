@@ -18778,3 +18778,6 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Display resources with this unit"
+msgstr "Afficher les ressources avec ce type"
