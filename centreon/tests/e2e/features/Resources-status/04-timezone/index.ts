@@ -291,16 +291,20 @@ Then(
   () => {
     cy.waitUntil(() => {
       cy.contains(serviceInDtName).parent().click();
+      cy.get('button#Close').click();
+      cy.contains(serviceInDtName).parent().click();
 
-      return cy.get('#panel-content').then(($el) => {
-        if ($el.find(':contains("Downtime duration")').length === 0) {
-          cy.get('button#Close').click();
+      return cy
+        .get('#panel-content :contains("Status information")')
+        .then(($el) => {
+          if ($el.find(':contains("Downtime duration")').length === 0) {
+            cy.get('button#Close').click();
 
-          return false;
-        }
+            return false;
+          }
 
-        return true;
-      });
+          return true;
+        });
     });
 
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
