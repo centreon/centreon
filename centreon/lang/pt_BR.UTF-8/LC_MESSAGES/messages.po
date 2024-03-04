@@ -17342,7 +17342,7 @@ msgstr ""
 # msgid "Resource table"
 # msgstr ""
 
-# msgid "Fullscreen (Alt+F)"
+# msgid "Fullscreen (F)"
 # msgstr ""
 
 # msgid "The {{name}} widget will be permanently deleted."
