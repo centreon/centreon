@@ -27,9 +27,8 @@ runs:
       run: |
         set -eu
 
+        # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
-        COMPONENTS_MODULES=("centreon-anomaly-detection" "centreon-autodiscovery" "centreon-bam" "centreon-cloud-business-extensions" "centreon-cloud-extensions" "centreon-it-edition-extensions" "centreon-license-manager" "centreon-map" "centreon-mbi" "centreon-pp-manager")
-        COMPONENTS_COLLECT=("centreon-collect")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
         declare -a NEW_STABLE_TAGS=()
         declare -a PREVIOUS_STABLE_TAGS=()
