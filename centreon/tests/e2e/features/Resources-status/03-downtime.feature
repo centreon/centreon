@@ -30,7 +30,8 @@ Feature: Add a downtime on a resource
     Given a resource is in downtime
     And that you have to go to the downtime page
     When I search for the resource currently "In Downtime" in the list
-    Then the user selects the checkbox and clicks on the "Cancel" action and confirms the cancellation
+    Then the user starts downtime configuration on the resource
+    And the user cancels the downtime configuration
     Then the line disappears from the listing
     Then the user goes to the Resource Status page
     And the resource should not be in Downtime anymore
@@ -40,7 +41,8 @@ Feature: Add a downtime on a resource
     Given multiple resources are in downtime
     Given that you have to go to the downtime page
     When I search for the resources currently "In Downtime" in the list
-    Then the user selects the checkboxes and clicks on the "Cancel" action and confirms the cancellation
+    Then the user starts downtime configuration on the resources
+    And the user cancels the downtime configuration
     Then the lines disappears from the listing
     Then the user goes to the Resource Status page
     And the resources should not be in Downtime anymore

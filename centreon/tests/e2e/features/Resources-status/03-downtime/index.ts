@@ -226,21 +226,20 @@ When('I search for the resource currently "In Downtime" in the list', () => {
   });
 });
 
-Then(
-  'the user selects the checkbox and clicks on the "Cancel" action and confirms the cancellation',
-  () => {
-    cy.get('@serviceInDT').check();
-    cy.get('@serviceInDT').should('be.checked');
+Then('the user starts downtime configuration on the resource', () => {
+  cy.get('@serviceInDT').check();
+  cy.get('@serviceInDT').should('be.checked');
+});
 
-    cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
+Then('the user cancels the downtime configuration', () => {
+  cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
-    cy.window().then((win) => {
-      cy.stub(win, 'confirm').returns(true);
-    });
+  cy.window().then((win) => {
+    cy.stub(win, 'confirm').returns(true);
+  });
 
-    cy.get('@cancelButton').first().click();
-  }
-);
+  cy.get('@cancelButton').first().click();
+});
 
 Then('the line disappears from the listing', () => {
   cy.wait('@getTimeZone');
@@ -351,24 +350,13 @@ When('I search for the resources currently "In Downtime" in the list', () => {
   });
 });
 
-Then(
-  'the user selects the checkboxes and clicks on the "Cancel" action and confirms the cancellation',
-  () => {
-    cy.get('@serviceInDT').check();
-    cy.get('@serviceInDT').should('be.checked');
+Then('the user starts downtime configuration on the resources', () => {
+  cy.get('@serviceInDT').check();
+  cy.get('@serviceInDT').should('be.checked');
 
-    cy.get('@secondServiceInDT').check();
-    cy.get('@secondServiceInDT').should('be.checked');
-
-    cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
-
-    cy.window().then((win) => {
-      cy.stub(win, 'confirm').returns(true);
-    });
-
-    cy.get('@cancelButton').first().click();
-  }
-);
+  cy.get('@secondServiceInDT').check();
+  cy.get('@secondServiceInDT').should('be.checked');
+});
 
 Then('the lines disappears from the listing', () => {
   cy.wait('@getTimeZone');
