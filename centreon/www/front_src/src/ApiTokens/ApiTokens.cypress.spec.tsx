@@ -15,8 +15,7 @@ import {
   QueryParameter,
   SnackbarProvider,
   TestQueryProvider,
-  useLocaleDateTimeFormat,
-  useResizeObserver
+  useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
