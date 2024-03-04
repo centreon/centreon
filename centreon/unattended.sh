@@ -6,7 +6,7 @@ declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
-declare -A SUPPORTED_DATABASE_SYSTEM=([MariaDB]=1 [MySQL]=1)
+declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
 default_ip=$(hostname -I | awk '{print $1}')
@@ -20,7 +20,7 @@ tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as t
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
 version=${ENV_CENTREON_VERSION:-"24.04"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to be used
-database_system=${ENV_CENTREON_DBS:-"MySQL"}  #Default database system to be used
+dbms=${ENV_CENTREON_DBMS:-"MySQL"}              #Default database system to be used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
 selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
@@ -194,12 +194,12 @@ function parse_subcommand_options() {
 			;;
 
 		d)
-			requested_database_system=$OPTARG
-			if [ ! ${SUPPORTED_DATABASE_SYSTEM[$requested_database_system]} ]; then
-				log "ERROR" "Unsupported database system: $requested_database_system" &&
+			requested_dbms=$OPTARG
+			if [ ! ${SUPPORTED_DBMS[$requested_dbms]} ]; then
+				log "ERROR" "Unsupported database system: $requested_dbms" &&
 				usage
 			else
-				database_system=$requested_database_system
+				dbms=$requested_dbms
 			fi
 			;;
 
@@ -524,7 +524,7 @@ function set_required_prerequisite() {
 
 		set_centreon_repos
 		if [ "$topology" == "central" ]; then
-			if [[ "$database_system" == "MariaDB" ]]; then
+			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
 				setup_mysql
@@ -579,7 +579,7 @@ function set_required_prerequisite() {
 			# Add PHP repo
 			echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 			wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-			if [[ "$database_system" == "MariaDB" ]]; then
+			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
 				set_mysql_repos
@@ -671,21 +671,21 @@ function set_runtime_selinux_mode() {
 
 #========= end of function set_runtime_selinux_mode()
 
-#========= begin of function secure_db_system_setup()
+#========= begin of function secure_dbms_setup()
 # apply some secure requests
 #
-function secure_db_system_setup() {
+function secure_dbms_setup() {
 
-	log "INFO" "Secure $database_system setup..."
-	log "WARN" "We are applying some requests that will enhance your $database_system setup security"
+	log "INFO" "Secure $dbms setup..."
+	log "WARN" "We are applying some requests that will enhance your $dbms setup security"
 	log "WARN" "Please consult the official documentation https://mariadb.com/kb/en/mysql_secure_installation/ for more details"
 	log "WARN" "You can use mysqladmin in order to set a new password for user root"
 
-	log "INFO" "Restarting $database_system service first"
+	log "INFO" "Restarting $dbms service first"
 	systemctl daemon-reload
-	if [[ $database_system == "MariaDB" ]]; then
+	if [[ $dbms == "MariaDB" ]]; then
 		systemctl restart mariadb
-		log "INFO" "Executing SQL requests for $database_system"
+		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root <<-EOF
 			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
@@ -696,7 +696,7 @@ function secure_db_system_setup() {
 		EOF
 	else
 		systemctl restart mysqld
-		log "INFO" "Executing SQL requests for $database_system"
+		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
@@ -710,11 +710,11 @@ function secure_db_system_setup() {
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not apply the requests"
 	else
-		log "INFO" "Successfully applied the SQL requests for enhancing your $database_system"
+		log "INFO" "Successfully applied the SQL requests for enhancing your $dbms"
 	fi
 
 }
-#========= end of function secure_db_system_setup()
+#========= end of function secure_dbms_setup()
 
 #========= begin of function install_centreon_repo()
 # install the centos-release-scl under CentOS7
@@ -794,17 +794,17 @@ function enable_new_services() {
 	if [ $has_systemd -eq 1 ]; then
 		case $topology in
 		central)
-			case $database_system in
+			case $dbms in
 			MariaDB)
-				DB_SERVICE_NAME=mariadb
+				DBMS_SERVICE_NAME=mariadb
 				;;
 			MySQL)
-				DB_SERVICE_NAME=mysqld
+				DBMS_SERVICE_NAME=mysqld
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable $DB_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart $DB_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd
+			systemctl enable $DBMS_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart $DBMS_SERVICE_NAME $OS_SPEC_SERVICES snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
@@ -1163,7 +1163,7 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $database_system == "MariaDB" ]]; then
+	if [[ $dbms == "MariaDB" ]]; then
 		CENTREON_PKG="centreon"
 	else
 		CENTREON_PKG="centreon-central"
@@ -1206,7 +1206,7 @@ function install_central() {
 
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
-	secure_db_system_setup
+	secure_dbms_setup
 }
 #========= end of function install_central()
 
@@ -1235,7 +1235,7 @@ function install_poller() {
 # update Centreon packages
 #
 function update_centreon_packages() {
-	if [[ $database_system == "MariaDB" ]]; then
+	if [[ $dbms == "MariaDB" ]]; then
 		CENTREON_PKG="centreon\*"
 	else
 		CENTREON_PKG="centreon-central"
