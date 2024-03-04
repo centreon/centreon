@@ -69,6 +69,7 @@ apt-get install -y \
   libxml-libxml-perl \
   libauthen-sasl-perl \
   libclone-perl \
+  libclone-choose-perl \
   libdata-dump-perl \
   libencode-locale-perl \
   libfile-listing-perl \
