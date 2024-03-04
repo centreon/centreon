@@ -54,7 +54,6 @@ const PopoverMenu = ({
   getPopoverData,
   popperProps
 }: Props): JSX.Element => {
-  // const theme = useTheme();
   const { classes, cx } = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
   const isOpen = Boolean(anchorEl);
