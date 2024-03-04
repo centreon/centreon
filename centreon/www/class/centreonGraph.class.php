@@ -211,29 +211,25 @@ class CentreonGraph
         unset($opt);
 
         /* Get RRDCacheD options */
-        $statement = $this->DB->prepare(
+        $result = $this->DB->query(
             "SELECT config_key, config_value
-             FROM cfg_centreonbroker_info AS cbi
-             INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
-             INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
-             WHERE ns.localhost = '1'
-             AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
+            FROM cfg_centreonbroker_info AS cbi
+            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
+            INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
+            WHERE ns.localhost = '1'
+            AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
         );
-        $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($result as $row) {
+        while ($row = $result->fetch()) {
             $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
         }
-        $statement->closeCursor();
 
         if (isset($index)) {
             $DBRESULT = $this->DB->prepare("SELECT `metric_id`
               FROM `ods_view_details`
               WHERE `index_id` = :index_id
               AND `contact_id` = :user_id");
-            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
-            $DBRESULT->bindParam(':user_id', $this->user_id, PDO::PARAM_INT);
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindValue(':user_id', $this->user_id, PDO::PARAM_INT);
             $DBRESULT->execute();
             $metrics_cache = array();
             if ($DBRESULT->rowCount()) {
@@ -248,7 +244,7 @@ class CentreonGraph
               WHERE index_id = :index_id
               AND `hidden` = '0'
               RDER BY `metric_name`");
-            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->execute();
             $count = 0;
             $odsm = array();
@@ -267,7 +263,7 @@ class CentreonGraph
               AND (`hidden` = '0' OR `hidden` IS NULL)
               AND vmetric_activate = '1'
               ORDER BY `metric_name`");
-            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->execute();
             while ($milist = $DBRESULT->fetch()) {
                 $vmilist = "v" . $milist["metric_id"];
