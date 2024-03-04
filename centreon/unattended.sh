@@ -60,6 +60,7 @@ PHP_ETC="/etc/php.d/"
 detected_os_release=
 detected_os_version=
 detected_mariadb_version=
+mysql_service_name=
 centreon_admin_password=
 
 # Variables will be defined later according to the target system OS
@@ -285,13 +286,16 @@ function get_os_information() {
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
 			detected_mariadb_version="mariadb-10.5"
+			mysql_service_name="mysqld"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${OS_VERSIONID}"
 			detected_mariadb_version="mariadb-10.5"
+			mysql_service_name="mysqld"
 			;;
 		Debian*)
 			detected_os_release="debian-release-${OS_VERSIONID}"
+			mysql_service_name="mysql"
 			case "${OS_VERSIONID}" in
 				11*)
 					detected_mariadb_version="mariadb-10.5"
@@ -409,9 +413,9 @@ function setup_mysql() {
 
 	esac
 	$PKG_MGR install -y mysql-server
-	systemctl enable -now mysqld
+	systemctl enable -now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
-	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/mysqld.service
+	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
 	systemctl daemon-reload
 }
 #========= end of function setup_mysql()
@@ -697,7 +701,7 @@ function secure_dbms_setup() {
 			FLUSH PRIVILEGES;
 		EOF
 	else
-		systemctl restart mysqld
+		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
@@ -801,7 +805,7 @@ function enable_new_services() {
 				DBMS_SERVICE_NAME=mariadb
 				;;
 			MySQL)
-				DBMS_SERVICE_NAME=mysqld
+				DBMS_SERVICE_NAME=$mysql_service_name
 				;;
 			esac
 			log "DEBUG" "On central..."
