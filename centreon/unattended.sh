@@ -391,7 +391,7 @@ function set_mariadb_repos() {
 }
 #========= end of function set_mariadb_repos()
 
-#========= begin of function set_mysql_repos()
+#========= begin of function setup_mysql()
 #
 function setup_mysql() {
 
@@ -409,6 +409,7 @@ function setup_mysql() {
 	esac
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now mysqld
+	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/mysqld.service
 	systemctl daemon-reload
 }
