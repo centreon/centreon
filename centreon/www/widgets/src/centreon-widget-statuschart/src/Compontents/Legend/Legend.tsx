@@ -59,7 +59,7 @@ const Legend = ({
                 />
               </Link>
             </Tooltip>
-            <Typography variant="body2">
+            <Typography>
               {getValueByUnit({
                 total,
                 unit,
