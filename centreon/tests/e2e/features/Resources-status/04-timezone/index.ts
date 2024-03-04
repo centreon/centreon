@@ -292,9 +292,9 @@ Then(
     cy.waitUntil(() => {
       cy.contains(serviceInDtName).parent().click();
 
-      return cy.find('#panel-content').then(($el) => {
+      return cy.get('#panel-content').then(($el) => {
         if ($el.find(':contains("Downtime duration")').length === 0) {
-          cy.getByTestId({ testId: 'CloseIcon' }).click();
+          cy.get('button#Close').click();
 
           return false;
         }
