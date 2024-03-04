@@ -178,11 +178,10 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().then(
-          () =>
-            loadUser()?.then(() =>
-              navigate(prop('redirectUri', response as Redirect))
-            )
+        getInternalTranslation().then(() =>
+          loadUser()?.then(() =>
+            navigate(prop('redirectUri', response as Redirect))
+          )
         );
       })
       .catch((error) =>
@@ -193,8 +192,8 @@ const useLogin = (): UseLoginState => {
   const getBrowserLocale = (): string => navigator.language.slice(0, 2);
 
   useEffect(() => {
-    getExternalTranslation().then(
-      () => i18n.changeLanguage?.(getBrowserLocale())
+    getExternalTranslation().then(() =>
+      i18n.changeLanguage?.(getBrowserLocale())
     );
   }, []);
 
