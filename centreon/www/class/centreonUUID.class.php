@@ -54,7 +54,7 @@ class CentreonUUID
     /**
      * Get Centreon UUID
      *
-     * @return bool|string
+     * @return false|string
      */
     public function getUUID()
     {
@@ -68,7 +68,7 @@ class CentreonUUID
     /**
      * Get Centreon UUID previously stored in database
      *
-     * @return bool
+     * @return false|string
      */
     private function getUUIDFromDatabase()
     {
@@ -77,8 +77,9 @@ class CentreonUUID
             "WHERE informations.key = 'uuid' ";
         $result = $this->db->query($query);
 
-        if ($row = $result->fetch()) {
-            return $row['value'];
+        if ((false !== $result) && ($row = $result->fetch())) {
+            /** @var array<string, null|bool|int|string> $row */
+            return (string) $row['value'];
         }
         return false;
     }
