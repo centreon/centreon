@@ -45,7 +45,7 @@ Given('I am logged in a Centreon server', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
-When('one contact group exists including two non admin contacts', () => {
+Given('one contact group exists including two non admin contacts', () => {
   cy.addContact({
     admin: data.contacts.contact1.admin,
     email: data.contacts.contact1.email,
@@ -126,7 +126,7 @@ Then(
   }
 );
 
-When('I add a new access group with linked contact group', () => {
+Given('a new access group with a linked contact group', () => {
   cy.addContact({
     admin: data.contacts.contact1.admin,
     email: data.contacts.contact1.email,
@@ -146,7 +146,7 @@ When('I add a new access group with linked contact group', () => {
 });
 
 Then(
-  'the contact group has the access group displayed in Relations informations',
+  'the contact group has the access group displayed in Relations information',
   () => {
     cy.navigateTo({
       page: 'Contact Groups',
@@ -243,7 +243,7 @@ When('I duplicate the access group', () => {
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
-Then('a new access group appears with similar properties', () => {
+Then('a new access group with identical properties is created', () => {
   cy.wait('@getTimeZone');
 
   const originalACLGroupValues: string[] = [];

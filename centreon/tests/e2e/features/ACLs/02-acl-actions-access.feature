@@ -24,7 +24,7 @@ Feature: ACL Actions Access
   Scenario: Remove one access group from Actions access
     Given one existing action access
     When I remove the access group
-    Then link between access group and action access must be broken
+    Then the link between the access group and the action access is voided
 
   Scenario: Duplicate one existing Actions access record
     Given one existing action access

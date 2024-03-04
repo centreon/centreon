@@ -7,15 +7,15 @@ Feature: AclAccessGroups
     Given I am logged in a Centreon server
 
   Scenario: Creating ACL access group with linked contacts
-    When one contact group exists including two non admin contacts
-    And the access group is saved with its properties
+    Given one contact group exists including two non admin contacts
+    When the access group is saved with its properties
     And a menu access is linked with this group
     Then all linked users have the access list group displayed in Centreon authentication tab
 
   Scenario: Creating ACL access group with linked contact group
-    When I add a new access group with linked contact group
-    And the access group is saved with its properties
-    Then the contact group has the access group displayed in Relations informations
+    Given a new access group with a linked contact group
+    When the access group is saved with its properties
+    Then the contact group has the access group displayed in Relations information
 
   Scenario: Modify ACL access group properties
     Given one existing ACL access group
@@ -25,7 +25,7 @@ Feature: AclAccessGroups
   Scenario: Duplicate ACL access group
     Given one existing ACL access group
     When I duplicate the access group
-    Then a new access group appears with similar properties
+    Then a new access group with identical properties is created
 
   Scenario: Delete ACL access group
     Given one existing ACL access group

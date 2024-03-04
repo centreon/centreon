@@ -336,44 +336,47 @@ When('I remove the access group', () => {
   cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
 });
 
-Then('link between access group and action access must be broken', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
-  cy.wait('@getTimeZone');
+Then(
+  'the link between the access group and the action access is voided',
+  () => {
+    cy.navigateTo({
+      page: 'Access Groups',
+      rootItemNumber: 4,
+      subMenu: 'ACL'
+    });
+    cy.wait('@getTimeZone');
 
-  cy.wait('@getTimeZone').then(() => {
-    cy.executeActionOnIframe(
-      data.ACLGroups.ACLGroup1.name,
-      ($body) => {
-        cy.wrap($body)
-          .contains('tr', data.ACLGroups.ACLGroup1.name)
-          .within(() => {
-            cy.get('td.ListColLeft').click();
-          });
-      },
-      3,
-      3000
-    );
-  });
+    cy.wait('@getTimeZone').then(() => {
+      cy.executeActionOnIframe(
+        data.ACLGroups.ACLGroup1.name,
+        ($body) => {
+          cy.wrap($body)
+            .contains('tr', data.ACLGroups.ACLGroup1.name)
+            .within(() => {
+              cy.get('td.ListColLeft').click();
+            });
+        },
+        3,
+        3000
+      );
+    });
 
-  cy.wait('@getTimeZone').then(() => {
-    cy.executeActionOnIframe(
-      'Authorizations information',
-      ($body) => {
-        cy.wrap($body).contains('a', 'Authorizations information').click();
-      },
-      3,
-      3000
-    );
-  });
+    cy.wait('@getTimeZone').then(() => {
+      cy.executeActionOnIframe(
+        'Authorizations information',
+        ($body) => {
+          cy.wrap($body).contains('a', 'Authorizations information').click();
+        },
+        3,
+        3000
+      );
+    });
 
-  cy.getIframeBody()
-    .find('select[name="actionAccess-t[]"]')
-    .should('not.contain', ACLAction.name);
-});
+    cy.getIframeBody()
+      .find('select[name="actionAccess-t[]"]')
+      .should('not.contain', ACLAction.name);
+  }
+);
 
 When('I duplicate the action access', () => {
   cy.navigateTo({
