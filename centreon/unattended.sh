@@ -399,7 +399,7 @@ function setup_mysql() {
 		debian-release*)
 			log "INFO" "Install MySQL repository"
 			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
-			DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 			;;
 
 		almalinux-release*)
