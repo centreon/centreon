@@ -44,18 +44,33 @@ class CentreonCeip extends CentreonWebService
     {
         parent::__construct();
 
+        /** @var \Centreon $centreon */
         global $centreon;
 
         $this->user = $centreon->user;
 
+        if (null === $this->pearDB) {
+            throw new LogicException('No DB connector given.');
+        }
         // Generate UUID
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
         $kernel = \App\Kernel::createForWeb();
-        $this->logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class)
-            ?? throw new LogicException('Logger not found in container');
-        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class)
-            ?? throw new LogicException('FeatureFlags not found in container');
+
+        /** @var null|\Centreon\Domain\Log\Logger $logger */
+        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+        if (null === $logger) {
+            throw new LogicException('Logger not found in container');
+        }
+
+        /** @var null|\Core\Common\Infrastructure\FeatureFlags $featureFlags */
+        $featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
+        if (null === $featureFlags) {
+            throw new LogicException('FeatureFlags not found in container');
+        }
+
+        $this->logger = $logger;
+        $this->featureFlags = $featureFlags;
     }
 
     /**
@@ -205,15 +220,26 @@ class CentreonCeip extends CentreonWebService
         $licenseClientName = '';
         try {
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
+
+            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
-            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseInformation */
+
+            /** @var array{}|array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
             $licenseInformation = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
+
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
+                    /**
+                     * @var array<
+                     *  array-key,
+                     *  array<array-key, array<array-key, string|array<array-key, string>>>> $licenseInformation
+                     */
                     $licenseInformation[$module] = $licenseObject->getData();
+                    /** @var string $licenseClientName */
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
+
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
@@ -228,7 +254,7 @@ class CentreonCeip extends CentreonWebService
             }
         } catch (\Pimple\Exception\UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
-        } catch (\Exception $exception) {
+        } catch (\Exception | \Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
@@ -288,7 +314,7 @@ class CentreonCeip extends CentreonWebService
             $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
-        } catch (PDOException $exception) {
+        } catch (\PDOException $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
 
             return null;
