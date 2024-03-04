@@ -413,7 +413,7 @@ function setup_mysql() {
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/mysqld.service
 	systemctl daemon-reload
 }
-#========= end of function set_mysql_repos()
+#========= end of function setup_mysql()
 
 
 #========= begin of function set_required_prerequisite()
@@ -583,7 +583,7 @@ function set_required_prerequisite() {
 			if [[ "$dbms" == "MariaDB" ]]; then
 				set_mariadb_repos
 			else
-				set_mysql_repos
+				setup_mysql
 			fi
 		else
 			${PKG_MGR} update
