@@ -16563,8 +16563,6 @@ msgstr "Erweiterter Modus"
 # msgid "Clear"
 # msgstr ""
 
-
-
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
 
