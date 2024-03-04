@@ -243,7 +243,7 @@ class CentreonGraph
               FROM metrics
               WHERE index_id = :index_id
               AND `hidden` = '0'
-              RDER BY `metric_name`");
+              ORDER BY `metric_name`");
             $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->execute();
             $count = 0;
@@ -262,7 +262,7 @@ class CentreonGraph
               WHERE index_id = :index_id
               AND (`hidden` = '0' OR `hidden` IS NULL)
               AND vmetric_activate = '1'
-              ORDER BY `metric_name`");
+              ORDER BY `vmetric_name`");
             $DBRESULT->bindValue(':index_id', $this->index, PDO::PARAM_INT);
             $DBRESULT->execute();
             while ($milist = $DBRESULT->fetch()) {
