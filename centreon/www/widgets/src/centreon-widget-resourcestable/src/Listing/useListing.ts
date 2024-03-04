@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { Column, centreonBaseURL, useSnackbar } from '@centreon/ui';
+import { Column, useSnackbar } from '@centreon/ui';
 
 import { Resource, SortOrder } from '../../../models';
-import { getResourcesUrl } from '../../../utils';
+import { getResourcesUrl, goToUrl } from '../../../utils';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import { DisplayType, ResourceListing } from './models';
@@ -86,11 +86,8 @@ const useListing = ({
       type: displayType
     });
 
-    const mainUrl = window.location.origin + centreonBaseURL;
-    const url = mainUrl + linkToResourceStatus;
-
     changeViewMode?.(displayType);
-    window.open(url);
+    goToUrl(linkToResourceStatus)();
   };
 
   const changeSort = (sortParameters): void => {

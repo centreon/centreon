@@ -36,6 +36,7 @@
 /var/lib/centreon-gorgone
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/share/centreon-broker
 /usr/lib/rpm
 /usr/lib/python3.9
 /usr/lib64/python3.9
