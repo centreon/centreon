@@ -4,14 +4,14 @@ const defaultUser: User = {
   alias: '',
   default_page: '/monitoring/resources',
   id: undefined,
+  isAdmin: undefined,
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   use_deprecated_pages: false,
-  user_interface_density: ListingVariant.compact,
-  isAdmin:undefined
+  user_interface_density: ListingVariant.compact
 };
 
 const defaultResourceStorageOptimizationMode = false;
