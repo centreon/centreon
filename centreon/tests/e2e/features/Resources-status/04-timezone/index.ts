@@ -289,7 +289,19 @@ When('the user creates a downtime on a resource', () => {
 Then(
   'date and time fields should be based on the custom timezone of the user',
   () => {
-    cy.contains(serviceInDtName).parent().click();
+    cy.waitUntil(() => {
+      cy.contains(serviceInDtName).parent().click();
+
+      return cy.find('#panel-content').then(($el) => {
+        if ($el.find(':contains("Downtime duration")').length === 0) {
+          cy.getByTestId({ testId: 'CloseIcon' }).click();
+
+          return false;
+        }
+
+        return true;
+      });
+    });
 
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
       cy.getTimeFromHeader().then((localTime: string) => {
