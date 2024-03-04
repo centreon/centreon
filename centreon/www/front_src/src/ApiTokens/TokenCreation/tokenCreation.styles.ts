@@ -13,9 +13,7 @@ export const useStyles = makeStyles()((theme) => ({
     width: theme.spacing(56)
   },
   invisible: {
-    height: 0,
-    opacity: 0,
-    width: 0
+    display: 'none'
   },
   root: {
     padding: theme.spacing(0.5, 0.75)
