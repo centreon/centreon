@@ -8,7 +8,6 @@ import useLoadResources from '../../useLoadResources';
 import { goToUrl } from '../../../../utils';
 
 import { useStyles } from './Chart.styles';
-import { useChart } from './useChart';
 
 const Chart = ({
   displayType,
@@ -24,18 +23,19 @@ const Chart = ({
   labelNoDataFound,
   getLinkToResourceStatusPage
 }: ChartType): JSX.Element => {
-  const { classes } = useStyles();
+  const isSingleChart = equals(resourceTypes.length, 1);
+
+  const isPieCharts =
+    equals(displayType, DisplayType.Pie) ||
+    equals(displayType, DisplayType.Donut);
+
+  const { classes } = useStyles({ displayType, isSingleChart });
 
   const { data, isLoading } = useLoadResources({
     refreshCount,
     refreshIntervalToUse,
     resourceType,
     resources
-  });
-
-  const { barStackDimensions, isPieCharts, pieChartDimensions } = useChart({
-    displayType,
-    resourceTypes
   });
 
   const goToResourceStatusPage = (status): void => {
@@ -55,7 +55,7 @@ const Chart = ({
   return (
     <div className={classes.container}>
       {isPieCharts ? (
-        <div className={classes.pieChart} style={pieChartDimensions}>
+        <div className={classes.pieChart}>
           <PieChart
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
@@ -74,7 +74,7 @@ const Chart = ({
           />
         </div>
       ) : (
-        <div style={barStackDimensions}>
+        <div className={classes.barStack}>
           <BarStack
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
