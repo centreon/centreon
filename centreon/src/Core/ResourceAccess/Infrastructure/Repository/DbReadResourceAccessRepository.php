@@ -68,6 +68,27 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
     /**
      * @inheritDoc
      */
+    public function exists(int $ruleId): bool
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                    SELECT 1
+                    FROM `:db`.acl_groups
+                    WHERE acl_group_id = :ruleId
+                        AND cloud_specific = 1
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findById(int $ruleId): ?Rule
     {
         $basicInformation = $this->findBasicInformation($ruleId);
