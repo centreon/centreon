@@ -112,6 +112,32 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
+        $concatenator->appendJoins(
+            <<<'SQL'
+                    LEFT JOIN `:db`.servicegroup_relation sgr
+                        ON sg.sg_id = sgr.servicegroup_sg_id
+                    LEFT JOIN `:db`.host h
+                        ON sgr.host_host_id = h.host_id
+                SQL
+        )
+            ->appendJoins(
+                <<<'SQL'
+                        LEFT JOIN `:db`.hostcategories_relation hcr
+                            ON h.host_id = hcr.host_host_id
+                        LEFT JOIN `:db`.hostcategories hc
+                            ON hcr.hostcategories_hc_id = hc.hc_id
+                            AND hc.level IS NOT NULL
+                    SQL
+            )
+            ->appendJoins(
+                <<<'SQL'
+                        LEFT JOIN `:db`.hostgroup_relation hgr
+                            ON  h.host_id = hgr.host_host_id
+                        LEFT JOIN `:db`.hostgroup hg
+                            ON hgr.hostgroup_hg_id = hg.hg_id
+                    SQL
+            );
+
         return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
 
@@ -377,31 +403,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                 )
                 ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
         }
-        $concatenator->appendJoins(
-            <<<'SQL'
-                    LEFT JOIN `:db`.servicegroup_relation sgr
-                        ON sg.sg_id = sgr.servicegroup_sg_id
-                    LEFT JOIN `:db`.host h
-                        ON sgr.host_host_id = h.host_id
-                SQL
-        )
-            ->appendJoins(
-                <<<'SQL'
-                        LEFT JOIN `:db`.hostcategories_relation hcr
-                            ON h.host_id = hcr.host_host_id
-                        LEFT JOIN `:db`.hostcategories hc
-                            ON hcr.hostcategories_hc_id = hc.hc_id
-                            AND hc.level IS NOT NULL
-                    SQL
-            )
-            ->appendJoins(
-                <<<'SQL'
-                        LEFT JOIN `:db`.hostgroup_relation hgr
-                            ON  h.host_id = hgr.host_host_id
-                        LEFT JOIN `:db`.hostgroup hg
-                            ON hgr.hostgroup_hg_id = hg.hg_id
-                    SQL
-            );
+
         return $concatenator;
     }
 
