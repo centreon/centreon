@@ -16,7 +16,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
   svgContainer: {
     alignItems: 'center',
     backgroundColor: theme.palette.background.panelGroups,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: theme.spacing(1.25),
     display: 'flex',
     justifyContent: 'center'
   },

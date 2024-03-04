@@ -72,8 +72,7 @@ const useResponsiveBarStack = ({
 
   const yScale = isVerticalBar
     ? scaleLinear({
-        domain: [0, total],
-        nice: true
+        domain: [0, total]
       })
     : scaleBand({
         domain: [0, 0],
@@ -86,8 +85,7 @@ const useResponsiveBarStack = ({
         padding: 0
       })
     : scaleLinear({
-        domain: [0, total],
-        nice: true
+        domain: [0, total]
       });
 
   const keys = pluck('label', data);

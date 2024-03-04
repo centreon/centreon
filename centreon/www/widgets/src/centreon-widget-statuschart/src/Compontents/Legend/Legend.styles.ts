@@ -13,7 +13,7 @@ export const useLegendStyles = makeStyles<{ direction: 'row' | 'column' }>()(
     legendItem: {
       borderRadius: theme.shape.borderRadius,
       cursor: 'pointer',
-      height: theme.spacing(2),
+      height: theme.spacing(2.5),
       width: theme.spacing(2.5)
     },
     legendItems: {
