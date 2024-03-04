@@ -50,12 +50,12 @@
       "label": "Display resources with this unit",
       "options": [
         {
-          "id": "number",
-          "name": "Number"
-        },
-        {
           "id": "percentage",
           "name": "Percentage" 
+        },
+        {
+          "id": "number",
+          "name": "Number"
         }
       ],
       "defaultValue": "percentage"
