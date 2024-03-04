@@ -18780,4 +18780,4 @@ msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
 msgid "Display resources with this unit"
-msgstr "Afficher les ressources avec ce type"
+msgstr "Afficher les ressources avec cette unité"

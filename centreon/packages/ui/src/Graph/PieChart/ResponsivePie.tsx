@@ -191,6 +191,7 @@ const ResponsivePie = ({
                                 dy=".33em"
                                 fill="#000"
                                 fontSize={12}
+                                fontWeight={600}
                                 pointerEvents="none"
                                 textAnchor="middle"
                                 x={x}
