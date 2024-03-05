@@ -1,0 +1,15 @@
+type: object
+properties:
+  name:
+    type: string
+    description: "Resource access rule name"
+    example: "Rule for viewers"
+  description:
+    type: string
+    nullable: true
+    description: "Short description of the rule"
+    example: "Rule dedicated for users with limited rights"
+  is_enabled:
+    type: boolean
+    description: "Indicate the status of the rule enabled/disabled"
+    example: true
