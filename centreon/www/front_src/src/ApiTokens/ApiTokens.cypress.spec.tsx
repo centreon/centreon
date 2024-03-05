@@ -19,6 +19,8 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+import { labelAdd } from '../Resources/translatedLabels';
+
 import {
   DefaultParameters,
   Fields
@@ -427,7 +429,7 @@ describe('Api-token', () => {
     cy.findByLabelText(`Column ${columns[1].label}`).should('exist');
   });
   it('displays the token creation button', () => {
-    cy.findByTestId(labelCreateNewToken).contains(labelCreateNewToken);
+    cy.findByTestId(labelCreateNewToken).contains(labelAdd);
 
     cy.makeSnapshot();
   });
