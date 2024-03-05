@@ -816,7 +816,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('clear the selected filter when clicking on the clear button', () => {
+  it('clear the selected filters when clicking on the clear button', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByTestId('Filter options').click();
 
