@@ -77,11 +77,6 @@ final class PartialRuleUpdate
         try {
             $this->info('Start resource access rule update process');
 
-            /**
-             * Check if current user is authorized to perform the action.
-             * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
-             * are authorized to add a Resource Access Rule.
-             */
             if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to create a resource access rule",
@@ -153,6 +148,10 @@ final class PartialRuleUpdate
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool

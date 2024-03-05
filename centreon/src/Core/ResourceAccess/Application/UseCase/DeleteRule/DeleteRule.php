@@ -63,11 +63,6 @@ final class DeleteRule
     public function __invoke(int $ruleId, PresenterInterface $presenter): void
     {
         try {
-            /**
-             * Check if current user is authorized to perform the action.
-             * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
-             * are authorized to add a Resource Access Rule.
-             */
             if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to delete a resource access rule",
@@ -99,6 +94,10 @@ final class DeleteRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
@@ -126,13 +125,6 @@ final class DeleteRule
     private function deleteRule(int $ruleId): void
     {
         $this->debug('Starting transaction');
-        /**
-         * Here are the deletions (on cascade or not) that will occur on rule deletion
-         *     - Contact relations (ON DELETE CASCADE)
-         *     - Contact Group relations (ON DELETE CASCADE)
-         *     - Datasets relations + datasets (NEED MANUAL DELETION)
-         *     - DatasetFilters (ON DELETE CASCADE).
-         */
         $this->writeRepository->deleteRuleAndDatasets($ruleId);
     }
 }
