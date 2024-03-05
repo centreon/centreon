@@ -62,9 +62,9 @@ try {
      * Resource Macro
      */
     $resource = array();
-    $DBRESULT = $pearDB->query("SELECT DISTINCT `resource_name`, `resource_comment` 
-                                FROM `cfg_resource` 
-                                ORDER BY `resource_line`");
+    $DBRESULT = $pearDB->query("SELECT DISTINCT `resource_name`, `resource_comment`
+                                FROM `cfg_resource`
+                                ORDER BY `resource_name`");
     while ($row = $DBRESULT->fetchRow()) {
         $resource[$row["resource_name"]] = $row["resource_name"];
         if (isset($row["resource_comment"]) && $row["resource_comment"] != "") {
