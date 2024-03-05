@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
+import { isEmpty, isNil, filter, pipe, map, split, join } from 'ramda';
 
 import { getFoundFields, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -61,35 +61,41 @@ const useSearch = (): void => {
     return '';
   };
 
+  const getDeletedValues = ({ data, field }): null | string => {
+    if (!isEmpty(data)) {
+      return null;
+    }
+
+    const [searchData] = getFoundFields({
+      fields: [field],
+      value: search
+    });
+
+    if (!searchData) {
+      return null;
+    }
+
+    return `${searchData?.field}:${searchData?.value}`;
+  };
+
   const clearEmptyFields = (input): string | null => {
-    const fieldValueToDelete = input
-      .map(({ data, field }) => {
-        if (!isEmpty(data)) {
-          return null;
-        }
+    const fieldValueToDelete = pipe(
+      map(getDeletedValues),
+      filter(Boolean)
+    )(input);
 
-        const [searchData] = getFoundFields({
-          fields: [field],
-          value: search
-        });
+    const deleteFromInputSearch = (word): string => {
+      return fieldValueToDelete.some((wordToDelete) => wordToDelete === word)
+        ? ''
+        : word;
+    };
 
-        if (!searchData) {
-          return null;
-        }
-
-        return `${searchData?.field}:${searchData?.value}`;
-      })
-      .filter((item) => item);
-
-    const updatedSearch = search
-      .split(' ')
-      .map((word) => {
-        return fieldValueToDelete.some((wordToDelete) => wordToDelete === word)
-          ? ''
-          : word;
-      })
-      .filter((item) => item)
-      .join(' ');
+    const updatedSearch = pipe(
+      split(' '),
+      map(deleteFromInputSearch),
+      filter(Boolean),
+      join(' ')
+    )(search);
 
     return !isEmpty(fieldValueToDelete) ? updatedSearch : null;
   };
@@ -97,12 +103,11 @@ const useSearch = (): void => {
   const buildData = (): string => {
     newSearch.current = search;
 
-    return searchableFieldData
-      .map(({ data, field }) => {
-        return constructData({ data, field });
-      })
-      .filter((item) => item)
-      .join(' ');
+    return pipe(
+      map(constructData),
+      filter(Boolean),
+      join(' ')
+    )(searchableFieldData);
   };
 
   useMemo(() => {

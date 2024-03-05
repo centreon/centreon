@@ -1,7 +1,18 @@
 import { useCallback, useMemo } from 'react';
 
+import {
+  pipe,
+  equals,
+  flatten,
+  isEmpty,
+  isNil,
+  split,
+  map,
+  filter,
+  join,
+  reject
+} from 'ramda';
 import { useAtomValue } from 'jotai';
-import { equals, flatten, isEmpty, isNil } from 'ramda';
 
 import { QueryParameter, SearchParameter, getFoundFields } from '@centreon/ui';
 
@@ -14,6 +25,7 @@ import { Fields } from '../Filter/models';
 
 import { searchAtom } from './atoms';
 import { convertToBoolean } from './utils';
+import { ConstructQueryParameters } from './models';
 
 interface UseButtonParameters {
   getSearchParameters: () => SearchParameter | undefined;
@@ -32,22 +44,25 @@ const useBuildParameters = (): UseButtonParameters => {
     { data: isRevoked, field: Fields.IsRevoked }
   ];
 
-  const excludeCustomQueriesFromSearchInput = (): string => {
-    return search
-      .split(' ')
-      .map((item) => {
-        const hasCustomQueryField = getFoundFields({
-          fields: customQueriesData.map(({ field }) => field),
-          value: item
-        });
-        if (isEmpty(hasCustomQueryField)) {
-          return item;
-        }
+  const handleCustomQueries = (input: string): string | null => {
+    const hasCustomQueryField = getFoundFields({
+      fields: customQueriesData.map(({ field }) => field),
+      value: input
+    });
+    if (isEmpty(hasCustomQueryField)) {
+      return input;
+    }
 
-        return null;
-      })
-      .filter((item) => item)
-      .join(' ');
+    return null;
+  };
+
+  const excludeCustomQueriesFromSearchInput = (): string => {
+    return pipe(
+      split(' '),
+      map(handleCustomQueries),
+      filter(Boolean),
+      join(' ')
+    )(search);
   };
 
   const getSearchParameters = useCallback(() => {
@@ -95,28 +110,34 @@ const useBuildParameters = (): UseButtonParameters => {
     };
   }, [search]);
 
+  const constructQueryParameters = ({
+    value,
+    field
+  }): ConstructQueryParameters => {
+    if (isNil(value)) {
+      return null;
+    }
+
+    const newValue = equals(field, Fields.IsRevoked)
+      ? convertToBoolean(value)
+      : value;
+
+    return {
+      name: field as string,
+      value: newValue
+    };
+  };
+
   const queryParameters = useMemo(() => {
     const customQueryField = getFoundFields({
       fields: customQueriesData.map(({ field }) => field),
       value: search
     });
 
-    const result = customQueryField
-      .map(({ value, field }) => {
-        if (isNil(value)) {
-          return null;
-        }
-
-        const newValue = equals(field, Fields.IsRevoked)
-          ? convertToBoolean(value)
-          : value;
-
-        return {
-          name: field as string,
-          value: newValue
-        };
-      })
-      .filter((item) => !isNil(item));
+    const result = pipe(
+      map(constructQueryParameters),
+      reject(isNil)
+    )(customQueryField);
 
     return isEmpty(result) ? null : (result as Array<QueryParameter>);
   }, [search]);
