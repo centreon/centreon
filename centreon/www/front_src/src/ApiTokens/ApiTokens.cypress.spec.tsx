@@ -747,7 +747,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('executes a listing request with selected filters ', () => {
+  it('executes a listing request with the selected filters ', () => {
     cy.waitForRequest('@getListTokens');
     const now = new Date(2024, 1, 27, 15, 16, 33);
     const expirationDate = 'March 28, 2024 4:16 PM';
