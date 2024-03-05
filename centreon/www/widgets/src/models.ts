@@ -83,3 +83,25 @@ export interface CommonWidgetProps<T extends object> {
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   store: ReturnType<typeof createStore>;
 }
+
+type StatusDetail = {
+  acknowledged: number;
+  in_downtime: number;
+  total: number;
+};
+
+type Status =
+  | 'critical'
+  | 'warning'
+  | 'unknown'
+  | 'pending'
+  | 'ok'
+  | 'down'
+  | 'unreachable'
+  | 'up';
+
+export type StatusType = {
+  [key in Status]: StatusDetail;
+} & {
+  total: number;
+};

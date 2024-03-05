@@ -1,5 +1,5 @@
 import { Resource, SeverityStatus } from '../../../models';
-import { PanelOptions } from '../models';
+import { PanelOptions } from '../StatusGridStandard/models';
 
 export const noResources = [];
 export const resources: Array<Resource> = [

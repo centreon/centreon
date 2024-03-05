@@ -93,7 +93,10 @@ const getYupValidatorType = ({
               })
               .optional()
           )
-          .min(1, t(labelPleaseSelectAResource) as string)
+          .min(
+            properties.required ? 1 : 0,
+            t(labelPleaseSelectAResource) as string
+          )
       )
     ],
     [
@@ -143,6 +146,7 @@ export const buildValidationSchema = ({
   t,
   properties
 }: BuildValidationSchemaProps): Yup.StringSchema => {
+  console.log(properties);
   const yupValidator = getYupValidatorType({
     properties,
     t

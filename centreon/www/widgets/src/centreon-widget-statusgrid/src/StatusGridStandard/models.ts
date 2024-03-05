@@ -1,4 +1,4 @@
-import { CommonWidgetProps, Resource } from '../../models';
+import { CommonWidgetProps, Resource } from '../../../models';
 
 export interface Data {
   resources: Array<Resource>;

@@ -2,8 +2,8 @@ import { equals, flatten, includes, pluck } from 'ramda';
 
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { Resource } from '../../../models';
-import { formatStatus } from '../../../utils';
+import { Resource } from '../../../../models';
+import { formatStatus } from '../../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 

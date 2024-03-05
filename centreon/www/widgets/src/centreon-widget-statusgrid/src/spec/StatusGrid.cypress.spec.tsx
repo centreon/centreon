@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Method } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { Data, PanelOptions } from '../models';
+import { Data, PanelOptions } from '../StatusGridStandard/models';
 import StatusGrid from '..';
 import {
   labelAllMetricsAreWorkingFine,
@@ -12,10 +12,10 @@ import {
   labelSeeMore,
   labelServiceName,
   labelValue
-} from '../translatedLabels';
+} from '../StatusGridStandard/translatedLabels';
 import { labelPreviewRemainsEmpty } from '../../../translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
-import { router } from '../Tile';
+import { resourcesEndpoint } from '../StatusGridStandard/api/endpoints';
+import { router } from '../StatusGridStandard/Tile';
 
 import {
   hostOptions,
