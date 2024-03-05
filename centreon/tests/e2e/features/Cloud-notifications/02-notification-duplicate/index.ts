@@ -19,7 +19,7 @@ const notificationProperties = [
 ];
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   cy.intercept({
     method: 'GET',

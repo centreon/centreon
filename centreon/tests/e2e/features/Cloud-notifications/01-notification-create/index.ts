@@ -16,7 +16,7 @@ let globalResourceType = '';
 let globalContactSettings = '';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     configName: 'central-broker-master',

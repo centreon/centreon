@@ -15,7 +15,7 @@ import {
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
     configName: 'central-broker-master',
