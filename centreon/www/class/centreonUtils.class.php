@@ -319,18 +319,17 @@ class CentreonUtils
         $stringToEscape,
         $escapeMethod = self::ESCAPE_LEGACY_METHOD
     ) {
-        $stringDecoded = htmlspecialchars_decode($stringToEscape);
         switch ($escapeMethod) {
             case self::ESCAPE_LEGACY_METHOD:
                 // Remove script and input tags by default
-                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringDecoded ?? '');
+                return preg_replace(array("/<script.*?\/script>/si", "/<input[^>]+\>/si"), "", $stringToEscape ?? '');
             case self::ESCAPE_ALL_EXCEPT_LINK:
-                return self::escapeAllExceptLink($stringDecoded);
+                return self::escapeAllExceptLink($stringToEscape);
             case self::ESCAPE_ALL:
-                return self::escapeAll($stringDecoded);
+                return self::escapeAll($stringToEscape);
             case self::ESCAPE_ILLEGAL_CHARS:
                 $chars = (string) $_SESSION['centreon']->Nagioscfg['illegal_object_name_chars'];
-                return str_replace(str_split($chars), '', $stringDecoded);
+                return str_replace(str_split($chars), '', $stringToEscape);
         }
     }
 
