@@ -45,8 +45,8 @@ final class PartialRuleUpdateController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            $dto = $this->createDtoFromRequest($request);
-            $useCase($ruleId, $dto, $presenter);
+            $dto = $this->createDtoFromRequest($ruleId, $request);
+            $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
@@ -56,13 +56,14 @@ final class PartialRuleUpdateController extends AbstractController
     }
 
     /**
+     * @param int $ruleId
      * @param Request $request
      *
      * @throws \InvalidArgumentException
      *
      * @return PartialRuleUpdateRequest
      */
-    private function createDtoFromRequest(Request $request): PartialRuleUpdateRequest
+    private function createDtoFromRequest(int $ruleId, Request $request): PartialRuleUpdateRequest
     {
         /**
          * @var array{
@@ -74,6 +75,7 @@ final class PartialRuleUpdateController extends AbstractController
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialRuleUpdateSchema.json');
 
         $dto = new PartialRuleUpdateRequest();
+        $dto->id = $ruleId;
 
         if (\array_key_exists('name', $data)) {
             $dto->name = $data['name'];

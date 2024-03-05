@@ -65,12 +65,10 @@ final class PartialRuleUpdate
     }
 
     /**
-     * @param int $ruleId
      * @param PartialRuleUpdateRequest $request
      * @param PresenterInterface $presenter
      */
     public function __invoke(
-        int $ruleId,
         PartialRuleUpdateRequest $request,
         PresenterInterface $presenter
     ): void {
@@ -91,8 +89,8 @@ final class PartialRuleUpdate
                 return;
             }
 
-            $this->debug('Find resource access rule to partially update', ['id' => $ruleId]);
-            $rule = $this->readRepository->findById($ruleId);
+            $this->debug('Find resource access rule to partially update', ['id' => $request->id]);
+            $rule = $this->readRepository->findById($request->id);
 
             if ($rule === null) {
                 $presenter->setResponseStatus(new NotFoundResponse('Resource access rule'));

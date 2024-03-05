@@ -28,11 +28,13 @@ use Core\Common\Application\Type\NoValue;
 final class PartialRuleUpdateRequest
 {
     /**
+     * @param int $id
      * @param NoValue|string $name
      * @param NoValue|null|string $description
      * @param NoValue|bool $isEnabled
      */
     public function __construct(
+        public int $id = 0,
         public NoValue|string $name = new NoValue(),
         public NoValue|null|string $description = new NoValue(),
         public NoValue|bool $isEnabled = new NoValue(),

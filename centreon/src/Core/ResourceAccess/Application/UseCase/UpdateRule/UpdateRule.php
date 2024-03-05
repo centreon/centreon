@@ -441,7 +441,7 @@ final class UpdateRule
         sort($current);
         sort($update);
 
-        return array_diff($current, $update) !== array_diff($update, $current);
+        return $current === $update;
     }
 
     /**

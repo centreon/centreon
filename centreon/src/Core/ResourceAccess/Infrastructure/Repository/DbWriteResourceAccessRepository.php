@@ -53,16 +53,14 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
 
     /**
      * @inheritDoc
+     * Here are the deletions (on cascade or not) that will occur on rule deletion
+     *     - Contact relations (ON DELETE CASCADE)
+     *     - Contact Group relations (ON DELETE CASCADE)
+     *     - Datasets relations + datasets (NEED MANUAL DELETION)
+     *     - DatasetFilters (ON DELETE CASCADE).
      */
     public function deleteRuleAndDatasets(int $ruleId): void
     {
-        /**
-         * Here are the deletions (on cascade or not) that will occur on rule deletion
-         *     - Contact relations (ON DELETE CASCADE)
-         *     - Contact Group relations (ON DELETE CASCADE)
-         *     - Datasets relations + datasets (NEED MANUAL DELETION)
-         *     - DatasetFilters (ON DELETE CASCADE).
-         */
         $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
         $alreadyInTransaction = $this->db->inTransaction();
 
