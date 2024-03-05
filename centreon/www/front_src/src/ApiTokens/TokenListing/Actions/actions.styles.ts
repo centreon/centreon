@@ -30,14 +30,14 @@ export const useStyles = makeStyles<StylesProps>()((theme, { width } = {}) => ({
   subContainer: {
     alignItems: 'center',
     display: 'flex',
-    flex: 0.15
+    flex: 0.1
   },
   subContainerSearch: {
     alignItems: 'center',
     display: 'flex',
-    flex: 0.85,
+    flex: 0.9,
     flexDirection: 'row',
     gap: theme.spacing(0.5),
-    justifyContent: 'end'
+    justifyContent: 'center'
   }
 }));

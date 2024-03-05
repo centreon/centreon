@@ -15,16 +15,20 @@ const Actions = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles({ width });
 
+  const displaySearch = Boolean(width);
+
   return (
     <div className={classes.container}>
       <div className={classes.subContainer}>
         {buttonCreateToken}
         {refresh}
       </div>
-      <div className={classes.subContainerSearch}>
-        <Search />
-        <TokenFilter />
-      </div>
+      {displaySearch && (
+        <div className={classes.subContainerSearch}>
+          <Search />
+          <TokenFilter />
+        </div>
+      )}
     </div>
   );
 };
