@@ -27,6 +27,14 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
   noLabelInput: {
     padding: theme.spacing(1)
+  },
+  select: {
+    '& > fieldset > legend': {
+      maxWidth: 0
+    },
+    '&.Mui-focused > fieldset > legend': {
+      maxWidth: '100%'
+    }
   }
 }));
 
@@ -84,6 +92,9 @@ const SelectField = ({
       <Select
         displayEmpty
         fullWidth={fullWidth}
+        classes={{
+          root: classes.select
+        }}
         inputProps={{
           'aria-label': ariaLabel,
           className: cx(classes.input, {

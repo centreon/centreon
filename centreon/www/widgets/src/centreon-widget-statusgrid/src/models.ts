@@ -12,6 +12,7 @@ export interface PanelOptions {
   states: Array<string>;
   statuses: Array<string>;
   tiles: number;
+  viewMode: 'standard' | 'condensed';
 }
 
 export interface StatusGridProps extends CommonWidgetProps<PanelOptions> {
