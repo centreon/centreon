@@ -159,7 +159,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || failure()
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || (failure() && github.event.pull_request.draft == false)
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -215,7 +215,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || failure()
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || (failure() && github.event.pull_request.draft == false)
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
