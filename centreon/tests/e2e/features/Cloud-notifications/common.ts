@@ -132,8 +132,6 @@ const notificationSentCheck = ({
 const waitUntilLogFileChange = (): Cypress.Chainable => {
   let initialContent;
 
-  cy.wait(99999999);
-
   return cy
     .execInContainer({
       command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
