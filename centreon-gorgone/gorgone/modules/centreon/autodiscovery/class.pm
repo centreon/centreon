@@ -1041,6 +1041,8 @@ sub action_servicediscoverylistener {
     );
 
     if (defined($self->{service_discoveries}->{ $uuid }) && $self->{service_discoveries}->{ $uuid }->is_finished()) {
+        return 0 if ($self->{service_discoveries}->{ $uuid }->is_post_execution());
+        $self->{service_discoveries}->{ $uuid }->service_discovery_post_exec();
         delete $self->{service_discoveries}->{ $uuid };
     }
 }
