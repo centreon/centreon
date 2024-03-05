@@ -112,7 +112,12 @@ patch:
     - Resource Access Management
   summary: "Update partially a resource access rule"
   description: |
-    Update a resource access rule configuration
+    Partial update of resource access rule configuration.
+    The available parameters to **update** are:
+
+    * name
+    * description
+    * is_enabled
   parameters:
     - $ref: 'QueryParameter/RuleId.yaml'
   requestBody:
