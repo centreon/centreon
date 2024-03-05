@@ -680,7 +680,7 @@ describe('Api-token', () => {
 
     cy.get('@filterInterface').contains('Guest');
 
-    cy.get('input[id="Revoked token"]').should('be.checked');
+    cy.get('input[id="Disabled tokens"]').should('be.checked');
     cy.findAllByTestId(labelCreationDate).should(
       'have.value',
       'February 27, 2024 5:30 PM'
