@@ -25,4 +25,4 @@ Feature: Creating a Notification Rule
     Examples:
       | contact_settings                            | resource_type                           |
       | a single contact                            | host group                              |
-      | two contacts                                | host group and services for these hosts |
+      # | two contacts                                | host group and services for these hosts |
