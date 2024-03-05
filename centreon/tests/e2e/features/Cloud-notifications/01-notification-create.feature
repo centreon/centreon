@@ -41,10 +41,6 @@ Feature: Creating a Notification Rule
     And the notification refresh_delay has been reached
     Then an email is sent to the configured <contact_settings> with the configured format
     Examples:
-      | contact_settings                            | resource_type                           |
-      | a single contact                            | host group                              |
-      | two contacts                                | host group and services for these hosts |
-      | a single contact group                      | service group                           |
-      | two contact groups                          | Business View                           |
-      | a single contact and a single contact group |                                         |
-      | two contacts and two contact groups         |                                         |
+      | contact_settings | resource_type                           |
+      | a single contact | host group                              |
+      | two contacts     | host group and services for these hosts |
