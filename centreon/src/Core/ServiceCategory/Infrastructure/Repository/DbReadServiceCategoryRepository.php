@@ -603,7 +603,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         if ($matches[1] === 'hostgroup') {
-            $findCategoryByServiceConcatenator-> appendJoins(
+            $findCategoryByServiceConcatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr
                         ON scr.sc_id = sc.sc_id
