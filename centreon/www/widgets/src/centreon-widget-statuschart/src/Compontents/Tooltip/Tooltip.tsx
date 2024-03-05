@@ -40,7 +40,7 @@ const TooltipContent = ({
     type: title.slice(0, -1)
   });
 
-  const isStatusOK = equals(label, 'ok') || equals(label, 'up');
+  const isStatusOK = ['ok, 'up'].includes(label);
 
   return (
     <Box className={classes.tooltipContainer} data-testid={`tooltip-${label}`}>
