@@ -441,7 +441,7 @@ final class UpdateRule
         sort($current);
         sort($update);
 
-        return $current === $update;
+        return $current !== $update;
     }
 
     /**

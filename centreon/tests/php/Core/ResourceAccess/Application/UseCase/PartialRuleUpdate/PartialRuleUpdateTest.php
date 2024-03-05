@@ -142,7 +142,7 @@ it('should present a Forbidden response when user does not have sufficient right
         ->method('hasTopologyRole')
         ->willReturn(false);
 
-    ($this->useCase)(1, $this->request, $this->presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->responseStatus)
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -158,7 +158,7 @@ it('should present a Forbidden response when user does not have sufficient right
             [new AccessGroup(1, 'lame_acl', 'not an admin')]
         );
 
-    ($this->useCase)(1, $this->request, $this->presenter);
+    ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->responseStatus)
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -186,7 +186,7 @@ it(
             ->method('findById')
             ->willReturn(null);
 
-        ($this->useCase)(1, $this->request, $this->presenter);
+        ($this->useCase)($this->request, $this->presenter);
 
         expect($this->presenter->responseStatus)->toBeInstanceOf(NotFoundResponse::class);
     }
@@ -224,7 +224,7 @@ it(
                 )
             );
 
-        ($this->useCase)(1, $this->request, $this->presenter);
+        ($this->useCase)($this->request, $this->presenter);
 
         expect($this->presenter->responseStatus)
             ->toBeInstanceOf(ConflictResponse::class)
@@ -258,7 +258,7 @@ it(
             ->method('findById')
             ->willReturn($this->rule);
 
-        ($this->useCase)(1, $this->request, $this->presenter);
+        ($this->useCase)($this->request, $this->presenter);
 
         expect($this->presenter->responseStatus)
             ->toBeInstanceOf(NoContentResponse::class);
