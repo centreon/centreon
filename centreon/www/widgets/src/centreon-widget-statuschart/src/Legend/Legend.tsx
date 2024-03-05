@@ -5,7 +5,7 @@ import { Typography } from '@mui/material';
 import { Tooltip } from '@centreon/ui/components';
 
 import TooltipContent from '../Tooltip/Tooltip';
-import { FormattedResponse, getValueByUnit } from '../../utils';
+import { FormattedResponse, getValueByUnit } from '../utils';
 
 import { useLegendStyles } from './Legend.styles';
 

@@ -1,7 +1,7 @@
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { DisplayType } from '../../models';
+import { DisplayType } from '../models';
 
 interface StyleType {
   displayType: DisplayType;

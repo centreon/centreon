@@ -6,7 +6,7 @@ import { useRefreshInterval } from '@centreon/ui';
 import { getResourcesUrl } from '../../utils';
 
 import { StatusChartProps } from './models';
-import { Chart } from './Compontents';
+import Chart from './Chart/Chart';
 import { useStyles } from './StatusChart.styles';
 import {
   labelHosts,

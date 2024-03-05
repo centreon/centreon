@@ -10,7 +10,7 @@ import {
   labelAreWorkingFine,
   labelStatus,
   lableNoResourceFound
-} from '../../translatedLabels';
+} from '../translatedLabels';
 
 import { useTooltipContent } from './useTooltip';
 import { useTooltipStyles } from './Tooltip.styles';
@@ -40,7 +40,7 @@ const TooltipContent = ({
     type: title.slice(0, -1)
   });
 
-  const isStatusOK = ['ok, 'up'].includes(label);
+  const isStatusOK = ['ok', 'up'].includes(label);
 
   return (
     <Box className={classes.tooltipContainer} data-testid={`tooltip-${label}`}>

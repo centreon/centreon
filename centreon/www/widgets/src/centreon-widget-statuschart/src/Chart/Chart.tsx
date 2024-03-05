@@ -2,12 +2,14 @@ import { equals, isNil } from 'ramda';
 
 import { PieChart, BarStack } from '@centreon/ui';
 
-import { ChartType, DisplayType } from '../../models';
-import { Legend, TooltipContent, ChartSkeleton } from '..';
-import useLoadResources from '../../useLoadResources';
-import { goToUrl } from '../../../../utils';
+import { ChartType, DisplayType } from '../models';
+import useLoadResources from '../useLoadResources';
+import { goToUrl } from '../../../utils';
+import Legend from '../Legend/Legend';
+import TooltipContent from '../Tooltip/Tooltip';
 
 import { useStyles } from './Chart.styles';
+import ChartSkeleton from './LoadingSkeleton';
 
 const Chart = ({
   displayType,
