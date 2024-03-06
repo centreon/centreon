@@ -33,7 +33,8 @@
         "pestphp/pest": "^1.21",
         "php-vfs/php-vfs": "^1.4",
         "friendsofphp/php-cs-fixer": "^3.10",
-        "robertfausk/mink-panther-driver": "^1.1"
+        "robertfausk/mink-panther-driver": "^1.1",
+        "rector/rector": "^1.0"
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -48,7 +49,7 @@
         "ext-phar": "*",
         "ext-zip":  "*",
         "friendsofsymfony/rest-bundle": "^3.0",
-        "jms/serializer-bundle": "^4.0",
+        "jms/serializer-bundle": "^5.4",
         "justinrainbow/json-schema": "^5.2",
         "nelmio/cors-bundle": "^2.1",
         "openpsa/quickform": "3.3.*",
