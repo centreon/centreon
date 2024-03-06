@@ -12,7 +12,7 @@ import {
   map
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
 import { Resource, SeverityStatus } from './models';
 
@@ -230,4 +230,40 @@ export const formatStatus = pipe(
 
 export const goToUrl = (url) => (): void => {
   window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
+
+const isTypeHost = equals('host');
+
+interface GetStatusNameByStatusSeverityandResourceTypeProps {
+  resourceType: string;
+  status: SeverityStatus;
+}
+
+export const getStatusNameByStatusSeverityandResourceType = ({
+  resourceType,
+  status
+}: GetStatusNameByStatusSeverityandResourceTypeProps): string =>
+  cond([
+    [
+      equals(SeverityStatus.Success),
+      always(isTypeHost(resourceType) ? 'up' : 'ok')
+    ],
+    [equals(SeverityStatus.Warning), always('warning')],
+    [
+      equals(SeverityStatus.Problem),
+      always(isTypeHost(resourceType) ? 'down' : 'critical')
+    ],
+    [
+      equals(SeverityStatus.Undefined),
+      always(isTypeHost(resourceType) ? 'unreachable' : 'unknown')
+    ],
+    [equals(SeverityStatus.Pending), always('pending')]
+  ])(status);
+
+export const severityCodeBySeverityStatus = {
+  [SeverityStatus.Problem]: SeverityCode.High,
+  [SeverityStatus.Warning]: SeverityCode.Medium,
+  [SeverityStatus.Success]: SeverityCode.OK,
+  [SeverityStatus.Undefined]: SeverityCode.None,
+  [SeverityStatus.Pending]: SeverityCode.Pending
 };

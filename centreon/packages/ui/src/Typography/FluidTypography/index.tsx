@@ -7,13 +7,15 @@ import useFluidResizeObserver from './useFluidResizeObserver';
 type CustomTypographyProps = Pick<TypographyProps, 'variant'>;
 export interface FluidTypographyProps extends CustomTypographyProps {
   className?: string;
+  containerClassName?: string;
   text: string;
 }
 
 const FluidTypography = ({
   text,
   variant = 'body1',
-  className
+  className,
+  containerClassName
 }: FluidTypographyProps): JSX.Element => {
   const containerRef = useRef<HTMLElement>();
   const parentRef = useRef<HTMLElement>();
@@ -29,13 +31,17 @@ const FluidTypography = ({
         width: `100%`
       }}
     >
-      <div ref={containerRef} style={{ height: '100%', width: '100%' }}>
+      <div
+        className={containerClassName}
+        ref={containerRef}
+        style={{ height: '100%', width: '100%' }}
+      >
         <Typography
           className={className}
           sx={{
-            fontSize: `clamp(10px, min(${Math.floor(
+            fontSize: `clamp(10px, max(${Math.floor(
               size.width / 6
-            )}px, ${Math.floor(size.height / 6)}px), min(${size.width}px, ${
+            )}px, ${Math.floor(size.height / 6)}px), max(${size.width}px, ${
               size.height
             }px))`
           }}

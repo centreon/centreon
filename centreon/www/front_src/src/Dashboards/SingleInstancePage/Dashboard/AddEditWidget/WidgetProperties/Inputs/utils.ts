@@ -146,7 +146,6 @@ export const buildValidationSchema = ({
   t,
   properties
 }: BuildValidationSchemaProps): Yup.StringSchema => {
-  console.log(properties);
   const yupValidator = getYupValidatorType({
     properties,
     t

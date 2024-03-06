@@ -14,7 +14,7 @@ import {
   labelValue
 } from '../StatusGridStandard/translatedLabels';
 import { labelPreviewRemainsEmpty } from '../../../translatedLabels';
-import { resourcesEndpoint } from '../StatusGridStandard/api/endpoints';
+import { resourcesEndpoint } from '../api/endpoints';
 import { router } from '../StatusGridStandard/Tile';
 
 import {

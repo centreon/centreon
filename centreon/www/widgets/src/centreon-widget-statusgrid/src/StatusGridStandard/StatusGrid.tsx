@@ -11,12 +11,14 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
+import { buildResourcesEndpoint } from '../api/endpoints';
+
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
-import { buildResourcesEndpoint } from './api/endpoints';
 import Tile from './Tile';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
 import Tooltip from './Tooltip/Tooltip';
+import { resourcesEndpoint } from '../api/endpoints';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -45,6 +47,7 @@ const StatusGrid = ({
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
+        baseEndpoint: resourcesEndpoint,
         limit: tiles,
         resources,
         sortBy,

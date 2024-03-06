@@ -84,13 +84,13 @@ export interface CommonWidgetProps<T extends object> {
   store: ReturnType<typeof createStore>;
 }
 
-type StatusDetail = {
+export type StatusDetail = {
   acknowledged: number;
   in_downtime: number;
   total: number;
 };
 
-type Status =
+export type Status =
   | 'critical'
   | 'warning'
   | 'unknown'
