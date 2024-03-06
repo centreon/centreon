@@ -14,6 +14,6 @@ monolog:
             channels: ['centreon']
         deprecation:
             type: rotating_file
-            path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+            path: "%log_path%/%kernel.environment%.deprecations.log"
             max_files: 2
             channels: [ deprecation ]
