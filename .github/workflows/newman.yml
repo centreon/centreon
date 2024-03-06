@@ -375,8 +375,8 @@ jobs:
           pwd
           echo "--- collect dir"
           ls -la $collection_directory
-          echo "--- tmp"
-          ls -la /tmp/
+          echo "--- collect dir images"
+          ls -la $collection_directory/images
           echo "---"
           echo "---"
           if [ -f "$environment_file" ]; then
