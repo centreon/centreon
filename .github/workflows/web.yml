@@ -868,6 +868,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
@@ -900,6 +902,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
@@ -923,6 +927,8 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
           github_base_ref: ${{ github.base_ref }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deploy-platform-nightly:
     needs:

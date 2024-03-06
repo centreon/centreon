@@ -1,14 +1,15 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { createNotification, enableNotificationFeature } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored } from '../../../commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   cy.intercept({
     method: 'GET',
