@@ -371,47 +371,35 @@ function set_centreon_repos() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-
-	case "$detected_os_release" in
-	debian-release*)
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=$detected_os_version --mariadb-server-version=$detected_mariadb_version
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install the repository"
-		else
-			log "INFO" "Successfully installed MariaDB repository"
-		fi
-		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
-		;;
-	*)
+	else
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version=$detected_mariadb_version
-		if [ $? -ne 0 ]; then
-			error_and_exit "Could not install the repository"
-		else
-			log "INFO" "Successfully installed MariaDB repository"
-		fi
+	fi
+	if [ $? -ne 0 ]; then
+		error_and_exit "Could not install the repository"
+	else
+		log "INFO" "Successfully installed MariaDB repository"
+	fi
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
+	else
 		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
-		;;
-	esac
+	fi
 }
 #========= end of function set_mariadb_repos()
 
 #========= begin of function setup_mysql()
 #
 function setup_mysql() {
+	log "INFO" "Install MySQL repository"
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+		$PKG_MGR -y update
+		;;
+	fi
 
-	case "$detected_os_release" in
-		debian-release*)
-			log "INFO" "Install MySQL repository"
-			curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
-			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
-			$PKG_MGR -y update
-			;;
-
-		almalinux-release*)
-			log "INFO" "Install MySQL repository"
-			;;
-
-	esac
 	$PKG_MGR install -y mysql-server
 	systemctl enable -now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
