@@ -1406,7 +1406,7 @@
                   "key": "data",
                   "description": "please use images/[nameFile] on the CI",
                   "type": "file",
-                  "src": "/Users/jeremydelpierre/Desktop/Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -1541,7 +1541,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 }
               ]
             },
@@ -1848,7 +1848,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
@@ -2002,7 +2002,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -2155,7 +2155,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -2338,7 +2338,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
@@ -2609,7 +2609,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
