@@ -1405,7 +1405,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -1846,7 +1846,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
@@ -2000,7 +2000,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "./tmp/Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -2153,7 +2153,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",
@@ -2336,7 +2336,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
@@ -2607,7 +2607,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Salameche.png"
+                  "src": "images/Salameche.png"
                 },
                 {
                   "key": "directory",
