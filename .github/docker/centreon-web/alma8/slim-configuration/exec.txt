@@ -13,6 +13,8 @@ curl -s -d '{"check":{"is_forced":true},"resources":[{"id":26,"parent":{"id":14}
 dnf search vim
 dnf clean all
 
+lua /usr/share/centreon-broker/lua/centreon-cloud-notifications.lua
+
 systemctl stop gorgoned
 systemctl stop centengine
 systemctl stop cbd
