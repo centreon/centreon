@@ -29,3 +29,6 @@ case "$action" in
     startGorgoned
     ;;
 esac
+
+# change config.d permessions
+chmod 0770 /etc/centreon-gorgone/config.d
