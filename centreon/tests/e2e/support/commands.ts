@@ -305,6 +305,11 @@ export enum PatternType {
   startsWith = '^'
 }
 
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
 interface GetByLabelProps {
   label: string;
   patternInfo?: PatternType;
