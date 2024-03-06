@@ -1405,7 +1405,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "/tmp/Admin-Potter.png"
+                  "src": "./images/Admin-Potter.png"
                 },
                 {
                   "key": "directory",

@@ -32,7 +32,7 @@ on:
         required: true
         type: string
       xray_keys_and_ids:
-        description: 'The test execution and the test plan keys and ids'
+        description: "The test execution and the test plan keys and ids"
         required: true
         type: string
     secrets:
@@ -311,9 +311,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
         env:
-          CYPRESS_INSTALL_BINARY: '0'
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
@@ -371,6 +371,8 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_directory="$(dirname "$collection_file")"
           environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
+          ls -la
+          ls -la collections
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
             pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
