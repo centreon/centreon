@@ -44,7 +44,7 @@ use Centreon\Application\Validation\CentreonValidatorTranslator;
  */
 class CentreonValidatorTranslatorTest extends TestCase
 {
-    public function testTrans()
+    public function testTrans(): void
     {
         $translator = new CentreonValidatorTranslator();
 

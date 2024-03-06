@@ -3,10 +3,8 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\Configuration\Option;
 use Rector\Symfony\Set\SymfonySetList;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return RectorConfig::configure()
     ->withPaths([

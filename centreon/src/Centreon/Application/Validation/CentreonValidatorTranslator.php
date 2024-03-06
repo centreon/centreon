@@ -69,7 +69,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
      * @codeCoverageIgnore
      * {@inheritdoc}
      */
-    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
+    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null): void
     {
         // ...
     }
@@ -80,7 +80,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
      * @codeCoverageIgnore
      * {@inheritdoc}
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         // ...
     }
@@ -91,7 +91,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
      * @codeCoverageIgnore
      * {@inheritdoc}
      */
-    public function getLocale()
+    public function getLocale(): void
     {
         // ...
     }

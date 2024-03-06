@@ -48,14 +48,14 @@ use Symfony\Component\Validator\Constraints\NotBlankValidator;
  */
 class CentreonValidatorFactoryTest extends TestCase
 {
-    public function testGetInstance()
+    public function testGetInstance(): void
     {
         $factory = new CentreonValidatorFactory(new Container());
 
         $this->assertInstanceOf(NotBlankValidator::class, $factory->getInstance(new NotBlank()));
     }
 
-    public function testGetInstanceWithService()
+    public function testGetInstanceWithService(): void
     {
         $service = 'service.constraint';
 
@@ -70,7 +70,7 @@ class CentreonValidatorFactoryTest extends TestCase
         $this->assertInstanceOf(\stdClass::class, $factory->getInstance($constraint));
     }
 
-    public function testGetInstanceWithoutValidator()
+    public function testGetInstanceWithoutValidator(): void
     {
         $service = 'service.constraint';
 

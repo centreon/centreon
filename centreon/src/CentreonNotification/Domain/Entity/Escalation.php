@@ -45,17 +45,15 @@ class Escalation implements Mapping\MetadataInterface
                  ENTITY_IDENTIFICATOR_COLUMN = 'esc_id';
 
     /**
-     * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
-     *
      * @var int an identification of entity
      */
+    #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $id;
 
     /**
-     * @Serializer\Groups({Escalation::SERIALIZER_GROUP_LIST})
-     *
      * @var string escalation name
      */
+    #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $name;
 
     /**

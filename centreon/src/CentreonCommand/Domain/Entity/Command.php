@@ -38,17 +38,15 @@ class Command
     public const TYPE_DISCOVERY = 4;
 
     /**
-     * @Serializer\Groups({Command::SERIALIZER_GROUP_LIST})
-     *
      * @var int an identification of entity
      */
+    #[Serializer\Groups([Command::SERIALIZER_GROUP_LIST])]
     private $id;
 
     /**
-     * @Serializer\Groups({Command::SERIALIZER_GROUP_LIST})
-     *
      * @var string
      */
+    #[Serializer\Groups([Command::SERIALIZER_GROUP_LIST])]
     private $name;
 
     /**

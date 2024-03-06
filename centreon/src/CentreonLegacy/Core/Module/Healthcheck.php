@@ -176,7 +176,7 @@ class Healthcheck
     /**
      * Reset collected data after check.
      */
-    public function reset()
+    public function reset(): void
     {
         $this->messages = null;
         $this->customAction = null;

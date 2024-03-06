@@ -84,7 +84,7 @@ class I18nTest extends TestCase
     {
     }
 
-    public function testGetTranslation()
+    public function testGetTranslation(): void
     {
         $result = $this->translation->getTranslation();
 
