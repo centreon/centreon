@@ -371,9 +371,11 @@ jobs:
           collection_name=$(basename "$collection_file" .postman_collection.json)
           collection_directory="$(dirname "$collection_file")"
           environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
-          ls -la
+          pwd
           echo "---"
           ls -la $collection_file
+          echo "---"
+          ls -la /tmp/
           echo "---"
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
