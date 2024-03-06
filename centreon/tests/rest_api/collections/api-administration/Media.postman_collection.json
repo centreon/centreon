@@ -1540,7 +1540,7 @@
                 {
                   "key": "data",
                   "type": "file",
-                  "src": "Admin-Potter.png"
+                  "src": "/tmp/Admin-Potter.png"
                 }
               ]
             },
