@@ -13,12 +13,12 @@ return RectorConfig::configure()
         __DIR__ . '/src',
     ])
     // uncomment to reach your current PHP version
-    // ->withPhpSets()
+    //->withPhpSets(php81: true)
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,
     ])
     ->withSets([
-        SymfonySetList::SYMFONY_54,
+        SymfonySetList::SYMFONY_64,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
     ]);
