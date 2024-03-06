@@ -22,7 +22,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@v2
+    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
       with:
         version: 7
         run_install: false
@@ -36,18 +36,18 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
     - name: Setup PHP 8.1
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
       with:
         php-version: 8.1
         extensions: yaml, xml, mysql, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2
+        tools: composer:2.6
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
       shell: bash
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       with:
         repository: centreon/centreon-injector
         path: centreon-injector

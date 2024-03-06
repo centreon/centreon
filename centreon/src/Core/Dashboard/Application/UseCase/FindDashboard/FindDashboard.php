@@ -36,6 +36,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboard
 {
@@ -47,7 +49,8 @@ final class FindDashboard
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -117,7 +120,7 @@ final class FindDashboard
             return new NotFoundResponse('Dashboard');
         }
 
-        return $this->createResponse($dashboard, DashboardSharingRole::Viewer);
+        return $this->createResponseAsNonAdmin($dashboard, DashboardSharingRole::Viewer);
     }
 
     /**
@@ -137,6 +140,45 @@ final class FindDashboard
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
             $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactShares($dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactGroupShares($dashboard),
+            $defaultRole
+        );
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param DashboardSharingRole $defaultRole
+     *
+     * @throws \Throwable
+     *
+     * @return FindDashboardResponse
+     */
+    private function createResponseAsNonAdmin(Dashboard $dashboard, DashboardSharingRole $defaultRole): FindDashboardResponse
+    {
+        $editorIds = $this->extractAllContactIdsFromDashboard($dashboard);
+
+        $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $userAccessGroups
+        );
+
+        $userInCurrentUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups($accessGroupsIds);
+
+        return FindDashboardFactory::createResponse(
+            $dashboard,
+            $this->readContactRepository->findNamesByIds(...$editorIds),
+            $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
+            $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
+                $userInCurrentUserAccessGroups,
+                $dashboard
+            ),
+            $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact(
+                $this->contact,
+                $dashboard
+            ),
             $defaultRole
         );
     }

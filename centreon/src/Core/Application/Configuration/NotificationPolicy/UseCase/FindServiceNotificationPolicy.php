@@ -92,8 +92,9 @@ class FindServiceNotificationPolicy
             return;
         }
 
-        $notifiedContacts = $this->readServiceNotificationRepository->findNotifiedContactsById($serviceId);
-        $notifiedContactGroups = $this->readServiceNotificationRepository->findNotifiedContactGroupsById($serviceId);
+        $notifiedContacts = $this->readServiceNotificationRepository->findNotifiedContactsById($hostId, $serviceId);
+        $notifiedContactGroups = $this->readServiceNotificationRepository->findNotifiedContactGroupsById($hostId,
+            $serviceId);
 
         $realtimeService = $this->readRealTimeServiceRepository->findServiceById($hostId, $serviceId);
         if ($realtimeService === null) {

@@ -56,7 +56,6 @@ export type CriteriaValue = Array<SelectEntry> | string | [string, SortOrder];
 export interface Criteria {
   name: string;
   object_type: string | null;
-  search_data?: null;
   type: string;
   value?: CriteriaValue;
 }

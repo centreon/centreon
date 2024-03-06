@@ -478,14 +478,14 @@ class Host extends AbstractHost
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
 
-    public function generateFromHostId(&$host)
+    public function processingFromHost(&$host, $generateConfigurationFile = true): void
     {
         $this->getImages($host);
         $this->getMacros($host);
         $host['macros']['_HOST_ID'] = $host['host_id'];
 
         $this->getHostTimezone($host);
-        $this->getHostTemplates($host);
+        $this->getHostTemplates($host, $generateConfigurationFile);
         $this->getHostCommands($host);
         $this->getHostPeriods($host);
         $this->getContactGroups($host);
@@ -500,7 +500,13 @@ class Host extends AbstractHost
         $this->getParents($host);
         $this->getSeverity($host['host_id']);
 
-        $this->manageNotificationInheritance($host);
+        $this->manageNotificationInheritance($host, $generateConfigurationFile);
+
+    }
+
+    public function generateFromHostId(&$host)
+    {
+        $this->processingFromHost($host);
 
         $this->getServices($host);
         $this->getServicesByHg($host);

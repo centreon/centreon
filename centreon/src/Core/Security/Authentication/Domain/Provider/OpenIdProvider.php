@@ -241,7 +241,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @throws ConfigurationException
      * @throws SSOAuthenticationException
      */
-    public function authenticateOrFail(?string $authorizationCode, string $clientIp): void
+    public function authenticateOrFail(?string $authorizationCode, string $clientIp): string
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
@@ -283,7 +283,7 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->getUserInformationFromIntrospectionEndpoint();
         }
 
-        $this->username = $this->getUsernameFromLoginClaim();
+        return $this->username = $this->getUsernameFromLoginClaim();
     }
 
     /**
@@ -292,12 +292,9 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUser(): ?ContactInterface
     {
         $this->info('Searching user : ' . $this->username);
-        $user = $this->contactService->findByName($this->username);
-        if ($user === null) {
-            $user = $this->contactService->findByEmail($this->username);
-        }
 
-        return $user;
+        return $this->contactService->findByName($this->username)
+            ?? $this->contactService->findByEmail($this->username);
     }
 
     /**

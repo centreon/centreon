@@ -28,6 +28,29 @@ use DateTimeImmutable;
 
 final class DashboardResponseDto
 {
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $description
+     * @param UserResponseDto|null $createdBy
+     * @param UserResponseDto|null $updatedBy
+     * @param DateTimeImmutable $createdAt
+     * @param DateTimeImmutable $updatedAt
+     * @param DashboardSharingRole $ownRole
+     * @param array{
+     *     contacts: array<array{
+     *      id: int,
+     *      name: string,
+     *      email: string,
+     *      role: DashboardSharingRole
+     *     }>,
+     *     contact_groups: array<array{
+     *      id: int,
+     *      name: string,
+     *      role: DashboardSharingRole
+     *     }>
+     * } $shares
+     */
     public function __construct(
         public int $id = 0,
         public string $name = '',
@@ -37,6 +60,7 @@ final class DashboardResponseDto
         public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
+        public array $shares = ['contacts' => [], 'contact_groups' => []]
     ) {
     }
 }

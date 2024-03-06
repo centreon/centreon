@@ -1,7 +1,18 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty, propEq, reject } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  isEmpty,
+  propEq,
+  reject,
+  pluck,
+  includes
+} from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -21,6 +32,10 @@ import {
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
 import { getDataProperty } from '../utils';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -38,9 +53,17 @@ interface UseResourcesState {
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
-  getSearchField: (resourceType: string) => string;
-  resourceTypeOptions: Array<SelectEntry>;
+  getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
+  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
+  getSearchField: (resourceType: WidgetResourceType) => string;
+  singleHostPerMetric?: boolean;
+  singleMetricSelection?: boolean;
   value: Array<WidgetDataResource>;
+}
+
+interface ResourceTypeOption {
+  id: WidgetResourceType;
+  name: string;
 }
 
 const resourceTypeOptions = [
@@ -108,8 +131,22 @@ const useResources = (propertyName: string): UseResourcesState => {
     [getDataProperty({ obj: touched, propertyName })]
   );
 
+  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
+  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+
   const errorToDisplay =
     isTouched && isEmpty(value) ? labelPleaseSelectAResource : null;
+
+  const getResourceStatic = (
+    resourceType: WidgetResourceType
+  ): boolean | undefined => {
+    return (
+      singleMetricSelection &&
+      singleHostPerMetric &&
+      (equals(resourceType, WidgetResourceType.host) ||
+        equals(resourceType, WidgetResourceType.service))
+    );
+  };
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -177,8 +214,35 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
+  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const resourcetypesIds = pluck('resourceType', value || []);
+
+    const newResourceTypeOptions = reject(
+      ({ id }) =>
+        !equals(id, resource.resourceType) && includes(id, resourcetypesIds),
+      resourceTypeOptions
+    );
+
+    return newResourceTypeOptions;
+  };
+
   useEffect(() => {
     if (!isEmpty(value)) {
+      return;
+    }
+
+    if (singleMetricSelection && singleHostPerMetric) {
+      setFieldValue(`data.${propertyName}`, [
+        {
+          resourceType: WidgetResourceType.host,
+          resources: []
+        },
+        {
+          resourceType: WidgetResourceType.service,
+          resources: []
+        }
+      ]);
+
       return;
     }
 
@@ -199,8 +263,11 @@ const useResources = (propertyName: string): UseResourcesState => {
     deleteResourceItem,
     error: errorToDisplay,
     getResourceResourceBaseEndpoint,
+    getResourceStatic,
+    getResourceTypeOptions,
     getSearchField,
-    resourceTypeOptions,
+    singleHostPerMetric,
+    singleMetricSelection,
     value: value || []
   };
 };

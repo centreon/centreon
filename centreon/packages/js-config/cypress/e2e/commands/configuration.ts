@@ -144,6 +144,7 @@ interface Host {
   alias?: string | null;
   checkCommand?: string | null;
   checkPeriod?: string | null;
+  hostGroup?: string;
   maxCheckAttempts?: number | null;
   name: string;
   passiveCheckEnabled?: boolean;
@@ -159,6 +160,7 @@ Cypress.Commands.add(
     alias = null,
     checkCommand = null,
     checkPeriod = null,
+    hostGroup = '',
     maxCheckAttempts = 1,
     name,
     passiveCheckEnabled = true,
@@ -176,7 +178,7 @@ Cypress.Commands.add(
         bodyContent: {
           action: 'ADD',
           object: 'HOST',
-          values: `${name};${hostAlias};${address};${template};${poller};`
+          values: `${name};${hostAlias};${address};${template};${poller};${hostGroup}`
         }
       })
       .then(() => {

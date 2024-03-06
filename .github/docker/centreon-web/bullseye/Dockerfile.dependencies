@@ -67,6 +67,43 @@ apt-get install -y \
   libnet-http-perl \
   libwww-perl \
   libxml-libxml-perl \
+  libauthen-sasl-perl \
+  libclone-perl \
+  libclone-choose-perl \
+  libdata-dump-perl \
+  libencode-locale-perl \
+  libfile-listing-perl \
+  libfont-afm-perl \
+  libgdbm-compat4 \
+  libgdbm6 \
+  libhtml-form-perl \
+  libhtml-format-perl \
+  libhtml-parser-perl \
+  libhtml-tagset-perl \
+  libhtml-tree-perl \
+  libhttp-cookies-perl \
+  libhttp-daemon-perl \
+  libhttp-date-perl \
+  libhttp-message-perl \
+  libhttp-negotiate-perl \
+  libio-html-perl \
+  libio-socket-ssl-perl \
+  liblwp-mediatypes-perl \
+  liblwp-protocol-https-perl \
+  libmailtools-perl \
+  libnet-smtp-ssl-perl
+  libnet-ssleay-perl \
+  libperl5.32 \
+  libtimedate-perl \
+  libtry-tiny-perl \
+  liburi-perl \
+  libwww-robotrules-perl \
+  libxml-namespacesupport-perl \
+  libxml-parser-perl \
+  libxml-sax-base-perl \
+  libxml-sax-expat-perl \
+  libxml-sax-perl \
+  libcarp-assert-perl \
   perl
 
 #############################

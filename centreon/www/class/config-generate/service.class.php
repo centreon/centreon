@@ -80,7 +80,7 @@ class Service extends AbstractService
         }
     }
 
-    private function getServiceByPollerCache() : void
+    private function generateServiceCacheByPollerCache() : void
     {
         $query = "SELECT $this->attributes_select FROM ns_host_relation, host_service_relation, service " .
             "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
@@ -96,7 +96,7 @@ class Service extends AbstractService
         }
     }
 
-    private function getServiceCache() : void
+    private function generateServiceCache() : void
     {
         $query = "SELECT $this->attributes_select FROM service " .
             "LEFT JOIN extended_service_information ON extended_service_information.service_service_id = " .
@@ -514,9 +514,9 @@ class Service extends AbstractService
             return;
         }
         if ($this->use_cache_poller == 1) {
-            $this->getServiceByPollerCache();
+            $this->generateServiceCacheByPollerCache();
         } else {
-            $this->getServiceCache();
+            $this->generateServiceCache();
         }
         $this->done_cache = 1;
     }
@@ -648,5 +648,13 @@ class Service extends AbstractService
         }
         $this->generated_services = array();
         parent::reset();
+    }
+
+    public function getServiceFromCache(int $serviceId): ?array
+    {
+        if ($this->service_cache !== null && ! array_key_exists($serviceId, $this->service_cache)) {
+            return null;
+        }
+        return $this->service_cache[$serviceId];
     }
 }

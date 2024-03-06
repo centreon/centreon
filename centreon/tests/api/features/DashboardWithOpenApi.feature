@@ -1577,6 +1577,7 @@ Feature:
     ACLGROUP;add;name-viewer-ACLGROUP;alias-viewer-ACLGROUP
     ACLGROUP;addmenu;name-viewer-ACLGROUP;name-viewer-ACLMENU
     ACLGROUP;setcontact;name-viewer-ACLGROUP;usr-viewer;
+    ACLGROUP;setcontactgroup;name-viewer-ACLGROUP;Guest;
     CG;add;GC-Name;alias-admin-CG;
     CG;addcontact;GC-Name;usr-admin;
     CG;addcontact;GC-Name;usr-viewer;
@@ -1591,20 +1592,24 @@ Feature:
     {
         "result": [
             {
-                "id": 20,
-                "name": "usr-admin"
-            },
-            {
                 "id": 21,
-                "name": "usr-viewer"
+                "name": "usr-viewer",
+                "email": "usr-viewer@centreon.test",
+                "most_permissive_role": "viewer"
             }
         ],
         "meta": {
             "page": 1,
             "limit": 10,
-            "search": { "$and": { "name": { "$lk": "%usr%" } } },
+            "search": {
+                "$and": {
+                    "name": {
+                        "$lk": "%usr%"
+                    }
+                }
+            },
             "sort_by": {},
-            "total": 2
+            "total": 1
         }
     }
     """
@@ -1634,7 +1639,8 @@ Feature:
         "result": [
             {
                 "id": 3,
-                "name": "Guest"
+                "name": "Guest",
+                "most_permissive_role": "viewer"
             }
         ],
         "meta": {
@@ -1721,7 +1727,8 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
           "uuid": "h14-s26",
           "metrics": [
             {
@@ -1803,7 +1810,8 @@ Feature:
       | name                          | "rta"                    |
       | unit                          | "ms"                     |
       | resources[0].id                      | 26                       |
-      | resources[0].name                    | "Centreon-Server_Ping"   |
+      | resources[0].name                    | "Ping"   |
+      | resources[0].parent_name                    | "Centreon-Server"   |
       | resources[0].warning_high_threshold       | 200                      |
       | resources[0].critical_high_threshold      | 400                      |
       | resources[0].warning_low_threshold   | 0                        |
@@ -1823,7 +1831,8 @@ Feature:
       "result": [
         {
           "id": 26,
-          "name": "Centreon-Server_Ping",
+          "name": "Ping",
+          "parent_name": "Centreon-Server",
           "uuid": "h14-s26",
           "metrics": [
             {

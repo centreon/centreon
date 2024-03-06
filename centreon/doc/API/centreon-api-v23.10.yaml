@@ -16,7 +16,6 @@ info:
     + Added command endpoint (ADD)
     + Added notifiable contact group endpoint (GET)
     + Added metrics by service listing endpoint (GET)
-    + Added dashboard playlist endpoint (POST)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -1637,6 +1636,8 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/shares:
+    $ref: './v23.10/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts:
     $ref: './v23.10/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
@@ -1649,12 +1650,6 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
     $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
-  /configuration/dashboards/playlists:
-    $ref: './v23.10/Configuration/Dashboard/Playlist.yaml'
-  /configuration/dashboards/playlists/{playlist_id}:
-    $ref: './v23.10/Configuration/Dashboard/PlaylistAction.yaml'
-  /configuration/dashboards/playlists/{playlist_id}/shares:
-    $ref: './v23.10/Configuration/Dashboard/PlaylistShare.yaml'
   /monitoring/dashboard/metrics/performances:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:
@@ -5151,7 +5146,8 @@ components:
     FilterPageName:
       in: path
       name: page_name
-      description: "name of the page"
+      description: |
+        name of the page. Currently only 'events-view' is allowed.
       required: true
       schema:
         type: string

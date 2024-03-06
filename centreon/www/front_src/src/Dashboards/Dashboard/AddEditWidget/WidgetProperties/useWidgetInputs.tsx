@@ -23,7 +23,6 @@ import {
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
-  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
@@ -31,7 +30,8 @@ import {
   WidgetTopBottomSettings,
   WidgetRadio,
   WidgetCheckboxes,
-  WidgetTiles
+  WidgetTiles,
+  DisplayType
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -58,14 +58,13 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]:
-    WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
-  [FederatedWidgetOptionType.tiles]: WidgetTiles
+  [FederatedWidgetOptionType.tiles]: WidgetTiles,
+  [FederatedWidgetOptionType.displayType]: DisplayType
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

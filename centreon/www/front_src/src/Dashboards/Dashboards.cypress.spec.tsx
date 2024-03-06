@@ -12,18 +12,30 @@ import { Method } from '@centreon/js-config/cypress/component/commands';
 import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
-  dashboardsEndpoint
+  dashboardsEndpoint,
+  dashboardSharesEndpoint,
+  getDashboardAccessRightsContactGroupEndpoint
 } from './api/endpoints';
 import {
+  labelAddAContact,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
   labelDelete,
+  labelDeleteUser,
   labelName,
+  labelSave,
+  labelSharesSaved,
+  labelUserDeleted,
   labelWelcomeToDashboardInterface
 } from './translatedLabels';
+import {
+  labelCardsView,
+  labelEditor,
+  labelListView,
+  labelViewer
+} from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -76,16 +88,7 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
-      path: `${dashboardsContactsEndpoint}?**`,
-      response
-    });
-  });
-
-  cy.fixture(`Dashboards/contactGroups.json`).then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'getContactGroups',
-      method: Method.GET,
-      path: `${dashboardsContactGroupsEndpoint}?**`,
+      path: `./api/latest${dashboardsContactsEndpoint}?**`,
       response
     });
   });
@@ -118,6 +121,18 @@ const initializeAndMount = ({
     method: Method.DELETE,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'putShares',
+    method: Method.PUT,
+    path: `./api/latest${dashboardSharesEndpoint(1)}`,
+    statusCode: 204
+  });
+  cy.interceptAPIRequest({
+    alias: 'revokeUser',
+    method: Method.DELETE,
+    path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
 
   cy.mount({
@@ -158,14 +173,93 @@ const administratorRole = {
   globalRole: DashboardGlobalRole.administrator
 };
 
+const columns = [
+  'Name',
+  'Description',
+  'Creation date',
+  'Last update',
+  'Actions'
+];
+
 describe('Dashboards', () => {
+  describe('View mode', () => {
+    it('displays the dashboards in "View By cards" by default', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelCardsView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'false'
+      );
+
+      cy.get('[data-item-title="My Dashboard"]').should('be.visible');
+      cy.get('[data-item-title="My Dashboard 2"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the dashboards in "View as list" when the corresponding button is clicked', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+
+      cy.get('[data-item-title="My Dashboard"]').should('not.exist');
+      cy.get('[data-item-title="My Dashboard 2"]').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays pagination in both view modes', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('Listing Pagination').should('be.visible');
+
+      cy.findByTestId(labelCardsView).click();
+
+      cy.findByTestId('Listing Pagination').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays column configuration button only in "View as list"', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('be.visible');
+
+      cy.findByTestId(labelCardsView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  });
+
   describe('Roles', () => {
     it('displays the dashboard actions on the corresponding dashboard when the user has editor roles', () => {
       initializeAndMount(editorRole);
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByLabelText('Add').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -183,12 +277,12 @@ describe('Dashboards', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the dashboard actions on the corresponding dashboard when the user has viewer roles', () => {
+    it("doesn't displays the dashboard actions when the user has viewer roles", () => {
       initializeAndMount(viewerRole);
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('not.exist');
+      cy.findByLabelText('add').should('not.exist');
 
       cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
         dashboards.result.forEach(({ name }) => {
@@ -209,7 +303,7 @@ describe('Dashboards', () => {
 
       cy.waitForRequest('@getDashboards');
 
-      cy.findByLabelText('create').should('be.visible');
+      cy.findByLabelText('Add').should('be.visible');
 
       cy.get('[data-item-title="My Dashboard"]')
         .findByLabelText('edit')
@@ -223,6 +317,75 @@ describe('Dashboards', () => {
       cy.get('[data-item-title="My Dashboard 2"]')
         .findByLabelText('delete')
         .should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays all dashboard columns in the "View as list" when the user has editor global roles', () => {
+      initializeAndMount(editorRole);
+
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      columns.forEach((column) => {
+        cy.findByText(column);
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not display actions in the "View as list" when the user has viewer global role', () => {
+      initializeAndMount(viewerRole);
+
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByText('Actions').should('not.exist');
+
+      cy.findByLabelText('Add').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Shares', () => {
+    it('displays shares when a row is expanded', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.contains('2 shares').should('be.visible');
+
+      cy.findByTestId('ExpandMoreIcon').click();
+      cy.contains('Kevin').should('be.visible');
+      cy.findByLabelText(labelViewer).should('be.visible');
+      cy.findByLabelText(labelEditor).should('be.visible');
+      cy.findByTestId('PeopleIcon').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('revokes the access right when a row is expanded and the corresponding action is clicked ', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.contains('2 shares').should('be.visible');
+
+      cy.findByTestId('ExpandMoreIcon').click();
+
+      cy.findAllByTestId('PersonRemoveIcon').eq(1).click();
+
+      cy.contains(labelDeleteUser).should('be.visible');
+      cy.get(`[aria-label="${labelDelete}"][data-is-danger="true"]`).click();
+
+      cy.waitForRequest('@revokeUser');
+
+      cy.contains(labelUserDeleted).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -281,5 +444,29 @@ describe('Dashboards', () => {
 
     cy.contains(labelCancel).should('not.exist');
     cy.contains(labelDelete).should('not.exist');
+  });
+
+  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByTestId('edit-access-rights').eq(0).click();
+
+    cy.findByLabelText(labelAddAContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains(/^User$/)
+      .parent()
+      .click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@putShares');
+
+    cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

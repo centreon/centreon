@@ -36,10 +36,14 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
+      is_perl_project: true
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_GORG }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_GORG }}
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   package:
     needs: [get-version]
@@ -79,11 +83,11 @@ jobs:
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -106,7 +110,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -129,7 +133,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -143,7 +147,7 @@ jobs:
 
   promote:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -151,7 +155,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

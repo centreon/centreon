@@ -9,7 +9,8 @@ import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { Panel } from '../models';
 import { AddEditWidgetModal, AddWidgetPanel } from '../AddEditWidget';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -37,7 +38,7 @@ const Layout = (): JSX.Element => {
   const [refreshCounts, setRefreshCounts] = useAtom(refreshCountsAtom);
   const isEditing = useAtomValue(isEditingAtom);
 
-  const { canEdit } = editProperties.useCanEditProperties();
+  const { canEdit } = useCanEditProperties();
 
   const changeLayout = (layout: Array<Layout>): void => {
     const isOneColumnDisplay = equals(getColumnsFromScreenSize(), 1);
@@ -87,6 +88,9 @@ const Layout = (): JSX.Element => {
         };
       });
 
+  const { getLinkToResourceStatusPage, changeViewMode } =
+    useLinkToResourceStatus();
+
   return (
     <>
       <DashboardLayout.Layout
@@ -95,27 +99,39 @@ const Layout = (): JSX.Element => {
         isStatic={!isEditing || showDefaultLayout}
         layout={panels}
       >
-        {panels.map(({ i, panelConfiguration, refreshCount }) => (
-          <DashboardLayout.Item
-            canMove={
-              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
-            }
-            disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={
-              !panelConfiguration?.isAddWidgetPanel ? (
-                <PanelHeader id={i} setRefreshCount={setRefreshCount} />
-              ) : undefined
-            }
-            id={i}
-            key={i}
-          >
-            {panelConfiguration?.isAddWidgetPanel ? (
-              <AddWidgetPanel />
-            ) : (
-              <DashboardPanel id={i} refreshCount={refreshCount} />
-            )}
-          </DashboardLayout.Item>
-        ))}
+        {panels.map(
+          ({ i, panelConfiguration, refreshCount, data, name, options }) => (
+            <DashboardLayout.Item
+              canMove={
+                canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
+              }
+              disablePadding={panelConfiguration?.isAddWidgetPanel}
+              header={
+                !panelConfiguration?.isAddWidgetPanel ? (
+                  <PanelHeader
+                    changeViewMode={() => changeViewMode(options?.displayType)}
+                    id={i}
+                    linkToResourceStatus={getLinkToResourceStatusPage(
+                      data,
+                      name,
+                      options
+                    )}
+                    setRefreshCount={setRefreshCount}
+                    widgetName={name}
+                  />
+                ) : undefined
+              }
+              id={i}
+              key={i}
+            >
+              {panelConfiguration?.isAddWidgetPanel ? (
+                <AddWidgetPanel />
+              ) : (
+                <DashboardPanel id={i} refreshCount={refreshCount} />
+              )}
+            </DashboardLayout.Item>
+          )
+        )}
       </DashboardLayout.Layout>
       <AddEditWidgetModal />
     </>

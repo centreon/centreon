@@ -115,7 +115,8 @@ foreach ($ids as $arId) {
         $query = "SELECT ari_name, ari_value
                   FROM auth_ressource_info
     	    	  WHERE ar_id = ?";
-        $res = $pearDB->query($query, array($arId));
+        $res = $pearDB->prepare($query);
+        $res->execute([$arId]);
 
         while ($row = $res->fetch()) {
             switch ($row['ari_name']) {

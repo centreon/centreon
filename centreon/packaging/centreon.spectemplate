@@ -215,6 +215,7 @@ Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmaj
 Requires:   centreon-pp-manager >= %{thismajor}, centreon-pp-manager < %{nextmajor}
 Requires:   centreon-license-manager >= %{thismajor}, centreon-license-manager < %{nextmajor}
 Requires:   centreon-auto-discovery-server >= %{thismajor}, centreon-auto-discovery-server < %{nextmajor}
+Requires:   centreon-it-edition-extensions >= %{thismajor}, centreon-it-edition-extensions < %{nextmajor}
 Requires:   centreon-widget-engine-status >= %{thismajor}, centreon-widget-engine-status < %{nextmajor}
 Requires:   centreon-widget-global-health >= %{thismajor}, centreon-widget-global-health < %{nextmajor}
 Requires:   centreon-widget-graph-monitoring >= %{thismajor}, centreon-widget-graph-monitoring < %{nextmajor}
@@ -721,8 +722,8 @@ if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
 fi
 
 # make sure that gorgone configuration file has the central id set
-if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
-    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+if [[ -f /etc/centreon-gorgone/config.d/40-gorgoned.yaml && ! "$(cat /etc/centreon-gorgone/config.d/40-gorgoned.yaml | tr -d '\n')" =~ gorgonecore.*id:.*modules: ]]; then
+    sed -Ei 's/(gorgonecore:)/\1\n    id: 1/g' /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 fi
 
 #

@@ -15,8 +15,8 @@ import {
   labelViewWidgetProperties
 } from '../translatedLabels';
 import Title from '../../components/Title';
-import { editProperties } from '../hooks/useCanEditDashboard';
 import { isSidebarOpenAtom } from '../../../Navigation/navigationAtoms';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -38,7 +38,7 @@ const AddWidgetModal = (): JSX.Element | null => {
 
   const { classes } = useAddWidgetStyles();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const isSidebarOpen = useAtomValue(isSidebarOpenAtom);
 

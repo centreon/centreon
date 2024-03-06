@@ -33,6 +33,7 @@ Depends:
     centreon-license-manager (>= ${centreon:version}~),
     centreon-pp-manager (>= ${centreon:version}~),
     centreon-auto-discovery-server (>= ${centreon:version}~),
+    centreon-it-edition-extensions (>= ${centreon:version}~),
     centreon-web (>= ${centreon:version}~),
     centreon-web-apache (>= ${centreon:version}~),
     centreon-broker-cbd (>= ${centreon:version}~),
@@ -42,6 +43,7 @@ Depends:
     centreon-license-manager (<< ${centreon:versionThreshold}~),
     centreon-pp-manager (<< ${centreon:versionThreshold}~),
     centreon-auto-discovery-server (<< ${centreon:versionThreshold}~),
+    centreon-it-edition-extensions (<< ${centreon:versionThreshold}~),
     centreon-web (<< ${centreon:versionThreshold}~),
     centreon-web-apache (<< ${centreon:versionThreshold}~),
     centreon-broker-cbd (<< ${centreon:versionThreshold}~),
@@ -189,6 +191,7 @@ Depends:
     php8.1-fpm,
     centreon-web (>= ${centreon:version}~),
     centreon-web (<< ${centreon:versionThreshold}~),
+    monitoring-plugins-basic,
     ${misc:Depends}
 Description: Centreon is a network, system, applicative supervision and monitoring tool,
  it is based upon an effective Open Source monitoring engine : Centreon Engine.

@@ -87,7 +87,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
     $response = [
         new ResourceMetric(
             1,
-            "Centreon-Server_Ping",
+            'Ping',
+            'Centreon-Server',
             3,
             [
                 new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null, null),
@@ -98,7 +99,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         ),
         new ResourceMetric(
             2,
-            "Centreon-Server_Traffic",
+            'Traffic',
+            'Centreon-Server',
             3,
             [
                 new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null, null),
@@ -125,7 +127,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         ->and($presenter->data->resourceMetrics[0])
         ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
-        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
+        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Ping')
+        ->and($presenter->data->resourceMetrics[0]->parentName)->toBe('Centreon-Server')
         ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
             [
                 [
@@ -169,7 +172,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         ->and($presenter->data->resourceMetrics[1])
         ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
-        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
+        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Traffic')
+        ->and($presenter->data->resourceMetrics[1]->parentName)->toBe('Centreon-Server')
         ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(
             [
                 [
@@ -207,7 +211,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
     $response = [
         new ResourceMetric(
             1,
-            "Centreon-Server_Ping",
+            "Ping",
+            "Centreon-Server",
             3,
             [
                 new PerformanceMetric(1,'pl','%', 400.3, null, null, null, null, null, null),
@@ -218,7 +223,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         ),
         new ResourceMetric(
             2,
-            "Centreon-Server_Traffic",
+            "Traffic",
+            "Centreon-Server",
             3,
             [
                 new PerformanceMetric(5,'traffic_in','M', null, null, null, null, null, null, null),
@@ -245,7 +251,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         ->and($presenter->data->resourceMetrics[0])
         ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
-        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
+        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Ping')
+        ->and($presenter->data->resourceMetrics[0]->parentName)->toBe('Centreon-Server')
         ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
             [
                 [
@@ -289,7 +296,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         ->and($presenter->data->resourceMetrics[1])
         ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
-        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
+        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Traffic')
+        ->and($presenter->data->resourceMetrics[1]->parentName)->toBe('Centreon-Server')
         ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(
             [
                 [

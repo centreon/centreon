@@ -1,57 +1,45 @@
-import { T, always, cond, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
-import { Box, Typography } from '@mui/material';
+import { equals, isNil } from 'ramda';
 
 import {
-  Gauge,
-  GraphText,
-  SingleBar,
+  ContentWithCircularLoading,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
-import { Resource, ServiceMetric, GlobalRefreshInterval } from '../../models';
+import { Resource, GlobalRefreshInterval, Metric } from '../../models';
+import NoResources from '../../NoResources';
+import { areResourcesFullfilled } from '../../utils';
 
 import { FormThreshold, ValueFormat } from './models';
-import {
-  labelCritical,
-  labelNoDataFound,
-  labelWarning
-} from './translatedLabels';
-import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
-import { useGraphStyles } from './Graph.styles';
+import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
+  displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
-  metrics: Array<ServiceMetric>;
+  isFromPreview;
+  metrics: Array<Metric>;
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
   resources: Array<Resource>;
-  singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
   valueFormat: ValueFormat;
 }
 
 const Graph = ({
   metrics,
-  singleMetricGraphType,
+  displayType,
   threshold,
   refreshInterval,
   refreshIntervalCustom,
   globalRefreshInterval,
   valueFormat,
   refreshCount,
-  resources
+  resources,
+  isFromPreview
 }: Props): JSX.Element => {
-  const { classes } = useNoDataFoundStyles();
-  const { classes: graphClasses } = useGraphStyles();
-
-  const { t } = useTranslation();
-
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
@@ -63,7 +51,8 @@ const Graph = ({
 
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
-    metrics: [metricName],
+    bypassMetricsExclusion: true,
+    metrics,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources
@@ -78,12 +67,14 @@ const Graph = ({
     thresholds: threshold
   });
 
-  if (isNil(graphData) && (!isGraphLoading || isMetricsEmpty)) {
-    return (
-      <Typography className={classes.noDataFound} variant="h5">
-        {t(labelNoDataFound)}
-      </Typography>
-    );
+  const areResourcesOk = areResourcesFullfilled(resources);
+
+  if (
+    !areResourcesOk ||
+    isMetricsEmpty ||
+    (isFromPreview && isGraphLoading && isNil(graphData))
+  ) {
+    return <NoResources />;
   }
 
   const filteredGraphData = graphData
@@ -103,26 +94,15 @@ const Graph = ({
   };
 
   return (
-    <Box className={graphClasses.graphContainer}>
-      <Box className={graphClasses.content}>
-        {cond([
-          [equals('gauge'), always(<Gauge {...props} />)],
-          [equals('bar'), always(<SingleBar {...props} />)],
-          [
-            T,
-            always(
-              <GraphText
-                {...props}
-                labels={{
-                  critical: t(labelCritical),
-                  warning: t(labelWarning)
-                }}
-              />
-            )
-          ]
-        ])(singleMetricGraphType)}
-      </Box>
-    </Box>
+    <ContentWithCircularLoading
+      alignCenter
+      loading={isFromPreview && isGraphLoading}
+    >
+      <SingleMetricRenderer
+        graphProps={props}
+        singleMetricGraphType={displayType}
+      />
+    </ContentWithCircularLoading>
   );
 };
 
