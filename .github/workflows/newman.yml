@@ -372,7 +372,9 @@ jobs:
           collection_directory="$(dirname "$collection_file")"
           environment_file=$(find "$collection_directory" -maxdepth 1 -type f -name "*.postman_environment.json")
           ls -la
-          ls -la images
+          echo "---"
+          ls -la $collection_file
+          echo "---"
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
             pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
