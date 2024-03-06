@@ -1,10 +1,10 @@
 {
   "info": {
     "_postman_id": "bc49639a-9d43-4f34-b212-75150b3c1b33",
-    "name": "Media",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "16182525",
-    "_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc49639a-9d43-4f34-b212-75150b3c1b33?action=share&source=collection_link&creator=16182525"
+    "name": "0 - Media",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+    "_exporter_id": "28117716",
+    "_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc49639a-9d43-4f34-b212-75150b3c1b33?action=share&source=collection_link&creator=28117716"
   },
   "item": [
     {
@@ -46,11 +46,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["login"]
-            }
+            "url": "{{baseUrl}}/login"
           },
           "response": []
         }
@@ -102,10 +98,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -149,10 +142,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -196,10 +186,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -243,10 +230,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -290,10 +274,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -337,10 +318,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -384,10 +362,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -431,10 +406,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -478,10 +450,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         }
@@ -533,10 +502,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -580,10 +546,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -627,10 +590,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -674,10 +634,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -721,10 +678,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -768,10 +722,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -815,10 +766,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -862,10 +810,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -909,10 +854,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         }
@@ -964,10 +906,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1011,10 +950,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1058,10 +994,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1105,10 +1038,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1152,10 +1082,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1199,10 +1126,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1246,10 +1170,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         },
@@ -1293,10 +1214,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": ["{{baseUriCentreonCLAPI}}"]
-            }
+            "url": "{{baseUriCentreonCLAPI}}"
           },
           "response": []
         }
@@ -1341,11 +1259,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["login"]
-            }
+            "url": "{{baseUrl}}/login"
           },
           "response": []
         },
@@ -1404,6 +1318,7 @@
               "formdata": [
                 {
                   "key": "data",
+                  "description": "please use images/[nameFile] on the CI",
                   "type": "file",
                   "src": "images/Admin-Potter.png"
                 },
@@ -1414,11 +1329,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -1544,11 +1455,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -1599,11 +1506,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -1659,11 +1562,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -1690,23 +1589,11 @@
           "request": {
             "auth": {
               "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
+              "apikey": {
+                "value": "{{token}}",
+                "key": "X-AUTH-TOKEN",
+                "in": "header"
+              }
             },
             "method": "GET",
             "header": [],
@@ -1782,11 +1669,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["login"]
-            }
+            "url": "{{baseUrl}}/login"
           },
           "response": []
         },
@@ -1855,11 +1738,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -2009,11 +1888,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -2162,11 +2037,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -2193,23 +2064,11 @@
           "request": {
             "auth": {
               "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
+              "apikey": {
+                "value": "{{token}}",
+                "key": "X-AUTH-TOKEN",
+                "in": "header"
+              }
             },
             "method": "GET",
             "header": [],
@@ -2285,11 +2144,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["login"]
-            }
+            "url": "{{baseUrl}}/login"
           },
           "response": []
         },
@@ -2345,11 +2200,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -2464,23 +2315,11 @@
           "request": {
             "auth": {
               "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
+              "apikey": {
+                "value": "{{token}}",
+                "key": "X-AUTH-TOKEN",
+                "in": "header"
+              }
             },
             "method": "GET",
             "header": [],
@@ -2556,11 +2395,7 @@
                 }
               }
             },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["login"]
-            }
+            "url": "{{baseUrl}}/login"
           },
           "response": []
         },
@@ -2616,11 +2451,7 @@
                 }
               ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/medias",
-              "host": ["{{baseUrl}}"],
-              "path": ["configuration", "medias"]
-            }
+            "url": "{{baseUrl}}/configuration/medias"
           },
           "response": []
         },
@@ -2709,23 +2540,11 @@
           "request": {
             "auth": {
               "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
+              "apikey": {
+                "value": "{{token}}",
+                "key": "X-AUTH-TOKEN",
+                "in": "header"
+              }
             },
             "method": "GET",
             "header": [],
@@ -2765,18 +2584,10 @@
   ],
   "auth": {
     "type": "apikey",
-    "apikey": [
-      {
-        "key": "value",
-        "value": "{{token}}",
-        "type": "string"
-      },
-      {
-        "key": "key",
-        "value": "X-AUTH-TOKEN",
-        "type": "string"
-      }
-    ]
+    "apikey": {
+      "value": "{{token}}",
+      "key": "X-AUTH-TOKEN"
+    }
   },
   "event": [
     {
@@ -2792,6 +2603,16 @@
         "type": "text/javascript",
         "exec": [""]
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "Image1Id",
+      "value": ""
+    },
+    {
+      "key": "Image1md5",
+      "value": ""
     }
   ]
 }
