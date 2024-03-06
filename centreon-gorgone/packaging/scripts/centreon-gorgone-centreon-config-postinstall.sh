@@ -3,6 +3,7 @@
 installConfigurationFile() {
   if [ ! -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] || grep -q "@GORGONE_USER@" "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"; then
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+    chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
   else
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/centreon-api.yaml.new
   fi
