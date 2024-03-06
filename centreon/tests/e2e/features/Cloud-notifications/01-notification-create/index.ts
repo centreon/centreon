@@ -1,23 +1,26 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import {
   enableNotificationFeature,
   notificationSentCheck,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange
 } from '../common';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 let globalResourceType = '';
 let globalContactSettings = '';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
-    name: 'central-cloud-notifications-output',
-    configName: 'central-broker-master'
+    configName: 'central-broker-master',
+    name: 'central-cloud-notifications-output'
   });
 
   cy.intercept({
@@ -60,23 +63,25 @@ Given(
     switch (contactSettings) {
       case 'a single contact':
         cy.addContact({
-          name: data.contacts.contact1.name,
           email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
           password: data.contacts.contact1.password
         });
         break;
       case 'two contacts':
         cy.addContact({
-          name: data.contacts.contact1.name,
           email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
           password: data.contacts.contact1.password
         });
         cy.addContact({
-          name: data.contacts.contact2.name,
           email: data.contacts.contact2.email,
+          name: data.contacts.contact2.name,
           password: data.contacts.contact2.password
         });
         break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({
@@ -164,6 +169,8 @@ When(
           cy.wrap($el).click();
         });
         break;
+      default:
+        throw new Error(`${resourceType} not managed`);
     }
   }
 );
@@ -181,6 +188,8 @@ When('the user selects the {string}', (contactSettings: string) => {
       cy.contains(data.contacts.contact1.name).click();
       cy.contains(data.contacts.contact2.name).click();
       break;
+    default:
+      throw new Error(`${contactSettings} not managed`);
   }
 });
 
@@ -256,6 +265,8 @@ When(
           }
         ]);
         break;
+      default:
+        throw new Error(`${resourceType} not managed`);
     }
   }
 );
@@ -280,6 +291,8 @@ When('the hard state has been reached', () => {
         }
       ]);
       break;
+    default:
+      throw new Error(`${globalResourceType} not managed`);
   }
 });
 
@@ -305,6 +318,8 @@ Then(
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
     }
   }
 );
