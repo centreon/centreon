@@ -3,7 +3,6 @@
 installConfigurationFile() {
   if [ ! -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] || grep -q "@GORGONE_USER@" "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"; then
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
-    chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
   else
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/centreon-api.yaml.new
   fi
@@ -62,3 +61,9 @@ case "$action" in
     addGorgoneSshKeys
     ;;
 esac
+
+# set files permessions
+chmod 0640 /etc/centreon-gorgone/config.d/30-centreon.yaml
+chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+chmod 0640 /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+chmod 0770 /etc/centreon-gorgone/config.d/cron.d
