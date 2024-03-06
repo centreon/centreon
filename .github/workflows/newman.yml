@@ -381,7 +381,7 @@ jobs:
           echo "---"
           if [ -f "$environment_file" ]; then
             echo "Environment: $environment_file"
-            pnpm newman run "$collection_file" -e "$environment_file" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
+            pnpm newman run "$collection_file" -e "$environment_file" --working-dir "$collection_directory" --reporters cli,htmlextra,json-summary --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" --reporter-summary-json-export "postman_summaries/${collection_name}-summary.json"
           else
             echo "The file Environment-Collection.json was not found in the same directory as $collection_file"
             exit 1
