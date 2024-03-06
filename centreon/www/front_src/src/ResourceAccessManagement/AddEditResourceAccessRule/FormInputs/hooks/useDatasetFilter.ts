@@ -1,5 +1,6 @@
 import { ChangeEvent, useMemo } from 'react';
 
+import { useAtom } from 'jotai';
 import { useFormikContext } from 'formik';
 import {
   T,
@@ -37,6 +38,7 @@ import {
   labelServiceGroup
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
+import { selectedDatasetsAtom } from '../../../atom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -169,6 +171,8 @@ const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
 ): UseDatasetFilterState => {
+  const [selectedDatasets, setSelectedDatasets] = useAtom(selectedDatasetsAtom);
+
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<ResourceAccessRule>();
 
@@ -228,6 +232,14 @@ const useDatasetFilter = (
         resources: []
       }
     ]);
+
+    setSelectedDatasets([
+      ...selectedDatasets,
+      {
+        ids: [],
+        type: ResourceTypeEnum.Empty
+      }
+    ]);
   };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
@@ -236,6 +248,18 @@ const useDatasetFilter = (
       resource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasets(
+      selectedDatasets.map((dataset, datasetIndex) => {
+        if (equals(datasetIndex, index)) {
+          return {
+            ids: [...dataset.ids, resource.id as number],
+            type: dataset.type
+          };
+        }
+
+        return dataset;
+      })
+    );
   };
 
   const changeResources =
@@ -245,6 +269,18 @@ const useDatasetFilter = (
         resources
       );
       setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+      setSelectedDatasets(
+        selectedDatasets.map((dataset, datasetIndex) => {
+          if (equals(datasetIndex, index)) {
+            return {
+              ids: pluck('id', resources) as Array<number>,
+              type: dataset.type
+            };
+          }
+
+          return dataset;
+        })
+      );
     };
 
   const changeResourceType =
@@ -253,6 +289,16 @@ const useDatasetFilter = (
         resourceType: e.target.value,
         resources: []
       });
+
+      setSelectedDatasets(
+        selectedDatasets.map((dataset, datasetIndex) => {
+          if (equals(datasetIndex, index)) {
+            return { ids: [], type: e.target.value as ResourceTypeEnum };
+          }
+
+          return dataset;
+        })
+      );
     };
 
   const deleteResource = (index: number) => (): void => {
@@ -261,6 +307,7 @@ const useDatasetFilter = (
       (datasetFilter || []).filter((_, i) => !equals(i, index))
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasets(selectedDatasets.filter((_, i) => !equals(i, index)));
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
@@ -271,6 +318,18 @@ const useDatasetFilter = (
       newResource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasets(
+      selectedDatasets.map((dataset, i) => {
+        if (equals(i, index)) {
+          return {
+            ids: dataset.ids.filter((id) => !equals(id, option.id)),
+            type: dataset.type
+          };
+        }
+
+        return dataset;
+      })
+    );
   };
 
   const buildSearchParameters = (): Array<QueryParameter> | undefined => {
