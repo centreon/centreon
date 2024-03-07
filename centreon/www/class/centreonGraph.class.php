@@ -492,8 +492,9 @@ class CentreonGraph
                                           WHERE " . $l_vselector . "
                                           ORDER BY vmetric_name");
             $DBRESULT->execute();
+            $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
-            while ($vmetric = $DBRESULT->fetchAll(PDO::FETCH_ASSOC)) {
+            foreach ($vmetrics as $vmetric) {
                 $this->manageVMetric($vmetric["vmetric_id"], null, null);
             }
             $DBRESULT->closeCursor();
