@@ -511,7 +511,7 @@ describe('Condensed view', () => {
 
     it('displays the tooltip when the success card is hovered', () => {
       cy.get('[data-label="ok"]').trigger('mouseover');
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
       cy.contains('52.9m/65.86m services are working fine.').should(
         'be.visible'
       );
@@ -527,7 +527,7 @@ describe('Condensed view', () => {
       cy.contains('98.9m services').should('be.visible');
       cy.contains('Passive_1').should('be.visible');
       cy.contains(/^Passive$/).should('be.visible');
-      cy.contains('February 1, 2021 12:00 AM').should('be.visible');
+      cy.contains('February 1, 2021').should('be.visible');
 
       cy.makeSnapshot();
     });

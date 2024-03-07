@@ -91,10 +91,10 @@ const SelectField = ({
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         displayEmpty
-        fullWidth={fullWidth}
         classes={{
           root: classes.select
         }}
+        fullWidth={fullWidth}
         inputProps={{
           'aria-label': ariaLabel,
           className: cx(classes.input, {
