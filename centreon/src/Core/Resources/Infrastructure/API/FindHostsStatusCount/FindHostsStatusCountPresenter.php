@@ -30,6 +30,9 @@ use Core\Resources\Application\UseCase\FindHostsStatusCount\FindHostsStatusCount
 
 final class FindHostsStatusCountPresenter extends AbstractPresenter implements FindHostsStatusCountPresenterInterface
 {
+    /**
+     * @param FindHostsStatusCountResponse|ResponseStatusInterface $response
+     */
     public function presentResponse(FindHostsStatusCountResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {

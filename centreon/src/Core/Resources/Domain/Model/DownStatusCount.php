@@ -25,11 +25,17 @@ namespace Core\Resources\Domain\Model;
 
 final class DownStatusCount
 {
+    /**
+     * @param int $total
+     */
     public function __construct(private readonly int $total)
     {
 
     }
 
+    /**
+     * @return int
+     */
     public function getTotal(): int
     {
         return $this->total;

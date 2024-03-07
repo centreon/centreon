@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
@@ -367,19 +366,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findResourcesStatusCountByAccessGroupIdsByHostIds(string $resourceType, array $accessGroupIds, array $hostIds): ResourcesStatusCount
-    {
-        $hostsStatusCount = null;
-        if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIdsWithFilter($accessGroupIds);
-        }
-
-        return new ResourcesStatusCount($hostsStatusCount);
-    }
-
-    /**
      * @intheritDoc
      */
     public function findResourcesStatusCount(string $resourceType): ResourcesStatusCount
@@ -395,8 +381,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /**
      * @inheritDoc
      */
-    public function findResourcesStatusCountByAccessGroupIds(string $resourceType, array $accessGroupIds): ResourcesStatusCount
-    {
+    public function findResourcesStatusCountByAccessGroupIds(
+        string $resourceType,
+        array $accessGroupIds
+    ): ResourcesStatusCount {
         $hostsStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
             $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIds($accessGroupIds);
@@ -405,6 +393,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return new ResourcesStatusCount($hostsStatusCount);
     }
 
+    /**
+     * Count all hosts status.
+     *
+     * @return HostsStatusCount
+     */
     private function findHostsStatusCount(): HostsStatusCount
     {
         $statement = $this->db->prepare($this->translateDbName(
@@ -421,6 +414,13 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return DbHostsStatusCountFactory::createFromRecord($result);
     }
 
+    /**
+     * Count all hosts status filtered by given ACL Group IDs.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @return HostsStatusCount
+     */
     private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds): HostsStatusCount
     {
         $query = <<<SQL
@@ -437,6 +437,13 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return DbHostsStatusCountFactory::createFromRecord($result);
     }
 
+    /**
+     * Count hosts status by given host ids.
+     *
+     * @param int[] $hostIds
+     *
+     * @return HostsStatusCount
+     */
     private function findHostsStatusCountByHostIds(array $hostIds): HostsStatusCount
     {
         $bind = [];
@@ -467,27 +474,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         return DbHostsStatusCountFactory::createFromRecord($result);
     }
-
-    private function findHostsStatusCountByAccessGroupIdsWithFilter(array $accessGroupIds): HostsStatusCount
-    {
-        $query = <<<SQL
-            SELECT status, COUNT(*) as total FROM `:dbstg`.resources 
-                WHERE type=1 
-                  AND name NOT LIKE "_Module_%"
-            SQL;
-        $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
-        $query .= <<<SQL
-            GROUP BY status
-           SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($query));
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return DbHostsStatusCountFactory::createFromRecord($result);
-    }
-
 
     /**
      * @param ResourceFilter $filter

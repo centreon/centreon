@@ -31,21 +31,39 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindHostsStatusCountController extends AbstractController
 {
+    /**
+     * @param FindHostsStatusCountRequestValidator $validator
+     */
     public function __construct(private readonly FindHostsStatusCountRequestValidator $validator)
     {
 
     }
-    public function __invoke(FindHostsStatusCount $useCase, FindHostsStatusCountPresenter $presenter, Request $request): Response
-    {
+
+    /**
+     * @param FindHostsStatusCount $useCase
+     * @param FindHostsStatusCountPresenter $presenter
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function __invoke(
+        FindHostsStatusCount $useCase,
+        FindHostsStatusCountPresenter $presenter,
+        Request $request
+    ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         $filter = $this->createResourceFilter($request);
-
         $useCase($presenter, $filter);
 
         return $presenter->show();
     }
 
+    /**
+     * @param Request $request
+     *
+     * @return ResourceFilter
+     */
     private function createResourceFilter(Request $request): ResourceFilter
     {
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());

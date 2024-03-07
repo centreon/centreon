@@ -36,17 +36,22 @@ final class DbHostsStatusCountFactory
     public const UNREACHABLE_STATUS = 2;
     public const PENDING_STATUS = 4;
 
+    /**
+     * @param array{id:int, status: int} $record
+     *
+     * @return HostsStatusCount
+     */
     public static function createFromRecord(array $record): HostsStatusCount
     {
-        $statuses = array_map(static function (array $recordEntry) {
+        $statuses = array_map(static function (array $recordEntry): int {
           return $recordEntry['status'];
         }, $record);
 
         return new HostsStatusCount(
-            new DownStatusCount(self::countInStatus(self::DOWN_STATUS,$statuses)),
-            new UnreachableStatusCount(self::countInStatus(self::UNREACHABLE_STATUS,$statuses)) ,
-            new UpStatusCount(self::countInStatus(self::UP_STATUS,$statuses)) ,
-            new PendingStatusCount(self::countInStatus(self::PENDING_STATUS,$statuses))
+            new DownStatusCount(self::countInStatus(self::DOWN_STATUS, $statuses)),
+            new UnreachableStatusCount(self::countInStatus(self::UNREACHABLE_STATUS, $statuses)) ,
+            new UpStatusCount(self::countInStatus(self::UP_STATUS, $statuses)) ,
+            new PendingStatusCount(self::countInStatus(self::PENDING_STATUS, $statuses))
         );
     }
 
@@ -54,7 +59,7 @@ final class DbHostsStatusCountFactory
      * Count resources in given status.
      *
      * @param int $statusCode
-     * @param array<status> $children
+     * @param int[] $statuses
      *
      * @return int
      */

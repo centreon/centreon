@@ -26,6 +26,14 @@ namespace Core\Resources\Infrastructure\API\FindHostsStatusCount;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 
+/**
+ * @phpstan-type _RequestParameters array{
+ *      hostgroup_names: list<string>,
+ *      servicegroup_names: list<string>,
+ *      service_category_names: list<string>,
+ *      service_category_names: list<string>,
+ * }
+ */
 final class FindHostsStatusCountRequestValidator
 {
     use LoggerTrait;
@@ -41,12 +49,19 @@ final class FindHostsStatusCountRequestValidator
         self::PARAM_HOST_CATEGORY_NAMES => [],
     ];
 
+    /**
+     * @param array<mixed> $queryParameters
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return _RequestParameters
+     */
     public function validateAndRetrieveRequestParameters(array $queryParameters): array
     {
         $filterData = self::EMPTY_FILTERS;
 
         foreach ($queryParameters as $parameterName => $parameterValue) {
-            if ($parameterName === RequestParameters::NAME_FOR_SEARCH) {
+            if (in_array($parameterName, [RequestParameters::NAME_FOR_SEARCH, RequestParameters::NAME_FOR_LIMIT])) {
                 continue;
             }
 

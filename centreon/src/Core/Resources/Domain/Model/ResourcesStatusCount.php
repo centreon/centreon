@@ -25,6 +25,9 @@ namespace Core\Resources\Domain\Model;
 
 class ResourcesStatusCount
 {
+    /**
+     * @param HostsStatusCount $hostsStatusCount
+     */
     public function __construct(private readonly HostsStatusCount $hostsStatusCount)
     {
     }
