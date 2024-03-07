@@ -18709,3 +18709,15 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"

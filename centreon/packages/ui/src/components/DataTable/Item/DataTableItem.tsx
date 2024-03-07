@@ -1,6 +1,15 @@
-import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
+import React, {
+  forwardRef,
+  ReactElement,
+  RefObject,
+  useMemo,
+  useState
+} from 'react';
+
+import { pipe } from 'ramda';
 
 import {
+  Menu,
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
@@ -10,10 +19,12 @@ import {
 import {
   Delete as DeleteIcon,
   Settings as SettingsIcon,
-  Share as ShareIcon
+  Share as ShareIcon,
+  ContentCopy as DuplicateIcon,
+  MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 
-import { IconButton } from '../../Button';
+import { IconButton, ActionsList, ActionsListActionDivider } from '../../..';
 
 import { useStyles } from './DataTableItem.styles';
 
@@ -21,16 +32,19 @@ export interface DataTableItemProps {
   description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
+  labels;
   onClick?: () => void;
-  onDelete?: () => void;
-  onEdit?: () => void;
-  onEditAccessRights?: () => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onEdit: () => void;
+  onEditAccessRights: () => void;
   title: string;
 }
 
 const DataTableItem = forwardRef(
   (
     {
+      labels,
       title,
       description,
       hasCardAction = false,
@@ -38,11 +52,16 @@ const DataTableItem = forwardRef(
       onClick,
       onEdit,
       onDelete,
+      onDuplicate,
       onEditAccessRights
     }: DataTableItemProps,
     ref
   ): ReactElement => {
     const { classes } = useStyles();
+    const [moreActionsOpen, setMoreActionsOpen] = useState(null);
+
+    const closeMoreActions = (): void => setMoreActionsOpen(null);
+    const openMoreActions = (event): void => setMoreActionsOpen(event.target);
 
     const ActionArea = useMemo(
       () => (hasCardAction ? MuiCardActionArea : React.Fragment),
@@ -66,33 +85,49 @@ const DataTableItem = forwardRef(
         </ActionArea>
         {hasActions && (
           <MuiCardActions>
+            <span />
             <span>
               <IconButton
-                aria-label="delete"
-                data-testid="delete"
-                icon={<DeleteIcon />}
-                size="small"
-                variant="ghost"
-                onClick={onDelete}
-              />
-            </span>
-            <span>
+                ariaLabel={labels.labelShare}
+                title={labels.labelShare}
+                onClick={pipe(onEditAccessRights, closeMoreActions)}
+              >
+                <ShareIcon fontSize="small" />
+              </IconButton>
               <IconButton
-                aria-label="edit access rights"
-                data-testid="edit-access-rights"
-                icon={<ShareIcon />}
-                size="small"
-                variant="primary"
-                onClick={() => onEditAccessRights?.()}
-              />
-              <IconButton
-                aria-label="edit"
-                data-testid="edit"
-                icon={<SettingsIcon />}
-                size="small"
-                variant="primary"
-                onClick={() => onEdit?.()}
-              />
+                ariaLabel={labels.labelMoreActions}
+                title={labels.labelMoreActions}
+                onClick={openMoreActions}
+              >
+                <MoreIcon />
+              </IconButton>
+              <Menu
+                anchorEl={moreActionsOpen}
+                open={Boolean(moreActionsOpen)}
+                onClose={closeMoreActions}
+              >
+                <ActionsList
+                  actions={[
+                    {
+                      Icon: SettingsIcon,
+                      label: labels.labelEditProperties,
+                      onClick: pipe(onEdit, closeMoreActions)
+                    },
+                    ActionsListActionDivider.divider,
+                    {
+                      Icon: DuplicateIcon,
+                      label: labels.labelDuplicate,
+                      onClick: pipe(onDuplicate, closeMoreActions)
+                    },
+                    ActionsListActionDivider.divider,
+                    {
+                      Icon: DeleteIcon,
+                      label: labels.labelDelete,
+                      onClick: pipe(onDelete, closeMoreActions)
+                    }
+                  ]}
+                />
+              </Menu>
             </span>
           </MuiCardActions>
         )}

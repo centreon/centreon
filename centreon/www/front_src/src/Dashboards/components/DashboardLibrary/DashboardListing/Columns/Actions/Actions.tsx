@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next';
 
 import {
   Share as ShareIcon,
-  SettingsOutlined as SettingsIcon,
-  PersonRemove as UnShareIcon
+  PersonRemove as UnShareIcon,
+  MoreHoriz as MoreIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import {
-  labelEditProperties,
+  labelMoreActions,
   labelShare,
   labelUnshare
 } from '../../translatedLabels';
@@ -19,27 +19,20 @@ import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
 
 import useActions from './useActions';
-import DeleteDashboard from './DeleteDashboard';
+import MoreActions from './MoreActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
   const { ownRole } = row;
-  const { editDashboard, isNestedRow, editAccessRights, openAskBeforeRevoke } =
-    useActions(row);
-
-  const actions = [
-    {
-      Icon: ShareIcon,
-      label: labelShare,
-      onClick: editAccessRights
-    },
-    {
-      Icon: SettingsIcon,
-      label: labelEditProperties,
-      onClick: editDashboard
-    }
-  ];
+  const {
+    isNestedRow,
+    editAccessRights,
+    openAskBeforeRevoke,
+    closeMoreActions,
+    moreActionsOpen,
+    openMoreActions
+  } = useActions(row);
 
   if (isNestedRow) {
     return (
@@ -55,20 +48,26 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      {actions.map(({ label, Icon, onClick }) => {
-        return (
-          <IconButton
-            ariaLabel={t(label)}
-            key={label}
-            title={t(label)}
-            onClick={onClick}
-          >
-            <Icon className={classes.icon} />
-          </IconButton>
-        );
-      })}
+      <IconButton
+        ariaLabel={t(labelShare)}
+        title={t(labelShare)}
+        onClick={editAccessRights}
+      >
+        <ShareIcon className={classes.icon} />
+      </IconButton>
+      <IconButton
+        ariaLabel={t(labelMoreActions)}
+        title={t(labelMoreActions)}
+        onClick={openMoreActions}
+      >
+        <MoreIcon />
+      </IconButton>
 
-      <DeleteDashboard row={row} />
+      <MoreActions
+        anchor={moreActionsOpen}
+        close={closeMoreActions}
+        row={row}
+      />
     </Box>
   );
 };

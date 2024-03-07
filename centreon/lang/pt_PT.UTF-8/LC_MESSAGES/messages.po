@@ -17351,3 +17351,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "Duplicate dashboard"
+# msgstr ""
+
+# msgid "Delete dashboard"
+# msgstr ""
+
+# msgid "Dashboard deleted"
+# msgstr 
+
+# msgid "Dashboard duplicated"
+# msgstr ""

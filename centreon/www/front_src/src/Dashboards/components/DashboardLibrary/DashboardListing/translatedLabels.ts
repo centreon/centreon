@@ -15,3 +15,4 @@ export const labelEditProperties = 'Edit properties';
 export const labelActions = 'Actions';
 export const labelListView = 'View as list';
 export const labelCardsView = 'View as cards';
+export const labelMoreActions = 'More actions';

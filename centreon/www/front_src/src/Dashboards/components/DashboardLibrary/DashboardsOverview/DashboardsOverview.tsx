@@ -10,6 +10,8 @@ import { DataTable } from '@centreon/ui/components';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
   labelCreateADashboard,
+  labelDelete,
+  labelDuplicate,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
 import { Dashboard } from '../../../api/models';
@@ -19,7 +21,16 @@ import { DashboardLayout } from '../../../models';
 import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
-import { dashboardToDeleteAtom, isSharesOpenAtom } from '../../../atoms';
+import {
+  dashboardToDeleteAtom,
+  dashboardToDuplicateAtom,
+  isSharesOpenAtom
+} from '../../../atoms';
+import {
+  labelEditProperties,
+  labelMoreActions,
+  labelShare
+} from '../DashboardListing/translatedLabels';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
@@ -40,9 +51,14 @@ const DashboardsOverview = (): ReactElement => {
 
   const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
   const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
+  const setDashboardToDuplicate = useSetAtom(dashboardToDuplicateAtom);
 
   const openDeleteModal = (dashboard) => (): void => {
     setDashboardToDelete(dashboard);
+  };
+
+  const openDuplicateModal = (dashboard) => (): void => {
+    setDashboardToDuplicate(dashboard);
   };
 
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
@@ -56,7 +72,11 @@ const DashboardsOverview = (): ReactElement => {
   const labels = useMemo(
     () => ({
       actions: {
-        create: t(labelCreateADashboard)
+        labelDelete: t(labelDelete),
+        labelDuplicate: t(labelDuplicate),
+        labelEditProperties: t(labelEditProperties),
+        labelMoreActions: t(labelMoreActions),
+        labelShare: t(labelShare)
       },
       emptyState: {
         actions: {
@@ -95,9 +115,11 @@ const DashboardsOverview = (): ReactElement => {
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
+          labels={labels.actions}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}
           onDelete={openDeleteModal(dashboard)}
+          onDuplicate={openDuplicateModal(dashboard)}
           onEdit={editDashboard(dashboard)}
           onEditAccessRights={editAccessRights(dashboard)}
         />

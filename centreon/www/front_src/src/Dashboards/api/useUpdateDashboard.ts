@@ -38,8 +38,8 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     mutateAsync({
       _meta: {
         id: variables.id
-      },
-      payload: pick(['name', 'description', 'refresh'], variables)
+      }
+      // payload: pick(['name', 'description', 'refresh', 'panels'], variables)
     });
 
   return {
