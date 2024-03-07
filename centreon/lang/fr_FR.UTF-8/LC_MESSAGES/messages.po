@@ -18696,7 +18696,7 @@ msgid "Show value on chart"
 msgstr "Afficher la valeur sur le graphique"
 
 msgid "Number"
-msgstr "Nombre"
+msgstr "Numérique"
 
 msgid "Show legend"
 msgstr "Afficher la légende"
