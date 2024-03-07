@@ -44,7 +44,10 @@ const StatusGridCondensed = ({
             count={count}
             key={label}
             label={label}
+            resourceType={panelOptions.resourceType}
+            resources={panelData.resources}
             severityCode={severityCode}
+            total={total}
           />
         ))}
       </div>

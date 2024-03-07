@@ -1,4 +1,4 @@
-import { equals, flatten, includes, isEmpty, pluck } from 'ramda';
+import { equals, flatten, includes, isEmpty, pluck, toUpper } from 'ramda';
 
 import {
   ListingParameters,
@@ -57,7 +57,7 @@ export const getListingCustomQueryParameters = ({
   return [
     ...(types && !isEmpty(types) ? [{ name: 'types', value: types }] : []),
     ...(statuses && !isEmpty(statuses)
-      ? [{ name: 'statuses', value: statuses }]
+      ? [{ name: 'statuses', value: statuses.map(toUpper) }]
       : []),
     ...(states && !isEmpty(states) ? [{ name: 'states', value: states }] : []),
     ...resourcesToApplyToCustomParameters.map(

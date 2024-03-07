@@ -10,23 +10,52 @@ import {
 } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
-import { StatusDetail } from '../../../models';
+import { Resource, StatusDetail } from '../../../models';
 
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
+import ResourcesTooltip from './Tooltip/ResourcesTooltip';
 
 interface Props {
   count: StatusDetail;
   label: string;
+  resourceType: string;
+  resources: Array<Resource>;
   severityCode: SeverityCode;
+  total?: number;
 }
 
-const StatusCard = ({ count, label, severityCode }: Props): JSX.Element => {
+const StatusCard = ({
+  count,
+  label,
+  severityCode,
+  resourceType,
+  resources,
+  total
+}: Props): JSX.Element => {
   const { classes, cx } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
   return (
-    <Tooltip followCursor={false} position="bottom">
+    <Tooltip
+      hasArrow
+      hasCaret
+      classes={{
+        tooltip: classes.tooltip
+      }}
+      followCursor={false}
+      label={
+        <ResourcesTooltip
+          count={count.total}
+          resourceType={resourceType}
+          resources={resources}
+          severityCode={severityCode}
+          status={label}
+          total={total}
+        />
+      }
+      position="bottom"
+    >
       <Box
         className={cx(classes.status, classes.statusCard)}
         data-count={count.total}

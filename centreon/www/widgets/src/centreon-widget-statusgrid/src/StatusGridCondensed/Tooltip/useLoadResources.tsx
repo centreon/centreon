@@ -9,6 +9,7 @@ import {
 import { Resource } from '../../../../models';
 
 interface UseLoadResourcesProps {
+  bypassRequest: boolean;
   resourceType: string;
   resources: Array<Resource>;
   status: string;
@@ -24,7 +25,8 @@ interface UseLoadResourcesState {
 export const useLoadResources = ({
   resources,
   resourceType,
-  status
+  status,
+  bypassRequest
 }: UseLoadResourcesProps): UseLoadResourcesState => {
   const { elementRef, elements, isLoading, total } =
     useInfiniteScrollListing<ResourceStatus>({
@@ -33,6 +35,7 @@ export const useLoadResources = ({
         statuses: [status],
         types: [resourceType]
       }),
+      enabled: bypassRequest,
       endpoint: resourcesEndpoint,
       limit: 10,
       pageAtom: tooltipPageAtom,

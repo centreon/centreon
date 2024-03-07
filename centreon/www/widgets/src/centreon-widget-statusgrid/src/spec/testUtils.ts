@@ -32,9 +32,9 @@ export const hostOptions: PanelOptions = {
   refreshIntervalCustom: 30,
   resourceType: 'host',
   sortBy: 'status',
-  states: ['in_downtime'],
   statuses: [SeverityStatus.Success, SeverityStatus.Problem],
-  tiles: 20
+  tiles: 20,
+  viewMode: 'standard'
 };
 
 export const serviceOptions: PanelOptions = {
@@ -42,9 +42,9 @@ export const serviceOptions: PanelOptions = {
   refreshIntervalCustom: 30,
   resourceType: 'service',
   sortBy: 'status',
-  states: ['acknowledged'],
   statuses: [SeverityStatus.Success, SeverityStatus.Problem],
-  tiles: 20
+  tiles: 20,
+  viewMode: 'standard'
 };
 
 export const seeMoreOptions: PanelOptions = {
@@ -52,9 +52,9 @@ export const seeMoreOptions: PanelOptions = {
   refreshIntervalCustom: 30,
   resourceType: 'service',
   sortBy: 'status',
-  states: ['acknowledged'],
   statuses: [SeverityStatus.Success, SeverityStatus.Problem],
-  tiles: 1
+  tiles: 1,
+  viewMode: 'standard'
 };
 
 export const services = [
