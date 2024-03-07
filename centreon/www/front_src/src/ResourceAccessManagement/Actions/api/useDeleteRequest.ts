@@ -1,12 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import {
-  Method,
-  ResponseError,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import {
   labelFailure,
@@ -30,23 +25,16 @@ const useDeleteRequest = ({ deleteRule, onSettled }): UseDeleteRequestState => {
   const { isMutating, mutateAsync } = useMutationQuery({
     defaultFailureMessage: t(labelFailure) as string,
     getEndpoint: (): string => endpoint,
-    method: Method.DELETE
+    method: Method.DELETE,
+    onSettled: () => onSettled(),
+    onSuccess: () => {
+      showSuccessMessage(t(labelResourceAccessRuleDeletedSuccess));
+      queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
+    }
   });
 
   const submit = (): void => {
-    mutateAsync({})
-      .then((response) => {
-        const { isError } = response as ResponseError;
-        if (isError) {
-          return;
-        }
-
-        showSuccessMessage(t(labelResourceAccessRuleDeletedSuccess));
-        queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
-      })
-      .finally(() => {
-        onSettled();
-      });
+    mutateAsync({});
   };
 
   return {

@@ -13,6 +13,7 @@ import {
   labelDeleteResourceAccessRuleWarning,
   labelResourceAccessRuleDeletedSuccess
 } from '../../translatedLabels';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
 
 import {
   defaultQueryParams,
@@ -28,7 +29,10 @@ const ListingWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <ResourceAccessRulesListing />
+            <>
+              <ResourceAccessRulesListing />
+              <DeleteConfirmationDialog />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
@@ -253,7 +257,7 @@ describe('Listing row actions: Delete button', () => {
   it("displays a confirmation dialog containing the resource access rule's name upon clicking on Delete button in rule listing", () => {
     cy.waitForRequest('@defaultRequest');
 
-    const message = `${labelDelete} « resourceAccessRule1 ».`;
+    const message = `${labelDelete} « rule0 ».`;
     cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
     cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
     cy.findByText(message).should('be.visible');
@@ -262,12 +266,13 @@ describe('Listing row actions: Delete button', () => {
     cy.findByLabelText(labelDelete).should('be.visible');
 
     cy.makeSnapshot();
+    cy.findByTestId(labelCancel).click();
   });
 
   it('closes a delete confirmation dialog when Cancel button is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
-    const message = `${labelDelete} « resourceAccessRule1 ».`;
+    const message = `${labelDelete} « rule0 ».`;
     cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
     cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
     cy.findByText(message).should('be.visible');
@@ -276,13 +281,11 @@ describe('Listing row actions: Delete button', () => {
     cy.findByLabelText(labelDelete).should('be.visible');
 
     cy.findByTestId(labelCancel).click();
-    cy.findByText(labelDeleteResourceAccessRule).should('not.be.visible');
-    cy.findByText(message).should('not.be.visible');
-    cy.findByText(labelDeleteResourceAccessRuleWarning).should(
-      'not.be.visible'
-    );
-    cy.findByTestId(labelCancel).should('not.be.visible');
-    cy.findByLabelText(labelDelete).should('not.be.visible');
+    cy.findByText(labelDeleteResourceAccessRule).should('not.exist');
+    cy.findByText(message).should('not.exist');
+    cy.findByText(labelDeleteResourceAccessRuleWarning).should('not.exist');
+    cy.findByTestId(labelCancel).should('not.exist');
+    cy.findByLabelText(labelDelete).should('not.exist');
 
     cy.makeSnapshot();
   });
