@@ -454,7 +454,7 @@ class CentreonGraph
                         ",",
                         array_map(array("CentreonGraph", "vquote"), $l_vmEnabled)
                     );
-                $l_vselector = "metric_id IN (" . $l_vselector_query . ")";
+                $l_vselector = "vmetric_id IN (" . $l_vselector_query . ")";
                 $this->log("initCurveList with selector [virtual]= " . $l_vselector);
             }
         } else {
