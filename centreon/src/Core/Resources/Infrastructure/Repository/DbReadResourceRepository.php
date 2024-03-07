@@ -687,28 +687,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->completeResourcesWithIcons($icons);
     }
 
-    private function fetchResourcesStatusCount(string $request, StatementCollector $collector): HostsStatusCount
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName($request)
-        );
-
-
-        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int $data_type */
-            $data_type = key($data);
-            $collector->addValue($key, current($data), $data_type);
-        }
-
-        $collector->bind($statement);
-
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return DbHostsStatusCountFactory::createFromRecord($result);
-    }
-
     /**
      * @param array<int, array<string, string>> $icons
      */
