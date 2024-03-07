@@ -471,10 +471,11 @@ class CentreonGraph
                 replace(format(crit,9),',','') crit
                 FROM metrics AS m, index_data AS i
                 WHERE index_id = id
-                AND " . $l_rselector . "
+                AND :l_rselector
                 AND m.hidden = '0'
                 ORDER BY m.metric_name"
             );
+            $DBRESULT->bindParam(':l_rselector', $l_rselector);
             $DBRESULT->execute();
             $rmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
@@ -489,8 +490,9 @@ class CentreonGraph
         if (isset($l_vselector)) {
             $DBRESULT = $this->DB->prepare("SELECT vmetric_id
                                           FROM virtual_metrics
-                                          WHERE " . $l_vselector . "
+                                          WHERE :l_vselector
                                           ORDER BY vmetric_name");
+            $DBRESULT->bindParam(':l_vselector', $l_vselector);
             $DBRESULT->execute();
             $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
