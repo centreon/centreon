@@ -1887,6 +1887,7 @@
                   "});\r",
                   "\r",
                   "const responseJson = pm.response.json();\r",
+                  "console.log(responseJson);r",
                   "pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
                   "    // Check the number of media (2)\r",
                   "    pm.expect(responseJson.result.length).to.eql(2);\r",
