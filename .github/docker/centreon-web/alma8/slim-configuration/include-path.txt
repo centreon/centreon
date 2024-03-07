@@ -38,6 +38,7 @@
 /var/lib/mysql/centreon_storage
 /usr/lib64/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/share/centreon-broker
 /usr/lib/rpm
 /usr/lib/python3.6
 /usr/lib64/python3.6

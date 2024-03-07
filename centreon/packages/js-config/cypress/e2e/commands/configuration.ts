@@ -138,6 +138,102 @@ Cypress.Commands.add(
   }
 );
 
+interface Contact {
+  admin?: boolean;
+  alias?: string | null;
+  authenticationType?: 'local' | 'ldap';
+  email: string;
+  enableNotifications?: boolean;
+  GUIAccess?: boolean;
+  language?: string;
+  name: string;
+  password: string;
+}
+
+Cypress.Commands.add(
+  'addContact',
+  ({
+    admin = true,
+    alias = null,
+    authenticationType = 'local',
+    email,
+    enableNotifications = true,
+    GUIAccess = true,
+    language = 'en_US',
+    name,
+    password
+  }: Contact): Cypress.Chainable => {
+    const contactAdmin = admin ? 1 : 0;
+    const contactAlias = alias === null ? name : alias;
+    const contactEnableNotifications = enableNotifications ? 1 : 0;
+    const contactGUIAccess = GUIAccess ? 1 : 0;
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'CONTACT',
+          values: `${name};${contactAlias};${email};${password};${contactAdmin};${contactGUIAccess};${language};${authenticationType}`
+        }
+      })
+      .then(() => {
+        const contactParams = {
+          enable_notifications: contactEnableNotifications
+        };
+        Object.entries(contactParams).map(([paramName, paramValue]) => {
+          if (paramValue === null) {
+            return null;
+          }
+
+          return cy.executeActionViaClapi({
+            bodyContent: {
+              action: 'SETPARAM',
+              object: 'CONTACT',
+              values: `${name};${paramName};${paramValue}`
+            }
+          });
+        });
+
+        return cy.wrap(null);
+      });
+  }
+);
+
+interface ContactGroup {
+  alias?: string | null;
+  contacts: string[];
+  name: string;
+}
+
+Cypress.Commands.add(
+  'addContactGroup',
+  ({ alias = null, contacts, name }: ContactGroup): Cypress.Chainable => {
+    const contactGroupAlias = alias === null ? name : alias;
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'CG',
+          values: `${name};${contactGroupAlias}`
+        }
+      })
+      .then(() => {
+        contacts.map((contact) => {
+          return cy.executeActionViaClapi({
+            bodyContent: {
+              action: 'ADDCONTACT',
+              object: 'CG',
+              values: `${name};${contact}`
+            }
+          });
+        });
+
+        return cy.wrap(null);
+      });
+  }
+);
+
 interface Host {
   activeCheckEnabled?: boolean;
   address?: string;
@@ -205,6 +301,26 @@ Cypress.Commands.add(
 
         return cy.wrap(null);
       });
+  }
+);
+
+interface HostGroup {
+  alias?: string | null;
+  name: string;
+}
+
+Cypress.Commands.add(
+  'addHostGroup',
+  ({ alias = null, name }: HostGroup): Cypress.Chainable => {
+    const hostGroupAlias = alias === null ? name : alias;
+
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADD',
+        object: 'HG',
+        values: `${name};${hostGroupAlias}`
+      }
+    });
   }
 );
 
@@ -329,6 +445,45 @@ Cypress.Commands.add(
   }
 );
 
+interface ServiceGroup {
+  alias?: string | null;
+  hostsAndServices: string[][];
+  name: string;
+}
+
+Cypress.Commands.add(
+  'addServiceGroup',
+  ({
+    alias = null,
+    hostsAndServices,
+    name
+  }: ServiceGroup): Cypress.Chainable => {
+    const serviceGroupAlias = alias === null ? name : alias;
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'SG',
+          values: `${name};${serviceGroupAlias}`
+        }
+      })
+      .then(() => {
+        hostsAndServices.map((hostAndService) => {
+          return cy.executeActionViaClapi({
+            bodyContent: {
+              action: 'ADDSERVICE',
+              object: 'SG',
+              values: `${name};${hostAndService[0]},${hostAndService[1]}`
+            }
+          });
+        });
+
+        return cy.wrap(null);
+      });
+  }
+);
+
 Cypress.Commands.add(
   'applyPollerConfiguration',
   (pollerName = 'Central'): Cypress.Chainable => {
@@ -345,8 +500,12 @@ declare global {
   namespace Cypress {
     interface Chainable {
       addCheckCommand: (props: CheckCommand) => Cypress.Chainable;
+      addContact: (props: Contact) => Cypress.Chainable;
+      addContactGroup: (props: ContactGroup) => Cypress.Chainable;
       addHost: (props: Host) => Cypress.Chainable;
+      addHostGroup: (props: HostGroup) => Cypress.Chainable;
       addService: (props: Service) => Cypress.Chainable;
+      addServiceGroup: (props: ServiceGroup) => Cypress.Chainable;
       addServiceTemplate: (props: ServiceTemplate) => Cypress.Chainable;
       addTimePeriod: (props: TimePeriod) => Cypress.Chainable;
       applyPollerConfiguration: (props?: string) => Cypress.Chainable;

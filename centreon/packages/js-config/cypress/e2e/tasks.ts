@@ -106,7 +106,7 @@ export default (on: Cypress.PluginEvents): void => {
       const { exitCode, output } = await getContainer(name).exec([
         'bash',
         '-c',
-        command
+        `${command}${command.match(/[\n\r]/) ? '' : ' 2>&1'}`
       ]);
 
       return { exitCode, output };

@@ -21,17 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Core\ResourceAccess\Application\UseCase\DeleteRules;
 
-use Centreon\Domain\Repository\RepositoryException;
-
-class UpdateNotFoundException extends RepositoryException
+final class DeleteRulesRequest
 {
-    /**
-     * @return self
-     */
-    public static function updatesNotFound(): self
-    {
-        return new self(_('Updates not found'));
-    }
+    /** @var int[] */
+    public array $ids = [];
 }
+
