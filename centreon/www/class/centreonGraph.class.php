@@ -440,19 +440,21 @@ class CentreonGraph
             }
             /* Create selector for reals metrics */
             if (count($l_rmEnabled)) {
-                $l_rselector =
-                    "metric_id IN (" . implode(
+                $l_rselector_query =
+                     implode(
                         ",",
                         array_map(array("CentreonGraph", "quote"), $l_rmEnabled)
-                    ) . ")";
+                    );
+                $l_rselector = "metric_id IN (" . $l_rselector_query . ")";
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
             if (count($l_vmEnabled)) {
-                $l_vselector =
-                    "vmetric_id IN (" . implode(
+                $l_vselector_query =
+                    implode(
                         ",",
                         array_map(array("CentreonGraph", "vquote"), $l_vmEnabled)
-                    ) . ")";
+                    );
+                $l_vselector = "metric_id IN (" . $l_vselector_query . ")";
                 $this->log("initCurveList with selector [virtual]= " . $l_vselector);
             }
         } else {
@@ -469,11 +471,10 @@ class CentreonGraph
                 replace(format(crit,9),',','') crit
                 FROM metrics AS m, index_data AS i
                 WHERE index_id = id
-                AND :l_rselector
+                AND " . $l_rselector . "
                 AND m.hidden = '0'
                 ORDER BY m.metric_name"
             );
-            $DBRESULT->bindParam(':l_rselector', $l_rselector, \PDO::PARAM_STR);
             $DBRESULT->execute();
             $rmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
@@ -488,9 +489,8 @@ class CentreonGraph
         if (isset($l_vselector)) {
             $DBRESULT = $this->DB->prepare("SELECT vmetric_id
                                           FROM virtual_metrics
-                                          WHERE :l_vselector
+                                          WHERE " . $l_vselector . "
                                           ORDER BY vmetric_name");
-            $DBRESULT->bindParam(':l_vselector', $l_vselector, \PDO::PARAM_STR);
             $DBRESULT->execute();
 
             while ($vmetric = $DBRESULT->fetchAll(PDO::FETCH_ASSOC)) {
