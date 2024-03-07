@@ -1,8 +1,4 @@
-import { useRef } from 'react';
-
 import { Typography, TypographyProps } from '@mui/material';
-
-import useFluidResizeObserver from './useFluidResizeObserver';
 
 type CustomTypographyProps = Pick<TypographyProps, 'variant'>;
 export interface FluidTypographyProps extends CustomTypographyProps {
@@ -17,39 +13,24 @@ const FluidTypography = ({
   className,
   containerClassName
 }: FluidTypographyProps): JSX.Element => {
-  const containerRef = useRef<HTMLElement>();
-  const parentRef = useRef<HTMLElement>();
-
-  const size = useFluidResizeObserver({ ref: containerRef });
-  const parentSize = useFluidResizeObserver({ isParent: true, ref: parentRef });
-
   return (
     <div
-      ref={parentRef}
+      className={containerClassName}
       style={{
-        height: `${parentSize.height}px`,
+        containerType: 'inline-size',
+        height: `100%`,
         width: `100%`
       }}
     >
-      <div
-        className={containerClassName}
-        ref={containerRef}
-        style={{ height: '100%', width: '100%' }}
+      <Typography
+        className={className}
+        sx={{
+          fontSize: `clamp(10px, 19cqi, 1000px)`
+        }}
+        variant={variant}
       >
-        <Typography
-          className={className}
-          sx={{
-            fontSize: `clamp(10px, max(${Math.floor(
-              size.width / 6
-            )}px, ${Math.floor(size.height / 6)}px), max(${size.width}px, ${
-              size.height
-            }px))`
-          }}
-          variant={variant}
-        >
-          {text}
-        </Typography>
-      </div>
+        {text}
+      </Typography>
     </div>
   );
 };

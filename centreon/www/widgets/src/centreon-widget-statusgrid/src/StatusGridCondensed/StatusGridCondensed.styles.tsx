@@ -12,7 +12,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   count: {
     height: '32%',
     textAlign: 'center',
-    width: '85%'
+    width: '60%'
   },
   countText: {
     fontWeight: theme.typography.fontWeightBold,
@@ -26,7 +26,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   label: {
     height: '20%',
     textAlign: 'center',
-    width: '65%'
+    width: '35%'
   },
   labelText: {
     fontWeight: theme.typography.fontWeightMedium,
@@ -37,7 +37,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     textDecoration: 'none'
   },
   status: {
-    aspectRatio: '30 / 9',
+    aspectRatio: '45 / 9',
     borderRadius: theme.shape.borderRadius
   },
   statusCard: {
