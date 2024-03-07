@@ -10,6 +10,7 @@ import {
   labelCancel,
   labelDelete,
   labelDeleteResourceAccessRule,
+  labelDeleteResourceAccessRuleDialogMessage,
   labelDeleteResourceAccessRuleWarning,
   labelResourceAccessRuleDeletedSuccess
 } from '../../translatedLabels';
@@ -257,7 +258,7 @@ describe('Listing row actions: Delete button', () => {
   it("displays a confirmation dialog containing the resource access rule's name upon clicking on Delete button in rule listing", () => {
     cy.waitForRequest('@defaultRequest');
 
-    const message = `${labelDelete} « rule0 ».`;
+    const message = `The rule0 ${labelDeleteResourceAccessRuleDialogMessage}.`;
     cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
     cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
     cy.findByText(message).should('be.visible');
@@ -272,7 +273,7 @@ describe('Listing row actions: Delete button', () => {
   it('closes a delete confirmation dialog when Cancel button is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
-    const message = `${labelDelete} « rule0 ».`;
+    const message = `The rule0 ${labelDeleteResourceAccessRuleDialogMessage}.`;
     cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
     cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
     cy.findByText(message).should('be.visible');

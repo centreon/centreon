@@ -6,6 +6,7 @@ import {
   labelCancel,
   labelDelete,
   labelDeleteResourceAccessRule,
+  labelDeleteResourceAccessRuleDialogMessage,
   labelDeleteResourceAccessRuleWarning
 } from '../../translatedLabels';
 
@@ -33,7 +34,7 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       labelConfirm={t(labelDelete)}
       labelMessage={
         resourceAccessRuleName &&
-        `${t(labelDelete)} « ${resourceAccessRuleName} ».`
+        `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}.`
       }
       labelSecondMessage={t(labelDeleteResourceAccessRuleWarning)}
       labelTitle={t(labelDeleteResourceAccessRule)}
