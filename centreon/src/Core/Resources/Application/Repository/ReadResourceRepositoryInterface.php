@@ -25,6 +25,7 @@ namespace Core\Resources\Application\Repository;
 
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Resources\Domain\Model\ResourcesStatusCount;
 
 interface ReadResourceRepositoryInterface
 {
@@ -59,4 +60,47 @@ interface ReadResourceRepositoryInterface
      * @return ResourceEntity[]
      */
     public function findParentResourcesById(ResourceFilter $filter): array;
+
+    /**
+     * Retrieve resources status
+     *
+     * @param string $resourceType
+     * @param int[] $hostIds
+     *
+     * @return ResourcesStatusCount
+     */
+    public function findResourcesStatusCountByHostIds(string $resourceType, array $hostIds): ResourcesStatusCount;
+
+    /**
+     * @param string $resourceType
+     * @param int[] $accessGroupIds
+     * @param int[] $hostIds
+     *
+     * @return ResourcesStatusCount
+     */
+    public function findResourcesStatusCountByAccessGroupIdsByHostIds(
+        string $resourceType,
+        array $accessGroupIds,
+        array $hostIds
+    ): ResourcesStatusCount;
+
+    /**
+     * Retrieve resources status
+     *
+     * @param string $resourceType
+     *
+     * @return ResourcesStatusCount
+     */
+    public function findResourcesStatusCount(string $resourceType): ResourcesStatusCount;
+
+    /**
+     * @param string $resourceType
+     * @param int[] $accessGroupIds
+     *
+     * @return ResourcesStatusCount
+     */
+    public function findResourcesStatusCountByAccessGroupIds(
+        string $resourceType,
+        array $accessGroupIds
+    ): ResourcesStatusCount;
 }
