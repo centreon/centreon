@@ -8,7 +8,7 @@ import StatusGridCondensed from './StatusGridCondensed/StatusGridCondensed';
 
 const Widget = ({ store, ...props }: StatusGridProps): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-statusgrid" store={store}>
-    {equals(props.panelOptions.viewMode, 'standard') ? (
+    {equals(props.panelOptions.viewMode || 'standard', 'standard') ? (
       <StatusGrid {...props} />
     ) : (
       <StatusGridCondensed {...props} />
