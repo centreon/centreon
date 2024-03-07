@@ -1,2 +1,2 @@
 export const getStatusesEndpoint = (resourceType: 'host' | 'service'): string =>
-  `monitoring/${resourceType}s/status`;
+  `/monitoring/${resourceType}s/status`;

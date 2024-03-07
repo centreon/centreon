@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 import { Box, useTheme } from '@mui/material';
 
@@ -11,6 +12,7 @@ import {
 import { Tooltip } from '@centreon/ui/components';
 
 import { Resource, StatusDetail } from '../../../models';
+import { getResourcesUrl, severityStatusBySeverityCode } from '../../../utils';
 
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import ResourcesTooltip from './Tooltip/ResourcesTooltip';
@@ -36,6 +38,14 @@ const StatusCard = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
+  const url = getResourcesUrl({
+    allResources: resources,
+    isForOneResource: false,
+    states: [],
+    statuses: [severityStatusBySeverityCode[severityCode]],
+    type: resourceType
+  });
+
   return (
     <Tooltip
       hasArrow
@@ -56,23 +66,30 @@ const StatusCard = ({
       }
       position="bottom"
     >
-      <Box
-        className={cx(classes.status, classes.statusCard)}
-        data-count={count.total}
+      <Link
+        className={classes.link}
+        data-count={count}
         data-label={label}
-        sx={{ backgroundColor: getStatusColors({ severityCode, theme }) }}
+        rel="noopener noreferrer"
+        target="_blank"
+        to={url}
       >
-        <div className={classes.count}>
-          <FluidTypography
-            className={classes.countText}
-            containerClassName={classes.countTextContainer}
-            text={formatMetricValue({ unit: '', value: count.total || 0 })}
-          />
-        </div>
-        <div className={classes.label}>
-          <FluidTypography className={classes.labelText} text={t(label)} />
-        </div>
-      </Box>
+        <Box
+          className={cx(classes.status, classes.statusCard)}
+          sx={{ backgroundColor: getStatusColors({ severityCode, theme }) }}
+        >
+          <div className={classes.count}>
+            <FluidTypography
+              className={classes.countText}
+              containerClassName={classes.countTextContainer}
+              text={formatMetricValue({ unit: '', value: count.total || 0 })}
+            />
+          </div>
+          <div className={classes.label}>
+            <FluidTypography className={classes.labelText} text={t(label)} />
+          </div>
+        </Box>
+      </Link>
     </Tooltip>
   );
 };

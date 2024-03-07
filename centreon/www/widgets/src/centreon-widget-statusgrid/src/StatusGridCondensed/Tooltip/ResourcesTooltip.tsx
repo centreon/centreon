@@ -23,7 +23,8 @@ import { getColor } from '../../StatusGridStandard/utils';
 import { Resource } from '../../../../models';
 import {
   labelAreWorkingFine,
-  labelNoResourceFoundWithThisStatus
+  labelNoResourceFoundWithThisStatus,
+  labelStatus
 } from '../translatedLabels';
 
 import { useLoadResources } from './useLoadResources';
@@ -56,7 +57,7 @@ const ResourcesTooltip = ({
   const hasNoResource = !count;
 
   const { elements, elementRef, isLoading } = useLoadResources({
-    bypassRequest: !isSuccessStatus || hasNoResource,
+    bypassRequest: isSuccessStatus || hasNoResource,
     resourceType,
     resources,
     status
@@ -69,11 +70,12 @@ const ResourcesTooltip = ({
       <Box className={classes.header}>
         <Typography
           data-resourceName={status}
+          fontWeight="bold"
           sx={{
             color: getColor({ severityCode, theme })
           }}
         >
-          <strong>{capitalize(status)}</strong>
+          {t(labelStatus)}: {capitalize(status)}
         </Typography>
       </Box>
       <Box className={classes.body}>
@@ -89,7 +91,7 @@ const ResourcesTooltip = ({
               {t(labelAreWorkingFine)}
             </Typography>
           )}
-          {hasElements && (
+          {!hasNoResource && hasElements && (
             <div>
               <Typography className={classes.listHeader}>
                 <strong>

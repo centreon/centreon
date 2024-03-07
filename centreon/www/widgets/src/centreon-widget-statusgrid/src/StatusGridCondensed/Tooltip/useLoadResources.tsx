@@ -35,7 +35,7 @@ export const useLoadResources = ({
         statuses: [status],
         types: [resourceType]
       }),
-      enabled: bypassRequest,
+      enabled: !bypassRequest,
       endpoint: resourcesEndpoint,
       limit: 10,
       pageAtom: tooltipPageAtom,

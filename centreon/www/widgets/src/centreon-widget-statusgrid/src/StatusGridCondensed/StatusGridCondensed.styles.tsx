@@ -12,7 +12,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   count: {
     height: '32%',
     textAlign: 'center',
-    width: '90%'
+    width: '85%'
   },
   countText: {
     fontWeight: theme.typography.fontWeightBold,
@@ -26,16 +26,19 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   label: {
     height: '20%',
     textAlign: 'center',
-    width: '70%'
+    width: '65%'
   },
   labelText: {
     fontWeight: theme.typography.fontWeightMedium,
     lineHeight: 1
   },
+  link: {
+    color: 'inherit',
+    textDecoration: 'none'
+  },
   status: {
-    aspectRatio: '25 / 9',
-    borderRadius: theme.shape.borderRadius,
-    maxHeight: '150px'
+    aspectRatio: '30 / 9',
+    borderRadius: theme.shape.borderRadius
   },
   statusCard: {
     alignItems: 'center',
@@ -46,7 +49,7 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   statuses: {
     display: 'grid',
     gap: theme.spacing(1),
-    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     width: '100%'
   },
   tooltip: {

@@ -267,3 +267,11 @@ export const severityCodeBySeverityStatus = {
   [SeverityStatus.Undefined]: SeverityCode.None,
   [SeverityStatus.Pending]: SeverityCode.Pending
 };
+
+export const severityStatusBySeverityCode = {
+  [SeverityCode.High]: SeverityStatus.Problem,
+  [SeverityCode.Medium]: SeverityStatus.Warning,
+  [SeverityCode.OK]: SeverityStatus.Success,
+  [SeverityCode.None]: SeverityStatus.Undefined,
+  [SeverityCode.Pending]: SeverityStatus.Pending
+};

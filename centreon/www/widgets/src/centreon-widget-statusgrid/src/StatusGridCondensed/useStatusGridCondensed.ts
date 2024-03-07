@@ -12,7 +12,7 @@ import {
 } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
 
-import { buildStatusesEndpoint, getStatusesEndpoint } from './api/endpoints';
+import { getStatusesEndpoint } from './api/endpoints';
 
 interface FormattedStatus {
   count: StatusDetail;
@@ -47,10 +47,10 @@ export const useStatusGridCondensed = ({
   });
 
   const { data, isLoading } = useFetchQuery<StatusType>({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest/',
     getEndpoint: () =>
       buildResourcesEndpoint({
         baseEndpoint: getStatusesEndpoint(resourceType),
+        page: undefined,
         resources,
         statuses,
         type: resourceType
