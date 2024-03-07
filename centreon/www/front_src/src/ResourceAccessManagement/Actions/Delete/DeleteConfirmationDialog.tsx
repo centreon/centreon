@@ -34,7 +34,7 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       labelConfirm={t(labelDelete)}
       labelMessage={
         resourceAccessRuleName &&
-        `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}.`
+        `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}`
       }
       labelSecondMessage={t(labelDeleteResourceAccessRuleWarning)}
       labelTitle={t(labelDeleteResourceAccessRule)}
