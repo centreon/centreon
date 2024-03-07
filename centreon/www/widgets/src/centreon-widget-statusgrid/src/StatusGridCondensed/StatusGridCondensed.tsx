@@ -28,7 +28,7 @@ const StatusGridCondensed = ({
       refreshCount
     });
 
-  if (isLoading && hasData) {
+  if (isLoading && !hasData) {
     return <Skeleton statuses={panelOptions.statuses} />;
   }
 

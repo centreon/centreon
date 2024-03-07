@@ -47,7 +47,6 @@ export const useStatusGridCondensed = ({
   });
 
   const { data, isLoading } = useFetchQuery<StatusType>({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest/',
     getEndpoint: () =>
       buildResourcesEndpoint({
         baseEndpoint: getStatusesEndpoint(resourceType),
@@ -65,7 +64,8 @@ export const useStatusGridCondensed = ({
       refreshCount
     ],
     queryOptions: {
-      refetchInterval: refreshIntervalToUse
+      refetchInterval: refreshIntervalToUse,
+      suspense: false
     }
   });
 
@@ -97,7 +97,7 @@ export const useStatusGridCondensed = ({
   );
 
   return {
-    hasData: isNil(data),
+    hasData: !isNil(data),
     isLoading,
     statusesToDisplay,
     total: data?.total

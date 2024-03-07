@@ -151,6 +151,7 @@ const statusRequests = (): void => {
   cy.fixture('Widgets/StatusGrid/condensed.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getStatuses',
+      delay: 2000,
       method: Method.GET,
       path: `./api/latest${getStatusesEndpoint('service')}?**`,
       response: data
@@ -496,6 +497,8 @@ describe('Condensed view', () => {
     });
 
     it('displays status tiles', () => {
+      cy.get('[data-skeleton="true"]').should('be.visible');
+
       cy.waitForRequest('@getStatuses');
 
       cy.contains('65.86m services').should('be.visible');
