@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Delete multiple rules at once",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "ids"
+    ],
+    "properties": {
+        "ids": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        }
+    }
+}
+
+
