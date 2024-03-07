@@ -62,8 +62,6 @@ final class FindRules
     {
         $this->info('Finding resource access rules', ['request_parameters' => $this->requestParameters]);
 
-        // check if current user is authorized to perform the action.
-        // Only users linked to AUTHORIZED_ACL_GROUPS and having access in RW to the page are authorized
         if (! $this->isAuthorized()) {
             $this->error(
                 "User doesn't have sufficient rights to list resource access rules",
@@ -115,6 +113,10 @@ final class FindRules
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool

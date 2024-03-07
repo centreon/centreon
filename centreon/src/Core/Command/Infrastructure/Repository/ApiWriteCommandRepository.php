@@ -48,7 +48,7 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
      */
     public function add(NewCommand $command): int
     {
-        $apiEndpoint = $this->url . DIRECTORY_SEPARATOR . 'centreon/api/latest/configuration/commands';
+        $apiEndpoint = $this->url . '/api/latest/configuration/commands';
         $options = [
             'verify_peer' => true,
             'verify_host' => true,

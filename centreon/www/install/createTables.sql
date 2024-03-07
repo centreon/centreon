@@ -583,7 +583,7 @@ CREATE TABLE `cfg_nagios` (
   `cfg_file` varchar(255) NOT NULL DEFAULT 'centengine.cfg',
   `log_pid` enum('0','1') DEFAULT '1',
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
-  `macros_filter` TEXT DEFAULT '',
+  `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
