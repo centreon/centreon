@@ -35,6 +35,12 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHostsStatusCount
 {
+    /**
+     * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadResourceRepositoryInterface $readResourceRepository
+     * @param RequestParametersInterface $requestParameters
+     */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -81,29 +87,13 @@ final class FindHostsStatusCount
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
-            $resources =$this->readResourceRepository->findResourcesByAccessGroupIds($filter, $accessGroupIds);
+            $resources = $this->readResourceRepository->findResourcesByAccessGroupIds($filter, $accessGroupIds);
         }
-            $hostIds = array_map(static fn (Resource $resource): int => $resource->getParent()?->getId(), $resources);
-            $resourcesStatusCount = $this->readResourceRepository->findResourcesStatusCountByHostIds(Resource::TYPE_HOST, $hostIds);
-    }
 
-
-    private function findHostsStatusCountAsAdmin(ResourceFilter $filter): ResourcesStatusCount
-    {
-        return $this->readResourceRepository->findResourcesStatusCountWithFilter(Resource::TYPE_HOST, $filter);
-    }
-
-    private function findHostsStatusCountAsNonAdmin(ResourceFilter $filter): ResourcesStatusCount
-    {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
-
-        return $this->readResourceRepository->findResourcesStatusCountByAccessGroupIdsWithFilter(
-            Resource::TYPE_HOST,
-            $accessGroupIds,
-            $filter
-        );
-
+        $hostIds = array_map(static fn (Resource $resource): ?int => $resource->getParent()?->getId(), $resources);
+        // remove null values as some resources could have been hosts and has no parent.
+        $hostIds = array_unique(array_filter($hostIds, static fn($resourceId) => $resourceId !== null));
+        return $this->readResourceRepository->findResourcesStatusCountByHostIds(Resource::TYPE_HOST, $hostIds);
     }
 
     private function createResponse(ResourcesStatusCount $resourcesStatusCount): FindHostsStatusCountResponse

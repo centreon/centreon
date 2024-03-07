@@ -451,11 +451,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $bindTokenAsString = implode(', ', array_keys($bind));
 
         $query = <<<SQL
-            SELECT DISTINCT id, status FROM `:dbstg`.resources resources
-            ON parent_resource.id = parent_id
-             WHERE type=1 
-               AND name NOT LIKE "_Module_%" 
-               AND resource_id IN ({$bindTokenAsString})
+            SELECT DISTINCT id, status FROM `:dbstg`.resources
+            WHERE type=1 
+                AND name NOT LIKE "_Module_%" 
+                AND id IN ({$bindTokenAsString})
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($query));
