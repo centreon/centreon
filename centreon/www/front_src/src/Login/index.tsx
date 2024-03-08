@@ -18,7 +18,7 @@ import useValidationSchema from './validationSchema';
 import { LoginFormValues } from './models';
 import useLogin from './useLogin';
 import {
-  labelAnErrorOccuredDuringAuthentication,
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonWallpaper,
   labelLogin,
   labelPoweredByCentreon
@@ -91,7 +91,7 @@ const LoginPage = (): JSX.Element => {
     return (
       <FallbackPage
         message={authenticationError}
-        title={t(labelAnErrorOccuredDuringAuthentication)}
+        title={t(labelAnErrorOccurredDuringAuthentication)}
       />
     );
   }

@@ -19,7 +19,7 @@ import {
 } from './api/endpoint';
 import {
   labelAlias,
-  labelAnErrorOccuredDuringAuthentication,
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonLogo,
   labelCentreonWallpaper,
   labelConnect,
@@ -404,10 +404,10 @@ describe('Login Page', () => {
     cy.makeSnapshot();
   });
 
-  it('displays a fallback page when a provider is forced and an error occured during authentication', () => {
+  it('displays a fallback page when a provider is forced and an error occurred during authentication', () => {
     mountComponentAndStubs();
     cy.stub(router, 'useSearchParams').returns([
-      new Map([['authenticationError', 'An error occured']])
+      new Map([['authenticationError', 'An error occurred']])
     ]);
     cy.interceptAPIRequest({
       alias: 'getProvidersConfiguration',
@@ -418,8 +418,8 @@ describe('Login Page', () => {
 
     cy.waitForRequest('@getProvidersConfiguration');
 
-    cy.contains(labelAnErrorOccuredDuringAuthentication).should('be.visible');
-    cy.contains('An error occured').should('be.visible');
+    cy.contains(labelAnErrorOccurredDuringAuthentication).should('be.visible');
+    cy.contains('An error occurred').should('be.visible');
 
     cy.makeSnapshot();
   });
