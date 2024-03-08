@@ -16773,3 +16773,6 @@ msgstr "Modo avanzado"
 
 # msgid "Token has been created"
 # msgstr ""
+
+# msgid "An error occured during authentication"
+# msgstr ""

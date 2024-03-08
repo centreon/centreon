@@ -12,3 +12,5 @@ export const labelLoginWith = 'Login with';
 export const labelPasswordHasExpired = 'Password has expired';
 export const labelCentreonWallpaper = 'Centreon wallpaper';
 export const labelPoweredByCentreon = 'Powered by Centreon';
+export const labelAnErrorOccuredDuringAuthentication =
+  'An error occured during authentication';
