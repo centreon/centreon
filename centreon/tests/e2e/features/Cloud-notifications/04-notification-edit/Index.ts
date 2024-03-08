@@ -1,4 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import {
   createNotification,
   editNotification,
@@ -8,7 +13,6 @@ import {
   waitUntilLogFileChange
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const contactAfterEdit = 'Guest';
@@ -19,11 +23,11 @@ let notificationWithServices = true;
 let notificationEnabled = true;
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
-    name: 'central-cloud-notifications-output',
-    configName: 'central-broker-master'
+    configName: 'central-broker-master',
+    name: 'central-cloud-notifications-output'
   });
 
   cy.intercept({
@@ -154,13 +158,14 @@ Then(
   () => {
     if (!notificationEnabled) {
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}>>`,
-        contain: false
+        contain: false,
+        log: `<<${data.hosts.host1.name}>>`
       });
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-        contain: false
+        contain: false,
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
+
       return;
     }
 
@@ -168,9 +173,10 @@ Then(
 
     if (!notificationWithServices) {
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-        contain: false
+        contain: false,
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
+
       return;
     }
 
@@ -206,6 +212,8 @@ When(
           cy.wrap($checkbox).click().should('not.be.checked');
           notificationEnabled = false;
           break;
+        default:
+          throw new Error(`${action} not managed`);
       }
     });
   }
@@ -215,8 +223,8 @@ Then(
   'the notifications for status changes are sent only to the updated contact',
   () => {
     notificationSentCheck({
-      log: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]',
-      contain: false
+      contain: false,
+      log: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
     });
     notificationSentCheck({
       log: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
@@ -227,13 +235,14 @@ Then(
 Then('{string} notification is sent for this rule once', (prefix) => {
   if (!notificationEnabled) {
     notificationSentCheck({
-      log: `<<${data.hosts.host1.name}>>`,
-      contain: false
+      contain: false,
+      log: `<<${data.hosts.host1.name}>>`
     });
     notificationSentCheck({
-      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-      contain: false
+      contain: false,
+      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
     });
+
     return;
   }
 
@@ -265,6 +274,8 @@ When('the user {string} the Notification Rule', (action) => {
           cy.wrap($checkbox).click().should('not.be.checked');
           notificationEnabled = false;
           break;
+        default:
+          throw new Error(`${action} not managed`);
       }
     });
 });
