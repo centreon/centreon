@@ -67,6 +67,8 @@ interface ReadResourceRepositoryInterface
      * @param string $resourceType
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
+     *
      * @return ResourcesStatusCount
      */
     public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount;
@@ -77,6 +79,8 @@ interface ReadResourceRepositoryInterface
      * @param string $resourceType
      * @param int[] $accessGroupIds
      * @param ResourceFilter $filter
+     *
+     * @throws \Throwable
      *
      * @return ResourcesStatusCount
      */

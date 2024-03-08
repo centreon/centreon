@@ -693,12 +693,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     }
 
     /**
-     * @param ResourceFilter $filter
      * @param string $request
      * @param StatementCollector $collector
      *
-     * @throws AssertionFailedException
      * @throws \PDOException
+     *
+     * @return HostsStatusCount
      */
     private function fetchHostsStatusCount(string $request, StatementCollector $collector): HostsStatusCount
     {

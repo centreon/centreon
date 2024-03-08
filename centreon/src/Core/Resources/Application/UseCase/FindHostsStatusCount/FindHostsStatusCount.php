@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Domain\Model\ResourcesStatusCount;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -35,30 +36,46 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHostsStatusCount
 {
+    use LoggerTrait;
+
     /**
      * @param ContactInterface $user
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadResourceRepositoryInterface $readResourceRepository
-     * @param RequestParametersInterface $requestParameters
      */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadResourceRepositoryInterface $readResourceRepository,
-        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 
+    /**
+     * @param FindHostsStatusCountPresenterInterface $presenter
+     * @param ResourceFilter $filter
+     */
     public function __invoke(FindHostsStatusCountPresenterInterface $presenter, ResourceFilter $filter): void
     {
         try {
             $resourcesStatusCount = $this->findResourcesStatus($filter);
             $presenter->presentResponse($this->createResponse($resourcesStatusCount));
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex));
+            $this->error(
+                ResourceException::errorWhileFindingHostsStatusCount()->getMessage(),
+                ['trace' => (string) $ex]
+            );
+            $presenter->presentResponse(
+                new ErrorResponse(ResourceException::errorWhileFindingHostsStatusCount()->getMessage())
+            );
         }
     }
 
+    /**
+     * @param ResourceFilter $filter
+     * @return ResourcesStatusCount
+     *
+     * @throws \Throwable
+     */
     private function findResourcesStatus(ResourceFilter $filter): ResourcesStatusCount
     {
         if ($this->user->isAdmin()) {
@@ -75,6 +92,11 @@ final class FindHostsStatusCount
         );
     }
 
+    /**
+     * @param ResourcesStatusCount $resourcesStatusCount
+     *
+     * @return FindHostsStatusCountResponse
+     */
     private function createResponse(ResourcesStatusCount $resourcesStatusCount): FindHostsStatusCountResponse
     {
         $response = new FindHostsStatusCountResponse();

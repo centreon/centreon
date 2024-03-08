@@ -29,14 +29,13 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 /**
  * @phpstan-type _RequestParameters array{
  *      hostgroup_names: list<string>,
- *      servicegroup_names: list<string>,
- *      service_category_names: list<string>,
- *      service_category_names: list<string>,
+ *      host_category_names: list<string>,
  * }
  */
 final class FindHostsStatusCountRequestValidator
 {
     use LoggerTrait;
+
     public const PARAM_HOSTGROUP_NAMES = 'hostgroup_names';
     public const PARAM_HOST_CATEGORY_NAMES = 'host_category_names';
     private const EMPTY_FILTERS = [
@@ -85,7 +84,8 @@ final class FindHostsStatusCountRequestValidator
             return \is_string($parameterValue)
                 ? json_decode($parameterValue, true, 512, JSON_THROW_ON_ERROR)
                 : $parameterValue;
-        } catch (\JsonException) {
+        } catch (\JsonException $ex) {
+            $this->error('An error occured while decoding json data', ['trace' => (string) $ex]);
             return $parameterValue;
         }
     }
