@@ -101,7 +101,8 @@ Given('a Notification Rule is already created', () => {
 });
 
 Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
+  cy.visit('/centreon/configuration/notifications');
+  cy.wait('@getNotifications');
 });
 
 When('the user selects the edit action on a Notification Rule', () => {
@@ -233,23 +234,26 @@ Then(
 );
 
 Then('{string} notification is sent for this rule once', (prefix) => {
-  if (!notificationEnabled) {
-    notificationSentCheck({
-      contain: false,
-      log: `<<${data.hosts.host1.name}>>`
-    });
-    notificationSentCheck({
-      contain: false,
-      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
-    });
-
-    return;
+  switch (prefix) {
+    case 'no more':
+      notificationSentCheck({
+        contain: false,
+        log: `<<${data.hosts.host1.name}>>`
+      });
+      notificationSentCheck({
+        contain: false,
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      });
+      break;
+    case 'one':
+      notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
+      notificationSentCheck({
+        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      });
+      break;
+    default:
+      throw new Error(`${prefix} not managed`);
   }
-
-  notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
-  notificationSentCheck({
-    log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
-  });
 });
 
 When('the user {string} the Notification Rule', (action) => {

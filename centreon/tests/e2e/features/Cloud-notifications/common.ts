@@ -17,7 +17,7 @@ const createNotification = (
       url: 'centreon/api/latest/configuration/notifications'
     })
     .then((response) => {
-      cy.wrap(response);
+      expect(response.status).to.eq(201);
     });
 };
 
@@ -81,7 +81,9 @@ const setBrokerNotificationsOutput = ({
     })
     .then((response) => {
       const listBrokersIO = response.body.result;
-      const brokerIO = listBrokersIO.find((brokerIO) => brokerIO.name == name);
+      const brokerIO = listBrokersIO.find(
+        (currentBrokerIO) => currentBrokerIO.name === name
+      );
       if (brokerIO) {
         brokerIOID = brokerIO.id;
 

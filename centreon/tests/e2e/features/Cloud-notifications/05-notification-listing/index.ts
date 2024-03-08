@@ -2,8 +2,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { createNotification, enableNotificationFeature } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored } from '../../../commons';
-import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
@@ -20,24 +18,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
   }).as('getNotifications');
-
-  cy.addHostGroup({
-    name: data.hostGroups.hostGroup1.name
-  });
-
-  cy.addHost({
-    activeCheckEnabled: false,
-    checkCommand: 'check_centreon_cpu',
-    hostGroup: data.hostGroups.hostGroup1.name,
-    name: data.hosts.host1.name,
-    template: 'generic-host'
-  }).applyPollerConfiguration();
-
-  checkHostsAreMonitored([
-    {
-      name: data.hosts.host1.name
-    }
-  ]);
 });
 
 afterEach(() => {
@@ -61,6 +41,8 @@ When('no Notification Rules are configured', () => {
     method: 'GET',
     url: 'centreon/api/latest/configuration/notifications'
   }).then((response) => {
+    // https://github.com/cypress-io/eslint-plugin-cypress?tab=readme-ov-file#chai-and-no-unused-expressions
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     expect(response.body.result).to.be.an('array').that.is.empty;
   });
 });
@@ -87,7 +69,7 @@ Then('the pagination is disabled', () => {
 });
 
 When('the user has {int} Notification Rules', (count: number) => {
-  for (let i = 1; i <= count; i++) {
+  for (let i = 1; i <= count; i += 1) {
     const createNotificationBody = { ...notificationBody };
     createNotificationBody.name = `Notification Created ${i}`;
     createNotification(createNotificationBody);
@@ -105,7 +87,7 @@ When(
 );
 
 When('the user sets current page to {int}', (currentPage: number) => {
-  for (let i = 1; i < currentPage; i++) {
+  for (let i = 1; i < currentPage; i += 1) {
     cy.getByLabel({ label: `${nextPageLabel}` }).click();
   }
 });
