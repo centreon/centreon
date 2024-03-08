@@ -55,19 +55,19 @@ contents:
 scripts:
   postinstall: ./scripts/centreon-gorgone-centreon-config-postinstall.sh
 
-# overrides:
-#   rpm:
-#     depends:
-#       - centreon-gorgone = ${VERSION}-${RELEASE}${DIST}
-#   deb:
-#     depends:
-#       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
-#     replaces:
-#       - centreon-gorgone (<< 24.04.0)
+overrides:
+  rpm:
+    depends:
+      - centreon-gorgone = ${VERSION}-${RELEASE}${DIST}
+  deb:
+    depends:
+      - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
+    replaces:
+      - centreon-gorgone (<< 24.04.0)
 
-# deb:
-#   breaks:
-#     - centreon-gorgone (<< 24.04.0)
+deb:
+  breaks:
+    - centreon-gorgone (<< 24.04.0)
 
 rpm:
   summary: Configure Centreon Gorgone for use with Centreon Web

@@ -127,71 +127,71 @@ scripts:
   postinstall: ./scripts/centreon-gorgone-postinstall.sh
   preremove: ./scripts/centreon-gorgone-preremove.sh
 
-# overrides:
-#   rpm:
-#     depends:
-#       - centreon-common
-#       - bzip2
-#       - perl-Libssh-Session >= 0.8
-#       - perl-CryptX
-#       - perl-Mojolicious
-#       - perl(Archive::Tar)
-#       - perl(Schedule::Cron)
-#       - perl(ZMQ::FFI)
-#       - perl(EV)
-#       - perl(JSON::XS)
-#       - perl(JSON::PP)
-#       - perl(XML::Simple)
-#       - perl(XML::LibXML::Simple)
-#       - perl(Net::SMTP)
-#       - perl(YAML::XS)
-#       - perl(DBD::SQLite)
-#       - perl(DBD::mysql)
-#       - perl(DBI)
-#       - perl(UUID)
-#       - perl(HTTP::Daemon)
-#       - perl(HTTP::Status)
-#       - perl(MIME::Base64)
-#       - perl(Digest::MD5::File)
-#       - perl(Net::Curl::Easy)
-#       - perl(HTTP::Daemon::SSL)
-#       - perl(NetAddr::IP)
-#       - perl(Hash::Merge)
-#       - perl(Clone)
-#       - perl(Sys::Syslog)
-#       - perl(DateTime)
-#       - perl(Try::Tiny)
-#       - tar
-#   deb:
-#     depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
-#       - centreon-common
-#       - libdatetime-perl
-#       - libtime-parsedate-perl
-#       - libtry-tiny-perl
-#       - libxml-simple-perl
-#       - libxml-libxml-simple-perl
-#       - libdigest-md5-file-perl
-#       - libjson-pp-perl
-#       - libjson-xs-perl
-#       - libyaml-libyaml-perl
-#       - libdbi-perl
-#       - libdbd-sqlite3-perl
-#       - libdbd-mysql-perl
-#       - libhttp-daemon-perl
-#       - libhttp-daemon-ssl-perl
-#       - libnetaddr-ip-perl
-#       - libschedule-cron-perl
-#       - libhash-merge-perl
-#       - libcryptx-perl
-#       - libmojolicious-perl
-#       - libauthen-simple-perl
-#       - libauthen-simple-net-perl
-#       - libnet-curl-perl
-#       - libssh-session-perl
-#       - libssh-4
-#       - libev-perl
-#       - libzmq-ffi-perl
-#       - libclone-choose-perl
+overrides:
+  rpm:
+    depends:
+      - centreon-common
+      - bzip2
+      - perl-Libssh-Session >= 0.8
+      - perl-CryptX
+      - perl-Mojolicious
+      - perl(Archive::Tar)
+      - perl(Schedule::Cron)
+      - perl(ZMQ::FFI)
+      - perl(EV)
+      - perl(JSON::XS)
+      - perl(JSON::PP)
+      - perl(XML::Simple)
+      - perl(XML::LibXML::Simple)
+      - perl(Net::SMTP)
+      - perl(YAML::XS)
+      - perl(DBD::SQLite)
+      - perl(DBD::mysql)
+      - perl(DBI)
+      - perl(UUID)
+      - perl(HTTP::Daemon)
+      - perl(HTTP::Status)
+      - perl(MIME::Base64)
+      - perl(Digest::MD5::File)
+      - perl(Net::Curl::Easy)
+      - perl(HTTP::Daemon::SSL)
+      - perl(NetAddr::IP)
+      - perl(Hash::Merge)
+      - perl(Clone)
+      - perl(Sys::Syslog)
+      - perl(DateTime)
+      - perl(Try::Tiny)
+      - tar
+  deb:
+    depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
+      - centreon-common
+      - libdatetime-perl
+      - libtime-parsedate-perl
+      - libtry-tiny-perl
+      - libxml-simple-perl
+      - libxml-libxml-simple-perl
+      - libdigest-md5-file-perl
+      - libjson-pp-perl
+      - libjson-xs-perl
+      - libyaml-libyaml-perl
+      - libdbi-perl
+      - libdbd-sqlite3-perl
+      - libdbd-mysql-perl
+      - libhttp-daemon-perl
+      - libhttp-daemon-ssl-perl
+      - libnetaddr-ip-perl
+      - libschedule-cron-perl
+      - libhash-merge-perl
+      - libcryptx-perl
+      - libmojolicious-perl
+      - libauthen-simple-perl
+      - libauthen-simple-net-perl
+      - libnet-curl-perl
+      - libssh-session-perl
+      - libssh-4
+      - libev-perl
+      - libzmq-ffi-perl
+      - libclone-choose-perl
 
 rpm:
   summary: Centreon gorgone daemon
