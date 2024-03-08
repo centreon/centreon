@@ -25,24 +25,16 @@ namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
 
 final class FindHostsStatusCountResponse
 {
-    /**
-     * @var array{total: int}
-     */
+    /** @var array{total: int} */
     public array $downStatus = ['total' => 0];
 
-    /**
-     * @var array{total: int}
-     */
+    /** @var array{total: int} */
     public array $unreachableStatus = ['total' => 0];
 
-    /**
-     * @var array{total: int}
-     */
+    /** @var array{total: int} */
     public array $upStatus = ['total' => 0];
 
-    /**
-     * @var array{total: int}
-     */
+    /** @var array{total: int} */
     public array $pendingStatus = ['total' => 0];
 
     public int $total = 0;

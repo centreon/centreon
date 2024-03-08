@@ -47,8 +47,8 @@ final class DbHostsStatusCountFactory
 
         return new HostsStatusCount(
             new DownStatusCount(self::countInStatus(self::DOWN_STATUS, $statuses)),
-            new UnreachableStatusCount(self::countInStatus(self::UNREACHABLE_STATUS, $statuses)) ,
-            new UpStatusCount(self::countInStatus(self::UP_STATUS, $statuses)) ,
+            new UnreachableStatusCount(self::countInStatus(self::UNREACHABLE_STATUS, $statuses)),
+            new UpStatusCount(self::countInStatus(self::UP_STATUS, $statuses)),
             new PendingStatusCount(self::countInStatus(self::PENDING_STATUS, $statuses))
         );
     }

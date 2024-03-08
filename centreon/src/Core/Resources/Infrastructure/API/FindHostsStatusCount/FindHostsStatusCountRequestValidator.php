@@ -35,7 +35,6 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 final class FindHostsStatusCountRequestValidator
 {
     use LoggerTrait;
-
     public const PARAM_HOSTGROUP_NAMES = 'hostgroup_names';
     public const PARAM_HOST_CATEGORY_NAMES = 'host_category_names';
     private const EMPTY_FILTERS = [
@@ -86,6 +85,7 @@ final class FindHostsStatusCountRequestValidator
                 : $parameterValue;
         } catch (\JsonException $ex) {
             $this->error('An error occured while decoding json data', ['trace' => (string) $ex]);
+
             return $parameterValue;
         }
     }
