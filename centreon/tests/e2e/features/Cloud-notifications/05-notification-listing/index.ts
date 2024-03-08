@@ -1,7 +1,12 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { createNotification, enableNotificationFeature } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
@@ -18,6 +23,37 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
   }).as('getNotifications');
+
+  cy.addHostGroup({
+    name: data.hostGroups.hostGroup1.name
+  })
+    .addHost({
+      activeCheckEnabled: false,
+      checkCommand: 'check_centreon_cpu',
+      hostGroup: data.hostGroups.hostGroup1.name,
+      name: data.hosts.host1.name,
+      template: 'generic-host'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: data.hosts.host1.name,
+      maxCheckAttempts: 1,
+      name: data.services.service1.name,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
+
+  checkHostsAreMonitored([
+    {
+      name: data.hosts.host1.name
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: data.services.service1.name
+    }
+  ]);
 });
 
 afterEach(() => {
