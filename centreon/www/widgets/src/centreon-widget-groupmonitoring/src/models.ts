@@ -36,8 +36,13 @@ export interface Group extends NamedEntity {
   hosts: Array<Host>;
 }
 
+export interface FormattedGroup extends NamedEntity {
+  hosts: Array<Host>;
+  statuses: Array<string>;
+}
+
 export interface RowProps {
   groupType: string;
   isFromPreview?: boolean;
-  row: Group;
+  row: FormattedGroup;
 }
