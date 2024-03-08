@@ -55,7 +55,7 @@ final class HostsStatusCount
     }
 
     /**
-     * Return the total of all the status
+     * Return the total of all the status.
      *
      * @return int
      */

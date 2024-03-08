@@ -47,8 +47,8 @@ final class FindHostsStatusCount
         private readonly ReadResourceRepositoryInterface $readResourceRepository,
         private readonly RequestParametersInterface $requestParameters,
     ) {
-
     }
+
     public function __invoke(FindHostsStatusCountPresenterInterface $presenter, ResourceFilter $filter): void
     {
         try {
@@ -67,6 +67,7 @@ final class FindHostsStatusCount
 
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
         return $this->readResourceRepository->findResourcesStatusCountByAccessGroupIds(
             Resource::TYPE_HOST,
             $accessGroupIds,
@@ -94,16 +95,5 @@ final class FindHostsStatusCount
         $response->total = $hostsStatusCount->getTotal();
 
         return $response;
-    }
-
-
-
-    private function hasEmptyFilter(ResourceFilter $filter): bool
-    {
-        return empty($filter->getHostgroupNames())
-            && empty($filter->getHostCategoryNames())
-            && empty($filter->getServicegroupNames())
-            && empty($filter->getServiceCategoryNames())
-            && empty($this->requestParameters->getSearch());
     }
 }

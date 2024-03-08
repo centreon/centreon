@@ -39,7 +39,6 @@ final class FindHostsStatusCountRequestValidator
     use LoggerTrait;
     public const PARAM_HOSTGROUP_NAMES = 'hostgroup_names';
     public const PARAM_HOST_CATEGORY_NAMES = 'host_category_names';
-
     private const EMPTY_FILTERS = [
         self::PARAM_HOSTGROUP_NAMES => [],
         self::PARAM_HOST_CATEGORY_NAMES => [],

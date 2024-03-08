@@ -352,9 +352,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return $subRequest;
     }
 
-
     /**
-     * @intheritDoc
+     * @inheritDoc
      */
     public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount
     {
@@ -385,12 +384,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /**
      * Count all hosts status.
      *
+     * @param ResourceFilter $filter
+     *
      * @return HostsStatusCount
      */
     private function findHostsStatusCount(ResourceFilter $filter): HostsStatusCount
     {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<SQL
+        $query = <<<'SQL'
             SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
                 LEFT JOIN `:dbstg`.`resources` parent_resource
                 ON parent_resource.id = resources.parent_id
@@ -422,7 +423,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
 
@@ -433,13 +434,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * Count all hosts status filtered by given ACL Group IDs.
      *
      * @param int[] $accessGroupIds
+     * @param ResourceFilter $filter
      *
      * @return HostsStatusCount
      */
     private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): HostsStatusCount
     {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
-        $query = <<<SQL
+        $query = <<<'SQL'
             SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
                 LEFT JOIN `:dbstg`.`resources` parent_resource
                 ON parent_resource.id = resources.parent_id
@@ -470,7 +472,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-        $query .= <<<SQL
+        $query .= <<<'SQL'
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
         $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);

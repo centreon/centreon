@@ -43,9 +43,7 @@ final class DbHostsStatusCountFactory
      */
     public static function createFromRecord(array $record): HostsStatusCount
     {
-        $statuses = array_map(static function (array $recordEntry): int {
-          return $recordEntry['status'];
-        }, $record);
+        $statuses = array_map(static fn (array $recordEntry): int => $recordEntry['status'], $record);
 
         return new HostsStatusCount(
             new DownStatusCount(self::countInStatus(self::DOWN_STATUS, $statuses)),

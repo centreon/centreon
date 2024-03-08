@@ -66,6 +66,7 @@ interface ReadResourceRepositoryInterface
      *
      * @param string $resourceType
      * @param ResourceFilter $filter
+     *
      * @return ResourcesStatusCount
      */
     public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount;
