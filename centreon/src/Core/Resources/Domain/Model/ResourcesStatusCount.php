@@ -26,13 +26,13 @@ namespace Core\Resources\Domain\Model;
 class ResourcesStatusCount
 {
     /**
-     * @param HostsStatusCount $hostsStatusCount
+     * @param HostsStatusCount|null $hostsStatusCount
      */
-    public function __construct(private readonly HostsStatusCount $hostsStatusCount)
+    public function __construct(private readonly ?HostsStatusCount $hostsStatusCount)
     {
     }
 
-    public function getHostsStatusCount(): HostsStatusCount
+    public function getHostsStatusCount(): ?HostsStatusCount
     {
         return $this->hostsStatusCount;
     }

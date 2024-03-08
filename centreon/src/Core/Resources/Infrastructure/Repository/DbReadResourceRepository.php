@@ -386,9 +386,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @param ResourceFilter $filter
      *
-     * @return HostsStatusCount
+     * @return HostsStatusCount|null
      */
-    private function findHostsStatusCount(ResourceFilter $filter): HostsStatusCount
+    private function findHostsStatusCount(ResourceFilter $filter): ?HostsStatusCount
     {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
         $query = <<<'SQL'
@@ -436,9 +436,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param int[] $accessGroupIds
      * @param ResourceFilter $filter
      *
-     * @return HostsStatusCount
+     * @return HostsStatusCount|null
      */
-    private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): HostsStatusCount
+    private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): ?HostsStatusCount
     {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
         $query = <<<'SQL'
@@ -698,9 +698,9 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @throws \PDOException
      *
-     * @return HostsStatusCount
+     * @return HostsStatusCount|null
      */
-    private function fetchHostsStatusCount(string $request, StatementCollector $collector): HostsStatusCount
+    private function fetchHostsStatusCount(string $request, StatementCollector $collector): ?HostsStatusCount
     {
         $statement = $this->db->prepare(
             $this->translateDbName($request)
@@ -717,7 +717,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $hostsStatusCount = null;
         if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
-            /** @var array<string,int|string|null> $resourceRecord */
             $hostsStatusCount = DbHostsStatusCountFactory::createFromRecord($resourceRecord);
         }
 

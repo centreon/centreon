@@ -102,20 +102,22 @@ final class FindHostsStatusCount
     {
         $response = new FindHostsStatusCountResponse();
         $hostsStatusCount = $resourcesStatusCount->getHostsStatusCount();
-        $response->downStatus = [
-            'total' => $hostsStatusCount->getDownStatusCount()->getTotal(),
-        ];
-        $response->unreachableStatus = [
-            'total' => $hostsStatusCount->getUnreachableStatusCount()->getTotal(),
-        ];
-        $response->upStatus = [
-            'total' => $hostsStatusCount->getUpStatusCount()->getTotal(),
-        ];
-        $response->pendingStatus = [
-            'total' => $hostsStatusCount->getPendingStatusCount()->getTotal(),
-        ];
+        if ($hostsStatusCount !== null) {
+            $response->downStatus = [
+                'total' => $hostsStatusCount->getDownStatusCount()->getTotal(),
+            ];
+            $response->unreachableStatus = [
+                'total' => $hostsStatusCount->getUnreachableStatusCount()->getTotal(),
+            ];
+            $response->upStatus = [
+                'total' => $hostsStatusCount->getUpStatusCount()->getTotal(),
+            ];
+            $response->pendingStatus = [
+                'total' => $hostsStatusCount->getPendingStatusCount()->getTotal(),
+            ];
 
-        $response->total = $hostsStatusCount->getTotal();
+            $response->total = $hostsStatusCount->getTotal();
+        }
 
         return $response;
     }
