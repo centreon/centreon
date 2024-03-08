@@ -7,8 +7,8 @@ export enum SortOrder {
 
 export enum Fields {
   'CreationDate' = 'creation_date',
-  'CreationId' = 'creator.id',
-  'CreationName' = 'creator.name',
+  'CreatorId' = 'creator.id',
+  'CreatorName' = 'creator.name',
   'ExpirationDate' = 'expiration_date',
   'IsRevoked' = 'is_revoked',
   'TokenName' = 'token_name',
@@ -29,4 +29,14 @@ export interface TokenFilter {
   page: number;
   search?: SearchParameter;
   sort: SortParameters;
+}
+
+export interface User {
+  id: number;
+  name: string;
+}
+
+export enum Property {
+  in = 'In',
+  last = 'Last'
 }

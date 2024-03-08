@@ -15,9 +15,23 @@ export const buildListEndpoint = ({
 }: BuildListEndpoint): string =>
   buildListingEndpoint({
     baseEndpoint: endpoint,
-    customQueryParameters,
+    customQueryParameters: customQueryParameters ?? undefined,
     parameters
   });
+
+export const getEndpointConfiguredUser = (dataConfiguredUser): string => {
+  return buildListEndpoint({
+    endpoint: listConfiguredUser,
+    parameters: { ...dataConfiguredUser, limit: 10 }
+  });
+};
+
+export const getEndpointCreatorsToken = (dataCreatorsToken): string => {
+  return buildListEndpoint({
+    endpoint: listTokensEndpoint,
+    parameters: { ...dataCreatorsToken, limit: 10 }
+  });
+};
 
 export const deleteTokenEndpoint = ({
   tokenName,

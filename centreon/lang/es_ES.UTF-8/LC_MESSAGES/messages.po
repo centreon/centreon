@@ -16765,6 +16765,12 @@ msgstr "Modo avanzado"
 # msgid "Delete token"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -16879,7 +16885,7 @@ msgstr "Modo avanzado"
 # msgid "Resource table"
 # msgstr ""
 
-# msgid "Fullscreen (Alt+F)"
+# msgid "Expiration date"
 # msgstr ""
 
 # msgid "The {{name}} widget will be permanently deleted."
@@ -16896,6 +16902,12 @@ msgstr "Modo avanzado"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
 
 # msgid "Delete rule"
 # msgstr ""
