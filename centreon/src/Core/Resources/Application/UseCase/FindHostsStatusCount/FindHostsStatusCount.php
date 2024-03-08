@@ -72,9 +72,10 @@ final class FindHostsStatusCount
 
     /**
      * @param ResourceFilter $filter
-     * @return ResourcesStatusCount
      *
      * @throws \Throwable
+     *
+     * @return ResourcesStatusCount
      */
     private function findResourcesStatus(ResourceFilter $filter): ResourcesStatusCount
     {
