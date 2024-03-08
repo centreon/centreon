@@ -8,13 +8,11 @@ import {
   cond,
   equals,
   flatten,
-  init,
   isEmpty,
   isNil,
   last,
   path,
   pluck,
-  prop,
   propEq,
   reject
 } from 'ramda';
@@ -38,7 +36,7 @@ import {
   labelServiceGroup
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
-import { selectedDatasetsAtom } from '../../../atom';
+import { selectedDatasetFiltersAtom } from '../../../atom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -53,6 +51,7 @@ type UseDatasetFilterState = {
   deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
   getResourceBaseEndpoint: (
+    index: number,
     resourceType: ResourceTypeEnum
   ) => (parameters) => string;
   getResourceTypeOptions: (index: number) => Array<SelectEntry>;
@@ -171,7 +170,9 @@ const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
 ): UseDatasetFilterState => {
-  const [selectedDatasets, setSelectedDatasets] = useAtom(selectedDatasetsAtom);
+  const [selectedDatasetFilters, setSelectedDatasetFiltes] = useAtom(
+    selectedDatasetFiltersAtom
+  );
 
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<ResourceAccessRule>();
@@ -233,13 +234,21 @@ const useDatasetFilter = (
       }
     ]);
 
-    setSelectedDatasets([
-      ...selectedDatasets,
-      {
-        ids: [],
-        type: ResourceTypeEnum.Empty
-      }
-    ]);
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasetF, indexF) => {
+        if (equals(indexF, datasetFilterIndex)) {
+          return [
+            ...selectedDatasetFilters[indexF],
+            {
+              ids: [],
+              type: ResourceTypeEnum.Empty
+            }
+          ];
+        }
+
+        return datasetF;
+      })
+    );
   };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
@@ -248,16 +257,22 @@ const useDatasetFilter = (
       resource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
-    setSelectedDatasets(
-      selectedDatasets.map((dataset, datasetIndex) => {
-        if (equals(datasetIndex, index)) {
-          return {
-            ids: [...dataset.ids, resource.id as number],
-            type: dataset.type
-          };
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasetF, indexF) => {
+        if (equals(indexF, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexF].map((dataset, i) => {
+            if (equals(i, index)) {
+              return {
+                ids: [...dataset.ids, resource.id as number],
+                type: dataset.type
+              };
+            }
+
+            return dataset;
+          });
         }
 
-        return dataset;
+        return datasetF;
       })
     );
   };
@@ -269,16 +284,22 @@ const useDatasetFilter = (
         resources
       );
       setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
-      setSelectedDatasets(
-        selectedDatasets.map((dataset, datasetIndex) => {
-          if (equals(datasetIndex, index)) {
-            return {
-              ids: pluck('id', resources) as Array<number>,
-              type: dataset.type
-            };
+      setSelectedDatasetFiltes(
+        selectedDatasetFilters.map((datasetF, indexF) => {
+          if (equals(indexF, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexF].map((dataset, i) => {
+              if (equals(i, index)) {
+                return {
+                  ids: pluck('id', resources) as Array<number>,
+                  type: dataset.type
+                };
+              }
+
+              return dataset;
+            });
           }
 
-          return dataset;
+          return datasetF;
         })
       );
     };
@@ -290,13 +311,19 @@ const useDatasetFilter = (
         resources: []
       });
 
-      setSelectedDatasets(
-        selectedDatasets.map((dataset, datasetIndex) => {
-          if (equals(datasetIndex, index)) {
-            return { ids: [], type: e.target.value as ResourceTypeEnum };
+      setSelectedDatasetFiltes(
+        selectedDatasetFilters.map((datasetF, indexF) => {
+          if (equals(indexF, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexF].map((dataset, i) => {
+              if (equals(i, index)) {
+                return { ids: [], type: e.target.value as ResourceTypeEnum };
+              }
+
+              return dataset;
+            });
           }
 
-          return dataset;
+          return datasetF;
         })
       );
     };
@@ -307,7 +334,17 @@ const useDatasetFilter = (
       (datasetFilter || []).filter((_, i) => !equals(i, index))
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
-    setSelectedDatasets(selectedDatasets.filter((_, i) => !equals(i, index)));
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasetF, indexF) => {
+        if (equals(indexF, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexF].filter(
+            (_, i) => !equals(i, index)
+          );
+        }
+
+        return datasetF;
+      })
+    );
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
@@ -318,56 +355,57 @@ const useDatasetFilter = (
       newResource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
-    setSelectedDatasets(
-      selectedDatasets.map((dataset, i) => {
-        if (equals(i, index)) {
-          return {
-            ids: dataset.ids.filter((id) => !equals(id, option.id)),
-            type: dataset.type
-          };
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasetF, indexF) => {
+        if (equals(indexF, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexF].map((dataset, i) => {
+            if (equals(i, index)) {
+              return {
+                ids: dataset.ids.filter((id) => !equals(id, option.id)),
+                type: dataset.type
+              };
+            }
+
+            return dataset;
+          });
         }
 
-        return dataset;
+        return datasetF;
       })
     );
   };
 
-  const buildSearchParameters = (): Array<QueryParameter> | undefined => {
-    const previousDataset = last(
-      init(values.datasetFilters[datasetFilterIndex])
-    );
-    if (isNil(previousDataset)) {
-      return undefined;
-    }
-
-    const ids = previousDataset?.resources.map((resource) =>
-      prop('id', resource)
-    );
-
-    const currentResourceType = last(value as Array<Dataset>)?.resourceType;
-    if (isNil(currentResourceType)) {
+  const buildSearchParameters = (
+    index: number
+  ): Array<QueryParameter> | undefined => {
+    const subSlice = selectedDatasetFilters[datasetFilterIndex].slice(0, index);
+    if (isEmpty(subSlice)) {
       return undefined;
     }
 
     const searchParameter =
-      searchParametersBySelectedResourceType[currentResourceType][
-        previousDataset?.resourceType
-      ];
+      searchParametersBySelectedResourceType[
+        selectedDatasetFilters[datasetFilterIndex][index].type
+      ][last(subSlice)?.type];
 
     return [
       {
         name: 'search',
-        value: { [searchParameter]: { $in: ids } }
+        value: {
+          [searchParameter]: {
+            $in: selectedDatasetFilters[datasetFilterIndex][index - 1].ids
+          }
+        }
       }
     ];
   };
 
   const getResourceBaseEndpoint =
-    (resourceType: ResourceTypeEnum) =>
+    (index: number, resourceType: ResourceTypeEnum) =>
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: buildSearchParameters(),
+        customQueryParameters: buildSearchParameters(index),
         parameters: {
           ...parameters,
           limit: 30
