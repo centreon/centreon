@@ -18709,3 +18709,6 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "EError while retrieving number of hosts by status"
+msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"

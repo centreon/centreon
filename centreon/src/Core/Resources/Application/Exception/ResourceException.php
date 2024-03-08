@@ -35,6 +35,6 @@ class ResourceException extends \Exception
 
     public static function errorWhileFindingHostsStatusCount(): self
     {
-        return new self(_('Error while finding hosts status count'));
+        return new self(_('Error while retrieving number of hosts by status'));
     }
 }

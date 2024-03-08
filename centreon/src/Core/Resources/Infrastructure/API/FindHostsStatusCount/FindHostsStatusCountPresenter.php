@@ -39,9 +39,9 @@ final class FindHostsStatusCountPresenter extends AbstractPresenter implements F
             $this->setResponseStatus($response);
         } else {
             $this->present([
+                'up' => $response->upStatus,
                 'down' => $response->downStatus,
                 'unreachable' => $response->unreachableStatus,
-                'up' => $response->upStatus,
                 'pending' => $response->pendingStatus,
                 'total' => $response->total,
             ]);
