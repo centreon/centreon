@@ -1,10 +1,10 @@
 import { ForwardedRef, forwardRef, ReactElement, ReactNode } from 'react';
 
-import { ListItem as MuiListItem } from '@mui/material';
+import { ListItemProps, ListItem as MuiListItem } from '@mui/material';
 
 import { useStyles } from './ListItem.styles';
 
-type ListItemProps = {
+type Props = {
   action?: ReactElement;
   children: ReactNode | Array<ReactNode>;
   className?: string;
@@ -12,7 +12,7 @@ type ListItemProps = {
 
 export const ListItem = forwardRef(
   (
-    { action, children, className, ...attr }: ListItemProps,
+    { action, children, className, ...attr }: Props & ListItemProps,
     ref?: ForwardedRef<HTMLLIElement>
   ) => {
     const { classes, cx } = useStyles();

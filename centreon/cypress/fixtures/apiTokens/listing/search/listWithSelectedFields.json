@@ -1,0 +1,35 @@
+{
+    "result": [
+        {
+            "name": "test",
+            "user": {
+                "id": 18,
+                "name": "User"
+            },
+            "creator": {
+                "id": 1,
+                "name": "admin admin"
+            },
+            "creation_date": "2024-02-20T16:16:33+01:00",
+            "expiration_date": "2024-03-28T16:16:33+01:00",
+            "is_revoked": false
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+            "$and": [
+                {
+                    "user.name": {
+                        "$rg": "User"
+                    }
+                }
+            ]
+        },
+        "sort_by": {
+            "token_name": "ASC"
+        },
+        "total": 1
+    }
+}
