@@ -360,8 +360,8 @@ if [[ "${INSTALLATION_TYPE}" =~ ^central|poller$ ]] ; then
     {
         ### Configuration diretories and base file
         create_dir "$BUILD_DIR/$GORGONE_ETC_DIR" "$GORGONE_USER" "$GORGONE_GROUP" "755" &&
-        create_dir "$BUILD_DIR/$GORGONE_ETC_DIR/config.d" "$GORGONE_USER" "$GORGONE_GROUP" "775" &&
-        create_dir "$BUILD_DIR/$GORGONE_ETC_DIR/config.d/cron.d" "$GORGONE_USER" "$GORGONE_GROUP" "775" &&
+        create_dir "$BUILD_DIR/$GORGONE_ETC_DIR/config.d" "$GORGONE_USER" "$GORGONE_GROUP" "770" &&
+        create_dir "$BUILD_DIR/$GORGONE_ETC_DIR/config.d/cron.d" "$GORGONE_USER" "$GORGONE_GROUP" "770" &&
         copy_file "$TMP_DIR/source/install/src/config.yaml" "$BUILD_DIR/$GORGONE_ETC_DIR/config.yaml" \
             "$GORGONE_USER" "$GORGONE_GROUP" &&
 
@@ -411,11 +411,11 @@ if [[ "${INSTALLATION_TYPE}" =~ ^central|poller$ ]] ; then
     copy_file_no_replace "$TMP_DIR/source/install/src/centreon.yaml" \
         "$GORGONE_ETC_DIR/config.d/30-centreon.yaml" \
         "Centreon configuration" \
-        "$GORGONE_USER" "$GORGONE_GROUP" "644"
+        "$GORGONE_USER" "$GORGONE_GROUP" "640"
     copy_file_no_replace "$TMP_DIR/source/install/src/centreon-api.yaml" \
         "$GORGONE_ETC_DIR/config.d/31-centreon-api.yaml" \
         "Centreon API configuration" \
-        "$GORGONE_USER" "$GORGONE_GROUP" "644"
+        "$GORGONE_USER" "$GORGONE_GROUP" "640"
 
     ### Perl libraries
     copy_dir "$TMP_DIR/source/gorgone" "$PERL_LIB_DIR/gorgone"
