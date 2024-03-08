@@ -831,7 +831,7 @@ function setup_before_installation() {
 # - php command
 # - request body
 function install_wizard_post() {
-	log "INFO" " wizard install step ${2} response ->  $(curl -v -w "http://${central_ip}/centreon/install/steps/process/${2}" \
+	log "INFO" " wizard install step ${2} response ->  $(curl -v -s -w "%{http_code}" "http://${central_ip}/centreon/install/steps/process/${2}" \
 		-H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 		-H "Cookie: ${1}" --data "${3}")"
 }
