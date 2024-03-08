@@ -89,7 +89,10 @@ const DatasetFilter = ({
               dataTestId={labelSelectResource}
               disabled={!resource.resourceType}
               field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
+              getEndpoint={getResourceBaseEndpoint(
+                resourceIndex,
+                resource.resourceType
+              )}
               label={t(labelSelectResource) as string}
               limitTags={5}
               queryKey={`${resource.resourceType}-${resourceIndex}`}
