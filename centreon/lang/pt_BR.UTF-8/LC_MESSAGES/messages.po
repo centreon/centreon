@@ -17240,5 +17240,5 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "An error occured during authentication"
+# msgid "An error occurred during authentication"
 # msgstr ""

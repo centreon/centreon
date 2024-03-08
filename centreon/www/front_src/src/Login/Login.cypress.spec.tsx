@@ -404,10 +404,12 @@ describe('Login Page', () => {
     cy.makeSnapshot();
   });
 
-  it('displays a fallback page when a provider is forced and an error occured during authentication', () => {
+  it('displays a fallback page when a provider is forced and an error occurred during authentication', () => {
+
     mountComponentAndStubs();
     cy.stub(router, 'useSearchParams').returns([
-      new Map([['authenticationError', 'An error occured']])
+      new Map([['authenticationError', 'An error occurred']])
+
     ]);
     cy.interceptAPIRequest({
       alias: 'getProvidersConfiguration',

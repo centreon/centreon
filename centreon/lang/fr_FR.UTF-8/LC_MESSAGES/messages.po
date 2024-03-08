@@ -18573,5 +18573,5 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
-msgid "An error occured during authentication"
+msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
