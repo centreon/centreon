@@ -62,34 +62,26 @@ interface ReadResourceRepositoryInterface
     public function findParentResourcesById(ResourceFilter $filter): array;
 
     /**
-     * Retrieve resources status count filtered by given hostIds
+     * Retrieve resources status count.
      *
      * @param string $resourceType
-     * @param int[] $hostIds
-     *
+     * @param ResourceFilter $filter
      * @return ResourcesStatusCount
      */
-    public function findResourcesStatusCountByHostIds(string $resourceType, array $hostIds): ResourcesStatusCount;
-
-    /**
-     * Retrieve resources status count
-     *
-     * @param string $resourceType
-     *
-     * @return ResourcesStatusCount
-     */
-    public function findResourcesStatusCount(string $resourceType): ResourcesStatusCount;
+    public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount;
 
     /**
      * Retrieve resources status count by given access group ids.
      *
      * @param string $resourceType
      * @param int[] $accessGroupIds
+     * @param ResourceFilter $filter
      *
      * @return ResourcesStatusCount
      */
     public function findResourcesStatusCountByAccessGroupIds(
         string $resourceType,
-        array $accessGroupIds
+        array $accessGroupIds,
+        ResourceFilter $filter
     ): ResourcesStatusCount;
 }

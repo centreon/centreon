@@ -69,8 +69,6 @@ final class FindHostsStatusCountController extends AbstractController
         $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
 
         return (new ResourceFilter())
-            ->setServicegroupNames($filter[FindHostsStatusCountRequestValidator::PARAM_SERVICEGROUP_NAMES])
-            ->setServiceCategoryNames($filter[FindHostsStatusCountRequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
             ->setHostgroupNames($filter[FindHostsStatusCountRequestValidator::PARAM_HOSTGROUP_NAMES])
             ->setHostCategoryNames($filter[FindHostsStatusCountRequestValidator::PARAM_HOST_CATEGORY_NAMES]);
     }

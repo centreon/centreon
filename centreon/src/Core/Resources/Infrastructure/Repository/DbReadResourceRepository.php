@@ -352,27 +352,15 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return $subRequest;
     }
 
-    /**
-     * @intheritDoc
-     */
-    public function findResourcesStatusCountByHostIds(string $resourceType, array $hostIds): ResourcesStatusCount
-    {
-        $hostsStatusCount = null;
-        if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCountByHostIds($hostIds);
-        }
-
-        return new ResourcesStatusCount($hostsStatusCount);
-    }
 
     /**
      * @intheritDoc
      */
-    public function findResourcesStatusCount(string $resourceType): ResourcesStatusCount
+    public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount
     {
         $hostsStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCount();
+            $hostsStatusCount = $this->findHostsStatusCount($filter);
         }
 
         return new ResourcesStatusCount($hostsStatusCount);
@@ -383,11 +371,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     public function findResourcesStatusCountByAccessGroupIds(
         string $resourceType,
-        array $accessGroupIds
+        array $accessGroupIds,
+        ResourceFilter $filter,
     ): ResourcesStatusCount {
         $hostsStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
-            $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIds($accessGroupIds);
+            $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIds($accessGroupIds, $filter);
         }
 
         return new ResourcesStatusCount($hostsStatusCount);
@@ -398,20 +387,46 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @return HostsStatusCount
      */
-    private function findHostsStatusCount(): HostsStatusCount
+    private function findHostsStatusCount(ResourceFilter $filter): HostsStatusCount
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                WHERE resources.type=1 AND resources.name NOT LIKE "_Module_%"
-                SQL
-        ));
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+        $query = <<<SQL
+            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                ON parent_resource.id = resources.parent_id
+            SQL;
 
-        $statement->execute();
+        $collector = new StatementCollector();
 
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories.
+         */
+        $query .= $this->addResourceTagsSubRequest($filter, $collector);
 
-        return DbHostsStatusCountFactory::createFromRecord($result);
+        /**
+         * Handle search values.
+         */
+        $searchSubRequest = null;
+
+        try {
+            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw new RepositoryException($ex->getMessage(), 0, $ex);
+        }
+
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+
+        $query .= <<<SQL
+            resources.type=1 AND resources.name NOT LIKE "_Module_%"
+            SQL;
+
+        return $this->fetchHostsStatusCount($query, $collector);
     }
 
     /**
@@ -421,58 +436,46 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @return HostsStatusCount
      */
-    private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds): HostsStatusCount
+    private function findHostsStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): HostsStatusCount
     {
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
         $query = <<<SQL
             SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
-                WHERE resources.type=1 AND resources.name NOT LIKE "_Module_%"
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                ON parent_resource.id = resources.parent_id
+            SQL;
+
+        $collector = new StatementCollector();
+
+        /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories.
+         */
+        $query .= $this->addResourceTagsSubRequest($filter, $collector);
+
+        /**
+         * Handle search values.
+         */
+        $searchSubRequest = null;
+
+        try {
+            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw new RepositoryException($ex->getMessage(), 0, $ex);
+        }
+
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+        $query .= <<<SQL
+            resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
         $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
 
-        $statement = $this->db->prepare($this->translateDbName($query));
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return DbHostsStatusCountFactory::createFromRecord($result);
-    }
-
-    /**
-     * Count hosts status by given host ids.
-     *
-     * @param int[] $hostIds
-     *
-     * @return HostsStatusCount
-     */
-    private function findHostsStatusCountByHostIds(array $hostIds): HostsStatusCount
-    {
-        $bind = [];
-        foreach ($hostIds as $index => $hostId) {
-            $bind[':host_' . $index] = $hostId;
-        }
-
-        if ([] === $bind) {
-            return DbHostsStatusCountFactory::createFromRecord($bind);
-        }
-
-        $bindTokenAsString = implode(', ', array_keys($bind));
-
-        $query = <<<SQL
-            SELECT DISTINCT id, status FROM `:dbstg`.resources
-            WHERE type=1 
-                AND name NOT LIKE "_Module_%" 
-                AND id IN ({$bindTokenAsString})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($bind as $token => $hostId) {
-            $statement->bindValue($token, $hostId, \PDO::PARAM_INT);
-        }
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return DbHostsStatusCountFactory::createFromRecord($result);
+        return $this->fetchHostsStatusCount($query, $collector);
     }
 
     /**
@@ -685,6 +688,38 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
+    }
+
+    /**
+     * @param ResourceFilter $filter
+     * @param string $request
+     * @param StatementCollector $collector
+     *
+     * @throws AssertionFailedException
+     * @throws \PDOException
+     */
+    private function fetchHostsStatusCount(string $request, StatementCollector $collector): HostsStatusCount
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            /** @var int $data_type */
+            $data_type = key($data);
+            $collector->addValue($key, current($data), $data_type);
+        }
+
+        $collector->bind($statement);
+        $statement->execute();
+
+        $hostsStatusCount = null;
+        if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $resourceRecord */
+            $hostsStatusCount = DbHostsStatusCountFactory::createFromRecord($resourceRecord);
+        }
+
+        return $hostsStatusCount;
     }
 
     /**
