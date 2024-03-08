@@ -196,8 +196,11 @@ class CentreonGraph
         $this->onecurve = false;
         $this->checkcurve = false;
 
-        $DBRESULT = $this->DBC->query("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
-        $config = $DBRESULT->fetch();
+
+        $DBRESULT = $this->DBC->prepare("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
+        $DBRESULT->execute();
+        $config = $DBRESULT->fetch(PDO::FETCH_ASSOC);
+
         $this->dbPath = $config["RRDdatabase_path"];
         $this->dbStatusPath = $config['RRDdatabase_status_path'];
         unset($config);
@@ -211,7 +214,7 @@ class CentreonGraph
         unset($opt);
 
         /* Get RRDCacheD options */
-        $result = $this->DB->query(
+        $result = $this->DB->prepare(
             "SELECT config_key, config_value
             FROM cfg_centreonbroker_info AS cbi
             INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
@@ -219,7 +222,8 @@ class CentreonGraph
             WHERE ns.localhost = '1'
             AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
         );
-        while ($row = $result->fetch()) {
+        $result->execute();
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
         }
 
@@ -1521,10 +1525,12 @@ class CentreonGraph
         if (is_null($this->colorCache)) {
             $this->colorCache = array();
 
-            $DBRESULT = $this->DB->query(
-                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = '" . $this->index . "'"
+            $DBRESULT = $this->DB->prepare(
+                "SELECT metric_id, rnd_color FROM `ods_view_details` WHERE `index_id` = :index_id"
             );
-            while (($row = $DBRESULT->fetchRow())) {
+            $DBRESULT->bindParam(':index_id', $this->index, PDO::PARAM_INT);
+            $DBRESULT->execute();
+            while (($row = $DBRESULT->fetch(PDO::FETCH_ASSOC))) {
                 $this->colorCache[$row['metric_id']] = $row['rnd_color'];
             }
         }
