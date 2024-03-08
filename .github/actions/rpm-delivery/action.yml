@@ -70,7 +70,7 @@ runs:
           exit 0
         fi
 
-        for ROOT_REPO_PATH in "test-rpm-standard"; do
+        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
