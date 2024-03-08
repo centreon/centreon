@@ -78,35 +78,28 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        # Custom delivery
-        if [[ "${{ inputs.stability }}" == "pkgtest" ]]; then
-          ROOT_REPO_PATH="installers"
-          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
-          exit 0
-        fi
-
         # Build upload target path based on release_cloud and release_type values
         # if cloud, deliver to testing-<release_type>
         # if non-cloud, delivery to testing as usual
         if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
-          ROOT_REPO_PATH="rpm-standard-internal"
+          ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
-          ROOT_REPO_PATH="rpm-standard"
+          ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         else
           echo "Invalid combination of release_type and release_cloud"
+          exit 1
         fi
 
         # Deliver based on inputs
-        #for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
-        for ROOT_REPO_PATH in "test-rpm-standard" "test-rpm-standard-internal"; do
+        for ROOT_REPO_PATH in "$ROOT_REPO_PATHS"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
                 echo "[DEBUG] - Stability is ${{ inputs.stability }}, not delivering."
               elif [ "${{ inputs.stability }}" == "testing" ]; then
-                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH"
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
               else
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
