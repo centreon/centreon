@@ -31,6 +31,7 @@ export const useBarStackStyles = makeStyles()((theme) => ({
     fontSize: theme.typography.h6.fontSize,
     fontWeight: theme.typography.fontWeightMedium,
     margin: 0,
-    padding: 0
+    padding: 0,
+    textAlign: 'center'
   }
 }));

@@ -34,6 +34,8 @@ export interface ChartType {
   displayType: DisplayType;
   displayValues: boolean;
   getLinkToResourceStatusPage: (resourcesType, status) => string;
+  isHorizontalBar: boolean;
+  isSingleChart: boolean;
   labelNoDataFound: string;
   refreshCount: number;
   refreshIntervalToUse: number | false;

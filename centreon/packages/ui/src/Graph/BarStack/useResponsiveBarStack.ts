@@ -55,7 +55,7 @@ const useResponsiveBarStack = ({
   const verticalGap = heightOfTitle > 0 ? 8 : 0;
 
   const svgWrapperWidth = isVerticalBar
-    ? size + 24
+    ? size + 36
     : width - widthOfLegend - horizontalGap;
 
   const svgContainerSize = {

@@ -1,11 +1,11 @@
-import { includes } from 'ramda';
+import { equals, includes } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useRefreshInterval } from '@centreon/ui';
 
 import { getResourcesUrl } from '../../utils';
 
-import { StatusChartProps } from './models';
+import { DisplayType, StatusChartProps } from './models';
 import Chart from './Chart/Chart';
 import { useStyles } from './StatusChart.styles';
 import {
@@ -21,6 +21,9 @@ const StatusChart = ({
   panelOptions,
   refreshCount
 }: StatusChartProps): JSX.Element => {
+  const { cx, classes } = useStyles();
+  const { t } = useTranslation();
+
   const {
     displayType,
     refreshInterval,
@@ -31,9 +34,8 @@ const StatusChart = ({
     unit
   } = panelOptions;
 
-  const { classes } = useStyles({ displayType });
-
-  const { t } = useTranslation();
+  const isHorizontalBar = equals(displayType, DisplayType.Horizontal);
+  const isSingleChart = equals(resourceTypes.length, 1);
 
   const { resources } = panelData;
 
@@ -54,7 +56,11 @@ const StatusChart = ({
   };
 
   return (
-    <div className={classes.container}>
+    <div
+      className={cx(classes.container, {
+        [classes.flexDirectionColumns]: isHorizontalBar
+      })}
+    >
       {resourceTypes.map((resourceType) => {
         const isOfTypeHost = includes('host', resourceType);
 
@@ -64,6 +70,8 @@ const StatusChart = ({
             displayType={displayType}
             displayValues={displayValues}
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+            isHorizontalBar={isHorizontalBar}
+            isSingleChart={isSingleChart}
             key={resourceType}
             labelNoDataFound={
               isOfTypeHost ? t(labelNoHostsFound) : t(labelNoServicesFound)

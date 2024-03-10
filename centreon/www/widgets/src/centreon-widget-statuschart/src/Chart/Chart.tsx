@@ -18,20 +18,19 @@ const Chart = ({
   resourceType,
   unit,
   title,
-  resourceTypes,
   refreshCount,
   refreshIntervalToUse,
   resources,
   labelNoDataFound,
-  getLinkToResourceStatusPage
+  getLinkToResourceStatusPage,
+  isHorizontalBar,
+  isSingleChart
 }: ChartType): JSX.Element => {
-  const isSingleChart = equals(resourceTypes.length, 1);
+  const { cx, classes } = useStyles();
 
   const isPieCharts =
     equals(displayType, DisplayType.Pie) ||
     equals(displayType, DisplayType.Donut);
-
-  const { classes } = useStyles({ displayType, isSingleChart });
 
   const { data, isLoading } = useLoadResources({
     refreshCount,
@@ -57,7 +56,11 @@ const Chart = ({
   return (
     <div className={classes.container}>
       {isPieCharts ? (
-        <div className={classes.pieChart}>
+        <div
+          className={cx(classes.pieChart, {
+            [classes.singlePieChart]: isSingleChart
+          })}
+        >
           <PieChart
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
@@ -76,7 +79,12 @@ const Chart = ({
           />
         </div>
       ) : (
-        <div className={classes.barStack}>
+        <div
+          className={cx(classes.barStack, {
+            [classes.verticalBar]: !isHorizontalBar,
+            [classes.singleHorizontalBar]: isHorizontalBar && isSingleChart
+          })}
+        >
           <BarStack
             Legend={Legend((status) =>
               getLinkToResourceStatusPage(status, resourceType)
@@ -86,9 +94,7 @@ const Chart = ({
             displayLegend={displayLegend}
             displayValues={displayValues}
             labelNoDataFound={labelNoDataFound}
-            legendDirection={
-              equals(displayType, DisplayType.Horizontal) ? 'row' : 'column'
-            }
+            legendDirection={isHorizontalBar ? 'row' : 'column'}
             size={80}
             title={title}
             unit={unit}
