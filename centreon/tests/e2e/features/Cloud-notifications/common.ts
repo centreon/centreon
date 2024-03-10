@@ -12,9 +12,9 @@ const createNotification = (
 ): Cypress.Chainable => {
   return cy
     .request({
+      body,
       method: 'POST',
-      url: 'centreon/api/latest/configuration/notifications',
-      body: body
+      url: 'centreon/api/latest/configuration/notifications'
     })
     .then((response) => {
       cy.wrap(response);
@@ -24,9 +24,9 @@ const createNotification = (
 const editNotification = (body: typeof notificationBody): Cypress.Chainable => {
   return cy
     .request({
+      body,
       method: 'PUT',
-      url: 'centreon/api/latest/configuration/notifications/1',
-      body: body
+      url: 'centreon/api/latest/configuration/notifications/1'
     })
     .then((response) => {
       cy.wrap(response);
@@ -34,8 +34,8 @@ const editNotification = (body: typeof notificationBody): Cypress.Chainable => {
 };
 
 interface Broker {
-  name: string;
   configName: string;
+  name: string;
 }
 
 const setBrokerNotificationsOutput = ({
@@ -53,7 +53,7 @@ const setBrokerNotificationsOutput = ({
   ];
   modifyLuaFileCommands.forEach((command) => {
     cy.execInContainer({
-      command: command,
+      command,
       name: 'web'
     });
   });
@@ -74,6 +74,7 @@ const setBrokerNotificationsOutput = ({
     object: 'CENTBROKERCFG',
     values: `${configName}`
   };
+
   return cy
     .executeActionViaClapi({
       bodyContent: getBrokerIOIdByNameBody
@@ -113,8 +114,8 @@ const notificationSentCheck = ({
   log,
   contain = true
 }: {
-  log: string;
   contain?: boolean;
+  log: string;
 }): Cypress.Chainable => {
   return cy
     .execInContainer({
@@ -137,7 +138,7 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
       name: 'web'
     })
     .then((result) => {
-      if (result.output === undefined) {
+      if (result.exitCode) {
         throw new Error('No initial output found in log file');
       }
 
@@ -151,15 +152,16 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
               name: 'web'
             })
             .then((result) => {
-              if (result.output === undefined) {
+              if (result.exitCode) {
                 throw new Error('No current output found in log file');
               }
 
               const currentContent = result.output.trim();
+
               return cy.wrap(currentContent !== initialContent);
             });
         },
-        { timeout: 40000, interval: 5000 }
+        { interval: 5000, timeout: 40000 }
       );
     });
 };

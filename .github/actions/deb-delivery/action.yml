@@ -19,6 +19,12 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  release_cloud:
+    description: "Release context (cloud or not cloud)"
+    required: true
 
 runs:
   using: "composite"
