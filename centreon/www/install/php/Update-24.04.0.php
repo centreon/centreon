@@ -202,7 +202,6 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
-
 try {
     $updateWidgetModelsTable($pearDB);
 
