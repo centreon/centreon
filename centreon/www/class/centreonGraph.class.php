@@ -506,7 +506,7 @@ class CentreonGraph
             if (!isset($this->metricsEnabled) || count($this->metricsEnabled) <= 0) {
                 $query = str_replace("vmetric_id IN (:l_vselector)", "index_id = :index_id", $query);
             }
-            $DBRESULT = $this->DBC->prepare($query);
+            $DBRESULT = $this->DB->prepare($query);
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
                 $DBRESULT->bindParam(':l_vselector', $l_vselector);
             } else {
