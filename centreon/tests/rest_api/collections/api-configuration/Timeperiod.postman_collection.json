@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "cc107002-de26-4fce-8b84-2e832253d921",
-		"name": "0 - TimePeriod",
+		"name": "TimePeriod",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-cc107002-de26-4fce-8b84-2e832253d921?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-cc107002-de26-4fce-8b84-2e832253d921?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
