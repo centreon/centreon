@@ -39,13 +39,13 @@ class Healthcheck
     /** @var array|null Collect a custom action after check */
     protected $customAction;
 
-    /** @var \DateTime|null Collect date and time of a license expiration */
+    /** @var DateTime|null Collect date and time of a license expiration */
     protected $licenseExpiration;
 
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {

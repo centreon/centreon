@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace EventSubscriber;
 
+use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -46,7 +47,7 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\{
-    Exception\AccessDeniedException, Security, User\UserInterface
+    Exception\AccessDeniedException, Security
 };
 
 /**

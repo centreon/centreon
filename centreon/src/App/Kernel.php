@@ -33,7 +33,7 @@ class Kernel extends BaseKernel
     use MicroKernelTrait;
     private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
-    /** @var \App\Kernel */
+    /** @var Kernel */
     private static $instance;
 
     /** @var string cache path */
@@ -60,7 +60,7 @@ class Kernel extends BaseKernel
     }
 
     /**
-     * @return \App\Kernel
+     * @return Kernel
      */
     public static function createForWeb(): Kernel
     {

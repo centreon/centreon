@@ -42,7 +42,7 @@ trait ExporterTrait
      * }
      * </code>
      *
-     * @param \Pimple\Container $container
+     * @param Container $container
      */
     public function setUpExporter(Container $container): void
     {

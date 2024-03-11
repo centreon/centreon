@@ -44,15 +44,11 @@ class Escalation implements Mapping\MetadataInterface
     public const TABLE = 'escalation',
                  ENTITY_IDENTIFICATOR_COLUMN = 'esc_id';
 
-    /**
-     * @var int an identification of entity
-     */
+    /** @var int an identification of entity */
     #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @var string escalation name
-     */
+    /** @var string escalation name */
     #[Serializer\Groups([Escalation::SERIALIZER_GROUP_LIST])]
     private $name;
 

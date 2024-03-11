@@ -25,13 +25,13 @@ use Psr\Container\ContainerInterface;
 
 class Utils
 {
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
 
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
