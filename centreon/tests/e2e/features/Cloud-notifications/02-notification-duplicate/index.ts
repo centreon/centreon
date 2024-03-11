@@ -76,10 +76,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given('a Notification Rule is already created', () => {
   createNotification(notificationBody);
 });
@@ -140,7 +136,10 @@ Then('the duplication action is cancelled', () => {
 });
 
 When('the user enters a name that is already taken', () => {
-  cy.get('#Newnotificationname').type(notificationBody.name).blur();
+  cy.get('#Newnotificationname')
+    .as('notificationNameInput')
+    .type(notificationBody.name);
+  cy.get('@notificationNameInput').blur();
 });
 
 Then(
