@@ -8,7 +8,8 @@ import {
   labelName,
   labelStatus
 } from '../translatedLabels';
-import Activate from './Actions/Activate';
+
+import { Activate } from './Actions';
 
 import { Actions } from './Actions';
 
@@ -46,7 +47,6 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.component
     },
     {
-      // TODO: replace Component once action endpoints are implemented
       Component: Activate,
       clickable: true,
       disablePadding: true,

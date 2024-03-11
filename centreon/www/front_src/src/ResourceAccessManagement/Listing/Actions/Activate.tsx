@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { styled } from '@mui/material/styles';
-import { Switch as MUISwitch } from '@mui/material';
+import { Switch as MUISwitch, Tooltip } from '@mui/material';
 
 import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
 
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
+import { labelDisabled, labelEnabled } from '../../translatedLabels';
 
 const Switch = styled(MUISwitch)(({ theme }) => ({
   '& .MuiSwitch-switchBase': {
@@ -26,6 +28,8 @@ const Switch = styled(MUISwitch)(({ theme }) => ({
 
 const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   const queryClient = useQueryClient();
+
+  const { t } = useTranslation();
 
   const [checked, setChecked] = useState(row?.isActivated);
 
@@ -52,7 +56,14 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   return (
-    <Switch checked={checked} color="success" size="small" onClick={onClick} />
+    <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
+      <Switch
+        checked={checked}
+        color="success"
+        size="small"
+        onClick={onClick}
+      />
+    </Tooltip>
   );
 };
 
