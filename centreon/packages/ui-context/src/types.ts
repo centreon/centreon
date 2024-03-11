@@ -23,6 +23,7 @@ export interface User {
   dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
   id?: number;
+  isAdmin?: boolean;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
