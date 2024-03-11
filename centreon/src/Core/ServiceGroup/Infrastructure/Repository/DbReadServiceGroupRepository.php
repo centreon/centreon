@@ -73,8 +73,9 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     LEFT JOIN `:db`.host h
                         ON sgr.host_host_id = h.host_id
                 SQL
-        )
-            ->appendJoins(
+        );
+        if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'hostcategory.id')) {
+            $concatenator->appendJoins(
                 <<<'SQL'
                         LEFT JOIN `:db`.hostcategories_relation hcr
                             ON h.host_id = hcr.host_host_id
@@ -82,8 +83,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                             ON hcr.hostcategories_hc_id = hc.hc_id
                             AND hc.level IS NOT NULL
                     SQL
-            )
-            ->appendJoins(
+            );
+        }
+        if (mb_strpos($requestParameters?->getSearchAsString() ?? '', 'hostgroup.id')) {
+            $concatenator->appendJoins(
                 <<<'SQL'
                         LEFT JOIN `:db`.hostgroup_relation hgr
                             ON  h.host_id = hgr.host_host_id
@@ -91,6 +94,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                             ON hgr.hostgroup_hg_id = hg.hg_id
                     SQL
             );
+        }
 
         return new \ArrayIterator($this->retrieveServiceGroups($concatenator, $requestParameters));
     }
