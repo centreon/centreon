@@ -142,6 +142,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
+     * @param string $cacheDir
+     *
      * @return string[]
      */
     public function warmUp(string $cacheDir)

@@ -167,7 +167,7 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
      * @param int|null $userId
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return list<Token>
      */
