@@ -5,7 +5,6 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1),
-    height: '100%',
     justifyContent: 'center',
     width: '100%'
   },
@@ -32,13 +31,18 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     fontWeight: theme.typography.fontWeightMedium,
     lineHeight: 1
   },
+  labelTextContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center'
+  },
   link: {
     color: 'inherit',
     textDecoration: 'none'
   },
   status: {
-    aspectRatio: '45 / 9',
-    borderRadius: theme.shape.borderRadius
+    borderRadius: theme.shape.borderRadius,
+    height: '138px'
   },
   statusCard: {
     alignItems: 'center',

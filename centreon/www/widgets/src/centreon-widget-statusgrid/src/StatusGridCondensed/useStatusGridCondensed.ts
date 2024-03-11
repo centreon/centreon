@@ -47,6 +47,7 @@ export const useStatusGridCondensed = ({
   });
 
   const { data, isLoading } = useFetchQuery<StatusType>({
+    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     getEndpoint: () =>
       buildResourcesEndpoint({
         baseEndpoint: getStatusesEndpoint(resourceType),

@@ -82,11 +82,19 @@ const StatusCard = ({
             <FluidTypography
               className={classes.countText}
               containerClassName={classes.countTextContainer}
+              max="50px"
+              min="40px"
               text={formatMetricValue({ unit: '', value: count.total || 0 })}
             />
           </div>
           <div className={classes.label}>
-            <FluidTypography className={classes.labelText} text={t(label)} />
+            <FluidTypography
+              className={classes.labelText}
+              containerClassName={classes.labelTextContainer}
+              max="25px"
+              min="20px"
+              text={t(label)}
+            />
           </div>
         </Box>
       </Link>
