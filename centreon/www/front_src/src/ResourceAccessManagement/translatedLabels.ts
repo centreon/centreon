@@ -45,6 +45,12 @@ export const labelDeleteResourceAccessRuleDialogMessage =
   'is used to allow users to access resources.';
 export const labelDeleteResourceAccessRuleWarning =
   'It will be permanently deleted and users will no longer have this permission';
-export const labelFailure = 'Failed to delete resource access rule';
+export const labelFailedToDeleteRule = 'Failed to delete resource access rule';
 export const labelResourceAccessRuleDeletedSuccess =
   'The resource access rule was successfully deleted';
+export const labelDeleteMultipleResourceAccessRules =
+  'Delete multiple resource access rules';
+export const labelFailedToDeleteSelectedRules =
+  'Failed to delete selected resource access rules';
+export const labelResourceAccessRulesDeletedSuccess =
+  'Selected resource access rules were deleted successfully';
