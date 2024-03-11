@@ -49,6 +49,7 @@ export const userDecoder = JsonDecoder.object<User>(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
     id: JsonDecoder.number,
+    isAdmin: JsonDecoder.optional(JsonDecoder.boolean),
     isExportButtonEnabled: JsonDecoder.boolean,
     locale: JsonDecoder.string,
     name: JsonDecoder.string,
@@ -64,6 +65,7 @@ export const userDecoder = JsonDecoder.object<User>(
   },
   'User parameters',
   {
+    isAdmin: 'is_admin',
     isExportButtonEnabled: 'is_export_button_enabled',
     themeMode: 'theme'
   }
