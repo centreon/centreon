@@ -68,10 +68,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 When('no Notification Rules are configured', () => {
   cy.request({
     method: 'GET',
