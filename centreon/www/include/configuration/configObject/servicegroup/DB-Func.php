@@ -114,12 +114,13 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_servicegroupParent_relation
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')';
+                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
+              GROUP BY dependency_dep_id';
     $dbResult = $pearDB->query($query);
     $result = $dbResult->fetch();
 
     //is last parent
-    if ($result['nb_dependency'] == 1) {
+    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
         $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
     }
 }

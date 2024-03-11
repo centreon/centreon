@@ -1,9 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import { createNotification, enableNotificationFeature } from '../common';
-
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const duplicatedNotificationName = 'Duplicated Notification';
@@ -17,7 +19,7 @@ const notificationProperties = [
 ];
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   cy.intercept({
     method: 'GET',
@@ -72,10 +74,6 @@ Given('a user with access to the Notification Rules page', () => {
     rootItemNumber: 3,
     subMenu: 'Notifications'
   });
-});
-
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
 });
 
 Given('a Notification Rule is already created', () => {
@@ -138,7 +136,10 @@ Then('the duplication action is cancelled', () => {
 });
 
 When('the user enters a name that is already taken', () => {
-  cy.get('#Newnotificationname').type(notificationBody.name).blur();
+  cy.get('#Newnotificationname')
+    .as('notificationNameInput')
+    .type(notificationBody.name);
+  cy.get('@notificationNameInput').blur();
 });
 
 Then(
