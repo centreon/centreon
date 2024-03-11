@@ -1033,7 +1033,6 @@ class CentreonServiceTemplate extends CentreonObject
                     $tmp = $this->object->getParameters($element[$param], 'service_description');
                     if (isset($tmp) && isset($tmp['service_description']) && $tmp['service_description']) {
                         $element[$param] = $tmp['service_description'];
-                        CentreonServiceTemplate::getInstance()->export($tmp['service_description']);
                     }
                     if (!$element[$param]) {
                         $element[$param] = "";
@@ -1256,8 +1255,8 @@ class CentreonServiceTemplate extends CentreonObject
             array('service_description'),
             -1,
             0,
-            null,
-            null,
+            'service_description,host_name',
+            'ASC',
             $filters_hostRel,
             "AND"
         );

@@ -11,7 +11,7 @@ const ResourceTable = ({
   setPanelOptions,
   changeViewMode,
   isFromPreview
-}: ResourcesTableProps): JSX.Element => {
+}: Omit<ResourcesTableProps, 'store'>): JSX.Element => {
   const { resources } = panelData;
 
   const {

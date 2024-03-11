@@ -1775,7 +1775,7 @@ msgstr "Auteur"
 
 #: centreon-web/www/install/smarty_translate.php:327
 msgid "Expiration date"
-msgstr "Date de fin de licence"
+msgstr "Date d'expiration"
 
 #: centreon-web/www/install/smarty_translate.php:330
 #: centreon-web/www/include/options/oreon/modules/formModule.php:57
@@ -18141,8 +18141,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18349,8 +18364,8 @@ msgstr "Nom de la métrique"
 msgid "Status grid"
 msgstr "Grille de statut"
 
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
 
 msgid "Display with this resource type"
 msgstr "Afficher avec ce type de ressource"
@@ -18550,6 +18565,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18664,3 +18685,42 @@ msgstr "Ajouter des colonnes"
 
 msgid "Resource table"
 msgstr "Tableau des ressources"
+
+msgid "Fullscreen (Alt+F)"
+msgstr "Plein écran (Alt+F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "The {{name}} widget will be permanently deleted."
+msgstr "Le widget {{name}} sera définitivement supprimé."
+
+msgid "The widget will be permanently deleted."
+msgstr "Le widget sera définitivement supprimé."
+
+msgid "The {{name}} dashboard will be permanently deleted."
+msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
+
+msgid "Invalid page name. Valid page names are: %s"
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"
+
+msgid "You are not allowed to access the Resources Status page"
+msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
+
+msgid "It will be permanently deleted and users will no longer have this permission"
+msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+msgid "Failed to delete resource access rule"
+msgstr "Échec de la suppression de la règle d'accès aux ressources"
+
+msgid "The resource access rule was successfully deleted"
+msgstr "La règle d'accès aux ressouces a été supprimée avec succès"

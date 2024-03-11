@@ -31,6 +31,8 @@ get:
                   properties:
                     id: { type: integer, description: "Contact ID" }
                     name: { type: string,  description: "Contact name" }
+                    email: { type: string,  description: "Contact email" }
+                    most_permissive_role: {type: string, description: "Most Permissive role on dashboards"}
               meta:
                 $ref: '../../Common/Schema/Meta.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }

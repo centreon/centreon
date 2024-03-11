@@ -1,5 +1,7 @@
 import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
+import { initReactI18next } from 'react-i18next';
+import i18next from 'i18next';
 
 import {
   DashboardGlobalRole,
@@ -9,8 +11,8 @@ import {
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
-import { DashboardRole } from './api/models';
 import { DashboardsPage } from './DashboardsPage';
+import { DashboardRole } from './api/models';
 import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
@@ -23,6 +25,7 @@ import {
   labelCreate,
   labelDashboardDeleted,
   labelDelete,
+  labelDeleteDashboard,
   labelDeleteUser,
   labelName,
   labelSave,
@@ -56,7 +59,10 @@ const initializeAndMount = ({
   canAdministrateDashboard = true,
   emptyList,
   layout = DashboardLayout.Library
-}: InitializeAndMountProps): ReturnType<typeof createStore> => {
+}: InitializeAndMountProps): {
+  navigate;
+  store;
+} => {
   const store = createStore();
 
   store.set(userAtom, {
@@ -73,6 +79,11 @@ const initializeAndMount = ({
     timezone: 'Europe/Paris',
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
+  });
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
   });
 
   cy.viewport('macbook-13');
@@ -143,6 +154,9 @@ const initializeAndMount = ({
     layout
   });
 
+  const navigate = cy.stub();
+  cy.stub(routerHooks, 'useNavigate').returns(navigate);
+
   cy.mount({
     Component: (
       <SnackbarProvider>
@@ -157,7 +171,10 @@ const initializeAndMount = ({
     )
   });
 
-  return store;
+  return {
+    navigate,
+    store
+  };
 };
 
 const editorRole = {
@@ -437,7 +454,7 @@ describe('Dashboards', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByLabelText('delete').eq(0).click();
-    cy.contains(labelDelete).click();
+    cy.findByLabelText(labelDelete).click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -451,10 +468,41 @@ describe('Dashboards', () => {
     cy.contains(labelCancel).click();
 
     cy.contains(labelCancel).should('not.exist');
-    cy.contains(labelDelete).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
   });
 
-  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+  it('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).eq(1).click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard in the listing view when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findByLabelText(labelDelete).click();
+
+    cy.contains(labelDeleteDashboard).should('be.visible');
+    cy.contains(
+      'The My Dashboard dashboard will be permanently deleted.'
+    ).should('be.visible');
+
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
+  });
+
+  it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findAllByTestId('edit-access-rights').eq(0).click();
@@ -476,5 +524,43 @@ describe('Dashboards', () => {
     cy.contains(labelSharesSaved).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  describe('Navigation to dashboard', () => {
+    it('navigates to the dashboard page when the listing mode is activated and a row is clicked', () => {
+      const { navigate } = initializeAndMount({
+        ...administratorRole
+      });
+
+      cy.findByTestId('View as list').click();
+
+      cy.contains('Arnaud')
+        .click()
+        .then(() => {
+          expect(navigate).to.be.calledWith('/home/dashboards/library/1');
+        });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not navigate to the dashboard page when the listing mode is activated and a row is clicked on the actions cell', () => {
+      const { navigate } = initializeAndMount({
+        ...administratorRole
+      });
+
+      cy.findByTestId('View as list').click();
+
+      cy.get('.MuiTableRow-root')
+        .first()
+        .get('.MuiTableCell-body')
+        .last()
+        .click()
+        .then(() => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          expect(navigate).to.not.be.called;
+        });
+
+      cy.makeSnapshot();
+    });
   });
 });

@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -66,6 +66,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
 
     runs-on: ubuntu-22.04
 
@@ -162,6 +165,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
@@ -170,7 +175,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -185,6 +190,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
@@ -208,3 +215,5 @@ jobs:
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
           github_base_ref: ${{ github.base_ref }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}

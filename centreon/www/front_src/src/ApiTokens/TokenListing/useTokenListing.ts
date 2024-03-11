@@ -1,34 +1,44 @@
 import { useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
 
 import { listTokensDecoder } from '../api/decoder';
 import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
-import { currentFilterAtom } from './Actions/Search/Filter/atoms';
-import { Fields, SortOrder } from './Actions/Search/Filter/models';
+import {
+  currentFilterAtom,
+  customQueryParametersAtom
+} from './Actions/Filter/atoms';
+import { Fields, SortOrder } from './Actions/Filter/models';
 import { DataListing, SortParams, UseTokenListing } from './models';
 
-export const useTokenListing = (): UseTokenListing => {
+interface Props {
+  enabled?: boolean;
+}
+
+export const useTokenListing = ({ enabled }: Props): UseTokenListing => {
   const [dataListing, setDataListing] = useState<DataListing | undefined>();
-  const [enabled, setEnabled] = useState(false);
+  const [defaultEnabled, setDefaultEnabled] = useState(false);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const customQueryParameters = useAtomValue(customQueryParametersAtom);
 
   const getEndpoint = (): string => {
     return buildListEndpoint({
+      customQueryParameters,
       endpoint: listTokensEndpoint,
       parameters: currentFilter
     });
   };
 
-  const { data, isLoading, isError, refetch } = useFetchQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useFetchQuery({
     decoder: listTokensDecoder,
     getEndpoint,
-    getQueryKey: () => ['listTokens', currentFilter],
+    getQueryKey: () => ['listTokens', currentFilter, customQueryParameters],
     queryOptions: {
-      enabled,
+      enabled: !isNil(enabled) ? enabled : defaultEnabled,
       suspense: false
     }
   });
@@ -50,7 +60,7 @@ export const useTokenListing = (): UseTokenListing => {
     });
   };
   useEffect(() => {
-    setEnabled(true);
+    setDefaultEnabled(true);
   }, []);
 
   useEffect(() => {
@@ -85,6 +95,7 @@ export const useTokenListing = (): UseTokenListing => {
           limit: currentFilter?.limit,
           page: currentFilter?.page
         } as DataListing),
+    isRefetching,
     onSort,
     refetch,
     sortOrder: Object.values(currentFilter?.sort)[0] as SortOrder,

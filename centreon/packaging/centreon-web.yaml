@@ -404,8 +404,8 @@ overrides:
       - bc
       - cronie
       - initscripts
+      - "(mariadb or mysql)"
       - httpd
-      - mariadb
       - php-common >= 8.1
       - php-cli
       - php-pdo
@@ -487,6 +487,7 @@ overrides:
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - lsb-release
+      - "mariadb-client | mysql-client"
       - apache2
       - php8.1
       - php8.1-cli
@@ -510,7 +511,7 @@ overrides:
       - gettext
       - rsync
       - brotli
-      - lua-curl
+      - lua5.3-curl
     provides:
       - centreon-web-apache
       - centreon-web-common

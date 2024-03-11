@@ -14,12 +14,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+    - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
       with:
         version: 8
         run_install: false
 
-    - uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
+    - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
       with:
         node-version: 20
         cache: pnpm
@@ -35,7 +35,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
-      uses: nick-fields/retry@v2
+      uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
       with:
         timeout_seconds: 120
         max_attempts: 10
@@ -44,7 +44,7 @@ runs:
         command: cd ${{ inputs.module }} && pnpm cypress install --force
 
     - name: Cypress web component testing
-      uses: cypress-io/github-action@v5
+      uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
       with:
         browser: chrome
         component: true
@@ -60,12 +60,12 @@ runs:
       run: node centreon/packages/js-config/cypress/component/excludeNodeModulesFromCoverage.js ${{ inputs.module }}/.nyc_output/out.json
 
     - name: Archive test results
-      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
       if: ${{ failure() }}
       with:
         name: component-test-results
         path: |
           ${{ inputs.module }}/cypress/results/videos
           ${{ inputs.module }}/cypress/screenshots
-          ${{ inputs.module }}/cypress/visual-testing-snapshots
+          ${{ inputs.module }}/cypress/visual-testing-snapshots/**/*.diff.png
         retention-days: 1

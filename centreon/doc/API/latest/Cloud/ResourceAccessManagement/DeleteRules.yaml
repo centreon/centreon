@@ -1,0 +1,18 @@
+post:
+  tags:
+    - Resource Access Management
+  summary: 'Delete multiple resource access rule configurations'
+  description: |
+    Delete multiple resource access rule configurations
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "Schema/DeleteRulesRequest.yaml"
+  responses:
+    '207': { $ref: '../../../Common/Response/MultiStatus.yaml' }
+    '400': { $ref: '../../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }
+

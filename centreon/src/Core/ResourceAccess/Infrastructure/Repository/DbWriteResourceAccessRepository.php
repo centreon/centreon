@@ -27,14 +27,16 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\NewRule;
+use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;
@@ -47,6 +49,119 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     {
         $this->db = $db;
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
+    }
+
+    /**
+     * @inheritDoc
+     * Here are the deletions (on cascade or not) that will occur on rule deletion
+     *     - Contact relations (ON DELETE CASCADE)
+     *     - Contact Group relations (ON DELETE CASCADE)
+     *     - Datasets relations + datasets (NEED MANUAL DELETION)
+     *     - DatasetFilters (ON DELETE CASCADE).
+     */
+    public function deleteRuleAndDatasets(int $ruleId): void
+    {
+        $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->deleteDatasets($datasetIds);
+            $this->deleteRule($ruleId);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param int[] $ids
+     */
+    public function deleteDatasets(array $ids): void
+    {
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':dataset_id_');
+
+        $request = <<<SQL
+                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Rule $rule): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->updateBasicInformation($rule);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactRuleRelations(int $ruleId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.acl_group_contacts_relations WHERE acl_group_id = :ruleId
+                SQL
+        ));
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactGroupRuleRelations(int $ruleId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.acl_group_contactgroups_relations WHERE acl_group_id = :ruleId
+                SQL
+        ));
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -66,14 +181,6 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function addDatasetFilter(int $ruleId, int $datasetId, DatasetFilter $filter, ?int $parentFilterId): int
     {
-        $this->debug(
-            'Add dataset filter',
-            [
-                'type' => $filter->getType(),
-                'resource_ids' => $filter->getResourceIds(),
-            ]
-        );
-
         $request = $this->translateDbName(
             <<<'SQL'
                     INSERT INTO `:db`.dataset_filters (parent_id, type, acl_group_id, acl_resource_id, resource_ids)
@@ -99,13 +206,6 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkDatasetToRule(int $ruleId, int $datasetId): void
     {
-        $this->debug(
-            'Add relation between rule and dataset',
-            [
-                'acl_resource_id' => $datasetId,
-                'acl_group_id' => $ruleId,
-            ]
-        );
         $request = $this->translateDbName(
             <<<'SQL'
                     INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) VALUES (:datasetId, :ruleId)
@@ -143,14 +243,11 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void
     {
-        $this->debug(
-            'Add relation between contacts and rule',
-            ['rule_id' => $ruleId, 'contacts' => $contactIds]
-        );
-
         if ([] === $contactIds) {
             return;
         }
+
+        $contactIds = array_values(array_unique($contactIds));
 
         $bindValues = [];
         $subValues = [];
@@ -183,8 +280,6 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function add(NewRule $rule): int
     {
-        $this->debug('Add resource access rule');
-
         $alreadyInTransaction = $this->db->inTransaction();
         if (! $alreadyInTransaction) {
             $this->db->beginTransaction();
@@ -196,8 +291,6 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
-
-            $this->debug('Resource access rule added with ID ' . $ruleId);
 
             return $ruleId;
         } catch (\Throwable $exception) {
@@ -216,14 +309,11 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void
     {
-        $this->debug(
-            'Add relation between contact groups and rule',
-            ['rule_id' => $ruleId, 'contact_groups' => $contactGroupIds]
-        );
-
         if ([] === $contactGroupIds) {
             return;
         }
+
+        $contactGroupIds = array_values(array_unique($contactGroupIds));
 
         $bindValues = [];
         $subValues = [];
@@ -247,6 +337,79 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         foreach ($bindValues as $bindKey => $bindValue) {
             $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
         }
+
+        $statement->execute();
+    }
+
+    /**
+     * @param int $ruleId
+     *
+     * @return int[]
+     */
+    private function findDatasetIdsByRuleId(int $ruleId): array
+    {
+        // Retrieve first all the datasets linked to the rule
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        SELECT acl_res_id FROM `:db`.acl_res_group_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $ruleId
+     */
+    private function deleteRule(int $ruleId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'DELETE FROM `:db`.acl_groups WHERE acl_group_id = :ruleId AND cloud_specific = 1'
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    private function updateBasicInformation(Rule $rule): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    UPDATE
+                        `:db`.acl_groups
+                    SET
+                        acl_group_name = :name,
+                        acl_group_alias = :alias,
+                        acl_group_changed = '1',
+                        cloud_description = :description,
+                        acl_group_activate = :status,
+                        cloud_specific = 1
+                    WHERE
+                        acl_group_id = :ruleId
+                SQL
+        ));
+
+        $statement->bindValue(':name', $rule->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $rule->getName(), \PDO::PARAM_STR);
+
+        $statement->bindValue(
+            ':description',
+            $this->emptyStringAsNull($rule->getDescription() ?? ''),
+            \PDO::PARAM_STR
+        );
+        $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
     }

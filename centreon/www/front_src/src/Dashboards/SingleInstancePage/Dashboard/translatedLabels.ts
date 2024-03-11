@@ -15,12 +15,14 @@ export const labelSelectAWidgetType = 'Select a widget type';
 export const labelSearch = 'Search';
 export const labelNoWidgetFound = 'No widget found';
 export const labelDeleteAWidget = 'Delete widget';
-export const labelDoYouWantToDeleteThisWidget =
-  'Do you want to delete this widget?';
 export const labelWidgetType = 'Widget type';
 export const labelPleaseChooseAWidgetToActivatePreview =
   'Select a widget type to activate the preview.';
 export const labelDeleteWidget = 'Delete widget';
+export const labelTheWidgetWillBeDeletedWithName =
+  'The {{name}} widget will be permanently deleted.';
+export const labelTheWidgetWillBeDeleted =
+  'The widget will be permanently deleted.';
 export const labelTitle = 'Title';
 export const labelDescription = 'Description';
 export const labelWidgetProperties = 'Widget properties';

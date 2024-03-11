@@ -18,6 +18,7 @@ import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardC
 import { Dashboard as DashboardType } from '../../api/models';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { isSharesOpenAtom } from '../../atoms';
+import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
@@ -27,6 +28,7 @@ import { AddWidgetButton } from './AddEditWidget';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
+import DeleteWidgetModal from './components/DeleteWidgetModal';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -83,6 +85,7 @@ const Dashboard = (): ReactElement => {
             />
           </PageHeader.Main>
           <PageHeader.Message message={unsavedChangesWarning} />
+          <DashboardNavbar />
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
@@ -133,6 +136,7 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
+      <DeleteWidgetModal />
     </PageLayout>
   );
 };

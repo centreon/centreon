@@ -414,6 +414,12 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
       responses:
         "200":
           description: "OK"
@@ -1552,6 +1558,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/shares:
+    $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
@@ -5060,7 +5068,8 @@ components:
     FilterPageName:
       in: path
       name: page_name
-      description: "name of the page"
+      description: |
+        name of the page. Currently only 'events-view' is allowed.
       required: true
       schema:
         type: string
