@@ -6,8 +6,10 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
-import { labelSearchOptions } from '../../../../translatedLabels';
-import { useStyles } from '../../actions.styles';
+import { labelSearchOptions } from '../../../translatedLabels';
+import { useStyles } from '../actions.styles';
+
+import Filter from './Filter';
 
 const TokenFilter = (): JSX.Element => {
   const { classes } = useStyles();
@@ -18,13 +20,14 @@ const TokenFilter = (): JSX.Element => {
       fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
     >
       <PopoverMenu
-        className={classes.spacing}
+        className={classes.popoverMenu}
         dataTestId={labelSearchOptions}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-start"
+        popperPlacement="bottom-end"
+        popperProps={{ className: classes.popoverMenu }}
         title={t(labelSearchOptions) as string}
       >
-        {(): JSX.Element => <div />}
+        {(): JSX.Element => <Filter />}
       </PopoverMenu>
     </Suspense>
   );
