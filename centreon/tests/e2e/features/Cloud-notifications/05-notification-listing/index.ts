@@ -11,18 +11,9 @@ import data from '../../../fixtures/notifications/data-for-notification.json';
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
 
-beforeEach(() => {
+before(() => {
   cy.startContainers();
   enableNotificationFeature();
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
-  }).as('getNotifications');
 
   cy.addHostGroup({
     name: data.hostGroups.hostGroup1.name
@@ -56,8 +47,27 @@ beforeEach(() => {
   ]);
 });
 
-afterEach(() => {
+after(() => {
   cy.stopContainers();
+});
+
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+  }).as('getNotifications');
+});
+
+afterEach(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM notification'
+  });
 });
 
 Given('a user with access to the Notification Rules page', () => {
