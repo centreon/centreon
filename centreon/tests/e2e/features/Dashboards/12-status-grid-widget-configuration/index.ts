@@ -142,7 +142,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  cy.executeCentAcl();
+  cy.applyAcl();
 });
 
 beforeEach(() => {

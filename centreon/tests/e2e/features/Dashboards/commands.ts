@@ -116,7 +116,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('executeCentAcl', () => {
+Cypress.Commands.add('applyAcl', () => {
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
     : 'www-data';
@@ -151,8 +151,8 @@ type widgetJSONData =
 declare global {
   namespace Cypress {
     interface Chainable {
+      applyAcl: () => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
-      executeCentAcl: () => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patch: widgetJSONData
