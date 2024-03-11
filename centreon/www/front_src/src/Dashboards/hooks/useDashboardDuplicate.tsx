@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { map, omit } from 'ramda';
+import { omit } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useFetchQuery, useSnackbar } from '@centreon/ui';
