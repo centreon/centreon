@@ -24,7 +24,6 @@ import {
 import {
   ShowInput,
   WidgetDataResource,
-  WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
