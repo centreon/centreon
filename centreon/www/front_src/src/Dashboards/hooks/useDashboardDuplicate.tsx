@@ -10,21 +10,21 @@ import {
   labelFailedToDuplicateDashboard
 } from '../translatedLabels';
 import { dashboardToDuplicateAtom } from '../atoms';
-import { useUpdateDashboard } from '../api/useUpdateDashboard';
 import { dashboardsEndpoint } from '../api/endpoints';
+import { Dashboard } from '../api/models';
 
 type UseDashboardForm = (name) => void;
 
 const useDashboardDuplicate = (): UseDashboardForm => {
   const { t } = useTranslation();
-  const dashboardToDuplicate = useAtomValue(dashboardToDuplicateAtom);
-
-  const { mutate: duplicateDashboardMutation } = useCreateDashboard();
-  const { mutate: setPanelToDuplicatedDashboard } = useUpdateDashboard();
 
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
-  const { data: dashboard } = useFetchQuery({
+  const dashboardToDuplicate = useAtomValue(dashboardToDuplicateAtom);
+
+  const { mutate: duplicateDashboardMutation } = useCreateDashboard();
+
+  const { data: dashboard } = useFetchQuery<Dashboard>({
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardToDuplicate?.id}`,
     getQueryKey: () => ['dashboardToDuplicate', dashboardToDuplicate?.id],
     queryOptions: {
@@ -34,27 +34,23 @@ const useDashboardDuplicate = (): UseDashboardForm => {
   });
 
   const duplicateDashboard = (name): void => {
-    const panels = map((panel) => omit(['id'], panel), dashboard?.panels);
+    const { panels, description, refresh } = dashboard as Dashboard;
+
+    const panelsWithoutIds = panels?.map((panel) => omit(['id'], panel));
 
     const payload = {
-      description: dashboard?.description,
-      name
-      // panels,
-      // refresh: dashboard?.refresh
+      description,
+      name,
+      panels: panelsWithoutIds,
+      refresh
     };
 
     duplicateDashboardMutation(payload)
-      .then(() => {
-        showSuccessMessage(t(labelDashboardDuplicated));
+      .then((response) => {
+        if (!response?.isError) {
+          showSuccessMessage(t(labelDashboardDuplicated));
+        }
       })
-      // .then((response) => {
-      //   setPanelToDuplicatedDashboard({
-      //     id: response?.id,
-      //     panels,
-      //     refresh: dashboard?.refresh
-      //   });
-      //   showSuccessMessage(t(labelDashboardDuplicated));
-      // })
       .catch(() => showErrorMessage(t(labelFailedToDuplicateDashboard)));
   };
 
