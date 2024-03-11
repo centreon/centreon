@@ -1,9 +1,14 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import '../commands';
 
+const token = {
+  duration: '7 days',
+  name: 'myToken',
+  user: 'Guest'
+};
+
 beforeEach(() => {
   cy.startContainers();
-  cy.enableAPITokensFeature();
 
   cy.intercept({
     method: 'GET',
@@ -80,37 +85,38 @@ Then('a new basic API token with hidden display is generated', () => {
   cy.get('@generatedToken').should('have.attr', 'type', 'password');
 });
 
-Given('a basic API token is generated', () => {});
+Given('a basic API token is generated', () => {
+  cy.getByTestId({ testId: 'Create new token' }).click();
 
-When('I click to reveal the token', () => {});
+  cy.get('#tokenName').type(token.name);
 
-Then('the token is displayed', () => {});
+  cy.get('#User').click();
+  cy.wait('@getUsers');
+  cy.contains(token.user).click();
 
-Then('the "copy to clipboard" button is clicked', () => {});
+  cy.get('#Duration').click();
+  cy.contains(token.duration).click();
 
-Then(
-  'the "copy to clipboard" button is replaced with the check button',
-  () => {}
-);
+  cy.getByTestId({ testId: 'Confirm' }).click();
 
-Then('the token is successfully copied', () => {});
+  cy.wait('@getTokens');
+});
 
-When('I click on the "Save" button', () => {});
+When('I click to reveal the token', () => {
+  cy.getByLabel({ label: 'toggle password visibility', tag: 'button' }).click();
+});
 
-Then('the token is saved successfully', () => {});
+Then('the token is displayed', () => {
+  cy.getByTestId({ testId: 'tokenInput' }).should('have.attr', 'type', 'text');
+});
 
-Given(
-  'there is an existing basic API token with the following details:',
-  (dataTable) => {}
-);
+Then('the "copy to clipboard" button is clicked', () => {
+  cy.getByTestId({ testId: 'clipboard' }).click();
+});
 
-When('I click on the token to edit', () => {});
-
-When('I modify the token details as follows:', (dataTable) => {});
-
-Then('the token and its modified details are saved successfully', () => {});
-
-Then(
-  'the updated token details are displayed correctly on the API tokens page',
-  () => {}
-);
+Then('the token is successfully copied', () => {
+  cy.get('.MuiAlert-message').should(
+    'have.text',
+    'Token copied to the clipboard'
+  );
+});
