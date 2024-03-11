@@ -329,7 +329,7 @@ describe('Listing row actions: Delete button', () => {
   });
 });
 
-describe('Listing row actions: Enable/Disable button', () => {
+describe('Listing row actions enable-disable action', () => {
   it('displays an error message upon failed disabling', () => {
     cy.interceptAPIRequest({
       alias: 'defaultRequest',
