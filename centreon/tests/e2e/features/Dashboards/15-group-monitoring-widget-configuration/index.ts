@@ -436,7 +436,8 @@ Given('a dashboard configuring group monitoring widget', () => {
 When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
-    cy.contains('Host').click({ force: true });
+    cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
+    cy.get('input[name="host"].PrivateSwitchBase-input').click();
   }
 );
 
