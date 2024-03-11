@@ -23,6 +23,25 @@ Feature: Creating a Notification Rule
     And the notification refresh_delay has been reached
     Then an email is sent to the configured '<contact_settings>' with the configured format
     Examples:
-      | contact_settings                            | resource_type                           |
-      | a single contact                            | host group                              |
-      | two contacts                                | host group and services for these hosts |
+      | contact_settings | resource_type                           |
+      | a single contact | host group                              |
+      | two contacts     | host group and services for these hosts |
+
+  @ignore
+  Scenario Outline: Creating a large volume Notification Rule for <contact_settings>
+    Given a minimum of 1000 services linked to a host group and <contact_settings>
+    When the user defines a name for the rule
+    And the user selects a host group with its linked services and with associated events on which to notify
+    And the user selects the <contact_settings>
+    And the user defines a mail subject
+    And the user defines a mail body
+    And the user clicks on the "Save" button to confirm
+    Then a success message is displayed and the created Notification Rule is displayed in the listing
+    When changes occur in the configured statuses for the selected host group
+    And the hard state has been reached
+    And the notification refresh_delay has been reached
+    Then an email is sent to the configured <contact_settings> with the configured format
+    Examples:
+      | contact_settings |
+      | a single contact |
+      | two contacts     |

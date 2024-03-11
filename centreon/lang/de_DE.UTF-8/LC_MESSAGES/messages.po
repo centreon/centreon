@@ -16437,6 +16437,12 @@ msgstr "Erweiterter Modus"
 # msgid "Delete token"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -16549,6 +16555,12 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Resource table"
+# msgstr ""
+
+# msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
 # msgstr ""
 
 # msgid "Fullscreen (Alt+F)"
