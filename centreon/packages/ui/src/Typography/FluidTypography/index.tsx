@@ -4,6 +4,9 @@ type CustomTypographyProps = Pick<TypographyProps, 'variant'>;
 export interface FluidTypographyProps extends CustomTypographyProps {
   className?: string;
   containerClassName?: string;
+  max?: string;
+  min?: string;
+  pref?: number;
   text: string;
 }
 
@@ -11,7 +14,10 @@ const FluidTypography = ({
   text,
   variant = 'body1',
   className,
-  containerClassName
+  containerClassName,
+  min = '10px',
+  max = '1000px',
+  pref = 19
 }: FluidTypographyProps): JSX.Element => {
   return (
     <div
@@ -25,7 +31,7 @@ const FluidTypography = ({
       <Typography
         className={className}
         sx={{
-          fontSize: `clamp(10px, 19cqi, 1000px)`
+          fontSize: `clamp(${min}, ${pref}cqi, ${max})`
         }}
         variant={variant}
       >
