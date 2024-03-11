@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 
@@ -63,7 +63,7 @@ export const useWidgetInputs = (
 ): Array<WidgetPropertiesRenderer> | null => {
   const { values, validateForm } = useFormikContext<Widget>();
 
-  const [widgetProperties, setWidgetProperties] = useAtom(widgetPropertiesAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
@@ -97,13 +97,6 @@ export const useWidgetInputs = (
           })
         : null,
     [selectedWidgetProperties]
-  );
-
-  useEffect(
-    () => {
-      setWidgetProperties(inputs);
-    },
-    useDeepCompare([inputs])
   );
 
   useEffect(

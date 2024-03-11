@@ -12,7 +12,10 @@ import * as Yup from 'yup';
 import { TFunction } from 'i18next';
 import { FormikValues } from 'formik';
 
-import { FederatedWidgetOptionType } from '../../../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  FederatedWidgetOptionType
+} from '../../../../../../federatedModules/models';
 import {
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
@@ -43,7 +46,7 @@ const metricSchema = Yup.object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: WidgetPropertyProps;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   t: TFunction;
 }
 
@@ -135,7 +138,7 @@ const getYupValidatorType = ({
   ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  properties: WidgetPropertyProps;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   t: TFunction;
 }
 
