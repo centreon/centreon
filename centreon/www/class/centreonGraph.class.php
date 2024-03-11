@@ -442,7 +442,7 @@ class CentreonGraph
             /* Create selector for reals metrics */
             if (count($l_rmEnabled)) {
                 $l_rselector =
-                     implode(
+                    implode(
                         ",",
                         array_map(array("CentreonGraph", "quote"), $l_rmEnabled)
                     );
@@ -470,14 +470,18 @@ class CentreonGraph
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
+
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
-                $query .= ' AND metric_id IN (:l_rselector)' .
+                $l_rselector = implode(',', array_fill(0, count($l_rmEnabled), '?'));
+                $query .= ' AND metric_id IN ('. $l_rselector .')' .
                     ' ORDER BY m.metric_name';
                 $DBRESULT = $this->DBC->prepare($query);
-                $DBRESULT->bindParam(':l_rselector', $l_rselector);
+                foreach ($l_rmEnabled as $i => $metric_id) {
+                    $DBRESULT->bindValue(($i + 1), $metric_id);
+                }
             }else {
                 $query .= ' AND index_id = :index_id' .
-                ' ORDER BY m.metric_name';
+                    ' ORDER BY m.metric_name';
                 $DBRESULT = $this->DBC->prepare($query);
                 $DBRESULT->bindParam(':index_id', $this->index);
             }
@@ -496,11 +500,15 @@ class CentreonGraph
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
+            /* Create selector for reals metrics */
+            $l_vselector = implode(',', array_fill(0, count($l_vmEnabled), '?'));
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
-                $query_vselector .= ' AND vmetric_id IN (:l_vselector)' .
+                $query_vselector .= ' AND vmetric_id IN ('. $l_vselector .')' .
                     ' ORDER BY vmetric_name';
                 $DBRESULT = $this->DB->prepare($query_vselector);
-                $DBRESULT->bindParam(':l_vselector', $l_vselector);
+                foreach ($l_vmEnabled as $i => $vmetric_id) {
+                    $DBRESULT->bindValue(($i + 1), $vmetric_id);
+                }
             } else{
                 $query_vselector .= ' AND index_id = :index_id' .
                     ' ORDER BY vmetric_name';
