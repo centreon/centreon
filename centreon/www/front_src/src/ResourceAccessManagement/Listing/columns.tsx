@@ -9,12 +9,7 @@ import {
   labelStatus
 } from '../translatedLabels';
 
-import { Activate } from './Actions';
-
-import { Actions } from './Actions';
-
-// TODO: remove this component once action endpoints are implemented
-export const Placeholder = (): JSX.Element => <div />;
+import { Actions, Activate } from './Actions';
 
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();

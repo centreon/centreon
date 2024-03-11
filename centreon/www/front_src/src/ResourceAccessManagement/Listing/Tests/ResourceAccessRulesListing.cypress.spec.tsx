@@ -7,6 +7,7 @@ import ResourceAccessRulesListing from '../Listing';
 import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
 import {
+  labelActiveOrInactive,
   labelCancel,
   labelDelete,
   labelDeleteResourceAccessRule,
@@ -321,6 +322,38 @@ describe('Listing row actions: Delete button', () => {
     cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
     cy.findByLabelText(labelDelete).click();
     cy.waitForRequest('@deleteResourceAccessRuleFailedRequest');
+
+    cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Listing row actions: Enable/Disable button', () => {
+  it('displays an error message upon failed disabling', () => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildResourceAccessRulesEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'activateRuleRequest',
+      method: Method.PATCH,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.render(ListingWithQueryProvider);
+
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByLabelText(labelActiveOrInactive).eq(0).click();
+    cy.waitForRequest('@activateRuleRequest');
 
     cy.findByText('internal server error').should('be.visible');
 
