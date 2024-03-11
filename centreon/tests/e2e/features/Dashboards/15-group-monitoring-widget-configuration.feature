@@ -7,7 +7,7 @@ Feature: Configuring group monitoring widget
   Scenario: Creating and configuring a group monitoring Grid widget on a dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
-    And selects the widget type "Group monitoring"
+    And the dashboard administrator user selects the widget type "Group monitoring"
     Then configuration properties for the Group monitoring widget are displayed
     When the dashboard administrator user selects resources for the widget
     Then a table representing the statuses of this list of resources are displayed in the widget preview

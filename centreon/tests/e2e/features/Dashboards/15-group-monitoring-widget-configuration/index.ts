@@ -94,9 +94,7 @@ before(() => {
       maxCheckAttempts: 1,
       name: services.serviceCritical.name,
       template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
-
+    });
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceCritical.host,
@@ -144,13 +142,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.executeCentAcl();
 });
 
 beforeEach(() => {
@@ -219,10 +211,13 @@ When(
   }
 );
 
-When('selects the widget type "Group monitoring"', () => {
-  cy.getByTestId({ testId: 'Widget type' }).click();
-  cy.contains('Group monitoring').click();
-});
+When(
+  'the dashboard administrator user selects the widget type "Group monitoring"',
+  () => {
+    cy.getByTestId({ testId: 'Widget type' }).click();
+    cy.contains('Group monitoring').click();
+  }
+);
 
 Then(
   'configuration properties for the Group monitoring widget are displayed',
