@@ -1,3 +1,4 @@
+@REQ_MON-34530
 Feature: Configuring group monitoring widget
   As a Centreon User with dashboard update rights,
   I need to configure a widget containing a group monitoring on a dashboard
