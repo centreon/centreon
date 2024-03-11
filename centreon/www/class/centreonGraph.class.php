@@ -398,7 +398,7 @@ class CentreonGraph
      */
     private static function quote($elem)
     {
-        return "'" . $elem . "'";
+        return $elem ;
     }
 
     /**
@@ -408,7 +408,7 @@ class CentreonGraph
      */
     private static function vquote($elem)
     {
-        return "'" . substr($elem, 1, strlen($elem) - 1) . "'";
+        return  substr($elem, 1, strlen($elem) - 1) ;
     }
 
 
@@ -471,13 +471,13 @@ class CentreonGraph
         /* Manage reals metrics */
         if (isset($l_rselector)) {
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
-                $query .= ' AND metric_id IN (' . $l_rselector . ')' .
-                    'ORDER BY m.metric_name';
+                $query .= ' AND metric_id IN (:l_rselector)' .
+                    ' ORDER BY m.metric_name';
                 $DBRESULT = $this->DBC->prepare($query);
-            }else
-            {
+                $DBRESULT->bindParam(':l_rselector', $l_rselector);
+            }else {
                 $query .= ' AND index_id = :index_id' .
-                'ORDER BY m.metric_name';
+                ' ORDER BY m.metric_name';
                 $DBRESULT = $this->DBC->prepare($query);
                 $DBRESULT->bindParam(':index_id', $this->index);
             }
@@ -497,13 +497,13 @@ class CentreonGraph
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
-                $query_vselector .= ' AND vmetric_id IN ( ' . $l_vselector . ' )' .
-                    'ORDER BY vmetric_name';
+                $query_vselector .= ' AND vmetric_id IN (:l_vselector)' .
+                    ' ORDER BY vmetric_name';
                 $DBRESULT = $this->DB->prepare($query_vselector);
-            }
-            else{
+                $DBRESULT->bindParam(':l_vselector', $l_vselector);
+            } else{
                 $query_vselector .= ' AND index_id = :index_id' .
-                    'ORDER BY vmetric_name';
+                    ' ORDER BY vmetric_name';
                 $DBRESULT = $this->DB->prepare($query_vselector);
                 $DBRESULT->bindParam(':index_id', $this->index);
             }
