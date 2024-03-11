@@ -9,6 +9,8 @@ import {
   labelStatus
 } from '../translatedLabels';
 
+import { Actions } from './Actions';
+
 // TODO: remove this component once action endpoints are implemented
 export const Placeholder = (): JSX.Element => <div />;
 
@@ -35,8 +37,7 @@ const useListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
-      // TODO: replace Component once action endpoints are implemented
-      Component: Placeholder,
+      Component: Actions,
       clickable: true,
       disablePadding: true,
       id: 'actions',

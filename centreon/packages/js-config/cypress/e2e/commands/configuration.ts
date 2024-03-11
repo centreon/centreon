@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import { Action } from 'e2e/features/ACLs/commands';
+
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 
@@ -496,9 +498,172 @@ Cypress.Commands.add(
   }
 );
 
+interface ACLGroup {
+  alias?: string | null;
+  contacts?: string[];
+  contactGroups?: string[];
+  name: string;
+}
+
+Cypress.Commands.add(
+  'addACLGroup',
+  ({
+    alias = null,
+    contacts = [],
+    contactGroups = [],
+    name
+  }: ACLGroup): Cypress.Chainable => {
+    const ACLGroupALias = alias === null ? name : alias;
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'ACLGROUP',
+          values: `${name};${ACLGroupALias}`
+        }
+      })
+      .then(() => {
+        if (contacts) {
+          contacts.map((contact) => {
+            cy.executeActionViaClapi({
+              bodyContent: {
+                action: 'ADDCONTACT',
+                object: 'ACLGROUP',
+                values: `${name};${contact}`
+              }
+            });
+          });
+        }
+        if (contactGroups) {
+          contactGroups.map((contactGroup) => {
+            cy.executeActionViaClapi({
+              bodyContent: {
+                action: 'ADDCONTACTGROUP',
+                object: 'ACLGROUP',
+                values: `${name};${contactGroup}`
+              }
+            });
+          });
+        }
+      });
+  }
+);
+
+interface ACLMenu {
+  name: string;
+  rule?: string[];
+  alias?: string | null;
+  includeChildren?: boolean;
+  readOnly?: boolean;
+}
+
+Cypress.Commands.add(
+  'addACLMenu',
+  ({
+    name,
+    rule = [],
+    alias = null,
+    includeChildren = true,
+    readOnly = false
+  }: ACLMenu): Cypress.Chainable => {
+    const ACLMenuAlias = alias === null ? name : alias;
+    const action = readOnly ? 'GRANTRO' : 'GRANTRW';
+    const children = includeChildren ? '1' : '0';
+
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'ACLMENU',
+          values: `${name};${ACLMenuAlias}`
+        }
+      })
+      .then(() => {
+        if (rule.length == 0) {
+          return cy.wrap(null);
+        }
+
+        let ruleCommand = '';
+        rule.map((rulePage, index) => {
+          ruleCommand += rulePage + (index == rule.length - 1 ? '' : ';');
+        });
+        cy.executeActionViaClapi({
+          bodyContent: {
+            action: action,
+            object: 'ACLMENU',
+            values: `${name};${children};${ruleCommand}`
+          }
+        });
+        return cy.wrap(null);
+      });
+  }
+);
+
+interface ACLAction {
+  name: string;
+  description: string;
+  actions?: Action[];
+}
+
+Cypress.Commands.add(
+  'addACLAction',
+  ({ name, description, actions = [] }: ACLAction): Cypress.Chainable => {
+    return cy
+      .executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'ACLACTION',
+          values: `${name};${description}`
+        }
+      })
+      .then(() => {
+        if (actions.length == 0) {
+          return cy.wrap(null);
+        }
+
+        let actionCommand = '';
+        actions.map((action, index) => {
+          actionCommand += action + (index == actions.length - 1 ? '' : '|');
+        });
+        cy.executeActionViaClapi({
+          bodyContent: {
+            action: 'GRANT',
+            object: 'ACLACTION',
+            values: `${name};${actionCommand}`
+          }
+        });
+        return cy.wrap(null);
+      });
+  }
+);
+
+interface ACLResource {
+  name: string;
+  alias?: string | null;
+}
+
+Cypress.Commands.add(
+  'addACLResource',
+  ({ name, alias = null }: ACLResource): Cypress.Chainable => {
+    const ACLResourcesAlias = alias === null ? name : alias;
+    return cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADD',
+        object: 'ACLRESOURCE',
+        values: `${name};${ACLResourcesAlias}`
+      }
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      addACLAction: (props: ACLAction) => Cypress.Chainable;
+      addACLGroup: (props: ACLGroup) => Cypress.Chainable;
+      addACLMenu: (props: ACLMenu) => Cypress.Chainable;
+      addACLResource: (props: ACLResource) => Cypress.Chainable;
       addCheckCommand: (props: CheckCommand) => Cypress.Chainable;
       addContact: (props: Contact) => Cypress.Chainable;
       addContactGroup: (props: ContactGroup) => Cypress.Chainable;

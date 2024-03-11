@@ -1,6 +1,11 @@
 import { atom } from 'jotai';
 
-import { ModalMode, ResourceAccessRuleType } from './models';
+import {
+  DeleteResourceAccessRuleType,
+  DeleteType,
+  ModalMode,
+  ResourceAccessRuleType
+} from './models';
 
 export const editedResourceAccessRuleIdAtom = atom<number | null>(null);
 
@@ -18,3 +23,9 @@ export const selectedRowsAtom = atom<Array<ResourceAccessRuleType>>([]);
 export const resourceAccessRulesNamesAtom = atom<
   Array<{ id: number; name: string }>
 >([]);
+
+export const isDeleteDialogOpenAtom = atom<boolean>(false);
+export const deleteResourceAccessRuleAtom = atom<DeleteResourceAccessRuleType>({
+  deleteType: DeleteType.SingleItem,
+  id: null
+});
