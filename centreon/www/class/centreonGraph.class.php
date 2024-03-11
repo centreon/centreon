@@ -452,12 +452,11 @@ class CentreonGraph
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
             if (count($l_vmEnabled)) {
-                $l_vselector_query =
+                $l_vselector =
                     implode(
                         ",",
                         array_map(array("CentreonGraph", "vquote"), $l_vmEnabled)
                     );
-                $l_vselector = "vmetric_id IN (" . $l_vselector_query . ")";
                 $this->log("initCurveList with selector [virtual]= " . $l_vselector);
             }
         } else {
@@ -465,20 +464,30 @@ class CentreonGraph
             $l_rselector = "index_id = '" . $this->index . "'";
             $l_vselector = $l_rselector;
             $this->log("initCurveList with selector= " . $l_rselector);
+            $query_img = $l_rselector;
         }
+
+        $query = 'SELECT host_id, service_id, metric_id, metric_name, unit_name, REPLACE(FORMAT(warn, 9), ",", "") warn, REPLACE(FORMAT(crit, 9), ",", "") crit ' .
+            'FROM metrics AS m, index_data AS i ' .
+            'WHERE index_id = id ' .
+            'AND m.hidden = "0" ';
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
-            $DBRESULT = $this->DBC->prepare(
-                "SELECT host_id, service_id, metric_id, metric_name, unit_name, replace(format(warn,9),',','') warn,
-                replace(format(crit,9),',','') crit
-                FROM metrics AS m, index_data AS i
-                WHERE index_id = id
-                AND metric_id IN ( :l_rselector )
-                AND m.hidden = '0'
-                ORDER BY m.metric_name"
-            );
-            $DBRESULT->bindParam(':l_rselector', $l_rselector);
+            if (isset($query_img))
+            {
+                $query .='AND index_id = :index_id' .
+                'ORDER BY m.metric_name';
+                $DBRESULT = $this->DBC->prepare($query);
+                $DBRESULT->bindParam(':index_id', $this->index);
+            }
+            else{
+                $query .='AND metric_id IN ( :l_rselector )' .
+                'ORDER BY m.metric_name';
+                $DBRESULT = $this->DBC->prepare($query);
+                $DBRESULT->bindParam(':l_rselector', $l_rselector);
+            }
+
             $DBRESULT->execute();
             $rmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
@@ -488,14 +497,24 @@ class CentreonGraph
             }
             $DBRESULT->closeCursor();
         }
+        $query_vselector = 'SELECT vmetric_id ' .
+            'FROM virtual_metrics ';
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            $DBRESULT = $this->DB->prepare("SELECT vmetric_id
-                                          FROM virtual_metrics
-                                          WHERE vmetric_id IN (:l_vselector)
-                                          ORDER BY vmetric_name");
-            $DBRESULT->bindParam(':l_vselector', $l_vselector);
+            if (isset($query_img))
+            {
+                $query_vselector .='AND index_id = :index_id' .
+                    'ORDER BY vmetric_name';
+                $DBRESULT = $this->DBC->prepare($query_vselector);
+                $DBRESULT->bindParam(':index_id', $this->index);
+            }
+            else{
+                $query_vselector .='AND vmetric_id IN ( :l_vselector )' .
+                    'ORDER BY vmetric_name';
+                $DBRESULT = $this->DBC->prepare($query_vselector);
+                $DBRESULT->bindParam(':l_vselector', $l_vselector);
+            }
             $DBRESULT->execute();
             $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
