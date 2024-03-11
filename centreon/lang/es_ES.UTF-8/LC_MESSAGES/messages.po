@@ -16896,3 +16896,6 @@ msgstr "Modo avanzado"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
