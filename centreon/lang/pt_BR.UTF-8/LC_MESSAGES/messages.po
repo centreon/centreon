@@ -17371,3 +17371,6 @@ msgstr ""
 
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
