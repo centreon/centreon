@@ -17363,3 +17363,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "Delete rule"
+# msgstr ""
+
+# msgid "is used to allow users to access resources."
+# msgstr ""
+
+# msgid "It will be permanently deleted and users will no longer have this permission"
+# msgstr ""
+
+# msgid "Failed to delete resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule was successfully deleted"
+# msgstr ""
