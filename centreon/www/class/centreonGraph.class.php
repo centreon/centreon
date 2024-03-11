@@ -444,12 +444,11 @@ class CentreonGraph
             }
             /* Create selector for reals metrics */
             if (count($l_rmEnabled)) {
-                $l_rselector_query =
+                $l_rselector =
                      implode(
                         ",",
                         array_map(array("CentreonGraph", "quote"), $l_rmEnabled)
                     );
-                $l_rselector = "metric_id IN (" . $l_rselector_query . ")";
                 $this->log("initCurveList with selector [real]= " . $l_rselector);
             }
             if (count($l_vmEnabled)) {
@@ -475,7 +474,7 @@ class CentreonGraph
                 replace(format(crit,9),',','') crit
                 FROM metrics AS m, index_data AS i
                 WHERE index_id = id
-                AND :l_rselector
+                AND metric_id IN ( :l_rselector )
                 AND m.hidden = '0'
                 ORDER BY m.metric_name"
             );
@@ -494,7 +493,7 @@ class CentreonGraph
         if (isset($l_vselector)) {
             $DBRESULT = $this->DB->prepare("SELECT vmetric_id
                                           FROM virtual_metrics
-                                          WHERE :l_vselector
+                                          WHERE vmetric_id IN (:l_vselector)
                                           ORDER BY vmetric_name");
             $DBRESULT->bindParam(':l_vselector', $l_vselector);
             $DBRESULT->execute();
