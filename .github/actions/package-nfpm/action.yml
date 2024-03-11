@@ -100,7 +100,7 @@ runs:
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
           sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
-          nfpm --version
+          echo `nfpm --version`
           nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
           cd -
           mv $DIRNAME/*.${{ inputs.package_extension }} ./
