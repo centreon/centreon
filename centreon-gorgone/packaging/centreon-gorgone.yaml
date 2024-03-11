@@ -20,7 +20,7 @@ contents:
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0775
+      mode: 0755
 
   - dst: "/etc/centreon-gorgone/config.d"
     type: dir
