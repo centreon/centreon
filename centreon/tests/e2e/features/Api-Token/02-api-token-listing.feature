@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-21273
 Feature: List Existing API Tokens in Administration
 
