@@ -6,8 +6,8 @@ Feature: Deleting a Notification Rule
 
   Background:
     Given a user with access to the Notification Rules page
-    And the user is on the Notification Rules page
     And a Notification Rule is already created
+    And the user is on the Notification Rules page
 
   @TEST_MON-33211
   Scenario: Deleting a Notification Rule
