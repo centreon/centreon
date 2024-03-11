@@ -461,7 +461,6 @@ class CentreonGraph
             $l_rselector = "index_id = '" . $this->index . "'";
             $l_vselector = $l_rselector;
             $this->log("initCurveList with selector= " . $l_rselector);
-            $query_img = true;
         }
 
         $query = 'SELECT host_id, service_id, metric_id, metric_name, unit_name, REPLACE(FORMAT(warn, 9), ",", "") warn, REPLACE(FORMAT(crit, 9), ",", "") crit ' .
@@ -471,18 +470,16 @@ class CentreonGraph
 
         /* Manage reals metrics */
         if (isset($l_rselector)) {
-            if (isset($query_img))
+            if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
+                $query .= ' AND metric_id IN (' . $l_rselector . ')' .
+                    'ORDER BY m.metric_name';
+                $DBRESULT = $this->DBC->prepare($query);
+            }else
             {
-                $query .='AND index_id = :index_id' .
+                $query .= ' AND index_id = :index_id' .
                 'ORDER BY m.metric_name';
                 $DBRESULT = $this->DBC->prepare($query);
                 $DBRESULT->bindParam(':index_id', $this->index);
-            }
-            else{
-                $query .='AND metric_id IN ( :l_rselector )' .
-                'ORDER BY m.metric_name';
-                $DBRESULT = $this->DBC->prepare($query);
-                $DBRESULT->bindParam(':l_rselector', $l_rselector);
             }
 
             $DBRESULT->execute();
@@ -499,19 +496,18 @@ class CentreonGraph
 
         /* Manage virtuals metrics */
         if (isset($l_vselector)) {
-            if (isset($query_img))
-            {
-                $query_vselector .='AND index_id = :index_id' .
+            if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
+                $query_vselector .= ' AND vmetric_id IN ( ' . $l_vselector . ' )' .
                     'ORDER BY vmetric_name';
-                $DBRESULT = $this->DBC->prepare($query_vselector);
-                $DBRESULT->bindParam(':index_id', $this->index);
+                $DBRESULT = $this->DB->prepare($query_vselector);
             }
             else{
-                $query_vselector .='AND vmetric_id IN ( :l_vselector )' .
+                $query_vselector .= ' AND index_id = :index_id' .
                     'ORDER BY vmetric_name';
-                $DBRESULT = $this->DBC->prepare($query_vselector);
-                $DBRESULT->bindParam(':l_vselector', $l_vselector);
+                $DBRESULT = $this->DB->prepare($query_vselector);
+                $DBRESULT->bindParam(':index_id', $this->index);
             }
+
             $DBRESULT->execute();
             $vmetrics = $DBRESULT->fetchAll(PDO::FETCH_ASSOC);
 
