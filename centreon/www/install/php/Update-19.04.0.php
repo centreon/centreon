@@ -36,7 +36,7 @@ try {
     }
     if (!$pearDB->isColumnExist('cfg_nagios', 'macros_filter')) {
         $pearDB->query(
-            "ALTER TABLE `cfg_nagios` ADD COLUMN `macros_filter` TEXT DEFAULT ''"
+            "ALTER TABLE `cfg_nagios` ADD COLUMN `macros_filter` TEXT DEFAULT ('')"
         );
     }
 } catch (\PDOException $e) {

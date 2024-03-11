@@ -1,23 +1,26 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import {
   enableNotificationFeature,
   notificationSentCheck,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange
 } from '../common';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 let globalResourceType = '';
 let globalContactSettings = '';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
-    name: 'central-cloud-notifications-output',
-    configName: 'central-broker-master'
+    configName: 'central-broker-master',
+    name: 'central-cloud-notifications-output'
   });
 
   cy.intercept({
@@ -47,10 +50,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given(
   'a {string} with hosts and {string}',
   (resourceType: string, contactSettings: string) => {
@@ -60,23 +59,25 @@ Given(
     switch (contactSettings) {
       case 'a single contact':
         cy.addContact({
-          name: data.contacts.contact1.name,
           email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
           password: data.contacts.contact1.password
         });
         break;
       case 'two contacts':
         cy.addContact({
-          name: data.contacts.contact1.name,
           email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
           password: data.contacts.contact1.password
         });
         cy.addContact({
-          name: data.contacts.contact2.name,
           email: data.contacts.contact2.email,
+          name: data.contacts.contact2.name,
           password: data.contacts.contact2.password
         });
         break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
     }
 
     cy.addHostGroup({
@@ -137,11 +138,9 @@ Given(
 
 When('the user defines a name for the rule', () => {
   cy.contains('Add').click();
-  cy.get('#Notificationname')
-    .click()
-    .type(
-      `Notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.get('#Notificationname').type(
+    `Notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When(
@@ -164,6 +163,8 @@ When(
           cy.wrap($el).click();
         });
         break;
+      default:
+        throw new Error(`${resourceType} not managed`);
     }
   }
 );
@@ -181,25 +182,21 @@ When('the user selects the {string}', (contactSettings: string) => {
       cy.contains(data.contacts.contact1.name).click();
       cy.contains(data.contacts.contact2.name).click();
       break;
+    default:
+      throw new Error(`${contactSettings} not managed`);
   }
 });
 
 When('the user defines a mail subject', () => {
-  cy.getByLabel({ label: 'Subject' })
-    .click()
-    .clear()
-    .type(
-      `Subject notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.getByLabel({ label: 'Subject' }).type(
+    `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When('the user defines a mail body', () => {
-  cy.getByLabel({ label: 'EmailBody' })
-    .click()
-    .clear()
-    .type(
-      `Body notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.getByLabel({ label: 'EmailBody' }).type(
+    `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When('the user clicks on the "Save" button to confirm', () => {
@@ -256,6 +253,8 @@ When(
           }
         ]);
         break;
+      default:
+        throw new Error(`${resourceType} not managed`);
     }
   }
 );
@@ -280,6 +279,8 @@ When('the hard state has been reached', () => {
         }
       ]);
       break;
+    default:
+      throw new Error(`${globalResourceType} not managed`);
   }
 });
 
@@ -305,6 +306,8 @@ Then(
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
     }
   }
 );

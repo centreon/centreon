@@ -511,7 +511,7 @@ overrides:
       - gettext
       - rsync
       - brotli
-      - lua-curl
+      - lua5.3-curl
     provides:
       - centreon-web-apache
       - centreon-web-common

@@ -127,7 +127,7 @@ class Centreon_Object_RtAcknowledgement extends Centreon_ObjectRt
                         AND host.host_id = ack.host_id
                     WHERE service.acknowledged = 1
                     %s
-                    GROUP BY host.name, service.description) AS tmp
+                    GROUP BY host.host_id, service.service_id) AS tmp
                     ON tmp.entry_time = ack.entry_time
                     AND tmp.host_id = ack.host_id
                     AND tmp.service_id = ack.service_id

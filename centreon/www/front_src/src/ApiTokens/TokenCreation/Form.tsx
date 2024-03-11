@@ -14,7 +14,7 @@ import {
 } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
-import { buildListEndpoint, listConfiguredUser } from '../api/endpoints';
+import { getEndpointConfiguredUser } from '../api/endpoints';
 import {
   labelCancel,
   labelClose,
@@ -53,7 +53,6 @@ const FormCreation = ({
     ref: document.getElementById('root')
   });
 
-  const [open, setOpen] = useState(true);
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
   const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
@@ -75,13 +74,6 @@ const FormCreation = ({
     values
   });
 
-  const getEndpointConfiguredUser = (dataConfiguredUser): string => {
-    return buildListEndpoint({
-      endpoint: listConfiguredUser,
-      parameters: { ...dataConfiguredUser, limit: 10 }
-    });
-  };
-
   const close = (): void => {
     resetForm();
     closeDialog();
@@ -90,7 +82,6 @@ const FormCreation = ({
   const handleCustomizeCase = (value): void => {
     setIsDisplayingDateTimePicker(true);
     setAnchorEl(refSingleAutocompleteField?.current);
-    setOpen(true);
     setFieldValue('duration', value);
   };
 
@@ -158,7 +149,6 @@ const FormCreation = ({
       {isDisplayingDateTimePicker && (
         <CustomTimePeriod
           anchorElDuration={{ anchorEl, setAnchorEl }}
-          openPicker={{ open, setOpen }}
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />
