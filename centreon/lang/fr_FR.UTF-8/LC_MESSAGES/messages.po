@@ -1775,7 +1775,7 @@ msgstr "Auteur"
 
 #: centreon-web/www/install/smarty_translate.php:327
 msgid "Expiration date"
-msgstr "Date de fin de licence"
+msgstr "Date d'expiration"
 
 #: centreon-web/www/install/smarty_translate.php:330
 #: centreon-web/www/include/options/oreon/modules/formModule.php:57
