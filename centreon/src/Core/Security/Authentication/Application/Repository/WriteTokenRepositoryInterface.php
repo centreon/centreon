@@ -30,11 +30,6 @@ use Core\Security\Authentication\Domain\Model\ProviderToken;
 interface WriteTokenRepositoryInterface
 {
     /**
-     * Delete all expired tokens registered.
-     */
-    public function deleteExpiredSecurityTokens(): void;
-
-    /**
      * @param string $token
      * @param int $providerConfigurationId
      * @param int $contactId
