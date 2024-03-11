@@ -196,9 +196,8 @@ class CentreonGraph
         $this->onecurve = false;
         $this->checkcurve = false;
 
-
-        $DBRESULT = $this->DBC->prepare("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
-        $DBRESULT->execute();
+        $DBRESULT = $this->DBC->query("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
+        $config = $DBRESULT->fetch();
         $config = $DBRESULT->fetch(PDO::FETCH_ASSOC);
 
         $this->dbPath = $config["RRDdatabase_path"];
@@ -214,7 +213,7 @@ class CentreonGraph
         unset($opt);
 
         /* Get RRDCacheD options */
-        $result = $this->DB->prepare(
+        $result = $this->DB->query(
             "SELECT config_key, config_value
             FROM cfg_centreonbroker_info AS cbi
             INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
@@ -222,8 +221,7 @@ class CentreonGraph
             WHERE ns.localhost = '1'
             AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
         );
-        $result->execute();
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $result->fetch()) {
             $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
         }
 
@@ -464,7 +462,7 @@ class CentreonGraph
             $l_rselector = "index_id = '" . $this->index . "'";
             $l_vselector = $l_rselector;
             $this->log("initCurveList with selector= " . $l_rselector);
-            $query_img = $l_rselector;
+            $query_img = true;
         }
 
         $query = 'SELECT host_id, service_id, metric_id, metric_name, unit_name, REPLACE(FORMAT(warn, 9), ",", "") warn, REPLACE(FORMAT(crit, 9), ",", "") crit ' .
@@ -1129,8 +1127,7 @@ class CentreonGraph
             $statement->closeCursor();
             unset($command_id);
         }
-        $DBRESULT = $this->DB->prepare("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
-        $DBRESULT->execute();
+        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");        $DBRESULT->execute();
         if ($DBRESULT->rowCount()) {
             $data = $DBRESULT->fetch();
             $this->templateId = $data["graph_id"];
