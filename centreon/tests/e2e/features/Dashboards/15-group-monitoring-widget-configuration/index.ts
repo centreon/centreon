@@ -7,8 +7,10 @@ import {
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
-import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
-import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
+import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
+import twoGroupMonitoringwidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoGroupMonitoringWidgets.json';
+
+const hostGroupName = 'Linux-Servers';
 
 const services = {
   serviceCritical: {
@@ -92,9 +94,7 @@ before(() => {
       maxCheckAttempts: 1,
       name: services.serviceCritical.name,
       template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
-
+    });
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceCritical.host,
@@ -187,131 +187,12 @@ after(() => {
   cy.stopContainers();
 });
 
-Given('a dashboard that includes a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
-});
-
-When(
-  'the dashboard administrator user selects a particular status in the displayed resource status list',
-  () => {
-    cy.get('input[value="service"]').click();
-    cy.get('input[name="success"]').click();
-    cy.wait('@resourceRequest');
-  }
-);
-
-Then(
-  'only the resources with this particular status are displayed in the Status Grid Widget',
-  () => {
-    cy.get('[data-status="critical"]').should('be.visible');
-    cy.get('[data-status="warning"]').should('be.visible');
-  }
-);
-
-Given('a dashboard configuring Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
-});
-
-When(
-  'the dashboard administrator user updates the displayed resource type of the widget',
-  () => {
-    cy.get('input[value="service"]').click();
-    cy.get('input[name="success"]').click();
-    cy.wait('@resourceRequest');
-  }
-);
-
-Then(
-  'the list of available statuses to display is updated in the configuration properties',
-  () => {
-    cy.get('input[name="warning"]').should('exist');
-    cy.get('input[name="problem"]').should('exist');
-    cy.get('input[name="undefined"]').should('exist');
-    cy.get('input[name="pending"]').should('exist');
-  }
-);
-
-Then(
-  'the widget is updated to reflect that change in displayed resource type',
-  () => {
-    cy.get('[data-status="warning"]').should('exist');
-    cy.get('[data-status="critical"]').should('exist');
-  }
-);
-
-Given('a dashboard featuring two Status Grid widgets', () => {
-  cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
-});
-
-When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
-  cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
-  }).realClick();
-});
-
-Then('only the contents of the other widget are displayed', () => {
-  cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
-  cy.get('[class*="resourceName"]').contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').contains('host3').should('exist');
-});
-
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
+    cy.wait('@listAllDashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -330,29 +211,29 @@ When(
   }
 );
 
-When('selects the widget type "Status Grid"', () => {
-  cy.getByTestId({ testId: 'Widget type' }).click();
-  cy.contains('Status grid').click();
-});
+When(
+  'the dashboard administrator user selects the widget type "Group monitoring"',
+  () => {
+    cy.getByTestId({ testId: 'Widget type' }).click();
+    cy.contains('Group monitoring').click();
+  }
+);
 
 Then(
-  'configuration properties for the Status Grid widget are displayed',
+  'configuration properties for the Group monitoring widget are displayed',
   () => {
-    cy.contains('Widget properties').should('exist');
-    cy.getByLabel({ label: 'Title' }).should('exist');
-    cy.get('input[value="host"]').should('exist');
-    cy.get('input[value="service"]').should('exist');
-    cy.get('input[name="success"]').should('exist');
-    cy.get('input[name="problem"]').should('exist');
-    cy.get('input[name="undefined"]').should('exist');
-    cy.get('input[name="pending"]').should('exist');
-    cy.get('input[value="status_severity_code"]').should('exist');
-    cy.get('input[value="name"]').should('exist');
+    cy.contains('Host').should('exist');
+    cy.contains('Service').should('exist');
+    cy.contains('Success (OK & Up)').should('exist');
+    cy.contains('Warning').should('exist');
+    cy.contains('Problem (Down/Critical)').should('exist');
+    cy.contains('Undefined (Unreachable/Unknown)').should('exist');
+    cy.contains('Pending').should('exist');
   }
 );
 
 When(
-  'the dashboard administrator user selects a list of resources for the widget',
+  'the dashboard administrator user selects resources for the widget',
   () => {
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
     cy.getByLabel({ label: 'RichTextEditor' })
@@ -361,28 +242,45 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
+    cy.contains(hostGroupName).realClick();
   }
 );
 
 Then(
-  'a grid representing the statuses of this list of resources are displayed in the widget preview',
+  'a table representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.get('[class*="heatMapTile"]').should('exist');
+    cy.get('[class$="-status"]')
+      .eq(0)
+      .should('have.attr', 'data-status', 'Down')
+      .should('be.visible');
+    cy.get('[class$="-status"]')
+      .eq(1)
+      .should('have.attr', 'data-status', 'Critical')
+      .should('be.visible');
+    cy.get('[class$="-status"]')
+      .eq(2)
+      .should('have.attr', 'data-status', 'Warning')
+      .should('be.visible');
   }
 );
 
-When('the user saves the Status Grid widget', () => {
+When('the user saves the Group monitoring widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
-Then("the Status Grid widget is added in the dashboard's layout", () => {
-  cy.get('[class*="heatMapTile"]').should('exist');
+Then("the Group monitoring widget is added in the dashboard's layout", () => {
+  cy.get('[class$="-status-link"]')
+    .eq(0)
+    .should('have.attr', 'data-status', 'Down')
+    .should('be.visible');
+  cy.get('[class$="-status-link"]')
+    .eq(1)
+    .should('have.attr', 'data-status', 'Critical')
+    .should('be.visible');
 });
 
-Given('a dashboard with a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+Given('a dashboard that includes a configured Group monitoring widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -395,7 +293,6 @@ Given('a dashboard with a configured Status Grid widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
@@ -404,25 +301,73 @@ Given('a dashboard with a configured Status Grid widget', () => {
 });
 
 When(
-  'the dashboard administrator user updates the maximum number of displayed tiles in the configuration properties',
+  'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
-    cy.getByLabel({
-      label: 'tiles',
-      tag: 'input'
-    }).clear();
-    cy.wait('@resourceRequest');
+    cy.contains('Select all').click();
+    cy.getByTestId({ testId: 'confirm' }).click();
   }
 );
 
-Then('the Status Grid widget displays up to that number of tiles', () => {
-  cy.getByTestId({
-    testId: 'DvrIcon'
-  }).should('be.visible');
-  cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
+Then(
+  'only the resources with this particular status are displayed in the Group monitoring Widget',
+  () => {
+    cy.get('[class$="-status-link"]')
+      .eq(0)
+      .should('have.attr', 'data-status', 'Down')
+      .should('be.visible');
+    cy.get('[class$="-status-link"]')
+      .eq(1)
+      .should('have.attr', 'data-status', 'Pending')
+      .should('be.visible');
+    cy.get('[class$="-status-link"]')
+      .eq(2)
+      .should('have.attr', 'data-status', 'Up')
+      .should('be.visible');
+    cy.get('[class$="-status-link"]')
+      .eq(3)
+      .should('have.attr', 'data-status', 'Unreachable')
+      .should('be.visible');
+  }
+);
+
+Given('a dashboard featuring two group monitoring widgets', () => {
+  cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
 
-Given('a dashboard having a configured Status Grid widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
+When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.getByTestId({ testId: 'DeleteIcon' }).click();
+  cy.getByLabel({
+    label: 'Delete',
+    tag: 'button'
+  }).realClick();
+});
+
+Then('only the contents of the other widget are displayed', () => {
+  cy.get('[class$="-status-link"]')
+    .eq(0)
+    .should('have.attr', 'data-status', 'Down')
+    .should('be.visible');
+  cy.get('[class$="-status-link"]')
+    .eq(1)
+    .should('have.attr', 'data-status', 'Critical')
+    .should('be.visible');
+});
+
+Given('a dashboard having a configured group monitoring widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
   cy.getByLabel({
@@ -434,7 +379,7 @@ Given('a dashboard having a configured Status Grid widget', () => {
 });
 
 When(
-  'the dashboard administrator user duplicates the Status Grid widget',
+  'the dashboard administrator user duplicates the group monitoring widget',
   () => {
     cy.getByLabel({
       label: 'Edit dashboard',
@@ -442,21 +387,65 @@ When(
     }).click();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-    cy.wait('@resourceRequest');
   }
 );
 
 Then('a second Status Grid widget is displayed on the dashboard', () => {
   cy.getByTestId({
-    testId: 'panel_/widgets/statusgrid_1_2_move_panel'
+    testId: 'panel_/widgets/groupmonitoring_1_2_move_panel'
   }).should('exist');
 });
 
 Then('the second widget has the same properties as the first widget', () => {
-  cy.get('[class*="resourceName"]')
+  cy.get('[class$="-status-link"]')
     .eq(3)
-    .contains('Centreon-Server')
-    .should('exist');
-  cy.get('[class*="resourceName"]').eq(4).contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').eq(5).contains('host3').should('exist');
+    .should('have.attr', 'data-status', 'Down')
+    .should('be.visible');
+  cy.get('[class$="-status-link"]')
+    .eq(4)
+    .should('have.attr', 'data-status', 'Critical')
+    .should('be.visible');
 });
+
+Given('a dashboard configuring group monitoring widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.default.name)
+    .click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+});
+
+When(
+  'the dashboard administrator user updates the displayed resource type of the widget',
+  () => {
+    cy.getByTestId({ testId: 'ExpandMoreIcon' }).eq(0).click();
+    cy.get('input[name="host"].PrivateSwitchBase-input').click();
+  }
+);
+
+Then(
+  'the widget is updated to reflect that change in displayed resource type',
+  () => {
+    cy.get('[class$="-status"]')
+      .eq(0)
+      .should('have.attr', 'data-status', 'Critical')
+      .should('be.visible');
+    cy.get('[class$="-status"]')
+      .eq(1)
+      .should('have.attr', 'data-status', 'Warning')
+      .should('be.visible');
+  }
+);
