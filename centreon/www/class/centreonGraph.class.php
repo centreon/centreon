@@ -198,7 +198,6 @@ class CentreonGraph
 
         $DBRESULT = $this->DBC->query("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config LIMIT 1");
         $config = $DBRESULT->fetch();
-        $config = $DBRESULT->fetch(PDO::FETCH_ASSOC);
 
         $this->dbPath = $config["RRDdatabase_path"];
         $this->dbStatusPath = $config['RRDdatabase_status_path'];
@@ -1127,7 +1126,7 @@ class CentreonGraph
             $statement->closeCursor();
             unset($command_id);
         }
-        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");        $DBRESULT->execute();
+        $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
         if ($DBRESULT->rowCount()) {
             $data = $DBRESULT->fetch();
             $this->templateId = $data["graph_id"];
@@ -1135,7 +1134,6 @@ class CentreonGraph
             $DBRESULT->closeCursor();
             return;
         }
-        $DBRESULT->closeCursor();
     }
 
     /**
