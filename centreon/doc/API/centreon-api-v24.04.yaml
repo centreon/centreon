@@ -1980,7 +1980,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
-    $ref: './v24.04/Realtime/Resources/Dashboards.yaml'
+    $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
   /monitoring/services:
     get:
       tags:
