@@ -50,10 +50,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given(
   'a {string} with hosts and {string}',
   (resourceType: string, contactSettings: string) => {
@@ -142,11 +138,9 @@ Given(
 
 When('the user defines a name for the rule', () => {
   cy.contains('Add').click();
-  cy.get('#Notificationname')
-    .click()
-    .type(
-      `Notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.get('#Notificationname').type(
+    `Notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When(
@@ -194,21 +188,15 @@ When('the user selects the {string}', (contactSettings: string) => {
 });
 
 When('the user defines a mail subject', () => {
-  cy.getByLabel({ label: 'Subject' })
-    .click()
-    .clear()
-    .type(
-      `Subject notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.getByLabel({ label: 'Subject' }).type(
+    `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When('the user defines a mail body', () => {
-  cy.getByLabel({ label: 'EmailBody' })
-    .click()
-    .clear()
-    .type(
-      `Body notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  cy.getByLabel({ label: 'EmailBody' }).type(
+    `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
+  );
 });
 
 When('the user clicks on the "Save" button to confirm', () => {
