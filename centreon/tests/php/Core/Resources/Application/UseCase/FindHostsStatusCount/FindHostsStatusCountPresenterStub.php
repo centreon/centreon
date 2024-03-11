@@ -19,13 +19,20 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
+namespace Tests\Core\Resources\Application\UseCase\FindHostsStatusCount;
 
+use Core\Resources\Application\UseCase\FindHostsStatusCount\FindHostsStatusCountPresenterInterface;
+use Core\Resources\Application\UseCase\FindHostsStatusCount\FindHostsStatusCountResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface FindHostsStatusCountPresenterInterface
+class FindHostsStatusCountPresenterStub implements FindHostsStatusCountPresenterInterface
 {
-    public function presentResponse(FindHostsStatusCountResponse|ResponseStatusInterface $response): void;
+    public FindHostsStatusCountResponse|ResponseStatusInterface $data;
+
+    public function presentResponse(FindHostsStatusCountResponse|ResponseStatusInterface $response): void
+    {
+        $this->data = $response;
+    }
 }
