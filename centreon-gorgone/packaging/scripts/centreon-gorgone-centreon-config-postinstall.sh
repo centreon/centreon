@@ -4,11 +4,15 @@ installConfigurationFile() {
   if [ ! -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] || grep -q "@GORGONE_USER@" "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"; then
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
   else
-    if [ -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ]; then
-      chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
-    fi
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/centreon-api.yaml.new
   fi
+}
+
+fixConfigurationFileRights() {
+  # force update of configuration file rights since they are not updated automatically by nfpm
+  chmod 0640 /etc/centreon-gorgone/config.d/30-centreon.yaml
+  chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+  chmod 0640 /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 }
 
 manageUserGroups() {
@@ -55,6 +59,7 @@ case "$action" in
   "2" | "upgrade")
     manageUserGroups
     installConfigurationFile
+    fixConfigurationFileRights
     addGorgoneSshKeys
     ;;
   *)
