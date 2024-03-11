@@ -29,7 +29,3 @@ case "$action" in
     startGorgoned
     ;;
 esac
-
-# set files permessions
-chmod 0770 /etc/centreon-gorgone/config.d
-chmod 0640 /etc/centreon-gorgone/config.yaml

@@ -61,9 +61,3 @@ case "$action" in
     addGorgoneSshKeys
     ;;
 esac
-
-# set files permessions
-chmod 0640 /etc/centreon-gorgone/config.d/30-centreon.yaml
-chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
-chmod 0640 /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-chmod 0770 /etc/centreon-gorgone/config.d/cron.d
