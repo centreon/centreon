@@ -30,7 +30,7 @@
         "twig/twig": "^3.3",
         "webmozart/assert": "^1.8",
         "zircote/swagger-php": "^4.0",
-        "pestphp/pest": "^2.34",
+        "pestphp/pest": "^1.9",
         "php-vfs/php-vfs": "^1.4",
         "friendsofphp/php-cs-fixer": "^3.10",
         "robertfausk/mink-panther-driver": "^1.1",
@@ -90,7 +90,8 @@
         "psr/container": "1.1.1",
         "onelogin/php-saml": "^4.1",
         "symfony/uid": "6.4.*",
-        "symfony/mime": "6.4.*"
+        "symfony/mime": "6.4.*",
+        "monolog/monolog": "^3.3"
     },
     "autoload": {
         "psr-4": {

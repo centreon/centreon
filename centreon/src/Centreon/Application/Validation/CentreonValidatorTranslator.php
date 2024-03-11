@@ -52,7 +52,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = array(), $domain = null, $locale = null)
+    public function trans($id, array $parameters = array(), $domain = null, $locale = null): string
     {
         $message = gettext($id);
 
@@ -91,7 +91,7 @@ class CentreonValidatorTranslator implements TranslatorInterface
      * @codeCoverageIgnore
      * {@inheritdoc}
      */
-    public function getLocale(): void
+    public function getLocale(): string
     {
         // ...
     }
