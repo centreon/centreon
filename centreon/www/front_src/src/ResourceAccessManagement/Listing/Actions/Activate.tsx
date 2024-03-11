@@ -9,7 +9,11 @@ import { Switch as MUISwitch, Tooltip } from '@mui/material';
 import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
 
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
-import { labelActiveOrInactive, labelDisabled, labelEnabled } from '../../translatedLabels';
+import {
+  labelActiveOrInactive,
+  labelDisabled,
+  labelEnabled
+} from '../../translatedLabels';
 
 const Switch = styled(MUISwitch)(({ theme }) => ({
   '& .MuiSwitch-switchBase': {
