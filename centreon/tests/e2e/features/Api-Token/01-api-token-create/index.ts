@@ -1,5 +1,4 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import '../commands';
 
 const token = {
   duration: '7 days',
