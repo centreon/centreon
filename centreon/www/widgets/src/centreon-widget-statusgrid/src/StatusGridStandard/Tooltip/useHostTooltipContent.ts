@@ -3,7 +3,7 @@ import { equals } from 'ramda';
 import { SeverityCode, useInfiniteScrollListing } from '@centreon/ui';
 
 import { ResourceStatus } from '../models';
-import { resourcesEndpoint } from '../api/endpoints';
+import { resourcesEndpoint } from '../../api/endpoints';
 
 import { tooltipPageAtom } from './atoms';
 
