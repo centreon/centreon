@@ -11,11 +11,9 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 
-import { areResourcesFullfilled } from '../../utils';
-import NoResources from '../../NoResources';
+import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
 
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
-import { buildResourcesEndpoint } from './api/endpoints';
 import Tile from './Tile';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
@@ -33,7 +31,6 @@ const StatusGrid = ({
     refreshInterval,
     resourceType,
     sortBy,
-    states,
     statuses,
     tiles,
     refreshIntervalCustom
@@ -46,22 +43,20 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
-  const areResourcesOk = areResourcesFullfilled(resources);
-
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
       buildResourcesEndpoint({
+        baseEndpoint: resourcesEndpoint,
         limit: tiles,
         resources,
         sortBy,
-        states,
+        states: [],
         statuses,
         type: resourceType
       }),
     getQueryKey: () => [
       'statusgrid',
       resourceType,
-      JSON.stringify(states),
       JSON.stringify(statuses),
       sortBy,
       tiles,
@@ -69,7 +64,6 @@ const StatusGrid = ({
       refreshCount
     ],
     queryOptions: {
-      enabled: areResourcesOk,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }
@@ -123,10 +117,6 @@ const StatusGrid = ({
     [theme, data]
   );
 
-  if (!areResourcesOk) {
-    return <NoResources />;
-  }
-
   if (isLoading && isNil(data)) {
     return <HeatMapSkeleton />;
   }
@@ -150,7 +140,6 @@ const StatusGrid = ({
           data={resourceData}
           isSmallestSize={isSmallestSize}
           resources={resources}
-          states={states}
           statuses={statuses}
           type={resourceType}
         />
