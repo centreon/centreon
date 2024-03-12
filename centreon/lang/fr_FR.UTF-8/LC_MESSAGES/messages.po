@@ -18711,7 +18711,7 @@ msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
 
-msgid "Error while retrieving number of hosts by status"
+msgid "Error while retrieving the number of hosts by status"
 msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
 
 msgid "Delete rule"
