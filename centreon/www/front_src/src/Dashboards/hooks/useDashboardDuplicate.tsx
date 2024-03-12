@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { omit } from 'ramda';
 import { useAtomValue } from 'jotai';
 
-import { useFetchQuery, useSnackbar } from '@centreon/ui';
+import { useFetchQuery } from '@centreon/ui';
 
 import { useCreateDashboard } from '../api/useCreateDashboard';
 import {
@@ -18,11 +18,16 @@ type UseDashboardForm = (name) => void;
 const useDashboardDuplicate = (): UseDashboardForm => {
   const { t } = useTranslation();
 
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
-
   const dashboardToDuplicate = useAtomValue(dashboardToDuplicateAtom);
 
-  const { mutate: duplicateDashboardMutation } = useCreateDashboard();
+  const labels = {
+    labelFail: t(labelFailedToDuplicateDashboard),
+    labelSucces: t(labelDashboardDuplicated)
+  };
+
+  const { mutate: duplicateDashboardMutation } = useCreateDashboard({
+    labels
+  });
 
   const { data: dashboard } = useFetchQuery<Dashboard>({
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardToDuplicate?.id}`,
@@ -45,13 +50,7 @@ const useDashboardDuplicate = (): UseDashboardForm => {
       refresh
     };
 
-    duplicateDashboardMutation(payload)
-      .then((response) => {
-        if (!response?.isError) {
-          showSuccessMessage(t(labelDashboardDuplicated));
-        }
-      })
-      .catch(() => showErrorMessage(t(labelFailedToDuplicateDashboard)));
+    duplicateDashboardMutation(payload);
   };
 
   return duplicateDashboard;
