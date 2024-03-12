@@ -15,18 +15,6 @@ default:
       paths: [ "%paths.base%/features/ConfigurationWarnings.feature" ]
       contexts: [ ConfigurationWarningsContext ]
 
-    pagination_select2:
-      paths: [ "%paths.base%/features/PaginationSelect2.feature" ]
-      contexts: [ PaginationSelect2Context ]
-
-    save_search_select2:
-      paths: [ "%paths.base%/features/SaveSearchSelect2.feature" ]
-      contexts: [ SaveSearchSelect2Context ]
-
-    select_all_select2:
-      paths: [ "%paths.base%/features/SelectAllSelect2.feature" ]
-      contexts: [ SelectAllSelect2Context ]
-
     generate_service_contact_configuration:
       paths: [ "%paths.base%/features/GenerateServiceContact.feature" ]
       contexts: [ GenerateServiceContactContext ]
@@ -71,10 +59,6 @@ default:
       paths: [ "%paths.base%/features/SaveSearchFilter.feature" ]
       contexts: [ SaveSearchFilterContext ]
 
-    timezone_display_host_monitoring:
-      paths: [ "%paths.base%/features/TimezoneInMonitoring.feature" ]
-      contexts: [ TimezoneInMonitoringContext ]
-
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
       contexts: [ DowntimeStartAndStopContext ]
@@ -102,14 +86,6 @@ default:
     autologin_options:
       paths: [ "%paths.base%/features/AutologinOptions.feature" ]
       contexts: [ AutologinOptionsContext ]
-
-    broker:
-      paths: [ "%paths.base%/features/Broker.feature" ]
-      contexts: [ BrokerContext ]
-
-    broker_configuration:
-      paths: [ "%paths.base%/features/BrokerConfiguration.feature" ]
-      contexts: [ BrokerConfigurationContext ]
 
     ldap:
       paths: [ "%paths.base%/features/Ldap.feature" ]
@@ -162,11 +138,6 @@ default:
     host_template_basics_operations:
       paths: [ "%paths.base%/features/HostTemplateBasicsOperations.feature" ]
       contexts: [ HostTemplateBasicsOperationsContext ]
-
-    language_selection_feature:
-      paths: [ "%paths.base%/features/LanguageSelection.feature" ]
-      contexts:
-        - LanguageSelectionContext
 
     ldap_configuration:
       paths: [ "%paths.base%/features/LdapConfiguration.feature" ]

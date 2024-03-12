@@ -5,6 +5,7 @@ import { ListingPage } from '@centreon/ui';
 import { ResourceAccessRulesListing } from './Listing';
 import PageHeader from './PageHeader';
 import AddEditResourceAccessRuleModal from './AddEditResourceAccessRule/AddEditResourceAccessRuleModal';
+import { DeleteConfirmationDialog } from './Actions/Delete';
 
 const ResourceAccessManagementPage = (): ReactElement => {
   return (
@@ -14,6 +15,7 @@ const ResourceAccessManagementPage = (): ReactElement => {
         listing={<ResourceAccessRulesListing />}
       />
       <AddEditResourceAccessRuleModal />
+      <DeleteConfirmationDialog />
     </>
   );
 };

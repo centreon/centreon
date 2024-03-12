@@ -77,10 +77,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given('a Notification Rule is already created', () => {
   createNotification(notificationBody);
 });

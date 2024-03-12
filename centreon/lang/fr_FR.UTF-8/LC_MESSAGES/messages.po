@@ -18710,5 +18710,21 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
-msgid "EError while retrieving number of hosts by status"
+
+msgid "Error while retrieving number of hosts by status"
 msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
+
+msgid "It will be permanently deleted and users will no longer have this permission"
+msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+msgid "Failed to delete resource access rule"
+msgstr "Échec de la suppression de la règle d'accès aux ressources"
+
+msgid "The resource access rule was successfully deleted"
+msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
