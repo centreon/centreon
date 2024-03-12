@@ -29,6 +29,7 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.get('.MuiAlert-message').should('not.exist');
 });
 
 Given('I am on the API tokens page', () => {
@@ -114,16 +115,5 @@ Then('the "copy to clipboard" button is clicked', () => {
 });
 
 Then('the token is successfully copied', () => {
-  cy.waitUntil(
-    () => {
-      cy.get('.MuiAlert-message').then(($alertMessage) => {
-        cy.wrap($alertMessage.length);
-        cy.wrap($alertMessage.text());
-      });
-      return cy
-        .get('.MuiAlert-message')
-        .contains('Token copied to the clipboard');
-    },
-    { timeout: 10000 }
-  );
+  cy.get('.MuiAlert-message').contains('Token copied to the clipboard');
 });
