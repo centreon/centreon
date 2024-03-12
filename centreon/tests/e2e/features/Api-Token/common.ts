@@ -24,4 +24,13 @@ const durationMap = {
   '1 year': 365
 };
 
-export { Contact, durationMap, Token };
+const columns = [
+  'Status',
+  'Name',
+  'Creation Date',
+  'Expiration Date',
+  'User',
+  'Creator'
+];
+
+export { Contact, durationMap, Token, columns };
