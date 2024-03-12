@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace EventSubscriber;
 
 use \Symfony\Bundle\SecurityBundle\Security;
+use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -50,7 +51,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\{
     Exception\AccessDeniedException
 };
-use \Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * We defined an event subscriber on the kernel event request to create a
