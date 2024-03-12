@@ -110,7 +110,9 @@ describe('Fullscreen', () => {
   });
 
   ['input', 'textarea'].forEach((tag) => {
-    it(`cannot toggle fullscreen feature using the shortcut when ${tag === 'input' ? 'an' : 'a'} ${tag} is focused`, () => {
+    it(`cannot toggle fullscreen feature using the shortcut when ${
+      tag === 'input' ? 'an' : 'a'
+    } ${tag} is focused`, () => {
       initialize();
 
       cy.get('#test')
