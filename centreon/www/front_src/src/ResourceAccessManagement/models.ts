@@ -63,3 +63,14 @@ export type NamedEntity = {
   id: number;
   name: string;
 };
+
+export enum DeleteType {
+  MultipleItems,
+  SingleItem
+}
+
+export interface DeleteResourceAccessRuleType {
+  deleteType: DeleteType;
+  id: number | Array<number> | null;
+  name?: string;
+}

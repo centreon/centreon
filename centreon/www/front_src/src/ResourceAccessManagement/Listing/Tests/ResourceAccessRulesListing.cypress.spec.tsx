@@ -5,6 +5,16 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import ResourceAccessRulesListing from '../Listing';
 import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
+import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
+import {
+  labelCancel,
+  labelDelete,
+  labelDeleteResourceAccessRule,
+  labelDeleteResourceAccessRuleDialogMessage,
+  labelDeleteResourceAccessRuleWarning,
+  labelResourceAccessRuleDeletedSuccess
+} from '../../translatedLabels';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
 
 import {
   defaultQueryParams,
@@ -20,7 +30,10 @@ const ListingWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <ResourceAccessRulesListing />
+            <>
+              <ResourceAccessRulesListing />
+              <DeleteConfirmationDialog />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
@@ -219,5 +232,98 @@ describe('column sorting', () => {
         `column sorting --  executes a listing request when ${label} column is clicked`
       );
     });
+  });
+});
+
+describe('Listing row actions: Delete button', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildResourceAccessRulesEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'deleteResourceAccessRuleRequest',
+      method: Method.DELETE,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: undefined,
+      statusCode: 204
+    });
+
+    cy.render(ListingWithQueryProvider);
+  });
+
+  it("displays a confirmation dialog containing the resource access rule's name upon clicking on Delete button in rule listing", () => {
+    cy.waitForRequest('@defaultRequest');
+
+    const message = `The rule0 ${labelDeleteResourceAccessRuleDialogMessage}`;
+    cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
+    cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
+    cy.findByText(message).should('be.visible');
+    cy.findByText(labelDeleteResourceAccessRuleWarning).should('be.visible');
+    cy.findByTestId(labelCancel).should('be.visible');
+    cy.findByLabelText(labelDelete).should('be.visible');
+
+    cy.makeSnapshot();
+    cy.findByTestId(labelCancel).click();
+  });
+
+  it('closes a delete confirmation dialog when Cancel button is clicked', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    const message = `The rule0 ${labelDeleteResourceAccessRuleDialogMessage}`;
+    cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
+    cy.findByText(labelDeleteResourceAccessRule).should('be.visible');
+    cy.findByText(message).should('be.visible');
+    cy.findByText(labelDeleteResourceAccessRuleWarning).should('be.visible');
+    cy.findByTestId(labelCancel).should('be.visible');
+    cy.findByLabelText(labelDelete).should('be.visible');
+
+    cy.findByTestId(labelCancel).click();
+    cy.findByText(labelDeleteResourceAccessRule).should('not.exist');
+    cy.findByText(message).should('not.exist');
+    cy.findByText(labelDeleteResourceAccessRuleWarning).should('not.exist');
+    cy.findByTestId(labelCancel).should('not.exist');
+    cy.findByLabelText(labelDelete).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a success message after successful deletion', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.waitForRequest('@deleteResourceAccessRuleRequest');
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByText(labelResourceAccessRuleDeletedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays an error message upon failed deletion', () => {
+    cy.interceptAPIRequest({
+      alias: 'deleteResourceAccessRuleFailedRequest',
+      method: Method.DELETE,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDeleteResourceAccessRule).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.waitForRequest('@deleteResourceAccessRuleFailedRequest');
+
+    cy.findByText('internal server error').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });
