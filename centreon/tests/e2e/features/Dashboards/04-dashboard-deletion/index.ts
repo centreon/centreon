@@ -51,7 +51,7 @@ When(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.find('[aria-label="Delete"]').click();
+    cy.get('[aria-label="Delete"]').click();
   }
 );
 
@@ -98,7 +98,7 @@ Given(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.find('[aria-label="Delete"]').click();
+    cy.get('[aria-label="Delete"]').click();
   }
 );
 
