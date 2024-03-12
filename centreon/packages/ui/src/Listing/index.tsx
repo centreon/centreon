@@ -140,7 +140,7 @@ const defaultColumnConfiguration = {
 
 export const performanceRowsLimit = 60;
 
-const Listing = <TRow extends { id: RowId }>({
+const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
   customListingComponent,
   displayCustomListing,
   limit = 10,
@@ -211,6 +211,21 @@ const Listing = <TRow extends { id: RowId }>({
 
   const subItemsPivots = useAtomValue(subItemsPivotsAtom);
 
+  const allSubItemIds = React.useMemo(
+    () =>
+      reduce<TRow | number, Array<string | number>>(
+        (acc, row) => [
+          ...acc,
+          ...(row[subItems?.getRowProperty() || ''] || []).map(
+            ({ id }) => `listing_${getId(row)}_${id}`
+          )
+        ],
+        [],
+        rows
+      ),
+    [rows, subItems]
+  );
+
   const rowsToDisplay = React.useMemo(
     () =>
       subItems?.enable
@@ -220,7 +235,14 @@ const Listing = <TRow extends { id: RowId }>({
                 row[subItems.getRowProperty()] &&
                 subItemsPivots.includes(row.id)
               ) {
-                return [...acc, row, ...row[subItems.getRowProperty()]];
+                return [
+                  ...acc,
+                  row,
+                  ...row[subItems.getRowProperty()].map((subRow) => ({
+                    ...subRow,
+                    internalListingParentId: row.id
+                  }))
+                ];
               }
 
               return [...acc, row];
@@ -230,6 +252,24 @@ const Listing = <TRow extends { id: RowId }>({
           )
         : rows,
     [rows, subItemsPivots, subItems]
+  );
+
+  const getSubItemRowId = React.useCallback((row: TRow) => {
+    return `listing_${row.internalListingParentId}_${row.id}`;
+  }, []);
+
+  const getIsSubItem = React.useCallback(
+    (row: TRow) => {
+      return allSubItemIds.includes(getSubItemRowId(row));
+    },
+    [allSubItemIds]
+  );
+
+  const getRowId = React.useCallback(
+    (row: TRow) => {
+      return getIsSubItem(row) ? getSubItemRowId(row) : getId(row);
+    },
+    [allSubItemIds]
   );
 
   const { classes } = useListingStyles({
@@ -414,10 +454,24 @@ const Listing = <TRow extends { id: RowId }>({
   };
 
   const hoverRow = (row): void => {
-    if (equals(hoveredRowId, getId(row))) {
+    const isSubItem = allSubItemIds.includes(
+      `listing_${row.internalListingParentId}_${row.id}`
+    );
+    if (
+      equals(
+        hoveredRowId,
+        isSubItem
+          ? `listing_${row.internalListingParentId}_${row.id}`
+          : getId(row)
+      )
+    ) {
       return;
     }
-    setHoveredRowId(getId(row));
+    setHoveredRowId(
+      isSubItem
+        ? `listing_${row.internalListingParentId}_${row.id}`
+        : getId(row)
+    );
   };
 
   const clearHoveredRow = (): void => {
@@ -449,19 +503,6 @@ const Listing = <TRow extends { id: RowId }>({
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
-
-  const allSubItemIds = React.useMemo(
-    () =>
-      reduce<TRow | number, Array<string | number>>(
-        (acc, row) => [
-          ...acc,
-          ...pluck('id', row[subItems?.getRowProperty() || ''] || [])
-        ],
-        [],
-        rows
-      ),
-    [rows, subItems]
-  );
 
   return (
     <div className={classes.listingContainer}>
@@ -551,8 +592,15 @@ const Listing = <TRow extends { id: RowId }>({
                   >
                     {rowsToDisplay.map((row, index) => {
                       const isRowSelected = isSelected(row);
-                      const isRowHovered = equals(hoveredRowId, getId(row));
-                      const isSubItem = allSubItemIds.includes(row.id);
+                      const isSubItem = allSubItemIds.includes(
+                        `listing_${row.internalListingParentId}_${row.id}`
+                      );
+                      const isRowHovered = equals(
+                        hoveredRowId,
+                        isSubItem
+                          ? `listing_${row.internalListingParentId}_${row.id}`
+                          : getId(row)
+                      );
 
                       return (
                         <ListingRow
@@ -569,7 +617,9 @@ const Listing = <TRow extends { id: RowId }>({
                           key={
                             gte(limit, performanceRowsLimit)
                               ? `row_${index}`
-                              : getId(row)
+                              : isSubItem
+                                ? `listing_${row.internalListingParentId}_${row.id}`
+                                : getId(row)
                           }
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
@@ -580,9 +630,13 @@ const Listing = <TRow extends { id: RowId }>({
                           subItemsPivots={subItemsPivots}
                           tabIndex={-1}
                           visibleColumns={visibleColumns}
-                          onClick={(): void => {
-                            onRowClick(row);
-                          }}
+                          onClick={
+                            isSubItem
+                              ? undefined
+                              : (): void => {
+                                  onRowClick(row);
+                                }
+                          }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}
                         >
