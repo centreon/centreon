@@ -17348,7 +17348,13 @@ msgstr ""
 # msgid "Resource table"
 # msgstr ""
 
+# msgid "Fullscreen (F)"
+# msgstr ""
+
 # msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
 # msgstr ""
 
 # msgid "The {{name}} widget will be permanently deleted."

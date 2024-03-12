@@ -16557,13 +16557,13 @@ msgstr "Erweiterter Modus"
 # msgid "Resource table"
 # msgstr ""
 
+# msgid "Fullscreen (F)"
+# msgstr ""
+
 # msgid "Expiration date"
 # msgstr ""
 
 # msgid "Clear"
-# msgstr ""
-
-# msgid "Fullscreen (Alt+F)"
 # msgstr ""
 
 # msgid "The {{name}} widget will be permanently deleted."
