@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "bc022583-0491-43af-856d-6f19a91dfeaf",
-		"name": "0 - Host Templates",
+		"name": "Host Template",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc022583-0491-43af-856d-6f19a91dfeaf?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-bc022583-0491-43af-856d-6f19a91dfeaf?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -131,7 +131,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -182,7 +182,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -233,7 +233,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -284,7 +284,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -335,7 +335,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -386,7 +386,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -437,7 +437,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -473,57 +473,6 @@
 					"response": []
 				},
 				{
-					"name": "Grant RW right Tokens",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"RW;1;Administration;API Tokens\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Link RW to RW_ALL",
 					"event": [
 						{
@@ -539,7 +488,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -577,7 +526,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights_filters  ",
+			"name": "user_with_RW_rights_filters",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights_filters",
@@ -647,7 +596,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -698,7 +647,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -749,7 +698,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -800,7 +749,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -851,7 +800,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -902,7 +851,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -953,7 +902,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -991,7 +940,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights  ",
+			"name": "user_with_R_rights",
 			"item": [
 				{
 					"name": "Add user_with_R_rights",
@@ -1061,7 +1010,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1112,7 +1061,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1163,7 +1112,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1214,7 +1163,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1265,7 +1214,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1316,7 +1265,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1367,7 +1316,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1418,7 +1367,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1456,7 +1405,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights_filters  ",
+			"name": "user_with_R_rights_filters",
 			"item": [
 				{
 					"name": "Add user_with_R_rights_filters",
@@ -1526,7 +1475,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1577,7 +1526,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1628,7 +1577,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1679,7 +1628,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1730,7 +1679,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1781,7 +1730,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1819,7 +1768,7 @@
 			]
 		},
 		{
-			"name": "user_nothing  ",
+			"name": "user_nothing",
 			"item": [
 				{
 					"name": "Add user_nothing",
@@ -1889,7 +1838,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1940,7 +1889,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1991,7 +1940,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2042,7 +1991,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2093,7 +2042,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2144,7 +2093,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2195,7 +2144,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2296,6 +2245,16 @@
 									"    // Creation of a variable with the ID of the new host severity\r",
 									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"HostSeverity1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostSeverity1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostSeverity1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostSeverity1Alias\"),\r",
+									"        \"level\": 2,\r",
+									"        \"icon_id\": 1,\r",
+									"        \"is_activated\": false,\r",
+									"        \"comment\":\"I look like a category but with something more\"\r",
+									"    });\r",
 									"});\r",
 									""
 								],
@@ -2353,6 +2312,14 @@
 									"    // Creation of a variable with the ID of the new host category\r",
 									"    var response = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"HostCategory1Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostCategory1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostCategory1Alias\"),\r",
+									"        \"is_activated\": false,\r",
+									"        \"comment\":\"Created by Admin\"\r",
+									"    });\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2420,6 +2387,21 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new command \r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
+									"        \"type\": 2,\r",
+									"        \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\",\r",
+									"        \"is_shell\": false,\r",
+									"        \"is_activated\": true,\r",
+									"        \"is_locked\": false,\r",
+									"        \"argument_example\": null,\r",
+									"        \"connector\": null,\r",
+									"        \"grap_template\": null\r",
+									"    });\r",
+									"    pm.expect(response.arguments).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4454,6 +4436,14 @@
 									"    // Creation of a variable with the ID of the new host category\r",
 									"    var response = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"HostCategory2Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostCategory2Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostCategory2Alias\"),\r",
+									"        \"is_activated\": true,\r",
+									"        \"comment\":\"Created by user R/W\"\r",
+									"    });\r",
 									"});"
 								],
 								"type": "text/javascript"

@@ -1498,7 +1498,7 @@
 									"    });\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
 									"        \"name\": \"SNMPCOMMUNITY\", \r",
-									"        \"type\": 1, \r",
+									"        \"type\": '1', \r",
 									"        \"description\": \"macro-description\"\r",
 									"    });\r",
 									"    pm.expect(response.connector).to.include({\r",
@@ -2230,7 +2230,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command2Name}}\",\r\n    \"type\": 4,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r\n    \"is_shell\": false,\r\n    \"argument_example\": \"abcbbbbcccc\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG465\", \r\n            \"description\": \"I'm a wonderful argument\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"twixou\", \r\n            \"type\": 2, \r\n            \"description\": \"Such a beautiful cat\"\r\n        }\r\n    ],\r\n    \"connector_id\": 1,\r\n    \"graph_template_id\": 5\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command2Name}}\",\r\n    \"type\": 4,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r\n    \"is_shell\": false,\r\n    \"argument_example\": \"abcbbbbcccc\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG465\", \r\n            \"description\": \"I'm a wonderful argument\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"twixou\", \r\n            \"type\": '2', \r\n            \"description\": \"Such a beautiful cat\"\r\n        }\r\n    ],\r\n    \"connector_id\": 1,\r\n    \"graph_template_id\": 5\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",

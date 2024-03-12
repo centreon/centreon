@@ -2262,7 +2262,8 @@
 									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2273,7 +2274,8 @@
 									"pm.collectionVariables.set(\"HostSeverity1Alias\", \"I'm a host severity!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2287,7 +2289,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Severity_1\",\n    \"alias\":\"I'm a host severity!\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity1Name}}\",\n    \"alias\":\"{{HostSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"is_activated\": false,\n    \"comment\":\"I look like a category but with something more\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -2398,8 +2400,8 @@
 									"        \"id\": pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostSeverity2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostSeverity2Alias\"),\r",
-									"        \"level\":123,\r",
-									"        \"icon_id\":3,\r",
+									"        \"level\": 123,\r",
+									"        \"icon_id\": 3,\r",
 									"        \"is_activated\": true,\r",
 									"        \"comment\": null\r",
 									"    });\r",
@@ -2435,7 +2437,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_H_Severity_2\",\n    \"alias\":\"Oh I'm your second severity!\",\n    \"level\":123,\n    \"icon_id\":3\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity2Name}}\",\n    \"alias\":\"{{HostSeverity2Alias}}\",\n    \"level\": 123,\n    \"icon_id\": 3\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -2802,7 +2804,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Sèvérity_3!\",\n\"alias\":\"Finally, a third successful sévérity!\",\n\"level\": 2,\n\"icon_id\": 1,\n\"comment\":\"   \"\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity3Name}}\",\n    \"alias\":\"{{HostSeverity3Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 1,\n    \"comment\":\"   \"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",
@@ -3368,7 +3370,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_H_Severity_4\",\n\"alias\":\"I'm the fourth successful severity!\",\n\"level\":3,\n\"icon_id\":1,\n\"comment\":\"I was created by the Read/Write user\"\n}"
+							"raw": "{\n    \"name\":\"{{HostSeverity4Name}}\",\n    \"alias\":\"{{HostSeverity4Alias}}\",\n    \"level\":3,\n    \"icon_id\":1,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/severities",

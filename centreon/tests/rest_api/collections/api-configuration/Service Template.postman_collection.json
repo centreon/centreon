@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "1c883679-77b5-4515-b960-5d80dfa7c793",
-		"name": "0 - Service Template",
+		"name": "Service Template",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-1c883679-77b5-4515-b960-5d80dfa7c793?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-1c883679-77b5-4515-b960-5d80dfa7c793?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -61,7 +61,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights      ",
+			"name": "user_with_RW_rights",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights",
@@ -131,7 +131,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -182,7 +182,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -233,7 +233,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -284,7 +284,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -335,7 +335,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -386,7 +386,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -437,7 +437,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read/Write rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -488,7 +488,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -526,421 +526,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights_filters      ",
-			"item": [
-				{
-					"name": "Add user_with_RW_rights_filters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_RW_filters\", \"user_with_RW_rights_filters\");\r",
-									"pm.collectionVariables.set(\"api_password_user_RW_filters\", \"Centreon!123\");"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW_filters}};{{api_login_user_RW_filters}};{{api_login_user_RW_filters}}@localhost;{{api_password_user_RW_filters}};0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW_filters}};reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api_rt parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW_filters}};reach_api_rt;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Group RW_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_limited;RW_limited\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to RW_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_limited;{{api_login_user_RW_filters}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Resources limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"limited;limited\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link resources to RW_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_limited;limited\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link RW to RW_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_limited;RW\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user_with_R_rights      ",
+			"name": "user_with_R_rights",
 			"item": [
 				{
 					"name": "Add user_with_R_rights",
@@ -1010,7 +596,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1061,7 +647,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1112,7 +698,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1163,7 +749,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1214,7 +800,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1265,7 +851,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1316,7 +902,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1367,7 +953,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1405,370 +991,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights_filters      ",
-			"item": [
-				{
-					"name": "Add user_with_R_rights_filters",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_Read_filters\", \"user_with_R_rights_filters\");\r",
-									"pm.collectionVariables.set(\"api_password_user_Read_filters\", \"Centreon!123\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read_filters}};{{api_login_user_Read_filters}};{{api_login_user_Read_filters}}@localhost;{{api_password_user_Read_filters}};0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read_filters}};reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api_rt parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read_filters}};reach_api_rt;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Group RO_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_limited;RO_limited\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to RO_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_limited;{{api_login_user_Read_filters}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link resources to RO_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_limited;limited\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link RO to RO_limited",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_limited;RO\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user_nothing      ",
+			"name": "user_nothing",
 			"item": [
 				{
 					"name": "Add user_nothing",
@@ -1838,7 +1061,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1889,7 +1112,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1940,7 +1163,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -1991,7 +1214,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2042,7 +1265,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2093,7 +1316,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2144,7 +1367,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2519,6 +1742,21 @@
 									"    // Creation of a variable with the ID of the new command \r",
 									"    var response = JSON.parse(responseBody);\r",
 									"    pm.collectionVariables.set(\"CommandId\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
+									"        \"type\": 2,\r",
+									"        \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\",\r",
+									"        \"is_shell\": false,\r",
+									"        \"is_activated\": true,\r",
+									"        \"is_locked\": false,\r",
+									"        \"argument_example\": null,\r",
+									"        \"connector\": null,\r",
+									"        \"grap_template\": null\r",
+									"    });\r",
+									"    pm.expect(response.arguments).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2952,7 +2190,7 @@
 									"    );\r",
 									"    pm.expect(response.macros[1]).to.include({\r",
 									"            \"name\": \"TOTO\",\r",
-									"            \"value\": \"cacahuètes\",\r",
+									"            \"value\": null,\r",
 									"            \"is_password\": true,\r",
 									"            \"description\": \"\"\r",
 									"        }\r",
@@ -3524,8 +2762,6 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"\r",
 									"pm.test(\"The service template has not been created, because the name is empty.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
@@ -4486,7 +3722,11 @@
 									"            \"host_template_id\": parseInt(pm.collectionVariables.get(\"HostTemplate2Id\")),\r",
 									"            \"host_template_name\": pm.collectionVariables.get(\"HostTemplate2Name\")\r",
 									"        })\r",
-									"    pm.expect(response.categories).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.categories[0]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\"),\r",
+									"        }\r",
+									"    );\r",
 									"    pm.expect(response.macros[0]).to.include({\r",
 									"        \"name\": \"COCA COLA\",\r",
 									"        \"value\": \"Normal\",\r",
@@ -4495,7 +3735,7 @@
 									"    });\r",
 									"    pm.expect(response.macros[1]).to.include({\r",
 									"        \"name\": \"GUACAMOLE\",\r",
-									"        \"value\": \"Nachos\",\r",
+									"        \"value\": null,\r",
 									"        \"is_password\": true,\r",
 									"        \"description\": \"Miam\"\r",
 									"    });\r",
