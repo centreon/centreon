@@ -28,7 +28,7 @@ only the following versions are supported:
 * Centreon 23.10.x, released on October 30, 2023, full support
 * Centreon 23.04.x, released on April 26, 2023, full support
 * Centreon 22.10.x, released on October 26, 2022, security and blocking issue support only
-* Centreon 22.04.x, released on Mai 18, 2022, security and blocking issue support only
+* Centreon 22.04.x, released on May 18, 2022, security and blocking issue support only
 
 If your version is not one of the 4 versions specified above, we recommend that
 you [upgrade your platform](https://docs.centreon.com/current/en/upgrade/introduction.html)
