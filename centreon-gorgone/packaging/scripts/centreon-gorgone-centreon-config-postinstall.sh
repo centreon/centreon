@@ -13,7 +13,7 @@ fixConfigurationFileRights() {
   chmod 0640 /etc/centreon-gorgone/config.d/30-centreon.yaml
   chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
   chmod 0640 /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
-  chmod 0770 /etc/centreon-gorgone/config.d/config.d
+  chmod 0770 /etc/centreon-gorgone/config.d
   chmod 0770 /etc/centreon-gorgone/config.d/cron.d
 }
 
