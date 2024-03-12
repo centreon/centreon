@@ -332,7 +332,7 @@ describe('Group Monitoring', () => {
   });
 
   describe('Links', () => {
-    it('redirects to Resources Status when the group name is clicked', () => {
+    it('redirects to Resource Status when the group name is clicked', () => {
       initialize({
         panelOptions: {
           resourceTypes: allResourceTypes,
@@ -358,7 +358,7 @@ describe('Group Monitoring', () => {
         .should('have.attr', 'rel', 'noopener noreferrer');
     });
 
-    it('does not display links to Resources Status when the preview mode is enabled', () => {
+    it('does not display links to Resource Status when the preview mode is enabled', () => {
       initialize({
         isFromPreview: true,
         panelOptions: {

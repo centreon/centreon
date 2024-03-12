@@ -266,7 +266,7 @@ Then('the line disappears from the listing', () => {
 
 Then('the user goes to the Resource Status page', () => {
   cy.navigateTo({
-    page: 'Resources Status',
+    page: 'Resource Status',
     rootItemNumber: 1
   });
 });

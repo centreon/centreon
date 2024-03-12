@@ -11965,7 +11965,7 @@ msgstr "[Seite veraltet] Diese Seite wird in der nächsten Hauptversion entfernt
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php:921
 #: centreon/www/include/monitoring/status/Hosts/host.php:190
 #: centreon/www/include/monitoring/status/Services/service.php:220
-msgid "Resources Status"
+msgid "Resource Status"
 msgstr "Ressourcenstatus"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php:789
@@ -16284,7 +16284,7 @@ msgstr "Erweiterter Modus"
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more on the Resources Status page"
+# msgid "See more on the Resource Status page"
 # msgstr ""
 
 # msgid "You are not allowed to log in"
@@ -16578,7 +16578,7 @@ msgstr "Erweiterter Modus"
 #  msgid "Invalid page name. Valid page names are: %s"
 #  msgstr ""
 
-#  msgid "You are not allowed to access the Resources Status page"
+#  msgid "You are not allowed to access the Resource Status page"
 #  msgstr ""
 
 # msgid "Delete rule"

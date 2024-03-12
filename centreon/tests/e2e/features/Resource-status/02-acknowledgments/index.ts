@@ -73,7 +73,7 @@ Given(
 );
 
 Given(
-  'a single resource selected on Resources Status with the "Resource Problems" filter enabled',
+  'a single resource selected on Resource Status with the "Resource Problems" filter enabled',
   () => {
     cy.contains('Unhandled alerts');
 
@@ -180,7 +180,7 @@ Then(
 );
 
 Given(
-  'multiple resources selected on Resources Status with the "Resource Problems" filter enabled',
+  'multiple resources selected on Resource Status with the "Resource Problems" filter enabled',
   () => {
     cy.contains('Unhandled alerts');
 
@@ -446,7 +446,7 @@ Then('no notification are sent to the users', () => {
 });
 
 Given(
-  'a single resource selected on Resources Status with the criteria "state: acknowledged"',
+  'a single resource selected on Resource Status with the criteria "state: acknowledged"',
   () => {
     cy.contains(/^test_host$/)
       .parent()
