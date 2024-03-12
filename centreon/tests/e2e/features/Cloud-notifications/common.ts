@@ -173,7 +173,7 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
             return false;
           }
 
-          return cy.wrap(initialLineCount === currentLineCount);
+          return cy.wrap(initialLineCount !== currentLineCount);
         });
     },
     { interval: 5000, timeout: 40000 }
