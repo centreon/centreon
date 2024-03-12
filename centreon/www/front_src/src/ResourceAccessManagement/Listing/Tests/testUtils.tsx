@@ -6,8 +6,7 @@ import {
   labelName,
   labelStatus
 } from '../../translatedLabels';
-// TODO: replace Component once action endpoints are implemented
-import { Placeholder } from '../columns';
+import { Actions, Activate } from '../Actions';
 
 export const defaultQueryParams = {
   limit: 10,
@@ -72,8 +71,7 @@ export const getListingColumns = (): Array<Column> => {
       type: ColumnType.string
     },
     {
-      // TODO: replace Component once action endpoints are implemented
-      Component: Placeholder,
+      Component: Actions,
       clickable: true,
       disablePadding: true,
       id: 'actions',
@@ -81,8 +79,7 @@ export const getListingColumns = (): Array<Column> => {
       type: ColumnType.component
     },
     {
-      // TODO: replace Component once action endpoints are implemented
-      Component: Placeholder,
+      Component: Activate,
       clickable: true,
       disablePadding: true,
       id: 'isEnabled',
