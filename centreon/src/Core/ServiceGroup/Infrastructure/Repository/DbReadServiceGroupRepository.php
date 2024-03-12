@@ -857,5 +857,4 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
         return (bool) $statement->fetchColumn();
     }
-
 }
