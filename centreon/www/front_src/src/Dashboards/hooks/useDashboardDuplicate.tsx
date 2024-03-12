@@ -40,9 +40,9 @@ const useDashboardDuplicate = (): UseDashboardForm => {
 
     const payload = {
       description,
-      name,
-      panels: panelsWithoutIds,
-      refresh
+      name
+      // panels: panelsWithoutIds,
+      // refresh
     };
 
     duplicateDashboardMutation(payload)

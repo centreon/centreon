@@ -17390,3 +17390,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Dashboard duplicated"
 # msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""

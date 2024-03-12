@@ -16607,3 +16607,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Dashboard duplicated"
 # msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""

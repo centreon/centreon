@@ -29,7 +29,7 @@ import {
 import {
   labelEditProperties,
   labelMoreActions,
-  labelShare
+  labelShareWithContacts
 } from '../DashboardListing/translatedLabels';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -76,7 +76,7 @@ const DashboardsOverview = (): ReactElement => {
         labelDuplicate: t(labelDuplicate),
         labelEditProperties: t(labelEditProperties),
         labelMoreActions: t(labelMoreActions),
-        labelShare: t(labelShare)
+        labelShareWithContacts: t(labelShareWithContacts)
       },
       emptyState: {
         actions: {

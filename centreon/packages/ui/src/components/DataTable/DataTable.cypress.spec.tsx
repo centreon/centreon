@@ -28,7 +28,7 @@ const initializeDataTableGrid = ({ hasActions, hasCardAction }): void => {
               labelDuplicate: 'Duplicate',
               labelEditProperties: 'Edit Properties',
               labelMoreActions: 'More actions',
-              labelShare: 'Share'
+              labelShareWithContacts: 'Share with contacts'
             }}
             title={title}
             onDelete={() => cy.stub()}

@@ -18736,3 +18736,6 @@ msgstr "Tableau de bord supprimé"
 
 msgid "Dashboard duplicated"
 msgstr "Tableau de bord dupliqué"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"

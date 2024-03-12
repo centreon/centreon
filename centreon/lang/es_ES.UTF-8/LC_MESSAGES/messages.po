@@ -16935,3 +16935,6 @@ msgstr "Modo avanzado"
 
 # msgid "Dashboard duplicated"
 # msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""

@@ -12,8 +12,8 @@ import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import {
   labelMoreActions,
-  labelShare,
-  labelUnshare
+  labelUnshare,
+  labelShareWithContacts
 } from '../../translatedLabels';
 import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
@@ -49,8 +49,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   return (
     <Box className={classes.actions}>
       <IconButton
-        ariaLabel={t(labelShare)}
-        title={t(labelShare)}
+        ariaLabel={t(labelShareWithContacts)}
+        title={t(labelShareWithContacts)}
         onClick={editAccessRights}
       >
         <ShareIcon className={classes.icon} />

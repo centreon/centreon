@@ -88,8 +88,8 @@ const DataTableItem = forwardRef(
             <span />
             <span>
               <IconButton
-                ariaLabel={labels.labelShare}
-                title={labels.labelShare}
+                ariaLabel={labels.labelShareWithContacts}
+                title={labels.labelShareWithContacts}
                 onClick={pipe(onEditAccessRights, closeMoreActions)}
               >
                 <ShareIcon fontSize="small" />
