@@ -52,7 +52,11 @@ const Legend = ({
               }
               position="bottom"
             >
-              <Link target="_blank" to={getLinkToResourceStatusPage(status)}>
+              <Link
+                rel="noopener noreferrer"
+                target="_blank"
+                to={getLinkToResourceStatusPage(status)}
+              >
                 <div
                   className={classes.legendItem}
                   style={{ background: color }}
