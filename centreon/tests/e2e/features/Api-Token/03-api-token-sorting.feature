@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-21279
 Feature: Sorting API Tokens List
 
