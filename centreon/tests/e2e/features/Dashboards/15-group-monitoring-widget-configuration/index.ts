@@ -240,6 +240,7 @@ When(
       .eq(0)
       .type(genericTextWidgets.default.description);
     cy.getByTestId({ testId: 'Resource type' }).click({ force: true });
+    cy.getByLabel({ label: 'Host Group' }).should('be.visible');
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains(hostGroupName).realClick();
