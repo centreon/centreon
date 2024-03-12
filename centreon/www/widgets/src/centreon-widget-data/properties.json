@@ -12,6 +12,21 @@
         "warningType": "default"
       },
       "label": "threshold"
+    },
+    "sortBy": {
+      "type": "radio",
+      "label": "Sort by",
+      "options": [
+        {
+          "id": "name",
+          "name": "Name"
+        }
+      ],
+      "defaultValue": "name",
+      "hiddenCondition": {
+        "when": "options.threshold.enabled",
+        "matches": false
+      }
     }
   },
   "data": {

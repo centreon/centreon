@@ -48,6 +48,11 @@ export enum FederatedWidgetOptionType {
   valueFormat = 'value-format'
 }
 
+interface WidgetHiddenCondition {
+  matches: unknown;
+  when: string;
+}
+
 export interface FederatedWidgetOption {
   defaultValue:
     | unknown
@@ -57,6 +62,7 @@ export interface FederatedWidgetOption {
         then: unknown;
         when: string;
       };
+  hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
     | Array<SelectEntry>
