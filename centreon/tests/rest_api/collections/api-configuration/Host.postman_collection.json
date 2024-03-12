@@ -2779,7 +2779,6 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new host\r",
 									"    var response = JSON.parse(responseBody);\r",
-									"    console.log(response);\r",
 									"    pm.collectionVariables.set(\"Host1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.include({\r",
@@ -2838,7 +2837,18 @@
 									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\")\r",
 									"    });\r",
-									"    pm.expect(response.macros).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(response.macros[0]).to.include({\r",
+									"        \"name\": \"NAMEA\",\r",
+									"        \"value\": \"valueA\",\r",
+									"        \"is_password\": false,\r",
+									"        \"description\": \"some text\"\r",
+									"    });\r",
+									"    pm.expect(response.macros[1]).to.include({\r",
+									"        \"name\": \"NAMEB\",\r",
+									"        \"value\": null,\r",
+									"        \"is_password\": true,\r",
+									"        \"description\": null\r",
+									"    });\r",
 									"\r",
 									"});"
 								],
@@ -11688,64 +11698,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_RW_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Read_filters",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "api_password_user_Nothing",
-			"value": ""
-		},
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "Host2Name",
-			"value": ""
-		},
-		{
-			"key": "Host2Id",
-			"value": ""
-		},
-		{
-			"key": "ACLResources",
-			"value": ""
 		}
 	]
 }
