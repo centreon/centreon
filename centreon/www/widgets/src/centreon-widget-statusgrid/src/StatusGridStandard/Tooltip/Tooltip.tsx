@@ -10,7 +10,7 @@ interface Props {
   resourceType: string;
 }
 
-const Tooltip = ({ resourceType, data }: Props): JSX.Element => {
+export const StatusTooltip = ({ resourceType, data }: Props): JSX.Element => {
   return equals(resourceType, 'host') ? (
     <HostTooltipContent data={data} />
   ) : (
@@ -20,5 +20,5 @@ const Tooltip = ({ resourceType, data }: Props): JSX.Element => {
 
 export default (resourceType: string) =>
   ({ data }: Pick<Props, 'data'>) => (
-    <Tooltip data={data} resourceType={resourceType} />
+    <StatusTooltip data={data} resourceType={resourceType} />
   );

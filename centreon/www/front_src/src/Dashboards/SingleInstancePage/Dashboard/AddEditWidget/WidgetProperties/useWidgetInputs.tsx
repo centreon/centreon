@@ -1,13 +1,16 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find } from 'ramda';
+import { propEq, find, path, equals } from 'ramda';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../models';
-import { FederatedWidgetOptionType } from '../../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  FederatedWidgetOptionType
+} from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
   singleHostPerMetricAtom,
@@ -76,27 +79,43 @@ export const useWidgetInputs = (
     federatedWidgetsProperties || []
   );
 
-  const selectedWidgetProperties = selectedWidget?.[widgetKey] || null;
+  const selectedWidgetProperties: {
+    [key: string]: FederatedWidgetOption;
+  } | null = selectedWidget?.[widgetKey] || null;
 
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
-        ? Object.entries(selectedWidgetProperties).map(([key, value]) => {
-            const Component =
-              propertiesInputType[value.type] || DefaultComponent;
-
-            return {
-              Component,
-              key,
-              props: {
-                ...(value as WidgetPropertyProps),
-                propertyName: key,
-                propertyType: widgetKey
+        ? Object.entries(selectedWidgetProperties)
+            .filter(([, value]) => {
+              if (!value.hiddenCondition) {
+                return true;
               }
-            };
-          })
+
+              return !equals(
+                path(value.hiddenCondition.when.split('.'), values),
+                value.hiddenCondition.matches
+              );
+            })
+            .map(([key, value]) => {
+              const Component =
+                propertiesInputType[value.type] || DefaultComponent;
+
+              return {
+                Component,
+                key,
+                props: {
+                  ...(value as Omit<
+                    WidgetPropertyProps,
+                    'propertyName' | 'propertyType'
+                  >),
+                  propertyName: key,
+                  propertyType: widgetKey
+                }
+              };
+            })
         : null,
-    [selectedWidgetProperties]
+    [selectedWidgetProperties, values]
   );
 
   useEffect(

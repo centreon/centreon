@@ -24,6 +24,7 @@ interface UseInfiniteScrollListing<T> {
 interface UseInfiniteScrollListingProps<T> {
   customQueryParameters?: Array<QueryParameter>;
   decoder?: JsonDecoder.Decoder<Listing<T>>;
+  enabled?: boolean;
   endpoint: string;
   limit?: number;
   pageAtom: PrimitiveAtom<number>;
@@ -40,7 +41,8 @@ export const useInfiniteScrollListing = <T>({
   suspense = true,
   parameters,
   customQueryParameters,
-  limit = 100
+  limit = 100,
+  enabled = true
 }: UseInfiniteScrollListingProps<T>): UseInfiniteScrollListing<T> => {
   const [maxPage, setMaxPage] = useState(1);
 
@@ -61,6 +63,7 @@ export const useInfiniteScrollListing = <T>({
     getQueryKey: () => [queryKeyName, page],
     isPaginated: true,
     queryOptions: {
+      enabled,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       suspense: suspense && equals(page, 1)

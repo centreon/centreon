@@ -121,10 +121,11 @@ const resourceQueryParameters = [
 
 const useResources = ({
   propertyName,
-  restrictedResourceTypes
+  restrictedResourceTypes,
+  required
 }: Pick<
   WidgetPropertyProps,
-  'propertyName' | 'restrictedResourceTypes'
+  'propertyName' | 'restrictedResourceTypes' | 'required'
 >): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -143,7 +144,7 @@ const useResources = ({
   const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 
   const errorToDisplay =
-    isTouched && isEmpty(value) ? labelPleaseSelectAResource : null;
+    isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
 
   const getResourceStatic = (
     resourceType: WidgetResourceType
