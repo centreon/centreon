@@ -36,7 +36,7 @@ immediately.
 
 <h2> Authors </h2>
 
-See the list of our [**contributors**](https://github.com/centreon/centreon/graphs/contributors)
+See the list of our [**contributors**](https://github.com/centreon/centreon/graphs/contributors).
 
 <h2> Security Acknowledgement page </h2>
 
