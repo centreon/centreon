@@ -112,7 +112,7 @@ describe('DataTable: Grid', () => {
       hasCardAction: false
     });
 
-    cy.findAllByLabelText('Share').should('have.length', 5);
+    cy.findAllByLabelText('Share with contacts').should('have.length', 5);
     cy.findAllByLabelText('More actions').should('have.length', 5);
 
     cy.makeSnapshot();
@@ -151,7 +151,7 @@ describe('DataTable: Grid', () => {
     });
 
     cy.findAllByLabelText('view').should('have.length', 5);
-    cy.findAllByLabelText('Share').should('have.length', 5);
+    cy.findAllByLabelText('Share with contacts').should('have.length', 5);
     cy.findAllByLabelText('More actions').should('have.length', 5);
 
     cy.makeSnapshot();
