@@ -31,7 +31,6 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-    private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /** @var Kernel */
     private static $instance;
@@ -102,7 +101,7 @@ class Kernel extends BaseKernel
     /**
      * @return string
      */
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return $this->cacheDir;
     }
@@ -110,7 +109,7 @@ class Kernel extends BaseKernel
     /**
      * @return string
      */
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return $this->logDir;
     }

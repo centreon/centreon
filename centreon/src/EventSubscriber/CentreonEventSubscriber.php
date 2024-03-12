@@ -37,6 +37,7 @@ use Centreon\Domain\VersionHelper;
 use JMS\Serializer\Exception\ValidationFailedException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{
@@ -47,8 +48,9 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\{
-    Exception\AccessDeniedException, Security
+    Exception\AccessDeniedException
 };
+use \Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * We defined an event subscriber on the kernel event request to create a
@@ -64,7 +66,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      * If no version has been defined in the configuration,
      * this version will be used by default.
      */
-    public const DEFAULT_API_VERSION = '21.10';
+    public const DEFAULT_API_VERSION = '24.04';
 
     /**
      * If no API header name has been defined in the configuration,
@@ -117,7 +119,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param ResponseEvent $event
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function addApiVersion(ResponseEvent $event): void
     {
@@ -232,7 +234,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $event
      *
-     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function defineApiVersionInAttributes(RequestEvent $event): void
     {
