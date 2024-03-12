@@ -49,8 +49,9 @@ When(
     cy.contains(dashboardToDelete.name)
       .parent()
       .find('button[aria-label="More actions"]')
-      .find('button[aria-label="Delete"]')
       .click();
+
+    cy.find('li[aria-label="Delete"]').click();
   }
 );
 
@@ -95,8 +96,9 @@ Given(
     cy.contains(dashboardToDelete.name)
       .parent()
       .find('button[aria-label="More actions"]')
-      .find('button[aria-label="Delete"]')
       .click();
+
+    cy.find('li[aria-label="Delete"]').click();
   }
 );
 
