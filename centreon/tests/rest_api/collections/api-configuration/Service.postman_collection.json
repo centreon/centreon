@@ -2787,7 +2787,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [{{HostTemplate1Id}}],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"try\",\r\n        \"value\": null,\r\n        \"is_password\": true,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"again\",\r\n        \"value\": \"encore\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"127.0.0.1\",\r\n    \"monitoring_server_id\": 1,\r\n    \"snmp_version\": \"2c\",\r\n    \"snmp_community\": \"snmpCommunity-test\",\r\n    \"templates\": [{{HostTemplate1Id}}],\r\n    \"comment\": \"1, 2, 3\",\r\n    \"macros\": [\r\n        {\r\n        \"name\": \"try\",\r\n        \"value\": \"essaye\",\r\n        \"is_password\": true,\r\n        \"description\": \"some text\"\r\n        },\r\n        {\r\n        \"name\": \"again\",\r\n        \"value\": \"encore\",\r\n        \"is_password\": false,\r\n        \"description\": null\r\n        }\r\n    ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",

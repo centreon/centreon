@@ -2779,6 +2779,7 @@
 									"\r",
 									"    // Creation of a variable with the ID of the new host\r",
 									"    var response = JSON.parse(responseBody);\r",
+									"    console.log(response);\r",
 									"    pm.collectionVariables.set(\"Host1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.include({\r",
