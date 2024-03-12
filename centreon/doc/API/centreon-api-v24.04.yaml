@@ -2184,7 +2184,9 @@ paths:
         * host.state
         * poller.id
         * service.display_name
-        * host_group.id
+        * host.group.id
+        * host.group.name
+
       parameters:
         - $ref: '#/components/parameters/ShowHost'
         - $ref: '#/components/parameters/ShowService'
