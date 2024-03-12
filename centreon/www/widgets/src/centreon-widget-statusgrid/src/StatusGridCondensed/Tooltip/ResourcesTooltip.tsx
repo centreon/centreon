@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { dec, equals, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +66,14 @@ const ResourcesTooltip = ({
   });
 
   const hasElements = !isEmpty(elements);
+  const { formattedCount, formattedTotal, translatedResourceType } =
+    useMemo(() => {
+      return {
+        formattedCount: formatMetricValue({ unit: '', value: count }),
+        formattedTotal: formatMetricValue({ unit: '', value: total || 0 }),
+        translatedResourceType: pluralizedT({ count, label: resourceType })
+      };
+    }, [count, total, resourceType]);
 
   return (
     <Box>
@@ -87,7 +97,7 @@ const ResourcesTooltip = ({
           )}
           {isSuccessStatus && (
             <Typography color="disabled">
-              {`${formatMetricValue({ unit: '', value: count })}/${formatMetricValue({ unit: '', value: total || 0 })} ${pluralizedT({ count, label: resourceType })} `}
+              {`${formattedCount}/${formattedTotal} ${translatedResourceType} `}
               {t(labelAreWorkingFine)}
             </Typography>
           )}
@@ -120,11 +130,6 @@ const ResourcesTooltip = ({
               })}
             </div>
           )}
-          {/* {!hasServices && !isLoading && statusOk && (
-            <Typography color="text.secondary">
-              {t(labelAllServicesAreWorkingFine)}
-            </Typography>
-          )} */}
           {isLoading && <CircularProgress size={24} />}
         </Box>
         <Divider variant="middle" />
