@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/acls/acl-data.json';
-import '../commands';
 
 const originalACLGroup = {
   name: 'ACL_group',
