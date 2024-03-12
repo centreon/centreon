@@ -2879,7 +2879,7 @@
 									"    );\r",
 									"    pm.expect(response.macros[1]).to.include({\r",
 									"            \"name\": \"TOTO\",\r",
-									"            \"value\": \"cacahuètes\",\r",
+									"            \"value\": null,\r",
 									"            \"is_password\": true,\r",
 									"            \"description\": \"\"\r",
 									"        }\r",
