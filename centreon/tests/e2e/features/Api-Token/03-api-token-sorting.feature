@@ -12,7 +12,7 @@ Feature: Sorting API Tokens List
 
   Scenario Outline: Sort tokens by '<order_by>'
     When I click on the '<order_by>' column header
-    Then the tokens are sorted by '<order_by>' in ascending order
+    Then the tokens are sorted by '<order_by>' in descending order
     Examples:
       | order_by        |
       | Status          |

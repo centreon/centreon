@@ -69,10 +69,11 @@ Given('I am on the API tokens page', () => {
 
 When('I click on the {string} column header', (columnHeader: string) => {
   cy.contains(columnHeader).click();
+  cy.wait('@getTokens');
 });
 
 Then(
-  'the tokens are sorted by {string} in ascending order',
+  'the tokens are sorted by {string} in descending order',
   (orderBy: string) => {
     let values: string[] = [];
     let parsedDates: Date[] = [];
@@ -94,11 +95,13 @@ Then(
         // For Date columns
         if (orderBy.toLowerCase().includes('date')) {
           const sortedParsedDates = [...parsedDates].sort(
-            (a, b) => a.getTime() - b.getTime()
+            (a, b) => b.getTime() - a.getTime()
           );
           expect(parsedDates).to.deep.equal(sortedParsedDates);
         } else {
-          const sortedValues = [...values].sort();
+          const sortedValues = [...values].sort((a, b) =>
+            b < a ? -1 : b > a ? 1 : 0
+          );
           expect(values).to.deep.equal(sortedValues);
         }
       });
