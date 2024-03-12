@@ -1981,6 +1981,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
     $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
+  /monitoring/services/status:
+    $ref: './v24.04/Realtime/Resources/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
