@@ -272,11 +272,11 @@ $help["host_acknowledgement_timeout"] = dgettext(
 
 $help["notes_url"] = dgettext(
     "help",
-    "Clickable URL displayed in the Notes column of the Resources Status page."
+    "Clickable URL displayed in the Notes column of the Resource Status page."
 );
 $help["notes"] = dgettext(
     "help",
-    "Information note displayed as a tooltip in the Notes column of the Resources Status page."
+    "Information note displayed as a tooltip in the Notes column of the Resource Status page."
 );
 $help["action_url"] = dgettext(
     "help",
@@ -325,7 +325,7 @@ $help["3d_coords"] = dgettext(
 );
 $help['criticality_id'] = dgettext(
     "help",
-    "Host severity level. Can be used to sort alerts in the monitoring menus, including the Resources Status page."
+    "Host severity level. Can be used to sort alerts in the monitoring menus, including the Resource Status page."
 );
 $help['acl_groups'] = dgettext(
     "help",

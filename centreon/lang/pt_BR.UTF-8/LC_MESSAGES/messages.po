@@ -17078,7 +17078,7 @@ msgstr ""
 # msgid "Sort by"
 # msgstr ""
 
-# msgid "See more on the Resources Status page"
+# msgid "See more on the Resource Status page"
 # msgstr ""
 
 # msgid "You are not allowed to log in"
@@ -17438,7 +17438,7 @@ msgstr ""
 #  msgid "Invalid page name. Valid page names are: %s"
 #  msgstr ""
 
-#  msgid "You are not allowed to access the Resources Status page"
+#  msgid "You are not allowed to access the Resource Status page"
 #  msgstr ""
 
 # msgid "Clear"

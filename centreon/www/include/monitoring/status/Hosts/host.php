@@ -195,7 +195,7 @@ $resourceController = $kernel->getContainer()->get(
 );
 
 $deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
-$resourcesStatusLabel = _('Resources Status');
+$resourcesStatusLabel = _('Resource Status');
 
 $filter = [
     'criterias' => [

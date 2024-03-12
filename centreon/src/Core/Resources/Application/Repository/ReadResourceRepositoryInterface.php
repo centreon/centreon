@@ -62,7 +62,7 @@ interface ReadResourceRepositoryInterface
     public function findParentResourcesById(ResourceFilter $filter): array;
 
     /**
-     * Retrieve resources status count.
+     * Retrieve resource status count.
      *
      * @param string $resourceType
      * @param ResourceFilter $filter
@@ -74,7 +74,7 @@ interface ReadResourceRepositoryInterface
     public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount;
 
     /**
-     * Retrieve resources status count by given access group ids.
+     * Retrieve resource status count by given access group ids.
      *
      * @param string $resourceType
      * @param int[] $accessGroupIds

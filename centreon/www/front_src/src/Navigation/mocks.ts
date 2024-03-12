@@ -13,7 +13,7 @@ export const retrievedNavigation: Navigation = {
         {
           groups: [],
           is_react: true,
-          label: 'Resources Status',
+          label: 'Resource Status',
           options: null,
           page: '200',
           show: true,

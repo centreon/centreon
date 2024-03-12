@@ -120,6 +120,17 @@ $updateTopologyForApiTokens = function(CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$updateTopologyForResourceStatusRename = function(CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = "Could not update topology for Resource Status rename";
+    $pearDB->query(
+            <<<'SQL'
+                UPDATE `topology`
+                SET topology_name = 'Resource Status'
+                WHERE `topology_name` = 'Resources Status'
+                SQL
+    );
+};
+
 // ------------ Resource Access Management database updates ---------------- //
 $insertTopologyForResourceAccessManagement = function(CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to insert topology for Resource Access Management';
@@ -228,6 +239,7 @@ try {
     $insertTopologyForResourceAccessManagement($pearDB);
 
     $updateTopologyForApiTokens($pearDB);
+    $updateTopologyForResourceStatusRename($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
