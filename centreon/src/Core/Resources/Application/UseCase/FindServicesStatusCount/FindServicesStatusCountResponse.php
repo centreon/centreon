@@ -21,22 +21,24 @@
 
 declare(strict_types = 1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Resources\Application\UseCase\FindServicesStatusCount;
 
-final class DownStatusCount
+final class FindServicesStatusCountResponse
 {
-    /**
-     * @param int $total
-     */
-    public function __construct(private readonly int $total)
-    {
-    }
+    /** @var array{total: int} */
+    public array $criticalStatus = ['total' => 0];
 
-    /**
-     * @return int
-     */
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
+    /** @var array{total: int} */
+    public array $warningStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $unknownStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $okStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $pendingStatus = ['total' => 0];
+
+    public int $total = 0;
 }

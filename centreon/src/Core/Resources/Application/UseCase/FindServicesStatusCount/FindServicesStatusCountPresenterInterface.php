@@ -21,22 +21,12 @@
 
 declare(strict_types = 1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Resources\Application\UseCase\FindServicesStatusCount;
 
-final class DownStatusCount
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountResponse;
+
+interface FindServicesStatusCountPresenterInterface
 {
-    /**
-     * @param int $total
-     */
-    public function __construct(private readonly int $total)
-    {
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
+    public function presentResponse(FindServicesStatusCountResponse|ResponseStatusInterface $response): void;
 }

@@ -23,7 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Resources\Domain\Model;
 
-final class DownStatusCount
+final class CriticalStatusCount
 {
     /**
      * @param int $total
