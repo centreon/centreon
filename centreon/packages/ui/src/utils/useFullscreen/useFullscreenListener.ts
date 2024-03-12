@@ -39,16 +39,13 @@ export const useFullscreenListener = (): boolean => {
     resetVariables();
   };
 
-  useEffect(
-    () => {
-      document.addEventListener('fullscreenchange', changeFullscreen);
+  useEffect(() => {
+    document.addEventListener('fullscreenchange', changeFullscreen);
 
-      return () => {
-        document.removeEventListener('fullscreenchange', changeFullscreen);
-      };
-    },
-    useDeepCompare([document.fullscreenElement])
-  );
+    return () => {
+      document.removeEventListener('fullscreenchange', changeFullscreen);
+    };
+  }, useDeepCompare([document.fullscreenElement]));
 
   useEffect(() => {
     window.addEventListener('keypress', toggle);
