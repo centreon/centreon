@@ -18,7 +18,6 @@ import {
   map,
   not,
   pick,
-  pluck,
   prop,
   propEq,
   reduce,
@@ -57,6 +56,8 @@ import { EmptyResult } from './EmptyResult/EmptyResult';
 import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { ListingHeader } from './Header';
 import { subItemsPivotsAtom } from './tableAtoms';
+
+const subItemPrefixKey = 'listing';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -217,7 +218,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
         (acc, row) => [
           ...acc,
           ...(row[subItems?.getRowProperty() || ''] || []).map(
-            ({ id }) => `listing_${getId(row)}_${id}`
+            ({ id }) => `${subItemPrefixKey}_${getId(row)}_${id}`
           )
         ],
         [],
@@ -255,7 +256,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
   );
 
   const getSubItemRowId = React.useCallback((row: TRow) => {
-    return `listing_${row.internalListingParentId}_${row.id}`;
+    return `${subItemPrefixKey}_${row.internalListingParentId}_${row.id}`;
   }, []);
 
   const getIsSubItem = React.useCallback(
