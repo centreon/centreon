@@ -55,7 +55,7 @@ class MigrateAllCommandsCommand extends AbstractMigrationCommand
         $this->addArgument(
             'target-url',
             InputArgument::REQUIRED,
-            "The target platform base url to connect to the API (ex: 'http://localhost')"
+            "The target platform base url to connect to the API (ex: 'http://localhost/centreon')"
         );
         $this->setHelp(
             "Migrates all commands to the target platform.\r\n"

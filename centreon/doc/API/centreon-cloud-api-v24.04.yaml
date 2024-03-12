@@ -49,5 +49,6 @@ paths:
   /administration/resource-access/rules:
     $ref: "./latest/Cloud/ResourceAccessManagement/AddAndFindRules.yaml"
   /administration/resource-access/rules/{rule_id}:
-    $ref: "./latest/Cloud/ResourceAccessManagement/FindAndUpdateRule.yaml"
-
+    $ref: "./latest/Cloud/ResourceAccessManagement/FindUpdateAndDeleteRule.yaml"
+  /administration/resource-access/rules/_delete:
+    $ref: "./latest/Cloud/ResourceAccessManagement/DeleteRules.yaml"

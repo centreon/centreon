@@ -124,6 +124,7 @@ final class FindRule
         $response->id = $rule->getId();
         $response->name = $rule->getName();
         $response->description = $rule->getDescription();
+        $response->isEnabled = $rule->isEnabled();
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
@@ -173,6 +174,10 @@ final class FindRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
@@ -188,6 +193,6 @@ final class FindRule
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

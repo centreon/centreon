@@ -1,55 +1,38 @@
 import { useTranslation } from 'react-i18next';
+import { useSetAtom } from 'jotai';
 
 import { Delete as DeleteIcon } from '@mui/icons-material';
 
-import { ConfirmationTooltip } from '@centreon/ui/components';
 import { IconButton } from '@centreon/ui';
 
-import {
-  labelDescriptionDeleteDashboard,
-  labelCancel,
-  labelDelete
-} from '../../../../../translatedLabels';
+import { labelDelete } from '../../../../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
+import { dashboardToDeleteAtom } from '../../../../../atoms';
+import { FormattedDashboard } from '../../../../../api/models';
+import { unformatDashboard } from '../../utils';
 
 interface Props {
-  dashboardName: string;
-  deleteDashboard: () => void;
+  row: FormattedDashboard;
 }
-const DeleteDashboard = ({
-  dashboardName,
-  deleteDashboard
-}: Props): JSX.Element => {
+const DeleteDashboard = ({ row }: Props): JSX.Element => {
   const { classes } = useColumnStyles();
   const { t } = useTranslation();
 
-  const labelsDelete = {
-    cancel: t(labelCancel),
-    confirm: {
-      label: t(labelDelete),
-      secondaryLabel: t(labelDescriptionDeleteDashboard, {
-        name: dashboardName
-      })
-    }
+  const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
+
+  const openDeleteModal = (): void => {
+    setDashboardToDelete(unformatDashboard(row));
   };
 
   return (
-    <ConfirmationTooltip
-      confirmVariant="error"
-      labels={labelsDelete}
-      onConfirm={deleteDashboard}
+    <IconButton
+      ariaLabel={t(labelDelete)}
+      key={labelDelete}
+      title={t(labelDelete)}
+      onClick={openDeleteModal}
     >
-      {({ toggleTooltip }) => (
-        <IconButton
-          ariaLabel={t(labelDelete)}
-          key={labelDelete}
-          title={t(labelDelete)}
-          onClick={toggleTooltip}
-        >
-          <DeleteIcon className={classes.icon} />
-        </IconButton>
-      )}
-    </ConfirmationTooltip>
+      <DeleteIcon className={classes.icon} />
+    </IconButton>
   );
 };
 

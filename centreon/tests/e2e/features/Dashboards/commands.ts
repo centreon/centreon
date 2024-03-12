@@ -116,6 +116,17 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('applyAcl', () => {
+  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
+
+  cy.execInContainer({
+    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
+    name: 'web'
+  });
+});
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -140,6 +151,7 @@ type widgetJSONData =
 declare global {
   namespace Cypress {
     interface Chainable {
+      applyAcl: () => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,

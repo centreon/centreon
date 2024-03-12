@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
@@ -8,8 +8,11 @@ import { useFetchQuery } from '@centreon/ui';
 import { listTokensDecoder } from '../api/decoder';
 import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
-import { currentFilterAtom } from './Actions/Search/Filter/atoms';
-import { Fields, SortOrder } from './Actions/Search/Filter/models';
+import {
+  currentFilterAtom,
+  customQueryParametersAtom
+} from './Actions/Filter/atoms';
+import { Fields, SortOrder } from './Actions/Filter/models';
 import { DataListing, SortParams, UseTokenListing } from './models';
 
 interface Props {
@@ -20,9 +23,11 @@ export const useTokenListing = ({ enabled }: Props): UseTokenListing => {
   const [dataListing, setDataListing] = useState<DataListing | undefined>();
   const [defaultEnabled, setDefaultEnabled] = useState(false);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
+  const customQueryParameters = useAtomValue(customQueryParametersAtom);
 
   const getEndpoint = (): string => {
     return buildListEndpoint({
+      customQueryParameters,
       endpoint: listTokensEndpoint,
       parameters: currentFilter
     });
@@ -31,7 +36,7 @@ export const useTokenListing = ({ enabled }: Props): UseTokenListing => {
   const { data, isLoading, isError, refetch, isRefetching } = useFetchQuery({
     decoder: listTokensDecoder,
     getEndpoint,
-    getQueryKey: () => ['listTokens', currentFilter],
+    getQueryKey: () => ['listTokens', currentFilter, customQueryParameters],
     queryOptions: {
       enabled: !isNil(enabled) ? enabled : defaultEnabled,
       suspense: false
