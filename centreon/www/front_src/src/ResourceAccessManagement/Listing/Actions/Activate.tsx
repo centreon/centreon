@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { styled } from '@mui/material/styles';
-import { Switch as MUISwitch, Tooltip } from '@mui/material';
+import { Switch, Tooltip } from '@mui/material';
 
 import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
 
@@ -15,25 +14,13 @@ import {
   labelEnabled
 } from '../../translatedLabels';
 
-const Switch = styled(MUISwitch)(({ theme }) => ({
-  '& .MuiSwitch-switchBase': {
-    '&.Mui-checked': {
-      '& + .MuiSwitch-track': {
-        backgroundColor: theme.palette.success.main,
-        opacity: 1
-      },
-      color: theme.palette.common.white
-    }
-  },
-  '& .MuiSwitch-thumb': {
-    backgroundColor: theme.palette.common.white
-  }
-}));
+import useActivateStyles from './Activate.styles';
 
 const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   const queryClient = useQueryClient();
 
   const { t } = useTranslation();
+  const { classes } = useActivateStyles();
 
   const [checked, setChecked] = useState(row?.isActivated);
 
@@ -64,6 +51,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
       <Switch
         aria-label={t(labelActiveOrInactive)}
         checked={checked}
+        className={classes.switch}
         color="success"
         size="small"
         onClick={onClick}
