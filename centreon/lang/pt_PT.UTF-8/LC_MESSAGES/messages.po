@@ -17340,6 +17340,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Resource table"
 # msgstr ""
 
+# msgid "Fullscreen (F)"
+# msgstr ""
+
 # msgid "Expiration date"
 # msgstr ""
 
@@ -17415,9 +17418,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "unreachable"
 # msgstr ""
 
-# msgid "Fullscreen (Alt+F)"
-# msgstr ""
-
 # msgid "The {{name}} widget will be permanently deleted."
 # msgstr ""
 
@@ -17431,6 +17431,26 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "You are not allowed to access the Resources Status page"
+
+#  msgid "Error while adding a broker output"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a broker configuration"
+#  msgstr ""
+
+#  msgid "Broker configuration #%d not found"
+#  msgstr ""
+
+#  msgid "Missing output parameter: %s"
+#  msgstr ""
+
+#  msgid "Parameter '%s' (%s) is invalid"
+#  msgstr ""
+
+#  msgid "Parameter '%s' of type %s is invalid"
+#  msgstr ""
+
+#  msgid "Output #%d not found for broker configuration #%d"
 #  msgstr ""
 
 # msgid "Delete rule"
