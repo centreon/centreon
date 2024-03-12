@@ -473,7 +473,7 @@ describe('Link to resource status page', () => {
 });
 
 describe('Link to resource status page: host', () => {
-  it('navigates to resources status page with predefined filters when resource tile is clicked', () => {
+  it('navigates to resource status page with predefined filters when resource tile is clicked', () => {
     cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
     hostsRequests();
     initialize({ data: { resources }, options: hostOptions });

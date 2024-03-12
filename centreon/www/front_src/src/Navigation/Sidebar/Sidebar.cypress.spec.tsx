@@ -157,7 +157,7 @@ describe.only('Navigation with additional label', () => {
   it('renders the menu item with additional label', () => {
     cy.get('li').eq(0).trigger('mouseover');
 
-    cy.contains('Resources Status').should('be.visible');
+    cy.contains('Resource Status').should('be.visible');
     cy.contains('BETA').should('be.visible');
   });
 });

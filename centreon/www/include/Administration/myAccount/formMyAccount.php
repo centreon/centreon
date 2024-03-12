@@ -90,7 +90,7 @@ if ($o == "c") {
         $cct[$row['cp_key']] = $row['cp_value'];
     }
 
-    // selected by default is Resources status page
+    // selected by default is Resource Status page
     $cct['default_page'] = $cct['default_page'] ?: CentreonAuth::DEFAULT_PAGE;
 }
 

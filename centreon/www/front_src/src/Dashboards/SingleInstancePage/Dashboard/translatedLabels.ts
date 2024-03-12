@@ -128,8 +128,4 @@ export const labelUnsavedChanges =
   'If you leave without saving your dashboard, changes will be permanently lost.';
 export const labelIsTheSelectedResource =
   'is the selected metric by default. Refine filters to select another specific resource.';
-export const labelSeeMore = 'See more on the Resources Status page';
-export const labelDiscard = 'Discard';
-export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
-export const labelIfYouClickOnDiscard =
-  'If you click on Discard, your changes will not be saved.';
+export const labelSeeMore = 'See more on the Resource Status page';
