@@ -24,7 +24,6 @@ declare(strict_types = 1);
 namespace Core\Resources\Application\UseCase\FindServicesStatusCount;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountResponse;
 
 interface FindServicesStatusCountPresenterInterface
 {

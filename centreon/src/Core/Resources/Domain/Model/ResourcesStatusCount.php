@@ -27,6 +27,7 @@ class ResourcesStatusCount
 {
     /**
      * @param HostsStatusCount|null $hostsStatusCount
+     * @param ServicesStatusCount|null $servicesStatusCount
      */
     public function __construct(
         private readonly ?HostsStatusCount $hostsStatusCount,

@@ -24,14 +24,10 @@ declare(strict_types=1);
 namespace Core\Resources\Infrastructure\Repository;
 
 use Core\Resources\Domain\Model\CriticalStatusCount;
-use Core\Resources\Domain\Model\DownStatusCount;
-use Core\Resources\Domain\Model\HostsStatusCount;
 use Core\Resources\Domain\Model\OkStatusCount;
 use Core\Resources\Domain\Model\PendingStatusCount;
 use Core\Resources\Domain\Model\ServicesStatusCount;
 use Core\Resources\Domain\Model\UnknownStatusCount;
-use Core\Resources\Domain\Model\UnreachableStatusCount;
-use Core\Resources\Domain\Model\UpStatusCount;
 use Core\Resources\Domain\Model\WarningStatusCount;
 
 final class DbServicesStatusCountFactory
@@ -39,10 +35,8 @@ final class DbServicesStatusCountFactory
     public const OK_STATUS = 0;
     public const WARNING_STATUS = 1;
     public const CRITICAL_STATUS = 2;
-    public const UNKWNOWN_STATUS = 3;
+    public const UNKNOWN_STATUS = 3;
     public const PENDING_STATUS = 4;
-
-//0=OK, 1=WARNING, 2=CRITICAL, 3=UNKNOWN, 4=PENDING
 
     /**
      * @param array<array{id:int, status: int}> $record
@@ -56,7 +50,7 @@ final class DbServicesStatusCountFactory
         return new ServicesStatusCount(
             new CriticalStatusCount(self::countInStatus(self::CRITICAL_STATUS, $statuses)),
             new WarningStatusCount(self::countInStatus(self::WARNING_STATUS, $statuses)),
-            new UnknownStatusCount(self::countInStatus(self::UNKWNOWN_STATUS, $statuses)),
+            new UnknownStatusCount(self::countInStatus(self::UNKNOWN_STATUS, $statuses)),
             new OkStatusCount(self::countInStatus(self::OK_STATUS, $statuses)),
             new PendingStatusCount(self::countInStatus(self::PENDING_STATUS, $statuses))
         );
