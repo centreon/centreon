@@ -7,7 +7,10 @@ import {
   labelDelete,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
-  labelDeleteResourceAccessRuleWarning
+  labelDeleteResourceAccessRuleWarning,
+  labelDeleteResourceAccessRules,
+  labelDeleteResourceAccessRulesDialogMessage,
+  labelDeleteResourceAccessRulesWarning
 } from '../../translatedLabels';
 
 import useDeleteConfirmationDialogStyles from './DeleteConfirmationDialog.styles';
@@ -33,11 +36,20 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
       labelMessage={
-        resourceAccessRuleName &&
-        `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}`
+        resourceAccessRuleName
+          ? `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}`
+          : t(labelDeleteResourceAccessRulesDialogMessage)
       }
-      labelSecondMessage={t(labelDeleteResourceAccessRuleWarning)}
-      labelTitle={t(labelDeleteResourceAccessRule)}
+      labelSecondMessage={
+        resourceAccessRuleName
+          ? t(labelDeleteResourceAccessRuleWarning)
+          : t(labelDeleteResourceAccessRulesWarning)
+      }
+      labelTitle={
+        resourceAccessRuleName
+          ? t(labelDeleteResourceAccessRule)
+          : t(labelDeleteResourceAccessRules)
+      }
       open={isDialogOpen}
       submitting={isLoading}
       onCancel={closeDialog}

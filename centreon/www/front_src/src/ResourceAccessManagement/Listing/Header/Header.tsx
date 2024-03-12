@@ -18,10 +18,11 @@ const Header = (): JSX.Element => {
   const { t } = useTranslation();
 
   const selectedRows = useAtomValue(selectedRowsAtom);
-  const { deleteItems } = useDelete();
+  const { deleteItems, openDialog } = useDelete();
   const selectedRowsIds = selectedRows?.map((rule) => rule.id);
 
   const onClick = (): void => {
+    openDialog();
     deleteItems({
       deleteType: DeleteType.MultipleItems,
       id: selectedRowsIds

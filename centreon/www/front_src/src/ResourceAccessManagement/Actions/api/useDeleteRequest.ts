@@ -74,11 +74,7 @@ const useDeleteRequest = ({
     defaultFailureMessage: t(labelFailed) as string,
     getEndpoint: (): string => endpoint,
     method: fetchMethod,
-    onSettled: () => onSettled(),
-    onSuccess: () => {
-      showSuccessMessage(t(labelSuccess));
-      queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
-    }
+    onSettled: () => onSettled()
   });
 
   const submit = (): void => {
@@ -109,8 +105,13 @@ const useDeleteRequest = ({
               ', '
             )}`
           );
+
+          return;
         }
       }
+
+      showSuccessMessage(t(labelSuccess));
+      queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
     });
   };
 
