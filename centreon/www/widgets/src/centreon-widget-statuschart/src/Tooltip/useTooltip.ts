@@ -3,7 +3,7 @@ import { useInfiniteScrollListing } from '@centreon/ui';
 import { resourcesEndpoint } from '../api/endpoint';
 import { tooltipPageAtom } from '../atom';
 
-import { ResourceStatus } from 'src/centreon-widget-statusgrid/src/models'; // to be fixed
+import { ResourceStatus } from 'src/centreon-widget-statusgrid/src/StatusGridStandard/models';
 
 interface UseHostTooltipContentState {
   elementRef;
