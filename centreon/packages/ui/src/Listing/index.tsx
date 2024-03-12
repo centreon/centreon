@@ -295,7 +295,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
       event.target.checked &&
       event.target.getAttribute('data-indeterminate') === 'false'
     ) {
-      onSelectRows(reject(disableRowCheckCondition, rows));
+      onSelectRows(reject(disableRowCheckCondition, rowsToDisplay));
       setLastSelectionIndex(null);
 
       return;
@@ -367,7 +367,11 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
   const selectRowsWithShiftKey = (selectedRowIndex: number): void => {
     const lastSelectedIndex = lastSelectionIndex as number;
     if (isNil(shiftKeyDownRowPivot)) {
-      const selectedRowsFromTheStart = slice(0, selectedRowIndex + 1, rows);
+      const selectedRowsFromTheStart = slice(
+        0,
+        selectedRowIndex + 1,
+        rowsToDisplay
+      );
 
       onSelectRows(reject(disableRowCheckCondition, selectedRowsFromTheStart));
 
@@ -376,7 +380,10 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
 
     const selectedRowsIndex = map(
       (row) =>
-        findIndex((listingRow) => equals(getId(row), getId(listingRow)), rows),
+        findIndex(
+          (listingRow) => equals(getId(row), getId(listingRow)),
+          rowsToDisplay
+        ),
       selectedRows
     ).sort(subtract);
 
@@ -384,7 +391,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
       const newSelection = slice(
         selectedRowIndex,
         (lastSelectionIndex as number) + 1,
-        rows
+        rowsToDisplay
       );
       onSelectRows(
         reject(
@@ -403,7 +410,11 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
       return;
     }
 
-    const newSelection = slice(lastSelectedIndex, selectedRowIndex + 1, rows);
+    const newSelection = slice(
+      lastSelectedIndex,
+      selectedRowIndex + 1,
+      rowsToDisplay
+    );
     onSelectRows(
       reject(
         disableRowCheckCondition,
@@ -427,7 +438,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
 
     const selectedRowIndex = findIndex(
       (listingRow) => equals(getId(row), getId(listingRow)),
-      rows
+      rowsToDisplay
     );
 
     if (isShiftKeyDown) {
@@ -454,24 +465,10 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
   };
 
   const hoverRow = (row): void => {
-    const isSubItem = allSubItemIds.includes(
-      `listing_${row.internalListingParentId}_${row.id}`
-    );
-    if (
-      equals(
-        hoveredRowId,
-        isSubItem
-          ? `listing_${row.internalListingParentId}_${row.id}`
-          : getId(row)
-      )
-    ) {
+    if (equals(hoveredRowId, getRowId(row))) {
       return;
     }
-    setHoveredRowId(
-      isSubItem
-        ? `listing_${row.internalListingParentId}_${row.id}`
-        : getId(row)
-    );
+    setHoveredRowId(getRowId(row));
   };
 
   const clearHoveredRow = (): void => {
@@ -575,7 +572,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
                     predefinedRowsSelection={predefinedRowsSelection}
-                    rowCount={limit - emptyRows}
+                    rowCount={rowsToDisplay.length}
                     selectedRowCount={selectedRows.length}
                     sortField={sortField}
                     sortOrder={sortOrder}
@@ -593,14 +590,9 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                     {rowsToDisplay.map((row, index) => {
                       const isRowSelected = isSelected(row);
                       const isSubItem = allSubItemIds.includes(
-                        `listing_${row.internalListingParentId}_${row.id}`
+                        getSubItemRowId(row)
                       );
-                      const isRowHovered = equals(
-                        hoveredRowId,
-                        isSubItem
-                          ? `listing_${row.internalListingParentId}_${row.id}`
-                          : getId(row)
-                      );
+                      const isRowHovered = equals(hoveredRowId, getRowId(row));
 
                       return (
                         <ListingRow
@@ -617,9 +609,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                           key={
                             gte(limit, performanceRowsLimit)
                               ? `row_${index}`
-                              : isSubItem
-                                ? `listing_${row.internalListingParentId}_${row.id}`
-                                : getId(row)
+                              : getRowId(row)
                           }
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
