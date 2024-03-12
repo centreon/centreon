@@ -18,7 +18,7 @@ on the market; it is absolutely free and Open Source.
 * Using the [**sources**](https://docs.centreon.com/current/en/installation/installation-of-a-central-server/using-sources.html)
 * Using the [**packages**](https://docs.centreon.com/current/en/installation/installation-of-a-central-server/using-packages.html)
 * Using the [**VM**](https://docs.centreon.com/current/en/installation/installation-of-a-central-server/using-virtual-machines.html) (tutorial available on [YouTube](https://www.youtube.com/watch?v=rnq9QnljaQE))
-* Using the [**Unattended.sh script**](https://docs.centreon.com/docs/installation/introduction/#unattended-script)
+* Using the [**unattended.sh script**](https://docs.centreon.com/docs/installation/introduction/#unattended-script)
 
 <h2> Supported versions </h2>
 
