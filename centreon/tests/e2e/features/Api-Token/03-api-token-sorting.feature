@@ -8,6 +8,7 @@ Feature: Sorting API Tokens List
 
   Background:
     Given I am logged in as an administrator
+    And API tokens with predefined details are created
     And I am on the API tokens page
 
   Scenario Outline: Sort tokens by '<order_by>'
@@ -19,5 +20,5 @@ Feature: Sorting API Tokens List
       | Name            |
       | Creator         |
       | User            |
-      | Creation date   |
-      | Expiration date |
+      | Creation Date   |
+      | Expiration Date |
