@@ -1935,7 +1935,7 @@
 									"\r",
 									"pm.test(\"Since the non-admin user was granted API access rights, but without access to configuration user page, it can not access the list of users.\", function () {\r",
 									"    const expectedResponseCode = 403\r",
-									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, 403, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
