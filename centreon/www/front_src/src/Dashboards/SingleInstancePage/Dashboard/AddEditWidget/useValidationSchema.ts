@@ -24,7 +24,7 @@ const getPropertiesValidationSchema = ({
   Yup.StringSchema<string | undefined, Yup.AnyObjectSchema, string | undefined>
 > => {
   const filteredProperties = properties
-    ? Object.entries(properties[propertyType])
+    ? Object.entries(properties[propertyType] || {})
     : [];
 
   return filteredProperties.reduce(
