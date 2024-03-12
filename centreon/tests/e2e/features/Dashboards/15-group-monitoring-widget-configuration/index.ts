@@ -239,6 +239,7 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
+    cy.getByTestId({ testId: 'Resource type' }).should('be.visible');
     cy.getByTestId({ testId: 'Resource type' }).click({ force: true });
     cy.getByLabel({ label: 'Host Group' }).should('be.visible');
     cy.getByLabel({ label: 'Host Group' }).click();
