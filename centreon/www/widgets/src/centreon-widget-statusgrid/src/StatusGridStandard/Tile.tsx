@@ -7,8 +7,8 @@ import DvrIcon from '@mui/icons-material/Dvr';
 
 import { EllipsisTypography } from '@centreon/ui';
 
-import { Resource } from '../../models';
-import { getResourcesUrl } from '../../utils';
+import { Resource } from '../../../models';
+import { getResourcesUrl } from '../../../utils';
 
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
@@ -19,7 +19,6 @@ interface Props {
   data: ResourceData | null;
   isSmallestSize: boolean;
   resources: Array<Resource>;
-  states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
@@ -32,7 +31,6 @@ const Tile = ({
   isSmallestSize,
   data,
   type,
-  states,
   statuses,
   resources
 }: Props): JSX.Element | null => {
@@ -45,7 +43,7 @@ const Tile = ({
       allResources: resources,
       isForOneResource,
       resource: data,
-      states,
+      states: [],
       statuses,
       type
     });
