@@ -738,16 +738,16 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      * true: all host groups are accessible
      * false: all host groups are NOT accessible.
      *
-     * @param int[] $accessGroupIds
+     * @param int[] $accessGroups
      *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
+     * @phpstan-param non-empty-array<int> $accessGroups
      *
      * @return bool
      */
-    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    private function hasAccessToAllHostGroups(array $accessGroups): bool
     {
         $bindValuesArray = [];
-        foreach ($accessGroupIds as $index => $accessGroupId) {
+        foreach ($accessGroups as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
@@ -781,16 +781,16 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      * true: all hosts are accessible
      * false: all hosts are NOT accessible.
      *
-     * @param int[] $accessGroupIds
+     * @param int[] $accessGroups
      *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
+     * @phpstan-param non-empty-array<int> $accessGroups
      *
      * @return bool
      */
-    private function hasAccessToAllHosts(array $accessGroupIds): bool
+    private function hasAccessToAllHosts(array $accessGroups): bool
     {
         $bindValuesArray = [];
-        foreach ($accessGroupIds as $index => $accessGroupId) {
+        foreach ($accessGroups as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
@@ -824,16 +824,16 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      * true: accessible host categories are filtered (only specified are accessible)
      * false: accessible host categories are NOT filtered (all are accessible).
      *
-     * @param int[] $accessGroupIds
+     * @param int[] $accessGroups
      *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
+     * @phpstan-param non-empty-array<int> $accessGroups
      *
      * @return bool
      */
-    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    private function hasRestrictedAccessToHostCategories(array $accessGroups): bool
     {
         $bindValuesArray = [];
-        foreach ($accessGroupIds as $index => $accessGroupId) {
+        foreach ($accessGroups as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
