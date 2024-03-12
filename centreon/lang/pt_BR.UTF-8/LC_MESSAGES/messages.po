@@ -17348,7 +17348,13 @@ msgstr ""
 # msgid "Resource table"
 # msgstr ""
 
+# msgid "Fullscreen (F)"
+# msgstr ""
+
 # msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
 # msgstr ""
 
 # msgid "The {{name}} widget will be permanently deleted."
@@ -17371,3 +17377,39 @@ msgstr ""
 
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
+
+# msgid "Delete rule"
+# msgstr ""
+
+# msgid "is used to allow users to access resources."
+# msgstr ""
+
+# msgid "It will be permanently deleted and users will no longer have this permission"
+# msgstr ""
+
+# msgid "Failed to delete resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule was successfully deleted"
+# msgstr ""
+
+#  msgid "Error while adding a broker output"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a broker configuration"
+#  msgstr ""
+
+#  msgid "Broker configuration #%d not found"
+#  msgstr ""
+
+#  msgid "Missing output parameter: %s"
+#  msgstr ""
+
+#  msgid "Parameter '%s' (%s) is invalid"
+#  msgstr ""
+
+#  msgid "Parameter '%s' of type %s is invalid"
+#  msgstr ""
+
+#  msgid "Output #%d not found for broker configuration #%d"
+#  msgstr ""
