@@ -37,7 +37,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Domain\Model\HostsStatusCount;
-use Core\Resources\Domain\Model\ResourcesStatusCount;
+use Core\Resources\Domain\Model\ResourceStatusCount;
 use Core\Resources\Domain\Model\ServicesStatusCount;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\HostACLProvider;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
@@ -357,7 +357,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /**
      * @inheritDoc
      */
-    public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount
+    public function findResourceStatusCount(string $resourceType, ResourceFilter $filter): ResourceStatusCount
     {
         $hostsStatusCount = null;
         $servicesStatusCount = null;
@@ -368,17 +368,17 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $servicesStatusCount = $this->findServicesStatusCount($filter);
         }
 
-        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
+        return new ResourceStatusCount($hostsStatusCount, $servicesStatusCount);
     }
 
     /**
      * @inheritDoc
      */
-    public function findResourcesStatusCountByAccessGroupIds(
+    public function findResourceStatusCountByAccessGroupIds(
         string $resourceType,
         array $accessGroupIds,
         ResourceFilter $filter,
-    ): ResourcesStatusCount {
+    ): ResourceStatusCount {
         $hostsStatusCount = null;
         $servicesStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
@@ -388,7 +388,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $servicesStatusCount = $this->findServicesStatusCountByAccessGroupIds($accessGroupIds, $filter);
         }
 
-        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
+        return new ResourceStatusCount($hostsStatusCount, $servicesStatusCount);
     }
 
     /**

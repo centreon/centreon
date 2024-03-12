@@ -747,7 +747,7 @@ if (!$is_admin && !$haveAccess) {
         );
 
         $deprecationMessage = _('[Page deprecated] This page will be removed in the next major version. Please use the new page: ');
-        $resourcesStatusLabel = _('Resource Status');
+        $resourceStatusLabel = _('Resource Status');
         $redirectionUrl = $resourceController->buildHostDetailsUri($host_id);
         $tpl->display("hostDetails.ihtml");
     } else {
@@ -814,7 +814,7 @@ if (!$is_admin && !$haveAccess) {
         function display_deprecated_banner() {
             const url = "<?php echo $redirectionUrl; ?>";
             const message = "<?php echo $deprecationMessage; ?>";
-            const label = "<?php echo $resourcesStatusLabel; ?>";
+            const label = "<?php echo $resourceStatusLabel; ?>";
             jQuery('.pathway').append(
                 '<span style="color:#FF4500;padding-left:10px;font-weight:bold">' + message +
                 '<a style="position:relative" href="' + url + '" isreact="isreact">' + label + '</a></span>'
