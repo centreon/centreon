@@ -48,7 +48,8 @@ When(
 
     cy.contains(dashboardToDelete.name)
       .parent()
-      .find('button[aria-label="delete"]')
+      .find('button[aria-label="More actions"]')
+      .find('button[aria-label="Delete"]')
       .click();
   }
 );
@@ -93,7 +94,8 @@ Given(
     cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToDelete.name)
       .parent()
-      .find('button[aria-label="delete"]')
+      .find('button[aria-label="More actions"]')
+      .find('button[aria-label="Delete"]')
       .click();
   }
 );
