@@ -1,4 +1,4 @@
-import { CommonWidgetProps, Resource } from '../../models';
+import { CommonWidgetProps, Resource, SeverityStatus } from '../../../models';
 
 export interface Data {
   resources: Array<Resource>;
@@ -10,8 +10,9 @@ export interface PanelOptions {
   resourceType: string;
   sortBy: string;
   states: Array<string>;
-  statuses: Array<string>;
+  statuses: Array<SeverityStatus>;
   tiles: number;
+  viewMode: 'standard' | 'condensed';
 }
 
 export interface StatusGridProps extends CommonWidgetProps<PanelOptions> {
