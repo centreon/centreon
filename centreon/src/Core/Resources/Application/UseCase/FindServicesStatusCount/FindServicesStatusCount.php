@@ -30,7 +30,7 @@ use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Core\Resources\Domain\Model\ResourcesStatusCount;
+use Core\Resources\Domain\Model\ResourceStatusCount;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -57,8 +57,8 @@ final class FindServicesStatusCount
     public function __invoke(FindServicesStatusCountPresenterInterface $presenter, ResourceFilter $filter): void
     {
         try {
-            $resourcesStatusCount = $this->findResourcesStatus($filter);
-            $presenter->presentResponse($this->createResponse($resourcesStatusCount));
+            $resourceStatusCount = $this->findResourceStatus($filter);
+            $presenter->presentResponse($this->createResponse($resourceStatusCount));
         } catch (\Throwable $ex) {
             $this->error(
                 ResourceException::errorWhileFindingServicesStatusCount()->getMessage(),
@@ -75,18 +75,18 @@ final class FindServicesStatusCount
      *
      * @throws \Throwable
      *
-     * @return ResourcesStatusCount
+     * @return ResourceStatusCount
      */
-    private function findResourcesStatus(ResourceFilter $filter): ResourcesStatusCount
+    private function findResourceStatus(ResourceFilter $filter): ResourceStatusCount
     {
         if ($this->user->isAdmin()) {
-            return $this->readResourceRepository->findResourcesStatusCount(Resource::TYPE_SERVICE, $filter);
+            return $this->readResourceRepository->findResourceStatusCount(Resource::TYPE_SERVICE, $filter);
         }
 
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
-        return $this->readResourceRepository->findResourcesStatusCountByAccessGroupIds(
+        return $this->readResourceRepository->findResourceStatusCountByAccessGroupIds(
             Resource::TYPE_SERVICE,
             $accessGroupIds,
             $filter
@@ -94,14 +94,14 @@ final class FindServicesStatusCount
     }
 
     /**
-     * @param ResourcesStatusCount $resourcesStatusCount
+     * @param ResourceStatusCount $resourceStatusCount
      *
      * @return FindServicesStatusCountResponse
      */
-    private function createResponse(ResourcesStatusCount $resourcesStatusCount): FindServicesStatusCountResponse
+    private function createResponse(ResourceStatusCount $resourceStatusCount): FindServicesStatusCountResponse
     {
         $response = new FindServicesStatusCountResponse();
-        $servicesStatusCount = $resourcesStatusCount->getServicesStatusCount();
+        $servicesStatusCount = $resourceStatusCount->getServicesStatusCount();
         if ($servicesStatusCount !== null) {
             $response->criticalStatus = [
                 'total' => $servicesStatusCount->getCriticalStatusCount()->getTotal(),

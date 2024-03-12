@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Domain\Model;
 
-class ResourcesStatusCount
+class ResourceStatusCount
 {
     /**
      * @param HostsStatusCount|null $hostsStatusCount
