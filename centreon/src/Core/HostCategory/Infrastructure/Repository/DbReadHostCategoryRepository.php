@@ -135,6 +135,22 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
 
             return $this->findAll($requestParameters);
         }
+        $hostGroupAcls = '';
+        if (! $this->hasAccessToAllHostGroups($accessGroupIds)) {
+            $hostGroupAcls = <<<'SQL'
+                    AND hgr.hostgroup_hg_id IN (
+                        SELECT arhgr.hg_hg_id
+                        FROM `:db`.acl_resources_hg_relations arhgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON arhgr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON res.acl_res_id = argr.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON argr.acl_group_id = ag.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+        }
 
         $concatenator = new SqlConcatenator();
         $concatenator->withCalcFoundRows(true);
@@ -148,7 +164,10 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             INNER JOIN `:db`.acl_res_group_relations argr
                 ON res.acl_res_id = argr.acl_res_id
             INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
+                ON argr.acl_group_id = ag.acl_group_id
+             LEFT JOIN `:db`.hostgroup_relation hgr
+                ON hgr.host_host_id = host.host_id
+                {$hostGroupAcls}'
         );
         $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
             ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
@@ -582,5 +601,47 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * Determine if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                    FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
