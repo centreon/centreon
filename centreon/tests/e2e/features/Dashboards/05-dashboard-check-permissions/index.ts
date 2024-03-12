@@ -240,8 +240,10 @@ Given('an admin user who has just created a dashboard', () => {
 When('the admin user deletes the newly created dashboard', () => {
   cy.contains(dashboards.fromCurrentUser.name)
     .parent()
-    .find('button[aria-label="delete"]')
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.get('[aria-label="Delete"]').click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
@@ -438,8 +440,10 @@ When(
   () => {
     cy.contains(dashboards.fromCurrentUser.name)
       .parent()
-      .find('button[aria-label="delete"]')
+      .find('button[aria-label="More actions"]')
       .click();
+
+    cy.get('[aria-label="Delete"]').click();
 
     cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboards');
@@ -634,8 +638,10 @@ Given('a dashboard editor user who has just created a dashboard', () => {
 When('the dashboard editor user deletes the newly created dashboard', () => {
   cy.contains(dashboards.fromCurrentUser.name)
     .parent()
-    .find('button[aria-label="delete"]')
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.get('[aria-label="Delete"]').click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
