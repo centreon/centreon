@@ -527,6 +527,8 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
             'name' => 'hc.hc_name',
             'alias' => 'hc.hc_alias',
             'is_activated' => 'hc.hc_activate',
+            'hostgroup.id' => 'hostgroup.hg_id',
+            'hostgroup.name' => 'hostgroup.hg_name',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator?->translateForConcatenator($concatenator);
