@@ -67,12 +67,12 @@ class CentreonValidatorFactoryTest extends TestCase
 
         $factory = new CentreonValidatorFactory(new Container([
             $service => new class implements \Symfony\Component\Validator\ConstraintValidatorInterface {
-                public function initialize(ExecutionContextInterface $context)
+                public function initialize(ExecutionContextInterface $context): void
                 {
                     // TODO: Implement initialize() method.
                 }
 
-                public function validate(mixed $value, Constraint $constraint)
+                public function validate(mixed $value, Constraint $constraint): void
                 {
                     // TODO: Implement validate() method.
                 }

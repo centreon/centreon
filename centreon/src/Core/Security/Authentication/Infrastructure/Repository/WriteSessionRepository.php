@@ -30,22 +30,26 @@ use Core\Security\Authentication\Application\Repository\WriteSessionTokenReposit
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface
 {
     use LoggerTrait;
 
+    private SessionInterface $session;
+
     /**
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private readonly SessionInterface $session,
+        private readonly RequestStack $requestStack,
         private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
         private readonly ProviderAuthenticationFactoryInterface $providerFactory
     ) {
+        $this->session = $this->requestStack->getSession();
     }
 
     /**

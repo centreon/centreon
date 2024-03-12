@@ -56,11 +56,11 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
 
     private ?FeatureFlags $featureFlags = null;
 
-    public function __construct()
+    public function __construct(private \Core\Common\Infrastructure\FeatureFlags $featureFlags2)
     {
         parent::__construct();
 
-        $featureFlags = Kernel::createForWeb()->getContainer()->get(FeatureFlags::class);
+        $featureFlags = $this->featureFlags2;
         if (! ($featureFlags instanceof FeatureFlags)) {
             throw new \Exception('Unable to retrieve the FeatureFlags service');
         }

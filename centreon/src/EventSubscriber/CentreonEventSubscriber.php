@@ -36,7 +36,6 @@ use Centreon\Domain\RequestParameters\{
 use Centreon\Domain\VersionHelper;
 use JMS\Serializer\Exception\ValidationFailedException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,12 +61,6 @@ use Symfony\Component\Security\Core\{
 class CentreonEventSubscriber implements EventSubscriberInterface
 {
     /**
-     * If no version has been defined in the configuration,
-     * this version will be used by default.
-     */
-    public const DEFAULT_API_VERSION = '24.04';
-
-    /**
      * If no API header name has been defined in the configuration,
      * this name will be used by default.
      */
@@ -75,19 +68,23 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
     /**
      * @param RequestParametersInterface $requestParameters
-     * @param ContainerInterface $container
      * @param Security $security
      * @param ApiPlatform $apiPlatform
      * @param ContactInterface $contact
      * @param LoggerInterface $logger
+     * @param string $apiVersionLatest
+     * @param string $apiHeaderName
+     * @param string $translationPath
      */
     public function __construct(
-        private RequestParametersInterface $requestParameters,
-        private ContainerInterface $container,
-        private Security $security,
-        private ApiPlatform $apiPlatform,
-        private ContactInterface $contact,
-        private LoggerInterface $logger
+        readonly private RequestParametersInterface $requestParameters,
+        readonly private Security $security,
+        readonly private ApiPlatform $apiPlatform,
+        readonly private ContactInterface $contact,
+        readonly private LoggerInterface $logger,
+        readonly private string $apiVersionLatest,
+        readonly private string $apiHeaderName,
+        readonly private string $translationPath,
     ) {
     }
 
@@ -122,16 +119,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     public function addApiVersion(ResponseEvent $event): void
     {
-        $defaultApiVersion = self::DEFAULT_API_VERSION;
-        $defaultApiHeaderName = self::DEFAULT_API_HEADER_NAME;
-
-        if ($this->container->hasParameter('api.version.latest')) {
-            $defaultApiVersion = $this->container->getParameter('api.version.latest');
-        }
-        if ($this->container->hasParameter('api.header')) {
-            $defaultApiHeaderName = $this->container->getParameter('api.header');
-        }
-        $event->getResponse()->headers->add([$defaultApiHeaderName => $defaultApiVersion]);
+        $event->getResponse()->headers->add([$this->apiHeaderName => $this->apiVersionLatest]);
     }
 
     /**
@@ -237,12 +225,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      */
     public function defineApiVersionInAttributes(RequestEvent $event): void
     {
-        if ($this->container->hasParameter('api.version.latest')) {
-            $latestVersion = $this->container->getParameter('api.version.latest');
-        } else {
-            $latestVersion = self::DEFAULT_API_VERSION;
-        }
-        $event->getRequest()->attributes->set('version.latest', $latestVersion);
+        $event->getRequest()->attributes->set('version.latest', $this->apiVersionLatest);
         $event->getRequest()->attributes->set('version.is_latest', false);
 
         $event->getRequest()->attributes->set('version.is_beta', false);
@@ -261,10 +244,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
             if (
                 $requestApiVersion === 'latest'
-                || VersionHelper::compare($requestApiVersion, $latestVersion, VersionHelper::EQUAL)
+                || VersionHelper::compare($requestApiVersion, $this->apiVersionLatest, VersionHelper::EQUAL)
             ) {
                 $event->getRequest()->attributes->set('version.is_latest', true);
-                $requestApiVersion = $latestVersion;
+                $requestApiVersion = $this->apiVersionLatest;
             }
             if ($requestApiVersion === 'beta') {
                 $event->getRequest()->attributes->set('version.is_beta', true);
@@ -434,7 +417,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
 
         putenv('LANG=' . $lang);
         setlocale(LC_ALL, $lang);
-        bindtextdomain('messages', $this->container->getParameter('translation_path'));
+        bindtextdomain('messages', $this->translationPath);
         bind_textdomain_codeset('messages', Contact::DEFAULT_CHARSET);
         textdomain('messages');
     }
