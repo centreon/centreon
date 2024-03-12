@@ -19,22 +19,23 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Resources\Application\Exception;
+namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
 
-class ResourceException extends \Exception
+final class FindHostsStatusCountResponse
 {
-    /**
-     * @return self
-     */
-    public static function errorWhileSearching(): self
-    {
-        return new self(_('Error while searching for resources'));
-    }
+    /** @var array{total: int} */
+    public array $downStatus = ['total' => 0];
 
-    public static function errorWhileFindingHostsStatusCount(): self
-    {
-        return new self(_('Error while retrieving the number of hosts by status'));
-    }
+    /** @var array{total: int} */
+    public array $unreachableStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $upStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $pendingStatus = ['total' => 0];
+
+    public int $total = 0;
 }

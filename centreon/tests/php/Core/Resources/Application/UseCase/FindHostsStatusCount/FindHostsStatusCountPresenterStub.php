@@ -21,20 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Application\Exception;
+namespace Tests\Core\Resources\Application\UseCase\FindHostsStatusCount;
 
-class ResourceException extends \Exception
+use Core\Resources\Application\UseCase\FindHostsStatusCount\FindHostsStatusCountPresenterInterface;
+use Core\Resources\Application\UseCase\FindHostsStatusCount\FindHostsStatusCountResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+class FindHostsStatusCountPresenterStub implements FindHostsStatusCountPresenterInterface
 {
-    /**
-     * @return self
-     */
-    public static function errorWhileSearching(): self
-    {
-        return new self(_('Error while searching for resources'));
-    }
+    public FindHostsStatusCountResponse|ResponseStatusInterface $data;
 
-    public static function errorWhileFindingHostsStatusCount(): self
+    public function presentResponse(FindHostsStatusCountResponse|ResponseStatusInterface $response): void
     {
-        return new self(_('Error while retrieving the number of hosts by status'));
+        $this->data = $response;
     }
 }

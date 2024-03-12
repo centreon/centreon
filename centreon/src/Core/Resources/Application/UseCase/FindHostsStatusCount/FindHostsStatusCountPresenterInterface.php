@@ -19,22 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Resources\Application\Exception;
+namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
 
-class ResourceException extends \Exception
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindHostsStatusCountPresenterInterface
 {
-    /**
-     * @return self
-     */
-    public static function errorWhileSearching(): self
-    {
-        return new self(_('Error while searching for resources'));
-    }
-
-    public static function errorWhileFindingHostsStatusCount(): self
-    {
-        return new self(_('Error while retrieving the number of hosts by status'));
-    }
+    public function presentResponse(FindHostsStatusCountResponse|ResponseStatusInterface $response): void;
 }

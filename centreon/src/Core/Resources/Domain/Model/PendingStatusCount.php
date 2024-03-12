@@ -19,22 +19,18 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Resources\Application\Exception;
+namespace Core\Resources\Domain\Model;
 
-class ResourceException extends \Exception
+final class PendingStatusCount
 {
-    /**
-     * @return self
-     */
-    public static function errorWhileSearching(): self
+    public function __construct(private readonly int $total)
     {
-        return new self(_('Error while searching for resources'));
     }
 
-    public static function errorWhileFindingHostsStatusCount(): self
+    public function getTotal(): int
     {
-        return new self(_('Error while retrieving the number of hosts by status'));
+        return $this->total;
     }
 }

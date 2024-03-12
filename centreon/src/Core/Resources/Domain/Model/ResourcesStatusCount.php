@@ -21,20 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Application\Exception;
+namespace Core\Resources\Domain\Model;
 
-class ResourceException extends \Exception
+class ResourcesStatusCount
 {
     /**
-     * @return self
+     * @param HostsStatusCount|null $hostsStatusCount
      */
-    public static function errorWhileSearching(): self
+    public function __construct(private readonly ?HostsStatusCount $hostsStatusCount)
     {
-        return new self(_('Error while searching for resources'));
     }
 
-    public static function errorWhileFindingHostsStatusCount(): self
+    public function getHostsStatusCount(): ?HostsStatusCount
     {
-        return new self(_('Error while retrieving the number of hosts by status'));
+        return $this->hostsStatusCount;
     }
 }
