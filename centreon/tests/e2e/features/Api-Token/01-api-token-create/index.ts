@@ -114,7 +114,5 @@ Then('the "copy to clipboard" button is clicked', () => {
 });
 
 Then('the token is successfully copied', () => {
-  cy.get('.MuiAlert-message')
-    .contains('Token copied to the clipboard')
-    .should('exist');
+  cy.get('.MuiAlert-message').contains('Token copied to the clipboard');
 });
