@@ -18,6 +18,11 @@ export const useFullscreenListener = (): boolean => {
   const toggle = (event: KeyboardEvent): void => {
     if (
       includes(document.activeElement?.tagName, ['INPUT', 'TEXTAREA']) ||
+      equals(
+        document.activeElement?.getAttribute('data-lexical-editor'),
+        'true'
+      ) ||
+      equals(document.activeElement?.getAttribute('contenteditable'), 'true') ||
       !equals(event.code, 'KeyF')
     ) {
       return;
