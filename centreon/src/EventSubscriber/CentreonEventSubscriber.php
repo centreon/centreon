@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace EventSubscriber;
 
 use \Symfony\Bundle\SecurityBundle\Security;
-use \Symfony\Bundle\SecurityBundle\Security;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
