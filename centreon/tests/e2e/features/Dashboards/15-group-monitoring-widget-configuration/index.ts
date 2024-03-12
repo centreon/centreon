@@ -297,6 +297,10 @@ Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
+  }).realHover();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
   }).realClick();
 });
 
