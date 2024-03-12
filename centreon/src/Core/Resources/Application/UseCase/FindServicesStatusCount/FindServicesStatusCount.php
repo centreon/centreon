@@ -61,11 +61,11 @@ final class FindServicesStatusCount
             $presenter->presentResponse($this->createResponse($resourcesStatusCount));
         } catch (\Throwable $ex) {
             $this->error(
-                ResourceException::errorWhileFindingHostsStatusCount()->getMessage(),
+                ResourceException::errorWhileFindingServicesStatusCount()->getMessage(),
                 ['trace' => (string) $ex]
             );
             $presenter->presentResponse(
-                new ErrorResponse(ResourceException::errorWhileFindingHostsStatusCount()->getMessage())
+                new ErrorResponse(ResourceException::errorWhileFindingServicesStatusCount()->getMessage())
             );
         }
     }
