@@ -344,7 +344,6 @@ Then(
       rootItemNumber: 4,
       subMenu: 'ACL'
     });
-    cy.wait('@getTimeZone');
 
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
