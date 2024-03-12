@@ -446,6 +446,19 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('hides a property when an option value matches the condition', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Sort by').should('exist');
+
+      cy.findByLabelText('Show thresholds').click();
+
+      cy.contains('Sort by').should('not.exist');
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {

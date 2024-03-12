@@ -63,7 +63,7 @@ const getBaseConfiguration = ({
           },
           {
             'react-i18next': {
-              requiredVersion: '11.x',
+              requiredVersion: '14.x',
               singleton: true
             }
           },
