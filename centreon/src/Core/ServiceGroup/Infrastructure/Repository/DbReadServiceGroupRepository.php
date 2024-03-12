@@ -104,6 +104,58 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable
     {
+        $hostAcls = '';
+        $hostGroupAcls = '';
+        $hostCategoryAcls = '';
+        if ([] !== $accessGroups) {
+            if (! $this->hasAccessToAllHosts($accessGroups)) {
+                $hostAcls = <<<'SQL'
+                    AND hsr.host_host_id IN (
+                        SELECT arhr.host_host_id
+                        FROM `:db`.acl_resources_host_relations arhr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if (! $this->hasAccessToAllHostGroups($accessGroups)) {
+                $hostGroupAcls = <<<'SQL'
+                    AND hr.hostgroup_hg_id IN (
+                        SELECT arhgr.hg_hg_id
+                        FROM `:db`.acl_resources_hg_relations arhgr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhgr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+
+            if ($this->hasRestrictedAccessToHostCategories($accessGroups)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM `:db`.acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhcr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:access_group_ids)
+                    )
+                    SQL;
+            }
+        }
         if ([] === $accessGroups) {
             return new \ArrayIterator([]);
         }
@@ -122,6 +174,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON sg.sg_id = sgr.servicegroup_sg_id
                     LEFT JOIN `:db`.host h
                         ON sgr.host_host_id = h.host_id
+                        {$hostAcls}
                 SQL
         )
             ->appendJoins(
@@ -131,6 +184,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         LEFT JOIN `:db`.hostcategories hc
                             ON hcr.hostcategories_hc_id = hc.hc_id
                             AND hc.level IS NOT NULL
+                            {$hostCategoryAcls}
                     SQL
             )
             ->appendJoins(
@@ -139,6 +193,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                             ON  h.host_id = hgr.host_host_id
                         LEFT JOIN `:db`.hostgroup hg
                             ON hgr.hostgroup_hg_id = hg.hg_id
+                            {$hostGroupAcls}
                     SQL
             );
 
@@ -677,4 +732,130 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
         return false;
     }
+
+    /**
+     * Determines if access groups give access to all host groups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if access groups give access to all hosts
+     * true: all hosts are accessible
+     * false: all hosts are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHosts(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT res.all_hosts
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Determines if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are NOT filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arhcr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
 }
