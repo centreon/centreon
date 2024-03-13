@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { Button, Typography } from '@mui/material';
-import { cyan } from '@mui/material/colors';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -128,10 +127,15 @@ const mountListingResponsive = (listingVariant: ListingVariant): void => {
   });
 };
 
+interface TestComponentProps {
+  canCheckSubItems?: boolean;
+  isSmallListing?: boolean;
+}
+
 const TestComponent = ({
   isSmallListing = false,
   canCheckSubItems = false
-}) => {
+}: TestComponentProps): JSX.Element => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   return (
@@ -158,7 +162,7 @@ const TestComponent = ({
 const mountListingForSubItems = ({
   isSmallListing = false,
   canCheckSubItems = false
-}): void => {
+}: TestComponentProps): void => {
   cy.viewport('macbook-13');
 
   cy.mount({

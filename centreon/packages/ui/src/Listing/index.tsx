@@ -480,8 +480,6 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     return selectedRowsInclude(row);
   };
 
-  const emptyRows = limit - Math.min(limit, totalRows - currentPage * limit);
-
   const changeLimit = (updatedLimit: string): void => {
     onLimitChange?.(Number(updatedLimit));
   };
