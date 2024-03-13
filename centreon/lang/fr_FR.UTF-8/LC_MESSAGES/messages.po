@@ -18834,7 +18834,7 @@ msgstr "Supprimer les règles"
 msgid "Delete multiple resource access rules"
 msgstr "Supprimer plusieurs règles d'accès aux ressources"
 
-msgid "Failed to delete selected resource access rules"
+msgid "Failed to delete the selected resource access rules"
 msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
 
 msgid "Selected resource access rules were deleted successfully"
