@@ -74,7 +74,8 @@ if (is_null($open_files_limit)) {
 }
 if ($open_files_limit < 32000) {
     $return['msg'] = 'Add LimitNOFILE=32000 value in the service file ' .
-        '/etc/systemd/system/mariadb.service.d/centreon.conf or /etc/systemd/system/mysqld.service.d/centreon.conf ' .
+        '/etc/systemd/system/<database_service_name>.service.d/centreon.conf ' .
+        '(replace <database_service_name> by mysql, mysqld or mariadb depending on the systemd service name) ' .
         'and reload systemd : systemctl daemon-reload';
     echo json_encode($return);
     exit;
