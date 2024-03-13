@@ -1,4 +1,4 @@
-name: "centreon-database"
+name: "centreon-mysql"
 arch: "all"
 platform: "linux"
 version_schema: "none"
@@ -8,28 +8,28 @@ section: "default"
 priority: "optional"
 maintainer: "Centreon <contact@centreon.com>"
 description: |
-  Install a database server optimized for use with Centreon.
+  Install a MySQL server optimized for use with Centreon.
   Commit: @COMMIT_HASH@
 vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "./src/centreon-mysql.cnf"
+  - src: "./src/centreon-database.cnf"
     dst: "/etc/my.cnf.d/centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0600
     packager: rpm
-  - src: "./src/centreon-mysql.cnf"
-    dst: "/etc/mysql/mariadb.conf.d/80-centreon.cnf"
+  - src: "./src/centreon-database.cnf"
+    dst: "/etc/mysql/mysql.conf.d/80-centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0600
     packager: deb
 
-  - src: "./src/mariadb-systemd.conf"
-    dst: "/etc/systemd/system/mariadb.service.d/centreon.conf"
+  - src: "./src/database-systemd.conf"
+    dst: "/etc/systemd/system/mysql.service.d/centreon.conf"
     type: config|noreplace
     file_info:
       mode: 0600
@@ -37,16 +37,20 @@ contents:
 overrides:
   rpm:
     depends:
-      - "(mariadb-server or mysql-server)"
+      - "mysql-server"
       - centreon-broker < ${NEXT_MAJOR_VERSION}
       - centreon-engine-daemon >= ${MAJOR_VERSION}
       - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
+    conflicts:
+      - centreon-mariadb
   deb:
     depends:
-      - "mariadb-server | mysql-server"
+      - "mysql-server"
       - "centreon-broker (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-engine-daemon (>= ${MAJOR_VERSION}~)"
       - "centreon-engine-daemon (<< ${NEXT_MAJOR_VERSION}~)"
+    conflicts:
+      - centreon-mariadb
 
 rpm:
   summary: Centreon Databases

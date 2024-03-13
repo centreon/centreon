@@ -16705,3 +16705,21 @@ msgstr "Erweiterter Modus"
 
 # msgid "Failed to duplicate the dashboard"
 # msgstr ""
+
+# msgid "Rules are used to allow users to access resources."
+# msgstr ""
+
+# msgid "They will be permanently deleted and users will no longer have these permissions."
+# msgstr ""
+
+# msgid "Delete rules"
+# msgstr ""
+
+# msgid "Delete multiple resource access rules"
+# msgstr ""
+
+# msgid "Failed to delete the selected resource access rules"
+# msgstr ""
+
+# msgid "The selected resource access rules have been deleted successfully"
+# msgstr ""

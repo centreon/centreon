@@ -88,3 +88,63 @@ export const getListingColumns = (): Array<Column> => {
     }
   ];
 };
+
+export const deleteMultipleRulesSuccessResponse = {
+  results: [
+    {
+      href: '/administration/resource-access/rules/1',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/administration/resource-access/rules/2',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/administration/resource-access/rules/3',
+      message: null,
+      status: 204
+    }
+  ]
+};
+
+export const deleteMultipleRulesWarningResponse = {
+  results: [
+    {
+      href: '/administration/resource-access/rules/1',
+      message: 'not found',
+      status: 404
+    },
+    {
+      href: '/administration/resource-access/rules/2',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/administration/resource-access/rules/3',
+      message: null,
+      status: 204
+    }
+  ]
+};
+
+export const deleteMultipleRulesFailedResponse = {
+  results: [
+    {
+      href: '/administration/resource-access/rules/1',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/administration/resource-access/rules/2',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/administration/resource-access/rules/3',
+      message: 'internal server error',
+      status: 500
+    }
+  ]
+};
