@@ -74,7 +74,7 @@ const useDeleteRequest = ({
     defaultFailureMessage: t(labelFailed) as string,
     getEndpoint: (): string => endpoint,
     method: fetchMethod,
-    onSettled: () => onSettled()
+    onSettled
   });
 
   const submit = (): void => {
