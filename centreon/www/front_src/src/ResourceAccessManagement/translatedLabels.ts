@@ -57,5 +57,5 @@ export const labelResourceAccessRulesDeletedSuccess =
 export const labelDeleteResourceAccessRulesDialogMessage =
   'Rules are used to allow users to access resources.';
 export const labelDeleteResourceAccessRulesWarning =
-  'They will be permanently deleted and users will no longer have these permissions';
+  'They will be permanently deleted and users will no longer have these permissions.';
 export const labelDeleteResourceAccessRules = 'Delete rules';
