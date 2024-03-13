@@ -552,7 +552,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
 
-
         return $this->fetchHostsStatusCount($query, $collector);
     }
 
