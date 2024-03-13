@@ -197,7 +197,7 @@ const Row = memo<RowProps>(
   }
 );
 
-const IntersectionRow = (props: Props): JSX.Element => {
+const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const theme = useTheme();
   const { isInViewport, setElement } = useViewportIntersection({
@@ -214,8 +214,12 @@ const IntersectionRow = (props: Props): JSX.Element => {
   }, [getFirstCellElement()]);
 
   return (
-    <div className={classes.intersectionRow} ref={rowRef}>
-      <Row {...props} isInViewport={isInViewport} />
+    <div
+      className={classes.intersectionRow}
+      data-isHovered={isHovered}
+      ref={rowRef}
+    >
+      <Row {...rest} isHovered={isHovered} isInViewport={isInViewport} />
     </div>
   );
 };
