@@ -12,13 +12,15 @@ get:
   parameters:
     - $ref: 'QueryParameter/FilterHostgroupName.yaml'
     - $ref: 'QueryParameter/FilterHostCategoryName.yaml'
+    - $ref: 'QueryParameter/FilterServicegroupName.yaml'
+    - $ref: 'QueryParameter/FilterServiceCategoryName.yaml'
   responses:
     '200':
       description: "OK"
       content:
         application/json:
           schema:
-            $ref: 'Schema/HostsStatus.yaml'
+            $ref: 'Schema/ServicesStatus.yaml'
     '403':
       $ref: '../../Common/Response/Forbidden.yaml'
     '500':
