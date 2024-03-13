@@ -1,4 +1,4 @@
-name: "centreon-database"
+name: "centreon-mariadb"
 arch: "all"
 platform: "linux"
 version_schema: "none"
