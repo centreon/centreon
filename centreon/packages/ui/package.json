@@ -70,7 +70,7 @@
     "@mui/material": "5.x",
     "@mui/styles": "5.x",
     "@tanstack/react-query": "4.x",
-    "axios": "0.x",
+    "axios": ">= 1.6.4",
     "dayjs": "1.x",
     "formik": "2.x",
     "jotai": "2.x",
