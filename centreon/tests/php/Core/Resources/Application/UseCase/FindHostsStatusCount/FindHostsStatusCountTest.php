@@ -85,7 +85,8 @@ it('should present a FindHostsStatusCountResponse when no error occurred', funct
         new UpStatusCount(2),
         new PendingStatusCount(4)
     );
-    $resourceStatusCount = new ResourcesStatusCount($hostStatusCount);
+    $servicesStatusCount = null;
+    $resourceStatusCount = new ResourcesStatusCount($hostStatusCount, $servicesStatusCount);
 
     $this->user
         ->expects($this->once())

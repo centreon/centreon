@@ -1,0 +1,43 @@
+{
+  "total": 65861166,
+  "critical": {
+    "total": 98896289,
+    "acknowledged": 21289204,
+    "in_downtime": 25205557
+  },
+  "warning": {
+    "total": 75870204,
+    "acknowledged": 59933131,
+    "in_downtime": 62128746
+  },
+  "unknown": {
+    "total": 17051036,
+    "acknowledged": 37119340,
+    "in_downtime": 62935046
+  },
+  "pending": {
+    "total": 0,
+    "acknowledged": 0,
+    "in_downtime": 0
+  },
+  "down": {
+    "total": 29808943,
+    "acknowledged": 5570633,
+    "in_downtime": 95080418
+  },
+  "unreachable": {
+    "total": 19035071,
+    "acknowledged": 10748755,
+    "in_downtime": 65429343
+  },
+  "up": {
+    "total": 4105425,
+    "acknowledged": 49448507,
+    "in_downtime": 46587649
+  },
+  "ok": {
+    "total": 52896142,
+    "acknowledged": 44429850,
+    "in_downtime": 39592678
+  }
+}
