@@ -16692,7 +16692,7 @@ msgstr "Erweiterter Modus"
 # msgid "Rules are used to allow users to access resources."
 # msgstr ""
 
-# msgid "They will be permanently deleted and users will no longer have these permissions"
+# msgid "They will be permanently deleted and users will no longer have these permissions."
 # msgstr ""
 
 # msgid "Delete rules"
