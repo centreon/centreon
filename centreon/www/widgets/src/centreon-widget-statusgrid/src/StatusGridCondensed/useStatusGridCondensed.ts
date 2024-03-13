@@ -7,6 +7,7 @@ import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
 import { StatusGridProps } from '../StatusGridStandard/models';
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
+  formatStatus,
   getStatusNameByStatusSeverityandResourceType,
   severityCodeBySeverityStatus
 } from '../../../utils';
@@ -47,10 +48,12 @@ export const useStatusGridCondensed = ({
     refreshIntervalCustom
   });
 
+  const formattedStatuses = formatStatus(statuses);
+
   const statusesToUse = pipe(
     getStatusNamesPerResourceType,
     map(toUpper),
-    intersection(statuses)
+    intersection(formattedStatuses)
   )(resourceType);
 
   const { data, isLoading } = useFetchQuery<StatusType>({
