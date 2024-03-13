@@ -27,13 +27,21 @@ class ResourcesStatusCount
 {
     /**
      * @param HostsStatusCount|null $hostsStatusCount
+     * @param ServicesStatusCount|null $servicesStatusCount
      */
-    public function __construct(private readonly ?HostsStatusCount $hostsStatusCount)
-    {
+    public function __construct(
+        private readonly ?HostsStatusCount $hostsStatusCount,
+        private readonly ?ServicesStatusCount $servicesStatusCount
+    ) {
     }
 
     public function getHostsStatusCount(): ?HostsStatusCount
     {
         return $this->hostsStatusCount;
+    }
+
+    public function getServicesStatusCount(): ?ServicesStatusCount
+    {
+        return $this->servicesStatusCount;
     }
 }
