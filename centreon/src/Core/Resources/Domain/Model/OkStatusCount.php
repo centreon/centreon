@@ -19,29 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Core\Resources\Domain\Model;
 
-class ResourcesStatusCount
+final class OkStatusCount
 {
     /**
-     * @param HostsStatusCount|null $hostsStatusCount
-     * @param ServicesStatusCount|null $servicesStatusCount
+     * @param int $total
      */
-    public function __construct(
-        private readonly ?HostsStatusCount $hostsStatusCount,
-        private readonly ?ServicesStatusCount $servicesStatusCount
-    ) {
+    public function __construct(private readonly int $total)
+    {
     }
 
-    public function getHostsStatusCount(): ?HostsStatusCount
+    /**
+     * @return int
+     */
+    public function getTotal(): int
     {
-        return $this->hostsStatusCount;
-    }
-
-    public function getServicesStatusCount(): ?ServicesStatusCount
-    {
-        return $this->servicesStatusCount;
+        return $this->total;
     }
 }

@@ -19,29 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Resources\Application\UseCase\FindServicesStatusCount;
 
-class ResourcesStatusCount
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindServicesStatusCountPresenterInterface
 {
-    /**
-     * @param HostsStatusCount|null $hostsStatusCount
-     * @param ServicesStatusCount|null $servicesStatusCount
-     */
-    public function __construct(
-        private readonly ?HostsStatusCount $hostsStatusCount,
-        private readonly ?ServicesStatusCount $servicesStatusCount
-    ) {
-    }
-
-    public function getHostsStatusCount(): ?HostsStatusCount
-    {
-        return $this->hostsStatusCount;
-    }
-
-    public function getServicesStatusCount(): ?ServicesStatusCount
-    {
-        return $this->servicesStatusCount;
-    }
+    public function presentResponse(FindServicesStatusCountResponse|ResponseStatusInterface $response): void;
 }
