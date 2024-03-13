@@ -51,7 +51,7 @@ export const labelResourceAccessRuleDeletedSuccess =
 export const labelDeleteMultipleResourceAccessRules =
   'Delete multiple resource access rules';
 export const labelFailedToDeleteSelectedRules =
-  'Failed to delete selected resource access rules';
+  'Failed to delete the selected resource access rules';
 export const labelResourceAccessRulesDeletedSuccess =
   'Selected resource access rules were deleted successfully';
 export const labelDeleteResourceAccessRulesDialogMessage =
