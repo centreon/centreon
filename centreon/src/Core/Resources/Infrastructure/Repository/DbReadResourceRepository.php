@@ -438,7 +438,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             SQL;
 
         /**
-         * Resource filter by status
+         * Resource filter by status.
          */
         $query .= $this->addResourceStatusSubRequest($filter);
 
@@ -492,7 +492,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             SQL;
 
         /**
-         * Resource filter by status
+         * Resource filter by status.
          */
         $query .= $this->addResourceStatusSubRequest($filter);
 
@@ -546,7 +546,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             SQL;
 
         /**
-         * Resource filter by status
+         * Resource filter by status.
          */
         $query .= $this->addResourceStatusSubRequest($filter);
 
@@ -602,7 +602,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             SQL;
 
         /**
-         * Resource filter by status
+         * Resource filter by status.
          */
         $query .= $this->addResourceStatusSubRequest($filter);
 

@@ -46,7 +46,6 @@ final class FindHostsStatusCountRequestValidator
         'UP',
         'DOWN',
     ];
-
     private const EMPTY_FILTERS = [
         self::PARAM_HOSTGROUP_NAMES => [],
         self::PARAM_HOST_CATEGORY_NAMES => [],
@@ -76,7 +75,7 @@ final class FindHostsStatusCountRequestValidator
 
             $value = $this->tryJsonDecodeParameterValue($parameterValue);
 
-            if($parameterName === self::PARAM_STATUSES) {
+            if ($parameterName === self::PARAM_STATUSES) {
                 $filterData[$parameterName] = $this->ensureStatusesFilter($parameterName, $value);
             }
 

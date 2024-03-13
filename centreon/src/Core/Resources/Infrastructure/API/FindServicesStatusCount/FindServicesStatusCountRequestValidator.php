@@ -43,14 +43,6 @@ final class FindServicesStatusCountRequestValidator
     public const PARAM_SERVICEGROUP_NAMES = 'servicegroup_names';
     public const PARAM_SERVICE_CATEGORY_NAMES = 'service_category_names';
     public const PARAM_STATUSES = 'statuses';
-    private const EMPTY_FILTERS = [
-        self::PARAM_HOSTGROUP_NAMES => [],
-        self::PARAM_HOST_CATEGORY_NAMES => [],
-        self::PARAM_SERVICEGROUP_NAMES => [],
-        self::PARAM_SERVICE_CATEGORY_NAMES => [],
-        self::PARAM_STATUSES => [],
-    ];
-
     /** Allowed values for statuses. */
     public const ALLOWED_STATUSES = [
         'OK',
@@ -58,6 +50,13 @@ final class FindServicesStatusCountRequestValidator
         'CRITICAL',
         'UNKNOWN',
         'PENDING',
+    ];
+    private const EMPTY_FILTERS = [
+        self::PARAM_HOSTGROUP_NAMES => [],
+        self::PARAM_HOST_CATEGORY_NAMES => [],
+        self::PARAM_SERVICEGROUP_NAMES => [],
+        self::PARAM_SERVICE_CATEGORY_NAMES => [],
+        self::PARAM_STATUSES => [],
     ];
 
     /**
@@ -83,7 +82,7 @@ final class FindServicesStatusCountRequestValidator
 
             $value = $this->tryJsonDecodeParameterValue($parameterValue);
 
-            if($parameterName === self::PARAM_STATUSES) {
+            if ($parameterName === self::PARAM_STATUSES) {
                 $this->ensureStatusesFilter($parameterName, $value);
             }
 
