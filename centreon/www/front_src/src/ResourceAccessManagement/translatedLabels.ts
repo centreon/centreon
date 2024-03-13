@@ -47,7 +47,7 @@ export const labelDeleteResourceAccessRuleWarning =
   'It will be permanently deleted and users will no longer have this permission.';
 export const labelFailedToDeleteRule = 'Failed to delete resource access rule';
 export const labelResourceAccessRuleDeletedSuccess =
-  'The resource access rule was successfully deleted';
+  'The resource access rule has been successfully deleted';
 export const labelDeleteMultipleResourceAccessRules =
   'Delete multiple resource access rules';
 export const labelFailedToDeleteSelectedRules =
