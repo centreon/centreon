@@ -62,7 +62,7 @@ const useApp = (): UseAppState => {
 
   const { sendRequest: getCustomPlatformRequest } =
     useRequest<CustomLoginPlatform>({
-      httpCodesBypassErrorSnackbar: [404],
+      httpCodesBypassErrorSnackbar: [404, 401],
       request: getData
     });
 
