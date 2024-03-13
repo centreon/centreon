@@ -398,7 +398,7 @@ describe('Listing header actions: mass delete', () => {
     cy.makeSnapshot();
   });
 
-  it('display a confirmation dialog when multiple delete button is clicked', () => {
+  it('displays a confirmation dialog when multiple delete button is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findByTestId(labelDeleteMultipleResourceAccessRules).click();
