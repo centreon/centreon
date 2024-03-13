@@ -41,10 +41,6 @@ overrides:
       - centreon-broker < ${NEXT_MAJOR_VERSION}
       - centreon-engine-daemon >= ${MAJOR_VERSION}
       - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
-    provides:
-      - centreon-database
-    replaces:
-      - centreon-database
     conflicts:
       - centreon-mariadb
   deb:
