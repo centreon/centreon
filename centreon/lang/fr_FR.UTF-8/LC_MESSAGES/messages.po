@@ -18823,3 +18823,21 @@ msgstr "Sortie #%d introuvable pour la configuration Broker #%d"
 
 msgid "Display resources with this unit"
 msgstr "Afficher les ressources avec cette unité"
+
+msgid "Rules are used to allow users to access resources."
+msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
+
+msgid "They will be permanently deleted and users will no longer have these permissions."
+msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
+
+msgid "Delete rules"
+msgstr "Supprimer les règles"
+
+msgid "Delete multiple resource access rules"
+msgstr "Supprimer plusieurs règles d'accès aux ressources"
+
+msgid "Failed to delete the selected resource access rules"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
+
+msgid "The selected resource access rules have been deleted successfully"
+msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
