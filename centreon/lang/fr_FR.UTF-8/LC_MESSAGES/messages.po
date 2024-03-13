@@ -18779,7 +18779,6 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
-
 msgid "Error while retrieving the number of hosts by status"
 msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
 
@@ -18797,6 +18796,9 @@ msgstr "Échec de la suppression de la règle d'accès aux ressources"
 
 msgid "The resource access rule was successfully deleted"
 msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+
+msgid "Error while retrieving the number of services by status"
+msgstr "Erreur lors de la récupération du nombre de services par statut"
 
 msgid "Error while adding a broker output"
 msgstr "Erreur lors de l'ajout d'une sortie Centreon Broker"
