@@ -74,11 +74,8 @@ const useDeleteRequest = ({
     defaultFailureMessage: t(labelFailed) as string,
     getEndpoint: (): string => endpoint,
     method: fetchMethod,
-    onSettled
-  });
-
-  const submit = (): void => {
-    mutateAsync({ payload }).then((response) => {
+    onSettled,
+    onSuccess: (response) => {
       const { statusCode, data } = response as ResponseError;
       if (equals(statusCode, 207)) {
         const successfulResponses = data.filter(propEq(204, 'status'));
@@ -112,7 +109,11 @@ const useDeleteRequest = ({
 
       showSuccessMessage(t(labelSuccess));
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
-    });
+    }
+  });
+
+  const submit = (): void => {
+    mutateAsync({ payload });
   };
 
   return {
