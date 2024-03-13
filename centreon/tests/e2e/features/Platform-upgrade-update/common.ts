@@ -229,7 +229,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
         return cy.execInContainer({
           command: [
-            `rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm`,
+            `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             'dnf install -y /tmp/packages-update-centreon/*.rpm'
           ],
           name: 'web'
@@ -238,7 +238,7 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 
       return cy.execInContainer({
         command: [
-          `rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb`,
+          `rm -f /tmp/packages-update-centreon/centreon{,-central,-mariadb,-mysql}_${major_version}*.deb`,
           'apt-get update',
           'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
         ],

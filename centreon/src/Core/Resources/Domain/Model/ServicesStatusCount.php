@@ -32,7 +32,6 @@ final class ServicesStatusCount
         private readonly OkStatusCount $okStatusCount,
         private readonly PendingStatusCount $pendingStatusCount
     ) {
-
     }
 
     public function getCriticalStatusCount(): CriticalStatusCount

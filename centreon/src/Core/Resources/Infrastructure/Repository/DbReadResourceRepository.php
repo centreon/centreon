@@ -437,6 +437,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
 
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         return $this->fetchHostsStatusCount($query, $collector);
     }
 
@@ -486,6 +491,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.type=0 AND resources.name NOT LIKE "_Module_%"
             SQL;
 
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         return $this->fetchServicesStatusCount($query, $collector);
     }
 
@@ -534,6 +544,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $query .= <<<'SQL'
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
+
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
 
         return $this->fetchHostsStatusCount($query, $collector);
@@ -584,6 +600,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $query .= <<<'SQL'
             resources.type=0 AND resources.name NOT LIKE "_Module_%"
             SQL;
+
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         $query .= ' AND ' . (new ServiceACLProvider())->buildACLSubRequest($accessGroupIds);
 
         return $this->fetchServicesStatusCount($query, $collector);
