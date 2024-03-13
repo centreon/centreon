@@ -22,7 +22,7 @@ contents:
       mode: 0600
     packager: rpm
   - src: "./src/centreon-database.cnf"
-    dst: "/etc/mysql/mysqld.conf.d/80-centreon.cnf"
+    dst: "/etc/mysql/mysql.conf.d/80-centreon.cnf"
     type: config|noreplace
     file_info:
       mode: 0600
@@ -33,6 +33,13 @@ contents:
     type: config|noreplace
     file_info:
       mode: 0600
+    packager: rpm
+  - src: "./src/database-systemd.conf"
+    dst: "/etc/systemd/system/mysql.service.d/centreon.conf"
+    type: config|noreplace
+    file_info:
+      mode: 0600
+    packager: deb
 
 overrides:
   rpm:
