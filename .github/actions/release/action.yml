@@ -117,9 +117,11 @@ runs:
         echo "Creating GITHUB releases."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
           echo "Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
+          gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
         done
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Create stable JIRA versions from new release tags
       run: |
