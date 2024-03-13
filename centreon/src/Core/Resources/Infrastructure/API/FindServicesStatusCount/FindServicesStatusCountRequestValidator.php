@@ -43,6 +43,7 @@ final class FindServicesStatusCountRequestValidator
     public const PARAM_SERVICEGROUP_NAMES = 'servicegroup_names';
     public const PARAM_SERVICE_CATEGORY_NAMES = 'service_category_names';
     public const PARAM_STATUSES = 'statuses';
+
     /** Allowed values for statuses. */
     public const ALLOWED_STATUSES = [
         'OK',
