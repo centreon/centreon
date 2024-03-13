@@ -16704,5 +16704,5 @@ msgstr "Erweiterter Modus"
 # msgid "Failed to delete selected resource access rules"
 # msgstr ""
 
-# msgid "Selected resource access rules were deleted successfully"
+# msgid "The selected resource access rules have been deleted successfully"
 # msgstr ""
