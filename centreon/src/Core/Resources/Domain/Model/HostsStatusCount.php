@@ -31,7 +31,6 @@ final class HostsStatusCount
         private readonly UpStatusCount $upStatusCount,
         private readonly PendingStatusCount $pendingStatusCount
     ) {
-
     }
 
     public function getDownStatusCount(): DownStatusCount
