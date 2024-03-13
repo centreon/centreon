@@ -174,7 +174,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
         <<<SQL
-        CREATE TABLE `dataset_filters` (
+        CREATE TABLE IF NOT EXISTS `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
             `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
