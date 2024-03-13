@@ -19,29 +19,26 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Resources\Application\UseCase\FindServicesStatusCount;
 
-class ResourcesStatusCount
+final class FindServicesStatusCountResponse
 {
-    /**
-     * @param HostsStatusCount|null $hostsStatusCount
-     * @param ServicesStatusCount|null $servicesStatusCount
-     */
-    public function __construct(
-        private readonly ?HostsStatusCount $hostsStatusCount,
-        private readonly ?ServicesStatusCount $servicesStatusCount
-    ) {
-    }
+    /** @var array{total: int} */
+    public array $criticalStatus = ['total' => 0];
 
-    public function getHostsStatusCount(): ?HostsStatusCount
-    {
-        return $this->hostsStatusCount;
-    }
+    /** @var array{total: int} */
+    public array $warningStatus = ['total' => 0];
 
-    public function getServicesStatusCount(): ?ServicesStatusCount
-    {
-        return $this->servicesStatusCount;
-    }
+    /** @var array{total: int} */
+    public array $unknownStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $okStatus = ['total' => 0];
+
+    /** @var array{total: int} */
+    public array $pendingStatus = ['total' => 0];
+
+    public int $total = 0;
 }

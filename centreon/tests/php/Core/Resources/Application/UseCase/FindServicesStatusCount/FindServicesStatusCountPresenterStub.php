@@ -21,27 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Domain\Model;
+namespace Tests\Core\Resources\Application\UseCase\FindServicesStatusCount;
 
-class ResourcesStatusCount
+use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountPresenterInterface;
+use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+class FindServicesStatusCountPresenterStub implements FindServicesStatusCountPresenterInterface
 {
-    /**
-     * @param HostsStatusCount|null $hostsStatusCount
-     * @param ServicesStatusCount|null $servicesStatusCount
-     */
-    public function __construct(
-        private readonly ?HostsStatusCount $hostsStatusCount,
-        private readonly ?ServicesStatusCount $servicesStatusCount
-    ) {
-    }
+    public FindServicesStatusCountResponse|ResponseStatusInterface $data;
 
-    public function getHostsStatusCount(): ?HostsStatusCount
+    public function presentResponse(FindServicesStatusCountResponse|ResponseStatusInterface $response): void
     {
-        return $this->hostsStatusCount;
-    }
-
-    public function getServicesStatusCount(): ?ServicesStatusCount
-    {
-        return $this->servicesStatusCount;
+        $this->data = $response;
     }
 }
