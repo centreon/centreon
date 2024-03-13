@@ -41,12 +41,11 @@ export const useResponsivePie = ({
   const horizontalGap = widthOfLegend > 0 ? 16 : 0;
   const verticalGap = heightOfTitle > 0 ? 8 : 0;
 
-  const svgWrapperWidth = width - widthOfLegend - horizontalGap;
-
   const svgContainerSize = Math.min(
     height - heightOfTitle - verticalGap,
     width - widthOfLegend - horizontalGap
   );
+  const svgWrapperWidth = svgContainerSize;
 
   const outerRadius = Math.min(32, svgContainerSize / 6);
 
