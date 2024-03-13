@@ -39,6 +39,7 @@ export enum FederatedWidgetOptionType {
   resources = 'resources',
   richText = 'rich-text',
   singleMetricGraphType = 'single-metric-graph-type',
+  switch = 'switch',
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
