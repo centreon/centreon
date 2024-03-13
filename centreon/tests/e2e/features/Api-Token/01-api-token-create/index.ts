@@ -111,7 +111,7 @@ Then('the token is displayed', () => {
 });
 
 Then('the "copy to clipboard" button is clicked', () => {
-  cy.getByTestId({ testId: 'clipboard' }).click({ force: true });
+  cy.getByTestId({ testId: 'clipboard' }).realClick();
 });
 
 Then('the token is successfully copied', () => {
