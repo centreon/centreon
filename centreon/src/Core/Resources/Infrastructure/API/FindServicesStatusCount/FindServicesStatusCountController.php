@@ -72,6 +72,7 @@ final class FindServicesStatusCountController extends AbstractController
             ->setHostgroupNames($filter[FindServicesStatusCountRequestValidator::PARAM_HOSTGROUP_NAMES])
             ->setHostCategoryNames($filter[FindServicesStatusCountRequestValidator::PARAM_HOST_CATEGORY_NAMES])
             ->setServicegroupNames($filter[FindServicesStatusCountRequestValidator::PARAM_SERVICEGROUP_NAMES])
-            ->setServiceCategoryNames($filter[FindServicesStatusCountRequestValidator::PARAM_SERVICE_CATEGORY_NAMES]);
+            ->setServiceCategoryNames($filter[FindServicesStatusCountRequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
+            ->setStatuses($filter[FindServicesStatusCountRequestValidator::PARAM_STATUSES]);;
     }
 }
