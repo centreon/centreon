@@ -18825,7 +18825,7 @@ msgstr "Afficher les ressources avec cette unité"
 msgid "Rules are used to allow users to access resources."
 msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
 
-msgid "They will be permanently deleted and users will no longer have these permissions"
+msgid "They will be permanently deleted and users will no longer have these permissions."
 msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
 
 msgid "Delete rules"
