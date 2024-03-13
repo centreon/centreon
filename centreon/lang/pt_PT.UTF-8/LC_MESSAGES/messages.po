@@ -17483,7 +17483,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Delete multiple resource access rules"
 # msgstr ""
 
-# msgid "Failed to delete selected resource access rules"
+# msgid "Failed to delete the selected resource access rules"
 # msgstr ""
 
 # msgid "The selected resource access rules have been deleted successfully"
