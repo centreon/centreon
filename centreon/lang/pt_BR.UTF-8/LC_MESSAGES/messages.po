@@ -17499,3 +17499,6 @@ msgstr ""
 
 # msgid "Share with contacts"
 # msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""

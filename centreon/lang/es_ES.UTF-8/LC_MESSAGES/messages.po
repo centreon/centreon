@@ -17036,3 +17036,6 @@ msgstr "Modo avanzado"
 
 # msgid "Share with contacts"
 # msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""

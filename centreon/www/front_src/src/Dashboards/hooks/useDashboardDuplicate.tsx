@@ -21,7 +21,7 @@ const useDashboardDuplicate = (): UseDashboardForm => {
   const dashboardToDuplicate = useAtomValue(dashboardToDuplicateAtom);
 
   const labels = {
-    labelFail: t(labelFailedToDuplicateDashboard),
+    labelFailure: t(labelFailedToDuplicateDashboard),
     labelSucces: t(labelDashboardDuplicated)
   };
 

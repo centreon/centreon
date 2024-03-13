@@ -34,10 +34,10 @@ export interface DataTableItemProps {
   hasCardAction?: boolean;
   labels;
   onClick?: () => void;
-  onDelete: () => void;
-  onDuplicate: () => void;
-  onEdit: () => void;
-  onEditAccessRights: () => void;
+  onDelete?: () => void;
+  onDuplicate?: () => void;
+  onEdit?: () => void;
+  onEditAccessRights?: () => void;
   title: string;
 }
 
@@ -58,6 +58,7 @@ const DataTableItem = forwardRef(
     ref
   ): ReactElement => {
     const { classes } = useStyles();
+
     const [moreActionsOpen, setMoreActionsOpen] = useState(null);
 
     const closeMoreActions = (): void => setMoreActionsOpen(null);
@@ -87,13 +88,15 @@ const DataTableItem = forwardRef(
           <MuiCardActions>
             <span />
             <span>
-              <IconButton
-                ariaLabel={labels.labelShareWithContacts}
-                title={labels.labelShareWithContacts}
-                onClick={pipe(onEditAccessRights, closeMoreActions)}
-              >
-                <ShareIcon fontSize="small" />
-              </IconButton>
+              {onEditAccessRights && (
+                <IconButton
+                  ariaLabel={labels.labelShareWithContacts}
+                  title={labels.labelShareWithContacts}
+                  onClick={pipe(onEditAccessRights, closeMoreActions)}
+                >
+                  <ShareIcon fontSize="small" />
+                </IconButton>
+              )}
               <IconButton
                 ariaLabel={labels.labelMoreActions}
                 title={labels.labelMoreActions}
@@ -108,23 +111,35 @@ const DataTableItem = forwardRef(
               >
                 <ActionsList
                   actions={[
-                    {
-                      Icon: SettingsIcon,
-                      label: labels.labelEditProperties,
-                      onClick: pipe(onEdit, closeMoreActions)
-                    },
-                    ActionsListActionDivider.divider,
-                    {
-                      Icon: DuplicateIcon,
-                      label: labels.labelDuplicate,
-                      onClick: pipe(onDuplicate, closeMoreActions)
-                    },
-                    ActionsListActionDivider.divider,
-                    {
-                      Icon: DeleteIcon,
-                      label: labels.labelDelete,
-                      onClick: pipe(onDelete, closeMoreActions)
-                    }
+                    ...(onEdit
+                      ? [
+                          {
+                            Icon: SettingsIcon,
+                            label: labels.labelEditProperties,
+                            onClick: pipe(onEdit, closeMoreActions)
+                          },
+                          ActionsListActionDivider.divider
+                        ]
+                      : []),
+                    ...(onDuplicate
+                      ? [
+                          {
+                            Icon: DuplicateIcon,
+                            label: labels.labelDuplicate,
+                            onClick: pipe(onDuplicate, closeMoreActions)
+                          },
+                          ActionsListActionDivider.divider
+                        ]
+                      : []),
+                    ...(onDelete
+                      ? [
+                          {
+                            Icon: DeleteIcon,
+                            label: labels.labelDelete,
+                            onClick: pipe(onDelete, closeMoreActions)
+                          }
+                        ]
+                      : [])
                   ]}
                 />
               </Menu>

@@ -29,7 +29,7 @@ type UseCreateDashboard<
 >;
 
 interface Labels {
-  labelFail: string;
+  labelFailure: string;
   labelSucces: string;
 }
 
@@ -50,8 +50,8 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
     httpCodesBypassErrorSnackbar: [400, 500],
     method: Method.POST,
     mutationKey: [resource.dashboards, 'create'],
-    ...(labels?.labelFail
-      ? { onError: () => showErrorMessage(labels?.labelFail) }
+    ...(labels?.labelFailure
+      ? { onError: () => showErrorMessage(labels?.labelFailure) }
       : {}),
     ...(labels?.labelSucces
       ? { onSuccess: () => showSuccessMessage(labels?.labelSucces) }

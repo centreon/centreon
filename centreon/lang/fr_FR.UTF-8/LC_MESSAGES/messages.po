@@ -18833,5 +18833,8 @@ msgstr "Tableau de bord supprimé"
 msgid "Dashboard duplicated"
 msgstr "Tableau de bord dupliqué"
 
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
 msgid "Share with contacts"
 msgstr "Partager avec des contacts"
