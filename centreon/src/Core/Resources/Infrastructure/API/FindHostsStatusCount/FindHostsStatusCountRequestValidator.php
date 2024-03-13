@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
  * @phpstan-type _RequestParameters array{
  *      hostgroup_names: list<string>,
  *      host_category_names: list<string>,
+ *      statuses: list<string>
  * }
  */
 final class FindHostsStatusCountRequestValidator

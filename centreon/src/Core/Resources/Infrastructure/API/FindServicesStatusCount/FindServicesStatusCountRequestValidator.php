@@ -33,6 +33,7 @@ use Core\Resources\Infrastructure\API\FindHostsStatusCount\_RequestParameters;
  *      host_category_names: list<string>,
  *      servicegroup_names: list<string>,
  *      service_category_names: list<string>,
+ *      statuses: list<string>
  * }
  */
 final class FindServicesStatusCountRequestValidator
