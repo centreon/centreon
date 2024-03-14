@@ -158,19 +158,26 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): SelfValidatingPassport
     {
         try {
-            $this->createSession($request, $this->provider);
-            $this->info('Starting authentication with WebSSO with session id ' . $request->getSession()->getId());
+            $this->info('Starting authentication with WebSSO');
             $this->provider->authenticateOrFail(
-                LoginRequest::createForSSO($request->getClientIp())
+                LoginRequest::createForSSO($request->getClientIp() ?? '')
             );
-            $user = $this->provider->findUserOrFail();
-            $this->info('Authenticated successfully', ['user' => $user->getAlias()]);
 
-            $referer = $request->headers->get('referer') ?
-                parse_url(
-                    $request->headers->get('referer'),
-                    PHP_URL_QUERY
-                ) : null;
+            $user = $this->provider->findUserOrFail();
+            $this->createSession($request, $this->provider);
+            $this->info(
+                'Authenticated successfully',
+                ['user' => $user->getAlias(), 'sessionId' => $request->getSession()->getId()]
+            );
+
+            // getRedirectionUri() expects ONLY a string as its second parameter
+            $referer = $request->headers->get('referer', '');
+            if (! empty($referer)) {
+                $referer = parse_url($referer, PHP_URL_QUERY);
+                if (! is_string($referer)) {
+                    $referer = '';
+                }
+            }
 
 
             View::createRedirect(
@@ -238,11 +245,20 @@ class WebSSOAuthenticator extends AbstractAuthenticator
 
         if ($this->writeSessionRepository->start($provider->getLegacySession())) {
             $sessionId = $request->getSession()->getId();
+
+            // @todo: why are we not using findUserOrFail()?
+            $authenticatedUser = $provider->getAuthenticatedUser();
+            if (null === $authenticatedUser) {
+                throw new \Centreon\Domain\Authentication\Exception\AuthenticationException(
+                    'No authenticated user could be found for provider'
+                );
+            }
+
             $this->createTokenIfNotExist(
                 $sessionId,
                 $provider->getConfiguration()->getId(),
-                $provider->getAuthenticatedUser(),
-                $request->getClientIp()
+                $authenticatedUser,
+                $request->getClientIp() ?? '' // @todo: what should happen if no IP was found?
             );
             $request->headers->set('Set-Cookie', "PHPSESSID=" . $sessionId);
         }
@@ -262,8 +278,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         int $webSSOConfigurationId,
         ContactInterface $user,
         string $clientIp
-    ): void
-    {
+    ): void {
         $this->info('creating token');
         $authenticationTokens = $this->authenticationService->findAuthenticationTokensByToken(
             $sessionId
@@ -302,9 +317,8 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         ContactInterface $contact,
         NewProviderToken $providerToken,
         ?NewProviderToken $providerRefreshToken,
-        ?string $clientIp,
-    ): void
-    {
+        ?string $clientIp
+    ): void {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
         if (!$isAlreadyInTransaction) {
@@ -337,13 +351,19 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     /**
      * Get the redirection uri where user will be redirect once logged.
      *
-     * @param ContactInterface $authenticatedUser
+     * @param null|ContactInterface $authenticatedUser
      * @param string|null $refererQueryParameters
      * @return string
      */
-    private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): string
-    {
+    private function getRedirectionUri(
+        ?ContactInterface $authenticatedUser,
+        ?string $refererQueryParameters
+    ): string {
         $redirectionUri = '/monitoring/resources';
+        if (null === $authenticatedUser) {
+            // The previous version assummed that if no conditions were met, just send this var as-is
+            return $redirectionUri;
+        }
 
         $refererRedirectionPage = $this->getRedirectionPageFromRefererQueryParameters($refererQueryParameters);
         if ($refererRedirectionPage !== null) {
@@ -389,7 +409,8 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         $refererRedirectionPage = null;
         $queryParameters = [];
         parse_str($refererQueryParameters, $queryParameters);
-        if (array_key_exists('redirect', $queryParameters)) {
+
+        if (is_string($queryParameters['redirect'] ?? null)) {
             $redirectionPageParameters = [];
             parse_str($queryParameters['redirect'], $redirectionPageParameters);
             if (array_key_exists('p', $redirectionPageParameters)) {

@@ -212,6 +212,7 @@ Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmaj
 Requires:   centreon-pp-manager >= %{thismajor}, centreon-pp-manager < %{nextmajor}
 Requires:   centreon-license-manager >= %{thismajor}, centreon-license-manager < %{nextmajor}
 Requires:   centreon-auto-discovery-server >= %{thismajor}, centreon-auto-discovery-server < %{nextmajor}
+Requires:   centreon-it-edition-extensions >= %{thismajor}, centreon-it-edition-extensions < %{nextmajor}
 Requires:   centreon-widget-engine-status >= %{thismajor}, centreon-widget-engine-status < %{nextmajor}
 Requires:   centreon-widget-global-health >= %{thismajor}, centreon-widget-global-health < %{nextmajor}
 Requires:   centreon-widget-graph-monitoring >= %{thismajor}, centreon-widget-graph-monitoring < %{nextmajor}
