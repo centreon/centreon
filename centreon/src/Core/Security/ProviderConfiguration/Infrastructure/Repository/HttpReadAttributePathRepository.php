@@ -127,7 +127,7 @@ final class HttpReadAttributePathRepository implements ReadAttributePathReposito
     {
         $statusCode = $response->getStatusCode();
         if ($statusCode !== Response::HTTP_OK) {
-            throw new InvalidStatusCodeException();
+            throw new InvalidStatusCodeException('Invalid status code received', $statusCode);
         }
     }
 
