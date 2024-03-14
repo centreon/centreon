@@ -11,7 +11,7 @@ const useDeleteWidget = (): UseDeleteWidgetState => {
   const setIsEditing = useSetAtom(isEditingAtom);
 
   const deleteWidget = (id: string) => (): void => {
-    setIsEditing(true);
+    setIsEditing(() => true);
     removePanel(id);
   };
 
