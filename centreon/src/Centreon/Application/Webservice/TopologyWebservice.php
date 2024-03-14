@@ -44,6 +44,7 @@ use Centreon\Domain\Repository\TopologyRepository;
 use Centreon\Domain\Entity\Topology;
 use Centreon\ServiceProvider;
 use Core\Common\Infrastructure\FeatureFlags;
+use OpenApi\Annotations as OA;
 
 /**
  * @OA\Tag(name="centreon_topology", description="Web Service for Topology")
@@ -56,11 +57,14 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
 
     private ?FeatureFlags $featureFlags = null;
 
-    public function __construct(private \Core\Common\Infrastructure\FeatureFlags $featureFlags2)
+    /**
+     * @throws \Exception
+     */
+    public function __construct()
     {
+        $featureFlags = Kernel::createForWeb()->getContainer()->get(FeatureFlags::class);
         parent::__construct();
 
-        $featureFlags = $this->featureFlags2;
         if (! ($featureFlags instanceof FeatureFlags)) {
             throw new \Exception('Unable to retrieve the FeatureFlags service');
         }
