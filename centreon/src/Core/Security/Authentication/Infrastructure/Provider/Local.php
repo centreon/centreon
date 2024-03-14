@@ -35,7 +35,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Throwable;
 
 class Local implements ProviderAuthenticationInterface
@@ -44,8 +43,6 @@ class Local implements ProviderAuthenticationInterface
 
     /** @var string */
     private string $username;
-
-    private SessionInterface $session;
 
     /**
      * @param LocalProviderInterface $provider
@@ -57,7 +54,6 @@ class Local implements ProviderAuthenticationInterface
         readonly private RequestStack $requestStack,
         readonly private ContactServiceInterface $contactService
     ) {
-        $this->session = $this->requestStack->getSession();
     }
 
     /**
@@ -159,7 +155,7 @@ class Local implements ProviderAuthenticationInterface
      */
     public function getProviderRefreshToken(): ?NewProviderToken
     {
-        return $this->provider->getProviderRefreshToken($this->session->getId());
+        return $this->provider->getProviderRefreshToken($this->requestStack->getSession()->getId());
     }
 
     /**

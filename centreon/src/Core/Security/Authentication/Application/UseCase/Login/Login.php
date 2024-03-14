@@ -49,13 +49,10 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class Login
 {
     use LoggerTrait;
-
-    private SessionInterface $session;
 
     /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
@@ -86,7 +83,6 @@ final class Login
         private string $defaultRedirectUri,
         private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
-        $this->session = $this->requestStack->getSession();
     }
 
     /**
@@ -113,13 +109,13 @@ final class Login
 
             $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
-                if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->session->getId()) === false) {
+                if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->requestStack->getSession()->getId()) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
                         // We create an API token in addition of the session token.
                         $this->createAuthenticationTokens(
                             $token = Encryption::generateRandomString(),
                             $user,
-                            $this->provider->getProviderToken($this->session->getId()),
+                            $this->provider->getProviderToken($this->requestStack->getSession()->getId()),
                             $this->provider->getProviderRefreshToken(),
                             $loginRequest->clientIp
                         );
@@ -129,9 +125,9 @@ final class Login
 
                     // Session token To keep the stateful authentication active anyway.
                     $this->createAuthenticationTokens(
-                        $this->session->getId(),
+                        $this->requestStack->getSession()->getId(),
                         $user,
-                        $this->provider->getProviderToken($this->session->getId()),
+                        $this->provider->getProviderToken($this->requestStack->getSession()->getId()),
                         $this->provider->getProviderRefreshToken(),
                         $loginRequest->clientIp
                     );
