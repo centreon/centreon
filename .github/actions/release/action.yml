@@ -73,9 +73,14 @@ runs:
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
 
+        # Rebuild NEW_STABLE_TAGS as an array
+        for i in ${NEW_RELEASE_TAGS[@]}; do
+          NEW_RELEASE_TAGS+=("$i")
+        done
+
         # Create release tags on git for each release components
         echo "Creating release tags."
-        for TAG in ${NEW_STABLE_TAGS[@]}; do
+        for TAG in ${NEW_RELEASE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
@@ -103,13 +108,20 @@ runs:
           echo "GH CLI is already installed."
         fi
 
+        # Rebuild NEW_STABLE_TAGS as an array
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          NEW_RELEASE_TAGS+=("$i")
+        done
+
         # Create GITHUB release for each release components
         echo "Creating GITHUB releases."
-        for TAG in ${NEW_STABLE_TAGS[@]}; do
+        for TAG in ${NEW_RELEASE_TAGS[@]}; do
           echo "Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
+          gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
         done
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Create stable JIRA versions from new release tags
       run: |

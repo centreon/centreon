@@ -18841,6 +18841,8 @@ msgstr "Échec de la suppression des règles d'accès aux ressources sélectionn
 
 msgid "The selected resource access rules have been deleted successfully"
 msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
 
 msgid "Duplicate dashboard"
 msgstr "Dupliquer le tableau de bord"

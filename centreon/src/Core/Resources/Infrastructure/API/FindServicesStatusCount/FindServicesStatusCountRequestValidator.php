@@ -33,6 +33,7 @@ use Core\Resources\Infrastructure\API\FindHostsStatusCount\_RequestParameters;
  *      host_category_names: list<string>,
  *      servicegroup_names: list<string>,
  *      service_category_names: list<string>,
+ *      statuses: list<string>
  * }
  */
 final class FindServicesStatusCountRequestValidator
@@ -42,11 +43,22 @@ final class FindServicesStatusCountRequestValidator
     public const PARAM_HOST_CATEGORY_NAMES = 'host_category_names';
     public const PARAM_SERVICEGROUP_NAMES = 'servicegroup_names';
     public const PARAM_SERVICE_CATEGORY_NAMES = 'service_category_names';
+    public const PARAM_STATUSES = 'statuses';
+
+    /** Allowed values for statuses. */
+    public const ALLOWED_STATUSES = [
+        'OK',
+        'WARNING',
+        'CRITICAL',
+        'UNKNOWN',
+        'PENDING',
+    ];
     private const EMPTY_FILTERS = [
         self::PARAM_HOSTGROUP_NAMES => [],
         self::PARAM_HOST_CATEGORY_NAMES => [],
         self::PARAM_SERVICEGROUP_NAMES => [],
         self::PARAM_SERVICE_CATEGORY_NAMES => [],
+        self::PARAM_STATUSES => [],
     ];
 
     /**
@@ -71,6 +83,11 @@ final class FindServicesStatusCountRequestValidator
             }
 
             $value = $this->tryJsonDecodeParameterValue($parameterValue);
+
+            if ($parameterName === self::PARAM_STATUSES) {
+                $this->ensureStatusesFilter($parameterName, $value);
+            }
+
             $filterData[$parameterName] = $this->ensureArrayOfString($parameterName, $value);
         }
 
@@ -142,5 +159,30 @@ final class FindServicesStatusCountRequestValidator
         }
 
         return $value;
+    }
+
+    /**
+     * Ensures that statuses filter provided in the payload are supported.
+     *
+     * @param string $parameterName
+     * @param mixed $values
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return list<value-of<self::ALLOWED_STATUSES>>
+     */
+    private function ensureStatusesFilter(string $parameterName, mixed $values): array
+    {
+        $statuses = [];
+        foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
+            if (! \in_array($string, self::ALLOWED_STATUSES, true)) {
+                $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
+
+                throw new \InvalidArgumentException($message);
+            }
+            $statuses[] = $string;
+        }
+
+        return $statuses;
     }
 }
