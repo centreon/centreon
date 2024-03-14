@@ -86,6 +86,7 @@ runs:
         echo "Creating release tags."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
+            echo "The tag is $TAG."
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
             echo "::notice::Tagging stable branch with $TAG."
