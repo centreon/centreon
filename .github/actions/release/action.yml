@@ -80,11 +80,12 @@ runs:
           NEW_RELEASE_TAGS+=("$i")
         done
 
+        echo "New stable tags will be:${NEW_RELEASE_TAGS[*]}"
         echo "New release tags will be: ${NEW_RELEASE_TAGS[*]}"
 
         # Create release tags on git for each release components
         echo "Creating release tags."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "Last tag is $TAG."
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             echo "The tag is $TAG."
