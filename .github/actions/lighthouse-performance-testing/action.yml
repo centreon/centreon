@@ -20,12 +20,12 @@ runs:
   using: "composite"
   steps:
     - name: Setup PHP 8.1
-      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
       with:
         php-version: 8.1
         extensions: yaml, xml, common, mysql, cli, dom, mbstring, intl, pdo, zip
         coverage: none
-        tools: composer:v2
+        tools: composer:v2.6
 
     - name: "Start Centreon container"
       run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name lighthouse-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
