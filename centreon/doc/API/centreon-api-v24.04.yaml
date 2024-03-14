@@ -10,6 +10,7 @@ info:
     + Added host endpoint (PATCH)
     + Added service enpdoint (PATCH)
     + Added service severity configuration endpoint (PUT)
+    + Added hosts status count endpoint (GET)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
@@ -251,6 +252,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/broker/{brokerId}/outputs:
+    $ref: "./v24.04/Configuration/Broker/AddBrokerOutput.yaml"
   /configuration/commands:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
@@ -414,6 +417,12 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
       responses:
         "200":
           description: "OK"
@@ -662,6 +671,8 @@ paths:
         * name
         * alias
         * is_activated
+        * hostcategory.id
+        * hostcategory.name
 
         Changes in 23.04 :
 
@@ -1972,6 +1983,10 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/hosts/status:
+    $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
+  /monitoring/services/status:
+    $ref: './v24.04/Realtime/Resources/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
@@ -5062,7 +5077,8 @@ components:
     FilterPageName:
       in: path
       name: page_name
-      description: "name of the page"
+      description: |
+        name of the page. Currently only 'events-view' is allowed.
       required: true
       schema:
         type: string

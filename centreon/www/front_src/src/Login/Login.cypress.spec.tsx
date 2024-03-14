@@ -19,6 +19,7 @@ import {
 } from './api/endpoint';
 import {
   labelAlias,
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonLogo,
   labelCentreonWallpaper,
   labelConnect,
@@ -89,6 +90,24 @@ const retrievedProvidersConfiguration = [
     id: 3,
     is_active: false,
     name: 'ldap'
+  }
+];
+
+const retrievedForcedProvidersConfiguration = [
+  {
+    authentication_uri:
+      '/centreon/authentication/providers/configurations/local',
+    id: 1,
+    is_active: true,
+    name: 'local'
+  },
+  {
+    authentication_uri:
+      '/centreon/authentication/providers/configurations/openid',
+    id: 2,
+    is_active: true,
+    is_forced: true,
+    name: 'openid'
   }
 ];
 
@@ -381,6 +400,26 @@ describe('Login Page', () => {
       });
 
     cy.findByLabelText(labelAlias).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a fallback page when a provider is forced and an error occurred during authentication', () => {
+    mountComponentAndStubs();
+    cy.stub(router, 'useSearchParams').returns([
+      new Map([['authenticationError', 'An error occurred']])
+    ]);
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: retrievedForcedProvidersConfiguration
+    });
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.contains(labelAnErrorOccurredDuringAuthentication).should('be.visible');
+    cy.contains('An error occurred').should('be.visible');
 
     cy.makeSnapshot();
   });

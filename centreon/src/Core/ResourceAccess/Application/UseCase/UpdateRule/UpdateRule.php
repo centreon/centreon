@@ -75,14 +75,9 @@ final class UpdateRule
      */
     public function __invoke(UpdateRuleRequest $request, UpdateRulePresenterInterface $presenter): void
     {
-        /**
-         * Check if current user is authorized to perform the action.
-         * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
-         * are authorized to add a Resource Access Rule.
-         */
         if (! $this->isAuthorized()) {
             $this->error(
-                "User doesn't have sufficient rights to create a resource access rule",
+                "User doesn't have sufficient rights to update a resource access rule",
                 [
                     'user_id' => $this->user->getId(),
                 ]
@@ -446,7 +441,7 @@ final class UpdateRule
         sort($current);
         sort($update);
 
-        return array_diff($current, $update) !== [];
+        return $current !== $update;
     }
 
     /**
@@ -464,6 +459,10 @@ final class UpdateRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
@@ -474,6 +473,6 @@ final class UpdateRule
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

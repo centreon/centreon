@@ -49,7 +49,7 @@ const PanelHeader = ({
 
   const duplicate = (event): void => {
     event.preventDefault();
-    setIsEditing(true);
+    setIsEditing(() => true);
     duplicatePanel(id);
   };
 

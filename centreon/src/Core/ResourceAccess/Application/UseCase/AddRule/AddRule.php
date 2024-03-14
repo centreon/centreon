@@ -75,11 +75,6 @@ final class AddRule
         AddRulePresenterInterface $presenter
     ): void {
         try {
-            /**
-             * Check if current user is authorized to perform the action.
-             * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
-             * are authorized to add a Resource Access Rule.
-             */
             if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to create a resource access rule",
@@ -153,6 +148,13 @@ final class AddRule
         }
     }
 
+    /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
+     * @return bool
+     */
     private function isAuthorized(): bool
     {
         $userAccessGroupNames = array_map(
@@ -161,7 +163,7 @@ final class AddRule
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 
     /**

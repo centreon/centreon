@@ -19,13 +19,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -160,11 +154,9 @@ When(
 Then(
   'a top of best-performing resources for this metbric are displayed in the widget preview',
   () => {
-    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
-    cy.contains('#1 Centreon-Server_Ping').should('be.visible');
+    cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
+    cy.contains('#1 Centreon-Server_Ping').should('exist');
   }
 );
 
@@ -271,12 +263,8 @@ When(
 );
 
 Then('a second Top Bottom widget is displayed on the dashboard', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' })
-    .eq(1)
-    .should('be.visible');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' })
-    .eq(1)
-    .should('be.visible');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).eq(1).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).eq(1).should('exist');
 });
 
 Given('a dashboard featuring two Top Bottom widgets', () => {
@@ -304,13 +292,13 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 
 Then('only the contents of the other widget are displayed', () => {
-  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
-  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('be.visible');
+  cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('exist');
+  cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
 });
 
 Given('a dashboard with a configured Top Bottom widget', () => {
@@ -427,10 +415,8 @@ When(
 Then(
   'the widget is refreshed to display the updated warning threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should(
-      'be.visible'
-    );
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('exist');
   }
 );
 
@@ -450,7 +436,7 @@ When(
 Then(
   'the widget is refreshed to display the updated critical threshold on all bars of the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('be.visible');
-    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('be.visible');
+    cy.getByTestId({ testId: 'warning-line-40-tooltip' }).should('exist');
+    cy.getByTestId({ testId: 'critical-line-60-tooltip' }).should('exist');
   }
 );

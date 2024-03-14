@@ -14,7 +14,7 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm /tmp/rpms-centreon/centreon-database-${VERSION}*.rpm
+rm -f /tmp/rpms-centreon/centreon{,-central,-mariadb,-mysql}-${VERSION}*.rpm
 dnf install -y /tmp/rpms-centreon/centreon-*.rpm
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
@@ -53,6 +53,8 @@ dnf install -y https://github.com/mydumper/mydumper/releases/download/v0.15.2-7/
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
+sed -i -e 's/NO_AUTO_CREATE_USER//g' -e "s#text DEFAULT ''#text DEFAULT ('')#" /usr/local/src/sql/databases/centreon/*
+sed -i -e 's/NO_AUTO_CREATE_USER//g' /usr/local/src/sql/databases/centreon_storage/*
 
 systemctl stop gorgoned
 systemctl stop centengine

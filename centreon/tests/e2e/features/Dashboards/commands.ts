@@ -116,33 +116,15 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
-  cy.waitUntil(
-    () =>
-      cy
-        .get(
-          `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
-        )
-        .should('be.visible')
-        .then(() => true),
-    { interval: 1000, timeout: 10000 }
-  );
+Cypress.Commands.add('applyAcl', () => {
+  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
 
-  return cy
-    .get(
-      `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
-    )
-    .invoke('text')
-    .then((content) => {
-      const columnContents = content ? content.match(/[A-Z][a-z]*/g) || [] : [];
-      cy.log(
-        `Column contents (${rowIndex}, ${columnIndex}): ${columnContents
-          .join(',')
-          .trim()}`
-      );
-
-      return cy.wrap(columnContents);
-    });
+  cy.execInContainer({
+    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
+    name: 'web'
+  });
 });
 
 interface Dashboard {
@@ -169,6 +151,7 @@ type widgetJSONData =
 declare global {
   namespace Cypress {
     interface Chainable {
+      applyAcl: () => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       insertDashboardWithWidget: (

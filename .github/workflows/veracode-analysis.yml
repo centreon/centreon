@@ -142,7 +142,6 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        id: pipeline-scan
         uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
@@ -160,7 +159,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || (failure() && github.event.pull_request.draft == false)
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -216,7 +215,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: vars.VERACODE_BACKUP_DEBUG == 'true' || (failure() && github.event.pull_request.draft == false)
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}

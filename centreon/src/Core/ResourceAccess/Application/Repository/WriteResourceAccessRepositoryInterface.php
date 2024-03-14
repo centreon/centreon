@@ -71,11 +71,6 @@ interface WriteResourceAccessRepositoryInterface
     public function addDataset(string $name): int;
 
     /**
-     * @param int[] $ids
-     */
-    public function deleteDatasets(array $ids): void;
-
-    /**
      * @param int $ruleId
      * @param int $datasetId
      */
@@ -98,5 +93,15 @@ interface WriteResourceAccessRepositoryInterface
      * @param int $ruleId
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, string $resourceType, array $resourceIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function deleteRuleAndDatasets(int $ruleId): void;
+
+    /**
+     * @param int[] $ids
+     */
+    public function deleteDatasets(array $ids): void;
 }
 
