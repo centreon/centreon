@@ -30,7 +30,7 @@ type UseCreateDashboard<
 
 interface Labels {
   labelFailure: string;
-  labelSucces: string;
+  labelSuccess: string;
 }
 
 interface Props {
@@ -53,8 +53,8 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
     ...(labels?.labelFailure
       ? { onError: () => showErrorMessage(labels?.labelFailure) }
       : {}),
-    ...(labels?.labelSucces
-      ? { onSuccess: () => showSuccessMessage(labels?.labelSucces) }
+    ...(labels?.labelSuccess
+      ? { onSuccess: () => showSuccessMessage(labels?.labelSuccess) }
       : {})
   });
 

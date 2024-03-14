@@ -22,7 +22,7 @@ const useDashboardDuplicate = (): UseDashboardForm => {
 
   const labels = {
     labelFailure: t(labelFailedToDuplicateDashboard),
-    labelSucces: t(labelDashboardDuplicated)
+    labelSuccess: t(labelDashboardDuplicated)
   };
 
   const { mutate: duplicateDashboardMutation } = useCreateDashboard({

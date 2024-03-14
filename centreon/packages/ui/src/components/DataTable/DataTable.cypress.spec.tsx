@@ -118,7 +118,7 @@ describe('DataTable: Grid', () => {
     cy.makeSnapshot();
   });
 
-  it('displays actions when more actions button was clicked', () => {
+  it('displays actions when more actions button is clicked', () => {
     initializeDataTableGrid({
       hasActions: true,
       hasCardAction: false
