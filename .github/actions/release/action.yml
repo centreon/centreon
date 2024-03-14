@@ -68,6 +68,7 @@ runs:
 
     - name: Add new release tags to stable branch
       run: |
+        set -eux
         # Add new stable tags to stable branch
         echo "Configuring git."
         git config --global user.email "release@centreon.com"
