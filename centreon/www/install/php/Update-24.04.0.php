@@ -202,6 +202,11 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
+$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to alter created_at for task table';
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp DEFAULT CURRENT_TIMESTAMP");
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -214,6 +219,8 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+
+    $addDefaultValueforTaskTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
