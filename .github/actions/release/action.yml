@@ -68,10 +68,16 @@ runs:
 
     - name: Add new release tags to stable branch
       run: |
+        set -eux
         # Add new stable tags to stable branch
         echo "Configuring git."
         git config --global user.email "release@centreon.com"
         git config --global user.name "Centreon"
+
+        # Rebuild NEW_STABLE_TAGS as an array
+        # for i in ${NEW_RELEASE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Create release tags on git for each release components
         echo "Creating release tags."
@@ -89,6 +95,7 @@ runs:
 
     - name: Create GITHUB releases from new release tags
       run: |
+        set -eux
         # Install gh cli
         echo "Installing GH CLI."
         if ! command -v gh &> /dev/null; then
@@ -103,26 +110,33 @@ runs:
           echo "GH CLI is already installed."
         fi
 
+        # Rebuild NEW_STABLE_TAGS as an array
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
+
         # Create GITHUB release for each release components
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }} --title "$TAG" --verify-tag
+          gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
         done
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Create stable JIRA versions from new release tags
       run: |
-        set -eu
+        set -eux
 
         # Call JIRA to provide new jira versions to create
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Create new JIRA versions (old way of doing it)
         # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
@@ -137,7 +151,7 @@ runs:
         JIRA_RELEASE_RELEASED="false"
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
           # Build JSON with release information for JIRA API
           JIRA_RELEASE_DATA=$(jq -nc \
@@ -168,12 +182,12 @@ runs:
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Build JSON structure with released versions
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
 
