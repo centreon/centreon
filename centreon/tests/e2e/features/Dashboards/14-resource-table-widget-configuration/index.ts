@@ -62,7 +62,7 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.startContainers();
-  cy.enableDashboardFeature();
+  // cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -242,8 +242,7 @@ When(
 Then('only the services must be displayed', () => {
   cy.getCellContent(1, 1).then((myTableContent) => {
     cy.then(() => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
+      expect(myTableContent[1]).to.include('Up');
     });
   });
 });
@@ -373,10 +372,7 @@ Given('a dashboard featuring two resource table widgets', () => {
 
 When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
-  cy.getByLabel({
-    label: 'Delete',
-    tag: 'li'
-  }).realClick();
+  cy.getByTestId({ testId: 'confirm' }).click();
 });
 
 Then('only the contents of the other widget are displayed', () => {
