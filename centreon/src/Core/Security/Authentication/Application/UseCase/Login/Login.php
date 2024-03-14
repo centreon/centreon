@@ -48,18 +48,21 @@ use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class Login
 {
     use LoggerTrait;
 
+    private SessionInterface $session;
+
     /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
     /**
      * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param WriteSessionRepositoryInterface $sessionRepository
      * @param ReadTokenRepositoryInterface $readTokenRepository
@@ -72,7 +75,7 @@ final class Login
      */
     public function __construct(
         private ProviderAuthenticationFactoryInterface $providerFactory,
-        private SessionInterface $session,
+        private RequestStack $requestStack,
         private DataStorageEngineInterface $dataStorageEngine,
         private WriteSessionRepositoryInterface $sessionRepository,
         private ReadTokenRepositoryInterface $readTokenRepository,
@@ -83,13 +86,12 @@ final class Login
         private string $defaultRedirectUri,
         private readonly ThirdPartyLoginForm $thirdPartyLoginForm,
     ) {
+        $this->session = $this->requestStack->getSession();
     }
 
     /**
      * @param LoginRequest $loginRequest
      * @param PresenterInterface $presenter
-     *
-     * @throws AuthenticationException
      */
     public function __invoke(LoginRequest $loginRequest, PresenterInterface $presenter): void
     {
