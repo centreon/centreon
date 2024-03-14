@@ -18,7 +18,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb /tmp/debs-centreon/centreon-database_${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon{,-central,-mariadb,-mysql}_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh

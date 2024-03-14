@@ -95,7 +95,10 @@ const getYupValidatorType = ({
               })
               .optional()
           )
-          .min(1, t(labelPleaseSelectAResource) as string)
+          .min(
+            properties.required ? 1 : 0,
+            t(labelPleaseSelectAResource) as string
+          )
       )
     ],
     [
