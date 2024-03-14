@@ -1,16 +1,12 @@
 import { useMemo } from 'react';
 
-import { useAtom, WritableAtom, ExtractAtomResult } from 'jotai';
+import { useAtom, PrimitiveAtom } from 'jotai';
 import { equals, pick, type } from 'ramda';
 
 import { Modal } from '..';
 
-interface Props<TAtom> {
-  atom: WritableAtom<
-    TAtom | null,
-    Array<unknown>,
-    ExtractAtomResult<TAtom | null>
-  >;
+export interface ConfirmationModalProps<TAtom> {
+  atom: PrimitiveAtom<string | null>;
   disabled?: boolean;
   hasCloseButton?: boolean;
   isDanger?: boolean;
@@ -20,8 +16,8 @@ interface Props<TAtom> {
     description: string | ((atom: Awaited<TAtom> | null) => string);
     title: string | ((atom: Awaited<TAtom> | null) => string);
   };
-  onCancel?: () => void;
-  onConfirm?: () => void;
+  onCancel?: (atomData: Awaited<TAtom> | null) => void;
+  onConfirm?: (atomData: Awaited<TAtom> | null) => void;
 }
 
 interface GetLabelProps<TAtom> {
@@ -39,10 +35,10 @@ const ConfirmationModal = <TAtom,>({
   labels,
   onConfirm,
   onCancel,
-  hasCloseButton,
+  hasCloseButton = true,
   isDanger,
   disabled
-}: Props<TAtom>): JSX.Element => {
+}: ConfirmationModalProps<TAtom>): JSX.Element => {
   const [atomData, setAtomData] = useAtom<TAtom | null>(atom);
 
   const closeModal = (): void => {
@@ -59,12 +55,12 @@ const ConfirmationModal = <TAtom,>({
   }, [labels, atomData]);
 
   const confirm = (): void => {
-    onConfirm?.();
+    onConfirm?.(atomData);
     setAtomData(null);
   };
 
   const cancel = (): void => {
-    onCancel?.();
+    onCancel?.(atomData);
     setAtomData(null);
   };
 

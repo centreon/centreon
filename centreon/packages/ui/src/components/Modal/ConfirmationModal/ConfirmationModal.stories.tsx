@@ -22,7 +22,7 @@ const Component = (args): JSX.Element => {
   return (
     <>
       <Button onClick={() => setAtom('John')}>Click to open modal</Button>
-      <ConfirmationModal {...args} />
+      <ConfirmationModal<string> {...args} />
     </>
   );
 };
@@ -31,10 +31,10 @@ export const Default: Story = {
   args: {
     hasCloseButton: true,
     labels: {
-      title: 'Title',
-      description: 'Description',
       cancel: 'Cancel',
-      confirm:'Confirm'
+      confirm: 'Confirm',
+      description: 'Description',
+      title: 'Title'
     }
   },
   render: (args) => (
@@ -48,10 +48,10 @@ export const WithDynamicLabels: Story = {
   args: {
     hasCloseButton: true,
     labels: {
-      title: (data) => `Hello ${data}`,
-      description: (data) => `Hello ${data} from description`,
       cancel: 'Cancel',
-      confirm:'Confirm'
+      confirm: 'Confirm',
+      description: (data) => `Hello ${data} from description`,
+      title: (data) => `Hello ${data}`
     }
   },
   render: (args) => (
