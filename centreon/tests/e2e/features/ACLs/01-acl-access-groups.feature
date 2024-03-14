@@ -1,3 +1,4 @@
+@REQ_MON-37968
 Feature: AclAccessGroups
   As a Centreon administrator
   I want to administrate ACL access groups
