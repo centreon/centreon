@@ -17274,3 +17274,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Resource table"
 # msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""
