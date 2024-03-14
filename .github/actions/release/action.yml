@@ -68,6 +68,8 @@ runs:
 
     - name: Add new release tags to stable branch
       run: |
+        set -eux
+
         # Add new stable tags to stable branch
         echo "Configuring git."
         git config --global user.email "release@centreon.com"
@@ -77,6 +79,8 @@ runs:
         for i in ${NEW_RELEASE_TAGS[@]}; do
           NEW_RELEASE_TAGS+=("$i")
         done
+
+        echo "New release tags will be: ${NEW_STABLE_TAGS[*]}""
 
         # Create release tags on git for each release components
         echo "Creating release tags."
