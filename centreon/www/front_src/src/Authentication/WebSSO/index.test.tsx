@@ -216,10 +216,10 @@ describe('Web SSOconfiguration form', () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.WebSSO),
-        {
+        JSON.stringify({
           ...retrievedWebSSOConfiguration,
           login_header_attribute: 'admin',
-        },
+        }),
         cancelTokenPutParams,
       );
     });
