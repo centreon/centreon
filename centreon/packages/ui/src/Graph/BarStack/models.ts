@@ -10,6 +10,7 @@ export type BarStackProps = {
   data: Array<BarType>;
   displayLegend?: boolean;
   displayValues?: boolean;
+  labelNoDataFound?: string;
   legendDirection?: 'row' | 'column';
   onSingleBarClick?: (barData) => void;
   size?: number;

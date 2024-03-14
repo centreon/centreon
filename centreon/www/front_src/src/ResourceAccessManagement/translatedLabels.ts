@@ -39,3 +39,24 @@ export const labelSelectResource = 'Select resource';
 export const labelActiveOrInactive = 'Active / Inactive';
 export const labelEnabled = 'Enabled';
 export const labelDisabled = 'Disabled';
+export const labelDeleteResourceAccessRule = 'Delete rule';
+export const labelCancel = 'Cancel';
+export const labelDeleteResourceAccessRuleDialogMessage =
+  'is used to allow users to access resources.';
+export const labelDeleteResourceAccessRuleWarning =
+  'It will be permanently deleted and users will no longer have this permission.';
+export const labelFailedToDeleteRule =
+  'Failed to delete the resource access rule';
+export const labelResourceAccessRuleDeletedSuccess =
+  'The resource access rule has been successfully deleted';
+export const labelDeleteMultipleResourceAccessRules =
+  'Delete multiple resource access rules';
+export const labelFailedToDeleteSelectedRules =
+  'Failed to delete the selected resource access rules';
+export const labelResourceAccessRulesDeletedSuccess =
+  'The selected resource access rules have been deleted successfully';
+export const labelDeleteResourceAccessRulesDialogMessage =
+  'Rules are used to allow users to access resources.';
+export const labelDeleteResourceAccessRulesWarning =
+  'They will be permanently deleted and users will no longer have these permissions.';
+export const labelDeleteResourceAccessRules = 'Delete rules';
