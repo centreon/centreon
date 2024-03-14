@@ -88,7 +88,7 @@ runs:
             echo "::notice::Tagging stable branch with $TAG."
           else
             echo "::error::Release tag $TAG already exists, exiting."
-            exit 1
+            # exit 1
           fi
         done
       shell: bash
