@@ -314,6 +314,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @param ?RequestParametersInterface $requestParameters
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
