@@ -150,11 +150,11 @@ jobs:
 
       - name: Pipeline scan
         run: |
-          exit 1
+          ls -la toto
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || (failure() && github.event.pull_request.draft == false)
+        if: (!cancelled() && needs.build.outputs.enable_qg == 'false') || (failure() && github.event.pull_request.draft == false)
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
