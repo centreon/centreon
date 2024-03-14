@@ -3,18 +3,15 @@ import { useMemo, useEffect, useCallback } from 'react';
 import { useFormikContext } from 'formik';
 import {
   equals,
-  flatten,
   identity,
   includes,
   innerJoin,
   isEmpty,
   isNil,
   omit,
-  pipe,
   pluck,
   propEq,
-  reject,
-  uniq
+  reject
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
