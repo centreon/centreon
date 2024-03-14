@@ -136,7 +136,8 @@ const DataTableItem = forwardRef(
                           {
                             Icon: DeleteIcon,
                             label: labels.labelDelete,
-                            onClick: pipe(onDelete, closeMoreActions)
+                            onClick: pipe(onDelete, closeMoreActions),
+                            variant: 'error'
                           }
                         ]
                       : [])

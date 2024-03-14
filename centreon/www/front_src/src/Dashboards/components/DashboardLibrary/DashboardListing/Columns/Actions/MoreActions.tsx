@@ -46,7 +46,8 @@ const MoreActions = ({ close, anchor, row }: Props): JSX.Element => {
           {
             Icon: DeleteIcon,
             label: t(labelDelete),
-            onClick: pipe(openDeleteModal, close)
+            onClick: pipe(openDeleteModal, close),
+            variant: 'error'
           }
         ]}
       />
