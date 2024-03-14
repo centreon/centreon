@@ -80,7 +80,7 @@ runs:
           NEW_RELEASE_TAGS+=("$i")
         done
 
-        echo "New release tags will be: ${NEW_STABLE_TAGS[*]}"
+        echo "New release tags will be: ${NEW_RELEASE_TAGS[*]}"
 
         # Create release tags on git for each release components
         echo "Creating release tags."
