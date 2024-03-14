@@ -38,6 +38,7 @@ Depends:
   libssh-session-perl,
   libev-perl,
   libzmq-ffi-perl,
+  libclone-choose-perl,
   sudo,
   ${shlibs:Depends},
   ${misc:Depends}
