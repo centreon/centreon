@@ -1,10 +1,10 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS=":t:v:r:l:"
+OPTIONS="hst:v:r:l:p:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([22.10]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -26,43 +26,26 @@ wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is n
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 
 function genpasswd() {
-  local _pwd
+	local _pwd
 
-  PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
-  PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
-  PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
-  PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\$\*\?' | head -c4)
+	PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
+	PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
+	PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
+	PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\$\*\?' | head -c4)
 
-  _pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
-  _pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
+	_pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
+	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
 
-  echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
+	echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
 
-  if [ $? -ne 0 ]; then
-    echo "ERROR : Cannot save the random password to [$tmp_passwords_file]"
-    exit 1
-  fi
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
+		exit 1
+	fi
 
-  #return the generated password
-  echo $_pwd
-
+	#return the generated password
+	echo $_pwd
 }
-
-# Set MariaDB password from ENV or random password if not defined
-mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user : root")"}
-
-if [ "$wizard_autoplay" == "true" ]; then
-	# Set from ENV or random MariaDB centreon password
-	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user : centreon")"}
-	# Set from ENV or random Centreon admin password
-	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user : admin")"}
-	# Set from ENV or Administrator first name
-	centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
-	# Set from ENV or Administrator last name
-	centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
-	# Set from ENV or Administrator e-mail
-	centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
-fi
 
 CENTREON_MAJOR_VERSION=$version
 CENTREON_RELEASE_VERSION="$CENTREON_MAJOR_VERSION-1"
@@ -74,6 +57,7 @@ PHP_ETC="/etc/php.d/"
 # Variables dynamically set
 detected_os_release=
 detected_os_version=
+centreon_admin_password=
 
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
@@ -94,9 +78,9 @@ CENTREON_DOC_URL=
 function usage() {
 
 	echo
-	echo "Usage :"
+	echo "Usage:"
 	echo
-	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <22.10> (default: 22.10)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <22.10> (default: 22.10)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -124,8 +108,8 @@ function log() {
 	TIMESTAMP=$(date --rfc-3339=seconds)
 
 	if [[ -z "${1}" || -z "${2}" ]]; then
-		echo "${TIMESTAMP} - ERROR : Missing argument"
-		echo "${TIMESTAMP} - ERROR : Usage log \"INFO\" \"Message log\" "
+		echo "${TIMESTAMP} - ERROR: Missing argument"
+		echo "${TIMESTAMP} - ERROR: Usage log \"INFO\" \"Message log\" "
 		exit 1
 	fi
 
@@ -163,43 +147,55 @@ function parse_subcommand_options() {
 		case ${opt} in
 		t)
 			requested_topology=$OPTARG
-			log "INFO" "Requested topology   : '$requested_topology'"
+			log "INFO" "Requested topology: '$requested_topology'"
 
 			[[ ! ${SUPPORTED_TOPOLOGY[$requested_topology]} ]] &&
-				log "ERROR" "Unsupported topology : $requested_topology" &&
+				log "ERROR" "Unsupported topology: $requested_topology" &&
 				usage
 			;;
 
 		v)
 			requested_version=$OPTARG
-			log "INFO" "Requested version    : '$requested_version'"
+			log "INFO" "Requested version: '$requested_version'"
 
 			[[ ! ${SUPPORTED_VERSION[$requested_version]} ]] &&
-				log "ERROR" "Unsupported version : $requested_version" &&
+				log "ERROR" "Unsupported version: $requested_version" &&
 				usage
 			;;
 
 		r)
 			requested_repo=$OPTARG
-			log "INFO" "Requested repository : '$requested_repo'"
-
+			log "INFO" "Requested repository: '$requested_repo'"
+			get_os_information
 			set_centreon_repos $requested_repo
 			;;
 
 		l)
 			log_level=$OPTARG
 			if [ ! ${SUPPORTED_LOG_LEVEL[$log_level]} ]; then
-				log "ERROR" "Unsupported and ignored log level : $log_level"
+				log "ERROR" "Unsupported and ignored log level: $log_level"
 			else
 				runtime_log_level=$log_level
 			fi
-			log "INFO" "Runtime log level set : $runtime_log_level"
+			log "INFO" "Runtime log level set: $runtime_log_level"
 			;;
 
+        s)
+		    wizard_autoplay="true"
+			log "INFO" "The installation wizard will be executed by the script"
+			;;
+		p)
+			centreon_admin_password=$OPTARG
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
 			exit 1
+			;;
+
+		h)
+			usage
+			exit 0
 			;;
 
 		:)
@@ -213,19 +209,19 @@ function parse_subcommand_options() {
 
 	## check the configuration parameters
 	if [ -z "${requested_topology}" ]; then
-		log "WARN" "No topology provided : default value [$topology] will be used"
+		log "WARN" "No topology provided: default value [$topology] will be used"
 	else
 		topology=$requested_topology
 	fi
 
 	if [ -z "${requested_version}" ]; then
-		log "WARN" "No version provided : default value [$version] will be used"
+		log "WARN" "No version provided: default value [$version] will be used"
 	else
 		version=$requested_version
 	fi
 
 	if [ -z "${requested_repo}" ]; then
-		log "WARN" "No repository provided : default value [$repo] will be used"
+		log "WARN" "No repository provided: default value [$repo] will be used"
 	else
 		repo=$requested_repo
 	fi
@@ -259,17 +255,41 @@ function pause() {
 #
 function get_os_information() {
 
-	# Unattended install script only support Red Hat or compatible.
-	if ! detected_os_release=$(rpm -q --whatprovides /etc/redhat-release); then
-		log "ERROR" "Unsupported distribution $detected_os_release detected"
-		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
+	# Get OS name
+	OS_NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+	# Get OS version
+	OS_VERSIONID=$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+
+	if [[ "$(echo "${OS_NAME}" | wc -l)" -ne 1 || "$(echo "${OS_VERSIONID}" | wc -l)" -ne 1 ]]; then
+		error_and_exit "Unable to determine your running OS or version."
 	fi
 
-	if [ "$(echo "${detected_os_release}" | wc -l)" -ne 1 ]; then
-		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release : $detected_os_release"
-	fi
+	case "${OS_NAME}" in
+		AlmaLinux*)
+			detected_os_release="almalinux-release-${OS_VERSIONID}"
+			;;
+		CentOS*)
+			detected_os_release="centos-release-${OS_VERSIONID}"
+			;;
+		Debian*)
+			detected_os_release="debian-release-${OS_VERSIONID}"
+			;;
+		Oracle*)
+			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
+			;;
+		"Red Hat"*)
+			detected_os_release="redhat-release-${OS_VERSIONID}"
+			;;
+		Rocky*)
+			detected_os_release="rocky-release-${OS_VERSIONID}"
+			;;
+		*)
+			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+	esac
 
-	detected_os_version=$(rpm -q "${detected_os_release}" --qf "%{version}")
+	detected_os_version=${OS_VERSIONID}
 
 	log "INFO" "Your running OS is $detected_os_release (version: ${detected_os_version})"
 
@@ -281,6 +301,9 @@ function get_os_information() {
 # then concat the string for $CENTREON_REPO
 #
 function set_centreon_repos() {
+	if ! [ -z $1 ]; then
+		repo=$1
+	fi
 
 	IFS=', ' read -r -a array_repos <<<"$repo"
 
@@ -288,22 +311,55 @@ function set_centreon_repos() {
 	for _repo in "${array_repos[@]}"; do
 
 		[[ ! ${SUPPORTED_REPOSITORY[$_repo]} ]] &&
-			log "ERROR" "Unsupported repository : $_repo" &&
+			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		CENTREON_REPO+="centreon-$_repo*"
+		if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+			CENTREON_REPO+="$version-$_repo"
+		else
+			CENTREON_REPO+="centreon-$version-$_repo*"
+		fi
+
 		if ! [ "$_repo" == "${array_repos[@]:(-1)}" ]; then
 			CENTREON_REPO+=","
 		fi
 	done
 
-	log "INFO" "Following Centreon repo will be used [$CENTREON_REPO]"
+	log "INFO" "Following Centreon repo will be used: [$CENTREON_REPO]"
 
 }
 #========= end of function set_centreon_repos()
 
+#========= begin of function set_mariadb_repos()
+#
+function set_mariadb_repos() {
+	log "INFO" "Install MariaDB repository"
+
+	case "$detected_os_release" in
+	debian-release*)
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install the repository"
+		else
+			log "INFO" "Successfully installed MariaDB repository"
+		fi
+		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
+		;;
+	*)
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-10.5"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install the repository"
+		else
+			log "INFO" "Successfully installed MariaDB repository"
+		fi
+		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
+		;;
+	esac
+}
+#========= end of function set_mariadb_repos()
+
 #========= begin of function set_required_prerequisite()
-# check if the target OS is compatible with Red Hat and the version is 7 or 8
+# check if the target OS is compatible with Red Hat and the version is 8 or 9
 # then set the required environment variables accordingly
 #
 function set_required_prerequisite() {
@@ -311,88 +367,158 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_version" in
-    7*)
-        log "INFO" "Setting specific part for v7 ($detected_os_version)"
+    case "$detected_os_release" in
+	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+		case "$detected_os_version" in
+		8*)
+			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        case "$detected_os_release" in
-        centos-release* | centos-linux-release*)
-            BASE_PACKAGES=(centos-release-scl)
-            ;;
+			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
+			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
+			OS_SPEC_SERVICES="php-fpm httpd"
+			PKG_MGR="dnf"
 
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(oraclelinux-release-el7)
-            ;;
-        esac
-		RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el7/centreon-$CENTREON_MAJOR_VERSION.repo"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-7.rpm"
-        log "INFO" "Install Centreon from ${RELEASE_REPO_FILE}"
-        OS_SPEC_SERVICES="php-fpm httpd24-httpd"
-        PKG_MGR="yum"
+			case "$detected_os_release" in
+			redhat-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
+				;;
 
-        install_remi_repo
-        $PKG_MGR -y -q install yum-utils
-        yum-config-manager --enable remi-php81
+			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled powertools
+				;;
 
-        set_centreon_repos
+			centos-release-8.[1-2]*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled PowerTools
+				;;
 
-        log "INFO" "Installing required base packages"
-        if ! $PKG_MGR -y -q install ${BASE_PACKAGES[@]}; then
-            error_and_exit "Failed to install required base packages  ${BASE_PACKAGES[@]}"
-        fi
-        ;;
+			oraclelinux-release* | enterprise-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				$PKG_MGR config-manager --set-enabled ol8_codeready_builder
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+			;;
+			esac
 
-    8*)
-        log "INFO" "Setting specific part for v8 ($detected_os_version)"
+			if [ "$topology" == "central" ]; then
+				install_remi_repo
 
-        RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard/$CENTREON_MAJOR_VERSION/el8/centreon-$CENTREON_MAJOR_VERSION.repo"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-        OS_SPEC_SERVICES="php-fpm httpd"
-        PKG_MGR="dnf"
+				if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+					log "INFO" "Installing PHP 8.0 and enable it"
+					$PKG_MGR module reset php -y -q
+					$PKG_MGR module install php:remi-8.0 -y -q
+				else
+					log "INFO" "Installing PHP 8.1 and enable it"
+					$PKG_MGR module install php:remi-8.1 -y -q
+					$PKG_MGR module enable php:remi-8.1 -y -q
+				fi
+			fi
+			;;
 
-        case "$detected_os_release" in
-        redhat-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-            ;;
+		9*)
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" ]]; then
+				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
+			fi
 
-        centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            $PKG_MGR config-manager --set-enabled powertools
-            ;;
+			log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
-        centos-release-8.[1-2]*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            $PKG_MGR config-manager --set-enabled PowerTools
-            ;;
+			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
+			OS_SPEC_SERVICES="php-fpm httpd"
+			PKG_MGR="dnf"
 
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(dnf-plugins-core)
-            $PKG_MGR config-manager --set-enabled ol8_codeready_builder
-            dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-	    ;;
-        esac
+			case "$detected_os_release" in
+			redhat-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
+				;;
 
-        install_remi_repo
-        $PKG_MGR config-manager --set-enabled 'powertools'
+			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled crb
+				;;
 
-        log "INFO" "Installing PHP 8.1 and enable it"
-        $PKG_MGR module install php:remi-8.1 -y -q
-        $PKG_MGR module enable php:remi-8.1 -y -q
+			oraclelinux-release* | enterprise-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				$PKG_MGR config-manager --set-enabled ol9_codeready_builder
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+			;;
+			esac
 
-        log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-        $PKG_MGR -y -q install ${BASE_PACKAGES[@]}
+			if [ "$topology" == "central" ]; then
+				log "INFO" "Installing PHP 8.1 and enable it"
+				$PKG_MGR module install php:8.1 -y -q
+				$PKG_MGR module enable php:8.1 -y -q
+			fi
+			;;
 
-        log "INFO" "Updating package gnutls"
-        $PKG_MGR -y -q update gnutls
+		*)
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+		esac
 
-        set_centreon_repos
-        ;;
+		log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
+		$PKG_MGR -q install -y ${BASE_PACKAGES[@]}
 
-    *)
-        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v7 and v8). Please check https://documentation.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/introduction.html for alternative installation methods."
-        ;;
-    esac
+		log "INFO" "Updating package gnutls"
+		$PKG_MGR -q update -y gnutls
+
+		set_centreon_repos
+		if [ "$topology" == "central" ]; then
+			set_mariadb_repos
+			log "INFO" "Installing glibc langpack for Centreon UI translation"
+			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
+		fi
+		;;
+	debian-release*)
+		case "$detected_os_version" in
+		11)
+			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" ]]; then
+				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
+			fi
+
+			log "INFO" "Setting specific part for Debian"
+			PKG_MGR="apt -qq"
+			OS_SPEC_SERVICES="php8.1-fpm apache2"
+			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
+
+			# Get CPU architecture type
+			VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+			ARCH=""
+			if [[ "$VENDORID" == "ARM" ]]; then
+				ARCH="[ arch=all,arm64 ]"
+				if ! [[ "$version" == "23.10" || "$topology" == "poller" ]]; then
+					error_and_exit "For Debian on Raspberry, only Centreon (poller mode) 23.10 is compatible. You chose $version to install $topology server"
+				fi
+			fi
+
+			# Add Centreon repositories
+			set_centreon_repos
+			IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
+			for _repo in "${array_apt[@]}"; do
+				echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+
+				SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
+				echo "deb $ARCH https://packages.centreon.com/apt-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
+			done
+			wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+
+			if [ "$topology" == "central" ]; then
+				# Add PHP repo
+				echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+				wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+				set_mariadb_repos
+			else
+				${PKG_MGR} update
+			fi
+			;;
+		*)
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+		esac
+	esac
 }
 #========= end of function set_required_prerequisite()
 
@@ -412,7 +538,7 @@ function is_systemd_present() {
 #========= end of function is_systemd_present()
 
 #========= begin of function set_selinux_config()
-# change SELinux config : $1 (permissive | enforcing | disabled)
+# change SELinux config: $1 (permissive | enforcing | disabled)
 #
 function set_selinux_config() {
 
@@ -434,7 +560,7 @@ function set_selinux_config() {
 #========= end of function set_selinux_config()
 
 #========= begin of function set_runtime_selinux_mode ()
-# set runtime SELinux mode : $1 (permissive | enforcing)
+# set runtime SELinux mode: $1 (permissive | enforcing)
 #
 function set_runtime_selinux_mode() {
 
@@ -516,17 +642,7 @@ function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
 
-    get_os_information
-
-    case "$detected_os_version" in
-    7*)
-        yum-config-manager --add-repo $RELEASE_REPO_FILE
-	    ;;
-	*)
-	    $PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
-	    ;;
-	esac
-
+	$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install Centreon repository"
 	fi
@@ -600,11 +716,12 @@ function enable_new_services() {
 			log "DEBUG" "On central..."
 			systemctl enable mariadb $OS_SPEC_SERVICES snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
 			systemctl restart mariadb $OS_SPEC_SERVICES snmpd snmptrapd
+			systemctl start centreontrapd
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
-			systemctl enable centreon centengine centreontrapd snmptrapd
+			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned
 			systemctl start centreontrapd snmptrapd
 			;;
 		esac
@@ -628,7 +745,7 @@ function setup_before_installation() {
 
 #========= begin of function install_wizard_post()
 # execute a post request of the install wizard
-# - session coocky
+# - session cookie
 # - php command
 # - request body
 function install_wizard_post() {
@@ -644,10 +761,10 @@ function play_install_wizard() {
 
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}')
 	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null
-	install_wizard_post ${sessionID} "process_step3.php" 'install_dir_engine=%2Fusr%2Fshare%2Fcentreon-engine&centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
+	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
 	install_wizard_post ${sessionID} "process_step4.php" 'centreonbroker_etc=%2Fetc%2Fcentreon-broker&centreonbroker_cbmod=%2Fusr%2Flib64%2Fnagios%2Fcbmod.so&centreonbroker_log=%2Fvar%2Flog%2Fcentreon-broker&centreonbroker_varlib=%2Fvar%2Flib%2Fcentreon-broker&centreonbroker_lib=%2Fusr%2Fshare%2Fcentreon%2Flib%2Fcentreon-broker'
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${centreon_admin_password}&confirm_password=${centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${mariadb_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${mariadb_centreon_password}&db_password_confirm=${mariadb_centreon_password}"
 	install_wizard_post ${sessionID} "configFileSetup.php"
 	install_wizard_post ${sessionID} "installConfigurationDb.php"
 	install_wizard_post ${sessionID} "installStorageDb.php"
@@ -655,11 +772,299 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview'
+	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
-
 }
 #========= end of function play_install_wizard()
+
+#========= begin of function test_api_connection()
+function test_api_connection () {
+	log "INFO" "Test admin password to access Centreon's API"
+
+	# Define temporary files
+	api_output="/tmp/unattended.sh_api_output"
+	api_return_code="/tmp/unattended.sh_api_return_code"
+	api_error_message="/tmp/unattended.sh_api_error_message"
+	api_error_keys="/tmp/unattended.sh_api_error_keys"
+
+	#
+	# Log in to Centreon API to get token
+	#
+	curl "${central_ip}/centreon/api/latest/login" \
+	--silent \
+	--insecure \
+	--request POST \
+	--header 'Content-Type: application/json' \
+	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	# Analyse result
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+
+	if [[ $errorLevel -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
+		if [ -z "${token}" ]; then
+			error_and_exit "Unable to extract token from message: $message"
+		fi
+		log "DEBUG" "APIv2 token: ${token}"
+	fi
+}
+#========= end of function test_api_connection()
+
+#========= begin of function play_update_api()
+function play_update_api () {
+	log "INFO" "Install jq binary"
+	$PKG_MGR -q install -y jq > /dev/null 2>&1
+
+	log "INFO" "Update Centreon using API"
+
+	# Define temporary files
+	api_output="/tmp/unattended.sh_api_output"
+	api_return_code="/tmp/unattended.sh_api_return_code"
+	api_error_message="/tmp/unattended.sh_api_error_message"
+	api_error_keys="/tmp/unattended.sh_api_error_keys"
+
+	#
+	# Log in to Centreon API to get token
+	#
+	curl "${central_ip}/centreon/api/latest/login" \
+	--silent \
+	--insecure \
+	--request POST \
+	--header 'Content-Type: application/json' \
+	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	# Analyse result
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+	else
+		hasErrors=0
+	fi
+
+	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
+		if [ -z "${token}" ]; then
+			error_and_exit "Unable to extract token from message: $message"
+		fi
+		log "DEBUG" "APIv2 token: ${token}"
+	fi
+
+	# Clean files
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+
+	#
+	# Call Centreon Web update API
+	#
+	curl "${central_ip}/centreon/api/latest/platform/updates"  \
+	--silent \
+	--insecure \
+	--request PATCH \
+	--header "X-AUTH-TOKEN: ${token}" \
+	--header 'Content-Type: application/json' \
+	--data '{"components":[{"name":"centreon-web"}]}' \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+	else
+		hasErrors=0
+	fi
+
+	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "204" && "$httpResponse" != "404" ]]; then
+		error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		log "INFO" "Centreon Web update completed"
+	fi
+
+	# Clean files
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+
+	#
+	# Log in to Centreon APIv1 to get token
+	#
+    curl "${central_ip}/centreon/api/index.php?action=authenticate"  \
+    --silent \
+    --insecure \
+    --request POST \
+    --data "username=admin&password=${centreon_admin_password}" \
+    --output ${api_output} \
+    --write-out %{http_code} \
+    > ${api_return_code} 2> ${api_error_message}
+
+
+    # Analyse result
+    errorLevel=$?
+    httpResponse=$(cat ${api_return_code})
+    message=$(cat ${api_output})
+    if [[ -f ${api_output} && -s "${api_output}" ]];then
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+    else
+        hasErrors=0
+    fi
+
+    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+        error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+    else
+        tokenv1=$(echo ${message} | cut -f2 -d":" | sed -e "s/\"//g" -e "s/}//" -e 's|\\||g')
+        if [ -z "${tokenv1}" ]; then
+            error_and_exit "Unable to extract token from message: $message"
+        fi
+		log "DEBUG" "APIv1 token: ${token}"
+    fi
+
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+
+    #
+    # Get list of installed extensions
+    #
+    curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=list"  \
+    --silent \
+    --insecure \
+    --request GET \
+    --header "centreon-auth-token: ${tokenv1}" \
+    --output ${api_output} \
+    --write-out %{http_code} \
+    > ${api_return_code} 2> ${api_error_message}
+
+    # Analyse result
+    errorLevel=$?
+    httpResponse=$(cat ${api_return_code})
+    message=$(cat ${api_output})
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+    else
+        hasErrors=0
+    fi
+
+    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+        error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+    else
+	    #
+        # Get list of modules and update them if needed
+		#
+        modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        for module in ${modules}
+        do
+			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${module})
+            IFS="|" read -a module_information <<< ${clear_line}
+            if [ "${module_information[1]}" != "${module_information[2]}" ]; then
+                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module_information[0]}&type=module" \
+                --silent \
+                --insecure \
+                --request POST \
+                --header "centreon-auth-token: ${tokenv1}" \
+                --output ${api_output} \
+                --write-out %{http_code} \
+                > ${api_return_code} 2> ${api_error_message}
+
+                # Analyse result
+                errorLevel=$?
+                httpResponse=$(cat ${api_return_code})
+                sub_message=$(cat ${api_output})
+
+				if [[ -f ${api_output} && -s "${api_output}" ]];then
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+				else
+					hasErrors=0
+				fi
+
+                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+                    error_and_exit "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
+                else
+                    status=$(echo ${sub_message} | jq '.status')
+                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    if [ "${status}" = "false" ]; then
+                        log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
+                    fi
+                fi
+            fi
+        done
+
+		#
+        # Get list of widgets and update them if needed
+		#
+        widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        for widget in ${widgets}
+        do
+			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${widget})
+            IFS="|" read -a widget_information <<< ${clear_line}
+            if [ "${widget_information[1]}" != "${widget_information[2]}" ]; then
+                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${widget_information[0]}&type=widget" \
+                --silent \
+                --insecure \
+                --request POST \
+                --header "centreon-auth-token: ${tokenv1}" \
+                --output ${api_output} \
+                --write-out %{http_code} \
+                > ${api_return_code} 2> ${api_error_message}
+
+                # Analyse result
+                errorLevel=$?
+                httpResponse=$(cat ${api_return_code})
+                sub_message=$(cat ${api_output})
+
+				if [[ -f ${api_output} && -s "${api_output}" ]];then
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+				else
+					hasErrors=0
+				fi
+
+                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+                    error_and_exit "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
+                else
+                    status=$(echo ${sub_message} | jq '.status')
+                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    if [ "${status}" = "false" ]; then
+                        log "WARN" "Error during update of ${widget_information[0]} widget: ${status_message}"
+                    fi
+                fi
+            fi
+        done
+    fi
+
+}
+#========= end of function play_update_api()
+
+#========= begin of function play_update()
+function play_update() {
+	if [ -z "${centreon_admin_password}" ]; then
+		error_and_exit "Centreon admin password is not defined"
+	fi
+
+	if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+		error_and_exit "Your Centreon version is not supported for silent update, please connect to UI and perform update manually."
+	else
+		play_update_api
+	fi
+}
+#========= end of function play_update()
 
 #========= begin of function install_central()
 # install the Centreon Central
@@ -668,17 +1073,24 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	# install core Centreon packages from enabled repo
-	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon --enablerepo="$CENTREON_REPO"
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR install -y --no-install-recommends centreon
 
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install Centreon (package centreon)"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
+	else
+		# install core Centreon packages from enabled repo
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon --enablerepo="$CENTREON_REPO"
+
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
 	fi
 
 	#
 	# PHP
 	#
-
 	log "INFO" "PHP configuration"
 	timezone=$($PHP_BIN -r '
 		$timezoneName = timezone_name_from_abbr(trim(shell_exec("date \"+%Z\"")));
@@ -690,7 +1102,11 @@ function install_central() {
 		}
 		echo $timezoneName;
 	' 2>/dev/null)
-	echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
+	else
+		echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
+	fi
 
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
@@ -703,12 +1119,45 @@ function install_central() {
 #
 function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
-	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install Centreon (package centreon)"
+
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR install -y --no-install-recommends centreon-poller
+
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
+	else
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
 	fi
 }
 #========= end of function install_poller()
+
+#========= begin of function update_centreon_packages()
+# update Centreon packages
+#
+function update_centreon_packages() {
+	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR upgrade centreon
+	else
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not update Centreon"
+		fi
+	fi
+}
+#========= end of function update_centreon_packages()
+
+#========= begin of function restart_centreon_process()
+# Restart Centreon process
+#
+function restart_centreon_process() {
+	systemctl restart centreon snmpd snmptrapd
+}
+#========= end of function restart_centreon_process()
 
 #========= begin of function update_after_installation()
 # execute some tasks after having installed Centreon
@@ -723,20 +1172,32 @@ function update_after_installation() {
 
 	enable_new_services
 
-	# install Centreon SELinux packages first (as getenforce is still at 0)
-	$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
-	if [ $? -ne 0 ]; then
-		log "ERROR" "Could not install Centreon SELinux packages"
-	else
-		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/administration/secure-platform.html for more details."
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		# install Centreon SELinux packages first (as getenforce is still at 0)
+		$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
+		if [ $? -ne 0 ]; then
+			log "ERROR" "Could not install Centreon SELinux packages"
+		else
+			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
+		fi
+
+		#then change the SELinux mode
+		set_runtime_selinux_mode $selinux_mode
+
+		set_selinux_config $selinux_mode
 	fi
-
-	#then change the SELinux mode
-	set_runtime_selinux_mode $selinux_mode
-
-	set_selinux_config $selinux_mode
 }
 #========= end of function update_after_installation()
+
+#========= begin of function test_password_policy()
+function test_password_policy() {
+	if [[ ${#centreon_admin_password} -ge 12 && "${centreon_admin_password}" == *[A-Z]* && "${centreon_admin_password}" == *[a-z]* && "${centreon_admin_password}" == *[0-9]* && "${centreon_admin_password}" == *[\!@#$%^\&*()\\[\]{}\-_+=~\`\|\:\;\"\'\<\>\,\.\/\?]* ]]; then
+        log "INFO" "Password is compliant with Centreon security policy"
+    else
+        error_and_exit "Password is not compliant with Centreon security policy ([A-Z][a-z][0-9][\!@#$%^\&*()\\[\]{}\-_+=~\`\|\:\;\"\'\<\>\,\.\/\?]{12,})"
+    fi
+}
+#========= end of function test_password_policy()
 
 #####################################################
 ################ MAIN SCRIPT EXECUTION ##############
@@ -748,8 +1209,13 @@ fi
 ## Process the provided arguments in line
 case "$1" in
 
-upgrade)
-	operation="upgrade"
+-h)
+    usage
+	exit 0
+	;;
+
+update)
+	operation="update"
 	parse_subcommand_options "$@"
 	;;
 
@@ -759,7 +1225,7 @@ install)
 	;;
 
 *)
-	log "WARN" "No provided operation : default value [$operation] will be used"
+	log "WARN" "No provided operation: default value [$operation] will be used"
 	#usage
 	operation="install"
 	parse_subcommand_options "$@"
@@ -767,11 +1233,42 @@ install)
 
 esac
 
+# Set MariaDB password from ENV or random password if not defined
+if [ "$operation" == "install" ]; then
+	mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
+
+	if [ "$wizard_autoplay" == "true" ]; then
+		# Set from ENV or random MariaDB centreon password
+		mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
+		# Generate random password if Centreon admin password is empty
+		if [ -z "${centreon_admin_password}" ]; then
+			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
+		else
+			test_password_policy
+   			echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
+		fi
+		# Set from ENV or Administrator first name
+		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
+		# Set from ENV or Administrator last name
+		centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
+		# Set from ENV or Administrator e-mail
+		centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
+	fi
+else
+	if [ "$wizard_autoplay" == "true" ]; then
+		if [ -z "${centreon_admin_password}" ]; then
+			error_and_exit "Centreon admin password is not defined, use '-p <centreon admin password>' option"
+		else
+			test_api_connection
+		fi
+	fi
+fi
+
 ## Display all configured parameters
 log "INFO" "Start to execute operation [$operation] with following configuration parameters:"
-log "INFO" " topology   : \t[$topology]"
-log "INFO" " version    : \t[$version]"
-log "INFO" " repository : \t[$repo]"
+log "INFO" " topology: \t[$topology]"
+log "INFO" " version: \t[$version]"
+log "INFO" " repository: [$repo]"
 
 log "WARN" "It will start in [$default_timeout_in_sec] seconds. If you don't want to wait, press any key to continue or Ctrl-C to exit"
 pause "" $default_timeout_in_sec
@@ -780,7 +1277,6 @@ pause "" $default_timeout_in_sec
 # Analyze system and set the variables
 ##
 set_required_prerequisite
-
 ##
 # Check if systemd is present
 ##
@@ -790,18 +1286,21 @@ is_systemd_present
 case $operation in
 
 install)
-	setup_before_installation
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		setup_before_installation
+	fi
+
 	case $topology in
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_central
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/installation/web-and-post-installation.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/installation/web-and-post-installation/#web-installation"
 		;;
 
 	poller)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_poller
-		CENTREON_DOC_URL="https://docs.centreon.com/$CENTREON_MAJOR_VERSION/en/monitoring/monitoring-servers/add-a-poller-to-configuration.html"
+		CENTREON_DOC_URL="https://docs.centreon.com/docs/monitoring/monitoring-servers/add-a-poller-to-configuration/"
 		;;
 	esac
 
@@ -817,13 +1316,34 @@ install)
 	log "INFO" "Centreon [$topology] successfully installed !"
 	;;
 
-upgrade)
-	error_and_exit "Upgrade operation is not supported yet" ##TODO
+update)
+	case $topology in
+
+	central)
+		update_centreon_packages
+		if [ "$wizard_autoplay" == "true" ]; then
+			play_update
+			restart_centreon_process
+			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
+		else
+			CENTREON_DOC_URL="https://docs.centreon.com/docs/update/update-centreon-platform/#update-the-centreon-solution"
+			log "INFO" "Follow the steps described in Centreon documentation: $CENTREON_DOC_URL"
+		fi
+		;;
+	poller)
+		CENTREON_DOC_URL=""
+		update_centreon_packages
+		restart_centreon_process
+		;;
+	esac
+
+	log "INFO" "Centreon [$topology] successfully updated !"
 	;;
+
 esac
 
 ## Major change - remind it again (in case of log level is ERROR)
-if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ]; then
+if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" = "install" ]; then
 	# Move the tmp file to the dest file
 	mv $tmp_passwords_file $passwords_file
 	echo
@@ -838,6 +1358,9 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ]; then
 	echo
 	echo "Please save them securely and then delete this file!"
 	echo
+fi
+if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
+	rm -f $tmp_passwords_file
 fi
 
 exit 0
