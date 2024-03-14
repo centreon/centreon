@@ -85,6 +85,7 @@ runs:
         # Create release tags on git for each release components
         echo "Creating release tags."
         for TAG in ${NEW_RELEASE_TAGS[@]}; do
+          echo "Last tag is $TAG."
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             echo "The tag is $TAG."
             git tag -a "$TAG" -m "$TAG"
