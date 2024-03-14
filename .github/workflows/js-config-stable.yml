@@ -16,9 +16,6 @@ env:
   directory: "centreon/packages/js-config"
   package: "js-config"
   base_branch: develop
-  AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
-  AWS_DEFAULT_REGION: eu-west-1
 
 jobs:
   get-version:
