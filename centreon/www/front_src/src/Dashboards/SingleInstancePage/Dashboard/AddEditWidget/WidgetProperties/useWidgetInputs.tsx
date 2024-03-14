@@ -4,7 +4,6 @@ import { useFormikContext } from 'formik';
 import { propEq, find, path, equals } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-
 import { useDeepCompare } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../models';
