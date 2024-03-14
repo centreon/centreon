@@ -76,7 +76,8 @@ const Main = (): JSX.Element => {
     if (
       not(areUserParametersLoaded) &&
       !equals(pathname, reactRoutes.authenticationDenied) &&
-      !equals(pathname, reactRoutes.logout)
+      !equals(pathname, reactRoutes.logout) &&
+      !equals(pathname, reactRoutes.login)
     ) {
       navigate(reactRoutes.login);
     }
