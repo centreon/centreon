@@ -4,8 +4,12 @@ const useActionsStyles = makeStyles()((theme) => ({
   actions: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(3),
+    gap: theme.spacing(1.5),
     justifyContent: 'space-between'
+  },
+  duplicateIcon: {
+    color: theme.palette.primary.main,
+    fontSize: theme.spacing(2.25)
   },
   icon: {
     '&:hover': {

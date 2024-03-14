@@ -5,9 +5,14 @@ import { Box } from '@mui/material';
 import { ComponentColumnProps } from '@centreon/ui';
 
 import { DeleteButton } from '../../Actions/Delete';
-import { labelDeleteResourceAccessRule } from '../../translatedLabels';
+import {
+  labelDeleteResourceAccessRule,
+  labelDuplicate
+} from '../../translatedLabels';
 import useDelete from '../../Actions/Delete/useDelete';
+import useDuplicate from '../../Actions/Duplicate/useDuplicate';
 import { DeleteType } from '../../models';
+import { DuplicateButton } from '../../Actions/Duplicate';
 
 import useActionsStyles from './Actions.styles';
 
@@ -15,6 +20,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useActionsStyles();
   const { t } = useTranslation();
   const { deleteItems } = useDelete();
+  const { duplicateItem } = useDuplicate();
+
   const onDeleteClick = (): void => {
     deleteItems({
       deleteType: DeleteType.SingleItem,
@@ -23,12 +30,21 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     });
   };
 
+  const onDuplicateClick = (): void => {
+    duplicateItem({ id: row.id });
+  };
+
   return (
     <Box className={classes.actions}>
       <DeleteButton
         ariaLabel={t(labelDeleteResourceAccessRule) as string}
         iconClassName={classes.icon}
         onClick={onDeleteClick}
+      />
+      <DuplicateButton
+        ariaLabel={t(labelDuplicate) as string}
+        className={classes.duplicateIcon}
+        onClick={onDuplicateClick}
       />
     </Box>
   );
