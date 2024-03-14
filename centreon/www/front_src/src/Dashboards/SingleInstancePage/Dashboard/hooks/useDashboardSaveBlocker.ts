@@ -1,15 +1,8 @@
-import { useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { unstable_useBlocker } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
 
-import { NamedEntity } from '../../../api/models';
-import {
-  dashboardAtom,
-  isEditingAtom,
-  quitWithoutSavedDashboardAtom
-} from '../atoms';
+import { isEditingAtom } from '../atoms';
 
 export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;
@@ -18,44 +11,13 @@ export interface UseDashboardSaveBlockerState {
 }
 
 export const router = {
-  useBlocker: unstable_useBlocker
+  useBlocker
 };
 
-const useDashboardSaveBlocker = (
-  dashboard: Partial<NamedEntity>
-): UseDashboardSaveBlockerState => {
+const useDashboardSaveBlocker = (): UseDashboardSaveBlockerState => {
   const isEditing = useAtomValue(isEditingAtom);
 
   const blocker = router.useBlocker(isEditing);
-
-  const { layout } = useAtomValue(dashboardAtom);
-  const quitWithoutSavedDashboard = useSetAtom(quitWithoutSavedDashboardAtom);
-
-  const storeQuitWithoutSavedDashboard = (): void => {
-    if (!isEditing) {
-      return;
-    }
-    localStorage.setItem(
-      'centreon-quit-without-saved-dashboard',
-      JSON.stringify({
-        ...dashboard,
-        date: new Date().toISOString(),
-        layout
-      })
-    );
-  };
-
-  useEffect(() => {
-    quitWithoutSavedDashboard(null);
-    window.addEventListener('beforeunload', storeQuitWithoutSavedDashboard);
-
-    return () => {
-      window.removeEventListener(
-        'beforeunload',
-        storeQuitWithoutSavedDashboard
-      );
-    };
-  }, [isEditing, layout]);
 
   return {
     blockNavigation: blocker.reset,
