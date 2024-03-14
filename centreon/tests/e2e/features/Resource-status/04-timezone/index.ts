@@ -253,7 +253,7 @@ Given('a user with a custom timezone set in his profile', function _() {
 
 When('the user creates a downtime on a resource', () => {
   cy.navigateTo({
-    page: 'Resources Status',
+    page: 'Resource Status',
     rootItemNumber: 1
   });
 
@@ -324,7 +324,7 @@ Then(
 
 When('the user creates an acknowledgement on a resource', () => {
   cy.navigateTo({
-    page: 'Resources Status',
+    page: 'Resource Status',
     rootItemNumber: 1
   });
 

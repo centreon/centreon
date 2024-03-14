@@ -30,7 +30,7 @@ use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
-use Core\Resources\Domain\Model\ResourcesStatusCount;
+use Core\Resources\Domain\Model\ResourceStatusCount;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -57,8 +57,8 @@ final class FindHostsStatusCount
     public function __invoke(FindHostsStatusCountPresenterInterface $presenter, ResourceFilter $filter): void
     {
         try {
-            $resourcesStatusCount = $this->findResourcesStatus($filter);
-            $presenter->presentResponse($this->createResponse($resourcesStatusCount));
+            $resourceStatusCount = $this->findResourceStatus($filter);
+            $presenter->presentResponse($this->createResponse($resourceStatusCount));
         } catch (\Throwable $ex) {
             $this->error(
                 ResourceException::errorWhileFindingHostsStatusCount()->getMessage(),
@@ -75,18 +75,18 @@ final class FindHostsStatusCount
      *
      * @throws \Throwable
      *
-     * @return ResourcesStatusCount
+     * @return ResourceStatusCount
      */
-    private function findResourcesStatus(ResourceFilter $filter): ResourcesStatusCount
+    private function findResourceStatus(ResourceFilter $filter): ResourceStatusCount
     {
         if ($this->user->isAdmin()) {
-            return $this->readResourceRepository->findResourcesStatusCount(Resource::TYPE_HOST, $filter);
+            return $this->readResourceRepository->findResourceStatusCount(Resource::TYPE_HOST, $filter);
         }
 
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
-        return $this->readResourceRepository->findResourcesStatusCountByAccessGroupIds(
+        return $this->readResourceRepository->findResourceStatusCountByAccessGroupIds(
             Resource::TYPE_HOST,
             $accessGroupIds,
             $filter
@@ -94,14 +94,14 @@ final class FindHostsStatusCount
     }
 
     /**
-     * @param ResourcesStatusCount $resourcesStatusCount
+     * @param ResourceStatusCount $resourceStatusCount
      *
      * @return FindHostsStatusCountResponse
      */
-    private function createResponse(ResourcesStatusCount $resourcesStatusCount): FindHostsStatusCountResponse
+    private function createResponse(ResourceStatusCount $resourceStatusCount): FindHostsStatusCountResponse
     {
         $response = new FindHostsStatusCountResponse();
-        $hostsStatusCount = $resourcesStatusCount->getHostsStatusCount();
+        $hostsStatusCount = $resourceStatusCount->getHostsStatusCount();
         if ($hostsStatusCount !== null) {
             $response->downStatus = [
                 'total' => $hostsStatusCount->getDownStatusCount()->getTotal(),

@@ -33,7 +33,7 @@ Given('I am logged in', () => {
 });
 
 When('I click on the logout action', () => {
-  cy.contains('Resources Status');
+  cy.contains('Resource Status');
   cy.getByLabel({ label: 'Profile' }).click();
   cy.contains('Logout').click();
 });

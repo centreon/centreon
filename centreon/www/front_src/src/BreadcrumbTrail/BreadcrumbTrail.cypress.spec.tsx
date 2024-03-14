@@ -45,7 +45,7 @@ describe('BreadcrumbTrail', () => {
       .should('have.attr', 'href', '/monitoring/resources');
     cy.get('a')
       .eq(1)
-      .should('have.text', 'Resources Status')
+      .should('have.text', 'Resource Status')
       .should('have.attr', 'href', '/monitoring/resources');
 
     cy.makeSnapshot();

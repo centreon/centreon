@@ -40,7 +40,7 @@ require_once __DIR__ . '/centreonAuth.LDAP.class.php';
 class CentreonAuth
 {
     /**
-     * The default page has to be Resources status
+     * The default page has to be Resource Status
      */
     public const DEFAULT_PAGE = 200;
     public const PWS_OCCULTATION = '******';

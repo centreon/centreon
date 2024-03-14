@@ -2,7 +2,7 @@
 
 import 'cypress-wait-until';
 import '@centreon/js-config/cypress/e2e/commands';
-import { refreshButton } from '../features/Resources-status/common';
+import { refreshButton } from '../features/Resource-status/common';
 import '../features/Dashboards/commands';
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {

@@ -288,11 +288,11 @@ $help["categories"] = dgettext(
 
 $help["notes_url"] = dgettext(
     "help",
-    "Clickable URL displayed in the Notes column of the Resources Status page."
+    "Clickable URL displayed in the Notes column of the Resource Status page."
 );
 $help["notes"] = dgettext(
     "help",
-    "Information note displayed as a tooltip in the Notes column of the Resources Status page."
+    "Information note displayed as a tooltip in the Notes column of the Resource Status page."
 );
 $help["action_url"] = dgettext(
     "help",
@@ -310,7 +310,7 @@ $help["icon_image_alt"] = dgettext(
 );
 $help['criticality_id'] = dgettext(
     "help",
-    "Service severity level. Can be used to sort alerts in the monitoring menus, including the Resources Status page."
+    "Service severity level. Can be used to sort alerts in the monitoring menus, including the Resource Status page."
 );
 $help["geo_coords"] = dgettext(
     "help",

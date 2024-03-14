@@ -15895,7 +15895,7 @@ msgstr "Une erreur est survenue lors de la récupération en DB des utilisateurs
 msgid "An error occurred while retrieving groups linked to ViewId on database"
 msgstr "Une erreur est survenue lors de la récupération en DB des groupes liés à ViewId"
 
-msgid "Resources Status"
+msgid "Resource Status"
 msgstr "Statut des ressources"
 
 msgid "Error when searching for services by host"
@@ -18385,7 +18385,7 @@ msgstr "Afficher les ressources avec cet état"
 msgid "Sort by"
 msgstr "Trier par"
 
-msgid "See more on the Resources Status page"
+msgid "See more on the Resource Status page"
 msgstr "Voir plus dans la page Statut des ressources"
 
 msgid "You are not allowed to log in"
@@ -18776,7 +18776,7 @@ msgstr "Pas de données disponibles"
 msgid "Invalid page name. Valid page names are: %s"
 msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
-msgid "You are not allowed to access the Resources Status page"
+msgid "You are not allowed to access the Resource Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
 msgid "Error while retrieving the number of hosts by status"

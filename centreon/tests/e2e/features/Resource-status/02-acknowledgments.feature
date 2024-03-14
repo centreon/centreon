@@ -11,7 +11,7 @@ Feature: Add an acknowledgement on a resource with a problem
 
   @TEST_MON-22202
   Scenario: Acknowledge a single resource configured with default settings
-    Given a single resource selected on Resources Status with the "Resource Problems" filter enabled
+    Given a single resource selected on Resource Status with the "Resource Problems" filter enabled
     And acknowledgment column is enabled in Resource Status
     When the user uses one of the "Acknowledge" actions
     And the user fills in the required fields in the form with default parameters "sticky checked"
@@ -23,7 +23,7 @@ Feature: Add an acknowledgement on a resource with a problem
 
   @TEST_MON-22203
   Scenario: Acknowledge multiple resources with default settings
-    Given multiple resources selected on Resources Status with the "Resource Problems" filter enabled
+    Given multiple resources selected on Resource Status with the "Resource Problems" filter enabled
     And acknowledgment column is enabled in Resource Status
     When the user uses one of the "Acknowledge" actions
     And the user fills in the required fields in the form with default parameters "sticky checked"
@@ -70,7 +70,7 @@ Feature: Add an acknowledgement on a resource with a problem
 
   @TEST_MON-22200
   Scenario: Disacknowledge a resource
-    Given a single resource selected on Resources Status with the criteria "state: acknowledged"
+    Given a single resource selected on Resource Status with the criteria "state: acknowledged"
     And a resource marked as acknowledged is selected
     And the user uses the "Disacknowledge" action for this resource in the "More actions" menu
     Then the acknowledgement is removed

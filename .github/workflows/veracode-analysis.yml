@@ -158,8 +158,7 @@ jobs:
           issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Backup analysis reports
-        # debug step used to investigate support case
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || (failure() && github.event.pull_request.draft == false)
+        if: success() || failure()
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -209,6 +208,7 @@ jobs:
           backup_baseline "results.json"
           backup_baseline "filtered_results.json"
 
+          cp $( find ./ -name "*veracode-binary.zip" ) "/tmp/backup"
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
           cd /tmp/backup && zip "$ZIPNAME" *
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
@@ -224,14 +224,13 @@ jobs:
           module_name: ${{ inputs.module_name }}
 
       - name: Save baseline files
-        # only baseline files not generated from a development branch are saved
-        if: success() && needs.build.outputs.development_stage != 'Development'
+        if: success() || failure()
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
             if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
               mv *results.json /tmp
-              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+              BUCKET="s3://centreon-veracode-reports/support_case_00832599_bis_${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
               aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
               aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
             fi
@@ -252,8 +251,6 @@ jobs:
   policy-scan:
     needs: [build]
     name: Run a sandbox scan
-    # only stable and unstable maintenances branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
 
     steps:
@@ -266,9 +263,9 @@ jobs:
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@f7e1fbf02c5c899fba9f12e3f537b62f2f1230e1 # master
-        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
+        continue-on-error: true
         with:
-          appname: "${{ inputs.module_name }}"
+          appname: "support_case_00832599_bis_${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: "vera01ei-${{ secrets.veracode_api_id }}"

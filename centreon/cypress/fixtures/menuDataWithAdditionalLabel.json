@@ -5,7 +5,7 @@
             {
                "groups": [],
                "is_react": true,
-               "label": "Resources Status",
+               "label": "Resource Status",
                "options": "Beta",
                "page": "200",
                "show": true,

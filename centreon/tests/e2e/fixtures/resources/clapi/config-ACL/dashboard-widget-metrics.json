@@ -22,7 +22,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-administrator-ACLMENU;0;Monitoring;Resources Status"
+        "values": "name-administrator-ACLMENU;0;Monitoring;Resource Status"
     },
     {
         "action": "ADD",

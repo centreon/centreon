@@ -175,7 +175,7 @@ INSERT INTO `topology` (`topology_id`, `topology_name`, `topology_parent`, `topo
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`) VALUES ('Manager', '/administration/extensions/manager', '1', '1', 507, 50709, 1);
 
 -- Add unified view page entry
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Resources Status', '/monitoring/resources', '1', '1', 2, 200, 1, 2);
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Resource Status', '/monitoring/resources', '1', '1', 2, 200, 1, 2);
 
 -- Add dashboard page entry
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`, `topology_url_opt`) VALUES ('Dashboards', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard', 'Beta');

@@ -378,7 +378,7 @@ export default (): void =>
                     {
                       groups: [],
                       is_react: false,
-                      label: 'Resources Status',
+                      label: 'Resource Status',
                       options: null,
                       page: pollerConfigurationPageNumber,
                       show: true,
@@ -411,7 +411,7 @@ export default (): void =>
                     {
                       groups: [],
                       is_react: false,
-                      label: 'Resources Status',
+                      label: 'Resource Status',
                       options: null,
                       page: pollerConfigurationPageNumber,
                       show: true,

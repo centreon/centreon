@@ -139,7 +139,7 @@ Then(
     ]);
 
     cy.navigateTo({
-      page: 'Resources Status',
+      page: 'Resource Status',
       rootItemNumber: 1
     });
 

@@ -113,7 +113,7 @@ export default (): void =>
         cy.makeSnapshot();
       });
 
-      it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
+      it('redirect to Resource Status with the correct filter when a counter is clicked', () => {
         // given
         const hoststubs = {
           critical: { unhandled: '12' },
