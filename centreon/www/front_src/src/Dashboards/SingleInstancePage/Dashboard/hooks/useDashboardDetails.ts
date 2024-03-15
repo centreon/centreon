@@ -17,7 +17,6 @@ import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
-  isEditingAtom,
   panelsLengthAtom
 } from '../atoms';
 
@@ -82,7 +81,6 @@ const useDashboardDetails = ({
   const setPanelsLength = useSetAtom(panelsLengthAtom);
   const setHasEditPermission = useSetAtom(hasEditPermissionAtom);
   const setDashboardRefreshInterval = useSetAtom(dashboardRefreshIntervalAtom);
-  const setIsEditing = useSetAtom(isEditingAtom);
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
@@ -119,7 +117,6 @@ const useDashboardDetails = ({
 
   useEffect(() => {
     return () => {
-      setIsEditing(false);
       setDashboardRefreshInterval(undefined);
     };
   }, []);

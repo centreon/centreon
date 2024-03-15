@@ -4,9 +4,9 @@ import { buildListingEndpoint } from '@centreon/ui';
 
 import { Resource } from '../../../models';
 
-export const serviceStatusesEndpoint = 'monitoring/services/status';
-export const hostStatusesEndpoint = 'monitoring/hosts/status';
-export const resourcesEndpoint = 'monitoring/resources';
+export const serviceStatusesEndpoint = '/monitoring/services/status';
+export const hostStatusesEndpoint = '/monitoring/hosts/status';
+export const resourcesEndpoint = '/monitoring/resources';
 
 interface BuildResourcesEndpointProps {
   resources: Array<Resource>;

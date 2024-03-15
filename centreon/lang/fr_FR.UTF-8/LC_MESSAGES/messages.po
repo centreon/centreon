@@ -18853,3 +18853,6 @@ msgstr "Nom de la règle d'accès aux ressources"
 
 msgid "Please enter a name for the resource access rule to duplicate"
 msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"

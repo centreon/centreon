@@ -17446,6 +17446,10 @@ msgstr ""
 
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
 # msgid "Display resources with this unit"
 # msgstr ""
 
@@ -17513,4 +17517,7 @@ msgstr ""
 # msgstr ""
 
 # msgid "Please enter a name for the resource access rule to duplicate"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
 # msgstr ""

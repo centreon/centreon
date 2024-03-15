@@ -17052,3 +17052,6 @@ msgstr "Modo avanzado"
 
 # msgid "Please enter a name for the resource access rule to duplicate"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
