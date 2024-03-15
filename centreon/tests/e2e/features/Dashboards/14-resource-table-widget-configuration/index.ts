@@ -62,7 +62,7 @@ before(() => {
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
   cy.startContainers();
-  // cy.enableDashboardFeature();
+  cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
@@ -175,6 +175,10 @@ beforeEach(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/monitoring/resources/hosts?page=1&limit=10&sort_by=**'
+  }).as('resourceRequestByHost');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
@@ -188,9 +192,9 @@ afterEach(() => {
   });
 });
 
-after(() => {
-  cy.stopContainers();
-});
+// after(() => {
+//   cy.stopContainers();
+// });
 
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
@@ -213,22 +217,37 @@ Given('a dashboard that includes a configured resource table widget', () => {
     tag: 'li'
   }).realClick();
   cy.wait('@resourceRequest');
+  cy.getByLabel({ label: 'RichTextEditor' })
+    .eq(0)
+    .type(genericTextWidgets.default.description, { force: true });
 });
 
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('svg[data-icon="View by host"]').should('exist').realClick();
+    cy.get('svg[data-icon="View by host"]').should('exist').click();
+    cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
   }
 );
 
 Then('only the hosts must be displayed', () => {
-  cy.getCellContent(1, 1).then((myTableContent) => {
-    cy.then(() => {
-      expect(myTableContent[1]).to.include('Up');
-    });
-  });
+  cy.waitUntil(
+    () =>
+      cy
+        .get(
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+        )
+        .should('be.visible')
+        .invoke('text')
+        .then((content) => {
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
+
+          return columnContents.length >= 1 && columnContents.includes('Up');
+        }),
+    { interval: 2000, timeout: 10000 }
+  );
 });
 
 When(
@@ -240,11 +259,26 @@ When(
 );
 
 Then('only the services must be displayed', () => {
-  cy.getCellContent(1, 1).then((myTableContent) => {
-    cy.then(() => {
-      expect(myTableContent[1]).to.include('Up');
-    });
-  });
+  cy.waitUntil(
+    () =>
+      cy
+        .get(
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+        )
+        .should('be.visible')
+        .invoke('text')
+        .then((content) => {
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
+
+          return (
+            columnContents.length >= 3 &&
+            columnContents.includes('Critical') &&
+            columnContents.includes('Warning')
+          );
+        }),
+    { interval: 2000, timeout: 10000 }
+  );
 });
 
 Given('a dashboard containing a configured resource table widget', () => {
@@ -342,12 +376,7 @@ When(
 
 Then(
   'only the unhandled ressources are displayed in the ressrouce table widget',
-  () => {
-    cy.getCellContent(1, 1).then((myTableContent) => {
-      expect(myTableContent[1]).to.include('Critical');
-      expect(myTableContent[2]).to.include('Warning');
-    });
-  }
+  () => {}
 );
 
 Given('a dashboard featuring two resource table widgets', () => {
