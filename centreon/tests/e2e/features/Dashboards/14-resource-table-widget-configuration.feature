@@ -21,10 +21,10 @@ Feature: Configuring resource table widget
     Then all the resources having the status selected are displayed in the resource table Widget
 
   @TEST_MON-35096
-  Scenario: Displaying unhandled ressources on a resource table widget
+  Scenario: Displaying unhandled resources on a resource table widget
     Given a dashboard featuring a configured resource table widget
     When the dashboard administrator user select all the status of the dataset selection
-    Then only the unhandled ressources are displayed in the ressrouce table widget
+    Then only the unhandled resources are displayed in the resource table widget
 
   @TEST_MON-35096
   Scenario: Deleting a resource table widget

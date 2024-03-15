@@ -192,9 +192,9 @@ afterEach(() => {
   });
 });
 
-// after(() => {
-//   cy.stopContainers();
-// });
+after(() => {
+  cy.stopContainers();
+});
 
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
@@ -225,7 +225,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('svg[data-icon="View by host"]').should('exist').click();
+    cy.get('svg[data-icon="View by host"]').should('exist').realClick();
     cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
   }
@@ -314,12 +314,26 @@ When(
 Then(
   'only the resources with this particular status are displayed in the resource table Widget',
   () => {
-    cy.getCellContent(1, 1).then((myTableContent) => {
-      cy.then(() => {
-        expect(myTableContent[1]).to.include('Critical');
-        expect(myTableContent[2]).to.include('Warning');
-      });
-    });
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          )
+          .should('be.visible')
+          .invoke('text')
+          .then((content) => {
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
+
+            return (
+              columnContents.length >= 3 &&
+              columnContents.includes('Critical') &&
+              columnContents.includes('Warning')
+            );
+          }),
+      { interval: 2000, timeout: 10000 }
+    );
   }
 );
 
@@ -375,8 +389,29 @@ When(
 );
 
 Then(
-  'only the unhandled ressources are displayed in the ressrouce table widget',
-  () => {}
+  'only the unhandled resources are displayed in the resource table widget',
+  () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get(
+            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          )
+          .should('be.visible')
+          .invoke('text')
+          .then((content) => {
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
+
+            return (
+              columnContents.length >= 3 &&
+              columnContents.includes('Critical') &&
+              columnContents.includes('Warning')
+            );
+          }),
+      { interval: 2000, timeout: 10000 }
+    );
+  }
 );
 
 Given('a dashboard featuring two resource table widgets', () => {
