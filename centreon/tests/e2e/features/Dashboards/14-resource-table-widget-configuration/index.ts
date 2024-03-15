@@ -235,7 +235,8 @@ Then('only the hosts must be displayed', () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> = content.match(/\w+/g) || [];
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
 
           return columnContents.length >= 1 && columnContents.includes('Up');
         }),
@@ -261,7 +262,8 @@ Then('only the services must be displayed', () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> = content.match(/\w+/g) || [];
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
 
           return (
             columnContents.length >= 3 &&
@@ -315,7 +317,8 @@ Then(
           .should('be.visible')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> = content.match(/\w+/g) || [];
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -391,7 +394,8 @@ Then(
           .should('be.visible')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> = content.match(/\w+/g) || [];
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -445,14 +449,14 @@ Then('only the contents of the other widget are displayed', () => {
     .should('be.visible')
     .invoke('text')
     .then((content) => {
-      const columnContents = content.match(/\w+/g) || [];
+      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
       expect(columnContents).to.be.an('array').and.to.have.length.above(2);
       expect(columnContents[1]).to.include('Critical');
       expect(columnContents[2]).to.include('Warning');
     });
 });
 
-Given('a dashboard having a configured resource table widget', () => {
+Given('a dashboard having a configured ressrouce table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -478,7 +482,7 @@ When(
 );
 
 Then(
-  'a second resource table widget is displayed on the dashboard having the same properties as the first widget',
+  'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
     cy.waitUntil(
       () =>
@@ -489,7 +493,8 @@ Then(
           .should('exist')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> = content.match(/\w+/g) || [];
+            const columnContents: Array<string> =
+              content.match(/[A-Z][a-z]*/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -581,7 +586,8 @@ Then("the resource table widget is added to the dashboard's layout", () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> = content.match(/\w+/g) || [];
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
 
           return (
             columnContents.length >= 3 &&

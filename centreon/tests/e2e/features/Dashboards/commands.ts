@@ -134,7 +134,7 @@ Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
     )
     .invoke('text')
     .then((content) => {
-      const columnContents = content ? content.match(/\w+/g) || [] : [];
+      const columnContents = content ? content.match(/[A-Z][a-z]*/g) || [] : [];
       cy.log(
         `Column contents (${rowIndex}, ${columnIndex}): ${columnContents
           .join(',')
