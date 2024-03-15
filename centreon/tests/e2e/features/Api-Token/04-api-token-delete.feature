@@ -11,7 +11,7 @@ Feature: Delete API Token
     And I am on the API tokens page
 
   @TEST_MON-36703
-  Scenario: Delete API Token with Confirmation
+  Scenario: Delete API Token with confirmation
     When I locate the API token to delete
     And I click on the "delete token" icon for that token
     And I confirm the deletion in the confirmation dialog
