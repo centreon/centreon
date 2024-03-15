@@ -352,14 +352,6 @@ Then(
   }
 );
 
-When(
-  'the dashboard administrator user select all the status of the dataset selection',
-  () => {
-    cy.contains('Select all').click();
-    cy.wait('@resourceRequest');
-  }
-);
-
 Then(
   'only the unhandled resources are displayed in the resource table widget',
   () => {
