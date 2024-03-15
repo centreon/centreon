@@ -22,7 +22,7 @@ Feature: Configuring resource table widget
 
   @TEST_MON-35096
   Scenario: Displaying unhandled resources on a resource table widget
-    Given a dashboard featuring a configured resource table widget
+    Given a dashboard containing a configured resource table widget
     When the dashboard administrator user select all the status of the dataset selection
     Then only the unhandled resources are displayed in the resource table widget
 

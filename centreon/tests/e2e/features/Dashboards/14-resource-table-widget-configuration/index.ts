@@ -179,12 +179,12 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
-});
+// afterEach(() => {
+//   cy.requestOnDatabase({
+//     database: 'centreon',
+//     query: 'DELETE FROM dashboard'
+//   });
+// });
 
 after(() => {
   cy.stopContainers();
@@ -352,28 +352,6 @@ Then(
   }
 );
 
-Given('a dashboard featuring a configured resource table widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).realClick();
-});
-
 When(
   'the dashboard administrator user select all the status of the dataset selection',
   () => {
@@ -456,7 +434,7 @@ Then('only the contents of the other widget are displayed', () => {
     });
 });
 
-Given('a dashboard having a configured ressrouce table widget', () => {
+Given('a dashboard having a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -482,7 +460,7 @@ When(
 );
 
 Then(
-  'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
+  'a second resource table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
     cy.waitUntil(
       () =>
