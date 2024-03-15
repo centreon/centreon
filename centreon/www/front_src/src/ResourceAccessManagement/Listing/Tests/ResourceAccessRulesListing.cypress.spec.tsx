@@ -17,11 +17,19 @@ import {
   labelDeleteResourceAccessRulesDialogMessage,
   labelDeleteResourceAccessRulesWarning,
   labelDeleteResourceAccessRuleWarning,
+  labelDuplicate,
+  labelEnterNameForDuplicatedRule,
   labelFailedToDeleteSelectedRules,
+  labelNameAlreadyExists,
+  labelRequired,
   labelResourceAccessRuleDeletedSuccess,
-  labelResourceAccessRulesDeletedSuccess
+  labelResourceAccessRuleName,
+  labelResourceAccessRulesDeletedSuccess,
+  labelRuleDuplicatedSuccess
 } from '../../translatedLabels';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
+import { findResourceAccessRuleResponse } from '../../AddEditResourceAccessRule/specs/testUtils';
 
 import {
   defaultQueryParams,
@@ -43,6 +51,7 @@ const ListingWithQueryProvider = (): JSX.Element => {
             <>
               <ResourceAccessRulesListing />
               <DeleteConfirmationDialog />
+              <DuplicationForm />
             </>
           </SnackbarProvider>
         </TestQueryProvider>
@@ -477,6 +486,115 @@ describe('Listing header actions: mass delete', () => {
 
     cy.waitForRequest('@deleteResourceAccessRulesRequest');
     cy.findByText(labelFailedToDeleteSelectedRules).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Listing action: duplicate a rule', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildResourceAccessRulesEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getRequest',
+      method: Method.GET,
+      path: resourceAccessRuleEndpoint({ id: 1 }),
+      response: findResourceAccessRuleResponse()
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'postRequest',
+      method: Method.POST,
+      path: resourceAccessRuleEndpoint({}),
+      response: { status: 'ok' }
+    });
+
+    cy.render(ListingWithQueryProvider);
+  });
+
+  it('opens a duplication form when a duplicate button is clicked', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getRequest');
+    cy.findByText(labelEnterNameForDuplicatedRule).should('be.visible');
+    cy.findByLabelText(labelResourceAccessRuleName).should('be.visible');
+    cy.findByText(labelCancel).should('be.visible');
+    cy.findByText(labelDuplicate).should('be.visible');
+
+    cy.makeSnapshot();
+    cy.findByText(labelCancel).click();
+  });
+
+  it('displays required error message when no duplication name was entered', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getRequest');
+    cy.findByLabelText(labelResourceAccessRuleName).click();
+    cy.findByText(labelEnterNameForDuplicatedRule).click();
+
+    cy.findByText(labelRequired).should('be.visible');
+
+    cy.makeSnapshot();
+    cy.findByText(labelCancel).click();
+  });
+
+  it('displays an error message when an already existing rule name is entered', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getRequest');
+    cy.findByLabelText(labelResourceAccessRuleName).type('rule0');
+
+    cy.findByText(labelEnterNameForDuplicatedRule).click();
+    cy.findByText(labelNameAlreadyExists).should('be.visible');
+
+    cy.makeSnapshot();
+    cy.findByText(labelCancel).click();
+  });
+
+  it('creates a duplicated rule', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getRequest');
+    cy.findByLabelText(labelResourceAccessRuleName).type('my_rule');
+
+    cy.findByText(labelDuplicate).click();
+
+    cy.waitForRequest('@postRequest');
+
+    cy.findByText(labelRuleDuplicatedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays an error message when duplication of a rule fails', () => {
+    cy.interceptAPIRequest({
+      alias: 'postErrorRequest',
+      method: Method.POST,
+      path: resourceAccessRuleEndpoint({}),
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.waitForRequest('@defaultRequest');
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getRequest');
+    cy.findByLabelText(labelResourceAccessRuleName).type('my_rule');
+
+    cy.findByText(labelDuplicate).click();
+    cy.waitForRequest('@postErrorRequest');
+
+    cy.findByText('internal server error').should('be.visible');
 
     cy.makeSnapshot();
   });

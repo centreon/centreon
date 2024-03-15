@@ -62,9 +62,9 @@ export const labelDeleteResourceAccessRulesWarning =
 export const labelDeleteResourceAccessRules = 'Delete rules';
 export const labelDuplicate = 'Duplicate';
 export const labelFailedToDuplicateRule =
-  'Failed to duplicate resource access rule';
+  'Failed to duplicate the resource access rule';
 export const labelRuleDuplicatedSuccess =
   'The resource access rule has been successfully duplicated';
 export const labelResourceAccessRuleName = 'Resource access rule name';
 export const labelEnterNameForDuplicatedRule =
-  'Please enter a name for duplicated resource access rule';
+  'Please enter a name for the duplicated resource access rule';

@@ -4,7 +4,6 @@ import { omit } from 'ramda';
 
 import {
   Method,
-  ResponseError,
   useFetchQuery,
   useMutationQuery,
   useSnackbar
@@ -32,7 +31,7 @@ interface UseDuplicateRequestState {
       resetForm;
       setSubmitting;
     }
-  ) => Promise<void>;
+  ) => Promise<object>;
 }
 
 const useDuplicateRequest = ({
@@ -58,30 +57,24 @@ const useDuplicateRequest = ({
   const { mutateAsync } = useMutationQuery({
     defaultFailureMessage: labelFailure,
     getEndpoint: (): string => resourceAccessRuleEndpoint({}),
-    method: Method.POST
+    method: Method.POST,
+    onSettled,
+    onSuccess: () => {
+      showSuccessMessage(t(labelSuccess));
+      queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
+    }
   });
 
-  const submit = (values, { setSubmitting, resetForm }): Promise<void> => {
+  const submit = (values, { resetForm, setSubmitting }): Promise<object> => {
     const payload = adaptRule({
       ...omit(['id'], data),
       name: values?.name
     } as GetResourceAccessRule);
 
-    return mutateAsync({ payload })
-      .then((response) => {
-        const { isError, message } = response as ResponseError;
-        if (isError) {
-          return;
-        }
-
-        showSuccessMessage(message || t(labelSuccess));
-        queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] });
-        resetForm();
-      })
-      .finally(() => {
-        onSettled();
-        setSubmitting(false);
-      });
+    return mutateAsync({ payload }).finally(() => {
+      resetForm();
+      setSubmitting(false);
+    });
   };
 
   return { submit };
