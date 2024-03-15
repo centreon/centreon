@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { equals } from 'ramda';
+import { equals, includes } from 'ramda';
 import { useSearchParams } from 'react-router-dom';
 
 import { useDeepCompare } from '../useMemoComponent';
@@ -16,7 +16,15 @@ export const useFullscreenListener = (): boolean => {
     useFullscreen();
 
   const toggle = (event: KeyboardEvent): void => {
-    if (!event.altKey || !equals(event.code, 'KeyF')) {
+    if (
+      includes(document.activeElement?.tagName, ['INPUT', 'TEXTAREA']) ||
+      equals(
+        document.activeElement?.getAttribute('data-lexical-editor'),
+        'true'
+      ) ||
+      equals(document.activeElement?.getAttribute('contenteditable'), 'true') ||
+      !equals(event.code, 'KeyF')
+    ) {
       return;
     }
 
