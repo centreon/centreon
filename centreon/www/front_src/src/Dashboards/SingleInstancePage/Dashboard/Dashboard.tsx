@@ -40,8 +40,6 @@ const Dashboard = (): ReactElement => {
   });
   const { editDashboard } = useDashboardConfig();
 
-  const unsavedChangesWarning = useUnsavedChangesWarning({ panels });
-
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
   const setRefreshCounts = useSetAtom(refreshCountsAtom);
@@ -85,7 +83,6 @@ const Dashboard = (): ReactElement => {
               title={dashboard?.name || ''}
             />
           </PageHeader.Main>
-          <PageHeader.Message message={unsavedChangesWarning} />
           <DashboardNavbar />
         </PageHeader>
       </PageLayout.Header>
