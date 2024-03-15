@@ -35,6 +35,7 @@ export const dashboardAtom = atom<Dashboard>({
 
 export const isEditingAtom = atom(false);
 export const widgetToDeleteAtom = atom<Partial<SelectEntry> | null>(null);
+export const isRedirectionBlockedAtom = atom(false);
 
 export const hasEditPermissionAtom = atom(false);
 export const dashboardRefreshIntervalAtom = atom<

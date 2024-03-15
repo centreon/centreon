@@ -1,8 +1,10 @@
-import { useAtomValue } from 'jotai';
+import { useRef } from 'react';
+
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
 
-import { isEditingAtom } from '../atoms';
+import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
 
 export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;
@@ -16,8 +18,21 @@ export const router = {
 
 const useDashboardSaveBlocker = (): UseDashboardSaveBlockerState => {
   const isEditing = useAtomValue(isEditingAtom);
+  const setIsRedirectionBlockedAtom = useSetAtom(isRedirectionBlockedAtom);
 
-  const blocker = router.useBlocker(isEditing);
+  const blocker = router.useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isEditing && !equals(currentLocation.pathname, nextLocation.pathname)
+  );
+
+  const previousBlockedStateRef = useRef(equals(blocker.state, 'blocked'));
+
+  const currentBlockedState = equals(blocker.state, 'blocked');
+
+  if (!equals(previousBlockedStateRef.current, currentBlockedState)) {
+    previousBlockedStateRef.current = currentBlockedState;
+    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
+  }
 
   return {
     blockNavigation: blocker.reset,

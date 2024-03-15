@@ -1,9 +1,8 @@
 import { atom, createStore, useSetAtom, Provider } from 'jotai';
 
-import { cyan } from '@mui/material/colors';
 import { Button } from '@mui/material';
 
-import ConfirmationModal, { ConfirmationModalProps } from './ConfirmationModal';
+import { ConfirmationModal, ConfirmationModalProps } from './ConfirmationModal';
 
 const testAtom = atom<string | null>(null);
 

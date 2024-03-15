@@ -29,6 +29,7 @@ import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
 import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
+import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -137,6 +138,7 @@ const Dashboard = (): ReactElement => {
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
       <DeleteWidgetModal />
+      <DashboardSaveBlockerModal />
     </PageLayout>
   );
 };

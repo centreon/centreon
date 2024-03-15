@@ -17,6 +17,7 @@ export interface ConfirmationModalProps<TAtom> {
     title: string | ((atom: Awaited<TAtom> | null) => string);
   };
   onCancel?: (atomData: Awaited<TAtom> | null) => void;
+  onClose?: (atomData: Awaited<TAtom> | null) => void;
   onConfirm?: (atomData: Awaited<TAtom> | null) => void;
 }
 
@@ -30,11 +31,12 @@ const getLabel = <TAtom,>({ label, atomData }: GetLabelProps<TAtom>): string =>
     ? (label as string)
     : (label as (atom: Awaited<TAtom> | null) => string)(atomData);
 
-const ConfirmationModal = <TAtom,>({
+export const ConfirmationModal = <TAtom,>({
   atom,
   labels,
   onConfirm,
   onCancel,
+  onClose,
   hasCloseButton = true,
   isDanger,
   disabled
@@ -42,6 +44,7 @@ const ConfirmationModal = <TAtom,>({
   const [atomData, setAtomData] = useAtom<TAtom | null>(atom);
 
   const closeModal = (): void => {
+    onClose?.(atomData);
     setAtomData(null);
   };
 
@@ -82,5 +85,3 @@ const ConfirmationModal = <TAtom,>({
     </Modal>
   );
 };
-
-export default ConfirmationModal;

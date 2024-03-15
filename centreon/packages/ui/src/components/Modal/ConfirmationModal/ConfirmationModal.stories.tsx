@@ -3,7 +3,7 @@ import { atom, useSetAtom, createStore, Provider } from 'jotai';
 
 import { Button } from '../../Button';
 
-import ConfirmationModal from './ConfirmationModal';
+import { ConfirmationModal } from './ConfirmationModal';
 
 const meta: Meta<typeof ConfirmationModal> = {
   component: ConfirmationModal
