@@ -27,7 +27,7 @@ Feature: Create and Manage Basic API Token
       | TokenName_3      | User_3            | 90 days  |
 
   @TEST_MON-36694
-  Scenario: Display and Copy Generated API Token
+  Scenario: Display and copy generated API Token
     Given a basic API token is generated
     When I click to reveal the token
     Then the token is displayed
