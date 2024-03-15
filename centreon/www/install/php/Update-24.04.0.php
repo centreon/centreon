@@ -189,6 +189,24 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$createMigrationsTable = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to create migrations table';
+    $pearDB->query(
+        <<<SQL
+        CREATE TABLE IF NOT EXISTS `migrations` (
+            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'auto incremented id',
+            `module_id` int(11) DEFAULT NULL COMMENT 'linked module id',
+            `name` varchar(255) NOT NULL COMMENT 'name of the migration',
+            `executed_at` int(11) NOT NULL COMMENT 'migration execution date (timestamp)',
+            PRIMARY KEY (`id`),
+            CONSTRAINT `migrations_module_id`
+                FOREIGN KEY (`module_id`)
+                REFERENCES `modules_informations` (`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'table to store executed migrations';
+        SQL
+    );
+};
+
 $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
@@ -227,6 +245,8 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+
+    $createMigrationsTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
