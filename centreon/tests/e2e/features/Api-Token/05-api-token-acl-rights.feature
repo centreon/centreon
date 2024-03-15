@@ -7,7 +7,7 @@ Feature: ACL Permissions for Administrators
   Background:
     Given I am logged in as an Administrator
 
-  Scenario: Verify "Manage the organization's authentication tokens" Action in ACL
+  Scenario: Verify "Manage the organization's authentication tokens" action in ACL
     When I navigate to "Administration" > "ACL" > "Actions Access"
     And I click on the "Add" button
     Then I see "Manage the organization's authentication tokens" listed as an action
