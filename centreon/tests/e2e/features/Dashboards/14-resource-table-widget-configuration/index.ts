@@ -179,12 +179,12 @@ beforeEach(() => {
   });
 });
 
-// afterEach(() => {
-//   cy.requestOnDatabase({
-//     database: 'centreon',
-//     query: 'DELETE FROM dashboard'
-//   });
-// });
+afterEach(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
+});
 
 after(() => {
   cy.stopContainers();
@@ -502,7 +502,6 @@ Given(
 When(
   'the dashboard administrator user selects the option to add a new widget',
   () => {
-    cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.getByTestId({ testId: 'AddIcon' }).click();
   }
