@@ -7083,12 +7083,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "7c986da45591c2963947e49de7347591a81e14b6"
+                "reference": "033d93878476544b933c13c36199e80208dc9d50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/7c986da45591c2963947e49de7347591a81e14b6",
-                "reference": "7c986da45591c2963947e49de7347591a81e14b6",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/033d93878476544b933c13c36199e80208dc9d50",
+                "reference": "033d93878476544b933c13c36199e80208dc9d50",
                 "shasum": ""
             },
             "require": {
@@ -7137,7 +7137,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-35001"
             },
-            "time": "2024-03-11T13:21:04+00:00"
+            "time": "2024-03-15T10:26:11+00:00"
         },
         {
             "name": "composer/pcre",
