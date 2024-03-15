@@ -135,7 +135,7 @@ const Dashboard = (): ReactElement => {
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
       <DeleteWidgetModal />
-      <DashboardSaveBlockerModal />
+      <DashboardSaveBlockerModal panels={panels} />
     </PageLayout>
   );
 };

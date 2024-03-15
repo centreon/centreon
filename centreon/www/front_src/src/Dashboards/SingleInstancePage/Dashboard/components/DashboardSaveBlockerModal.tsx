@@ -11,9 +11,15 @@ import {
   labelIfYouClickOnDiscard,
   labelSave
 } from '../translatedLabels';
+import { DashboardPanel } from '../../../api/models';
 
-const DashboardSaveBlockerModal = (): JSX.Element => {
-  const { proceedNavigation, blockNavigation } = useDashboardSaveBlocker();
+interface Props {
+  panels?: Array<DashboardPanel>;
+}
+
+const DashboardSaveBlockerModal = ({ panels }: Props): JSX.Element => {
+  const { proceedNavigation, blockNavigation } =
+    useDashboardSaveBlocker(panels);
   const { saveDashboard } = useSaveDashboard();
 
   const setIsEditing = useSetAtom(isEditingAtom);
