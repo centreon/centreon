@@ -10,6 +10,7 @@ Feature: Sorting API Tokens List
     And API tokens with predefined details are created
     And I am on the API tokens page
 
+  @TEST_MON-36701
   Scenario Outline: Sort tokens by '<order_by>'
     When I click on the '<order_by>' column header
     Then the tokens are sorted by '<order_by>' in descending order

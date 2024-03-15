@@ -9,6 +9,7 @@ Feature: Create and Manage Basic API Token
     Given I am logged in as an administrator
     And I am on the API tokens page
 
+  @TEST_MON-36696
   Scenario Outline: Create Basic API Token with Required Fields
     When I click on the "Create new token" button
     And I fill in the following required fields
@@ -25,6 +26,7 @@ Feature: Create and Manage Basic API Token
       | TokenName_2      | User_2            | 60 days  |
       | TokenName_3      | User_3            | 90 days  |
 
+  @TEST_MON-36694
   Scenario: Display and Copy Generated API Token
     Given a basic API token is generated
     When I click to reveal the token

@@ -8,6 +8,7 @@ Feature: List Existing API Tokens in Administration
   Background:
     Given I am logged in as an administrator
 
+  @TEST_MON-36699
   Scenario Outline: View Existing API Tokens
     Given API tokens with the following details are created
       | Name    | User   | Duration   |

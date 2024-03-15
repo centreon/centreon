@@ -10,6 +10,7 @@ Feature: Delete API Token
     And API tokens with predefined details are created
     And I am on the API tokens page
 
+  @TEST_MON-36703
   Scenario: Delete API Token with Confirmation
     When I locate the API token to delete
     And I click on the "delete token" icon for that token
