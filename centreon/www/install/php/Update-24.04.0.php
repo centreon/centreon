@@ -202,6 +202,19 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
+$insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-statuschart')
+                SQL
+        );
+    }
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -224,6 +237,7 @@ try {
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
     $insertGroupMonitoringWidget($pearDB);
+    $insertStatusChartWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 
