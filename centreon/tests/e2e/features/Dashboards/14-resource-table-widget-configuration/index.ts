@@ -141,13 +141,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -241,8 +235,7 @@ Then('only the hosts must be displayed', () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> =
-            content.match(/[A-Z][a-z]*/g) || [];
+          const columnContents: Array<string> = content.match(/\w+/g) || [];
 
           return columnContents.length >= 1 && columnContents.includes('Up');
         }),
@@ -268,8 +261,7 @@ Then('only the services must be displayed', () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> =
-            content.match(/[A-Z][a-z]*/g) || [];
+          const columnContents: Array<string> = content.match(/\w+/g) || [];
 
           return (
             columnContents.length >= 3 &&
@@ -323,8 +315,7 @@ Then(
           .should('be.visible')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> =
-              content.match(/[A-Z][a-z]*/g) || [];
+            const columnContents: Array<string> = content.match(/\w+/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -400,8 +391,7 @@ Then(
           .should('be.visible')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> =
-              content.match(/[A-Z][a-z]*/g) || [];
+            const columnContents: Array<string> = content.match(/\w+/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -455,14 +445,14 @@ Then('only the contents of the other widget are displayed', () => {
     .should('be.visible')
     .invoke('text')
     .then((content) => {
-      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
+      const columnContents = content.match(/\w+/g) || [];
       expect(columnContents).to.be.an('array').and.to.have.length.above(2);
       expect(columnContents[1]).to.include('Critical');
       expect(columnContents[2]).to.include('Warning');
     });
 });
 
-Given('a dashboard having a configured ressrouce table widget', () => {
+Given('a dashboard having a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -488,7 +478,7 @@ When(
 );
 
 Then(
-  'a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget',
+  'a second resource table widget is displayed on the dashboard having the same properties as the first widget',
   () => {
     cy.waitUntil(
       () =>
@@ -499,8 +489,7 @@ Then(
           .should('exist')
           .invoke('text')
           .then((content) => {
-            const columnContents: Array<string> =
-              content.match(/[A-Z][a-z]*/g) || [];
+            const columnContents: Array<string> = content.match(/\w+/g) || [];
 
             return (
               columnContents.length >= 3 &&
@@ -536,10 +525,13 @@ When(
   }
 );
 
-When('selects the widget type "resource table"', () => {
-  cy.getByTestId({ testId: 'Widget type' }).click();
-  cy.contains('Resource table').click();
-});
+When(
+  'the dashboard administrator selects the widget type "resource table"',
+  () => {
+    cy.getByTestId({ testId: 'Widget type' }).click();
+    cy.contains('Resource table').click();
+  }
+);
 
 Then(
   'configuration properties for the resource table widget are displayed',
@@ -589,8 +581,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
         .should('be.visible')
         .invoke('text')
         .then((content) => {
-          const columnContents: Array<string> =
-            content.match(/[A-Z][a-z]*/g) || [];
+          const columnContents: Array<string> = content.match(/\w+/g) || [];
 
           return (
             columnContents.length >= 3 &&

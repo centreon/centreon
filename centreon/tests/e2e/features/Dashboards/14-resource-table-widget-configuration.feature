@@ -34,15 +34,15 @@ Feature: Configuring resource table widget
 
   @TEST_MON-35098
   Scenario: Duplicating resource table widget
-    Given a dashboard having a configured ressrouce table widget
+    Given a dashboard having a configured resource table widget
     When the dashboard administrator user duplicates the resource table widget
-    Then a second ressrouce table widget is displayed on the dashboard having the same properties as the first widget
+    Then a second resource table widget is displayed on the dashboard having the same properties as the first widget
 
   @TEST_MON-35084
   Scenario: Creating and configuring a new resource table widget on a dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
-    And selects the widget type "resource table"
+    And the dashboard administrator selects the widget type "resource table"
     Then configuration properties for the resource table widget are displayed
     When the dashboard administrator user selects a resource and a metric for the widget to report on
     When the user saves the resource table widget
