@@ -33,4 +33,13 @@ const columns = [
   'Creator'
 ];
 
-export { Contact, durationMap, Token, columns };
+const columnsFromLabels = [
+  'Status',
+  'Name',
+  'Creation date',
+  'Expiration date',
+  'User',
+  'Creator'
+];
+
+export { Contact, durationMap, Token, columns, columnsFromLabels };
