@@ -17446,6 +17446,10 @@ msgstr ""
 
 # msgid "Fullscreen (Alt+F)"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
 # msgid "Display resources with this unit"
 # msgstr ""
 
