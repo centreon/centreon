@@ -10,7 +10,7 @@ Feature: Create and Manage Basic API Token
     And I am on the API tokens page
 
   @TEST_MON-36696
-  Scenario Outline: Create Basic API Token with Required Fields
+  Scenario Outline: Create basic API Token with required fields
     When I click on the "Create new token" button
     And I fill in the following required fields
     | Field | Value               |
