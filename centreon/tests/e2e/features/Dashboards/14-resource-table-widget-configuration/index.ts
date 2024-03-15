@@ -367,7 +367,6 @@ Given('a dashboard featuring two resource table widgets', () => {
   cy.wait('@resourceRequest');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-  cy.wait('@resourceRequest');
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
