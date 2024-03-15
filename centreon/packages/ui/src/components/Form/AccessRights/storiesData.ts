@@ -140,83 +140,83 @@ export const roles = [
 
 export const removedAccessRights = [
   {
-    email: 'Virgie14@yahoo.com',
-    id: 1,
-    isContactGroup: false,
-    name: 'Jody Blanda',
-    role: 'editor'
+    "email": "Adrienne.Kassulke-Rutherford@gmail.com",
+    "id": 1,
+    "isContactGroup": false,
+    "name": "Linda Schultz",
+    "role": "editor"
   },
   {
-    email: 'Wyman29@yahoo.com',
-    id: 2,
-    isContactGroup: false,
-    name: 'Susan Dooley',
-    role: 'viewer'
+    "email": "Merle7@hotmail.com",
+    "id": 2,
+    "isContactGroup": false,
+    "name": "Lewis Buckridge PhD",
+    "role": "viewer"
   },
   {
-    email: 'Merle.Schamberger@hotmail.com',
-    id: 3,
-    isContactGroup: false,
-    name: 'Lewis Buckridge PhD',
-    role: 'editor'
+    "email": "Linda.Harris37@hotmail.com",
+    "id": 3,
+    "isContactGroup": false,
+    "name": "Jodi O'Reilly",
+    "role": "editor"
   },
   {
-    email: 'Rossie6@gmail.com',
-    id: 4,
-    isContactGroup: false,
-    name: 'Bertha Hane',
-    role: 'viewer'
+    "email": "Louvenia.Torphy@yahoo.com",
+    "id": 4,
+    "isContactGroup": false,
+    "name": "Mildred Ratke-Stanton",
+    "role": "viewer"
   },
   {
-    email: 'Monty_Nienow47@gmail.com',
-    id: 5,
-    isContactGroup: true,
-    name: 'Mildred Ratke-Stanton',
-    role: 'editor'
+    "email": "Kelli.Russel4@hotmail.com",
+    "id": 5,
+    "isContactGroup": true,
+    "name": "Rudolph Brown",
+    "role": "editor"
   }
-];
+]
 
 export const updatedAccessRights = [
   {
-    email: 'Jovani.Willms74@gmail.com',
-    id: 0,
-    isContactGroup: true,
-    name: 'Leah McGlynn',
-    role: 'editor'
+    "email": "Kylie_Wintheiser54@hotmail.com",
+    "id": 0,
+    "isContactGroup": true,
+    "name": "Kathy Schmitt",
+    "role": "editor"
   },
   {
-    email: 'Virgie14@yahoo.com',
-    id: 1,
-    isContactGroup: false,
-    name: 'Jody Blanda',
-    role: 'editor'
+    "email": "Adrienne.Kassulke-Rutherford@gmail.com",
+    "id": 1,
+    "isContactGroup": false,
+    "name": "Linda Schultz",
+    "role": "editor"
   },
   {
-    email: 'Wyman29@yahoo.com',
-    id: 2,
-    isContactGroup: false,
-    name: 'Susan Dooley',
-    role: 'viewer'
+    "email": "Merle7@hotmail.com",
+    "id": 2,
+    "isContactGroup": false,
+    "name": "Lewis Buckridge PhD",
+    "role": "viewer"
   },
   {
-    email: 'Merle.Schamberger@hotmail.com',
-    id: 3,
-    isContactGroup: false,
-    name: 'Lewis Buckridge PhD',
-    role: 'editor'
+    "email": "Linda.Harris37@hotmail.com",
+    "id": 3,
+    "isContactGroup": false,
+    "name": "Jodi O'Reilly",
+    "role": "editor"
   },
   {
-    email: 'Rossie6@gmail.com',
-    id: 4,
-    isContactGroup: false,
-    name: 'Bertha Hane',
-    role: 'viewer'
+    "email": "Louvenia.Torphy@yahoo.com",
+    "id": 4,
+    "isContactGroup": false,
+    "name": "Mildred Ratke-Stanton",
+    "role": "viewer"
   },
   {
-    email: 'Monty_Nienow47@gmail.com',
-    id: 5,
-    isContactGroup: true,
-    name: 'Mildred Ratke-Stanton',
-    role: 'editor'
+    "email": "Kelli.Russel4@hotmail.com",
+    "id": 5,
+    "isContactGroup": true,
+    "name": "Rudolph Brown",
+    "role": "editor"
   }
-];
+]
