@@ -101,10 +101,12 @@ export const getListingQueryParameters = ({
     }
   );
 
-  const search = isEmpty(resources)
+  const search = isEmpty(flatten(searchConditions))
     ? {}
     : {
-        conditions: flatten(searchConditions)
+        search: {
+          conditions: flatten(searchConditions)
+        }
       };
 
   return {
@@ -133,6 +135,16 @@ export const buildResourcesEndpoint = ({
   const formattedStatuses = formatStatus(statuses || []);
 
   const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
+
+  console.log(
+    getListingQueryParameters({
+      limit,
+      page,
+      resources,
+      sortBy,
+      sortOrder
+    })
+  );
 
   return buildListingEndpoint({
     baseEndpoint,
