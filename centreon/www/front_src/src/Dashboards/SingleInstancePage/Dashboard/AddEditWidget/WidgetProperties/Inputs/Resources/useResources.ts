@@ -11,7 +11,8 @@ import {
   reject,
   pluck,
   includes,
-  isNotNil
+  isNotNil,
+  isNil
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
@@ -202,14 +203,31 @@ const useResources = ({
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
+  const hasNoMetrics = isNil(values?.data?.metrics);
+
+  const getCustomQueryParameters = (
+    resourceType
+  ): Array<{ name: string; value: string }> | undefined => {
+    if (!equals(resourceType, WidgetResourceType.service)) {
+      return;
+    }
+
+    if (hasNoMetrics) {
+      return reject(
+        propEq('only_with_performance_data', 'name'),
+        resourceQueryParameters
+      );
+    }
+
+    return resourceQueryParameters;
+  };
+
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: equals(resourceType, WidgetResourceType.service)
-          ? resourceQueryParameters
-          : undefined,
+        customQueryParameters: getCustomQueryParameters(resourceType),
         parameters: {
           ...parameters,
           limit: 30
