@@ -108,9 +108,9 @@ export const getListingQueryParameters = ({
       };
 
   return {
-    ...search,
     limit,
     page: page || undefined,
+    search,
     sort:
       sortBy && sortOrder
         ? {
