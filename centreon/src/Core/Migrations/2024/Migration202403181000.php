@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,31 +21,36 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\Repository;
+namespace Core\Platform\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\NewMigration;
+use Core\Platform\Migration\Application\Repository\MigrationInterface;
 
-class FsReadAvailableMigrationRepository implements ReadAvailableMigrationRepositoryInterface
+class Migration202403181000 implements MigrationInterface
 {
     use LoggerTrait;
 
     /**
      * {@inheritDoc}
      */
-    public function findAll(): array
+    public function getDescription(): string
     {
-        $result = [];
+        return 'test description';
+    }
 
-        $migrations = [];
-        foreach ($result as $migrationData) {
-            $migrations[] = new NewMigration(
-                $migrationData['name'],
-                $migrationData['module_name'],
-            );
-        }
+    /**
+     * {@inheritDoc}
+     */
+    public function up(): void
+    {
+        // nothing
+    }
 
-        return $migrations;
+    /**
+     * {@inheritDoc}
+     */
+    public function down(): void
+    {
+        // nothing
     }
 }

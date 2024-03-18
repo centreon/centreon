@@ -294,7 +294,16 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    # Monitoring resources
+    Core\Platform\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
+        arguments:
+            $installDir: '%centreon_install_path%'
+            $edgeMigrations: !tagged_iterator 'platform.migrations'
+        public: true
+
+    Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\FindProviderConfigurationsPresenter:
+        arguments: [!tagged_iterator 'authentication.provider.presenters']
+
     _instanceof:
         Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface:
             tags: ['realtime.hypermedia']
@@ -312,6 +321,8 @@ services:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
             tags: ['platform.requirement.database.validators']
+        Core\Platform\Migration\Application\Repository\MigrationInterface:
+            tags: ['platform.migrations']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:

@@ -21,8 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\Exception;
+namespace Core\Platform\Migration\Application\UseCase\FindMigrations;
 
-class MigrationException extends \Exception
+class MigrationDto
 {
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $moduleName = '';
+
+    public ?\DateTime $executedAt = null;
 }

@@ -21,15 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\FindMigrations;
+namespace Core\Platform\Migration\Application\UseCase\FindMigrations;
 
-class MigrationDto
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindMigrationsPresenterInterface
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $moduleName = '';
-
-    public ?\DateTime $executedAt = null;
+    public function presentResponse(FindMigrationsResponse|ResponseStatusInterface $response): void;
 }

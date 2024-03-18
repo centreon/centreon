@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\API\FindMigrations;
+namespace Core\Platform\Migration\Infrastructure\API\FindMigrations;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Migration\Application\UseCase\FindMigrations\FindMigrationsPresenterInterface;
-use Core\Migration\Application\UseCase\FindMigrations\FindMigrationsResponse;
+use Core\Platform\Migration\Application\UseCase\FindMigrations\FindMigrationsPresenterInterface;
+use Core\Platform\Migration\Application\UseCase\FindMigrations\FindMigrationsResponse;
 
 class FindMigrationsPresenter extends AbstractPresenter implements FindMigrationsPresenterInterface
 {

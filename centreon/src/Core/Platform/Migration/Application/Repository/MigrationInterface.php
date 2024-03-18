@@ -21,10 +21,34 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\FindMigrations;
+namespace Core\Platform\Migration\Application\Repository;
 
-final class FindMigrationsResponse
+interface MigrationInterface
 {
-    /** @var MigrationDto[] */
-    public array $migrations = [];
+    /**
+     * Upgrade description.
+     *
+     * @throws \Throwable
+     *
+     * @return string
+     */
+    public function getDescription(): string;
+
+    /**
+     * Upgrade operations.
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function up(): void;
+
+    /**
+     * Downgrade operations.
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function down(): void;
 }

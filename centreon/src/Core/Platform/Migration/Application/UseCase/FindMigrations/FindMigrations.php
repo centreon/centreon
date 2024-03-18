@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\FindMigrations;
+namespace Core\Platform\Migration\Application\UseCase\FindMigrations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
-use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\Migration;
+use Core\Platform\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
+use Core\Platform\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
+use Core\Platform\Migration\Domain\Model\Migration;
 
 final class FindMigrations
 {

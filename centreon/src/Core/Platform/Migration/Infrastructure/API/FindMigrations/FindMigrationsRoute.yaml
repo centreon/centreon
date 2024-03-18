@@ -1,5 +1,5 @@
 FindMigrations:
   methods: GET
-  path: /administration/migrations
+  path: /administration/platform/migrations
   controller: 'Core\Migration\Infrastructure\API\FindMigrations\FindMigrationsController'
   condition: "request.attributes.get('version') >= 24.04"

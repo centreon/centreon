@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\Repository;
+namespace Core\Platform\Migration\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Migration\Domain\Model\Migration;
+use Core\Platform\Migration\Domain\Model\Migration;
 
 interface ReadExecutedMigrationRepositoryInterface
 {

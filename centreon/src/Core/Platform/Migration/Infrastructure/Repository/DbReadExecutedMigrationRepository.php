@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\Repository;
+namespace Core\Platform\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -29,8 +29,8 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\Migration;
+use Core\Platform\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
+use Core\Platform\Migration\Domain\Model\Migration;
 
 class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements ReadExecutedMigrationRepositoryInterface
 {

@@ -21,18 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\Repository;
+namespace Core\Platform\Migration\Application\UseCase\FindMigrations;
 
-use Core\Migration\Domain\Model\NewMigration;
-
-interface ReadAvailableMigrationRepositoryInterface
+final class FindMigrationsResponse
 {
-    /**
-     * Return all the migrations.
-     *
-     * @throws \Throwable
-     *
-     * @return NewMigration[]
-     */
-    public function findAll(): array;
+    /** @var MigrationDto[] */
+    public array $migrations = [];
 }

@@ -21,11 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\FindMigrations;
+namespace Core\Platform\Migration\Application\Repository;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Platform\Migration\Domain\Model\NewMigration;
 
-interface FindMigrationsPresenterInterface
+interface ReadAvailableMigrationRepositoryInterface
 {
-    public function presentResponse(FindMigrationsResponse|ResponseStatusInterface $response): void;
+    /**
+     * Return all the migrations.
+     *
+     * @throws \Throwable
+     *
+     * @return NewMigration[]
+     */
+    public function findAll(): array;
 }

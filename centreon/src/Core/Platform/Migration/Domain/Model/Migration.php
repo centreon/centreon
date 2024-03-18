@@ -21,29 +21,34 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\API\FindMigrations;
+namespace Core\Platform\Migration\Domain\Model;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Migration\Application\UseCase\FindMigrations\FindMigrations;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
-final class FindMigrationsController extends AbstractController
+class Migration extends NewMigration
 {
     /**
-     * @param FindMigrations $useCase
-     * @param FindMigrationsPresenter $presenter
+     * @param int $id
+     * @param string $name
+     * @param string $moduleName
+     * @param \DateTime $executedAt
      *
-     * @throws AccessDeniedException
-     *
-     * @return Response
+     * @throws \Assert\AssertionFailedException
      */
-    public function __invoke(FindMigrations $useCase, FindMigrationsPresenter $presenter): Response
+    public function __construct(
+        protected int $id,
+        string $name,
+        string $moduleName,
+        protected \DateTime $executedAt,
+    ) {
+        parent::__construct($name, $moduleName);
+    }
+
+    public function getId(): int
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        return $this->id;
+    }
 
-        $useCase($presenter);
-
-        return $presenter->show();
+    public function getExecutedAt(): \DateTime
+    {
+        return $this->executedAt;
     }
 }
