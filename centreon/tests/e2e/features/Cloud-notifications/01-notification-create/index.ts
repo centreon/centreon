@@ -138,9 +138,10 @@ Given(
 
 When('the user defines a name for the rule', () => {
   cy.contains('Add').click();
-  cy.get('#Notificationname').type(
-    `Notification for ${globalResourceType} and ${globalContactSettings}`
-  );
+  const notificationName = globalResourceType
+    ? `Notification for ${globalResourceType} and ${globalContactSettings}`
+    : `Notification for 1000 services`;
+  cy.get('#Notificationname').type(notificationName);
 });
 
 When(
@@ -188,15 +189,17 @@ When('the user selects the {string}', (contactSettings: string) => {
 });
 
 When('the user defines a mail subject', () => {
-  cy.getByLabel({ label: 'Subject' }).type(
-    `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
-  );
+  const subject = globalResourceType
+    ? `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
+    : `Subject notification for 1000 services`;
+  cy.getByLabel({ label: 'Subject' }).clear().type(subject);
 });
 
 When('the user defines a mail body', () => {
-  cy.getByLabel({ label: 'EmailBody' }).type(
-    `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
-  );
+  const body = globalResourceType
+    ? `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
+    : `{selectAll}{backspace}Body notification for 1000 services`;
+  cy.getByLabel({ label: 'EmailBody' }).clear().type(body);
 });
 
 When('the user clicks on the "Save" button to confirm', () => {
@@ -210,9 +213,13 @@ Then(
       'have.text',
       'The notification was successfully added'
     );
-    cy.contains(
-      `Notification for ${globalResourceType} and ${globalContactSettings}`
-    ).should('exist');
+
+    cy.wait('@getNotifications');
+
+    const notificationName = globalResourceType
+      ? `Notification for ${globalResourceType} and ${globalContactSettings}`
+      : `Notification for 1000 services`;
+    cy.contains(notificationName).should('exist');
   }
 );
 
@@ -280,7 +287,16 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      throw new Error(`${globalResourceType} not managed`);
+      for (let i = 1; i <= 1000; i++) {
+        cy.log('Check the hard state of service ' + i);
+        checkServicesAreMonitored([
+          {
+            name: 'service_' + i,
+            status: 'critical',
+            statusType: 'hard'
+          }
+        ]);
+      }
   }
 });
 
@@ -293,21 +309,142 @@ Then(
   (contactSettings) => {
     switch (contactSettings) {
       case 'a single contact':
-        notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
+        if (globalResourceType) {
+          notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
+        } else {
+          for (let i = 1; i <= 1000; i++) {
+            cy.log('Check notification for service ' + i);
+            notificationSentCheck({
+              log: `<<${data.hosts.host1.name}/${'service_' + i}`
+            });
+          }
+        }
         notificationSentCheck({
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
         });
         break;
       case 'two contacts':
-        notificationSentCheck({
-          log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
-        });
+        if (globalResourceType) {
+          notificationSentCheck({
+            log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
+          });
+        } else {
+          for (let i = 1; i <= 1000; i++) {
+            cy.log('Check notification for service ' + i);
+            notificationSentCheck({
+              log: `<<${data.hosts.host1.name}/${'service_' + i}`
+            });
+          }
+        }
         notificationSentCheck({
           log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
       default:
         throw new Error(`${contactSettings} not managed`);
+    }
+  }
+);
+
+Given(
+  'a minimum of 1000 services linked to a host group and {string}',
+  (contactSettings) => {
+    switch (contactSettings) {
+      case 'a single contact':
+        cy.addContact({
+          email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
+          password: data.contacts.contact1.password
+        });
+        break;
+      case 'two contacts':
+        cy.addContact({
+          email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
+          password: data.contacts.contact1.password
+        });
+        cy.addContact({
+          email: data.contacts.contact2.email,
+          name: data.contacts.contact2.name,
+          password: data.contacts.contact2.password
+        });
+        break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
+    }
+
+    cy.addHostGroup({
+      name: data.hostGroups.hostGroup1.name
+    });
+
+    cy.addHost({
+      activeCheckEnabled: false,
+      checkCommand: 'check_centreon_cpu',
+      hostGroup: data.hostGroups.hostGroup1.name,
+      name: data.hosts.host1.name,
+      template: 'generic-host'
+    }).applyPollerConfiguration();
+
+    checkHostsAreMonitored([
+      {
+        name: data.hosts.host1.name
+      }
+    ]);
+
+    for (let i = 1; i <= 1000; i++) {
+      cy.log('Add service ' + i);
+
+      const serviceName = 'service_' + i;
+      cy.addService({
+        activeCheckEnabled: false,
+        host: data.hosts.host1.name,
+        maxCheckAttempts: 1,
+        name: serviceName,
+        template: 'Ping-LAN'
+      }).applyPollerConfiguration();
+
+      checkServicesAreMonitored([
+        {
+          name: serviceName
+        }
+      ]);
+    }
+  }
+);
+
+When(
+  'the user selects a host group with its linked services and with associated events on which to notify',
+  () => {
+    cy.get('#Searchhostgroups').click();
+    cy.contains(data.hostGroups.hostGroup1.name).click();
+    cy.get('#Searchhostgroups').blur();
+    cy.contains('Include services for these hosts').click();
+    cy.get('[data-testid="Extra events services"] >').each(($el) => {
+      cy.wrap($el).click();
+    });
+  }
+);
+
+When(
+  'changes occur in the configured statuses for the selected host group',
+  () => {
+    for (let i = 1; i <= 1000; i++) {
+      cy.log('submit result for service number ' + i);
+      cy.submitResults([
+        {
+          host: data.hosts.host1.name,
+          output: 'submit_status_' + i,
+          service: 'service_' + i,
+          status: 'critical'
+        }
+      ]);
+
+      checkServicesAreMonitored([
+        {
+          name: 'service_' + i,
+          status: 'critical'
+        }
+      ]);
     }
   }
 );
