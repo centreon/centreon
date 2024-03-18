@@ -52,8 +52,8 @@ export const useItemStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   itemContent: {
-    display: 'flex',
-    flexDirection: 'row',
+    display: 'grid',
+    gridAutoFlow: 'column',
     width: '100%'
   },
   visibilityHiden: {
