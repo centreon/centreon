@@ -54,7 +54,10 @@ const DashboardsOverview = (): ReactElement => {
       })
     );
 
-  const isCardsView = useMemo(() => equals(viewMode, ViewMode.Cards), [viewMode])
+  const isCardsView = useMemo(
+    () => equals(viewMode, ViewMode.Cards),
+    [viewMode]
+  );
 
   const labels = useMemo(
     () => ({
@@ -77,7 +80,7 @@ const DashboardsOverview = (): ReactElement => {
   );
 
   if (isCardsView && isLoading) {
-    return <DashboardsOverviewSkeleton />
+    return <DashboardsOverviewSkeleton />;
   }
 
   if (isEmptyList && !search && !isLoading) {

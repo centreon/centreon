@@ -1,5 +1,3 @@
-
-
 import { useAtomValue } from 'jotai';
 
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
@@ -24,7 +22,6 @@ type UseListDashboards = {
 };
 
 const useListDashboards = (): UseListDashboards => {
-
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);

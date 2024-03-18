@@ -17,18 +17,17 @@ import {
 } from '../../translatedLabels';
 import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
+import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
 import useActions from './useActions';
 import DeleteDashboard from './DeleteDashboard';
-import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
   const { editDashboard, isNestedRow, editAccessRights, openAskBeforeRevoke } =
     useActions(row);
-  const { hasEditPermission } =
-    useDashboardUserPermissions();
+  const { hasEditPermission } = useDashboardUserPermissions();
 
   const actions = [
     {

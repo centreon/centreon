@@ -288,10 +288,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.findAllByLabelText(labelEditProperties).eq(0)
-        .should('be.visible');
-      cy.findAllByLabelText(labelDelete).eq(0)
-        .should('be.visible');
+      cy.findAllByLabelText(labelEditProperties).eq(0).should('be.visible');
+      cy.findAllByLabelText(labelDelete).eq(0).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -303,10 +301,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.findAllByLabelText(labelEditProperties)
-        .should('have.length', 2);
-      cy.findAllByLabelText(labelDelete)
-        .should('have.length', 2);
+      cy.findAllByLabelText(labelEditProperties).should('have.length', 2);
+      cy.findAllByLabelText(labelDelete).should('have.length', 2);
 
       cy.makeSnapshot();
     });
