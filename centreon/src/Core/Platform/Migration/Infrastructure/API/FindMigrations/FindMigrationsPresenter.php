@@ -48,17 +48,13 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
             $this->setResponseStatus($response);
         } else {
             $this->present(
-                [
-                    'result' => array_map(static function ($migrationDto) {
-                        return [
-                            'id' => $migrationDto->id,
-                            'name' => $migrationDto->name,
-                            'module_name' => $migrationDto->moduleName,
-                            'executed_at' => $migrationDto->executedAt,
-                        ];
-                    }, $response->migrations),
-                    'meta' => $this->requestParameters->toArray(),
-                ]
+                array_map(static function ($migrationDto) {
+                    return [
+                        'name' => $migrationDto->name,
+                        'module_name' => $migrationDto->moduleName,
+                        'description' => $migrationDto->description,
+                    ];
+                }, $response->migrations),
             );
         }
     }

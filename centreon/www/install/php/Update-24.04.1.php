@@ -19,22 +19,3 @@
  *
  */
 
-declare(strict_types=1);
-
-namespace Core\Platform\Migration\Application\Repository;
-
-use Core\Platform\Migration\Domain\Model\NewMigration;
-
-interface ReadAvailableMigrationRepositoryInterface
-{
-    /**
-     * Return all the migrations.
-     *
-     * @param string $currentVersion
-     *
-     * @throws \Throwable
-     *
-     * @return NewMigration[]
-     */
-    public function findAll($currentVersion): array;
-}

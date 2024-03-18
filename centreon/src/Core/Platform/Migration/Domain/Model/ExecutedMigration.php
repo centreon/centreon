@@ -21,20 +21,34 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Migration\Application\Repository;
+namespace Core\Platform\Migration\Domain\Model;
 
-use Core\Platform\Migration\Domain\Model\NewMigration;
-
-interface ReadAvailableMigrationRepositoryInterface
+class ExecutedMigration extends Migration
 {
     /**
-     * Return all the migrations.
+     * @param string $name
+     * @param string $moduleName
+     * @param int $id
+     * @param \DateTime $executedAt
      *
-     * @param string $currentVersion
-     *
-     * @throws \Throwable
-     *
-     * @return NewMigration[]
+     * @throws \Assert\AssertionFailedException
      */
-    public function findAll($currentVersion): array;
+    public function __construct(
+        string $name,
+        string $moduleName,
+        protected int $id,
+        protected \DateTime $executedAt,
+    ) {
+        parent::__construct($name, $moduleName);
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getExecutedAt(): \DateTime
+    {
+        return $this->executedAt;
+    }
 }

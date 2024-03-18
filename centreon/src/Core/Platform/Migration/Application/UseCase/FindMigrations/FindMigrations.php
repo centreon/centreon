@@ -30,7 +30,8 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Platform\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Platform\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Platform\Migration\Domain\Model\Migration;
+use Core\Platform\Migration\Domain\Model\NewMigration;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 
 final class FindMigrations
 {
@@ -38,6 +39,7 @@ final class FindMigrations
 
     public function __construct(
         private readonly ContactInterface $user,
+        private ReadVersionRepositoryInterface $readVersionRepository,
         private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
         private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
         private readonly RequestParametersInterface $requestParameters,
@@ -48,7 +50,7 @@ final class FindMigrations
     {
         try {
             $this->info('Search for available migrations');
-            $availableMigrations = $this->readAvailableMigrationRepository->findAll();
+            $availableMigrations = $this->readAvailableMigrationRepository->findAll($this->getCurrentVersion());
 
             $this->info('Search for executed migrations');
             $executedMigrations = $this->readExecutedMigrationRepository->findAll($this->requestParameters);
@@ -94,9 +96,34 @@ final class FindMigrations
     }
 
     /**
+     * Get current version or fail.
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    private function getCurrentVersion(): string
+    {
+        $this->debug('Finding centreon-web current version');
+        try {
+            $currentVersion = $this->readVersionRepository->findCurrentVersion();
+        } catch (\Exception $exception) {
+            // @todo manage properly exception
+            throw new \Exception('Cannot retrieve centreon web version');
+        }
+
+        if ($currentVersion === null) {
+            // @todo manage properly exception
+            throw new \Exception('Cannot retrieve centreon web version');
+        }
+
+        return $currentVersion;
+    }
+
+    /**
      * Create Response Object.
      *
-     * @param Migration[] $migrations
+     * @param NewMigration[] $migrations
      *
      * @return FindMigrationsResponse
      */
@@ -108,9 +135,9 @@ final class FindMigrations
         $migrationDtos = [];
         foreach ($migrations as $migration) {
             $migrationDto = new MigrationDto();
-            $migrationDto->id = $migration->getId();
             $migrationDto->name = $migration->getName();
             $migrationDto->moduleName = $migration->getModuleName();
+            $migrationDto->description = $migration->getDescription();
 
             $migrationDtos[] = $migrationDto;
         }

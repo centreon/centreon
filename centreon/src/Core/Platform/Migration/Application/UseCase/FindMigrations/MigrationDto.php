@@ -25,11 +25,9 @@ namespace Core\Platform\Migration\Application\UseCase\FindMigrations;
 
 class MigrationDto
 {
-    public int $id = 0;
-
     public string $name = '';
 
     public string $moduleName = '';
 
-    public ?\DateTime $executedAt = null;
+    public string $description = '';
 }

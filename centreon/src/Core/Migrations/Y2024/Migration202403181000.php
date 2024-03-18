@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Migration\Infrastructure\Repository;
+namespace Core\Migrations\Y2024;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Platform\Migration\Application\Repository\MigrationInterface;

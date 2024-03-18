@@ -23,32 +23,38 @@ declare(strict_types=1);
 
 namespace Core\Platform\Migration\Domain\Model;
 
-class Migration extends NewMigration
+use Centreon\Domain\Common\Assertion\Assertion;
+
+class Migration
 {
+    public const MAX_NAME_LENGTH = 255;
+
     /**
-     * @param int $id
      * @param string $name
      * @param string $moduleName
-     * @param \DateTime $executedAt
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected int $id,
-        string $name,
-        string $moduleName,
-        protected \DateTime $executedAt,
+        protected string $name,
+        protected string $moduleName,
     ) {
-        parent::__construct($name, $moduleName);
+        $shortName = (new \ReflectionClass($this))->getShortName();
+
+        $this->name = trim($this->name);
+        Assertion::notEmptyString($this->name, "{$shortName}::name");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        Assertion::notEmptyString($this->moduleName, "{$shortName}::name");
+        Assertion::maxLength($this->moduleName, self::MAX_NAME_LENGTH, "{$shortName}::name");
     }
 
-    public function getId(): int
+    public function getName(): string
     {
-        return $this->id;
+        return $this->name;
     }
 
-    public function getExecutedAt(): \DateTime
+    public function getModuleName(): string
     {
-        return $this->executedAt;
+        return $this->moduleName;
     }
 }

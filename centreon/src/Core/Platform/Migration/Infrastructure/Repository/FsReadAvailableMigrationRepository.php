@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\Repository;
+namespace Core\Platform\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Platform\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
@@ -59,9 +59,9 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
     /**
      * {@inheritDoc}
      */
-    public function findAll(): array
+    public function findAll($currentVersion): array
     {
-        $legacyMigrations = $this->findLegacyMigrations();
+        $legacyMigrations = $this->findLegacyMigrations($currentVersion);
         $edgeMigrations = $this->findEdgeMigrations();
 
         return [...$legacyMigrations, ...$edgeMigrations];
@@ -72,7 +72,7 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
      *
      * @return string[]
      */
-    private function findLegacyMigrations(): array
+    private function findLegacyMigrations($currentVersion): array
     {
         $fileNameVersionRegex = '/Update-(?<version>[a-zA-Z0-9\-\.]+)\.php/';
         $migrations = [];
@@ -84,11 +84,13 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
 
             foreach ($files as $file) {
                 if (preg_match($fileNameVersionRegex, $file->getFilename(), $matches)) {
-                    $migrations[] = new NewMigration(
-                        'Update-' . $matches['version'],
-                        'core',
-                        $matches['version'],
-                    );
+                    if (version_compare($matches['version'], $currentVersion, '>')) {
+                        $migrations[] = new NewMigration(
+                            'Update-' . $matches['version'],
+                            'core',
+                            'Update to ' . $matches['version'],
+                        );
+                    }
                 }
             }
         }
@@ -103,7 +105,6 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
      */
     private function findEdgeMigrations(): array
     {
-        $fileNameVersionRegex = '/Update-(?<version>[a-zA-Z0-9\-\.]+)\.php/';
         $migrations = [];
 
         foreach ($this->edgeMigrations as $edgeMigration) {
@@ -112,7 +113,7 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
             $migrations[] = new NewMigration(
                 $shortName,
                 'core',
-                null,
+                $edgeMigration->getDescription(),
             );
         }
 

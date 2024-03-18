@@ -23,38 +23,25 @@ declare(strict_types=1);
 
 namespace Core\Platform\Migration\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\Assertion;
-
-class NewMigration
+class NewMigration extends Migration
 {
-    public const MAX_NAME_LENGTH = 255;
-
     /**
      * @param string $name
      * @param string $moduleName
+     * @param string $description
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected string $name,
-        protected string $moduleName,
+        string $name,
+        string $moduleName,
+        private string $description,
     ) {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-
-        $this->name = trim($this->name);
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
-        Assertion::notEmptyString($this->moduleName, "{$shortName}::name");
-        Assertion::maxLength($this->moduleName, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        parent::__construct($name, $moduleName);
     }
 
-    public function getName(): string
+    public function getDescription(): string
     {
-        return $this->name;
-    }
-
-    public function getModuleName(): string
-    {
-        return $this->moduleName;
+        return $this->description;
     }
 }
