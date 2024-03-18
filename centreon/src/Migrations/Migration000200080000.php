@@ -55,7 +55,7 @@ class Migration000200080000 extends MigrationPriority implements MigrationInterf
      */
     public function up(): void
     {
-        // nothing
+        // @todo migration Update-2.8.0 script
     }
 
     /**
