@@ -104,10 +104,10 @@ export const getListingQueryParameters = ({
   const search = isEmpty(flatten(searchConditions))
     ? {}
     : {
-      search: {
-        conditions: flatten(searchConditions)
-      }
-    };
+        search: {
+          conditions: flatten(searchConditions)
+        }
+      };
 
   return {
     ...search,
@@ -116,8 +116,8 @@ export const getListingQueryParameters = ({
     sort:
       sortBy && sortOrder
         ? {
-          [sortBy]: sortOrder
-        }
+            [sortBy]: sortOrder
+          }
         : undefined
   };
 };
