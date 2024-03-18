@@ -49,7 +49,7 @@ const render = ({ options, data }: Props): void => {
 };
 
 const resourcesRequests = (): void => {
-  cy.fixture('Widgets/ResourcesTable/resourcesStatus.json').then((data) => {
+  cy.fixture('Widgets/ResourcesTable/resourceStatus.json').then((data) => {
     cy.interceptAPIRequest({
       alias: 'getResources',
       method: Method.GET,

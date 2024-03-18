@@ -373,8 +373,8 @@ class FilterController extends AbstractController
       */
      private function userHasAccessToResourceStatusOrFail(Contact $user): void
      {
-        if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            throw new FilterException(_('You are not allowed to access the Resources Status page'), 403);
+        if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCE_STATUS_RW)) {
+            throw new FilterException(_('You are not allowed to access the Resource Status page'), 403);
         }
      }
 }

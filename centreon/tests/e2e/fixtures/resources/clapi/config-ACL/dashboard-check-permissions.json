@@ -22,7 +22,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-administrator-ACLMENU;0;Monitoring;Resources Status"
+        "values": "name-administrator-ACLMENU;0;Monitoring;Resource Status"
     },
     {
         "action": "ADD",
@@ -62,7 +62,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-creator-ACLMENU;0;Monitoring;Resources Status"
+        "values": "name-creator-ACLMENU;0;Monitoring;Resource Status"
     },
     {
         "action": "ADD",
@@ -117,7 +117,7 @@
     {
         "action": "GRANTRW",
         "object": "ACLMENU",
-        "values": "name-viewer-ACLMENU;0;Monitoring;Resources Status"
+        "values": "name-viewer-ACLMENU;0;Monitoring;Resource Status"
     },
     {
         "action": "ADD",

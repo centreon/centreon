@@ -35,7 +35,7 @@ use Core\Resources\Domain\Model\DownStatusCount;
 use Core\Resources\Domain\Model\HostsStatusCount;
 use Core\Resources\Domain\Model\OkStatusCount;
 use Core\Resources\Domain\Model\PendingStatusCount;
-use Core\Resources\Domain\Model\ResourcesStatusCount;
+use Core\Resources\Domain\Model\ResourceStatusCount;
 use Core\Resources\Domain\Model\ServicesStatusCount;
 use Core\Resources\Domain\Model\UnknownStatusCount;
 use Core\Resources\Domain\Model\UnreachableStatusCount;
@@ -65,7 +65,7 @@ it('should present an Error Response when an error occurred', function () {
 
    $this->readResourceRepository
        ->expects($this->once())
-       ->method('findResourcesStatusCount')
+       ->method('findResourceStatusCount')
        ->willThrowException(new \Exception());
 
    $useCase($presenter, $this->resourceFilter);
@@ -92,7 +92,7 @@ it('should present a FindServicesStatusCountResponse when no error occurred', fu
       new OkStatusCount(5),
       new PendingStatusCount(6)
     );
-    $resourceStatusCount = new ResourcesStatusCount($hostsStatusCount, $servicesStatuscount);
+    $resourceStatusCount = new ResourceStatusCount($hostsStatusCount, $servicesStatuscount);
 
     $this->user
         ->expects($this->once())
@@ -101,7 +101,7 @@ it('should present a FindServicesStatusCountResponse when no error occurred', fu
 
     $this->readResourceRepository
         ->expects($this->once())
-        ->method('findResourcesStatusCount')
+        ->method('findResourceStatusCount')
         ->willReturn($resourceStatusCount);
 
     $useCase($presenter, $this->resourceFilter);
@@ -132,7 +132,7 @@ it('should filter resources by ACL when the user is not admin', function () {
 
     $this->readResourceRepository
         ->expects($this->once())
-        ->method('findResourcesStatusCountByAccessGroupIds');
+        ->method('findResourceStatusCountByAccessGroupIds');
 
     $useCase($presenter, $this->resourceFilter);
 });
