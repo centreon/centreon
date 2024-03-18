@@ -20,10 +20,10 @@ Cypress.Commands.add(
   (accessRightsTestId, expectedElementCount) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'Add a contact' }).should('be.visible');
+      cy.get('.MuiSelect-select').should('be.visible');
 
       return cy
-        .get('[data-testid="Add a contact"]')
+        .get('.MuiSelect-select')
         .should('be.visible')
         .then(($element) => {
           cy.getByTestId({ testId: 'CloseIcon' }).click();
