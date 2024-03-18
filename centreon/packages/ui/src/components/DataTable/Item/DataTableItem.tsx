@@ -1,68 +1,37 @@
-import React, {
-  forwardRef,
-  ReactElement,
-  RefObject,
-  useMemo,
-  useState
-} from 'react';
-
-import { pipe } from 'ramda';
+import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
 
 import {
-  Menu,
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
   CardContent as MuiCardContent,
   Typography as MuiTypography
 } from '@mui/material';
-import {
-  Delete as DeleteIcon,
-  Settings as SettingsIcon,
-  Share as ShareIcon,
-  ContentCopy as DuplicateIcon,
-  MoreHoriz as MoreIcon
-} from '@mui/icons-material';
-
-import { IconButton, ActionsList, ActionsListActionDivider } from '../../..';
 
 import { useStyles } from './DataTableItem.styles';
 
 export interface DataTableItemProps {
+  Actions?: JSX.Element;
   description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
-  labels;
   onClick?: () => void;
-  onDelete?: () => void;
-  onDuplicate?: () => void;
-  onEdit?: () => void;
-  onEditAccessRights?: () => void;
   title: string;
 }
 
 const DataTableItem = forwardRef(
   (
     {
-      labels,
       title,
       description,
       hasCardAction = false,
       hasActions = false,
       onClick,
-      onEdit,
-      onDelete,
-      onDuplicate,
-      onEditAccessRights
+      Actions
     }: DataTableItemProps,
     ref
   ): ReactElement => {
     const { classes } = useStyles();
-
-    const [moreActionsOpen, setMoreActionsOpen] = useState(null);
-
-    const closeMoreActions = (): void => setMoreActionsOpen(null);
-    const openMoreActions = (event): void => setMoreActionsOpen(event.target);
 
     const ActionArea = useMemo(
       () => (hasCardAction ? MuiCardActionArea : React.Fragment),
@@ -87,64 +56,7 @@ const DataTableItem = forwardRef(
         {hasActions && (
           <MuiCardActions>
             <span />
-            <span>
-              {onEditAccessRights && (
-                <IconButton
-                  ariaLabel={labels.labelShareWithContacts}
-                  title={labels.labelShareWithContacts}
-                  onClick={pipe(onEditAccessRights, closeMoreActions)}
-                >
-                  <ShareIcon fontSize="small" />
-                </IconButton>
-              )}
-              <IconButton
-                ariaLabel={labels.labelMoreActions}
-                title={labels.labelMoreActions}
-                onClick={openMoreActions}
-              >
-                <MoreIcon />
-              </IconButton>
-              <Menu
-                anchorEl={moreActionsOpen}
-                open={Boolean(moreActionsOpen)}
-                onClose={closeMoreActions}
-              >
-                <ActionsList
-                  actions={[
-                    ...(onEdit
-                      ? [
-                          {
-                            Icon: SettingsIcon,
-                            label: labels.labelEditProperties,
-                            onClick: pipe(onEdit, closeMoreActions)
-                          },
-                          ActionsListActionDivider.divider
-                        ]
-                      : []),
-                    ...(onDuplicate
-                      ? [
-                          {
-                            Icon: DuplicateIcon,
-                            label: labels.labelDuplicate,
-                            onClick: pipe(onDuplicate, closeMoreActions)
-                          },
-                          ActionsListActionDivider.divider
-                        ]
-                      : []),
-                    ...(onDelete
-                      ? [
-                          {
-                            Icon: DeleteIcon,
-                            label: labels.labelDelete,
-                            onClick: pipe(onDelete, closeMoreActions),
-                            variant: 'error'
-                          }
-                        ]
-                      : [])
-                  ]}
-                />
-              </Menu>
-            </span>
+            <span>{Actions}</span>
           </MuiCardActions>
         )}
       </MuiCard>
