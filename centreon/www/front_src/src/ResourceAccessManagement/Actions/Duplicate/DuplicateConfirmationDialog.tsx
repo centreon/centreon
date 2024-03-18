@@ -64,6 +64,7 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
         error={error as string | undefined}
         label={t(labelName) as string}
         name="name"
+        sx={{ width: '100%' }}
         value={ruleName}
         onBlur={handleBlur('name')}
         onChange={handleChange}

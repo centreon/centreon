@@ -1,4 +1,4 @@
-import { isNil, map, path, pluck, prop } from 'ramda';
+import { isNil, path, pluck } from 'ramda';
 
 import { DatasetFilter } from '../../models';
 
@@ -32,8 +32,8 @@ export const adaptRule = ({
   isActivated,
   name
 }): object => ({
-  contact_groups: map(prop('id'), contactGroups),
-  contacts: map(prop('id'), contacts),
+  contact_groups: pluck('id', contactGroups),
+  contacts: pluck('id', contacts),
   dataset_filters: datasetFilters.map((datasetFilter: DatasetFilter) =>
     adaptDatasetFilter(datasetFilter)
   ),
