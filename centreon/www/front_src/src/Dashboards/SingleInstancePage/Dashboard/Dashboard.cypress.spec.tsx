@@ -307,6 +307,7 @@ describe('Dashboard', () => {
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
+      cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.contains('Text for the new widget').should('be.visible');
 
