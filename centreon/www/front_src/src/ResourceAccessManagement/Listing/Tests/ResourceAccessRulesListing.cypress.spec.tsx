@@ -531,7 +531,7 @@ describe('Listing action: duplicate a rule', () => {
     cy.findByText(labelCancel).click();
   });
 
-  it('displays required error message when no duplication name was entered', () => {
+  it('displays required error message when the name remains empty', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
