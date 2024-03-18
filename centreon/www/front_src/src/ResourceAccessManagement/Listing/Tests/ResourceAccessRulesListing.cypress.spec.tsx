@@ -536,7 +536,7 @@ describe('Listing action: duplicate a rule', () => {
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
     cy.waitForRequest('@getRequest');
-    cy.findByLabelText(labelResourceAccessRuleName).click();
+    cy.findByLabelText(labelResourceAccessRuleName).clear();
     cy.findByText(labelEnterNameForDuplicatedRule).click();
 
     cy.findByText(labelRequired).should('be.visible');
@@ -550,7 +550,7 @@ describe('Listing action: duplicate a rule', () => {
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
     cy.waitForRequest('@getRequest');
-    cy.findByLabelText(labelResourceAccessRuleName).type('rule0');
+    cy.findByLabelText(labelResourceAccessRuleName).clear().type('rule0');
 
     cy.findByText(labelEnterNameForDuplicatedRule).click();
     cy.findByText(labelNameAlreadyExists).should('be.visible');
@@ -564,7 +564,7 @@ describe('Listing action: duplicate a rule', () => {
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
     cy.waitForRequest('@getRequest');
-    cy.findByLabelText(labelResourceAccessRuleName).type('my_rule');
+    cy.findByLabelText(labelResourceAccessRuleName).clear().type('my_rule');
 
     cy.findByText(labelDuplicate).click();
 
@@ -589,7 +589,7 @@ describe('Listing action: duplicate a rule', () => {
     cy.waitForRequest('@defaultRequest');
     cy.findAllByTestId(labelDuplicate).eq(0).click();
     cy.waitForRequest('@getRequest');
-    cy.findByLabelText(labelResourceAccessRuleName).type('my_rule');
+    cy.findByLabelText(labelResourceAccessRuleName).clear().type('my_rule');
 
     cy.findByText(labelDuplicate).click();
     cy.waitForRequest('@postErrorRequest');

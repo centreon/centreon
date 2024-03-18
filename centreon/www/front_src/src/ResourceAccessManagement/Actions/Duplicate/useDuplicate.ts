@@ -29,7 +29,7 @@ interface UseDuplicateState {
       resetForm;
       setSubmitting;
     }
-  ) => Promise<void>;
+  ) => Promise<object>;
 }
 
 const useDuplicate = (): UseDuplicateState => {

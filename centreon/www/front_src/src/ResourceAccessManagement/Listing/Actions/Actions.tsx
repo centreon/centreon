@@ -31,7 +31,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   const onDuplicateClick = (): void => {
-    duplicateItem({ id: row.id });
+    duplicateItem({ id: row.id, resourceAccessRule: row });
   };
 
   return (

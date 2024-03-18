@@ -19,12 +19,10 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
   const { closeDialog, isDialogOpen } = useDuplicate();
 
   const {
-    dirty,
     errors,
     handleBlur,
     isSubmitting,
     isValid,
-    setFieldTouched,
     setFieldValue,
     submitForm,
     touched,
@@ -38,11 +36,9 @@ const DuplicateConfirmationDialog = (): React.JSX.Element => {
 
   const error = path(['name'], touched) ? path(['name'], errors) : undefined;
 
-  const disabled = !isValid || !dirty || isSubmitting;
+  const disabled = !isValid || isSubmitting;
 
   const onCancel = (): void => {
-    setFieldValue('name', undefined);
-    setFieldTouched('name', false, false);
     closeDialog();
   };
 
