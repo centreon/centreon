@@ -48,6 +48,9 @@ services:
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+    Migrations\:
+        resource: '../../src/Migrations/*'
+
     Logger:
         class: Centreon\Domain\Log\Logger
 
@@ -294,8 +297,8 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    Core\Platform\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
-        class: Core\Platform\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
+    Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
         arguments:
             $installDir: '%centreon_install_path%'
             $edgeMigrations: !tagged_iterator 'platform.migrations'
@@ -318,7 +321,7 @@ services:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
             tags: ['platform.requirement.database.validators']
-        Core\Platform\Migration\Application\Repository\MigrationInterface:
+        Core\Migration\Application\Repository\MigrationInterface:
             tags: ['platform.migrations']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']

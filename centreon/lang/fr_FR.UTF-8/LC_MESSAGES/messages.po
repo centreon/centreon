@@ -18880,3 +18880,6 @@ msgstr "Toutes les ressources"
 
 msgid "All resources selected"
 msgstr "Toutes les ressources sont sélectionnées"
+
+msgid "Update to %s"
+msgstr "Mise à jour vers %s"
