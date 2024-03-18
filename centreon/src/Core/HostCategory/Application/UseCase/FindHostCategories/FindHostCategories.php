@@ -34,6 +34,7 @@ use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHostCategories
 {
@@ -41,15 +42,15 @@ final class FindHostCategories
 
     /**
      * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param RequestParametersInterface $requestParameters
      * @param ContactInterface $user
      */
     public function __construct(
-        private ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private RequestParametersInterface $requestParameters,
-        private ContactInterface $user
+        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly RequestParametersInterface $requestParameters,
+        private readonly ContactInterface $user
     ) {
     }
 
@@ -59,37 +60,99 @@ final class FindHostCategories
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
-            if ($this->user->isAdmin()) {
-                $hostCategories = $this->readHostCategoryRepository->findAll($this->requestParameters);
-                $presenter->present($this->createResponse($hostCategories));
-            } elseif (
-                $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
-                || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
-            ) {
-                $this->debug(
-                    'User is not admin, use ACLs to retrieve host categories',
-                    ['user' => $this->user->getName()]
+            if (! $this->isAuthorized()) {
+                $this->error(
+                    'User doesn\'t have sufficient rights to see host categories',
+                    ['user_id' => $this->user->getId()]
                 );
-                $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->user);
-                $hostCategories = $this->readHostCategoryRepository->findAllByAccessGroups(
-                    $accessGroups,
-                    $this->requestParameters
-                );
-                $presenter->present($this->createResponse($hostCategories));
-            } else {
-                $this->error('User doesn\'t have sufficient rights to see host categories', [
-                    'user_id' => $this->user->getId(),
-                ]);
+
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(HostCategoryException::accessNotAllowed()->getMessage())
                 );
+
+                return;
             }
+
+            $this->info('Finding host categories');
+            $presenter->present(
+                $this->createResponse($this->user->isAdmin() ? $this->findAllAsAdmin() : $this->findAllAsUser())
+            );
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(HostCategoryException::findHostCategories($ex)->getMessage())
             );
             $this->error($ex->getMessage());
         }
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return HostCategory[]
+     */
+    private function findAllAsAdmin(): array
+    {
+        $this->debug('Retrieve all categories as an admin user');
+
+        return $this->readHostCategoryRepository->findAll($this->requestParameters);
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return HostCategory[]
+     */
+    private function findAllAsUser(): array
+    {
+        $categories = [];
+
+        $this->debug(
+            'User is not admin, use ACLs to retrieve host categories',
+            ['user' => $this->user->getName()]
+        );
+
+        $accessGroupIds = array_map(
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $this->readAccessGroupRepository->findByContact($this->user)
+        );
+
+        if ($accessGroupIds === []) {
+            return $categories;
+        }
+
+        // If the current user has ACL filter on Host Categories it means that not all categories are visible so
+        // we need to apply the ACL
+        if ($this->readHostCategoryRepository->hasAclFilterOnHostCategories($accessGroupIds)) {
+            $categories = $this->readHostCategoryRepository->findAllByAccessGroupIds(
+                $accessGroupIds,
+                $this->requestParameters
+            );
+        } else {
+            $this->debug(
+                'No ACL filter found on host categories for user. Retrieving all host categories',
+                ['user' => $this->user->getName()]
+            );
+
+            $categories = $this->readHostCategoryRepository->findAll($this->requestParameters);
+
+        }
+
+        return $categories;
+    }
+
+    /**
+     * Check if current user is authorized to perform the action.
+     * Only admin users and users under ACL with access to the host categories configuration page are authorized.
+     *
+     * @return bool
+     */
+    private function isAuthorized(): bool
+    {
+        return $this->user->isAdmin()
+            || (
+                $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ)
+                || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE)
+            );
     }
 
     /**
