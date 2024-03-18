@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { equals, filter, find, has, isNil, map, propEq } from 'ramda';
+import { equals, filter, find, has, isNil, map, propEq, reduce } from 'ramda';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -18,7 +18,8 @@ import {
 import {
   customBaseColorAtom,
   singleHostPerMetricAtom,
-  singleMetricSelectionAtom
+  singleMetricSelectionAtom,
+  widgetPropertiesAtom
 } from '../atoms';
 import { isGenericText } from '../../utils';
 
@@ -40,8 +41,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
+  const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
-  const { setValues, values } = useFormikContext<Widget>();
+  const { setValues, values, setTouched } = useFormikContext<Widget>();
 
   const filteredWidgets = filter(
     ({ title }) => title?.includes(search),
@@ -88,6 +90,20 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       propEq(widget.id, 'moduleName'),
       federatedWidgetsProperties || []
     ) as FederatedWidgetProperties;
+
+    setWidgetProperties(selectedWidgetProperties);
+
+    setTouched(
+      reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: false
+        }),
+        {},
+        Object.keys(selectedWidgetProperties)
+      ),
+      false
+    );
 
     const options = Object.entries(selectedWidgetProperties.options).reduce(
       (acc, [key, value]) => {

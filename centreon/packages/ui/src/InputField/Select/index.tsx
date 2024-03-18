@@ -29,11 +29,11 @@ const useStyles = makeStyles()((theme: Theme) => ({
     padding: theme.spacing(1)
   },
   select: {
-    '& > fieldset > legend': {
-      maxWidth: 0
-    },
-    '&.Mui-focused > fieldset > legend': {
+    '& .MuiInputLabel-shrink~.MuiInputBase-root fieldset legend': {
       maxWidth: '100%'
+    },
+    '& fieldset legend': {
+      maxWidth: 0
     }
   }
 }));
@@ -87,13 +87,15 @@ const SelectField = ({
   };
 
   return (
-    <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
+    <FormControl
+      className={classes.select}
+      error={!isNil(error)}
+      fullWidth={fullWidth}
+      size="small"
+    >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         displayEmpty
-        classes={{
-          root: classes.select
-        }}
         fullWidth={fullWidth}
         inputProps={{
           'aria-label': ariaLabel,
