@@ -36,6 +36,9 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/users?page=1*'
   }).as('getUsers');
+
+  globalResourceType = '';
+  globalContactSettings = '';
 });
 
 afterEach(() => {
