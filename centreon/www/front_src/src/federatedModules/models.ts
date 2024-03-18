@@ -85,6 +85,7 @@ export interface FederatedWidgetProperties {
   description: string;
   icon?: string;
   moduleName: string;
+  onlyResourcesWithPerformanceData?: boolean;
   options: {
     [key: string]: FederatedWidgetOption;
   };

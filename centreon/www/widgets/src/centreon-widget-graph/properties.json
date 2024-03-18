@@ -32,12 +32,13 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : true
+      "required": true
     },
     "metrics": {
       "type": "metrics",
       "defaultValue": []
     }
   },
+  "onlyResourcesWithPerformanceData": true,
   "moduleName": "centreon-widget-graph"
 }

@@ -47,5 +47,6 @@
   },
   "singleMetricSelection": true,
   "customBaseColor": false,
+  "onlyResourcesWithPerformanceData": true,
   "moduleName": "centreon-widget-topbottom"
 }
