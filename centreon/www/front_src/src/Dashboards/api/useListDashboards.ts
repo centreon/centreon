@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+
 
 import { useAtomValue } from 'jotai';
 
@@ -9,7 +9,8 @@ import {
   pageAtom,
   sortFieldAtom,
   sortOrderAtom,
-  searchAtom
+  searchAtom,
+  viewModeAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
 import { Dashboard, resource } from './models';
@@ -23,7 +24,6 @@ type UseListDashboards = {
 };
 
 const useListDashboards = (): UseListDashboards => {
-  const isMounted = useRef(true);
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
@@ -63,13 +63,9 @@ const useListDashboards = (): UseListDashboards => {
       search
     ],
     queryOptions: {
-      suspense: isMounted.current
+      suspense: false
     }
   });
-
-  if (isMounted) {
-    isMounted.current = false;
-  }
 
   return {
     data,

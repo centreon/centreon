@@ -23,6 +23,7 @@ import { dashboardToDeleteAtom, isSharesOpenAtom } from '../../../atoms';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
+import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -53,6 +54,8 @@ const DashboardsOverview = (): ReactElement => {
       })
     );
 
+  const isCardsView = useMemo(() => equals(viewMode, ViewMode.Cards), [viewMode])
+
   const labels = useMemo(
     () => ({
       actions: {
@@ -73,7 +76,11 @@ const DashboardsOverview = (): ReactElement => {
     []
   );
 
-  if (isEmptyList && !search) {
+  if (isCardsView && isLoading) {
+    return <DashboardsOverviewSkeleton />
+  }
+
+  if (isEmptyList && !search && !isLoading) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
@@ -110,7 +117,7 @@ const DashboardsOverview = (): ReactElement => {
       <DashboardListing
         customListingComponent={GridTable}
         data={data}
-        displayCustomListing={equals(viewMode, ViewMode.Cards)}
+        displayCustomListing={isCardsView}
         loading={isLoading}
         openConfig={createDashboard}
       />

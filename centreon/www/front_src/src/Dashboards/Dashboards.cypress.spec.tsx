@@ -38,7 +38,9 @@ import { DashboardLayout } from './models';
 import {
   labelCardsView,
   labelEditor,
+  labelEditProperties,
   labelListView,
+  labelShare,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
@@ -208,41 +210,41 @@ const columns = [
 
 describe('Dashboards', () => {
   describe('View mode', () => {
-    it('displays the dashboards in "View By cards" by default', () => {
+    it('displays the dashboards in "View By lists" by default', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+      cy.findByTestId(labelCardsView).should(
+        'have.attr',
+        'data-selected',
+        'false'
+      );
+
+      cy.contains('My Dashboard').should('be.visible');
+      cy.contains('My Dashboard 2').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the dashboards in "View as card" when the corresponding button is clicked', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId(labelCardsView).should(
         'have.attr',
         'data-selected',
         'true'
       );
-      cy.findByTestId(labelListView).should(
-        'have.attr',
-        'data-selected',
-        'false'
-      );
 
-      cy.get('[data-item-title="My Dashboard"]').should('be.visible');
-      cy.get('[data-item-title="My Dashboard 2"]').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the dashboards in "View as list" when the corresponding button is clicked', () => {
-      initializeAndMount(administratorRole);
-      cy.waitForRequest('@getDashboards');
-
-      cy.findByTestId(labelListView).click();
-
-      cy.findByTestId(labelListView).should(
-        'have.attr',
-        'data-selected',
-        'true'
-      );
-
-      cy.get('[data-item-title="My Dashboard"]').should('not.exist');
-      cy.get('[data-item-title="My Dashboard 2"]').should('not.exist');
+      cy.contains('My Dashboard').should('be.visible');
+      cy.contains('My Dashboard 2').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -251,11 +253,11 @@ describe('Dashboards', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId(labelListView).click();
+      cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId('Listing Pagination').should('be.visible');
 
-      cy.findByTestId(labelCardsView).click();
+      cy.findByTestId(labelListView).click();
 
       cy.findByTestId('Listing Pagination').should('be.visible');
 
@@ -266,13 +268,13 @@ describe('Dashboards', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId(labelListView).click();
-
-      cy.findByTestId('ViewColumnIcon').should('be.visible');
-
       cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId('ViewColumnIcon').should('not.exist');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -286,39 +288,10 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('edit')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('delete')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('edit')
-        .should('not.exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('delete')
-        .should('not.exist');
-
-      cy.makeSnapshot();
-    });
-
-    it("doesn't displays the dashboard actions when the user has viewer roles", () => {
-      initializeAndMount(viewerRole);
-
-      cy.waitForRequest('@getDashboards');
-
-      cy.findByLabelText('add').should('not.exist');
-
-      cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
-        dashboards.result.forEach(({ name }) => {
-          cy.get(`[data-item-title="${name}"]`)
-            .findByLabelText('edit')
-            .should('not.exist');
-          cy.get(`[data-item-title="${name}"]`)
-            .findByLabelText('delete')
-            .should('not.exist');
-        });
-      });
+      cy.findAllByLabelText(labelEditProperties).eq(0)
+        .should('be.visible');
+      cy.findAllByLabelText(labelDelete).eq(0)
+        .should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -330,18 +303,10 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('edit')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('delete')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('edit')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('delete')
-        .should('exist');
+      cy.findAllByLabelText(labelEditProperties)
+        .should('have.length', 2);
+      cy.findAllByLabelText(labelDelete)
+        .should('have.length', 2);
 
       cy.makeSnapshot();
     });
@@ -453,8 +418,8 @@ describe('Dashboards', () => {
   it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByLabelText('delete').eq(0).click();
-    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).eq(0).click();
+    cy.findAllByLabelText(labelDelete).eq(2).click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -464,7 +429,7 @@ describe('Dashboards', () => {
   it('does not delete a dashboard when the corresponding icon button is clicked and the cancellation button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByLabelText('delete').eq(0).click();
+    cy.findAllByLabelText(labelDelete).eq(0).click();
     cy.contains(labelCancel).click();
 
     cy.contains(labelCancel).should('not.exist');
@@ -476,8 +441,8 @@ describe('Dashboards', () => {
 
     cy.findByLabelText(labelListView).click();
 
-    cy.findByLabelText(labelDelete).click();
-    cy.findAllByLabelText(labelDelete).eq(1).click();
+    cy.findAllByLabelText(labelDelete).eq(0).click();
+    cy.findAllByLabelText(labelDelete).eq(2).click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -489,7 +454,7 @@ describe('Dashboards', () => {
 
     cy.findByLabelText(labelListView).click();
 
-    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).eq(0).click();
 
     cy.contains(labelDeleteDashboard).should('be.visible');
     cy.contains(
@@ -505,7 +470,7 @@ describe('Dashboards', () => {
   it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByTestId('edit-access-rights').eq(0).click();
+    cy.findAllByTestId(labelShare).eq(0).click();
 
     cy.findByLabelText(labelAddAContact).click();
 

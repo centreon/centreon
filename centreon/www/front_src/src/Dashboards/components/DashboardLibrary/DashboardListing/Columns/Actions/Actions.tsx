@@ -20,13 +20,15 @@ import { useColumnStyles } from '../useColumnStyles';
 
 import useActions from './useActions';
 import DeleteDashboard from './DeleteDashboard';
+import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
-  const { ownRole } = row;
   const { editDashboard, isNestedRow, editAccessRights, openAskBeforeRevoke } =
     useActions(row);
+  const { hasEditPermission } =
+    useDashboardUserPermissions();
 
   const actions = [
     {
@@ -49,7 +51,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (equals(ownRole, DashboardRole.viewer)) {
+  if (!hasEditPermission(row)) {
     return <Box className={classes.line}>-</Box>;
   }
 
