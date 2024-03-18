@@ -1,5 +1,7 @@
 import { Box } from '@mui/material';
+import Delete from '@mui/icons-material/Delete';
 
+import { IconButton } from '../..';
 import { ColumnType } from '../../Listing/models';
 
 import { DataTable } from '.';
@@ -12,6 +14,14 @@ const data = Array(5)
     title: `Entity ${idx}`
   }));
 
+const CardActions = (): JSX.Element => {
+  return (
+    <IconButton ariaLabel="Delete" title="Delete" onClick={cy.stub()}>
+      <Delete fontSize="small" />
+    </IconButton>
+  );
+};
+
 const initializeDataTableGrid = ({ hasActions, hasCardAction }): void => {
   cy.viewport(1200, 590);
   cy.mount({
@@ -19,22 +29,12 @@ const initializeDataTableGrid = ({ hasActions, hasCardAction }): void => {
       <DataTable variant="grid">
         {data.map(({ title, description }) => (
           <DataTable.Item
+            Actions={<CardActions />}
             description={description}
             hasActions={hasActions}
             hasCardAction={hasCardAction}
             key={title}
-            labels={{
-              labelDelete: 'Delete',
-              labelDuplicate: 'Duplicate',
-              labelEditProperties: 'Edit Properties',
-              labelMoreActions: 'More actions',
-              labelShareWithContacts: 'Share with contacts'
-            }}
             title={title}
-            onDelete={() => cy.stub()}
-            onDuplicate={() => cy.stub()}
-            onEdit={() => cy.stub()}
-            onEditAccessRights={() => cy.stub()}
           />
         ))}
       </DataTable>
@@ -112,23 +112,7 @@ describe('DataTable: Grid', () => {
       hasCardAction: false
     });
 
-    cy.findAllByLabelText('Share with contacts').should('have.length', 5);
-    cy.findAllByLabelText('More actions').should('have.length', 5);
-
-    cy.makeSnapshot();
-  });
-
-  it('displays actions when more actions button is clicked', () => {
-    initializeDataTableGrid({
-      hasActions: true,
-      hasCardAction: false
-    });
-
-    cy.findAllByLabelText('More actions').eq(0).click();
-
-    cy.findByLabelText('Duplicate').should('be.visible');
-    cy.findByLabelText('Delete').should('be.visible');
-    cy.findByLabelText('Edit Properties').should('be.visible');
+    cy.findAllByLabelText('Delete').should('have.length', 5);
 
     cy.makeSnapshot();
   });
@@ -151,8 +135,7 @@ describe('DataTable: Grid', () => {
     });
 
     cy.findAllByLabelText('view').should('have.length', 5);
-    cy.findAllByLabelText('Share with contacts').should('have.length', 5);
-    cy.findAllByLabelText('More actions').should('have.length', 5);
+    cy.findAllByLabelText('Delete').should('have.length', 5);
 
     cy.makeSnapshot();
   });
