@@ -101,10 +101,12 @@ export const getListingQueryParameters = ({
     }
   );
 
-  const search = isEmpty(resources)
+  const search = isEmpty(flatten(searchConditions))
     ? {}
     : {
-        conditions: flatten(searchConditions)
+        search: {
+          conditions: flatten(searchConditions)
+        }
       };
 
   return {

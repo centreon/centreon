@@ -58,10 +58,14 @@ import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
-  labelUnsavedChanges
+  labelUnsavedChanges,
+  labelDoYouWantToSaveChanges,
+  labelIfYouClickOnDiscard,
+  labelDiscard
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
+import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -95,6 +99,7 @@ interface InitializeAndMountProps {
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
   globalRole?: DashboardGlobalRole;
+  isBlocked?: boolean;
   ownRole?: DashboardRole;
 }
 
@@ -135,8 +140,13 @@ const initializeAndMount = ({
   globalRole = DashboardGlobalRole.administrator,
   canCreateDashboard = true,
   canViewDashboard = true,
-  canAdministrateDashboard = true
-}: InitializeAndMountProps): ReturnType<typeof createStore> => {
+  canAdministrateDashboard = true,
+  isBlocked = false
+}: InitializeAndMountProps): {
+  blockNavigation;
+  proceedNavigation;
+  store: ReturnType<typeof createStore>;
+} => {
   const store = initializeWidgets();
 
   store.set(userAtom, {
@@ -207,7 +217,15 @@ const initializeAndMount = ({
     statusCode: 204
   });
 
+  const proceedNavigation = cy.stub();
+  const blockNavigation = cy.stub();
+
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
+  cy.stub(saveBlockerHooks, 'useBlocker').returns({
+    proceed: proceedNavigation,
+    reset: blockNavigation,
+    state: isBlocked ? 'blocked' : 'unblocked'
+  });
 
   cy.mount({
     Component: (
@@ -223,7 +241,11 @@ const initializeAndMount = ({
     )
   });
 
-  return store;
+  return {
+    blockNavigation,
+    proceedNavigation,
+    store
+  };
 };
 
 describe('Dashboard', () => {
@@ -264,33 +286,6 @@ describe('Dashboard', () => {
     });
   });
 
-  it('displays a warning message indicating unsaved changes in the dashboard when updating it', () => {
-    initializeAndMount(editorRoles);
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.findByLabelText(labelEditDashboard).click();
-    cy.findByLabelText(labelAddAWidget).click();
-
-    cy.findByLabelText(labelWidgetType).click();
-    cy.contains('Generic input (example)').click();
-
-    cy.findByLabelText(labelTitle).type('Generic input');
-    cy.findByLabelText('Generic text').type('Text for the new widget');
-
-    cy.findAllByLabelText(labelSave).eq(1).click();
-
-    cy.contains(labelUnsavedChanges).should('be.visible');
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSave).click();
-
-    cy.contains(labelUnsavedChanges).should('not.exist');
-
-    cy.findByLabelText(labelEditDashboard).should('be.visible');
-  });
-
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
       initializeAndMount(editorRoles);
@@ -317,7 +312,7 @@ describe('Dashboard', () => {
 
   describe('Edit widget', () => {
     it('edits a widget when the corresponding button is clicked and the widget type is changed the edit button is clicked', () => {
-      const store = initializeAndMount(editorRoles);
+      const { store } = initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
 
@@ -515,5 +510,66 @@ describe('Dashboard', () => {
     cy.contains(labelSharesSaved).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  describe('Route blocking', () => {
+    it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
+      const { proceedNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.contains(labelEditDashboard).click();
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.contains(labelDoYouWantToSaveChanges).should('be.visible');
+      cy.contains(labelIfYouClickOnDiscard).should('be.visible');
+
+      cy.findByTestId('confirm').click();
+
+      cy.waitForRequest('@patchDashboardDetails').then(() => {
+        expect(proceedNavigation).to.have.been.calledWith();
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not save changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
+      const { proceedNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByTestId('cancel')
+        .click()
+        .then(() => {
+          expect(proceedNavigation).to.have.been.calledWith();
+        });
+
+      cy.makeSnapshot();
+    });
+
+    it('blocks the redirection when a dashboard is being edited, a dashboard is updated, the user goes to another page and the close button is clicked', () => {
+      const { blockNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByLabelText('close')
+        .click()
+        .then(() => {
+          expect(blockNavigation).to.have.been.calledWith();
+        });
+
+      cy.makeSnapshot();
+    });
   });
 });
