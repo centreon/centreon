@@ -64,11 +64,12 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'id' => $data->id,
                         'name' => $data->name,
                         'description' => $this->emptyStringAsNull($data->description),
-                        'created_by' => $this->userToOptionalArray($data->createdBy),
-                        'updated_by' => $this->userToOptionalArray($data->updatedBy),
+                        'created_by' => $data->createdBy,
+                        'updated_by' => $data->updatedBy,
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                         'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
+                        'panels' => $data->panels
                     ]
                 )
             );
@@ -95,11 +96,11 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
      *
      * @return null|array{id: int, name: string}
      */
-    private function userToOptionalArray(?UserResponseDto $dto): ?array
+    private function userToOptionalArray(array $user): ?array
     {
         return $dto ? [
-            'id' => $dto->id,
-            'name' => $dto->name,
+            'id' => $user['id'],
+            'name' => $user['name'],
         ] : null;
     }
 }

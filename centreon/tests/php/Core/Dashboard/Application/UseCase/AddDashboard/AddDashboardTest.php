@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\AddDashboard;
 
+use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -50,6 +52,8 @@ beforeEach(function (): void {
         $this->createMock(DataStorageEngineInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->writeDashboardPanelRepository = $this->createMock(WriteDashboardPanelRepositoryInterface::class),
+        $this->readDashboardPanelRepository = $this->createMock(ReadDashboardPanelRepositoryInterface::class),
     );
 
     $this->testedAddDashboardRequest = new AddDashboardRequest();
@@ -71,7 +75,7 @@ it(
     'should present an ErrorResponse when a generic exception is thrown',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willThrowException(new \Exception());
+            ->method('hasCreatorRole')->willThrowException(new \Exception());
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -86,7 +90,7 @@ it(
     'should present an ErrorResponse with a custom message when a DashboardException is thrown',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')
+            ->method('hasCreatorRole')
             ->willThrowException(new DashboardException($msg = uniqid('fake message ', true)));
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
@@ -102,7 +106,7 @@ it(
     'should present a InvalidArgumentResponse when a model field value is not valid',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(true);
+            ->method('hasCreatorRole')->willReturn(true);
 
         $this->testedAddDashboardRequest->name = '';
         $expectedException = AssertionException::notEmptyString('NewDashboard::name');
@@ -120,7 +124,7 @@ it(
     'should present an ErrorResponse if the newly created dashboard cannot be retrieved as ADMIN',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(true);
+            ->method('hasCreatorRole')->willReturn(true);
         $this->contact->expects($this->atLeastOnce())
             ->method('getId')->willReturn(1);
         $this->writeDashboardRepository->expects($this->once())
@@ -135,13 +139,13 @@ it(
             ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::errorWhileRetrievingJustCreated()->getMessage());
     }
-);
+)->only();
 
 it(
     'should present an ErrorResponse if the newly created dashboard cannot be retrieved as CREATOR',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(false);
+            ->method('hasCreatorRole')->willReturn(false);
         $this->rights->expects($this->once())
             ->method('canCreate')->willReturn(true);
         $this->contact->expects($this->atLeastOnce())
@@ -164,7 +168,7 @@ it(
     'should present a ForbiddenResponse when the user does not have the correct role',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(false);
+            ->method('hasCreatorRole')->willReturn(false);
         $this->rights->expects($this->once())
             ->method('canCreate')->willReturn(false);
 
@@ -181,7 +185,7 @@ it(
     'should present a AddDashboardResponse as ADMIN',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(true);
+            ->method('hasCreatorRole')->willReturn(true);
         $this->contact->expects($this->atLeastOnce())
             ->method('getId')->willReturn(1);
         $this->writeDashboardRepository->expects($this->once())
@@ -209,7 +213,7 @@ it(
     'should present a AddDashboardResponse as allowed CREATOR user',
     function (): void {
         $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(false);
+            ->method('hasCreatorRole')->willReturn(false);
         $this->rights->expects($this->once())
             ->method('canCreate')->willReturn(true);
         $this->contact->expects($this->atLeastOnce())

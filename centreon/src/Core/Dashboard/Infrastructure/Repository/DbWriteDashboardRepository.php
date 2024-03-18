@@ -133,7 +133,7 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     private function bindValueOfDashboard(\PDOStatement $statement, Dashboard|NewDashboard $dashboard): void
     {
         $statement->bindValue(':name', $dashboard->getName());
-        $statement->bindValue(':description', $this->emptyStringAsNull($dashboard->getDescription()));
+        $statement->bindValue(':description', $dashboard->getDescription());
         $statement->bindValue(':updated_at', $dashboard->getUpdatedAt()->getTimestamp());
         $statement->bindValue(':updated_by', $dashboard->getUpdatedBy());
 

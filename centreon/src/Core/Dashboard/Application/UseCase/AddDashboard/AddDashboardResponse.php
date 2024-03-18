@@ -31,12 +31,13 @@ final class AddDashboardResponse
     public function __construct(
         public int $id = 0,
         public string $name = '',
-        public string $description = '',
-        public ?UserResponseDto $createdBy = null,
-        public ?UserResponseDto $updatedBy = null,
+        public ?string $description = null,
+        public array $createdBy = [],
+        public array $updatedBy = [],
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
+        public array $panels = []
     ) {
     }
 }

@@ -37,12 +37,12 @@ class Dashboard
 
     protected readonly string $name;
 
-    protected readonly string $description;
+    protected readonly ?string $description;
 
     /**
      * @param int $id
      * @param string $name
-     * @param string $description
+     * @param ?string $description
      * @param ?int $createdBy
      * @param ?int $updatedBy
      * @param \DateTimeImmutable $createdAt
@@ -54,7 +54,7 @@ class Dashboard
     public function __construct(
         protected readonly int $id,
         string $name,
-        string $description,
+        ?string $description,
         protected readonly ?int $createdBy,
         protected readonly ?int $updatedBy,
         protected readonly \DateTimeImmutable $createdAt,
@@ -62,10 +62,14 @@ class Dashboard
         private readonly Refresh $refresh,
     ) {
         $this->name = trim($name);
-        $this->description = trim($description);
+        if (! is_string($description)) {
+            $this->description = $description;
+        } else {
+            $this->description = trim($description);
+            $this->ensureValidDescription($this->description);
+        }
 
         $this->ensureValidName($this->name);
-        $this->ensureValidDescription($this->description);
         $this->ensureNullablePositiveInt($this->createdBy, 'createdBy');
         $this->ensureNullablePositiveInt($this->updatedBy, 'updatedBy');
     }
@@ -100,7 +104,7 @@ class Dashboard
         return $this->name;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
