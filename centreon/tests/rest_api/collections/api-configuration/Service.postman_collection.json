@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "0480d171-5d7d-40ef-b162-c1e5d60b41a2",
-		"name": "0 - Service",
+		"name": "Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-0480d171-5d7d-40ef-b162-c1e5d60b41a2?action=share&source=collection_link&creator=16182525"
@@ -3454,7 +3454,7 @@
 									"    pm.expect(response).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Service2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"Service2Name\"),\r",
-									"        \"host_id\": pm.collectionVariables.get(\"Host1Id\"),\r",
+									"        \"host_id\": pm.collectionVariables.get(\"Host2Id\"),\r",
 									"        \"comment\": null,\r",
 									"        \"service_template_id\": null,\r",
 									"        \"check_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
