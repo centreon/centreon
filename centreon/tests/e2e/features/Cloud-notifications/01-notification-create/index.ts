@@ -394,18 +394,21 @@ Given(
     for (let i = 1; i <= 1000; i++) {
       cy.log('Add service ' + i);
 
-      const serviceName = 'service_' + i;
       cy.addService({
         activeCheckEnabled: false,
         host: data.hosts.host1.name,
         maxCheckAttempts: 1,
-        name: serviceName,
+        name: 'service_' + i,
         template: 'Ping-LAN'
       }).applyPollerConfiguration();
+    }
 
+    // separate the add and the check for execution time performance
+    for (let i = 1; i <= 1000; i++) {
+      cy.log('Check service ' + i);
       checkServicesAreMonitored([
         {
-          name: serviceName
+          name: 'service_' + i
         }
       ]);
     }
@@ -429,19 +432,12 @@ When(
   'changes occur in the configured statuses for the selected host group',
   () => {
     for (let i = 1; i <= 1000; i++) {
-      cy.log('submit result for service number ' + i);
+      cy.log('Submit result for service ' + i);
       cy.submitResults([
         {
           host: data.hosts.host1.name,
           output: 'submit_status_' + i,
           service: 'service_' + i,
-          status: 'critical'
-        }
-      ]);
-
-      checkServicesAreMonitored([
-        {
-          name: 'service_' + i,
           status: 'critical'
         }
       ]);
