@@ -1,17 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
 import { TFunction } from 'i18next';
 
 import { labelRequired } from '../translatedLabels';
+import { FederatedWidgetProperties } from '../../../../federatedModules/models';
 
-import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetInputs';
 import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
 
 interface GetPropertiesValidationSchemaProps {
-  properties: Array<WidgetPropertiesRenderer> | null;
+  properties: FederatedWidgetProperties | null;
   propertyType: 'options' | 'data';
   t: TFunction;
 }
@@ -24,15 +23,15 @@ const getPropertiesValidationSchema = ({
   string,
   Yup.StringSchema<string | undefined, Yup.AnyObjectSchema, string | undefined>
 > => {
-  const filteredProperties = (properties || []).filter(({ props }) =>
-    equals(props.propertyType, propertyType)
-  );
+  const filteredProperties = properties
+    ? Object.entries(properties[propertyType] || {})
+    : [];
 
   return filteredProperties.reduce(
-    (acc, { props }) => ({
+    (acc, [name, inputProp]) => ({
       ...acc,
-      [props.propertyName]: buildValidationSchema({
-        properties: props,
+      [name]: buildValidationSchema({
+        properties: inputProp,
         t
       })
     }),
@@ -45,9 +44,7 @@ const useValidationSchema = (): {
 } => {
   const { t } = useTranslation();
 
-  const widgetProperties = useAtomValue<Array<WidgetPropertiesRenderer> | null>(
-    widgetPropertiesAtom
-  );
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
 
   const widgetOptionsValidationSchema = getPropertiesValidationSchema({
     properties: widgetProperties,
