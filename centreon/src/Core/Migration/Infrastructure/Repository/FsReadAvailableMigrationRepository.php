@@ -35,86 +35,41 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
     use LoggerTrait;
 
     /** @var MigrationInterface[] */
-    private $edgeMigrations;
+    private $migrations;
 
     /**
      * @param string $installDir
-     * @param \Traversable $edgeMigrations
+     * @param \Traversable $migrations
      * @param Filesystem $filesystem
      * @param Finder $finder
      */
     public function __construct(
         private string $installDir,
-        \Traversable $edgeMigrations,
+        \Traversable $migrations,
         private Filesystem $filesystem,
         private Finder $finder,
     ) {
-        if (iterator_count($edgeMigrations) === 0) {
+        if (iterator_count($migrations) === 0) {
             throw new \Exception('Migrations not found');
         }
 
-        var_dump($this->edgeMigrations);
-        $this->edgeMigrations = iterator_to_array($edgeMigrations);
+        $this->migrations = iterator_to_array($migrations);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function findAll($currentVersion): array
-    {
-        $legacyMigrations = $this->findLegacyMigrations($currentVersion);
-        $edgeMigrations = $this->findEdgeMigrations();
-
-        return [...$legacyMigrations, ...$edgeMigrations];
-    }
-
-    /**
-     * Get available legacy migrations.
-     *
-     * @return string[]
-     */
-    private function findLegacyMigrations($currentVersion): array
-    {
-        $fileNameVersionRegex = '/Update-(?<version>[a-zA-Z0-9\-\.]+)\.php/';
-        $migrations = [];
-
-        if ($this->filesystem->exists($this->installDir)) {
-            $files = $this->finder->files()
-                ->in($this->installDir)
-                ->name($fileNameVersionRegex);
-
-            foreach ($files as $file) {
-                if (preg_match($fileNameVersionRegex, $file->getFilename(), $matches)) {
-                    if (version_compare($matches['version'], $currentVersion, '>')) {
-                        $migrations[] = new NewMigration(
-                            'Update-' . $matches['version'],
-                            'core',
-                            'Update to ' . $matches['version'],
-                        );
-                    }
-                }
-            }
-        }
-
-        return $migrations;
-    }
-
-    /**
-     * Get available edge migrations.
-     *
-     * @return string[]
-     */
-    private function findEdgeMigrations(): array
+    public function findAll(): array
     {
         $migrations = [];
 
-        foreach ($this->edgeMigrations as $edgeMigration) {
-            $shortName = (new \ReflectionClass($edgeMigration))->getShortName();
+        foreach ($this->migrations as $migration) {
+            $shortName = (new \ReflectionClass($migration))->getShortName();
 
             $migrations[] = new NewMigration(
                 $shortName,
                 'core',
-                $edgeMigration->getDescription(),
+                $migration->getDescription(),
             );
         }
 

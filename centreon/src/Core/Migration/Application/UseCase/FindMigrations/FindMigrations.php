@@ -50,7 +50,7 @@ final class FindMigrations
     {
         try {
             $this->info('Search for available migrations');
-            $availableMigrations = $this->readAvailableMigrationRepository->findAll($this->getCurrentVersion());
+            $availableMigrations = $this->readAvailableMigrationRepository->findAll();
 
             $this->info('Search for executed migrations');
             $executedMigrations = $this->readExecutedMigrationRepository->findAll($this->requestParameters);

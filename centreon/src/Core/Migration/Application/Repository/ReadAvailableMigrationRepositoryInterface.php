@@ -30,11 +30,9 @@ interface ReadAvailableMigrationRepositoryInterface
     /**
      * Return all the migrations.
      *
-     * @param string $currentVersion
-     *
      * @throws \Throwable
      *
      * @return NewMigration[]
      */
-    public function findAll($currentVersion): array;
+    public function findAll(): array;
 }
