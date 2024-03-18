@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { isNil } from 'ramda';
 
 import { ConfirmDialog } from '@centreon/ui';
 
@@ -7,7 +8,10 @@ import {
   labelDelete,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
-  labelDeleteResourceAccessRuleWarning
+  labelDeleteResourceAccessRuleWarning,
+  labelDeleteResourceAccessRules,
+  labelDeleteResourceAccessRulesDialogMessage,
+  labelDeleteResourceAccessRulesWarning
 } from '../../translatedLabels';
 
 import useDeleteConfirmationDialogStyles from './DeleteConfirmationDialog.styles';
@@ -25,6 +29,18 @@ const DeleteConfirmationDialog = (): JSX.Element => {
     resourceAccessRuleName
   } = useDelete();
 
+  const dialogMessage = isNil(resourceAccessRuleName)
+    ? t(labelDeleteResourceAccessRulesDialogMessage)
+    : `${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}`;
+
+  const dialogSecondMessage = isNil(resourceAccessRuleName)
+    ? t(labelDeleteResourceAccessRulesWarning)
+    : t(labelDeleteResourceAccessRuleWarning);
+
+  const dialogTitle = isNil(resourceAccessRuleName)
+    ? t(labelDeleteResourceAccessRules)
+    : t(labelDeleteResourceAccessRule);
+
   return (
     <ConfirmDialog
       confirmDisabled={isLoading}
@@ -32,12 +48,9 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelMessage={
-        resourceAccessRuleName &&
-        `The ${resourceAccessRuleName} ${t(labelDeleteResourceAccessRuleDialogMessage)}`
-      }
-      labelSecondMessage={t(labelDeleteResourceAccessRuleWarning)}
-      labelTitle={t(labelDeleteResourceAccessRule)}
+      labelMessage={dialogMessage}
+      labelSecondMessage={dialogSecondMessage}
+      labelTitle={dialogTitle}
       open={isDialogOpen}
       submitting={isLoading}
       onCancel={closeDialog}

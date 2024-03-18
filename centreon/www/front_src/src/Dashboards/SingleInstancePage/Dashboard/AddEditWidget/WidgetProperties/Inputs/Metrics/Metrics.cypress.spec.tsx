@@ -13,6 +13,8 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
+  labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
@@ -395,6 +397,25 @@ describe('Metrics', () => {
         .find('input')
         .should('have.attr', 'data-indeterminate', 'false');
       cy.findByTestId('pl').should('have.attr', 'data-checked', 'true');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays metrics with other units as disabled when the maximum of units are selected', () => {
+      cy.findByTestId(labelSelectMetric).click();
+
+      cy.findByTestId('rtmax').click();
+      cy.findByTestId('pl').click();
+
+      cy.findByTestId('rtmin').should('have.attr', 'data-checked', 'false');
+      cy.findByTestId('rtmin').find('input').should('be.disabled');
+      cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('exist');
+      cy.contains(labelThresholdsAreAutomaticallyHidden).should('exist');
+
+      cy.findByTestId('rtmin-summary').click();
+      cy.findByTestId('rtmin_Centreon-1:Ping')
+        .find('input')
+        .should('be.disabled');
 
       cy.makeSnapshot();
     });

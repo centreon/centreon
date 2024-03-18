@@ -38,8 +38,10 @@ use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Domain\Model\HostsStatusCount;
 use Core\Resources\Domain\Model\ResourcesStatusCount;
+use Core\Resources\Domain\Model\ServicesStatusCount;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\HostACLProvider;
 use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
+use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ServiceACLProvider;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
@@ -358,11 +360,15 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     public function findResourcesStatusCount(string $resourceType, ResourceFilter $filter): ResourcesStatusCount
     {
         $hostsStatusCount = null;
+        $servicesStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
             $hostsStatusCount = $this->findHostsStatusCount($filter);
         }
+        if ($resourceType === ResourceEntity::TYPE_SERVICE) {
+            $servicesStatusCount = $this->findServicesStatusCount($filter);
+        }
 
-        return new ResourcesStatusCount($hostsStatusCount);
+        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
     }
 
     /**
@@ -374,11 +380,15 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         ResourceFilter $filter,
     ): ResourcesStatusCount {
         $hostsStatusCount = null;
+        $servicesStatusCount = null;
         if ($resourceType === ResourceEntity::TYPE_HOST) {
             $hostsStatusCount = $this->findHostsStatusCountByAccessGroupIds($accessGroupIds, $filter);
         }
+        if ($resourceType === ResourceEntity::TYPE_SERVICE) {
+            $servicesStatusCount = $this->findServicesStatusCountByAccessGroupIds($accessGroupIds, $filter);
+        }
 
-        return new ResourcesStatusCount($hostsStatusCount);
+        return new ResourcesStatusCount($hostsStatusCount, $servicesStatusCount);
     }
 
     /**
@@ -427,7 +437,66 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
 
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         return $this->fetchHostsStatusCount($query, $collector);
+    }
+
+    /**
+     * Count all services status.
+     *
+     * @param ResourceFilter $filter
+     *
+     * @return ServicesStatusCount|null
+     */
+    private function findServicesStatusCount(ResourceFilter $filter): ?ServicesStatusCount
+    {
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+        $query = <<<'SQL'
+            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                ON parent_resource.id = resources.parent_id
+            SQL;
+
+        $collector = new StatementCollector();
+
+        /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories.
+         */
+        $query .= $this->addResourceTagsSubRequest($filter, $collector);
+
+        /**
+         * Handle search values.
+         */
+        $searchSubRequest = null;
+
+        try {
+            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw new RepositoryException($ex->getMessage(), 0, $ex);
+        }
+
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+
+        $query .= <<<'SQL'
+            resources.type=0 AND resources.name NOT LIKE "_Module_%"
+            SQL;
+
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
+        return $this->fetchServicesStatusCount($query, $collector);
     }
 
     /**
@@ -475,9 +544,71 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $query .= <<<'SQL'
             resources.type=1 AND resources.name NOT LIKE "_Module_%"
             SQL;
+
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
         $query .= ' AND ' . (new HostACLProvider())->buildACLSubRequest($accessGroupIds);
 
         return $this->fetchHostsStatusCount($query, $collector);
+    }
+
+    /**
+     * Count all hosts status filtered by given ACL Group IDs.
+     *
+     * @param int[] $accessGroupIds
+     * @param ResourceFilter $filter
+     *
+     * @return ServicesStatusCount|null
+     */
+    private function findServicesStatusCountByAccessGroupIds(array $accessGroupIds, ResourceFilter $filter): ?ServicesStatusCount
+    {
+        $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+        $query = <<<'SQL'
+            SELECT DISTINCT resources.id, resources.status FROM `:dbstg`.resources resources
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                ON parent_resource.id = resources.parent_id
+            SQL;
+
+        $collector = new StatementCollector();
+
+        /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories.
+         */
+        $query .= $this->addResourceTagsSubRequest($filter, $collector);
+
+        /**
+         * Handle search values.
+         */
+        $searchSubRequest = null;
+
+        try {
+            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw new RepositoryException($ex->getMessage(), 0, $ex);
+        }
+
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+        $query .= <<<'SQL'
+            resources.type=0 AND resources.name NOT LIKE "_Module_%"
+            SQL;
+
+        /**
+         * Resource filter by status.
+         */
+        $query .= $this->addResourceStatusSubRequest($filter);
+
+        $query .= ' AND ' . (new ServiceACLProvider())->buildACLSubRequest($accessGroupIds);
+
+        return $this->fetchServicesStatusCount($query, $collector);
     }
 
     /**
@@ -718,6 +849,37 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $hostsStatusCount = null;
         if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
             $hostsStatusCount = DbHostsStatusCountFactory::createFromRecord($resourceRecord);
+        }
+
+        return $hostsStatusCount;
+    }
+
+    /**
+     * @param string $request
+     * @param StatementCollector $collector
+     *
+     * @throws \PDOException
+     *
+     * @return ServicesStatusCount|null
+     */
+    private function fetchServicesStatusCount(string $request, StatementCollector $collector): ?ServicesStatusCount
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            /** @var int $data_type */
+            $data_type = key($data);
+            $collector->addValue($key, current($data), $data_type);
+        }
+
+        $collector->bind($statement);
+        $statement->execute();
+
+        $hostsStatusCount = null;
+        if ($resourceRecord = $statement->fetchAll(\PDO::FETCH_ASSOC)) {
+            $hostsStatusCount = DbServicesStatusCountFactory::createFromRecord($resourceRecord);
         }
 
         return $hostsStatusCount;

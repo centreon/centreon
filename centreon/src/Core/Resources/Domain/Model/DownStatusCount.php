@@ -30,7 +30,6 @@ final class DownStatusCount
      */
     public function __construct(private readonly int $total)
     {
-
     }
 
     /**

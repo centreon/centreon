@@ -4,6 +4,7 @@ import { useFormikContext } from 'formik';
 import {
   equals,
   identity,
+  includes,
   innerJoin,
   isEmpty,
   isNil,
@@ -34,6 +35,7 @@ interface UseMetricsOnlyState {
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
   deleteMetricItem: (index) => void;
   error?: string;
+  getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
   hasNoResources: () => boolean;
@@ -82,7 +84,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     metrics,
     metricCount,
-    servicesMetrics
+    servicesMetrics,
+    unitsFromSelectedMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
   const getResourcesByMetricName = (
@@ -212,6 +215,14 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     useDeepCompare([servicesMetrics])
   );
 
+  const getMetricOptionDisabled = (metricOption): boolean => {
+    if (!hasReachedTheLimitOfUnits) {
+      return false;
+    }
+
+    return !includes(metricOption.unit, unitsFromSelectedMetrics);
+  };
+
   const metricWithSeveralResources = useMemo(
     () =>
       singleHostPerMetric &&
@@ -291,6 +302,7 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     changeMetrics,
     deleteMetricItem,
     error,
+    getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
     hasNoResources,

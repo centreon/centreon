@@ -28,10 +28,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       return '';
     }
 
-    if (options?.statuses && options?.states && data?.resources) {
+    if (!data?.metrics) {
       const { statuses, states } = options;
 
-      const type = options?.displayType || options?.resourceType;
+      const type =
+        options?.resourceType || options?.resourceTypes || options?.displayType;
 
       const { resources } = data;
 
