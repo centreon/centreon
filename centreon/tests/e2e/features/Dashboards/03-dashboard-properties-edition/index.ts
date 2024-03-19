@@ -51,7 +51,7 @@ When('the user selects the properties of the dashboard', () => {
     .find('button[aria-label="More actions"]')
     .click();
 
-  cy.get('[aria-label="Edit properties"]').click();
+  cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
 });
 
 Then(
@@ -117,7 +117,7 @@ Given(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Edit properties"]').click();
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
 
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       '{selectall}{backspace}dashboard-cancel-update-changes'
@@ -148,7 +148,7 @@ When(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Edit properties"]').click();
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
   }
 );
 
@@ -175,7 +175,7 @@ Given('a user with dashboard update rights in a dashboard update form', () => {
     .find('button[aria-label="More actions"]')
     .click();
 
-  cy.get('[aria-label="Edit properties"]').click();
+  cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
 });
 
 When('the user sets an empty name for this dashboard', () => {
@@ -204,7 +204,7 @@ Given(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Edit properties"]').click();
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
   }
 );
 
