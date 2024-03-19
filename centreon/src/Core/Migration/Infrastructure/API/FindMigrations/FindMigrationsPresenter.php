@@ -47,6 +47,7 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
+            /*
             $data = [];
             foreach ($response->migrations as $migrationDto) {
                 $moduleName = $migrationDto->moduleName ?: 'core';
@@ -61,8 +62,8 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
                 ];
             }
             $this->present($data);
+            */
 
-            /*
             $this->present(
                 array_map(static function ($migrationDto) {
                     return [
@@ -72,7 +73,6 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
                     ];
                 }, $response->migrations),
             );
-            */
         }
     }
 }

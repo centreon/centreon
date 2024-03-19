@@ -56,17 +56,17 @@ $dependencyInjector['finder'] = $dependencyInjector->factory(function ($c) {
 // Define Language translator
 $dependencyInjector['translator'] = $dependencyInjector->factory(function ($c) {
     global $centreon;
-    $translator = new CentreonLang(_CENTREON_PATH_, $centreon);
+    $translator = new CentreonLang(realpath(__DIR__), $centreon);
     $translator->bindLang();
     $translator->bindLang('help');
     return $translator;
 });
 
-$dependencyInjector['path.files_generation'] = _CENTREON_PATH_ . '/filesGeneration/';
+$dependencyInjector['path.files_generation'] = realpath(__DIR__) . '/filesGeneration/';
 
 // Defines the web service that will transform the translation files into one json file
 $dependencyInjector[CentreonI18n::class] = function ($container) {
-    require_once _CENTREON_PATH_ . '/www/api/class/centreon_i18n.class.php';
+    require_once realpath(__DIR__) . '/www/api/class/centreon_i18n.class.php';
     $lang = getenv('LANG');
     if ($lang === false) {
         // Initialize the language translator
@@ -76,7 +76,7 @@ $dependencyInjector[CentreonI18n::class] = function ($container) {
     if (strstr($lang, '.UTF-8') === false) {
         $lang .= '.UTF-8';
     }
-    $translationFile = _CENTREON_PATH_  . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
+    $translationFile = realpath(__DIR__)  . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
     $translation = new CentreonI18n();
     $translation->setFilesGenerationPath($translationFile);
     return $translation;
