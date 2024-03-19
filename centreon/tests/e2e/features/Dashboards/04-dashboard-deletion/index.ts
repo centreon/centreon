@@ -51,7 +51,7 @@ When(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Delete"]').click();
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
   }
 );
 
@@ -98,7 +98,7 @@ Given(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Delete"]').click();
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
   }
 );
 

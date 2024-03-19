@@ -243,7 +243,7 @@ When('the admin user deletes the newly created dashboard', () => {
     .find('button[aria-label="More actions"]')
     .click();
 
-  cy.get('[aria-label="Delete"]').click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
@@ -443,7 +443,7 @@ When(
       .find('button[aria-label="More actions"]')
       .click();
 
-    cy.get('[aria-label="Delete"]').click();
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
     cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboards');
@@ -641,7 +641,7 @@ When('the dashboard editor user deletes the newly created dashboard', () => {
     .find('button[aria-label="More actions"]')
     .click();
 
-  cy.get('[aria-label="Delete"]').click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
