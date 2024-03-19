@@ -511,11 +511,13 @@ describe('Dashboards', () => {
 
       cy.findByTestId('View as list').click();
 
+      cy.contains('Arnaud').should('be.visible');
+
       cy.get('.MuiTableRow-root')
         .first()
         .get('.MuiTableCell-body')
         .last()
-        .click()
+        .click('topLeft')
         .then(() => {
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           expect(navigate).to.not.be.called;
