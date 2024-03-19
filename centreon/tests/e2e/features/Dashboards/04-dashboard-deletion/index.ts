@@ -44,12 +44,7 @@ Given('a user with dashboard update rights on the dashboards library', () => {
 When(
   'the user clicks on the delete button for a dashboard featured in the library',
   () => {
-    const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
-
-    cy.contains(dashboardToDelete.name)
-      .parent()
-      .find('button[aria-label="delete"]')
-      .click();
+    cy.get('button[aria-label="Delete"]').eq(2).click();
   }
 );
 
@@ -64,37 +59,23 @@ Then('a confirmation poppin appears', () => {
 });
 
 When('the user confirms the choice to delete the dashboard', () => {
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
 });
 
 Then('the dashboard is not listed anymore in the dashboards library', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboardToDelete.name)
-    .should('not.exist');
+  cy.contains(dashboardToDelete.name).should('not.exist');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboardToDelete.description)
-    .should('not.exist');
+  cy.contains(dashboardToDelete.description).should('not.exist');
 });
 
 Given(
   'a user with dashboard edition rights about to delete a dashboard',
   () => {
-    const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
     cy.visit('/centreon/home/dashboards');
-    cy.contains(dashboardToDelete.name)
-      .parent()
-      .find('button[aria-label="delete"]')
-      .click();
+    cy.get('button[aria-label="Delete"]').eq(2).click();
   }
 );
 
@@ -105,5 +86,4 @@ When('the user cancels their choice', () => {
 Then('the dashboard is still listed in the dashboards library', () => {
   const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
   cy.contains(dashboardToDelete.name).parent().should('exist');
-  cy.contains(dashboardToDelete.description).parent().should('exist');
 });

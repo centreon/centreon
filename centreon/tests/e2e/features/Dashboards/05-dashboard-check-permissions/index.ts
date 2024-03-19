@@ -5,7 +5,6 @@ import dashboards from '../../../fixtures/dashboards/check-permissions/dashboard
 import adminUser from '../../../fixtures/users/admin.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
-import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
   cy.startContainers();
@@ -87,36 +86,16 @@ When('the admin user accesses the dashboards library', () => {
 Then(
   'the admin user can view all the dashboards configured on the platform',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromAdminUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the admin user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromAdminUser.name)
-    .click();
+  cy.contains(dashboards.fromAdminUser.name).click();
 });
 
 Then(
@@ -229,33 +208,20 @@ Given('an admin user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When('the admin user deletes the newly created dashboard', () => {
-  cy.contains(dashboards.fromCurrentUser.name)
-    .parent()
-    .find('button[aria-label="delete"]')
-    .click();
+  cy.get('button[aria-label="Delete"]').first().click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
 });
 
 Then(
   "the admin's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
@@ -276,36 +242,16 @@ When('the dashboard administrator user accesses the dashboards library', () => {
 Then(
   'the dashboard administrator user can consult all the dashboards configured on the platform',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromAdminUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the dashboard administrator user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardAdministratorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 });
 
 Then(
@@ -425,23 +371,15 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When(
   'the dashboard administrator user deletes the newly created dashboard',
   () => {
-    cy.contains(dashboards.fromCurrentUser.name)
-      .parent()
-      .find('button[aria-label="delete"]')
-      .click();
+    cy.get('button[aria-label="Delete"]').first().click();
 
-    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
     cy.wait('@listAllDashboards');
   }
 );
@@ -449,12 +387,7 @@ When(
 Then(
   "the dashboard administrator's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
@@ -475,36 +408,18 @@ When('the dashboard editor user accesses the dashboards library', () => {
 Then(
   'a list of the dashboards the dashboard editor user has access to is displayed',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromAdminUser.name).should('not.exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should(
+      'not.exist'
+    );
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the dashboard editor user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardCreatorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
 });
 
 Then(
@@ -623,33 +538,20 @@ Given('a dashboard editor user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When('the dashboard editor user deletes the newly created dashboard', () => {
-  cy.contains(dashboards.fromCurrentUser.name)
-    .parent()
-    .find('button[aria-label="delete"]')
-    .click();
+  cy.get('button[aria-label="Delete"]').first().click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
 });
 
 Then(
   "the dashboard editor's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
@@ -661,11 +563,7 @@ Then(
 //       loginViaApi: true
 //     });
 //     cy.visit('/centreon/home/dashboards');
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardCreatorUser.name)
+//     cy.contains(dashboards.fromDashboardCreatorUser.name)
 //       .click();
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
 //     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
@@ -689,35 +587,19 @@ Then(
 // Then(
 //   'a list of the dashboards the dashboard viewer user has access to is displayed',
 //   () => {
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromAdminUser.name)
+//     cy.contains(dashboards.fromAdminUser.name)
 //       .should('not.exist');
 
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardAdministratorUser.name)
+//     cy.contains(dashboards.fromDashboardAdministratorUser.name)
 //       .should('not.exist');
 
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardCreatorUser.name)
+//     cy.contains(dashboards.fromDashboardCreatorUser.name)
 //       .should('exist');
 //   }
 // );
 
 // When('the dashboard viewer user clicks on a dashboard', () => {
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.fromDashboardCreatorUser.name)
+//   cy.contains(dashboards.fromDashboardCreatorUser.name)
 //     .click();
 // });
 
@@ -777,11 +659,7 @@ Then(
 // });
 
 // When('the dashboard viewer user tries to delete a dashboard', () => {
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.fromDashboardCreatorUser.name)
+//   cy.contains(dashboards.fromDashboardCreatorUser.name)
 //     .should('exist');
 // });
 

@@ -87,11 +87,7 @@ Given(
 //       loginViaApi: false
 //     });
 //     cy.visit('/centreon/home/dashboards/library');
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardAdministratorUser.name)
+//     cy.contains(dashboards.fromDashboardAdministratorUser.name)
 //       .click();
 //     cy.url().should('match', /\/dashboards\/library\/\d+$/);
 //     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
@@ -133,11 +129,7 @@ Given(
 //       loginViaApi: false
 //     });
 //     cy.visit('/centreon/home/dashboards/library');
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardAdministratorUser.name)
+//     cy.contains(dashboards.fromDashboardAdministratorUser.name)
 //       .should('exist')
 //       .click();
 //     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -180,7 +172,7 @@ Given(
 //     });
 //     cy.visit('/centreon/home/dashboards/library');
 //     cy.getByLabel({
-//       label: 'view',
+//       label: 'Share',
 //       tag: 'button'
 //     }).should('not.exist');
 //   }
@@ -235,11 +227,7 @@ Given(
 //     loginViaApi: false
 //   });
 //   cy.visit('/centreon/home/dashboards/library');
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.fromDashboardAdministratorUser.name)
+//   cy.contains(dashboards.fromDashboardAdministratorUser.name)
 //     .should('exist')
 //     .click();
 //   cy.url().should('match', /\/dashboards\/library\/\d+$/);
