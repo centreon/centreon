@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
@@ -20,6 +20,7 @@ import {
   labelClose,
   labelDuration,
   labelGenerateNewToken,
+  labelInvalidDateCreationToken,
   labelName,
   labelUser
 } from '../translatedLabels';
@@ -30,6 +31,7 @@ import TokenInput from './TokenInput';
 import { CreatedToken, dataDuration } from './models';
 import { useStyles } from './tokenCreation.styles';
 import useCreateTokenFormValues from './useTokenFormValues';
+import { isInvalidDate } from './utils';
 
 interface Props {
   closeDialog: () => void;
@@ -55,8 +57,6 @@ const FormCreation = ({
 
   const [isDisplayingDateTimePicker, setIsDisplayingDateTimePicker] =
     useState(false);
-  const refSingleAutocompleteField = useRef<HTMLDivElement | null>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
   const {
     values,
@@ -79,15 +79,18 @@ const FormCreation = ({
     closeDialog();
   };
 
-  const handleCustomizeCase = (value): void => {
+  const selectCustomizeCase = (value): void => {
     setIsDisplayingDateTimePicker(true);
-    setAnchorEl(refSingleAutocompleteField?.current);
+
+    if (values.duration?.name) {
+      return;
+    }
     setFieldValue('duration', value);
   };
 
   const changeDuration = (_, value): void => {
     if (equals(value.id, 'customize')) {
-      handleCustomizeCase(value);
+      selectCustomizeCase(value);
 
       return;
     }
@@ -105,7 +108,12 @@ const FormCreation = ({
   }));
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
+  // const dateError = isInvalidDate({ endTime: values.customizeDate })
+  //   ? labelInvalidDateCreationToken
+  //   : undefined;
   const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
+
+  console.log({ errors });
 
   return (
     <Dialog
@@ -136,19 +144,17 @@ const FormCreation = ({
         className={classes.input}
         dataTestId={labelDuration}
         disabled={Boolean(token) || isDisplayingDateTimePicker}
-        error={errors?.duration?.invalidDate}
+        error={errors?.duration}
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
         options={options}
-        ref={refSingleAutocompleteField}
         required={!token}
         value={duration}
         onChange={changeDuration}
       />
       {isDisplayingDateTimePicker && (
         <CustomTimePeriod
-          anchorElDuration={{ anchorEl, setAnchorEl }}
           setIsDisplayingDateTimePicker={setIsDisplayingDateTimePicker}
           windowHeight={height}
         />

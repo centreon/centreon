@@ -8,6 +8,12 @@ const actionsHeight = 36;
 
 export const useStyles = makeStyles<StyleProps>()(
   (theme, { windowHeight }) => ({
+    dateTimePicker: {
+      '& .MuiInputBase-input': {
+        width: '100%'
+      },
+      flex: 0.9
+    },
     popper: {
       height: (windowHeight - actionsHeight) / 2,
       overflow: 'auto'

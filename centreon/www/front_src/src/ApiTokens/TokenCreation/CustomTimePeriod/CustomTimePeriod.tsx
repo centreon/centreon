@@ -4,25 +4,22 @@ import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
+import { FormHelperText } from '@mui/material';
+
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { CreateTokenFormValues } from '../../TokenListing/models';
+import { isInvalidDate } from '../utils';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
-import { AnchorElDuration } from '../models';
-import { isInvalidDate as validateDate } from '../utils';
 
-import ActionList from './ActionsList';
-import InvisibleField from './InvisibleField';
 import { useStyles } from './customTimePeriod.styles';
 
 interface Props {
-  anchorElDuration: AnchorElDuration;
   setIsDisplayingDateTimePicker: Dispatch<SetStateAction<boolean>>;
   windowHeight: number;
 }
 
 const CustomTimePeriod = ({
-  anchorElDuration,
   setIsDisplayingDateTimePicker,
   windowHeight
 }: Props): JSX.Element => {
@@ -36,79 +33,71 @@ const CustomTimePeriod = ({
 
   const { customizeDate } = values;
 
-  const { anchorEl, setAnchorEl } = anchorElDuration;
-
   const minDate = dayjs().add(1, 'd').toDate();
   const minDateTime = dayjs(minDate).endOf('m').toDate();
 
-  const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDate);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
+  const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDateTime);
+
+  const handleCustomizeDate = (): void => {
+    if (isInvalidDate({ endTime: endDate })) {
+      // setFieldError('duration', t(labelInvalidDateCreationToken));
+      setError(t(labelInvalidDateCreationToken));
+      setOpen(false);
+
+      return;
+    }
+    setError('');
+    setFieldValue('customizeDate', endDate);
+    setFieldValue('duration', {
+      id: 'customize',
+      name: format({ date: endDate, formatString: 'LLL' })
+    });
+
+    setOpen(false);
+    setIsDisplayingDateTimePicker(false);
+  };
+
+  const onOpen = (): void => {
+    setOpen(true);
+  };
 
   const changeDate = ({ date }): void => {
     const currentDate = dayjs(date).toDate();
     setEndDate(currentDate);
-
-    setFieldValue('duration', {
-      id: 'customize',
-      name: format({ date: currentDate, formatString: 'LLL' })
-    });
-  };
-
-  const initialize = (): void => {
-    setAnchorEl(null);
-    setIsDisplayingDateTimePicker(false);
-  };
-
-  const cancelDate = (): void => {
-    initialize();
-  };
-
-  const acceptDate = (): void => {
-    if (validateDate({ endTime: endDate })) {
-      setFieldError('duration', {
-        invalidDate: t(labelInvalidDateCreationToken)
-      });
-      initialize();
-
-      return;
-    }
-    setFieldValue('customizeDate', endDate);
-
-    initialize();
-  };
-
-  const slotProps = {
-    actionBar: {
-      acceptDate,
-      cancelDate,
-      isInvalidDate: validateDate({ endTime: endDate })
-    },
-    desktopPaper: {
-      classes: { root: classes.root }
-    },
-    popper: {
-      anchorEl,
-      className: classes.popper
-    }
-  };
-
-  const slots = {
-    actionBar: ActionList,
-    field: InvisibleField
   };
 
   return (
-    <DateTimePickerInput
-      reduceAnimations
-      changeDate={changeDate}
-      closeOnSelect={false}
-      date={endDate}
-      minDate={minDate}
-      minDateTime={minDateTime}
-      open={Boolean(anchorEl)}
-      slotProps={slotProps}
-      slots={slots}
-      timeSteps={{ minutes: 1 }}
-    />
+    <div style={{ marginBottom: 16 }}>
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          flexDirection: 'row'
+        }}
+      >
+        <div style={{ flex: 0.1 }}>Until</div>
+        <DateTimePickerInput
+          reduceAnimations
+          changeDate={changeDate}
+          className={classes.dateTimePicker}
+          closeOnSelect={false}
+          date={endDate}
+          minDate={minDate}
+          minDateTime={minDateTime}
+          open={open}
+          timeSteps={{ minutes: 1 }}
+          onClose={handleCustomizeDate}
+          onOpen={onOpen}
+        />
+      </div>
+      {error && (
+        <FormHelperText error style={{ textAlign: 'center' }}>
+          {error}
+        </FormHelperText>
+      )}
+    </div>
   );
 };
 

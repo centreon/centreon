@@ -92,9 +92,9 @@ const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
       closeOnSelect={false}
       date={customizedDate || date || defaultDate}
       open={open}
-      slotProps={slotProps}
-      slots={slots}
-      timeSteps={{ minutes: 1 }}
+      // slotProps={slotProps}
+      // slots={slots}
+      // timeSteps={{ minutes: 1 }}
       onClose={onClose}
     />
   );
