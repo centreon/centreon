@@ -297,12 +297,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
