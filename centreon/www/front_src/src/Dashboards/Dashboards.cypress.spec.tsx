@@ -361,12 +361,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('add').should('not.exist');
 
-      cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
-        dashboards.result.forEach(({ name }) => {
-          cy.findByLabelText(labelEditProperties).should('not.exist');
-          cy.findByLabelText(labelDelete).should('not.exist');
-        });
-      });
+      cy.findByLabelText(labelEditProperties).should('not.exist');
+      cy.findByLabelText(labelDelete).should('not.exist');
 
       cy.makeSnapshot();
     });
