@@ -3,7 +3,7 @@ import { ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { DataTable } from '@centreon/ui/components';
 
@@ -59,7 +59,7 @@ const DashboardsOverview = (): ReactElement => {
     title: t(labelWelcomeToDashboardInterface)
   };
 
-  if (isCardsView && isLoading) {
+  if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
   }
 

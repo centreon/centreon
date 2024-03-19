@@ -11,6 +11,8 @@ import {
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
+import { labelMoreActions } from '../Resources/translatedLabels';
+
 import { DashboardsPage } from './DashboardsPage';
 import { DashboardRole } from './api/models';
 import {
@@ -348,8 +350,7 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.findAllByLabelText(labelEditProperties).eq(0).should('be.visible');
-      cy.findAllByLabelText(labelDelete).eq(0).should('be.visible');
+      cy.findAllByLabelText(labelMoreActions).eq(0).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -361,8 +362,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('add').should('not.exist');
 
-      cy.findByLabelText(labelEditProperties).should('not.exist');
-      cy.findByLabelText(labelDelete).should('not.exist');
+      cy.findByLabelText(labelShareWithContacts).should('not.exist');
+      cy.findByLabelText(labelMoreActions).should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -374,8 +375,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.findAllByLabelText(labelEditProperties).should('have.length', 2);
-      cy.findAllByLabelText(labelDelete).should('have.length', 2);
+      cy.findAllByLabelText(labelMoreActions).should('have.length', 2);
+      cy.findAllByLabelText(labelShareWithContacts).should('have.length', 2);
 
       cy.makeSnapshot();
     });
@@ -540,7 +541,7 @@ describe('Dashboards', () => {
         );
       });
 
-      it('disbales confirm duplication button when the new name is less than three characters.', () => {
+      it('disables confirm duplication button when the new name is less than three characters.', () => {
         initializeAndMount(administratorRole);
 
         cy.findByLabelText(displayView).click();
@@ -556,7 +557,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelDuplicate).should('be.disabled');
 
         cy.makeSnapshot(
-          `${displayView}: disbales confirm duplication button when the new name is less than three characters.`
+          `${displayView}: disables confirm duplication button when the new name is less than three characters.`
         );
       });
 
@@ -596,7 +597,7 @@ describe('Dashboards', () => {
         );
       });
 
-      it('disbales confirm update button when the new name is less than three characters.', () => {
+      it('disables confirm update button when the new name is less than three characters.', () => {
         initializeAndMount(administratorRole);
 
         cy.findByLabelText(displayView).click();
@@ -610,7 +611,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelUpdate).should('be.disabled');
 
         cy.makeSnapshot(
-          `${displayView}: disbales confirm update button when the new name is less than three characters.`
+          `${displayView}: disables confirm update button when the new name is less than three characters.`
         );
       });
 
@@ -659,7 +660,7 @@ describe('Dashboards', () => {
     cy.viewport('macbook-13');
 
     cy.findByLabelText(labelCreate).click();
-    cy.waitForRequest('@postDashboards');
+    cy.waitForRequest('@createDashboard');
     cy.url().should(
       'equal',
       'http://localhost:9092/home/dashboards/library/1?edit=true'
@@ -669,8 +670,9 @@ describe('Dashboards', () => {
   it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByLabelText(labelDelete).eq(0).click();
-    cy.findAllByLabelText(labelDelete).eq(2).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).last().click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -680,7 +682,8 @@ describe('Dashboards', () => {
   it('does not delete a dashboard when the corresponding icon button is clicked and the cancellation button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByLabelText(labelDelete).eq(0).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
     cy.contains(labelCancel).click();
 
     cy.contains(labelCancel).should('not.exist');
@@ -692,8 +695,9 @@ describe('Dashboards', () => {
 
     cy.findByLabelText(labelListView).click();
 
-    cy.findAllByLabelText(labelDelete).eq(0).click();
-    cy.findAllByLabelText(labelDelete).eq(2).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).last().click();
 
     cy.waitForRequest('@deleteDashboard');
 
@@ -705,7 +709,8 @@ describe('Dashboards', () => {
 
     cy.findByLabelText(labelListView).click();
 
-    cy.findAllByLabelText(labelDelete).eq(0).click();
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
 
     cy.contains(labelDeleteDashboard).should('be.visible');
     cy.contains(
@@ -721,7 +726,7 @@ describe('Dashboards', () => {
   it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
     initializeAndMount(administratorRole);
 
-    cy.findAllByTestId(labelShare).eq(0).click();
+    cy.findAllByTestId(labelShareWithContacts).eq(0).click();
 
     cy.findByLabelText(labelAddAContact).click();
 
