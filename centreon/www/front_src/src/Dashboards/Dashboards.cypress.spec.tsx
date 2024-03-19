@@ -17,21 +17,29 @@ import {
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
-  getDashboardAccessRightsContactGroupEndpoint
+  getDashboardAccessRightsContactGroupEndpoint,
+  getDashboardEndpoint
 } from './api/endpoints';
 import {
-  labelAddAContact,
+  labelShareWithContacts,
   labelCancel,
   labelCreate,
   labelDashboardDeleted,
+  labelDashboardDuplicated,
+  labelDashboardUpdated,
   labelDelete,
   labelDeleteDashboard,
   labelDeleteUser,
+  labelDescription,
+  labelDuplicate,
+  labelDuplicateDashboard,
   labelName,
   labelSave,
   labelSharesSaved,
+  labelUpdate,
   labelUserDeleted,
-  labelWelcomeToDashboardInterface
+  labelWelcomeToDashboardInterface,
+  labelAddAContact
 } from './translatedLabels';
 import { routerHooks } from './routerHooks';
 import { DashboardLayout } from './models';
@@ -101,6 +109,15 @@ const initializeAndMount = ({
     });
   });
 
+  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardDetails',
+      method: Method.GET,
+      path: getDashboardEndpoint('1'),
+      response: dashboardDetails
+    });
+  });
+
   cy.fixture(`Dashboards/contacts.json`).then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
@@ -111,7 +128,7 @@ const initializeAndMount = ({
   });
 
   cy.interceptAPIRequest({
-    alias: 'postDashboards',
+    alias: 'createDashboard',
     method: Method.POST,
     path: dashboardsEndpoint,
     response: {
@@ -136,6 +153,13 @@ const initializeAndMount = ({
   cy.interceptAPIRequest({
     alias: 'deleteDashboard',
     method: Method.DELETE,
+    path: `${dashboardsEndpoint}/1`,
+    statusCode: 204
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'updateDashboard',
+    method: Method.PATCH,
     path: `${dashboardsEndpoint}/1`,
     statusCode: 204
   });
@@ -209,6 +233,42 @@ const columns = [
 ];
 
 describe('Dashboards', () => {
+  describe('Overview', () => {
+    it('displays a welcome label when the dashboard library is empty', () => {
+      initializeAndMount({
+        ...administratorRole,
+        emptyList: true
+      });
+
+      cy.contains(labelWelcomeToDashboardInterface).should('be.visible');
+      cy.findByLabelText('create').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
+      initializeAndMount({
+        ...administratorRole,
+        emptyList: true
+      });
+
+      cy.findByLabelText('create').click();
+
+      cy.findByLabelText(labelName).type('My Dashboard');
+
+      cy.makeSnapshot();
+
+      cy.viewport('macbook-13');
+
+      cy.findByLabelText(labelCreate).click();
+      cy.waitForRequest('@createDashboard');
+      cy.url().should(
+        'equal',
+        'http://localhost:9092/home/dashboards/library/1?edit=true'
+      );
+    });
+  });
+
   describe('View mode', () => {
     it('displays the dashboards in "View By lists" by default', () => {
       initializeAndMount(administratorRole);
@@ -290,6 +350,23 @@ describe('Dashboards', () => {
 
       cy.findAllByLabelText(labelEditProperties).eq(0).should('be.visible');
       cy.findAllByLabelText(labelDelete).eq(0).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it("doesn't displays the dashboard actions when the user has viewer roles", () => {
+      initializeAndMount(viewerRole);
+
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByLabelText('add').should('not.exist');
+
+      cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+        dashboards.result.forEach(({ name }) => {
+          cy.findByLabelText(labelEditProperties).should('not.exist');
+          cy.findByLabelText(labelDelete).should('not.exist');
+        });
+      });
 
       cy.makeSnapshot();
     });
@@ -377,10 +454,197 @@ describe('Dashboards', () => {
     });
   });
 
-  it('displays a welcome label when the dashboard library is empty', () => {
-    initializeAndMount({
-      ...administratorRole,
-      emptyList: true
+  [labelListView, labelCardsView].forEach((displayView) => {
+    describe(`Actions: ${displayView}`, () => {
+      it('deletes a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelDelete).click();
+        cy.contains(
+          'The My Dashboard dashboard will be permanently deleted.'
+        ).should('be.visible');
+
+        cy.findByLabelText(labelDelete).click();
+
+        cy.waitForRequest('@deleteDashboard');
+
+        cy.contains(labelDashboardDeleted).should('be.visible');
+
+        cy.makeSnapshot(
+          `${displayView}: deletes a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.`
+        );
+      });
+
+      it('does not delete a dashboard upon clicking the corresponding icon button and cancelling the action by clicking the cancellation button."    ', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelDelete).click();
+
+        cy.contains(labelCancel).click();
+
+        cy.contains(labelCancel).should('not.exist');
+        cy.contains(labelDeleteDashboard).should('not.exist');
+
+        cy.makeSnapshot(
+          `${displayView}: does not delete a dashboard upon clicking the corresponding icon button and cancelling the action by clicking the cancellation button.`
+        );
+      });
+
+      it('duplicates a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelDuplicate).click();
+        cy.waitForRequest('@getDashboardDetails');
+
+        cy.findByLabelText(labelName).should('have.value', 'My Dashboard_1');
+
+        cy.findByLabelText(labelName).clear().type('new name');
+
+        cy.findByLabelText(labelDuplicate).click();
+
+        cy.waitForRequest('@createDashboard').then(({ request }) => {
+          expect(JSON.parse(request.body).name).to.be.equal('new name');
+        });
+
+        cy.contains(labelDashboardDuplicated).should('be.visible');
+
+        cy.makeSnapshot(
+          `${displayView}: duplicates a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.`
+        );
+      });
+
+      it('does not duplicate a dashboard upon clicking the corresponding icon button and cancelling the action by clicking the cancellation button."    ', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelDuplicate).click();
+
+        cy.contains(labelCancel).click();
+
+        cy.contains(labelCancel).should('not.exist');
+        cy.contains(labelDuplicateDashboard).should('not.exist');
+
+        cy.makeSnapshot(
+          `${displayView}: does not duplicate a dashboard upon clicking the corresponding icon button and cancelling the action by clicking the cancellation button.`
+        );
+      });
+
+      it('disbales confirm duplication button when the new name is less than three characters.', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelDuplicate).click();
+        cy.waitForRequest('@getDashboardDetails');
+
+        cy.findByLabelText(labelName).should('have.value', 'My Dashboard_1');
+        cy.findByLabelText(labelName).clear().type('ab');
+
+        cy.findByLabelText(labelDuplicate).should('be.disabled');
+
+        cy.makeSnapshot(
+          `${displayView}: disbales confirm duplication button when the new name is less than three characters.`
+        );
+      });
+
+      it('edits a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelEditProperties).click();
+
+        cy.findByLabelText(labelName).should('have.value', 'My Dashboard');
+        cy.findByLabelText(labelDescription).should(
+          'have.value',
+          'my description'
+        );
+
+        cy.findByLabelText(labelUpdate).should('be.disabled');
+
+        cy.findByLabelText(labelName).clear().type('New name');
+        cy.findByLabelText(labelDescription).clear().type('New description');
+
+        cy.findByLabelText(labelUpdate).click();
+
+        cy.waitForRequest('@updateDashboard').then(({ request }) => {
+          expect(JSON.parse(request.body)).to.deep.equal({
+            description: 'New description',
+            name: 'New name'
+          });
+        });
+
+        cy.contains(labelDashboardUpdated).should('be.visible');
+
+        cy.makeSnapshot(
+          `${displayView}: edits a dashboard upon clicking the corresponding icon button and confirming the action by clicking the confirmation button.`
+        );
+      });
+
+      it('disbales confirm update button when the new name is less than three characters.', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByLabelText('More actions').eq(0).click();
+
+        cy.findByLabelText(labelEditProperties).click();
+
+        cy.findByLabelText(labelName).clear().type('ab');
+
+        cy.findByLabelText(labelUpdate).should('be.disabled');
+
+        cy.makeSnapshot(
+          `${displayView}: disbales confirm update button when the new name is less than three characters.`
+        );
+      });
+
+      it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
+        initializeAndMount(administratorRole);
+
+        cy.findByLabelText(displayView).click();
+
+        cy.findAllByTestId(labelShareWithContacts).eq(0).click();
+
+        cy.findByLabelText(labelAddAContact).click();
+
+        cy.waitForRequest('@getContacts');
+
+        cy.contains(/^User$/)
+          .parent()
+          .click();
+
+        cy.findByTestId('add').click();
+
+        cy.contains(labelSave).click();
+
+        cy.waitForRequest('@putShares');
+
+        cy.contains(labelSharesSaved).should('be.visible');
+
+        cy.makeSnapshot(
+          `${displayView}: sends a shares update request when the shares are updated and the corresponding button is clicked`
+        );
+      });
     });
 
     cy.contains(labelWelcomeToDashboardInterface).should('be.visible');

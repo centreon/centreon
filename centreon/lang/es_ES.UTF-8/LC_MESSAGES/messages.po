@@ -17022,6 +17022,23 @@ msgstr "Modo avanzado"
 
 # msgid "Display resources with this unit"
 # msgstr ""
+# msgid "Duplicate dashboard"
+# msgstr ""
+
+# msgid "Delete dashboard"
+# msgstr ""
+
+# msgid "Dashboard deleted"
+# msgstr 
+
+# msgid "Dashboard duplicated"
+# msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""
 
 # msgid "Rules are used to allow users to access resources."
 # msgstr ""

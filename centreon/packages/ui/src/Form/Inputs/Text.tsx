@@ -29,7 +29,8 @@ const Text = ({
   getRequired,
   change,
   additionalMemoProps,
-  text
+  text,
+  autoFocus
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -109,6 +110,7 @@ const Text = ({
         fullWidth
         EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
+        autoFocus={autoFocus}
         dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}
