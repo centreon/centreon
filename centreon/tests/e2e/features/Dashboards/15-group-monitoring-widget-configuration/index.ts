@@ -283,12 +283,7 @@ Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -334,12 +329,7 @@ Given('a dashboard featuring two group monitoring widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -370,12 +360,7 @@ Given('a dashboard having a configured group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -411,12 +396,7 @@ Given('a dashboard configuring group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
