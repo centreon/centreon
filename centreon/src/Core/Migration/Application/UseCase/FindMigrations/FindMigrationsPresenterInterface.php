@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\UseCase\FindMigrations;
 
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface FindMigrationsPresenterInterface
+interface FindMigrationsPresenterInterface extends PresenterInterface
 {
     public function presentResponse(FindMigrationsResponse|ResponseStatusInterface $response): void;
 }

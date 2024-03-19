@@ -300,7 +300,6 @@ services:
     Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
         class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
         arguments:
-            $installDir: '%centreon_install_path%'
             $migrations: !tagged_iterator 'platform.migrations'
         public: true
 

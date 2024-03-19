@@ -27,14 +27,14 @@ class NewMigration extends Migration
 {
     /**
      * @param string $name
-     * @param string $moduleName
+     * @param string|null $moduleName
      * @param string $description
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         string $name,
-        string $moduleName,
+        ?string $moduleName,
         private string $description,
     ) {
         parent::__construct($name, $moduleName);

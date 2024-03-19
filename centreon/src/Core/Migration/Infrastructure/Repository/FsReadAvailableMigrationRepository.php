@@ -38,13 +38,11 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
     private $migrations;
 
     /**
-     * @param string $installDir
      * @param \Traversable $migrations
      * @param Filesystem $filesystem
      * @param Finder $finder
      */
     public function __construct(
-        private string $installDir,
         \Traversable $migrations,
         private Filesystem $filesystem,
         private Finder $finder,
@@ -68,7 +66,7 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
 
             $migrations[] = new NewMigration(
                 $shortName,
-                'core',
+                $migration->getModuleName(),
                 $migration->getDescription(),
             );
         }

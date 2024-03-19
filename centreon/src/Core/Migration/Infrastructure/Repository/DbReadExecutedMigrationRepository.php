@@ -59,18 +59,9 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
                 SQL
         );
 
-        $paginationQuery = $sqlTranslator->translatePaginationToSql();
-        $query .= $paginationQuery;
-
         $statement = $this->db->prepare($query);
         $sqlTranslator?->bindSearchValues($statement);
         $statement->execute();
-
-        // Pagination
-        $resultCount = $this->db->query('SELECT FOUND_ROWS()');
-        if ($resultCount !== false && ($total = $resultCount->fetchColumn()) !== false) {
-            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
-        }
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 

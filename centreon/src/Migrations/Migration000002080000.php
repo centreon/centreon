@@ -26,9 +26,9 @@ namespace Migrations;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
-use Core\Migration\Infrastructure\Repository\MigrationPriority;
+use Core\Migration\Infrastructure\Repository\AbstractMigration;
 
-class Migration000200080000 extends MigrationPriority implements MigrationInterface, LegacyMigrationInterface
+class Migration000002080000 extends AbstractMigration implements MigrationInterface, LegacyMigrationInterface
 {
     private const VERSION = '2.8.0';
 

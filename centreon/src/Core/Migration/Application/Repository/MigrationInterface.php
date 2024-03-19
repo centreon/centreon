@@ -25,12 +25,21 @@ namespace Core\Migration\Application\Repository;
 
 interface MigrationInterface
 {
-     /**
-     * Define migration priority.
-     *
-     * @return int
-     */
+    /**
+    * Define migration priority.
+    *
+    * @return int
+    */
     public static function getDefaultPriority(): int;
+
+    /**
+     * Module name.
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function getModuleName(): ?string;
 
     /**
      * Upgrade description.

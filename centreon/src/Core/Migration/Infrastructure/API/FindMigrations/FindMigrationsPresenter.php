@@ -49,11 +49,13 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
         } else {
             $data = [];
             foreach ($response->migrations as $migrationDto) {
-                if (! array_key_exists($migrationDto->moduleName, $data)) {
-                    $data[$migrationDto->moduleName] = [];
+                $moduleName = $migrationDto->moduleName ?: 'core';
+
+                if (!array_key_exists($moduleName, $data)) {
+                    $data[$moduleName] = [];
                 }
 
-                $data[$migrationDto->moduleName][] = [
+                $data[$moduleName][] = [
                     'name' => $migrationDto->name,
                     'description' => $migrationDto->description,
                 ];
@@ -65,7 +67,7 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
                 array_map(static function ($migrationDto) {
                     return [
                         'name' => $migrationDto->name,
-                        'module_name' => $migrationDto->moduleName,
+                        'module_name' => $moduleName,
                         'description' => $migrationDto->description,
                     ];
                 }, $response->migrations),

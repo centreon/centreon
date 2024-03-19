@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
@@ -49,6 +50,12 @@ final class FindMigrations
     public function __invoke(FindMigrationsPresenterInterface $presenter): void
     {
         try {
+            if (!$this->user->isAdmin()) {
+                $presenter->setResponseStatus(new ForbiddenResponse('Only admin user can list migrations'));
+
+                return;
+            }
+
             $this->info('Search for available migrations');
             $availableMigrations = $this->readAvailableMigrationRepository->findAll();
 
@@ -57,7 +64,7 @@ final class FindMigrations
 
             $migrations = array_filter(
                 $availableMigrations,
-                function($availableMigration) use (&$executedMigrations) {
+                function ($availableMigration) use (&$executedMigrations) {
                     $availableMigrationName = $availableMigration->getName();
                     $availableMigrationModuleName = $availableMigration->getModuleName();
 
@@ -88,9 +95,10 @@ final class FindMigrations
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $this->error('An error occurred while retrieving the migrations listing', ['trace' => (string) $ex]);
+            $errorMessage = 'An error occurred while retrieving the migrations listing';
+            $this->error($errorMessage, ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new ErrorResponse(_('An error occurred while retrieving the migrations listing'))
+                new ErrorResponse(_($errorMessage))
             );
         }
     }
