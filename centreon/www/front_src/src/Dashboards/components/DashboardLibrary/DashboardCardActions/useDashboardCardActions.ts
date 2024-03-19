@@ -16,7 +16,7 @@ interface Props {
 
 interface useDashboardCardActionsState {
   closeMoreActions: () => void;
-  moreActionsOpen;
+  moreActionsOpen: HTMLElement | null;
   openDeleteModal: () => void;
   openDuplicateModal: () => void;
   openEditAccessRightModal: () => void;
