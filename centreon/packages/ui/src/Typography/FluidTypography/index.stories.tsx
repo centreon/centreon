@@ -40,9 +40,9 @@ basic.args = {
 
 export const with200pxWidth = FluidTypographyTemplate.bind({});
 with200pxWidth.args = {
-  height: '200px',
+  height: '50%',
   text: 'Hello world',
-  width: '200px'
+  width: '50%'
 };
 
 export const with20pxHeight = FluidTypographyTemplate.bind({});

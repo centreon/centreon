@@ -1,4 +1,14 @@
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
+
 import notificationBody from '../../fixtures/notifications/notification-creation.json';
+
+const cloudNotificationLogFile =
+  '/var/log/centreon-broker/centreon-cloud-notifications.log';
+
+Given('the user is on the Notification Rules page', () => {
+  cy.visit('/centreon/configuration/notifications');
+  cy.wait('@getNotifications');
+});
 
 const enableNotificationFeature = (): Cypress.Chainable => {
   return cy.execInContainer({
@@ -17,7 +27,7 @@ const createNotification = (
       url: 'centreon/api/latest/configuration/notifications'
     })
     .then((response) => {
-      cy.wrap(response);
+      expect(response.status).to.eq(201);
     });
 };
 
@@ -81,7 +91,9 @@ const setBrokerNotificationsOutput = ({
     })
     .then((response) => {
       const listBrokersIO = response.body.result;
-      const brokerIO = listBrokersIO.find((brokerIO) => brokerIO.name == name);
+      const brokerIO = listBrokersIO.find(
+        (currentBrokerIO) => currentBrokerIO.name === name
+      );
       if (brokerIO) {
         brokerIOID = brokerIO.id;
 
@@ -119,10 +131,12 @@ const notificationSentCheck = ({
 }): Cypress.Chainable => {
   return cy
     .execInContainer({
-      command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
+      command: `cat ${cloudNotificationLogFile} | grep "${log}" || true`,
       name: 'web'
     })
     .then((result) => {
+      // https://github.com/cypress-io/eslint-plugin-cypress?tab=readme-ov-file#chai-and-no-unused-expressions
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       contain
         ? expect(result.output).to.contain(log)
         : expect(result.output).to.not.contain(log);
@@ -130,40 +144,40 @@ const notificationSentCheck = ({
 };
 
 const waitUntilLogFileChange = (): Cypress.Chainable => {
-  let initialContent;
+  let initialLineCount = null;
 
-  return cy
-    .execInContainer({
-      command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-      name: 'web'
-    })
-    .then((result) => {
-      if (result.exitCode) {
-        throw new Error('No initial output found in log file');
-      }
+  return cy.waitUntil(
+    () => {
+      return cy
+        .execInContainer({
+          command: `cat ${cloudNotificationLogFile} 2> /dev/null | wc -l || echo 0`,
+          name: 'web'
+        })
+        .then((result) => {
+          const match = result.output.trim().match(/(\d+)$/);
 
-      initialContent = result.output.trim();
+          if (match === null) {
+            cy.log(`Cannot get line count of ${cloudNotificationLogFile}`);
 
-      return cy.waitUntil(
-        () => {
-          return cy
-            .execInContainer({
-              command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-              name: 'web'
-            })
-            .then((result) => {
-              if (result.exitCode) {
-                throw new Error('No current output found in log file');
-              }
+            return false;
+          }
 
-              const currentContent = result.output.trim();
+          const currentLineCount = match[1];
+          cy.log(
+            `Current line count of ${cloudNotificationLogFile}: ${currentLineCount}`
+          );
 
-              return cy.wrap(currentContent !== initialContent);
-            });
-        },
-        { interval: 5000, timeout: 40000 }
-      );
-    });
+          if (initialLineCount === null) {
+            initialLineCount = currentLineCount;
+
+            return false;
+          }
+
+          return cy.wrap(initialLineCount !== currentLineCount);
+        });
+    },
+    { interval: 5000, timeout: 40000 }
+  );
 };
 
 export {

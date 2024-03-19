@@ -35,6 +35,7 @@ export const dashboardAtom = atom<Dashboard>({
 
 export const isEditingAtom = atom(false);
 export const widgetToDeleteAtom = atom<Partial<SelectEntry> | null>(null);
+export const isRedirectionBlockedAtom = atom(false);
 
 export const hasEditPermissionAtom = atom(false);
 export const dashboardRefreshIntervalAtom = atom<
@@ -48,7 +49,7 @@ export const dashboardRefreshIntervalAtom = atom<
 export const setLayoutModeDerivedAtom = atom(
   null,
   (get, setAtom, isEditing: boolean) => {
-    setAtom(isEditingAtom, isEditing);
+    setAtom(isEditingAtom, () => isEditing);
 
     const dashboard = get(dashboardAtom);
 
@@ -275,7 +276,7 @@ export const duplicatePanelDerivedAtom = atom(
 export const switchPanelsEditionModeDerivedAtom = atom(
   null,
   (_, setAtom, isEditing: boolean) => {
-    setAtom(isEditingAtom, isEditing);
+    setAtom(isEditingAtom, () => isEditing);
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
       const newLayout = map<Panel, Panel>(
         set(lensProp('static'), !isEditing),
