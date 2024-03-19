@@ -20,7 +20,7 @@ import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
-    labelAllResources,
+  labelAllResources,
   labelHost,
   labelHostCategory,
   labelHostGroup,
@@ -154,8 +154,6 @@ const useDatasetFilter = (
       )
     ]
   );
-
-  console.log(values);
 
   const lowestResourceTypeReached = (): boolean =>
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
