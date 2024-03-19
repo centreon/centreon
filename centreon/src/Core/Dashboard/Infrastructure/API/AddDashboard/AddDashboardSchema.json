@@ -5,7 +5,8 @@
     "required": [
         "name",
         "description",
-        "panels"
+        "panels",
+        "refresh"
     ],
     "additionalProperties": false,
     "properties": {
