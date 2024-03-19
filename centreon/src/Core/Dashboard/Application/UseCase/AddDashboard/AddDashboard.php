@@ -82,8 +82,10 @@ final class AddDashboard
             $dashboardId = $this->addDashboard($dashboard, $panels);
 
             $foundDashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+            if ($foundDashboard === null) {
+                throw DashboardException::errorWhileRetrievingJustCreated();
+            }
             $foundPanels = $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboardId);
-
             $presenter->presentResponse($this->createResponse($foundDashboard, $foundPanels));
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);

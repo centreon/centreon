@@ -26,6 +26,7 @@ namespace Tests\Core\Dashboard\Application\UseCase\AddDashboard;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -130,29 +131,6 @@ it(
         $this->writeDashboardRepository->expects($this->once())
             ->method('add')->willReturn($this->testedDashboard->getId());
         $this->readDashboardRepository->expects($this->once())
-            ->method('findOne')->willReturn(null); // the failure
-
-        ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
-
-        expect($this->presenter->data)
-            ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->data->getMessage())
-            ->toBe(DashboardException::errorWhileRetrievingJustCreated()->getMessage());
-    }
-)->only();
-
-it(
-    'should present an ErrorResponse if the newly created dashboard cannot be retrieved as CREATOR',
-    function (): void {
-        $this->rights->expects($this->once())
-            ->method('hasCreatorRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canCreate')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())
-            ->method('getId')->willReturn(1);
-        $this->writeDashboardRepository->expects($this->once())
-            ->method('add')->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn(null); // the failure
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
@@ -169,8 +147,6 @@ it(
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasCreatorRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canCreate')->willReturn(false);
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -182,16 +158,43 @@ it(
 );
 
 it(
-    'should present a AddDashboardResponse as ADMIN',
+    'should present a AddDashboardResponse when no error occurs',
     function (): void {
-        $this->rights->expects($this->once())
-            ->method('hasCreatorRole')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())
-            ->method('getId')->willReturn(1);
-        $this->writeDashboardRepository->expects($this->once())
-            ->method('add')->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository->expects($this->once())
-            ->method('findOne')->willReturn($this->testedDashboard);
+        $panels = [
+            new DashboardPanel(
+                1,
+                'panel',
+                'centreon-top-bottom',
+                [],
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+            )
+        ];
+
+        $this->rights
+            ->expects($this->once())
+            ->method('hasCreatorRole')
+            ->willReturn(true);
+        $this->contact
+            ->expects($this->any())
+            ->method('getId')
+            ->willReturn(1);
+        $this->writeDashboardRepository
+            ->expects($this->once())
+            ->method('add')
+            ->willReturn($this->testedDashboard->getId());
+        $this->readDashboardRepository
+            ->expects($this->once())
+            ->method('findOneByContact')
+            ->willReturn($this->testedDashboard);
+        $this->readDashboardPanelRepository
+            ->expects($this->once())
+            ->method('findPanelsByDashboardId')
+            ->willReturn($panels);
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -208,34 +211,3 @@ it(
             );
     }
 );
-
-it(
-    'should present a AddDashboardResponse as allowed CREATOR user',
-    function (): void {
-        $this->rights->expects($this->once())
-            ->method('hasCreatorRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canCreate')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())
-            ->method('getId')->willReturn(1);
-        $this->writeDashboardRepository->expects($this->once())
-            ->method('add')->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository->expects($this->once())
-            ->method('findOneByContact')->willReturn($this->testedDashboard);
-
-        ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
-
-        /** @var AddDashboardResponse $dashboard */
-        $dashboard = $this->presenter->data;
-
-        expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
-            ->and($dashboard->id)->toBe($this->testedDashboardId)
-            ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
-            ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual(
-                $this->testedDashboardUpdatedAt->getTimestamp()
-            );
-    }
-);
-
