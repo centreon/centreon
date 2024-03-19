@@ -74,3 +74,8 @@ export interface DeleteResourceAccessRuleType {
   id: number | Array<number> | null;
   name?: string;
 }
+
+export interface DuplicateResourceAccessRuleType {
+  id: number | null;
+  rule?: ResourceAccessRule;
+}
