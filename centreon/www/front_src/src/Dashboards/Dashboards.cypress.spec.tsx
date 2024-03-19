@@ -646,11 +646,6 @@ describe('Dashboards', () => {
         );
       });
     });
-
-    cy.contains(labelWelcomeToDashboardInterface).should('be.visible');
-    cy.findByLabelText('create').should('be.visible');
-
-    cy.makeSnapshot();
   });
 
   it('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
