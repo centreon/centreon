@@ -58,7 +58,6 @@
       "defaultValue": []
     }
   },
-  "onlyResourcesWithPerformanceData": true,
   "singleHostPerMetric": true,
   "singleMetricSelection": true,
   "customBaseColor": true,

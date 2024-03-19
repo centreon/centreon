@@ -34,7 +34,10 @@ import {
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { getDataProperty } from '../utils';
-import { widgetPropertiesMetaPropertiesDerivedAtom } from '../../../atoms';
+import {
+  hasMetricInputTypeDerivedAtom,
+  widgetPropertiesMetaPropertiesDerivedAtom
+} from '../../../atoms';
 
 interface UseResourcesState {
   addButtonHidden?: boolean;
@@ -142,6 +145,7 @@ const useResources = ({
   const widgetProperties = useAtomValue(
     widgetPropertiesMetaPropertiesDerivedAtom
   );
+  const hasMetricInputType = useAtomValue(hasMetricInputTypeDerivedAtom);
 
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
@@ -208,9 +212,7 @@ const useResources = ({
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
-          ? getServiceQueryParameters(
-              widgetProperties?.onlyResourcesWithPerformanceData
-            )
+          ? getServiceQueryParameters(hasMetricInputType)
           : undefined,
         parameters: {
           ...parameters,

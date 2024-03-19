@@ -39,6 +39,5 @@
       "defaultValue": []
     }
   },
-  "onlyResourcesWithPerformanceData": true,
   "moduleName": "centreon-widget-data"
 }
