@@ -25,6 +25,10 @@ beforeEach(() => {
     url: '/centreon/api/latest/configuration/dashboards?'
   }).as('listAllDashboards');
   cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards/*'
+  }).as('getDashboard');
+  cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
@@ -136,7 +140,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
   cy.wait('@updateShares');
-  cy.wait('@listAllDashboards');
+  cy.wait('@getDashboard');
   cy.get('.MuiAlert-message').should('not.exist');
   cy.waitUntilForDashboardRoles('share', 3);
 });
@@ -245,7 +249,7 @@ When(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -350,7 +354,7 @@ When(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -466,7 +470,7 @@ When(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -580,7 +584,7 @@ Given(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -736,7 +740,7 @@ Then(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -765,7 +769,7 @@ Then(
       .should('be.enabled')
       .click();
     cy.wait('@updateShares');
-    cy.wait('@listAllDashboards');
+    cy.wait('@getDashboard');
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
