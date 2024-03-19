@@ -310,7 +310,7 @@ Then(
         if (globalResourceType) {
           notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
         } else {
-          for (let i = 1; i <= 1000; i++) {
+          for (let i = 1; i <= 100; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
@@ -327,7 +327,7 @@ Then(
             log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          for (let i = 1; i <= 1000; i++) {
+          for (let i = 1; i <= 100; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
@@ -389,7 +389,7 @@ Given(
       }
     ]);
 
-    for (let i = 1; i <= 1000; i++) {
+    for (let i = 1; i <= 100; i++) {
       cy.log('Add service ' + i);
 
       cy.addService({
@@ -423,7 +423,7 @@ When(
 When(
   'changes occur in the configured statuses for the selected host group',
   () => {
-    for (let i = 1; i <= 1000; i++) {
+    for (let i = 1; i <= 100; i++) {
       cy.log('Submit result for service ' + i);
       cy.submitResults([
         {

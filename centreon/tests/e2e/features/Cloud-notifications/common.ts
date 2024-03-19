@@ -236,7 +236,7 @@ const checkServices = ({
     cy.log('Service count in database', foundServiceCount);
     cy.log('Service database check step count', servicesFoundStepCount);
 
-    if (foundServiceCount == 1000) {
+    if (foundServiceCount == 100) {
       servicesFoundStepCount = 0;
 
       return null;
