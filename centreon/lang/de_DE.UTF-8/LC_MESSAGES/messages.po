@@ -16724,5 +16724,17 @@ msgstr "Erweiterter Modus"
 # msgid "The selected resource access rules have been deleted successfully"
 # msgstr ""
 
+# msgid "Failed to duplicate the resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule has been successfully duplicated"
+# msgstr ""
+
+# msgid "Resource access rule name"
+# msgstr ""
+
+# msgid "Please enter a name for the resource access rule to duplicate"
+# msgstr ""
+
 # msgid "An error occurred during authentication"
 # msgstr ""
