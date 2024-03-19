@@ -33,5 +33,8 @@ final class PanelRequest
 
     public string $widgetType = '';
 
+    /**
+     * @var array<mixed>
+     */
     public array $widgetSettings = [];
 }

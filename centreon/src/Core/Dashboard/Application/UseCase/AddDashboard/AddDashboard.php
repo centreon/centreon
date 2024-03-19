@@ -179,6 +179,12 @@ final class AddDashboard
         return $panels;
     }
 
+    /**
+     * @param Dashboard $dashboard
+     * @param DashboardPanel[] $panels
+     *
+     * @return AddDashboardResponse
+     */
     private function createResponse(Dashboard $dashboard, array $panels): AddDashboardResponse
     {
         $author = [

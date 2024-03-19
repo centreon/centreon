@@ -29,12 +29,37 @@ use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class AddDashboardResponse
 {
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string|null $description
+     * @param array{id:int, name:string} $createdBy
+     * @param array{id:int, name:string} $updatedBy
+     * @param \DateTimeImmutable $createdAt
+     * @param \DateTimeImmutable $updatedAt
+     * @param DashboardSharingRole $ownRole
+     * @param array<array{
+     *          id: int,
+     *          name: string,
+     *          layout: array{
+     *              x: int,
+     *              y: int,
+     *              width: int,
+     *              height: int,
+     *              min_width: int,
+     *              min_height: int
+     *          },
+     *          widget_type: string,
+     *          widget_settings: array<mixed>,
+     * }> $panels,
+     * @param array{type: RefreshType, interval: int|null} $refresh
+     */
     public function __construct(
         public int $id = 0,
         public string $name = '',
         public ?string $description = null,
-        public array $createdBy = [],
-        public array $updatedBy = [],
+        public array $createdBy = ['id' => 0, 'name' => ''],
+        public array $updatedBy = ['id' => 0, 'name' => ''],
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
