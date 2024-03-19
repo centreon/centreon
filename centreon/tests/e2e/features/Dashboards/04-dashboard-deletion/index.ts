@@ -44,10 +44,8 @@ Given('a user with dashboard update rights on the dashboards library', () => {
 When(
   'the user clicks on the delete button for a dashboard featured in the library',
   () => {
-    cy.getByLabel({ label: 'More actions', tag: 'button' })
-      .eq(2)
-      .getByLabel({ label: 'Delete' })
-      .click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(2).click();
+    cy.getByLabel({ label: 'Delete' }).click();
   }
 );
 
@@ -78,10 +76,8 @@ Given(
   'a user with dashboard edition rights about to delete a dashboard',
   () => {
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({ label: 'More actions', tag: 'button' })
-      .eq(2)
-      .getByLabel({ label: 'Delete' })
-      .click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(2).click();
+    cy.getByLabel({ label: 'Delete' }).click();
   }
 );
 

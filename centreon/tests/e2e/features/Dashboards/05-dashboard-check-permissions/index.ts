@@ -212,10 +212,8 @@ Given('an admin user who has just created a dashboard', () => {
 });
 
 When('the admin user deletes the newly created dashboard', () => {
-  cy.getByLabel({ label: 'More actions', tag: 'button' })
-    .first()
-    .getByLabel({ label: 'Delete' })
-    .click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
+  cy.getByLabel({ label: 'Delete' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
@@ -380,10 +378,8 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
 When(
   'the dashboard administrator user deletes the newly created dashboard',
   () => {
-    cy.getByLabel({ label: 'More actions', tag: 'button' })
-      .first()
-      .getByLabel({ label: 'Delete' })
-      .click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
+    cy.getByLabel({ label: 'Delete' }).click();
 
     cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
     cy.wait('@listAllDashboards');
@@ -548,10 +544,8 @@ Given('a dashboard editor user who has just created a dashboard', () => {
 });
 
 When('the dashboard editor user deletes the newly created dashboard', () => {
-  cy.getByLabel({ label: 'More actions', tag: 'button' })
-    .first()
-    .getByLabel({ label: 'Delete' })
-    .click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
+  cy.getByLabel({ label: 'Delete' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
   cy.wait('@listAllDashboards');
