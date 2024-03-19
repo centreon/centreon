@@ -1,4 +1,4 @@
-import { ReactElement, Suspense } from 'react';
+import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 

@@ -7,8 +7,7 @@ import {
   pageAtom,
   sortFieldAtom,
   sortOrderAtom,
-  searchAtom,
-  viewModeAtom
+  searchAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
 
 import { Dashboard, resource } from './models';
