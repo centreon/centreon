@@ -1,6 +1,10 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import notificationBody from '../../fixtures/notifications/notification-creation.json';
+import {
+  getStatusNumberFromString,
+  getStatusTypeNumberFromString
+} from 'e2e/commons';
 
 const cloudNotificationLogFile =
   '/var/log/centreon-broker/centreon-cloud-notifications.log';
@@ -180,11 +184,90 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
   );
 };
 
+let servicesFoundStepCount = 0;
+
+const stepWaitingTime = 250;
+const pollingCheckTimeout = 60000;
+const maxSteps = pollingCheckTimeout / stepWaitingTime;
+
+interface MonitoredService {
+  acknowledged?: boolean | null;
+  inDowntime?: boolean | null;
+  output?: string;
+  status?: string;
+  statusType?: string;
+}
+
+const checkServices = ({
+  acknowledged = null,
+  output = '',
+  status = '',
+  inDowntime = null,
+  statusType = ''
+}: MonitoredService): void => {
+  cy.log('Checking services in database');
+
+  let query = `SELECT COUNT(s.service_id) AS count_services from services as s WHERE s.enabled=1 AND s.description LIKE 'service_%'`;
+
+  if (output !== '') {
+    query += ` AND s.output LIKE '%${output}%'`;
+  }
+  if (status !== '') {
+    query += ` AND s.state = ${getStatusNumberFromString(status)}`;
+  }
+  if (acknowledged !== null) {
+    query += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
+  }
+  if (inDowntime !== null) {
+    query += ` AND s.scheduled_downtime_depth = ${inDowntime === true ? 1 : 0}`;
+  }
+  if (statusType !== '') {
+    query += ` AND s.state_type = ${getStatusTypeNumberFromString(statusType)}`;
+  }
+
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query
+  }).then(([rows]) => {
+    servicesFoundStepCount += 1;
+
+    const foundServiceCount = rows.length ? rows[0].count_services : 0;
+
+    cy.log('Service count in database', foundServiceCount);
+    cy.log('Service database check step count', servicesFoundStepCount);
+
+    if (foundServiceCount == 1000) {
+      servicesFoundStepCount = 0;
+
+      return null;
+    }
+
+    if (servicesFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy.wrap(null).then(() =>
+        checkServices({
+          acknowledged,
+          output,
+          status,
+          inDowntime,
+          statusType
+        })
+      );
+    }
+
+    throw new Error(
+      `The 1000 services are not monitored after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
 export {
   createNotification,
   editNotification,
   enableNotificationFeature,
   notificationSentCheck,
   setBrokerNotificationsOutput,
-  waitUntilLogFileChange
+  waitUntilLogFileChange,
+  checkServices
 };

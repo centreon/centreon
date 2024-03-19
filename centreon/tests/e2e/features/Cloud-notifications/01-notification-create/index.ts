@@ -8,7 +8,8 @@ import {
   enableNotificationFeature,
   notificationSentCheck,
   setBrokerNotificationsOutput,
-  waitUntilLogFileChange
+  waitUntilLogFileChange,
+  checkServices
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
@@ -290,16 +291,10 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      for (let i = 1; i <= 1000; i++) {
-        cy.log('Check the hard state of service ' + i);
-        checkServicesAreMonitored([
-          {
-            name: 'service_' + i,
-            status: 'critical',
-            statusType: 'hard'
-          }
-        ]);
-      }
+      checkServices({
+        status: 'critical',
+        statusType: 'hard'
+      });
   }
 });
 
@@ -408,15 +403,7 @@ Given(
 
     cy.applyPollerConfiguration();
 
-    // separate the add and the check for execution time performance
-    for (let i = 1; i <= 1000; i++) {
-      cy.log('Check service ' + i);
-      checkServicesAreMonitored([
-        {
-          name: 'service_' + i
-        }
-      ]);
-    }
+    checkServices({});
   }
 );
 
