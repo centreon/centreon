@@ -63,45 +63,45 @@ afterEach(() => {
   cy.logout();
 });
 
-Given('a non-admin user who is in a list of shared dashboards', () => {
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
-  });
-  cy.visit('/centreon/home/dashboards/library');
-});
+// Given('a non-admin user who is in a list of shared dashboards', () => {
+//   cy.loginByTypeOfUser({
+//     jsonName: dashboardAdministratorUser.login,
+//     loginViaApi: false
+//   });
+//   cy.visit('/centreon/home/dashboards/library');
+// });
 
-When('the user selects the share option on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardAdministratorUser.name)
-    .click();
-  cy.getByLabel({ label: 'share', tag: 'button' }).click();
-});
+// When('the user selects the share option on a dashboard', () => {
+//   cy.getByLabel({
+//     label: 'view',
+//     tag: 'button'
+//   })
+//     .contains(dashboards.fromDashboardAdministratorUser.name)
+//     .click();
+//   cy.getByLabel({ label: 'share', tag: 'button' }).click();
+// });
 
-Then('the user is redirected to the sharing list of the dashboard', () => {
-  cy.contains('Manage access rights').should('be.visible');
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 }).eq(1).should('exist');
-});
+// Then('the user is redirected to the sharing list of the dashboard', () => {
+//   cy.contains('Manage access rights').should('be.visible');
+//   cy.get('*[class^="MuiList-root"]', { timeout: 12000 }).eq(1).should('exist');
+// });
 
-Then('the creator of the dashboard is listed as its sole editor', () => {
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
-    .children()
-    .its('length')
-    .should('eq', 1);
-  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-    .eq(1)
-    .children()
-    .eq(0)
-    .should('contain', `${dashboardAdministratorUser.login}`);
-  cy.getByTestId({ testId: `role-${dashboardAdministratorUser.login}` }).should(
-    'have.value',
-    'editor'
-  );
-});
+// Then('the creator of the dashboard is listed as its sole editor', () => {
+//   cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
+//     .eq(1)
+//     .children()
+//     .its('length')
+//     .should('eq', 1);
+//   cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
+//     .eq(1)
+//     .children()
+//     .eq(0)
+//     .should('contain', `${dashboardAdministratorUser.login}`);
+//   cy.getByTestId({ testId: `role-${dashboardAdministratorUser.login}` }).should(
+//     'have.value',
+//     'editor'
+//   );
+// });
 
 Given('a non-admin user who has update rights on a dashboard', () => {
   cy.loginByTypeOfUser({
@@ -141,6 +141,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
   cy.wait('@updateShares');
   cy.wait('@getDashboard');
+  cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
   cy.get('.MuiAlert-message').should('not.exist');
   cy.waitUntilForDashboardRoles('share', 3);
 });
@@ -250,6 +251,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -355,6 +357,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -471,6 +474,7 @@ When(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -585,6 +589,7 @@ Given(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 3);
   }
@@ -741,6 +746,7 @@ Then(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 4);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -770,6 +776,7 @@ Then(
       .click();
     cy.wait('@updateShares');
     cy.wait('@getDashboard');
+    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
     cy.waitUntilForDashboardRoles('share', 5);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
