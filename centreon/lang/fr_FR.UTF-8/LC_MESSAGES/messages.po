@@ -18891,4 +18891,4 @@ msgid "Bad migration name: %s"
 msgstr "Mauvais nom de migration : %s"
 
 msgid "Store already executed migrations in database"
-msgstr "Stockage des migations déjà exécutées en base de données"
+msgstr "Stockage des migrations déjà exécutées en base de données"

@@ -48,9 +48,6 @@ services:
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
-    Migrations\:
-        resource: '../../src/Migrations/*'
-
     Logger:
         class: Centreon\Domain\Log\Logger
 
@@ -297,12 +294,7 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
-    Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
-        class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
-        arguments:
-            $migrations: !tagged_iterator 'platform.migrations'
-        public: true
-
+    # Monitoring resources
     _instanceof:
         Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface:
             tags: ['realtime.hypermedia']
@@ -320,8 +312,6 @@ services:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
             tags: ['platform.requirement.database.validators']
-        Core\Migration\Application\Repository\MigrationInterface:
-            tags: ['platform.migrations']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
