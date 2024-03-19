@@ -101,12 +101,18 @@ export const getListingQueryParameters = ({
     }
   );
 
+  const search = isEmpty(flatten(searchConditions))
+    ? {}
+    : {
+        search: {
+          conditions: flatten(searchConditions)
+        }
+      };
+
   return {
+    ...search,
     limit,
-    page,
-    search: {
-      conditions: flatten(searchConditions)
-    },
+    page: page || undefined,
     sort:
       sortBy && sortOrder
         ? {
@@ -136,7 +142,7 @@ export const buildResourcesEndpoint = ({
       resources,
       states,
       statuses: formattedStatuses,
-      types: [type]
+      types: type ? [type] : undefined
     }),
     parameters: getListingQueryParameters({
       limit,
