@@ -305,6 +305,13 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             $accessGroups
         );
 
+        // if service categories are not filtered in ACLs, then user has access to ALL service categories
+        if (! $this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            $this->info('Service categories access not filtered');
+
+            return $this->findByService($serviceId);
+        }
+
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect(
             $this->translateDbName(<<<'SQL'
