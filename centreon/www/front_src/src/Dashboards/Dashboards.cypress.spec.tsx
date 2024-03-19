@@ -50,7 +50,6 @@ import {
   labelEditor,
   labelEditProperties,
   labelListView,
-  labelShare,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
 
