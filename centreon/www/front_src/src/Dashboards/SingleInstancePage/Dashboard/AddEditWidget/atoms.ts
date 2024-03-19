@@ -47,8 +47,8 @@ export const metricInputKeyDerivedAtom = atom<string | undefined>((get) => {
   }
 
   const properties = concat(
-    Object.entries(widgetProperties.data),
-    Object.entries(widgetProperties.options)
+    Object.entries(widgetProperties.data || {}),
+    Object.entries(widgetProperties.options || {})
   );
 
   const metricInput = properties.find(([, { type }]) =>
@@ -66,8 +66,8 @@ export const resourcesInputKeyDerivedAtom = atom<string | undefined>((get) => {
   }
 
   const properties = concat(
-    Object.entries(widgetProperties.data),
-    Object.entries(widgetProperties.options)
+    Object.entries(widgetProperties.data || {}),
+    Object.entries(widgetProperties.options || {})
   );
 
   const resourcesInput = properties.find(([, { type }]) =>

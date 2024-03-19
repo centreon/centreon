@@ -129,6 +129,11 @@ const initializeComponent = ({
 describe('Metrics', () => {
   it('displays metrics with included hosts when resources are fulfilled', () => {
     initializeComponent({});
+    store.set(widgetPropertiesAtom, {
+      ...widgetDataProperties,
+      singleHostPerMetric: true,
+      singleMetricSelection: true
+    });
     cy.waitForRequest('@getServiceMetrics');
 
     cy.findByTestId(labelSelectMetric).click();
