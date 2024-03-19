@@ -29,9 +29,9 @@ final class PanelRequest
     {
     }
 
-    public string $name;
+    public string $name = '';
 
-    public string $widgetType;
+    public string $widgetType = '';
 
-    public array $widgetSettings;
+    public array $widgetSettings = [];
 }

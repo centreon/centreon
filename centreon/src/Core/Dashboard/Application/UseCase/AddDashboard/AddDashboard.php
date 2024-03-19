@@ -87,11 +87,10 @@ final class AddDashboard
             }
             $foundPanels = $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboardId);
             $presenter->presentResponse($this->createResponse($foundDashboard, $foundPanels));
-        } catch (AssertionFailedException $ex) {
+        } catch (AssertionFailedException|\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
-            var_dump((string) $ex);
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse(
                 $ex instanceof DashboardException
@@ -201,6 +200,11 @@ final class AddDashboard
             'widget_settings' => $panel->getWidgetSettings()
         ], $panels);
 
+        $refreshResponse = [
+            'type' => $dashboard->getRefresh()->getRefreshType(),
+            'interval' => $dashboard->getRefresh()->getRefreshInterval()
+        ];
+
         return new AddDashboardResponse(
             $dashboard->getId(),
             $dashboard->getName(),
@@ -210,7 +214,8 @@ final class AddDashboard
             $dashboard->getCreatedAt(),
             $dashboard->getUpdatedAt(),
             DashboardSharingRole::Editor,
-            $panelsResponse
+            $panelsResponse,
+            $refreshResponse
         );
     }
 }

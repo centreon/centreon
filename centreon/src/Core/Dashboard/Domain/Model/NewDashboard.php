@@ -135,4 +135,9 @@ class NewDashboard
         $this->updatedBy = $userId;
         $this->ensurePositiveInt($this->updatedBy, 'updatedBy');
     }
+
+    public function getRefresh(): Refresh
+    {
+        return $this->refresh;
+    }
 }

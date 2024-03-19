@@ -30,6 +30,7 @@ use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterfa
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
 use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -69,7 +70,8 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                         'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
-                        'panels' => $data->panels
+                        'panels' => $data->panels,
+                        'refresh' => $this->formatRefresh($data->refresh)
                     ]
                 )
             );
@@ -91,16 +93,10 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
         }
     }
 
-    /**
-     * @param ?UserResponseDto $dto
-     *
-     * @return null|array{id: int, name: string}
-     */
-    private function userToOptionalArray(array $user): ?array
-    {
-        return $dto ? [
-            'id' => $user['id'],
-            'name' => $user['name'],
-        ] : null;
+    private function formatRefresh(array $refresh): array {
+        return [
+            'type' => RefreshTypeConverter::toString($refresh['type']),
+            'interval' => $refresh['interval']
+        ];
     }
 }

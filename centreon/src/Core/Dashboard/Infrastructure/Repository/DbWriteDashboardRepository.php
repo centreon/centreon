@@ -72,7 +72,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                     created_by,
                     updated_by,
                     created_at,
-                    updated_at
+                    updated_at,
+                    refresh_type,
+                    refresh_interval
                 )
             VALUES
                 (
@@ -81,7 +83,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                     :created_by,
                     :updated_by,
                     :created_at,
-                    :updated_at
+                    :updated_at,
+                    :refresh_type,
+                    :refresh_interval
                 )
             SQL;
 
@@ -140,6 +144,8 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         if ($dashboard instanceof NewDashboard) {
             $statement->bindValue(':created_at', $dashboard->getCreatedAt()->getTimestamp());
             $statement->bindValue(':created_by', $dashboard->getCreatedBy());
+            $statement->bindValue(':refresh_type', RefreshTypeConverter::toString($dashboard->getRefresh()->getRefreshType()), \PDO::PARAM_STR);
+            $statement->bindValue(':refresh_interval', $dashboard->getRefresh()->getRefreshInterval(), \PDO::PARAM_INT);
         }
     }
 }

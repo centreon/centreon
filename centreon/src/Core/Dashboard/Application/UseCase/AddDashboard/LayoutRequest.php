@@ -25,15 +25,15 @@ namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 final class LayoutRequest
 {
-    public int $xAxis;
+    public int $xAxis = 0;
 
-    public int $yAxis;
+    public int $yAxis = 0;
 
-    public int $width;
+    public int $width = 0;
 
-    public int $height;
+    public int $height = 0;
 
-    public int $minWidth;
+    public int $minWidth = 0;
 
-    public int $minHeight;
+    public int $minHeight = 0;
 }
