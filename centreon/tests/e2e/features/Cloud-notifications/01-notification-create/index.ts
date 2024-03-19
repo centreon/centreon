@@ -403,8 +403,10 @@ Given(
         maxCheckAttempts: 1,
         name: 'service_' + i,
         template: 'Ping-LAN'
-      }).applyPollerConfiguration();
+      });
     }
+
+    cy.applyPollerConfiguration();
 
     // separate the add and the check for execution time performance
     for (let i = 1; i <= 1000; i++) {
