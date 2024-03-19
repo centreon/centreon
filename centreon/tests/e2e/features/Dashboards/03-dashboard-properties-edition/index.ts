@@ -45,7 +45,7 @@ Given(
 );
 
 When('the user selects the properties of the dashboard', () => {
-  cy.get('button[aria-label="Edit properties"]').eq(3).click();
+      cy.getByLabel({ label: 'Edit properties', tag: 'button' }).eq(3).click();
 });
 
 Then(
