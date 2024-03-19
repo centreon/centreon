@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
-use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
@@ -66,7 +65,7 @@ final class AddDashboardResponse
         public array $panels = [],
         public array $refresh = [
             'type' => RefreshType::Global,
-            'interval' => null
+            'interval' => null,
         ]
     ) {
     }

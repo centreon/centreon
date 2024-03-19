@@ -117,7 +117,7 @@ final class AddDashboardController extends AbstractController
         }
         $addDashboardRequest->refresh = [
             'type' => RefreshTypeConverter::fromString($dataSent['refresh']['type']),
-            'interval' => $dataSent['refresh']['interval']
+            'interval' => $dataSent['refresh']['interval'],
         ];
 
         return $addDashboardRequest;

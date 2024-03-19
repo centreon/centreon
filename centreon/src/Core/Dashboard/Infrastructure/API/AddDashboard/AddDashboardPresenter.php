@@ -28,7 +28,6 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
-use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Infrastructure\Model\RefreshTypeConverter;
@@ -72,7 +71,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                         'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                         'panels' => $data->panels,
-                        'refresh' => $this->formatRefresh($data->refresh)
+                        'refresh' => $this->formatRefresh($data->refresh),
                     ]
                 )
             );
@@ -102,7 +101,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     private function formatRefresh(array $refresh): array {
         return [
             'type' => RefreshTypeConverter::toString($refresh['type']),
-            'interval' => $refresh['interval']
+            'interval' => $refresh['interval'],
         ];
     }
 }

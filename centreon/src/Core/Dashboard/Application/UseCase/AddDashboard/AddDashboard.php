@@ -137,8 +137,10 @@ final class AddDashboard
 
     /**
      * @param AddDashboardRequest $request
-     * @return NewDashboard
+     *
      * @throws AssertionFailedException
+     *
+     * @return NewDashboard
      */
     private function createDashboard(AddDashboardRequest $request): NewDashboard
     {
@@ -153,12 +155,12 @@ final class AddDashboard
         return $dashboard;
     }
 
-
     /**
      * @param PanelRequest[] $requestPanels
-     * @return NewDashboardPanel[]
      *
      * @throws AssertionFailedException
+     *
+     * @return NewDashboardPanel[]
      */
     private function createPanels(array $requestPanels): array
     {
@@ -200,15 +202,15 @@ final class AddDashboard
                 'width' => $panel->getLayoutWidth(),
                 'height' => $panel->getLayoutHeight(),
                 'min_width' => $panel->getLayoutMinWidth(),
-                'min_height' => $panel->getLayoutMinHeight()
+                'min_height' => $panel->getLayoutMinHeight(),
             ],
             'widget_type' => $panel->getWidgetType(),
-            'widget_settings' => $panel->getWidgetSettings()
+            'widget_settings' => $panel->getWidgetSettings(),
         ], $panels);
 
         $refreshResponse = [
             'type' => $dashboard->getRefresh()->getRefreshType(),
-            'interval' => $dashboard->getRefresh()->getRefreshInterval()
+            'interval' => $dashboard->getRefresh()->getRefreshInterval(),
         ];
 
         return new AddDashboardResponse(

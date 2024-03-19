@@ -25,16 +25,14 @@ namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 final class PanelRequest
 {
-    public function __construct(public LayoutRequest $layout)
-    {
-    }
-
     public string $name = '';
 
     public string $widgetType = '';
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     public array $widgetSettings = [];
+
+    public function __construct(public LayoutRequest $layout)
+    {
+    }
 }

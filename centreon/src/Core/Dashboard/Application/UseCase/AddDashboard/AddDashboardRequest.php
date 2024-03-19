@@ -31,17 +31,12 @@ final class AddDashboardRequest
 
     public ?string $description = null;
 
-    /**
-     * @var array<PanelRequest>
-     */
+    /** @var array<PanelRequest> */
     public array $panels = [];
 
-    /**
-     * @var array{type:RefreshType, interval: int|null}
-     */
+    /** @var array{type:RefreshType, interval: int|null} */
     public array $refresh = [
         'type' => RefreshType::Global,
-        'interval' => null
+        'interval' => null,
     ];
-
 }

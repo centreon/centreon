@@ -45,6 +45,7 @@ class NewDashboard
     /**
      * @param string $name
      * @param int $createdBy
+     * @param Refresh $refresh
      *
      * @throws AssertionFailedException
      */
