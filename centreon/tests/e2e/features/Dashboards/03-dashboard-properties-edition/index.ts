@@ -45,7 +45,10 @@ Given(
 );
 
 When('the user selects the properties of the dashboard', () => {
-  cy.getByLabel({ label: 'Edit properties', tag: 'button' }).eq(3).click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' })
+    .eq(3)
+    .getByLabel({ label: 'Edit properties' })
+    .click();
 });
 
 Then(
@@ -105,7 +108,10 @@ Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
     cy.visit('/centreon/home/dashboards');
-    cy.get('button[aria-label="Edit properties"]').eq(3).click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' })
+      .eq(3)
+      .getByLabel({ label: 'Edit properties' })
+      .click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       '{selectall}{backspace}dashboard-cancel-update-changes'
     );
@@ -128,7 +134,10 @@ Then('the dashboard has not been edited and features its former values', () => {
 When(
   'the user opens the form to update the dashboard for the second time',
   () => {
-    cy.get('button[aria-label="Edit properties"]').eq(3).click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' })
+      .eq(3)
+      .getByLabel({ label: 'Edit properties' })
+      .click();
   }
 );
 
@@ -148,7 +157,10 @@ Then(
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
   cy.visit('/centreon/home/dashboards');
-  cy.get('button[aria-label="Edit properties"]').eq(3).click();
+  cy.getByLabel({ label: 'More actions', tag: 'button' })
+    .eq(3)
+    .getByLabel({ label: 'Edit properties' })
+    .click();
 });
 
 When('the user sets an empty name for this dashboard', () => {
@@ -171,7 +183,10 @@ Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
     cy.visit('/centreon/home/dashboards');
-    cy.get('button[aria-label="Edit properties"]').eq(3).click();
+    cy.getByLabel({ label: 'More actions', tag: 'button' })
+      .eq(3)
+      .getByLabel({ label: 'Edit properties' })
+      .click();
   }
 );
 

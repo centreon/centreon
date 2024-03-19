@@ -69,7 +69,7 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
 
 When('the user selects the share option on a dashboard', () => {
   cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
-  cy.getByLabel({ label: 'Share', tag: 'button' }).first().click();
+  cy.getByLabel({ label: 'share', tag: 'button' }).first().click();
 });
 
 Then('the user is redirected to the sharing list of the dashboard', () => {
