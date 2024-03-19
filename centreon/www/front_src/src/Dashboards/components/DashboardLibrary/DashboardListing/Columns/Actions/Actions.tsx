@@ -1,4 +1,3 @@
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -15,7 +14,6 @@ import {
   labelShare,
   labelUnshare
 } from '../../translatedLabels';
-import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
 import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
