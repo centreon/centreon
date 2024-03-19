@@ -18883,3 +18883,12 @@ msgstr "Toutes les ressources sont sélectionnées"
 
 msgid "Update to %s"
 msgstr "Mise à jour vers %s"
+
+msgid "An error occurred while retrieving the migrations listing"
+msgstr "Une erreur est survenue lors de la récupération de la liste des migrations"
+
+msgid "Bad migration name: %s"
+msgstr "Mauvais nom de migration : %s"
+
+msgid "Store already executed migrations in database"
+msgstr "Stockage des migations déjà exécutées en base de données"

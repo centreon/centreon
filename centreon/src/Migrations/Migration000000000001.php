@@ -41,7 +41,7 @@ class Migration000000000001 extends AbstractMigration implements MigrationInterf
      */
     public function getDescription(): string
     {
-        return _('Store migrations already done');
+        return _('Store already executed migrations in database');
     }
 
     /**

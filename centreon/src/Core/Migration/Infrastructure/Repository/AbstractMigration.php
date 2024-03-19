@@ -40,7 +40,7 @@ abstract class AbstractMigration
             return -$matches[1];
         }
 
-        throw new \Exception(sprintf('Bad migration name: %s', $className));
+        throw new \Exception(sprintf(_('Bad migration name: %s'), $className));
     }
 
     /**
