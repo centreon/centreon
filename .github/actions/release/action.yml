@@ -116,6 +116,7 @@ runs:
           else
             echo "::error::Release tag $TAG was empty, exiting."
             exit 1
+          fi
         done
       shell: bash
       env:
