@@ -14,6 +14,8 @@ import {
 import data from '../../../fixtures/notifications/data-for-notification.json';
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
+import payloadCheck from '../../../fixtures/notifications/payload-check.json';
+
 let globalResourceType = '';
 let globalContactSettings = '';
 
@@ -293,7 +295,7 @@ When('the hard state has been reached', () => {
       break;
     default:
       checkServices({
-        status: 'critical',
+        status: 'ok',
         statusType: 'hard'
       });
   }
@@ -390,26 +392,15 @@ Given(
       }
     ]);
 
-    // for (let i = 1; i <= 100; i++) {
-    //   cy.log('Add service ' + i);
-
-    //   cy.addService({
-    //     activeCheckEnabled: false,
-    //     host: data.hosts.host1.name,
-    //     maxCheckAttempts: 1,
-    //     name: 'service_' + i,
-    //     template: 'Ping-LAN'
-    //   });
-    // }
-
     cy.copyToContainer({
-      destination: '/bitnami/mariadb/data/centreon_storage/services-data.txt',
-      source: './fixtures/notifications/services-data.txt',
+      destination:
+        '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
+      source: './fixtures/notifications/centreon_storage_services.txt',
       name: 'db',
       type: CopyToContainerContentType.File
     });
 
-    const query = `LOAD DATA INFILE 'services-data.txt' 
+    const query_centreon_storage_service = `LOAD DATA INFILE 'centreon_storage_services.txt' 
     INTO TABLE services
     FIELDS TERMINATED BY '\t' 
     LINES TERMINATED BY '\n'
@@ -417,7 +408,41 @@ Given(
     `;
     cy.requestOnDatabase({
       database: 'centreon_storage',
-      query
+      query: query_centreon_storage_service
+    });
+
+    cy.copyToContainer({
+      destination: '/bitnami/mariadb/data/centreon/centreon_services.txt',
+      source: './fixtures/notifications/centreon_services.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query_centreon_service = `LOAD DATA INFILE 'centreon_services.txt'
+    INTO TABLE service
+    FIELDS TERMINATED BY '\t'
+    LINES TERMINATED BY '\n'
+    (service_id, service_template_model_stm_id, service_description, service_is_volatile, service_max_check_attempts, service_active_checks_enabled, service_passive_checks_enabled, service_parallelize_check, service_obsess_over_service, service_check_freshness, service_event_handler_enabled, service_flap_detection_enabled, service_process_perf_data, service_retain_status_information, service_retain_nonstatus_information, service_notifications_enabled, contact_additive_inheritance, cg_additive_inheritance, service_inherit_contacts_from_host, service_use_only_contacts_from_host, service_locked, service_register, service_activate)`;
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: query_centreon_service
+    });
+
+    cy.copyToContainer({
+      destination: '/bitnami/mariadb/data/centreon/host_service_relation.txt',
+      source: './fixtures/notifications/host_service_relation.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query_host_service_relation = `LOAD DATA INFILE 'host_service_relation.txt'
+    INTO TABLE host_service_relation
+    FIELDS TERMINATED BY '\t'
+    LINES TERMINATED BY '\n'
+    (host_host_id,service_service_id)`;
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: query_host_service_relation
     });
 
     cy.applyPollerConfiguration();
@@ -442,16 +467,20 @@ When(
 When(
   'changes occur in the configured statuses for the selected host group',
   () => {
-    for (let i = 1; i <= 100; i++) {
-      cy.log('Submit result for service ' + i);
-      cy.submitResults([
-        {
-          host: data.hosts.host1.name,
-          output: 'submit_status_' + i,
-          service: 'service_' + i,
-          status: 'critical'
-        }
-      ]);
-    }
+    const query = `UPDATE services SET output = 'submit_status', state = 2 WHERE description LIKE 'service_%'`;
+    cy.requestOnDatabase({
+      database: 'centreon_storage',
+      query
+    });
+
+    cy.applyPollerConfiguration();
+
+    cy.request({
+      method: 'POST',
+      url: '/centreon/api/latest/monitoring/resources/check',
+      body: payloadCheck
+    }).then((response) => {
+      expect(response.status).to.eq(204);
+    });
   }
 );
