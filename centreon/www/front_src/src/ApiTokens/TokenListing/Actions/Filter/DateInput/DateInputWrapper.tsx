@@ -3,14 +3,10 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
+import { labelCreationDate } from '../../../../translatedLabels';
 import { creationDateAtom, expirationDateAtom } from '../atoms';
 import { Property } from '../models';
-import {
-  labelCreationDate,
-  labelExpirationDate
-} from '../../../../translatedLabels';
 
-import DateInput from './DateInput';
 import CustomField from './CustomField';
 
 const DateInputWrapper = (): JSX.Element => {
@@ -23,10 +19,10 @@ const DateInputWrapper = (): JSX.Element => {
     [creationDate]
   );
 
-  const dataExpirationDate = useMemo(
-    () => ({ date: expirationDate, setDate: setExpirationDate }),
-    [expirationDate]
-  );
+  // const dataExpirationDate = useMemo(
+  //   () => ({ date: expirationDate, setDate: setExpirationDate }),
+  //   [expirationDate]
+  // );
 
   return (
     <>
