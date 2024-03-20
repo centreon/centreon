@@ -7303,7 +7303,8 @@
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify host categories\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -7312,7 +7313,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -7329,7 +7331,7 @@
 							"raw": "{\n    \"name\":\"Test_H_Category_4\",\n    \"alias\":\"I'm the fourth successful category!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -7337,14 +7339,14 @@
 								"configuration",
 								"hosts",
 								"categories",
-								"{{HostCategory5Id}}"
+								"{{HostCategory4Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available host category (3)",
+					"name": "Show available host category (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -7362,8 +7364,8 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host categories retrieved are listed with: name, alias, is_activated and comments\", function() {\r",
-									"    // Check the number of host categories (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"    // Check the number of host categories (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"    // Check the properties of each host category\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
@@ -7382,14 +7384,6 @@
 									"        \"comment\":\"I was created by the Read/Write user\"\r",
 									"    });\r",
 									"\r",
-									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostCategory5Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostCategory5Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostCategory5Alias\"),\r",
-									"        \"is_activated\": false,\r",
-									"        \"comment\":\"I was created by the Read/Write user but he can't see me\"\r",
-									"    });\r",
-									"    \r",
 									"})"
 								],
 								"type": "text/javascript",
@@ -7454,9 +7448,9 @@
 									"    \r",
 									"    // Check the properties of the host category\r",
 									"    pm.expect(responseJson).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"HostCategory5Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"HostCategory5Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"HostCategory5Alias\"),\r",
+									"        \"id\": pm.collectionVariables.get(\"HostCategory4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostCategory4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostCategory4Alias\"),\r",
 									"        \"is_activated\": false,\r",
 									"        \"comment\":\"I was created by the Read/Write user\"\r",
 									"    });\r",
@@ -7490,7 +7484,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -7498,7 +7492,7 @@
 								"configuration",
 								"hosts",
 								"categories",
-								"{{HostCategory5Id}}"
+								"{{HostCategory4Id}}"
 							]
 						}
 					},
@@ -7982,7 +7976,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"categories\": [ {{HostCategory5Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ]\r\n}\r\n",
+									"raw": "{\r\n    \"categories\": [ {{HostCategory4Id}} ],\r\n    \"groups\": [ {{HostGroup1Id}} ]\r\n}\r\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -8130,7 +8124,7 @@
 							"response": []
 						},
 						{
-							"name": "Show available host category (3)",
+							"name": "Show available host category (2)",
 							"event": [
 								{
 									"listen": "test",
@@ -8148,8 +8142,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"The host category retrieved are listed with all of their parameters.\", function() {\r",
-											"    // Check the number of host category (3)\r",
-											"    pm.expect(responseJson.result.length).to.eql(3);\r",
+											"    // Check the number of host category (2)\r",
+											"    pm.expect(responseJson.result.length).to.eql(2);\r",
 											"\r",
 											"    // Check the properties of each host category\r",
 											"    pm.expect(responseJson.result[0]).to.eql({\r",
@@ -8167,14 +8161,6 @@
 											"        \"is_activated\": false,\r",
 											"        \"comment\": \"I was created by the Read/Write user\"\r",
 											"    });   \r",
-											"\r",
-											"    pm.expect(responseJson.result[2]).to.eql({\r",
-											"        \"id\": pm.collectionVariables.get(\"HostCategory5Id\"),\r",
-											"        \"name\": pm.collectionVariables.get(\"HostCategory5Name\"),\r",
-											"        \"alias\": pm.collectionVariables.get(\"HostCategory5Alias\"),\r",
-											"        \"is_activated\": false,\r",
-											"        \"comment\": \"I was created by the Read/Write user\"\r",
-											"    });    \r",
 											"\r",
 											"})"
 										],
@@ -10389,7 +10375,8 @@
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete host categories\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -10398,7 +10385,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -10415,7 +10403,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -10423,7 +10411,7 @@
 								"configuration",
 								"hosts",
 								"categories",
-								"{{HostCategory5Id}}"
+								"{{HostCategory4Id}}"
 							]
 						}
 					},
@@ -10442,7 +10430,8 @@
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create/modify host categories\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -10451,7 +10440,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -10468,7 +10458,7 @@
 							"raw": "{\n    \"name\":\"Test_H_Category_4\",\n    \"alias\":\"I'm the fourth successful category!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -10476,7 +10466,7 @@
 								"configuration",
 								"hosts",
 								"categories",
-								"{{HostCategory5Id}}"
+								"{{HostCategory4Id}}"
 							]
 						}
 					},
