@@ -29,6 +29,11 @@ use Core\Migration\Domain\Model\NewMigration;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class FsReadAvailableMigrationRepository implements ReadAvailableMigrationRepositoryInterface
 {
@@ -46,6 +51,7 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
         \Traversable $migrations,
         private Filesystem $filesystem,
         private Finder $finder,
+        private KernelInterface $kernel
     ) {
         if (iterator_count($migrations) === 0) {
             throw new \Exception('Migrations not found');
@@ -59,6 +65,18 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
      */
     public function findAll(): array
     {
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
+
+        $consoleOutput = new BufferedOutput();
+        $consoleOutput->setVerbosity(OutputInterface::VERBOSITY_QUIET | OutputInterface::OUTPUT_RAW);
+        $input = new ArgvInput(['', 'doctrine:migrations:list']);
+
+        $code = $application->run($input, $consoleOutput);
+        dump($code);
+        // dump($consoleOutput->fetch());
+
+
         $migrations = [];
 
         foreach ($this->migrations as $migration) {
