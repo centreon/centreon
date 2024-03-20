@@ -58,34 +58,35 @@ use constant EXECUTION_MODE_PAUSE => 2;
 use constant MAX_INSERT_BY_QUERY => 100;
 
 my %handlers = (TERM => {}, HUP => {});
+my ($connector);
 
 sub new {
     my ($class, %options) = @_;
-    my $self = $class->SUPER::new(%options);
-    bless $self, $class;
+    $connector = $class->SUPER::new(%options);
+    bless $connector, $class;
 
-    $self->{global_timeout} = (defined($options{config}->{global_timeout}) &&
+    $connector->{global_timeout} = (defined($options{config}->{global_timeout}) &&
         $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
-    $self->{check_interval} = (defined($options{config}->{check_interval}) &&
+    $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
-    $self->{tpapi_clapi_name} = defined($options{config}->{tpapi_clapi}) && $options{config}->{tpapi_clapi} ne '' ? $options{config}->{tpapi_clapi} : 'clapi';
-    $self->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ?
+    $connector->{tpapi_clapi_name} = defined($options{config}->{tpapi_clapi}) && $options{config}->{tpapi_clapi} ne '' ? $options{config}->{tpapi_clapi} : 'clapi';
+    $connector->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ? 
         $options{config}->{tpapi_centreonv2} : 'centreonv2';
 
-    $self->{is_module_installed} = 0;
-    $self->{is_module_installed_check_interval} = 60;
-    $self->{is_module_installed_last_check} = -1;
+    $connector->{is_module_installed} = 0;
+    $connector->{is_module_installed_check_interval} = 60;
+    $connector->{is_module_installed_last_check} = -1;
 
-    $self->{hdisco_synced} = 0;
-    $self->{hdisco_synced_failed_time} = -1;
-    $self->{hdisco_synced_ok_time} = -1;
-    $self->{hdisco_jobs_tokens} = {};
-    $self->{hdisco_jobs_ids} = {};
+    $connector->{hdisco_synced} = 0;
+    $connector->{hdisco_synced_failed_time} = -1;
+    $connector->{hdisco_synced_ok_time} = -1;
+    $connector->{hdisco_jobs_tokens} = {};
+    $connector->{hdisco_jobs_ids} = {};
 
-    $self->{service_discoveries} = {};
+    $connector->{service_discoveries} = {};
 
-    $self->set_signal_handlers();
-    return $self;
+    $connector->set_signal_handlers();
+    return $connector;
 }
 
 sub set_signal_handlers {
@@ -595,7 +596,7 @@ sub action_launchhostdiscovery {
         code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
         instant => 1,
-        data    => {
+        data => {
             message => $message
         }
     );
@@ -621,8 +622,8 @@ sub discovery_postcommand_result {
     if ($exit_code != 0) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - execute discovery postcommand failed job '$job_id'");
         $self->update_job_status(
-            job_id  => $job_id,
-            status  => SAVE_FAILED,
+            job_id => $job_id,
+            status => SAVE_FAILED,
             message => $output
         );
         return 1;
@@ -630,8 +631,8 @@ sub discovery_postcommand_result {
 
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - finished discovery postcommand job '$job_id'");
     $self->update_job_status(
-        job_id  => $job_id,
-        status  => SAVE_FINISH,
+        job_id => $job_id,
+        status => SAVE_FINISH,
         message => 'Finished'
     );
 }
@@ -641,14 +642,14 @@ sub discovery_add_host_result {
 
     if ($options{builder}->{num_lines} == MAX_INSERT_BY_QUERY) {
         my ($status) = $self->{class_object_centreon}->custom_execute(
-            request     => $options{builder}->{query} . $options{builder}->{values},
+            request => $options{builder}->{query} . $options{builder}->{values},
             bind_values => $options{builder}->{bind_values}
         );
         if ($status == -1) {
             $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$options{job_id}' results");
             $self->update_job_status(
-                job_id  => $options{job_id},
-                status  => JOB_FAILED,
+                job_id => $options{job_id},
+                status => JOB_FAILED,
                 message => 'Failed to insert job results'
             );
             return 1;
@@ -701,8 +702,8 @@ sub discovery_command_result {
     if ($exit_code != 0) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - execute discovery plugin failed job '$job_id'");
         $self->update_job_status(
-            job_id  => $job_id,
-            status  => JOB_FAILED,
+            job_id => $job_id,
+            status => JOB_FAILED,
             message => (defined($data->{data}->{result}->{stderr}) && $data->{data}->{result}->{stderr} ne '') ?
                 $data->{data}->{result}->{stderr} : $data->{data}->{result}->{stdout}
         );
@@ -711,12 +712,12 @@ sub discovery_command_result {
 
     # Delete previous results
     my $query = "DELETE FROM mod_host_disco_host WHERE job_id = ?";
-    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => [ $job_id ]);
+    my ($status) = $self->{class_object_centreon}->custom_execute(request => $query, bind_values => [$job_id]);
     if ($status == -1) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to delete previous job '$job_id' results");
         $self->update_job_status(
-            job_id  => $job_id,
-            status  => JOB_FAILED,
+            job_id => $job_id,
+            status => JOB_FAILED,
             message => 'Failed to delete previous job results'
         );
         return 1;
@@ -724,11 +725,11 @@ sub discovery_command_result {
 
     # Add new results
     my $builder = {
-        query       => "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES ",
-        num_lines   => 0,
+        query => "INSERT INTO mod_host_disco_host (job_id, discovery_result, uuid) VALUES ",
+        num_lines => 0,
         total_lines => 0,
-        values      => '',
-        append      => '',
+        values => '',
+        append => '',
         bind_values => []
     };
     my $duration = 0;
@@ -753,8 +754,8 @@ sub discovery_command_result {
     } catch {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to decode discovery plugin response job '$job_id'");
         $self->update_job_status(
-            job_id  => $job_id,
-            status  => JOB_FAILED,
+            job_id => $job_id,
+            status => JOB_FAILED,
             message => 'Failed to decode discovery plugin response'
         );
         return 1;
@@ -765,8 +766,8 @@ sub discovery_command_result {
         if ($status == -1) {
             $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - failed to insert job '$job_id' results");
             $self->update_job_status(
-                job_id  => $job_id,
-                status  => JOB_FAILED,
+                job_id => $job_id,
+                status => JOB_FAILED,
                 message => 'Failed to insert job results'
             );
             return 1;
@@ -780,12 +781,12 @@ sub discovery_command_result {
 
         $self->send_internal_action({
             action => $post_command->{action},
-            token  => $self->{hdisco_jobs_ids}->{$job_id}->{token},
-            data   => {
+            token => $self->{hdisco_jobs_ids}->{$job_id}->{token},
+            data => {
                 instant => 1,
                 content => [
                     {
-                        command  => $post_command->{command_line} . ' --token=' . $self->{tpapi_centreonv2}->get_token(),
+                        command => $post_command->{command_line} . ' --token=' . $self->{tpapi_centreonv2}->get_token(),
                         metadata => {
                             job_id => $job_id,
                             source => 'autodiscovery-host-job-postcommand'
@@ -795,13 +796,13 @@ sub discovery_command_result {
             }
         });
     }
-
+    
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - finished discovery command job '$job_id'");
     $self->update_job_status(
-        job_id           => $job_id,
-        status           => JOB_FINISH,
-        message          => 'Finished',
-        duration         => $duration,
+        job_id => $job_id,
+        status => JOB_FINISH,
+        message => 'Finished',
+        duration => $duration,
         discovered_items => $builder->{total_lines}
     );
 
@@ -816,26 +817,26 @@ sub action_deletehostdiscoveryjob {
     $options{token} = $self->generate_token() if (!defined($options{token}));
     if (!$self->is_hdisco_synced()) {
         $self->send_log(
-            code  => GORGONE_ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data  => {
+            data => {
                 message => 'host discovery synchronization issue'
             }
         );
-        return;
+        return ;
     }
 
     my $data = $options{frame}->getData();
 
     my $discovery_token = $data->{variables}->[0];
-    my $job_id = (defined($discovery_token) && defined($self->{hdisco_jobs_tokens}->{$discovery_token})) ?
+    my $job_id = (defined($discovery_token) && defined($self->{hdisco_jobs_tokens}->{$discovery_token})) ? 
         $self->{hdisco_jobs_tokens}->{$discovery_token} : undef;
     if (!defined($discovery_token) || $discovery_token eq '') {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - missing ':token' variable to delete discovery");
         $self->send_log(
-            code  => GORGONE_ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data  => { message => 'missing discovery token' }
+            data => { message => 'missing discovery token' }
         );
         return 1;
     }
@@ -845,9 +846,9 @@ sub action_deletehostdiscoveryjob {
     if ($status != 0) {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - cannot get host discovery job '$job_id' - " . $self->{tpapi_centreonv2}->error());
         $self->send_log(
-            code  => GORGONE_ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data  => {
+            data => {
                 message => "cannot get job '$job_id'"
             }
         );
@@ -866,11 +867,11 @@ sub action_deletehostdiscoveryjob {
     }
 
     $self->send_log(
-        code  => GORGONE_ACTION_FINISH_OK,
+        code => GORGONE_ACTION_FINISH_OK,
         token => $options{token},
-        data  => { message => 'job ' . $discovery_token . ' deleted' }
+        data => { message => 'job ' . $discovery_token . ' deleted' }
     );
-
+    
     return 0;
 }
 
@@ -881,7 +882,7 @@ sub update_job_status {
     $values->{duration} = $options{duration} if (defined($options{duration}));
     $values->{discovered_items} = $options{discovered_items} if (defined($options{discovered_items}));
     $self->update_job_information(
-        values       => $values,
+        values => $values,
         where_clause => [
             {
                 id => $options{job_id}
@@ -896,7 +897,7 @@ sub update_job_information {
 
     return 1 if (!defined($options{where_clause}) || ref($options{where_clause}) ne 'ARRAY' || scalar($options{where_clause}) < 1);
     return 1 if (!defined($options{values}) || ref($options{values}) ne 'HASH' || !keys %{$options{values}});
-
+    
     my $query = "UPDATE mod_host_disco_job SET ";
     my @bind_values = ();
     my $append = '';
@@ -934,12 +935,12 @@ sub action_hostdiscoveryjoblistener {
     my $data = $options{frame}->getData();
 
     my $job_id = $self->{hdisco_jobs_tokens}->{ $options{token} };
-    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT &&
+    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
         $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-discovery') {
         $self->discovery_command_result(%options);
         return 1;
     }
-    #if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT &&
+    #if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
     #    $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-postcommand') {
     #    $self->discovery_postcommand_result(%options);
     #    return 1;
@@ -951,10 +952,10 @@ sub action_hostdiscoveryjoblistener {
     if ($data->{code} == GORGONE_ACTION_FINISH_KO) {
         $self->{hdisco_jobs_ids}->{$job_id}->{status} = JOB_FAILED;
         $self->update_job_information(
-            values       => {
-                status           => JOB_FAILED,
-                message          => $message,
-                duration         => 0,
+            values => {
+                status => JOB_FAILED,
+                message => $message,
+                duration => 0,
                 discovered_items => 0
             },
             where_clause => [
@@ -999,12 +1000,12 @@ sub hdisco_add_joblistener {
 
         $self->send_internal_action({
             action => 'ADDLISTENER',
-            data   => [
+            data => [
                 {
                     identity => 'gorgoneautodiscovery',
-                    event    => 'HOSTDISCOVERYJOBLISTENER',
-                    target   => $_->{target},
-                    token    => $_->{token},
+                    event => 'HOSTDISCOVERYJOBLISTENER',
+                    target => $_->{target},
+                    token => $_->{token},
                     log_pace => $self->{check_interval}
                 }
             ]
@@ -1021,11 +1022,7 @@ Service Discovery part
 **********************
 
 =cut
-sub getDiscoveryListener {
-    my ($self, $uuid) = @_;
-    return undef if (!defined($self->{service_discoveries}->{ $uuid }));
-    return $self->{service_discoveries}->{$uuid}->can("discoverylistener"), $self->{service_discoveries}->{$uuid} ;
-}
+
 sub action_servicediscoverylistener {
     my ($self, %options) = @_;
 
@@ -1035,25 +1032,19 @@ sub action_servicediscoverylistener {
     return 0 if ($options{token} !~ /^svc-disco-(.*?)-(\d+)-(\d+)/);
 
     my ($uuid, $rule_id, $host_id) = ($1, $2, $3);
+    return 0 if (!defined($self->{service_discoveries}->{ $uuid }));
 
-    my ($discoverylistener_method, $local_self) = $self->getDiscoveryListener($uuid);
-    return 0 if (!defined($discoverylistener_method));
-
-    $discoverylistener_method->(
-        $local_self,
+    $self->{service_discoveries}->{ $uuid }->discoverylistener(
         rule_id => $rule_id,
         host_id => $host_id,
         %options
     );
 
-    if ($self->is_finished($uuid)) {
+    if (defined($self->{service_discoveries}->{ $uuid }) && $self->{service_discoveries}->{ $uuid }->is_finished()) {
+        return 0 if ($self->{service_discoveries}->{ $uuid }->is_post_execution());
+        $self->{service_discoveries}->{ $uuid }->service_discovery_post_exec();
         delete $self->{service_discoveries}->{ $uuid };
     }
-}
-
-sub is_finished {
-    my ($self, $uuid) = @_;
-    return $self->{service_discoveries}->{ $uuid }->is_finished();
 }
 
 sub action_launchservicediscovery {
@@ -1063,28 +1054,30 @@ sub action_launchservicediscovery {
 
     $self->{service_number}++;
     my $svc_discovery = gorgone::modules::centreon::autodiscovery::services::discovery->new(
-        module_id                => $self->{module_id},
-        logger                   => $self->{logger},
-        tpapi_clapi              => $self->{tpapi_clapi},
-        internal_socket          => $self->{internal_socket},
-        config                   => $self->{config},
-        config_core              => $self->{config_core},
-        service_number           => $self->{service_number},
-        class_object_centreon    => $self->{class_object_centreon},
-        class_object_centstorage => $self->{class_object_centstorage}
+        module_id => $self->{module_id},
+        logger => $self->{logger},
+        tpapi_clapi => $self->{tpapi_clapi},
+        internal_socket => $self->{internal_socket},
+        config => $self->{config},
+        config_core => $self->{config_core},
+        service_number => $self->{service_number},
+        class_object_centreon => $self->{class_object_centreon},
+        class_object_centstorage => $self->{class_object_centstorage},
+        class_autodiscovery => $self
     );
-    $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
 
+    $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
     my $status = $svc_discovery->launchdiscovery(
         token => $options{token},
         frame => $options{frame}
     );
     if ($status == -1) {
         $self->send_log(
-            code  => GORGONE_ACTION_FINISH_KO,
+            code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data  => { message => 'cannot launch discovery' }
+            data => { message => 'cannot launch discovery' }
         );
+        delete $self->{service_discoveries}->{ $svc_discovery->get_uuid() };
     }
 }
 
@@ -1127,9 +1120,9 @@ sub event {
         next if ($rv);
 
         my $raw = $frame->getFrame();
-        $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($self->{logger}->is_debug());
+        $self->{logger}->writeLogDebug("[autodiscovery] Event: " . $$raw) if ($connector->{logger}->is_debug());
         if ($$raw =~ /^\[(.*?)\]/) {
-            if ((my $method = $self->can('action_' . lc($1)))) {
+            if ((my $method = $connector->can('action_' . lc($1)))) {
                 next if ($frame->parse({ releaseFrame => 1, decode => 1 }));
 
                 $method->($self, token => $frame->getToken(), frame => $frame);
@@ -1139,12 +1132,11 @@ sub event {
 }
 
 sub periodic_exec {
-    my $self = shift;
-    $self->is_module_installed();
-    $self->hdisco_sync();
+    $connector->is_module_installed();
+    $connector->hdisco_sync();
 
-    if ($self->{stop} == 1) {
-        $self->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
+    if ($connector->{stop} == 1) {
+        $connector->{logger}->writeLogInfo("[autodiscovery] $$ has quit");
         exit(0);
     }
 }
@@ -1166,49 +1158,48 @@ sub run {
     }
 
     $self->{db_centreon} = gorgone::class::db->new(
-        dsn      => $self->{config_db_centreon}->{dsn},
-        user     => $self->{config_db_centreon}->{username},
+        dsn => $self->{config_db_centreon}->{dsn},
+        user => $self->{config_db_centreon}->{username},
         password => $self->{config_db_centreon}->{password},
-        force    => 2,
-        logger   => $self->{logger}
+        force => 2,
+        logger => $self->{logger}
     );
     $self->{db_centstorage} = gorgone::class::db->new(
-        dsn      => $self->{config_db_centstorage}->{dsn},
-        user     => $self->{config_db_centstorage}->{username},
+        dsn => $self->{config_db_centstorage}->{dsn},
+        user => $self->{config_db_centstorage}->{username},
         password => $self->{config_db_centstorage}->{password},
-        force    => 2,
-        logger   => $self->{logger}
+        force => 2,
+        logger => $self->{logger}
     );
-
+    
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(
-        logger      => $self->{logger},
+        logger => $self->{logger},
         db_centreon => $self->{db_centreon}
     );
     $self->{class_object_centstorage} = gorgone::class::sqlquery->new(
-        logger      => $self->{logger},
+        logger => $self->{logger},
         db_centreon => $self->{db_centstorage}
     );
 
     $self->{internal_socket} = gorgone::standard::library::connect_com(
-        context  => $self->{zmq_context},
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
-        name     => 'gorgone-autodiscovery',
-        logger   => $self->{logger},
-        type     => $self->get_core_config(name => 'internal_com_type'),
-        path     => $self->get_core_config(name => 'internal_com_path')
+        name => 'gorgone-autodiscovery',
+        logger => $self->{logger},
+        type => $self->get_core_config(name => 'internal_com_type'),
+        path => $self->get_core_config(name => 'internal_com_path')
     );
     $self->send_internal_action({
         action => 'AUTODISCOVERYREADY',
-        data   => {}
+        data => {}
     });
 
     $self->is_module_installed();
     $self->hdisco_sync();
 
-    my $watcher_timer = $self->{loop}->timer(5, 5, sub {$self->periodic_exec()});
-    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub {$self->event()});
+    my $watcher_timer = $self->{loop}->timer(5, 5, \&periodic_exec);
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
     $self->{loop}->run();
 }
 
 1;
-

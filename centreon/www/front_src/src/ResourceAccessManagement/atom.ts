@@ -3,6 +3,7 @@ import { atom } from 'jotai';
 import {
   DeleteResourceAccessRuleType,
   DeleteType,
+  DuplicateResourceAccessRuleType,
   ModalMode,
   ResourceAccessRuleType
 } from './models';
@@ -29,3 +30,8 @@ export const deleteResourceAccessRuleAtom = atom<DeleteResourceAccessRuleType>({
   deleteType: DeleteType.SingleItem,
   id: null
 });
+
+export const duplicatedRuleAtom = atom<DuplicateResourceAccessRuleType>({
+  id: null
+});
+export const isDuplicateDialogOpenAtom = atom<boolean>(false);

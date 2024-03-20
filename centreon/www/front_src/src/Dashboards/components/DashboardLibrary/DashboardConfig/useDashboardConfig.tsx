@@ -50,7 +50,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
     mutate: createDashboardMutation,
     reset: resetCreateMutation,
     status: statusCreateMutation
-  } = useCreateDashboard();
+  } = useCreateDashboard({});
 
   const {
     mutate: updateDashboardMutation,
