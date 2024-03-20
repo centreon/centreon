@@ -1,102 +1,87 @@
-import { useState, memo } from 'react';
+import { SetStateAction, memo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
 import { useStyles } from '../filter.styles';
-import { Property } from '../models';
 
-import CustomField from './CustomField';
+import HelperText from './HelperText';
 
+type SetAtom<Args extends Array<unknown>, Result> = (...args: Args) => Result;
+interface DataDate {
+  date: Date | null;
+  setDate: SetAtom<[SetStateAction<Date | null>], void>;
+}
 interface Props {
-  dataDate;
-  label: string;
-  property: Property;
+  dataDate: DataDate;
+  setDisplayCalendar;
 }
 
-const DateInput = ({ dataDate, label, property }: Props): JSX.Element => {
+const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
   const { classes } = useStyles();
-  const { date, setDate } = dataDate;
+  const { setDate } = dataDate;
   const defaultDate = dayjs().toDate();
-  const [open, setOpen] = useState(false);
 
-  const [error, setError] = useState(false);
-  const [customizedDate, setCustomizedDate] = useState<Date | null>(null);
+  const [error, setError] = useState('');
+  const [customizedDate, setCustomizedDate] = useState<Date>(defaultDate);
 
   const changeDate = ({ date: time }): void => {
-    if (!dayjs(time).isValid()) {
-      setError(true);
-
-      return;
-    }
-    setError(false);
+    setError('');
     setCustomizedDate(dayjs(time).toDate());
   };
 
-  const onClear = (): void => {
-    setCustomizedDate(null);
-    setDate(null);
-    setOpen(false);
-    setError(false);
+  const hideCalendar = (): void => {
+    setDisplayCalendar(false);
   };
 
-  const onClose = (): void => {
-    setOpen(false);
-  };
-
-  const getIsDisplayingCalendar = (value): void => {
-    setOpen(value);
-  };
-
-  const onAccept = (): void => {
+  const handleDate = (callback?: () => void): void => {
     if (!dayjs(customizedDate).isValid()) {
-      setError(true);
+      setError('invalid date');
 
       return;
     }
+    setError('');
     setDate(customizedDate);
-    setError(false);
-    setOpen(false);
+    callback?.();
+  };
+
+  const onKeyDown = (event): void => {
+    if (event.key !== 'Enter') {
+      // todo
+      handleDate();
+
+      return;
+    }
+
+    handleDate(hideCalendar);
+  };
+
+  const close = (): void => {
+    handleDate(hideCalendar);
   };
 
   const slotProps = {
-    actionBar: {
-      actions: ['clear', 'accept'],
-      onAccept,
-      onClear
-    },
-    field: {
-      className: classes.field,
-      customizedDate,
-      dataDate,
-      error,
-      getIsDisplayingCalendar,
-      label,
-      onClear,
-      property
-    },
     popper: {
-      className: classes.popper,
-      placement: 'bottom'
+      className: classes.popper
+    },
+    textField: {
+      onKeyDown
     }
   };
 
-  const slots = {
-    field: CustomField
-  };
-
   return (
-    <DateTimePickerInput
-      changeDate={changeDate}
-      closeOnSelect={false}
-      date={customizedDate || date || defaultDate}
-      open={open}
-      // slotProps={slotProps}
-      // slots={slots}
-      // timeSteps={{ minutes: 1 }}
-      onClose={onClose}
-    />
+    <>
+      <DateTimePickerInput
+        changeDate={changeDate}
+        closeOnSelect={false}
+        date={customizedDate}
+        slotProps={slotProps}
+        timeSteps={{ minutes: 1 }}
+        onClose={close}
+      />
+      <HelperText error={error} />
+    </>
   );
 };
 

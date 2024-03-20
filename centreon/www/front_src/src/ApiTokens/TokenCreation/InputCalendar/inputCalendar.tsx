@@ -4,10 +4,11 @@ import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { FormHelperText, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
+import HelperText from '../../TokenListing/Actions/Filter/DateInput/HelperText';
 import { CreateTokenFormValues } from '../../TokenListing/models';
 import { isInvalidDate } from '../utils';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
@@ -117,11 +118,7 @@ const CustomTimePeriod = ({
           onOpen={onOpen}
         />
       </div>
-      {error && (
-        <FormHelperText error className={classes.helperText}>
-          {error}
-        </FormHelperText>
-      )}
+      <HelperText className={classes.helperText} error={error} />
     </div>
   );
 };

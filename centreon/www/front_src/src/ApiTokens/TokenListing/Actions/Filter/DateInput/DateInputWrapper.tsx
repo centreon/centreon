@@ -11,6 +11,7 @@ import {
 } from '../../../../translatedLabels';
 
 import DateInput from './DateInput';
+import CustomField from './CustomField';
 
 const DateInputWrapper = (): JSX.Element => {
   const { t } = useTranslation();
@@ -29,16 +30,18 @@ const DateInputWrapper = (): JSX.Element => {
 
   return (
     <>
-      <DateInput
+      {/* <DateInput
+        dataDate={dataCreationDate}
+        label={t(labelCreationDate)}
+        property={Property.last}
+      /> */}
+
+      <CustomField
         dataDate={dataCreationDate}
         label={t(labelCreationDate)}
         property={Property.last}
       />
-      <DateInput
-        dataDate={dataExpirationDate}
-        label={t(labelExpirationDate)}
-        property={Property.in}
-      />
+      {/* <DateInput /> */}
     </>
   );
 };

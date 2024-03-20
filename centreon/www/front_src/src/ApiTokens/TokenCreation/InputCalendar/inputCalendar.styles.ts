@@ -23,7 +23,7 @@ export const useStyles = makeStyles<StyleProps>()(
       flex: 0.9
     },
     helperText: {
-      textAlign: 'center'
+      textAlign: 'start'
     },
     popper: {
       height: (windowHeight - actionsHeight) / 2,

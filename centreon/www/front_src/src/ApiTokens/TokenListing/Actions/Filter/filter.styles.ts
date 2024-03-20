@@ -34,6 +34,9 @@ export const useStyles = makeStyles()((theme) => ({
       width: theme.spacing(40)
     }
   },
+  helperText: {
+    textAlign: 'center'
+  },
   input: {
     marginBottom: theme.spacing(1.5),
     width: theme.spacing(40)
