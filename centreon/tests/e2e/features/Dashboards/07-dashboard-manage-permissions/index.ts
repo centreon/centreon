@@ -10,6 +10,7 @@ before(() => {
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
