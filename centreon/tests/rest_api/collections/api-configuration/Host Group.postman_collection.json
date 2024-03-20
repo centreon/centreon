@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "2982c69d-9454-430e-9cc7-0b09a7ccbe6a",
-		"name": "Host Group",
+		"name": "0 Host Group",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-2982c69d-9454-430e-9cc7-0b09a7ccbe6a?action=share&source=collection_link&creator=16182525"
@@ -5008,7 +5008,7 @@
 											"/*\r",
 											"/  Check code status\r",
 											"*/\r",
-											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host2Name\") + \"' has been successfully updated.\", function () {\r",
+											"pm.test(\"The host with name '\" + pm.collectionVariables.get(\"Host3Name\") + \"' has been successfully updated.\", function () {\r",
 											"    pm.response.to.have.status(204);\r",
 											"});"
 										],
@@ -6556,7 +6556,7 @@
 							"response": []
 						},
 						{
-							"name": "Show available host group (1)",
+							"name": "Show available host group (2)",
 							"event": [
 								{
 									"listen": "test",
@@ -7385,7 +7385,7 @@
 							"response": []
 						},
 						{
-							"name": "Show available host group filtered with category 2 (1)",
+							"name": "Show available host group filtered with category 1 (1)",
 							"event": [
 								{
 									"listen": "test",
@@ -7402,7 +7402,7 @@
 											"/  Check body content\r",
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
-											"pm.test(\"The host groups list retrieved is empty\", function() {\r",
+											"pm.test(\"The host groups retrieved are listed with all of their parameters.\", function() {\r",
 											"    // Check the number of host groups (1)\r",
 											"    pm.expect(responseJson.result.length).to.eql(1);\r",
 											"\r",
@@ -9319,68 +9319,6 @@
 									"response": []
 								},
 								{
-									"name": "Show ACLResources",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test(\"A list of ACL Resource has been fetched.\", function () {",
-													"    pm.response.to.have.status(200);",
-													"",
-													"    var response = JSON.parse(responseBody);",
-													"    pm.collectionVariables.set(\"ACLResources\", response.result[1].name);",
-													"});"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json"
-											},
-											{
-												"key": "centreon-auth-token",
-												"value": "{{token}}"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"action\": \"show\",\n  \"object\": \"ACLRESOURCE\"\n}"
-										},
-										"url": {
-											"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
-											"host": [
-												"{{baseUriCentreonCLAPI}}"
-											],
-											"query": [
-												{
-													"key": "action",
-													"value": "action"
-												},
-												{
-													"key": "object",
-													"value": "centreon_clapi"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
 									"name": "Grant the Host Category to the ACL Resource",
 									"event": [
 										{
@@ -10774,7 +10712,7 @@
 							"response": []
 						},
 						{
-							"name": "Show available host group filtered with category 2 (1)",
+							"name": "Show available host group filtered with category 1 (1)",
 							"event": [
 								{
 									"listen": "test",
@@ -10791,7 +10729,7 @@
 											"/  Check body content\r",
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
-											"pm.test(\"The host groups list retrieved is empty\", function() {\r",
+											"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
 											"    // Check the number of host groups (1)\r",
 											"    pm.expect(responseJson.result.length).to.eql(1);\r",
 											"\r",
