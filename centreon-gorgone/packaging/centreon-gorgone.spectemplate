@@ -157,9 +157,6 @@ rm -rf %{buildroot}
 %defattr(0640, centreon-gorgone, centreon-gorgone, 0640)
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 
-%defattr(0640, apache, apache, 0640)
-%{_sysconfdir}/centreon-gorgone/config.d/40-gorgoned.yaml
-
 %attr(0600, root, root) %{_sysconfdir}/sudoers.d/centreon-gorgone
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
