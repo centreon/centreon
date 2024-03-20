@@ -5,22 +5,35 @@ declare(strict_types=1);
 namespace Migrations\Factory;
 
 use Doctrine\Migrations\AbstractMigration;
-use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 
-abstract class AbstractDatabaseMigration extends AbstractMigration implements DatabaseMigrationInterface
+abstract class AbstractDatabaseMigration extends AbstractMigration
 {
-    protected Schema $centreonSchema;
-
-    protected Schema $centreonStorageSchema;
-
-    public function setCentreonSchema(Schema $centreonSchema): void
-    {
-        $this->centreonSchema = $centreonSchema;
+    public function __construct(
+        Connection $connection,
+        LoggerInterface $logger,
+        protected readonly string $centreonDbName,
+        protected readonly string $storageDbName,
+    ) {
+        parent::__construct($connection, $logger);
     }
 
-    public function setCentreonStorageSchema(Schema $centreonStorageSchema): void
-    {
-        $this->centreonStorageSchema = $centreonStorageSchema;
+    /**
+     * {@inheritDoc}
+     */
+    protected function addSql(
+        string $sql,
+        array $params = [],
+        array $types = [],
+    ): void {
+        $sql = str_replace(
+            [':dbstg', ':db'],
+            [$this->storageDbName, $this->centreonDbName],
+            $sql
+        );
+
+        parent::addSql($sql, $params, $types);
     }
 }
 
