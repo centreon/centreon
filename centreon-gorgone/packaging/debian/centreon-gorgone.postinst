@@ -13,6 +13,14 @@ if [ "$1" = "configure" ] ; then
     /var/lib/centreon-gorgone \
     /var/log/centreon-gorgone
 
+  chmod -R 0770 \
+    /etc/centreon-gorgone/config.d \
+    /etc/centreon-gorgone/config.d/cron.d
+
+  chmod -R 0640 \
+    /etc/centreon-gorgone/config.d/30-centreon.yaml \
+    /etc/centreon-gorgone/config.d/50-centreon-audit.yaml\
+
   chown root:root \
     /usr/local/bin/gorgone_config_init.pl \
     /usr/local/bin/gorgone_audit.pl \
@@ -34,6 +42,9 @@ if [ "$1" = "configure" ] ; then
   if [ ! -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ] || grep -q "@GORGONE_USER@" "/etc/centreon-gorgone/config.d/31-centreon-api.yaml"; then
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
   else
+    if [ -f /etc/centreon-gorgone/config.d/31-centreon-api.yaml ]; then
+      chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+    fi
     mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/centreon-api.yaml.new
   fi
 
