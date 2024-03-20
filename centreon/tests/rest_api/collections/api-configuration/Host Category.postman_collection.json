@@ -10543,7 +10543,8 @@
 									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host categories\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -10569,7 +10570,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory5Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/categories/{{HostCategory4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -10577,7 +10578,7 @@
 								"configuration",
 								"hosts",
 								"categories",
-								"{{HostCategory5Id}}"
+								"{{HostCategory4Id}}"
 							]
 						}
 					},
