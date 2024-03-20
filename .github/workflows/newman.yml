@@ -345,15 +345,19 @@ jobs:
           MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
         run: |
           COLLECTION_DIRECTORY=$(dirname "collections/${{ matrix.feature }}")
+          
           if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
             echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
             cat ${COLLECTION_DIRECTORY}/.env >> ../../../.github/docker/.env
           fi
+
           docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
+
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
             bash -ex "${COLLECTION_DIRECTORY}/setup.sh"
           fi
+
           if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
             docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
