@@ -345,7 +345,7 @@ jobs:
           MYSQL_IMAGE: ${{ env.DATABASE_IMAGE }}
         run: |
           COLLECTION_DIRECTORY=$(dirname "collections/${{ matrix.feature }}")
-          
+
           if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
             echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
             cat ${COLLECTION_DIRECTORY}/.env >> ../../../.github/docker/.env
