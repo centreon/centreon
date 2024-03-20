@@ -8,6 +8,7 @@ import {
   cond,
   equals,
   flatten,
+  includes,
   isEmpty,
   isNil,
   last,
@@ -208,9 +209,21 @@ const useDatasetFilter = (
       )
     );
 
-    return isEmpty(filteredResourceTypeOptions)
+    const selectedResourceTypes = pluck(
+      'type',
+      selectedDatasetFilters[datasetFilterIndex]
+    );
+
+    const remainingResourceTypeOptions = reject(
+      (type: { id: ResourceTypeEnum; name: string }) =>
+        !equals(type.id, value[index].resourceType) &&
+        includes(type.id, selectedResourceTypes),
+      filteredResourceTypeOptions
+    );
+
+    return isEmpty(remainingResourceTypeOptions)
       ? resourceTypeOptions
-      : filteredResourceTypeOptions;
+      : remainingResourceTypeOptions;
   };
 
   const isTouched = useMemo<boolean | undefined>(
@@ -229,7 +242,7 @@ const useDatasetFilter = (
     setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
       ...(datasetFilter || []),
       {
-        resourceType: '',
+        resourceType: ResourceTypeEnum.Empty,
         resources: []
       }
     ]);
@@ -306,21 +319,48 @@ const useDatasetFilter = (
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      setFieldValue(`datasetFilters.${datasetFilterIndex}.${index}`, {
-        resourceType: e.target.value,
-        resources: []
-      });
+      setFieldValue(
+        `datasetFilters.${datasetFilterIndex}`,
+        value
+          ?.map((dataset, i) => {
+            if (!equals(last(value[i]), dataset) && index < i) {
+              return undefined;
+            }
+
+            if (equals(i, index)) {
+              return {
+                resourceType: e.target.value,
+                resources: []
+              };
+            }
+
+            return dataset;
+          })
+          .filter((dataset) => dataset)
+      );
 
       setSelectedDatasetFiltes(
         selectedDatasetFilters.map((datasetF, indexF) => {
           if (equals(indexF, datasetFilterIndex)) {
-            return selectedDatasetFilters[indexF].map((dataset, i) => {
-              if (equals(i, index)) {
-                return { ids: [], type: e.target.value as ResourceTypeEnum };
-              }
+            return selectedDatasetFilters[indexF]
+              .map((dataset, i) => {
+                if (
+                  !equals(last(selectedDatasetFilters[indexF]), dataset) &&
+                  index < i
+                ) {
+                  return undefined;
+                }
 
-              return dataset;
-            });
+                if (equals(i, index)) {
+                  return { ids: [], type: e.target.value as ResourceTypeEnum };
+                }
+
+                return dataset;
+              })
+              .filter((dataset) => dataset) as Array<{
+              ids: Array<number>;
+              type: ResourceTypeEnum;
+            }>;
           }
 
           return datasetF;
