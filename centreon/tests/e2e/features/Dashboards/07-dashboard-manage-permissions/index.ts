@@ -70,7 +70,7 @@ Given(
     cy.wait('@getDashboard');
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('edit-access-rights', 4);
+    cy.waitUntilForDashboardRoles('ShareIcon', 4);
   }
 );
 
@@ -232,7 +232,7 @@ Given(
     cy.wait('@getDashboard');
     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
     cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('edit-access-rights', 4);
+    cy.waitUntilForDashboardRoles('ShareIcon', 4);
 
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).should(
       'exist'
