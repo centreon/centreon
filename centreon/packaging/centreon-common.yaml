@@ -48,21 +48,21 @@ contents:
     file_info:
       owner: centreon
       group: centreon
-      mode: 2775
+      mode: 2660
 
   - dst: "/var/cache/centreon/config/engine"
     type: dir
     file_info:
       owner: centreon
       group: centreon
-      mode: 0660
+      mode: 2660
 
   - dst: "/var/cache/centreon/config/broker"
     type: dir
     file_info:
       owner: centreon
       group: centreon
-      mode: 0660
+      mode: 2660
 
   - dst: "/var/cache/centreon/config/export"
     type: dir
