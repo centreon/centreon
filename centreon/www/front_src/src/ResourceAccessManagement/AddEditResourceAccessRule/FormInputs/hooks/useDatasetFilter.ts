@@ -218,14 +218,10 @@ const useDatasetFilter = (
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resourceType`,
-        e.target.value
-      );
-      setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
-        []
-      );
+      setFieldValue(`datasetFilters.${datasetFilterIndex}.${index}`, {
+        resourceType: e.target.value,
+        resources: []
+      });
     };
 
   const deleteResource = (index: number) => (): void => {

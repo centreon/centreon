@@ -29,11 +29,13 @@ import {
   labelResourceAccessRuleAddedSuccess,
   labelSave,
   labelSelectResource,
-  labelSelectResourceType
+  labelSelectResourceType,
+  labelAllResourcesSelected
 } from '../../translatedLabels';
 import { ModalMode } from '../../models';
 
 import {
+  allResourcesFormData,
   findContactGroupsResponse,
   findContactsResponse,
   findHostCategoriesResponse,
@@ -343,6 +345,39 @@ describe('Create modal', () => {
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(formData);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when All resources are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+
+    cy.findByLabelText(labelName).type('rule#0');
+    cy.findByLabelText(labelDescription).type('rule#0: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('All resources').click();
+    cy.findByLabelText(labelAllResourcesSelected).should('be.visible');
+    cy.findAllByTestId(labelSelectResource).should('be.disabled');
+
+    cy.findByLabelText(labelAddFilter).should('be.disabled');
+    cy.findByLabelText(labelAddNewDataset).should('be.disabled');
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(allResourcesFormData);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
