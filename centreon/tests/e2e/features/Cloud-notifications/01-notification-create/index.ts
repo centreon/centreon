@@ -12,6 +12,7 @@ import {
   checkServices
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
 let globalResourceType = '';
 let globalContactSettings = '';
@@ -310,7 +311,7 @@ Then(
         if (globalResourceType) {
           notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
         } else {
-          for (let i = 1; i <= 10; i++) {
+          for (let i = 1; i <= 100; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
@@ -327,7 +328,7 @@ Then(
             log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          for (let i = 1; i <= 10; i++) {
+          for (let i = 1; i <= 100; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
@@ -389,17 +390,35 @@ Given(
       }
     ]);
 
-    for (let i = 1; i <= 10; i++) {
-      cy.log('Add service ' + i);
+    // for (let i = 1; i <= 100; i++) {
+    //   cy.log('Add service ' + i);
 
-      cy.addService({
-        activeCheckEnabled: false,
-        host: data.hosts.host1.name,
-        maxCheckAttempts: 1,
-        name: 'service_' + i,
-        template: 'Ping-LAN'
-      });
-    }
+    //   cy.addService({
+    //     activeCheckEnabled: false,
+    //     host: data.hosts.host1.name,
+    //     maxCheckAttempts: 1,
+    //     name: 'service_' + i,
+    //     template: 'Ping-LAN'
+    //   });
+    // }
+
+    cy.copyToContainer({
+      destination: '/bitnami/mariadb/data/centreon_storage/services-data.txt',
+      source: './fixtures/notifications/services-data.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query = `LOAD DATA INFILE 'services-data.txt' 
+    INTO TABLE services
+    FIELDS TERMINATED BY '\t' 
+    LINES TERMINATED BY '\n'
+    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);    
+    `;
+    cy.requestOnDatabase({
+      database: 'centreon_storage',
+      query
+    });
 
     cy.applyPollerConfiguration();
 
@@ -423,7 +442,7 @@ When(
 When(
   'changes occur in the configured statuses for the selected host group',
   () => {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 100; i++) {
       cy.log('Submit result for service ' + i);
       cy.submitResults([
         {
