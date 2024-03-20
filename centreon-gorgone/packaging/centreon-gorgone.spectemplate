@@ -152,12 +152,14 @@ rm -rf %{buildroot}
 %files centreon-config
 %defattr(0640, centreon-gorgone, centreon-gorgone, 0640)
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
-%defattr(0640, centreon-gorgone, centreon-gorgone, 0640)
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
-%defattr(0640, centreon-gorgone, centreon-gorgone, 0640)
 %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 %attr(0600, root, root) %{_sysconfdir}/sudoers.d/centreon-gorgone
+
+%attr(0640, centreon-gorgone, centreon-gorgone) %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+%attr(0640, centreon-gorgone, centreon-gorgone) %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%attr(0640, centreon-gorgone, centreon-gorgone) %config(noreplace) %{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/cache/centreon-gorgone/autodiscovery
