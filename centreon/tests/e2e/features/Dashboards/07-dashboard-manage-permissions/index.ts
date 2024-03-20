@@ -31,7 +31,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
@@ -47,6 +46,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({ label: 'edit access rights', tag: 'button' })
       .should('be.visible')
       .click();
@@ -162,6 +162,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
@@ -204,6 +205,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
+    cy.visit('/centreon/home/dashboards/library');
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
