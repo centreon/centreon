@@ -313,7 +313,7 @@ Then(
         if (globalResourceType) {
           notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
         } else {
-          for (let i = 1; i <= 100; i++) {
+          for (let i = 1; i <= 1000; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
@@ -330,7 +330,7 @@ Then(
             log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          for (let i = 1; i <= 100; i++) {
+          for (let i = 1; i <= 1000; i++) {
             cy.log('Check notification for service ' + i);
             notificationSentCheck({
               log: `<<${data.hosts.host1.name}/${'service_' + i}`
