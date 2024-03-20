@@ -10,7 +10,6 @@ before(() => {
   cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
 });
 
-
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -48,7 +47,9 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
-    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' })
+      .should('be.visible')
+      .click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
