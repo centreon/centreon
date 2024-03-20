@@ -8,11 +8,22 @@ const actionsHeight = 36;
 
 export const useStyles = makeStyles<StyleProps>()(
   (theme, { windowHeight }) => ({
+    container: {
+      marginBottom: 16
+    },
+    containerDatePicker: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'row'
+    },
     dateTimePicker: {
       '& .MuiInputBase-input': {
         width: '100%'
       },
       flex: 0.9
+    },
+    helperText: {
+      textAlign: 'center'
     },
     popper: {
       height: (windowHeight - actionsHeight) / 2,
@@ -31,6 +42,10 @@ export const useStyles = makeStyles<StyleProps>()(
           }
         }
       }
+    },
+    subContainer: {
+      flex: 0.1,
+      paddingLeft: theme.spacing(0.25)
     }
   })
 );

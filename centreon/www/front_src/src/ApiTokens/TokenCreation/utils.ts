@@ -15,7 +15,7 @@ export const minimumLifeSpanToken = { unit: 'day', value: 1 };
 export const isInvalidDate = ({ startTime = new Date(), endTime }): boolean => {
   return (
     dayjs(endTime).diff(dayjs(startTime), minimumLifeSpanToken.unit) <
-    minimumLifeSpanToken.value
+      minimumLifeSpanToken.value || !dayjs(endTime).isValid()
   );
 };
 

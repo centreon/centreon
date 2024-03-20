@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { FormHelperText } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 
 import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -12,7 +12,7 @@ import { CreateTokenFormValues } from '../../TokenListing/models';
 import { isInvalidDate } from '../utils';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
 
-import { useStyles } from './customTimePeriod.styles';
+import { useStyles } from './inputCalendar.styles';
 
 interface Props {
   setIsDisplayingDateTimePicker: Dispatch<SetStateAction<boolean>>;
@@ -28,8 +28,7 @@ const CustomTimePeriod = ({
 
   const { format } = useLocaleDateTimeFormat();
 
-  const { setFieldValue, values, setFieldError } =
-    useFormikContext<CreateTokenFormValues>();
+  const { setFieldValue, values } = useFormikContext<CreateTokenFormValues>();
 
   const { customizeDate } = values;
 
@@ -40,9 +39,12 @@ const CustomTimePeriod = ({
   const [error, setError] = useState('');
   const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDateTime);
 
-  const handleCustomizeDate = (): void => {
+  const hideCalendar = (): void => {
+    setIsDisplayingDateTimePicker(false);
+  };
+
+  const handleCustomizeDate = (callback?: () => void): void => {
     if (isInvalidDate({ endTime: endDate })) {
-      // setFieldError('duration', t(labelInvalidDateCreationToken));
       setError(t(labelInvalidDateCreationToken));
       setOpen(false);
 
@@ -56,7 +58,11 @@ const CustomTimePeriod = ({
     });
 
     setOpen(false);
-    setIsDisplayingDateTimePicker(false);
+    callback?.();
+  };
+
+  const close = (): void => {
+    handleCustomizeDate(hideCalendar);
   };
 
   const onOpen = (): void => {
@@ -64,20 +70,38 @@ const CustomTimePeriod = ({
   };
 
   const changeDate = ({ date }): void => {
+    setError('');
     const currentDate = dayjs(date).toDate();
     setEndDate(currentDate);
   };
 
+  const onKeyDown = (event): void => {
+    if (event.key !== 'Enter') {
+      handleCustomizeDate();
+
+      return;
+    }
+    handleCustomizeDate(hideCalendar);
+  };
+
+  const slotProps = {
+    desktopPaper: {
+      classes: { root: classes.root }
+    },
+    popper: {
+      className: classes.popper
+    },
+    textField: {
+      onKeyDown
+    }
+  };
+
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div
-        style={{
-          alignItems: 'center',
-          display: 'flex',
-          flexDirection: 'row'
-        }}
-      >
-        <div style={{ flex: 0.1 }}>Until</div>
+    <div className={classes.container}>
+      <div className={classes.containerDatePicker}>
+        <div className={classes.subContainer}>
+          <Typography variant="body2"> Until </Typography>
+        </div>
         <DateTimePickerInput
           reduceAnimations
           changeDate={changeDate}
@@ -87,13 +111,14 @@ const CustomTimePeriod = ({
           minDate={minDate}
           minDateTime={minDateTime}
           open={open}
+          slotProps={slotProps}
           timeSteps={{ minutes: 1 }}
-          onClose={handleCustomizeDate}
+          onClose={close}
           onOpen={onOpen}
         />
       </div>
       {error && (
-        <FormHelperText error style={{ textAlign: 'center' }}>
+        <FormHelperText error className={classes.helperText}>
           {error}
         </FormHelperText>
       )}
