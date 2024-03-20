@@ -293,6 +293,8 @@ paths:
         * name
         * alias
         * is_activated
+        * hostgroup.name
+        * hostgroup.id
       responses:
         "200":
           description: "OK"
@@ -671,6 +673,8 @@ paths:
         * name
         * alias
         * is_activated
+        * hostcategory.id
+        * hostcategory.name
 
         Changes in 23.04 :
 
