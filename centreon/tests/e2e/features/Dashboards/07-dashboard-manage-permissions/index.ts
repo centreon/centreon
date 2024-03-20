@@ -31,6 +31,7 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
+  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
@@ -46,10 +47,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({ label: 'edit access rights', tag: 'button' })
-      .should('be.visible')
-      .click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
@@ -79,7 +77,7 @@ Given(
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.getByTestId({ testId: 'edit-access-rights' }).invoke('show').click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.get('[data-state="updated"]').should('exist');
@@ -113,7 +111,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
-    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'editor'
@@ -163,7 +161,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'viewer'
@@ -206,7 +204,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
       'editor'
