@@ -55,14 +55,14 @@ contents:
     file_info:
       owner: centreon
       group: centreon
-      mode: 2775
+      mode: 0660
 
   - dst: "/var/cache/centreon/config/broker"
     type: dir
     file_info:
       owner: centreon
       group: centreon
-      mode: 2775
+      mode: 0660
 
   - dst: "/var/cache/centreon/config/export"
     type: dir
