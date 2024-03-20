@@ -11,7 +11,6 @@ export interface PieProps {
   displayLegend?: boolean;
   displayValues?: boolean;
   innerRadius?: number;
-  labelNoDataFound?: string;
   legendDirection?: 'row' | 'column';
   onArcClick?: (ardata) => void;
   title?: string;
