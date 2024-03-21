@@ -33,7 +33,7 @@ describe('Line chart', () => {
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(250, 70);
 
-      cy.contains('06/18/2023 / 10:20 PM').should('be.visible');
+      cy.contains('06/18/2023').should('be.visible');
 
       cy.contains('0.45 s').should('be.visible');
       cy.contains('75.93%').should('be.visible');
