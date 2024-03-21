@@ -20,10 +20,10 @@ Cypress.Commands.add(
   (accessRightsTestId, expectedElementCount) => {
     const openModalAndCheck: () => Cypress.Chainable<boolean> = () => {
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
-      cy.getByTestId({ testId: 'role-input' }).eq(1).should('be.visible');
+      cy.get('.MuiSelect-select').should('be.visible');
 
       return cy
-        .get('[data-testid="role-input"]')
+        .get('.MuiSelect-select')
         .should('be.visible')
         .then(($element) => {
           cy.getByTestId({ testId: 'CloseIcon' }).click();
@@ -116,6 +116,35 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('getCellContent', (rowIndex, columnIndex) => {
+  cy.waitUntil(
+    () =>
+      cy
+        .get(
+          `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
+        )
+        .should('be.visible')
+        .then(() => true),
+    { interval: 1000, timeout: 10000 }
+  );
+
+  return cy
+    .get(
+      `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(${rowIndex}) .MuiTableCell-root:nth-child(${columnIndex})`
+    )
+    .invoke('text')
+    .then((content) => {
+      const columnContents = content ? content.match(/[A-Z][a-z]*/g) || [] : [];
+      cy.log(
+        `Column contents (${rowIndex}, ${columnIndex}): ${columnContents
+          .join(',')
+          .trim()}`
+      );
+
+      return cy.wrap(columnContents);
+    });
+});
+
 Cypress.Commands.add('applyAcl', () => {
   const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? 'apache'
@@ -153,6 +182,7 @@ declare global {
     interface Chainable {
       applyAcl: () => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
+      getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
         patch: widgetJSONData

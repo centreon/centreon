@@ -1,4 +1,4 @@
-import { GlobalRefreshInterval, Resource } from '../../models';
+import { CommonWidgetProps, Resource } from '../../models';
 
 export enum DisplayType {
   Donut = 'donut',
@@ -21,12 +21,9 @@ export interface PanelOptions {
   unit: 'number' | 'percentage';
 }
 
-export interface StatusChartProps {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+export interface StatusChartProps extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
   panelOptions: PanelOptions;
-  refreshCount: number;
 }
 
 export interface ChartType {
@@ -36,7 +33,6 @@ export interface ChartType {
   getLinkToResourceStatusPage: (resourcesType, status) => string;
   isHorizontalBar: boolean;
   isSingleChart: boolean;
-  labelNoDataFound: string;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
