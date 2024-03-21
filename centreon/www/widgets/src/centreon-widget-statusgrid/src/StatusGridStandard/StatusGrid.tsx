@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
-import { gt, isNil } from 'ramda';
+import { equals, gt, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
 
@@ -12,6 +13,11 @@ import {
 } from '@centreon/ui';
 
 import { buildResourcesEndpoint, resourcesEndpoint } from '../api/endpoints';
+import { NoResourcesFound } from '../../../NoResourcesFound';
+import {
+  labelNoHostsFound,
+  labelNoServicesFound
+} from '../../../translatedLabels';
 
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
 import Tile from './Tile';
@@ -26,6 +32,7 @@ const StatusGrid = ({
   refreshCount
 }: Omit<StatusGridProps, 'store'>): JSX.Element => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const {
     refreshInterval,
@@ -119,6 +126,18 @@ const StatusGrid = ({
 
   if (isLoading && isNil(data)) {
     return <HeatMapSkeleton />;
+  }
+
+  if (equals(data?.meta.total, 0)) {
+    return (
+      <NoResourcesFound
+        label={
+          equals(resourceType, 'host')
+            ? t(labelNoHostsFound)
+            : t(labelNoServicesFound)
+        }
+      />
+    );
   }
 
   const seeMoreTile = hasMoreResources
