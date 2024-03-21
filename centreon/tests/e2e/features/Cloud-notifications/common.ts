@@ -126,24 +126,32 @@ const setBrokerNotificationsOutput = ({
     });
 };
 
+interface ExecInContainerResult {
+  exitCode: number;
+  output: string;
+}
+
 const notificationSentCheck = ({
-  log,
-  contain = true
+  contain = true,
+  log
 }: {
   contain?: boolean;
   log: string;
 }): Cypress.Chainable => {
+  const command = `cat ${cloudNotificationLogFile} | grep "${log}"`;
+
   return cy
-    .execInContainer({
-      command: `cat ${cloudNotificationLogFile} | grep "${log}" || true`,
-      name: 'web'
-    })
+    .task<ExecInContainerResult>(
+      'execInContainer',
+      { command, name: 'web' },
+      { timeout: 600000 }
+    )
     .then((result) => {
-      // https://github.com/cypress-io/eslint-plugin-cypress?tab=readme-ov-file#chai-and-no-unused-expressions
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      contain
-        ? expect(result.output).to.contain(log)
-        : expect(result.output).to.not.contain(log);
+      if (contain) {
+        expect(result.exitCode).to.eq(0);
+      } else {
+        expect(result.exitCode).not.to.contain(0);
+      }
     });
 };
 
