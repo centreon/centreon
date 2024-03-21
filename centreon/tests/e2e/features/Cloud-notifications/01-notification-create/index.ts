@@ -310,34 +310,32 @@ Then(
     switch (contactSettings) {
       case 'a single contact':
         if (globalResourceType) {
-          notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
+          notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
         } else {
-          for (let i = 1; i <= 1000; i++) {
-            cy.log('Check notification for service ' + i);
-            notificationSentCheck({
-              log: `<<${data.hosts.host1.name}/${'service_' + i}`
-            });
-          }
+          const logsToCheck = Array.from(
+            { length: 1000 },
+            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
+          );
+          notificationSentCheck({ logs: logsToCheck });
         }
         notificationSentCheck({
-          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
+          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
         });
         break;
       case 'two contacts':
         if (globalResourceType) {
           notificationSentCheck({
-            log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
+            logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
           });
         } else {
-          for (let i = 1; i <= 1000; i++) {
-            cy.log('Check notification for service ' + i);
-            notificationSentCheck({
-              log: `<<${data.hosts.host1.name}/${'service_' + i}`
-            });
-          }
+          const logsToCheck = Array.from(
+            { length: 1000 },
+            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
+          );
+          notificationSentCheck({ logs: logsToCheck });
         }
         notificationSentCheck({
-          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
+          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
       default:

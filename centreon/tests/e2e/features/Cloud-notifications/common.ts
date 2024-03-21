@@ -133,25 +133,48 @@ interface ExecInContainerResult {
 
 const notificationSentCheck = ({
   contain = true,
-  log
+  logs
 }: {
   contain?: boolean;
-  log: string;
+  logs: string | string[];
 }): Cypress.Chainable => {
-  const command = `cat ${cloudNotificationLogFile} | grep "${log}"`;
+  cy.log(`checking logs`);
 
   return cy
-    .task<ExecInContainerResult>(
-      'execInContainer',
-      { command, name: 'web' },
-      { timeout: 600000 }
+    .waitUntil(
+      () => {
+        return cy
+          .execInContainer({
+            command: `tail -n 4 ${cloudNotificationLogFile} 2> /dev/null`,
+            name: 'web'
+          })
+          .then((result) => {
+            cy.log(result.output);
+
+            return cy.wrap(result.output.includes('INFO: Response code: 304'));
+          });
+      },
+      { interval: 20000, timeout: 300000 }
     )
-    .then((result) => {
-      if (contain) {
-        expect(result.exitCode).to.eq(0);
-      } else {
-        expect(result.exitCode).not.to.eq(0);
-      }
+    .then(() => {
+      const command =
+        typeof logs === 'string' || logs instanceof String
+          ? `grep "${logs}" ${cloudNotificationLogFile}`
+          : logs
+              .map((log) => `grep "${log}" ${cloudNotificationLogFile}`)
+              .join(' && ');
+
+      cy.task<ExecInContainerResult>(
+        'execInContainer',
+        { command, name: 'web' },
+        { timeout: 600000 }
+      ).then((result) => {
+        if (contain) {
+          expect(result.exitCode).to.eq(0);
+        } else {
+          expect(result.exitCode).not.to.eq(0);
+        }
+      });
     });
 };
 
