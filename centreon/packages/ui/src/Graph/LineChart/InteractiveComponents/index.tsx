@@ -7,7 +7,6 @@ import {
   all,
   equals,
   find,
-  identity,
   isEmpty,
   isNil,
   keys,

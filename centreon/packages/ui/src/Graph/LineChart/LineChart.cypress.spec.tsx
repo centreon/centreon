@@ -1,5 +1,3 @@
-import { cyan } from '@mui/material/colors';
-
 import { LineChartData } from '../common/models';
 
 import dataLastDay from './mockedData/lastDay.json';
