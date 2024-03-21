@@ -59,8 +59,8 @@ export type Dashboard = NamedEntity & {
   description: string | null;
   createdAt: string;
   updatedAt: string;
-  createdBy: NamedEntity;
-  updatedBy: NamedEntity;
+  createdBy: NamedEntity | null;
+  updatedBy: NamedEntity | null;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
   shares: Shares;

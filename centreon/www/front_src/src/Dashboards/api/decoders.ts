@@ -75,7 +75,9 @@ const userRoleDecoder = JsonDecoder.object<UserRole>(
 export const dashboardEntityDecoder = {
   ...namedEntityDecoder,
   createdAt: JsonDecoder.string,
-  createdBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By'),
+  createdBy: JsonDecoder.nullable(
+    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
+  ),
   description: JsonDecoder.nullable(JsonDecoder.string),
   ownRole: JsonDecoder.enumeration<DashboardRole>(
     DashboardRole,
@@ -95,7 +97,9 @@ export const dashboardEntityDecoder = {
     }
   ),
   updatedAt: JsonDecoder.string,
-  updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+  updatedBy: JsonDecoder.nullable(
+    JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+  )
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(

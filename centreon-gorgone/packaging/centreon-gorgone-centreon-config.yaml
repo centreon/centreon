@@ -28,7 +28,7 @@ contents:
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0640
+      mode: 0660
 
   - src: "./configuration/centreon-audit.yaml"
     dst: "/etc/centreon-gorgone/config.d/50-centreon-audit.yaml"
