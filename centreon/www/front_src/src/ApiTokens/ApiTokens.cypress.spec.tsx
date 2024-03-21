@@ -728,7 +728,16 @@ describe('Api-token', () => {
 
     cy.findByTestId(labelCreationDate).click();
     cy.findByRole('option', { name: 'Customize' }).click();
-    cy.findByPlaceholderText('MM/DD/YYYY hh:mm aa').click();
+
+    cy.findByTestId('CalendarIcon').then(($element) => {
+      if ($element.length > 0) {
+        cy.wrap($element).click();
+
+        return;
+      }
+
+      cy.findByPlaceholderText('MM/DD/YYYY hh:mm aa').click();
+    });
 
     cy.findByRole('gridcell', { name: '5' }).click();
 
