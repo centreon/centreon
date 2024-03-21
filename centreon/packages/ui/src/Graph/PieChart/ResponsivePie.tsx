@@ -7,13 +7,12 @@ import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 import { Tooltip } from '../../components';
 import { Legend as LegendComponent } from '../Legend';
 import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
-import { labelNoDataFound as defaultlabelNoDataFound } from '../translatedLabels';
 
 import { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
@@ -54,8 +53,7 @@ const ResponsivePie = ({
   onArcClick,
   displayValues,
   TooltipContent,
-  legendDirection = 'column',
-  labelNoDataFound = defaultlabelNoDataFound
+  legendDirection = 'column'
 }: PieProps & { height: number; width: number }): JSX.Element => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -71,8 +69,7 @@ const ResponsivePie = ({
     svgWrapperWidth,
     total,
     innerRadius,
-    isContainsExactlyOneNonZeroValue,
-    areAllValuesNull
+    isContainsExactlyOneNonZeroValue
   } = useResponsivePie({
     data,
     defaultInnerRadius,
@@ -84,14 +81,6 @@ const ResponsivePie = ({
   });
 
   const { classes } = usePieStyles({ svgSize });
-
-  if (areAllValuesNull) {
-    return (
-      <div className={classes.container} style={{ height, width }}>
-        <Typography variant="h3">{t(labelNoDataFound)}</Typography>
-      </div>
-    );
-  }
 
   return (
     <div
