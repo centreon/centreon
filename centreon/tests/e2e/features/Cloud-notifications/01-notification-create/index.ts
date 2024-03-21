@@ -9,12 +9,11 @@ import {
   notificationSentCheck,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange,
-  checkServices
+  checkServices,
+  initializeDataFiles
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
-
-import payloadCheck from '../../../fixtures/notifications/payload-check.json';
 
 let globalResourceType = '';
 let globalContactSettings = '';
@@ -392,6 +391,8 @@ Given(
       }
     ]);
 
+    initializeDataFiles();
+
     cy.copyToContainer({
       destination:
         '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
@@ -475,12 +476,14 @@ When(
 
     cy.applyPollerConfiguration();
 
-    cy.request({
-      method: 'POST',
-      url: '/centreon/api/latest/monitoring/resources/check',
-      body: payloadCheck
-    }).then((response) => {
-      expect(response.status).to.eq(204);
+    cy.fixture('notifications/payload-check.json').then((payloadCheck) => {
+      cy.request({
+        method: 'POST',
+        url: '/centreon/api/latest/monitoring/resources/check',
+        body: payloadCheck
+      }).then((response) => {
+        expect(response.status).to.eq(204);
+      });
     });
   }
 );
