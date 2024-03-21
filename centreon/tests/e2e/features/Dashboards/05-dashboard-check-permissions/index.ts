@@ -5,6 +5,7 @@ import dashboards from '../../../fixtures/dashboards/check-permissions/dashboard
 import adminUser from '../../../fixtures/users/admin.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
+import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
   cy.startContainers();
@@ -212,10 +213,15 @@ Given('an admin user who has just created a dashboard', () => {
 });
 
 When('the admin user deletes the newly created dashboard', () => {
-  cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
-  cy.getByLabel({ label: 'Delete' }).click();
+  cy.contains(dashboards.fromCurrentUser.name)
+    .parent()
+    .parent()
+    .find('button[aria-label="More actions"]')
+    .click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
 });
 
@@ -378,10 +384,15 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
 When(
   'the dashboard administrator user deletes the newly created dashboard',
   () => {
-    cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
-    cy.getByLabel({ label: 'Delete' }).click();
+    cy.contains(dashboards.fromCurrentUser.name)
+      .parent()
+      .parent()
+      .find('button[aria-label="More actions"]')
+      .click();
 
-    cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboards');
   }
 );
@@ -544,10 +555,15 @@ Given('a dashboard editor user who has just created a dashboard', () => {
 });
 
 When('the dashboard editor user deletes the newly created dashboard', () => {
-  cy.getByLabel({ label: 'More actions', tag: 'button' }).first().click();
-  cy.getByLabel({ label: 'Delete' }).click();
+  cy.contains(dashboards.fromCurrentUser.name)
+    .parent()
+    .parent()
+    .find('button[aria-label="More actions"]')
+    .click();
 
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).last().click();
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
+
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
 });
 
@@ -559,7 +575,7 @@ Then(
 );
 
 Given(
-  'a non-admin user with the dashboard viewer role is logged in on a platform with dashboards',
+  'a non-admin user with the dashboard viewer role is logged in on a platform',
   () => {
     cy.loginByTypeOfUser({
       jsonName: dashboardAdministratorUser.login,
