@@ -36,9 +36,6 @@ export const useStyles = makeStyles()((theme) => ({
     paddingLeft: theme.spacing(0.25),
     width: '20%'
   },
-  root: {
-    backgroundClip: 'red'
-  },
   statusContainer: {
     alignItems: 'center',
     display: 'flex',
