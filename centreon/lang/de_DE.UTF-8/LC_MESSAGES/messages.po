@@ -16738,3 +16738,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
