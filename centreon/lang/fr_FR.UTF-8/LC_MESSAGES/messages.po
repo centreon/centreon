@@ -18842,5 +18842,41 @@ msgstr "Échec de la suppression des règles d'accès aux ressources sélectionn
 msgid "The selected resource access rules have been deleted successfully"
 msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
 
+msgid "Failed to duplicate the resource access rule"
+msgstr "Échec de la duplication de la règle d'accès aux ressources"
+
+msgid "The resource access rule has been successfully duplicated"
+msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
+
+msgid "Resource access rule name"
+msgstr "Nom de la règle d'accès aux ressources"
+
+msgid "Please enter a name for the resource access rule to duplicate"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
 msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"
+
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"

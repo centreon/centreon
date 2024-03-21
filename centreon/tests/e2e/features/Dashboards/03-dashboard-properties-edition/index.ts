@@ -48,8 +48,10 @@ When('the user selects the properties of the dashboard', () => {
   const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
   cy.contains(dashboardToEdit.name)
     .parent()
-    .find('button[aria-label="edit"]')
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
 });
 
 Then(
@@ -112,8 +114,11 @@ Given(
     cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToEdit.name)
       .parent()
-      .find('button[aria-label="edit"]')
+      .find('button[aria-label="More actions"]')
       .click();
+
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
+
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
       '{selectall}{backspace}dashboard-cancel-update-changes'
     );
@@ -140,8 +145,10 @@ When(
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains(dashboardToEdit.name)
       .parent()
-      .find('button[aria-label="edit"]')
+      .find('button[aria-label="More actions"]')
       .click();
+
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
   }
 );
 
@@ -165,8 +172,10 @@ Given('a user with dashboard update rights in a dashboard update form', () => {
   cy.visit('/centreon/home/dashboards');
   cy.contains(dashboardToEdit.name)
     .parent()
-    .find('button[aria-label="edit"]')
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
 });
 
 When('the user sets an empty name for this dashboard', () => {
@@ -192,8 +201,10 @@ Given(
     cy.visit('/centreon/home/dashboards');
     cy.contains(dashboardToEdit.name)
       .parent()
-      .find('button[aria-label="edit"]')
+      .find('button[aria-label="More actions"]')
       .click();
+
+    cy.getByLabel({ label: 'Edit properties', tag: 'li' }).click();
   }
 );
 
