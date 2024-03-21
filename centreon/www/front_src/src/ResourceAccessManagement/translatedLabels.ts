@@ -68,3 +68,5 @@ export const labelRuleDuplicatedSuccess =
 export const labelResourceAccessRuleName = 'Resource access rule name';
 export const labelEnterNameForDuplicatedRule =
   'Please enter a name for the duplicated resource access rule';
+export const labelAllResources = 'All resources';
+export const labelAllResourcesSelected = 'All resources selected';

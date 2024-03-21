@@ -18874,3 +18874,9 @@ msgstr "Échec de la duplication du tableau de bord"
 
 msgid "Share with contacts"
 msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"

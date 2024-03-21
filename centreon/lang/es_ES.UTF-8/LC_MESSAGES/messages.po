@@ -17072,3 +17072,9 @@ msgstr "Modo avanzado"
 
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""

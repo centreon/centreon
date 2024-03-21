@@ -55,9 +55,13 @@ const useValidationSchema = (): UseValidationSchemaState => {
       array(
         object({
           resourceType: string().matches(
-            /(host|service)(group|_category)?|meta_service/
+            /(host|service)(group|_category)?|meta_service|all/
           ),
-          resources: array().min(1)
+          resources: array().when(['resourceType'], {
+            is: 'all',
+            otherwise: () => array().min(1),
+            then: () => array().min(0)
+          })
         })
       ).min(1)
     ).min(1);

@@ -26,6 +26,7 @@ import {
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllResources,
   labelHost,
   labelHostCategory,
   labelHostGroup,
@@ -60,6 +61,11 @@ type UseDatasetFilterState = {
 };
 
 const resourceTypeOptions = [
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.All,
+    name: labelAllResources
+  },
   {
     availableResourceTypeOptions: [
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },

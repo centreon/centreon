@@ -23,7 +23,12 @@ import {
   labelResourceAccessRuleEditedSuccess,
   labelAddResourceDatasets,
   labelRuleProperies,
-  labelSave
+  labelSave,
+  labelSelectResourceType,
+  labelAllResourcesSelected,
+  labelSelectResource,
+  labelAddFilter,
+  labelAddNewDataset
 } from '../../translatedLabels';
 
 import { findResourceAccessRuleResponse } from './testUtils';
@@ -170,6 +175,30 @@ describe('Edit modal', () => {
     cy.findAllByTestId('DeleteOutlineIcon').last().click();
 
     cy.findByRole('dialog').scrollTo('bottom');
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest');
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when a configured resources are changed to All resources in datasets', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('All resources').click();
+    cy.findByLabelText(labelAllResourcesSelected).should('be.visible');
+    cy.findAllByTestId(labelSelectResource).should('be.disabled');
+
+    cy.findByLabelText(labelAddFilter).should('be.disabled');
+    cy.findByLabelText(labelAddNewDataset).should('be.disabled');
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest');

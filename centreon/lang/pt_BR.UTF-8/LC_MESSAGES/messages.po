@@ -17539,3 +17539,9 @@ msgstr ""
 
 # msgid "Failed to duplicate the dashboard"
 # msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
