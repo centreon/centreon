@@ -17538,7 +17538,6 @@ msgstr ""
 # msgstr ""
 
 # msgid "Failed to duplicate the dashboard"
-<<<<<<< HEAD
 # msgstr ""
 
 # msgid "All resources"
@@ -17546,6 +17545,3 @@ msgstr ""
 
 # msgid "All resources selected"
 # msgstr ""
-=======
-# msgstr ""
->>>>>>> 9d31788525 (feat(dashboards) : duplicate a dashboard  (#3544))
