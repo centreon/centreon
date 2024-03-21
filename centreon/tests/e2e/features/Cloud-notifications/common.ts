@@ -150,7 +150,7 @@ const notificationSentCheck = ({
       if (contain) {
         expect(result.exitCode).to.eq(0);
       } else {
-        expect(result.exitCode).not.to.contain(0);
+        expect(result.exitCode).not.to.eq(0);
       }
     });
 };
