@@ -20,7 +20,7 @@ interface Props {
   windowHeight: number;
 }
 
-const CustomTimePeriod = ({
+const InputCalendar = ({
   setIsDisplayingDateTimePicker,
   windowHeight
 }: Props): JSX.Element => {
@@ -40,7 +40,12 @@ const CustomTimePeriod = ({
   const [error, setError] = useState('');
   const [endDate, setEndDate] = useState<Date>(customizeDate ?? minDateTime);
 
-  const hideCalendar = (): void => {
+  const insertDate = (): void => {
+    setFieldValue('customizeDate', endDate);
+    setFieldValue('duration', {
+      id: 'customize',
+      name: format({ date: endDate, formatString: 'LLL' })
+    });
     setIsDisplayingDateTimePicker(false);
   };
 
@@ -52,18 +57,13 @@ const CustomTimePeriod = ({
       return;
     }
     setError('');
-    setFieldValue('customizeDate', endDate);
-    setFieldValue('duration', {
-      id: 'customize',
-      name: format({ date: endDate, formatString: 'LLL' })
-    });
 
     setOpen(false);
     callback?.();
   };
 
   const close = (): void => {
-    handleCustomizeDate(hideCalendar);
+    handleCustomizeDate(insertDate);
   };
 
   const onOpen = (): void => {
@@ -82,7 +82,7 @@ const CustomTimePeriod = ({
 
       return;
     }
-    handleCustomizeDate(hideCalendar);
+    handleCustomizeDate(insertDate);
   };
 
   const slotProps = {
@@ -101,7 +101,7 @@ const CustomTimePeriod = ({
     <div className={classes.container}>
       <div className={classes.containerDatePicker}>
         <div className={classes.subContainer}>
-          <Typography variant="body2"> Until </Typography>
+          <Typography variant="overline"> Until </Typography>
         </div>
         <DateTimePickerInput
           reduceAnimations
@@ -123,4 +123,4 @@ const CustomTimePeriod = ({
   );
 };
 
-export default CustomTimePeriod;
+export default InputCalendar;

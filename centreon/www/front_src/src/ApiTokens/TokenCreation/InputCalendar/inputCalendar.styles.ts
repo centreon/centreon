@@ -25,9 +25,24 @@ export const useStyles = makeStyles<StyleProps>()(
     helperText: {
       textAlign: 'start'
     },
+    picker: {
+      '& .MuiInputBase-root': {
+        '& .MuiInputBase-input': {
+          width: '100%'
+        },
+        backgroundColor: theme.palette.background.default,
+        width: theme.spacing(34.5)
+      }
+    },
     popper: {
       height: (windowHeight - actionsHeight) / 2,
       overflow: 'auto'
+    },
+    popperContainer: {
+      '& .MuiPaper-root': {
+        backgroundColor: theme.palette.background.default
+      },
+      zIndex: theme.zIndex.tooltip
     },
     root: {
       '> div': {
@@ -43,9 +58,12 @@ export const useStyles = makeStyles<StyleProps>()(
         }
       }
     },
+    secondaryContainer: {
+      padding: theme.spacing(0, 0.5)
+    },
     subContainer: {
       flex: 0.1,
-      paddingLeft: theme.spacing(0.25)
+      paddingLeft: theme.spacing(0.5)
     }
   })
 );

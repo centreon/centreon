@@ -21,7 +21,7 @@ interface Props {
   property: Property;
 }
 
-const CustomField = ({ label, dataDate, property }: Props): JSX.Element => {
+const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const { date, setDate } = dataDate;
@@ -46,6 +46,7 @@ const CustomField = ({ label, dataDate, property }: Props): JSX.Element => {
   const handleChange = (_, item, reason): void => {
     if (equals(reason, 'clear')) {
       setDate(null);
+      setDisplayCalendar(false);
 
       return;
     }
@@ -95,4 +96,4 @@ const CustomField = ({ label, dataDate, property }: Props): JSX.Element => {
   );
 };
 
-export default CustomField;
+export default DateFilter;

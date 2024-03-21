@@ -2,9 +2,11 @@ import { SetStateAction, memo, useState } from 'react';
 
 import dayjs from 'dayjs';
 
+import { Typography } from '@mui/material';
+
 import { DateTimePickerInput } from '@centreon/ui';
 
-import { useStyles } from '../filter.styles';
+import { useStyles } from '../../../../TokenCreation/InputCalendar/inputCalendar.styles';
 
 import HelperText from './HelperText';
 
@@ -19,19 +21,21 @@ interface Props {
 }
 
 const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
-  const { classes } = useStyles();
-  const { setDate } = dataDate;
+  const { classes } = useStyles({});
+  const { date, setDate } = dataDate;
   const defaultDate = dayjs().toDate();
 
   const [error, setError] = useState('');
-  const [customizedDate, setCustomizedDate] = useState<Date>(defaultDate);
+  const [customizedDate, setCustomizedDate] = useState<Date>(
+    date ?? defaultDate
+  );
 
   const changeDate = ({ date: time }): void => {
-    setError('');
     setCustomizedDate(dayjs(time).toDate());
   };
 
-  const hideCalendar = (): void => {
+  const insertDate = (): void => {
+    setDate(customizedDate);
     setDisplayCalendar(false);
   };
 
@@ -42,23 +46,21 @@ const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
       return;
     }
     setError('');
-    setDate(customizedDate);
     callback?.();
   };
 
   const onKeyDown = (event): void => {
     if (event.key !== 'Enter') {
-      // todo
       handleDate();
 
       return;
     }
 
-    handleDate(hideCalendar);
+    handleDate(insertDate);
   };
 
   const close = (): void => {
-    handleDate(hideCalendar);
+    handleDate(insertDate);
   };
 
   const slotProps = {
@@ -71,17 +73,23 @@ const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
   };
 
   return (
-    <>
-      <DateTimePickerInput
-        changeDate={changeDate}
-        closeOnSelect={false}
-        date={customizedDate}
-        slotProps={slotProps}
-        timeSteps={{ minutes: 1 }}
-        onClose={close}
-      />
-      <HelperText error={error} />
-    </>
+    <div className={classes.container}>
+      <div className={classes.containerDatePicker}>
+        <div className={classes.secondaryContainer}>
+          <Typography variant="overline"> Until </Typography>
+        </div>
+        <DateTimePickerInput
+          changeDate={changeDate}
+          className={classes.picker}
+          closeOnSelect={false}
+          date={customizedDate}
+          slotProps={slotProps}
+          timeSteps={{ minutes: 1 }}
+          onClose={close}
+        />
+        <HelperText error={error} />
+      </div>
+    </div>
   );
 };
 

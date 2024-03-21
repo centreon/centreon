@@ -3,11 +3,14 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { labelCreationDate } from '../../../../translatedLabels';
+import {
+  labelCreationDate,
+  labelExpirationDate
+} from '../../../../translatedLabels';
 import { creationDateAtom, expirationDateAtom } from '../atoms';
 import { Property } from '../models';
 
-import CustomField from './CustomField';
+import DateFilter from './DateFilter';
 
 const DateInputWrapper = (): JSX.Element => {
   const { t } = useTranslation();
@@ -19,25 +22,24 @@ const DateInputWrapper = (): JSX.Element => {
     [creationDate]
   );
 
-  // const dataExpirationDate = useMemo(
-  //   () => ({ date: expirationDate, setDate: setExpirationDate }),
-  //   [expirationDate]
-  // );
+  const dataExpirationDate = useMemo(
+    () => ({ date: expirationDate, setDate: setExpirationDate }),
+    [expirationDate]
+  );
 
   return (
     <>
-      {/* <DateInput
-        dataDate={dataCreationDate}
-        label={t(labelCreationDate)}
-        property={Property.last}
-      /> */}
-
-      <CustomField
+      <DateFilter
         dataDate={dataCreationDate}
         label={t(labelCreationDate)}
         property={Property.last}
       />
-      {/* <DateInput /> */}
+
+      <DateFilter
+        dataDate={dataExpirationDate}
+        label={t(labelExpirationDate)}
+        property={Property.in}
+      />
     </>
   );
 };
