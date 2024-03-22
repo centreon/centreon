@@ -1765,7 +1765,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The media has not been added, because the data is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[data] The property data is required\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"[data] The property does not contain the file\");\r",
 									"});\r",
 									""
 								],
@@ -2721,14 +2721,15 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Nothing'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Nothing'));\r",
 									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
