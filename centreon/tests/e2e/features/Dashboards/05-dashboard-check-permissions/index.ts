@@ -8,11 +8,11 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-check-permissions.json'
+  // );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
