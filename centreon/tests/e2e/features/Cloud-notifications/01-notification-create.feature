@@ -24,7 +24,7 @@ Feature: Creating a Notification Rule
     Then an email is sent to the configured '<contact_settings>' with the configured format
     Examples:
       | contact_settings | resource_type                           |
-      | a single contact | host group                              |
+      | one contact      | host group                              |
       | two contacts     | host group and services for these hosts |
 
   @TEST_MON-33204
@@ -43,5 +43,5 @@ Feature: Creating a Notification Rule
     Then an email is sent to the configured '<contact_settings>' with the configured format
     Examples:
       | contact_settings |
-      | a single contact |
+      | one contact      |
       | two contacts     |

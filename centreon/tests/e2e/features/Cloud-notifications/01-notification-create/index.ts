@@ -63,7 +63,7 @@ Given(
     globalContactSettings = contactSettings;
 
     switch (contactSettings) {
-      case 'a single contact':
+      case 'one contact':
         cy.addContact({
           email: data.contacts.contact1.email,
           name: data.contacts.contact1.name,
@@ -178,7 +178,7 @@ When(
 
 When('the user selects the {string}', (contactSettings: string) => {
   switch (contactSettings) {
-    case 'a single contact':
+    case 'one contact':
       cy.get('#Searchcontacts').click();
       cy.wait('@getUsers');
       cy.contains(data.contacts.contact1.name).click();
@@ -308,7 +308,7 @@ Then(
   'an email is sent to the configured {string} with the configured format',
   (contactSettings) => {
     switch (contactSettings) {
-      case 'a single contact':
+      case 'one contact':
         if (globalResourceType) {
           notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
         } else {
@@ -348,7 +348,7 @@ Given(
   'a minimum of 1000 services linked to a host group and {string}',
   (contactSettings) => {
     switch (contactSettings) {
-      case 'a single contact':
+      case 'one contact':
         cy.addContact({
           email: data.contacts.contact1.email,
           name: data.contacts.contact1.name,
