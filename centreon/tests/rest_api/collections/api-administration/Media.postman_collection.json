@@ -1751,7 +1751,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1764,11 +1765,12 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The media has not been added, because the data is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
-									"    pm.expect(responseJson.message).to.eql(\"[data] The property does not contain the file\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"[data] The property data is required\");\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1903,14 +1905,14 @@
 									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_RW'));\r",
-									"pm.collectionVariables.get(\"variable_key\");\r",
 									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2437,7 +2439,7 @@
 			]
 		},
 		{
-			"name": "User Read Only  ",
+			"name": "User Read Only (should not exist)",
 			"item": [
 				{
 					"name": "Login with Read Only user",
@@ -2449,14 +2451,15 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_Read'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Read'));\r",
 									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
+									"}); "
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2563,7 +2566,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2573,40 +2577,15 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of media has been fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
-									"    // Check the number of media (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
-									"\r",
-									"    // Check the properties of the media\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image3Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image3md5\")\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Salameche.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
-									"        \"directory\": \"ppm\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
-									"    });\r",
-									"    \r",
-									"})"
+									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
