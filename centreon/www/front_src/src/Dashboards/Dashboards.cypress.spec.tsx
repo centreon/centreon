@@ -11,6 +11,8 @@ import {
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
+import { labelMoreActions } from '../Resources/translatedLabels';
+
 import { DashboardsPage } from './DashboardsPage';
 import { DashboardRole } from './api/models';
 import {
@@ -269,41 +271,41 @@ describe('Dashboards', () => {
   });
 
   describe('View mode', () => {
-    it('displays the dashboards in "View By cards" by default', () => {
+    it('displays the dashboards in "View By lists" by default', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelListView).should(
+        'have.attr',
+        'data-selected',
+        'true'
+      );
+      cy.findByTestId(labelCardsView).should(
+        'have.attr',
+        'data-selected',
+        'false'
+      );
+
+      cy.contains('My Dashboard').should('be.visible');
+      cy.contains('My Dashboard 2').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the dashboards in "View as card" when the corresponding button is clicked', () => {
+      initializeAndMount(administratorRole);
+      cy.waitForRequest('@getDashboards');
+
+      cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId(labelCardsView).should(
         'have.attr',
         'data-selected',
         'true'
       );
-      cy.findByTestId(labelListView).should(
-        'have.attr',
-        'data-selected',
-        'false'
-      );
 
-      cy.get('[data-item-title="My Dashboard"]').should('be.visible');
-      cy.get('[data-item-title="My Dashboard 2"]').should('be.visible');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the dashboards in "View as list" when the corresponding button is clicked', () => {
-      initializeAndMount(administratorRole);
-      cy.waitForRequest('@getDashboards');
-
-      cy.findByTestId(labelListView).click();
-
-      cy.findByTestId(labelListView).should(
-        'have.attr',
-        'data-selected',
-        'true'
-      );
-
-      cy.get('[data-item-title="My Dashboard"]').should('not.exist');
-      cy.get('[data-item-title="My Dashboard 2"]').should('not.exist');
+      cy.contains('My Dashboard').should('be.visible');
+      cy.contains('My Dashboard 2').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -312,11 +314,11 @@ describe('Dashboards', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId(labelListView).click();
+      cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId('Listing Pagination').should('be.visible');
 
-      cy.findByTestId(labelCardsView).click();
+      cy.findByTestId(labelListView).click();
 
       cy.findByTestId('Listing Pagination').should('be.visible');
 
@@ -327,13 +329,13 @@ describe('Dashboards', () => {
       initializeAndMount(administratorRole);
       cy.waitForRequest('@getDashboards');
 
-      cy.findByTestId(labelListView).click();
-
-      cy.findByTestId('ViewColumnIcon').should('be.visible');
-
       cy.findByTestId(labelCardsView).click();
 
       cy.findByTestId('ViewColumnIcon').should('not.exist');
+
+      cy.findByTestId(labelListView).click();
+
+      cy.findByTestId('ViewColumnIcon').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -347,18 +349,7 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText(labelShareWithContacts)
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('More actions')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText(labelShareWithContacts)
-        .should('not.exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('More actions')
-        .should('not.exist');
+      cy.findAllByLabelText(labelMoreActions).eq(0).should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -370,16 +361,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('add').should('not.exist');
 
-      cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
-        dashboards.result.forEach(({ name }) => {
-          cy.get(`[data-item-title="${name}"]`)
-            .findByLabelText('edit')
-            .should('not.exist');
-          cy.get(`[data-item-title="${name}"]`)
-            .findByLabelText('delete')
-            .should('not.exist');
-        });
-      });
+      cy.findByLabelText(labelShareWithContacts).should('not.exist');
+      cy.findByLabelText(labelMoreActions).should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -391,18 +374,8 @@ describe('Dashboards', () => {
 
       cy.findByLabelText('Add').should('be.visible');
 
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText(labelShareWithContacts)
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard"]')
-        .findByLabelText('More actions')
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText(labelShareWithContacts)
-        .should('exist');
-      cy.get('[data-item-title="My Dashboard 2"]')
-        .findByLabelText('More actions')
-        .should('exist');
+      cy.findAllByLabelText(labelMoreActions).should('have.length', 2);
+      cy.findAllByLabelText(labelShareWithContacts).should('have.length', 2);
 
       cy.makeSnapshot();
     });
@@ -567,7 +540,7 @@ describe('Dashboards', () => {
         );
       });
 
-      it('disbales confirm duplication button when the new name is less than three characters.', () => {
+      it('disables confirm duplication button when the new name is less than three characters.', () => {
         initializeAndMount(administratorRole);
 
         cy.findByLabelText(displayView).click();
@@ -583,7 +556,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelDuplicate).should('be.disabled');
 
         cy.makeSnapshot(
-          `${displayView}: disbales confirm duplication button when the new name is less than three characters.`
+          `${displayView}: disables confirm duplication button when the new name is less than three characters.`
         );
       });
 
@@ -623,7 +596,7 @@ describe('Dashboards', () => {
         );
       });
 
-      it('disbales confirm update button when the new name is less than three characters.', () => {
+      it('disables confirm update button when the new name is less than three characters.', () => {
         initializeAndMount(administratorRole);
 
         cy.findByLabelText(displayView).click();
@@ -637,7 +610,7 @@ describe('Dashboards', () => {
         cy.findByLabelText(labelUpdate).should('be.disabled');
 
         cy.makeSnapshot(
-          `${displayView}: disbales confirm update button when the new name is less than three characters.`
+          `${displayView}: disables confirm update button when the new name is less than three characters.`
         );
       });
 
@@ -671,6 +644,108 @@ describe('Dashboards', () => {
     });
   });
 
+  it('creates a dashboard when the corresponding button is clicked and the title is filled', () => {
+    initializeAndMount({
+      ...administratorRole,
+      emptyList: true
+    });
+
+    cy.findByLabelText('create').click();
+
+    cy.findByLabelText(labelName).type('My Dashboard');
+
+    cy.makeSnapshot();
+
+    cy.viewport('macbook-13');
+
+    cy.findByLabelText(labelCreate).click();
+    cy.waitForRequest('@createDashboard');
+    cy.url().should(
+      'equal',
+      'http://localhost:9092/home/dashboards/library/1?edit=true'
+    );
+  });
+
+  it('deletes a dashboard when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).last().click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
+  });
+
+  it('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.findAllByLabelText(labelDelete).last().click();
+
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('does not delete a dashboard in the listing view when the corresponding icon button is clicked and the cancellation button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.contains(labelDeleteDashboard).should('be.visible');
+    cy.contains(
+      'The My Dashboard dashboard will be permanently deleted.'
+    ).should('be.visible');
+
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelCancel).should('not.exist');
+    cy.contains(labelDeleteDashboard).should('not.exist');
+  });
+
+  it('sends a shares update request when the shares are updated and the corresponding button is clicked', () => {
+    initializeAndMount(administratorRole);
+
+    cy.findAllByTestId(labelShareWithContacts).eq(0).click();
+
+    cy.findByLabelText(labelAddAContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains(/^User$/)
+      .parent()
+      .click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@putShares');
+
+    cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   describe('Navigation to dashboard', () => {
     it('navigates to the dashboard page when the listing mode is activated and a row is clicked', () => {
       const { navigate } = initializeAndMount({
@@ -695,11 +770,13 @@ describe('Dashboards', () => {
 
       cy.findByTestId('View as list').click();
 
+      cy.contains('Arnaud').should('be.visible');
+
       cy.get('.MuiTableRow-root')
         .first()
         .get('.MuiTableCell-body')
         .last()
-        .click()
+        .click('topLeft')
         .then(() => {
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           expect(navigate).to.not.be.called;

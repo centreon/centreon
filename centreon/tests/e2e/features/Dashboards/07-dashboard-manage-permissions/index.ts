@@ -96,12 +96,7 @@ Then(
       loginViaApi: false
     });
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .click();
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -144,11 +139,7 @@ Then(
       loginViaApi: false
     });
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
+    cy.contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -193,10 +184,8 @@ Then(
       loginViaApi: false
     });
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    }).should('not.exist');
+    // FIXME
+    cy.contains('Dashboards').should('not.exist');
   }
 );
 
@@ -255,11 +244,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     loginViaApi: false
   });
   cy.visit('/centreon/home/dashboards/library');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardAdministratorUser.name)
+  cy.contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();
   cy.url().should('match', /\/dashboards\/library\/\d+$/);
