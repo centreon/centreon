@@ -1,0 +1,5 @@
+executeMigration:
+  methods: PATCH
+  path: /administration/migrations
+  controller: 'Core\Migration\Infrastructure\API\ExecuteMigration\ExecuteMigrationController'
+  condition: "request.attributes.get('version') >= 24.04"
