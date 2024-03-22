@@ -174,11 +174,11 @@ class CentreonCeip extends CentreonWebService
         $countAcl = $this->countAclRules();
 
         if (0 !== strcmp($role, 'admin') && $countAcl > 0) {
-            $role = 'admin';
+            $role = 'User';
         } elseif ($countAcl > 0) {
             $role = 'editor';
         } else {
-            $role = 'User';
+            $role = 'Administrator';
         }
 
         return [
