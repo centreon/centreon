@@ -6,7 +6,6 @@ namespace Migrations\Factory;
 
 use Doctrine\Migrations\Version\MigrationFactory;
 use Doctrine\DBAL\Connection;
-use Doctrine\Migrations\AbstractMigration;
 use Migrations\Factory\AbstractDatabaseMigration;
 use Psr\Log\LoggerInterface;
 

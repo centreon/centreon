@@ -51,6 +51,12 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
             RequestParameters::CONCORDANCE_MODE_STRICT
         );
 
+        $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
+        if ($result->rowCount() === 0) {
+            $this->logger->notice('Migrations table does not exist yet, considering not migrations has been done.');
+            return [];
+        }
+
         $query = $this->translateDbName(
             <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS m.id, m.name, mi.name as module_name, m.executed_at

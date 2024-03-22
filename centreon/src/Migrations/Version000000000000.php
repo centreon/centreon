@@ -17,20 +17,14 @@ final class Version000000000000 extends AbstractDatabaseMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'first version';
     }
 
     public function up(Schema $schema): void
     {
-        dump($schema->getTable('instances'));
-        // dump($schema->getTables());
-        // this up() migration is auto-generated, please modify it to your needs
-
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-
     }
 }

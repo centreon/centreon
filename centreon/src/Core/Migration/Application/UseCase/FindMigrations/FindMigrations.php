@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
+use Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 
@@ -43,6 +44,7 @@ final class FindMigrations
         private ReadVersionRepositoryInterface $readVersionRepository,
         private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
         private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
+        private readonly MigrationsCollectorRepositoryInterface $migrationsCollectorRepository,
         private readonly RequestParametersInterface $requestParameters,
     ) {
     }
@@ -56,31 +58,8 @@ final class FindMigrations
                 return;
             }
 
-            $this->info('Search for available migrations');
-            $availableMigrations = $this->readAvailableMigrationRepository->findAll();
-
-            $this->info('Search for executed migrations');
-            $executedMigrations = $this->readExecutedMigrationRepository->findAll($this->requestParameters);
-
-            $migrations = array_filter(
-                $availableMigrations,
-                function ($availableMigration) use (&$executedMigrations) {
-                    $availableMigrationName = $availableMigration->getName();
-                    $availableMigrationModuleName = $availableMigration->getModuleName();
-
-                    foreach ($executedMigrations as $executedMigrationKey => $executedMigration) {
-                        if (
-                            $availableMigrationName === $executedMigration->getName()
-                            && $availableMigrationModuleName === $executedMigration->getModuleName()
-                        ) {
-                            unset($executedMigrations[$executedMigrationKey]);
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            );
+            // $migrations = $this->findMigrationsByCustom();
+            $migrations = $this->findMigrationsBySymfony();
 
             if (empty($migrations)) {
                 $presenter->presentResponse(new FindMigrationsResponse());
@@ -95,12 +74,49 @@ final class FindMigrations
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
+            dump($ex->getMessage());
             $errorMessage = 'An error occurred while retrieving the migrations listing';
             $this->error($errorMessage, ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new ErrorResponse(_($errorMessage))
             );
         }
+    }
+
+    private function findMigrationsByCustom(): array
+    {
+        $this->info('Search for available migrations');
+        $availableMigrations = $this->readAvailableMigrationRepository->findAll();
+
+        $this->info('Search for executed migrations');
+        $executedMigrations = $this->readExecutedMigrationRepository->findAll($this->requestParameters);
+
+        $migrations = array_filter(
+            $availableMigrations,
+            function ($availableMigration) use (&$executedMigrations) {
+                $availableMigrationName = $availableMigration->getName();
+                $availableMigrationModuleName = $availableMigration->getModuleName();
+
+                foreach ($executedMigrations as $executedMigrationKey => $executedMigration) {
+                    if (
+                        $availableMigrationName === $executedMigration->getName()
+                        && $availableMigrationModuleName === $executedMigration->getModuleName()
+                    ) {
+                        unset($executedMigrations[$executedMigrationKey]);
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        );
+
+        return $migrations;
+    }
+
+    private function findMigrationsBySymfony(): array
+    {
+        return $this->migrationsCollectorRepository->findAll();
     }
 
     /**

@@ -41,7 +41,7 @@ class Migration000000000000 extends AbstractMigration implements MigrationInterf
      */
     public function getDescription(): string
     {
-        return _('Create migrations stable');
+        return _('Create migrations table');
     }
 
     /**

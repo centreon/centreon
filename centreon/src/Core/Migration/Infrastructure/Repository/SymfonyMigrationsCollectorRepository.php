@@ -24,28 +24,19 @@ declare(strict_types=1);
 namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
+use Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Core\Migration\Application\Repository\MigrationInterface;
+use Doctrine\Bundle\MigrationsBundle\Collector\MigrationsCollector;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class FsReadAvailableMigrationRepository implements ReadAvailableMigrationRepositoryInterface
+class SymfonyMigrationsCollectorRepository implements MigrationsCollectorRepositoryInterface
 {
     use LoggerTrait;
 
-    /** @var MigrationInterface[] */
-    private $migrations;
-
-    /**
-     * @param \Traversable $migrations
-     */
     public function __construct(
-        \Traversable $migrations,
+        private readonly MigrationsCollector $migrationsCollector,
     ) {
-        if (iterator_count($migrations) === 0) {
-            throw new \Exception('Migrations not found');
-        }
-
-        $this->migrations = iterator_to_array($migrations);
     }
 
     /**
@@ -53,15 +44,22 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
      */
     public function findAll(): array
     {
-        $migrations = [];
+        $this->migrationsCollector->collect(new Request(), new Response());
 
-        foreach ($this->migrations as $migration) {
-            $shortName = (new \ReflectionClass($migration))->getShortName();
+        $migrationsData = $this->migrationsCollector->getData();
+
+        if (!array_key_exists('new_migrations', $migrationsData)) {
+            throw new \Exception('Cannot retrieve migrations');
+        }
+
+        $migrations = [];
+        foreach($migrationsData['new_migrations'] as $newMigration) {
+            $shortName = str_replace('Migrations\\', '', $newMigration['version']);
 
             $migrations[] = new NewMigration(
                 $shortName,
-                $migration->getModuleName(),
-                $migration->getDescription(),
+                'unknown',
+                $newMigration['description'],
             );
         }
 

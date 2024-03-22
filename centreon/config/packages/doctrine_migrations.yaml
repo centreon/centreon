@@ -33,7 +33,7 @@ doctrine_migrations:
     transactional: true
 
     # Whether or not to enable the profiler collector to calculate and visualize migration status. This adds some queries overhead.
-    # enable_profiler: false
+    enable_profiler: true
 
     services:
         'Doctrine\Migrations\Version\MigrationFactory': Migrations\Factory\DatabaseMigrationFactory
