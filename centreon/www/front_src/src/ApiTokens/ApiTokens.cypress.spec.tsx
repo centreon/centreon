@@ -729,14 +729,12 @@ describe('Api-token', () => {
     cy.findByTestId(labelCreationDate).click();
     cy.findByRole('option', { name: 'Customize' }).click();
 
-    cy.findByTestId('CalendarIcon').then(($element) => {
-      if ($element.length > 0) {
-        cy.wrap($element).click();
-
-        return;
+    cy.findByTestId('calendarInput').then(($input) => {
+      if ($input.attr('readonly')) {
+        cy.wrap($input).click();
+      } else {
+        cy.findByTestId('CalendarIcon').click();
       }
-
-      cy.findByPlaceholderText('MM/DD/YYYY hh:mm aa').click();
     });
 
     cy.findByRole('gridcell', { name: '5' }).click();

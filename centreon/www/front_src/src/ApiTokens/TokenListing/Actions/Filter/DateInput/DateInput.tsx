@@ -68,6 +68,9 @@ const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
       className: classes.popper
     },
     textField: {
+      inputProps: {
+        'data-testid': 'calendarInput'
+      },
       onKeyDown
     }
   };
