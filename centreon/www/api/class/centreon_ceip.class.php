@@ -44,14 +44,11 @@ class CentreonCeip extends CentreonWebService
     {
         parent::__construct();
 
-        /** @var \Centreon $centreon */
         global $centreon;
 
         $this->user = $centreon->user;
 
-        if (null === $this->pearDB) {
-            throw new LogicException('No DB connector given.');
-        }
+
         // Generate UUID
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
