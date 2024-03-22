@@ -1,19 +1,34 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005-2020 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
+ * GPL Licence 2.0.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation ; either version 2 of the License.
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ * Linking this program statically or dynamically with other modules is making a
+ * combined work based on this program. Thus, the terms and conditions of the GNU
+ * General Public License cover the whole combination.
+ *
+ * As a special exception, the copyright holders of this program give Centreon
+ * permission to link this program with independent modules to produce an executable,
+ * regardless of the license terms of these independent modules, and to copy and
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
+ * of the license of that module. An independent module is a module which is not
+ * derived from this program. If you modify this program, you may extend this
+ * exception to your version of the program, but you are not obliged to do so. If you
+ * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
  *
@@ -144,27 +159,21 @@ function getCommandArgs($argArray = array(), $conf = array())
 function getHostServiceCombo($service_id = null, $service_description = null)
 {
     global $pearDB;
-    if ($service_id === null || $service_description === null) {
+    if ($service_id == null || $service_description == null) {
         return;
     }
 
-    $query = <<<SQL
-        SELECT h.host_name
-            FROM host h, host_service_relation hsr
-            WHERE h.host_id = hsr.host_host_id
-            AND hsr.service_service_id = :serviceId LIMIT 1
-        SQL;
+    $query = "SELECT h.host_name " .
+        "FROM host h, host_service_relation hsr " .
+        "WHERE h.host_id = hsr.host_host_id " .
+        "AND hsr.service_service_id = '" . $service_id . "' LIMIT 1";
+    $DBRES = $pearDB->query($query);
 
-    $statement = $pearDB->prepare($query);
-    $statement->bindValue('serviceId', (int) $service_id, \PDO::PARAM_INT);
-    $statement->execute();
-    $DBRES = $statement->fetch(\PDO::FETCH_ASSOC) ?: [];
-
-    if (!$statement->rowCount()) {
-        $combo = '- / ' . $service_description;
+    if (!$DBRES->rowCount()) {
+        $combo = "- / " . $service_description;
     } else {
         $row = $DBRES->fetch();
-        $combo = $row['host_name'] . ' / ' . $service_description;
+        $combo = $row['host_name'] . " / " . $service_description;
     }
 
     return $combo;
@@ -174,15 +183,10 @@ function serviceExists($name = null)
 {
     global $pearDB, $centreon;
 
-    $query = <<<SQL
-        SELECT service_description FROM service
-            WHERE service_description = :serviceDescription
-        SQL;
-    $statement = $pearDB->prepare($query);
-    $statement->bindValue('serviceDescription', CentreonDB::escape($centreon->checkIllegalChar($name)));
-    $statement->execute();
-    $dbResult = $statement->fetch(\PDO::FETCH_ASSOC) ?: [];
-    if ($statement->rowCount() >= 1) {
+    $query = "SELECT service_description FROM service " .
+        "WHERE service_description = '" . CentreonDB::escape($centreon->checkIllegalChar($name)) . "'";
+    $dbResult = $pearDB->query($query);
+    if ($dbResult->rowCount() >= 1) {
         return true;
     }
     return false;
@@ -259,16 +263,16 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
     if (!$formIsEmpty && !count($hPars) && !count($hgPars)) {
         $arr = count($params) ? $params : $form->getSubmitValues();
         $id = $arr['service_id'] ?? null;
-        $hPars = $arr['service_hPars'] ?? []; //[1]
+        $hPars = $arr['service_hPars'] ?? [];
         $hgPars = $arr['service_hgPars'] ?? [];
     }
 
-    $escapedName = CentreonDB::escape($centreon->checkIllegalChar($name)); //[2]
+    $escapedName = CentreonDB::escape($centreon->checkIllegalChar($name));
 
-    foreach ($hPars as $hostId) { // [3]
+    foreach ($hPars as $hostId) {
         $query = 'SELECT service_id FROM service, host_service_relation hsr'
             . ' WHERE hsr.host_host_id = :hostId AND hsr.service_service_id = service_id'
-            . ' AND service.service_description = :escapedName'; // [4]
+            . ' AND service.service_description = :escapedName';
 
         $statement = $pearDB->prepare($query);
         if (false === $statement) {
@@ -280,7 +284,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         $statement->bindValue(':hostId', $hostId);
         $statement->bindValue(':escapedName', $escapedName);
 
-        $dbResult = $statement->execute(); // [5]
+        $dbResult = $statement->execute();
         if (false === $dbResult) {
             throw new \RuntimeException(
                 'DB query failed while searching service_id for ' . $escapedName . ' : '
@@ -289,9 +293,15 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         }
 
         /** @var array{}|array<string, scalar> $service */
-        $service = $statement->fetch(\PDO::FETCH_ASSOC) ?: [];
-        $serviceId = $service['service_id'] ?? 0;
+        //$service = $statement->fetch(\PDO::FETCH_ASSOC) ?: [];
+        $service = $statement->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        $serviceId = $service['service_id'] ?? null;
         #Duplicate entry
+        /*
+        if ($dbResult->rowCount() >= 1 && $service["service_id"] != $id) {
+            return (false == $returnId) ? false : $service['service_id'];
+        }
+        */
         if ($statement->rowCount() >= 1 && $serviceId != $id) {
             return (false === $returnId) ? false : (int) $serviceId;
         }
