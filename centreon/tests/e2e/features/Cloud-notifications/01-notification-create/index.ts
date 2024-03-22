@@ -197,15 +197,15 @@ When('the user selects the {string}', (contactSettings: string) => {
 When('the user defines a mail subject', () => {
   const subject = globalResourceType
     ? `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
-    : `Subject notification for 1000 services`;
-  cy.getByLabel({ label: 'Subject' }).clear().type(subject);
+    : `{selectAll}{backspace}Subject notification for 1000 services`;
+  cy.getByLabel({ label: 'Subject' }).type(subject);
 });
 
 When('the user defines a mail body', () => {
   const body = globalResourceType
     ? `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
     : `{selectAll}{backspace}Body notification for 1000 services`;
-  cy.getByLabel({ label: 'EmailBody' }).clear().type(body);
+  cy.getByLabel({ label: 'EmailBody' }).type(body);
 });
 
 When('the user clicks on the "Save" button to confirm', () => {

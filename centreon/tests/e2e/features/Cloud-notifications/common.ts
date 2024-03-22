@@ -294,10 +294,15 @@ const checkServices = ({
 };
 
 const initializeDataFiles = () => {
-  // Generate values for centreon_storage_services.txt
+  let values = '';
   let centreonStorageServicesValues = '';
+  let centreonServicesValues = '';
+  let hostServiceRelationValues = '';
+  let resources: { id: number; parent: { id: number }; type: string }[] = [];
+
   // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
+    // Generate values for centreon_storage_services.txt
     const host_id = 15;
     const description = `service_${i - 27}`;
     const service_id = i;
@@ -368,7 +373,7 @@ const initializeDataFiles = () => {
     const state_type = 1;
     const volatile = 0;
 
-    const values = [
+    values = [
       host_id,
       description,
       service_id,
@@ -439,20 +444,9 @@ const initializeDataFiles = () => {
       state_type,
       volatile
     ].join('\t');
-
     centreonStorageServicesValues += values + '\n';
-  }
-  cy.writeFile(
-    './fixtures/notifications/centreon_storage_services.txt',
-    centreonStorageServicesValues
-  );
-  cy.log('Values generated and stored in centreon_storage_services.txt.');
 
-  // Generate values for centreon_services.txt
-  let centreonServicesValues = '';
-  // The first service will got an id of 28
-  for (let i = 28; i < 1028; i++) {
-    const service_id = i;
+    // Generate values for centreon_services.txt
     const service_template_model_stm_id = 3;
     const service_description = `service_${i - 27}`;
     const service_is_volatile = 2;
@@ -476,7 +470,7 @@ const initializeDataFiles = () => {
     const service_register = 1;
     const service_activate = 1;
 
-    const values = [
+    values = [
       service_id,
       service_template_model_stm_id,
       service_description,
@@ -501,42 +495,38 @@ const initializeDataFiles = () => {
       service_register,
       service_activate
     ].join('\t');
-
     centreonServicesValues += values + '\n';
+
+    // Generate values for host_service_relation.txt
+    values = `${host_id}\t${service_id}\n`;
+    hostServiceRelationValues += values;
+
+    // Generate payload-check.json
+    resources.push({ id: i, parent: { id: 15 }, type: 'service' });
   }
+
+  cy.writeFile(
+    './fixtures/notifications/centreon_storage_services.txt',
+    centreonStorageServicesValues
+  );
+  cy.log('Values generated and stored in centreon_storage_services.txt.');
+
   cy.writeFile(
     './fixtures/notifications/centreon_services.txt',
     centreonServicesValues
   );
   cy.log('Values generated and stored in centreon_services.txt.');
 
-  // Generate values for host_service_relation.txt
-  let hostServiceRelationValues = '';
-  // The first service will got an id of 28
-  for (let i = 28; i < 1028; i++) {
-    const host_host_id = 15;
-    const service_service_id = i;
-
-    const values = `${host_host_id}\t${service_service_id}\n`;
-    hostServiceRelationValues += values;
-  }
   cy.writeFile(
     './fixtures/notifications/host_service_relation.txt',
     hostServiceRelationValues
   );
   cy.log('Values generated and stored in host_service_relation.txt.');
 
-  // Generate payload-check.json
-  const resources: { id: number; parent: { id: number }; type: string }[] = [];
-  // The first service will got an id of 28
-  for (let i = 28; i < 1028; i++) {
-    resources.push({ id: i, parent: { id: 15 }, type: 'service' });
-  }
   const data = {
     check: { is_forced: true },
     resources
   };
-
   cy.writeFile(
     './fixtures/notifications/payload-check.json',
     JSON.stringify(data, null, 2)
