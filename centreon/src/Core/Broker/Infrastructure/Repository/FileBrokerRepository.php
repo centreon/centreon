@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Broker\Infrastructure\Repository;
 
-use Core\Broker\Application\Repository\FileBrokerRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerRepositoryInterface;
 
-class FileBrokerRepository implements FileBrokerRepositoryInterface
+class FileBrokerRepository implements WriteBrokerRepositoryInterface
 {
     /**
      * @inheritDoc

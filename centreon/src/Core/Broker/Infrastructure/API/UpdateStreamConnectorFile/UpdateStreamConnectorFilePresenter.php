@@ -47,18 +47,10 @@ class UpdateStreamConnectorFilePresenter extends AbstractPresenter implements Up
                     $response->path,
                     [
                         'path' => $response->path,
-                        // 'broker_id' => $response->brokerId,
-                        // 'name' => $response->name,
-                        // 'type' => [
-                        //     'id' => $response->type->id,
-                        //     'name' => $response->type->name,
-                        // ],
-                        // 'parameters' => (object) $response->parameters,
                     ]
                 )
             );
 
-            // NOT setting location as required route does not currently exist
         }
     }
 }

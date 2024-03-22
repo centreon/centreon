@@ -27,9 +27,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\FileBrokerRepositoryInterface;
 use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerRepositoryInterface;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFile;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFileRequest;
 use Core\Broker\Application\UseCase\UpdateStreamConnectorFile\UpdateStreamConnectorFileResponse;
@@ -60,7 +60,7 @@ beforeEach(function (): void {
     $this->useCase = new UpdateStreamConnectorFile(
         $this->writeOutputRepository = $this->createMock(WriteBrokerOutputRepositoryInterface::class),
         $this->readOutputRepository = $this->createMock(ReadBrokerOutputRepositoryInterface::class),
-        $this->fileRepository = $this->createMock(FileBrokerRepositoryInterface::class),
+        $this->fileRepository = $this->createMock(WriteBrokerRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
 });

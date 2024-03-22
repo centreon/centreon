@@ -32,9 +32,9 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Broker\Application\Exception\BrokerException;
-use Core\Broker\Application\Repository\FileBrokerRepositoryInterface;
 use Core\Broker\Application\Repository\ReadBrokerOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
+use Core\Broker\Application\Repository\WriteBrokerRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerOutput;
 
 final class UpdateStreamConnectorFile
@@ -44,7 +44,7 @@ final class UpdateStreamConnectorFile
     public function __construct(
         private readonly WriteBrokerOutputRepositoryInterface $writeOutputRepository,
         private readonly ReadBrokerOutputRepositoryInterface $readOutputRepository,
-        private readonly FileBrokerRepositoryInterface $fileRepository,
+        private readonly WriteBrokerRepositoryInterface $fileRepository,
         private readonly ContactInterface $user,
     ) {
     }
@@ -131,9 +131,7 @@ final class UpdateStreamConnectorFile
             try {
                 $this->fileRepository->delete($pathParameter);
             } catch (\Throwable $ex) {
-                $this->error((string) $ex);
-
-                throw BrokerException::errorWhenDeletingFile($pathParameter);
+                $this->info('Could not delete file', ['file_path' => $pathParameter, 'message' => (string) $ex]);
             }
         }
     }
@@ -144,7 +142,7 @@ final class UpdateStreamConnectorFile
         $parameters['path'] = $filePath;
         $output->setParameters($parameters);
 
-        $fields = $this->readOutputRepository->findParametersByType($output->getType()->id, true);
+        $fields = $this->readOutputRepository->findParametersByType($output->getType()->id);
         $this->writeOutputRepository->update($output, $brokerId, $fields);
     }
 }

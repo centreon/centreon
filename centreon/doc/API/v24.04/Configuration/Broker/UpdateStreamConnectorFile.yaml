@@ -3,7 +3,7 @@ put:
     - Broker
   summary: "Update a broker stream connector output file"
   description: |
-    Create a configuration file with provided JSON content and update te output configuration accordingly
+    Create a configuration file with provided JSON content and update the output configuration accordingly
   parameters:
     - $ref: 'QueryParameter/BrokerId.yaml'
     - $ref: 'QueryParameter/OutputId.yaml'

@@ -157,7 +157,7 @@ class BrokerException extends \Exception
      */
     public static function errorWhenCreatingFile(string $filePath): self
     {
-        return new self(sprintf(_("An error occured while creating the file '%s'"), $filePath));
+        return new self(sprintf(_("An error occurred while creating the file '%s'"), $filePath));
     }
 
     /**
@@ -167,6 +167,6 @@ class BrokerException extends \Exception
      */
     public static function errorWhenDeletingFile(string $filePath): self
     {
-        return new self(sprintf(_("An error occured while deleting the file '%s'"), $filePath));
+        return new self(sprintf(_("An error occurred while deleting the file '%s'"), $filePath));
     }
 }

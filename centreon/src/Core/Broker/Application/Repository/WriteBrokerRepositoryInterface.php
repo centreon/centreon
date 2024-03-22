@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Broker\Application\Repository;
 
-interface FileBrokerRepositoryInterface
+interface WriteBrokerRepositoryInterface
 {
     /**
      * Create a file with defined content.
