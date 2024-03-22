@@ -99,9 +99,7 @@ Then(
           );
           expect(parsedDates).to.deep.equal(sortedParsedDates);
         } else {
-          const sortedValues = [...values].sort((a, b) =>
-            b < a ? -1 : b > a ? 1 : 0
-          );
+          const sortedValues = [...values].sort().reverse();
           expect(values).to.deep.equal(sortedValues);
         }
       });
