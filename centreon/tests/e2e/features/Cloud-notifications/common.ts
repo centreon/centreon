@@ -296,6 +296,7 @@ const checkServices = ({
 const initializeDataFiles = () => {
   // Generate values for centreon_storage_services.txt
   let centreonStorageServicesValues = '';
+  // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
     const host_id = 15;
     const description = `service_${i - 27}`;
@@ -449,6 +450,7 @@ const initializeDataFiles = () => {
 
   // Generate values for centreon_services.txt
   let centreonServicesValues = '';
+  // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
     const service_id = i;
     const service_template_model_stm_id = 3;
@@ -510,6 +512,7 @@ const initializeDataFiles = () => {
 
   // Generate values for host_service_relation.txt
   let hostServiceRelationValues = '';
+  // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
     const host_host_id = 15;
     const service_service_id = i;
@@ -525,6 +528,7 @@ const initializeDataFiles = () => {
 
   // Generate payload-check.json
   const resources: { id: number; parent: { id: number }; type: string }[] = [];
+  // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
     resources.push({ id: i, parent: { id: 15 }, type: 'service' });
   }
