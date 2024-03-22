@@ -54,7 +54,7 @@ class CentreonUUID
     /**
      * Get Centreon UUID
      *
-     * @return false|string
+     * @return string
      */
     public function getUUID()
     {

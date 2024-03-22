@@ -56,21 +56,10 @@ class CentreonCeip extends CentreonWebService
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
         $kernel = \App\Kernel::createForWeb();
-
-        /** @var null|\Centreon\Domain\Log\Logger $logger */
-        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-        if (null === $logger) {
-            throw new LogicException('Logger not found in container');
-        }
-
-        /** @var null|\Core\Common\Infrastructure\FeatureFlags $featureFlags */
-        $featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class);
-        if (null === $featureFlags) {
-            throw new LogicException('FeatureFlags not found in container');
-        }
-
-        $this->logger = $logger;
-        $this->featureFlags = $featureFlags;
+        $this->logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class)
+            ?? throw new LogicException('Logger not found in container');
+        $this->featureFlags = $kernel->getContainer()->get(\Core\Common\Infrastructure\FeatureFlags::class)
+            ?? throw new LogicException('FeatureFlags not found in container');
     }
 
     /**
@@ -137,9 +126,21 @@ class CentreonCeip extends CentreonWebService
 
         $role = $this->user->admin
             ? 'admin'
-            : ($this->user->editor
-                ? 'editor'
-                : 'user');
+            : 'user';
+
+        $countAcl = (int) $this->sqlFetchValue(
+            <<<SQL
+            SELECT COUNT(*) AS countAcl
+            FROM acl_actions_rules AS aar
+            INNER JOIN acl_actions AS aa ON (aa.acl_action_id = aar.acl_action_rule_id)
+            INNER JOIN acl_group_actions_relations AS agar ON (agar.acl_action_id = aar.acl_action_rule_id)
+            INNER JOIN acl_group_topology_relations AS agtr ON (agtr.acl_group_id = agar.acl_group_id)
+            INNER JOIN acl_topology AS atp ON (atp.acl_topo_id = agtr.acl_topology_id)
+            INNER JOIN acl_topology_relations AS atr ON (atr.acl_topo_id = agtr.acl_topo_id)
+            INNER JOIN topology AS t ON (t.topology_id = atr.topology_topology_id)
+            WHERE t.topology_page = '601' --'601' is the ID of the page for monitoring configuration
+            SQL
+        );
 
         if (0 !== strcmp($role, 'admin')) {
             $countAcl = (int) $this->sqlFetchValue(
@@ -163,24 +164,10 @@ class CentreonCeip extends CentreonWebService
             if ($countAcl > 0) {
                 $role = 'admin';
             }
-        }
-        elseif ((0 !== strcmp($role, 'editor'))) {
-            $countAcl = (int) $this->sqlFetchValue(
-                <<<SQL
-            SELECT COUNT(*) AS countAcl
-            FROM acl_actions_rules AS aar
-            INNER JOIN acl_actions AS aa ON (aa.acl_action_id = aar.acl_action_rule_id)
-            INNER JOIN acl_group_actions_relations AS agar ON (agar.acl_action_id = aar.acl_action_rule_id)
-            INNER JOIN acl_group_topology_relations AS agtr ON (agtr.acl_group_id = agar.acl_group_id)
-            INNER JOIN acl_topology AS atp ON (atp.acl_topo_id = agtr.acl_topology_id)
-            INNER JOIN acl_topology_relations AS atr ON (atr.acl_topo_id = atp.acl_topo_id)
-            INNER JOIN topology AS t ON (t.topology_id = atr.topology_topology_id)
-            WHERE t.topology_page = '601' --'601' is the ID of the page for monitoring configuration
-            SQL
-            );
-            if ($countAcl > 0) {
-                $role = 'editor';
-            }
+        }elseif ($countAcl > 0) {
+             $role = 'editor';
+        }else{
+            $role = 'User';
         }
 
         return [
@@ -274,7 +261,7 @@ class CentreonCeip extends CentreonWebService
             }
         } catch (\Pimple\Exception\UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
-        } catch (\Exception | \Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
