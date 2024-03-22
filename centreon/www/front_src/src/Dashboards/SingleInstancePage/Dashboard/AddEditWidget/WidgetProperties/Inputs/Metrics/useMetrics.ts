@@ -25,7 +25,10 @@ import {
   WidgetDataResource
 } from '../../../models';
 import { getDataProperty } from '../utils';
-import { singleHostPerMetricAtom } from '../../../atoms';
+import {
+  resourcesInputKeyDerivedAtom,
+  widgetPropertiesAtom
+} from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
@@ -59,9 +62,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<Widget>();
 
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
+  const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
 
-  const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
+  const resources = (
+    resourcesInputKey ? values.data?.[resourcesInputKey] : []
+  ) as Array<WidgetDataResource>;
 
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -225,13 +231,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const metricWithSeveralResources = useMemo(
     () =>
-      singleHostPerMetric &&
+      widgetProperties?.singleHostPerMetric &&
       value?.some(
         ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
       ) &&
       getFirstUsedResourceForMetric(value[0].name),
     useDeepCompare([
-      singleHostPerMetric,
+      widgetProperties?.singleHostPerMetric,
       value,
       getNumberOfResourcesRelatedToTheMetric,
       getFirstUsedResourceForMetric
