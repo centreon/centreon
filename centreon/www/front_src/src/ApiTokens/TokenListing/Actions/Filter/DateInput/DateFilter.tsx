@@ -89,6 +89,7 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
       {displayCalendar && (
         <DateInput
           dataDate={dataDate}
+          label={label}
           setDisplayCalendar={setDisplayCalendar}
         />
       )}

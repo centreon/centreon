@@ -17,10 +17,15 @@ interface DataDate {
 }
 interface Props {
   dataDate: DataDate;
+  label: string;
   setDisplayCalendar;
 }
 
-const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
+const DateInput = ({
+  dataDate,
+  setDisplayCalendar,
+  label
+}: Props): JSX.Element => {
   const { classes } = useStyles({});
   const { date, setDate } = dataDate;
   const defaultDate = dayjs().toDate();
@@ -76,7 +81,10 @@ const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
   };
 
   return (
-    <div className={classes.container}>
+    <div
+      className={classes.container}
+      data-testid={`${label}-calendarContainer`}
+    >
       <div className={classes.containerDatePicker}>
         <div className={classes.secondaryContainer}>
           <Typography variant="overline"> Until </Typography>

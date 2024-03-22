@@ -498,7 +498,7 @@ describe('Api-token', () => {
     cy.findByTestId(labelCancel).click();
   });
 
-  it('displays an updated modal when generating a token ', () => {
+  it('displays an updated modal when generating a token', () => {
     openDialog();
 
     cy.fixture(
@@ -687,6 +687,37 @@ describe('Api-token', () => {
       'have.value',
       'February 27, 2024 5:30 PM'
     );
+
+    cy.makeSnapshot();
+  });
+
+  // Update the search bar and filter interface when using date filters for filtering 'case customize'.
+
+  it('display the date filters on case customize', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filter options').click();
+
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
+
+    const initialDate = '02/27/2024 07:16 PM';
+
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.findByTestId(`${labelCreationDate}-calendarContainer`).within(() => {
+      cy.contains('Until');
+      cy.findByTestId('calendarInput').should('have.value', initialDate);
+    });
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.findByTestId(`${labelExpirationDate}-calendarContainer`).within(() => {
+      cy.contains('Until');
+      cy.findByTestId('calendarInput').should('have.value', initialDate);
+    });
 
     cy.makeSnapshot();
   });
