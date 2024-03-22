@@ -40,7 +40,7 @@ export const getDuration = ({
     return { id: 'customize', name };
   }
 
-  const numberOfDays = endDate.diff(startDate, UnitDate.Day);
+  const numberOfDays = Math.round(endDate.diff(startDate, UnitDate.Day, true));
 
   if (numberOfDays <= maxDays) {
     const durationName = `${numberOfDays} days`;
