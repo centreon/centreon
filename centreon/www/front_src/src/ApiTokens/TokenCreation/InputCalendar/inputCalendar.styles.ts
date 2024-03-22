@@ -22,7 +22,8 @@ export const useStyles = makeStyles<StyleProps>()(
       },
       flex: 0.9
     },
-    helperText: {
+    error: {
+      paddingLeft: theme.spacing(6.5),
       textAlign: 'start'
     },
     picker: {

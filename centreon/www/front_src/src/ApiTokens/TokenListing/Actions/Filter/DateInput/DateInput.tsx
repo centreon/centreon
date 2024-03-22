@@ -87,8 +87,8 @@ const DateInput = ({ dataDate, setDisplayCalendar }: Props): JSX.Element => {
           timeSteps={{ minutes: 1 }}
           onClose={close}
         />
-        <HelperText error={error} />
       </div>
+      <HelperText error={error} />
     </div>
   );
 };

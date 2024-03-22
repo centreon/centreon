@@ -118,7 +118,7 @@ const InputCalendar = ({
           onOpen={onOpen}
         />
       </div>
-      <HelperText className={classes.helperText} error={error} />
+      <HelperText className={classes.error} error={error} />
     </div>
   );
 };
