@@ -263,12 +263,12 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
         if (isset($arr["service_hPars"])) {
             $hPars = $arr["service_hPars"];
         } else {
-            $hPars = array();
+            $hPars = [];
         }
         if (isset($arr["service_hgPars"])) {
             $hgPars = $arr["service_hgPars"];
         } else {
-            $hgPars = array();
+            $hgPars = [];
         }
     }
 
