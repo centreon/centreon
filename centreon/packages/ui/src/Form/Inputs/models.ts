@@ -33,6 +33,7 @@ export interface InputProps {
   additionalLabel?: string | JSX.Element;
   additionalLabelClassName?: string;
   additionalMemoProps?: Array<unknown>;
+  autoFocus?: boolean;
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;

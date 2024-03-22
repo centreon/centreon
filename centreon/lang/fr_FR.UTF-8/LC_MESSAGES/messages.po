@@ -18856,3 +18856,27 @@ msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliqu
 
 msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"
+
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"

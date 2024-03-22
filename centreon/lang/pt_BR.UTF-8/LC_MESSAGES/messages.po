@@ -17521,3 +17521,27 @@ msgstr ""
 
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "Duplicate dashboard"
+# msgstr ""
+
+# msgid "Delete dashboard"
+# msgstr ""
+
+# msgid "Dashboard deleted"
+# msgstr 
+
+# msgid "Dashboard duplicated"
+# msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
