@@ -114,7 +114,7 @@ Given('I am on the API tokens page', () => {
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
-  if (filterBy == 'Name') {
+  if (filterBy === 'Name') {
     cy.getByTestId({ testId: 'inputSearch', tag: 'input' }).type(
       tokensToSearch.name
     );
@@ -127,8 +127,8 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
 
   cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
 
-  if (filterBy == 'Status') {
-    tokensToSearch.status == 'Active'
+  if (filterBy === 'Status') {
+    tokensToSearch.status === 'Active'
       ? cy.contains('Active tokens').click()
       : cy.contains('Disabled tokens').click();
   } else {
@@ -150,6 +150,8 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
       case 'Expiration date':
         cy.contains('li', tokensToSearch.expirationDate).click();
         break;
+      default:
+        throw new Error(`${filterBy} filter is not managed`);
     }
   }
 
@@ -176,7 +178,7 @@ Then(
                 if (filterBy.includes('date')) {
                   const [prefix] = filterBy.split(' ');
                   allPromisesResolved.push(
-                    prefix == 'Creation'
+                    prefix === 'Creation'
                       ? new Date(value.trim()) >=
                           getDateBasedOnFilter(tokensToSearch.creationDate)
                       : new Date(value.trim()) <=
@@ -185,7 +187,7 @@ Then(
                 } else {
                   switch (filterBy) {
                     case 'Status':
-                      allPromisesResolved.push(value == tokensToSearch.status);
+                      allPromisesResolved.push(value === tokensToSearch.status);
                       break;
                     case 'Name':
                       allPromisesResolved.push(
@@ -193,11 +195,15 @@ Then(
                       );
                       break;
                     case 'User':
-                      allPromisesResolved.push(value == tokensToSearch.user);
+                      allPromisesResolved.push(value === tokensToSearch.user);
                       break;
                     case 'Creator':
-                      allPromisesResolved.push(value == tokensToSearch.creator);
+                      allPromisesResolved.push(
+                        value === tokensToSearch.creator
+                      );
                       break;
+                    default:
+                      throw new Error(`${filterBy} filter is not managed`);
                   }
                 }
               });
