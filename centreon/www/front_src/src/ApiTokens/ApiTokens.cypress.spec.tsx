@@ -324,7 +324,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
       expect(calls).to.have.length(2);
-      expect(calls[0].request.url.search.includes(defaultParameters));
+      equals(expect(calls[0].request.url.search, defaultParameters));
     });
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
@@ -347,7 +347,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      expect(calls[0].request.url.search.includes(secondPageParameter));
+      equals(expect(calls[0].request.url.search, secondPageParameter));
     });
 
     interceptListTokens({
@@ -360,7 +360,7 @@ describe('Api-token', () => {
 
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(firstPageParameter));
+      equals(expect(calls[0].request.url.search, firstPageParameter));
     });
 
     interceptListTokens({
@@ -374,7 +374,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      expect(calls[0].request.url.search.includes(secondPageParameter));
+      equals(expect(calls[0].request.url.search, secondPageParameter));
     });
 
     interceptListTokens({
@@ -388,7 +388,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(firstPageParameter));
+      equals(expect(calls[0].request.url.search, firstPageParameter));
     });
 
     cy.findByTestId('Listing Pagination').contains(10).click();
@@ -401,7 +401,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      expect(calls[0].request.url.search.includes(customLimitParameters));
+      equals(expect(calls[0].request.url.search, customLimitParameters));
     });
   });
 
@@ -639,7 +639,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensWithSearchableFields');
     cy.getRequestCalls('@getListTokensWithSearchableFields').then((calls) => {
       expect(
-        calls[0].request.url.search.includes(parametersWithAllSearchableFields)
+        equals(calls[0].request.url.search, parametersWithAllSearchableFields)
       );
     });
 
@@ -884,7 +884,7 @@ describe('Api-token', () => {
 
     cy.getRequestCalls('@getListTokensWithSelectedFilters').then((calls) => {
       expect(
-        calls[0].request.url.search.includes(parametersWithSelectedFilters)
+        equals(calls[0].request.url.search, parametersWithSelectedFilters)
       );
     });
 
