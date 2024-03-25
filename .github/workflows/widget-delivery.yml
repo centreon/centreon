@@ -16,6 +16,15 @@ on:
       environment:
         required: true
         type: string
+      github_base_ref:
+        required: true
+        type: string
+      release_type:
+        required: true
+        type: string
+      release_cloud:
+        required: true
+        type: string
     secrets:
       artifactory_token:
         required: true
@@ -86,3 +95,6 @@ jobs:
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
+          github_base_ref: ${{ inputs.github_base_ref }}
+          release_type: ${{ inputs.release_type }}
+          release_cloud: ${{ inputs.release_cloud }}
