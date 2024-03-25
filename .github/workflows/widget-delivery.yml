@@ -16,9 +16,6 @@ on:
       environment:
         required: true
         type: string
-      github_base_ref:
-        required: true
-        type: string
       release_type:
         required: true
         type: string
