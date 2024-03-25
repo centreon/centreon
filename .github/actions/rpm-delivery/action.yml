@@ -19,6 +19,12 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  release_cloud:
+    description: "Release context (cloud or not cloud)"
+    required: true
 
 runs:
   using: "composite"
@@ -37,10 +43,9 @@ runs:
 
     - name: Publish RPMs
       run: |
-        FILES="*.rpm"
+        set -eux
 
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        FILES="*.rpm"
 
         if [ -z "${{ inputs.module_name }}" ]; then
           echo "module name is required"
@@ -52,8 +57,17 @@ runs:
           exit 1
         fi
 
+        # DEBUG
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
+        echo "[DEBUG] - release_cloud: ${{ inputs.release_cloud }}"
+        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
+
+        # Create ARCH dirs
         mkdir noarch x86_64
 
+        # Get ARCH target for files to deliver and regroupe them by ARCH
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
@@ -68,25 +82,28 @@ runs:
         # if cloud, deliver to testing-<release_type>
         # if non-cloud, delivery to testing as usual
         if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
-          ROOT_REPO_PATH="rpm-standard-internal"
+          ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
-          ROOT_REPO_PATH="rpm-standard"
+          ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         else
           echo "Invalid combination of release_type and release_cloud"
         fi
 
         # Deliver based on inputs
-        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+        for ROOT_REPO_PATH in "$ROOT_REPO_PATHS"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
-                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/" --flat
+                echo "[DEBUG] - Stability is ${{ inputs.stability }}, not delivering."
+              elif [ "${{ inputs.stability }}" == "testing" ]; then
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
               else
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
             fi
           done
         done
+
       shell: bash
