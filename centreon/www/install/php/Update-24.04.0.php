@@ -217,16 +217,14 @@ $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): voi
 
 $removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to remove the dashboard beta tag';
-    $statement = $pearDB->query("SELECT 1 from topology WHERE topology_url_opt='Beta' AND topology_name='Dashboards'");
-    if((bool) $statement->fetchColumn() === false) {
         $pearDB->query(
             <<<SQL
                 UPDATE topology
                 SET topology_url_opt=NULL
                 WHERE topology_name='Dashboards'
+                AND topology_url_opt = 'Beta'
                 SQL
         );
-    }
 };
 
 try {
