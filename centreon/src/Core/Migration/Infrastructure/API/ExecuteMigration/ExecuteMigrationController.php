@@ -41,7 +41,7 @@ final class ExecuteMigrationController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddNotificationSchema.json');
+        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/ExecuteMigrationSchema.json');
 
         $migrationRequest = $this->createRequestDto($data);
         $useCase($migrationRequest, $presenter);

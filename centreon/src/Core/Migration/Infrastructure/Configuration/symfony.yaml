@@ -35,6 +35,7 @@ services:
         arguments:
             $dependencyFactory: '@doctrine.migrations.dependency_factory'
             $migrationFactory: '@doctrine.migrations.migrations_factory'
+            $configuration: '@doctrine.migrations.configuration'
             # $migratorConfigurationFactory: '@doctrine.migrations.configuration'
         public: true
 

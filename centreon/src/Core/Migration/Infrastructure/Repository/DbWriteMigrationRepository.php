@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
+use Doctrine\Migrations\Configuration\Configuration;
 use Doctrine\Migrations\DbalMigrator;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Metadata\MigrationPlan;
@@ -45,20 +46,21 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
 
     private DbalMigrator $dbalMigrator;
 
-    private DbalExecutor $dbalExecutor;
+    //private DbalExecutor $dbalExecutor;
 
     public function __construct(
         DatabaseConnection $db,
         DependencyFactory $dependencyFactory,
-        MigrationFactory $migrationFactory,
-        \Symfony\Component\Console\Input\InputInterface $input
+        private MigrationFactory $migrationFactory,
+        private Configuration $configuration,
+        # MigratorConfiguration $migratorConfiguration,
         //MigratorConfigurationFactory $migratorConfigurationFactory,
         //DbalMigrator $migrator,
     ) {
         $this->db = $db;
         $this->dbalMigrator = $dependencyFactory->getMigrator();
-        $this->migratorConfiguration = $dependencyFactory->getConsoleInputMigratorConfigurationFactory()->getMigratorConfiguration($input);
-        $this->dbalExecutor = $dependencyFactory->getVersionExecutor();
+        //$this->migratorConfiguration = $dependencyFactory->getConsoleInputMigratorConfigurationFactory()->getMigratorConfiguration($input);
+        //$this->dbalExecutor = $this->dbalMigrator->get;
         //$this->migratorConfiguration = $dependencyFactory->getMigrator
     }
 
@@ -68,8 +70,8 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     public function executeMigration(string $name): void
     {
         $version = new Version($name);
-        $migration = new MigrationPlan($version,);
+        $migration = new MigrationPlan($version, $this->migrationFactory->createVersion('Migrations\\' . $name), 'UP');
         $migrationPlanList = new MigrationPlanList([$migration], 'UP');
-        $this->dbalMigrator->migrate($this->migratorConfiguration);
+        $this->dbalMigrator->migrate($migrationPlanList, new MigratorConfiguration($this->configuration));
     }
 }
