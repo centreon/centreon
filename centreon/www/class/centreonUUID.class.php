@@ -56,7 +56,7 @@ class CentreonUUID
      *
      * @return string
      */
-    public function getUUID()
+    public function getUUID(): string
     {
         if ($uuid = $this->getUUIDFromDatabase()) {
             return $uuid;
@@ -70,14 +70,14 @@ class CentreonUUID
      *
      * @return false|string
      */
-    private function getUUIDFromDatabase()
+    private function getUUIDFromDatabase(): bool|string
     {
         $query = "SELECT value " .
             "FROM informations " .
             "WHERE informations.key = 'uuid' ";
         $result = $this->db->query($query);
 
-        if ((false !== $result) && ($row = $result->fetch())) {
+        if ($result !== false && $row = $result->fetch()) {
             /** @var array<string, null|bool|int|string> $row */
             return (string) $row['value'];
         }

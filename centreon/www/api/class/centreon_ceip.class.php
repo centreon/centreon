@@ -48,7 +48,6 @@ class CentreonCeip extends CentreonWebService
 
         $this->user = $centreon->user;
 
-
         // Generate UUID
         $this->uuid = (string) (new CentreonUUID($this->pearDB))->getUUID();
 
@@ -124,19 +123,24 @@ class CentreonCeip extends CentreonWebService
         $role = $this->user->admin
             ? 'admin'
             : 'user';
-
         $countAcl = (int) $this->sqlFetchValue(
             <<<SQL
-            SELECT COUNT(*) AS countAcl
-            FROM acl_actions_rules AS aar
-            INNER JOIN acl_actions AS aa ON (aa.acl_action_id = aar.acl_action_rule_id)
-            INNER JOIN acl_group_actions_relations AS agar ON (agar.acl_action_id = aar.acl_action_rule_id)
-            INNER JOIN acl_group_topology_relations AS agtr ON (agtr.acl_group_id = agar.acl_group_id)
-            INNER JOIN acl_topology AS atp ON (atp.acl_topo_id = agtr.acl_topology_id)
-            INNER JOIN acl_topology_relations AS atr ON (atr.acl_topo_id = agtr.acl_topo_id)
-            INNER JOIN topology AS t ON (t.topology_id = atr.topology_topology_id)
-            WHERE t.topology_page = '601' --'601' is the ID of the page for monitoring configuration
-            SQL
+                SELECT COUNT(*) AS countAcl
+                FROM topology AS t
+                INNER JOIN acl_topology_relations AS atr ON (atr.topology_topology_id = t.topology_id)
+                INNER JOIN acl_topology AS atp ON (atp.acl_topo_id = atr.acl_topo_id)
+                INNER JOIN acl_group_topology_relations AS agtr ON (agtr.acl_topology_id = atr.acl_topo_id)
+                INNER JOIN acl_group_contacts_relations AS agcr ON (agcr.acl_group_id = agtr.acl_group_id)
+                INNER JOIN acl_group_contactgroups_relations AS agcgr ON (agcgr.acl_group_id = agtr.acl_group_id)
+                WHERE t.topology_page = '601'
+                AND agcr.contact_contact_id = :contact_id
+                   OR agcgr.acl_group_id IN (
+                   SELECT contactgroup_cg_id
+                   FROM contactgroup_contact_relation
+                   WHERE contact_contact_id = :contact_id
+                   )
+            SQL,
+            [':contact_id', $this->user->user_id, PDO::PARAM_INT]
         );
 
         if (0 !== strcmp($role, 'admin')) {
