@@ -1,80 +1,36 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
-import {
-  pipe,
-  equals,
-  flatten,
-  isEmpty,
-  isNil,
-  split,
-  map,
-  filter,
-  join,
-  reject
-} from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals, flatten } from 'ramda';
 
-import { QueryParameter, SearchParameter, getFoundFields } from '@centreon/ui';
+import { SearchParameter, getFoundFields } from '@centreon/ui';
 
-import {
-  creationDateAtom,
-  expirationDateAtom,
-  isRevokedAtom
-} from '../Filter/atoms';
 import { Fields } from '../Filter/models';
 
 import { searchAtom } from './atoms';
 import { convertToBoolean } from './utils';
-import { ConstructQueryParameters } from './models';
 
-interface UseButtonParameters {
+interface UseBuildParameters {
   getSearchParameters: () => SearchParameter | undefined;
-  queryParameters: Array<QueryParameter> | null;
 }
 
-const useBuildParameters = (): UseButtonParameters => {
+const useBuildParameters = (): UseBuildParameters => {
   const search = useAtomValue(searchAtom);
-  const creationDate = useAtomValue(creationDateAtom);
-  const expirationDate = useAtomValue(expirationDateAtom);
-  const isRevoked = useAtomValue(isRevokedAtom);
 
-  const customQueriesData = [
-    { data: creationDate, field: Fields.CreationDate },
-    { data: expirationDate, field: Fields.ExpirationDate },
-    { data: isRevoked, field: Fields.IsRevoked }
+  const customFields = [
+    Fields.CreationDate,
+    Fields.ExpirationDate,
+    Fields.IsRevoked
   ];
 
-  const handleCustomQueries = (input: string): string | null => {
-    const hasCustomQueryField = getFoundFields({
-      fields: customQueriesData.map(({ field }) => field),
-      value: input
-    });
-    if (isEmpty(hasCustomQueryField)) {
-      return input;
-    }
-
-    return null;
-  };
-
-  const excludeCustomQueriesFromSearchInput = (): string => {
-    return pipe(
-      split(' '),
-      map(handleCustomQueries),
-      filter(Boolean),
-      join(' ')
-    )(search);
-  };
-
   const getSearchParameters = useCallback(() => {
-    const updatedSearch = excludeCustomQueriesFromSearchInput();
-
-    if (!updatedSearch) {
+    if (!search) {
       return undefined;
     }
 
     const fieldMatches = getFoundFields({
       fields: [...Object.values(Fields)],
-      value: updatedSearch
+      value: search
     });
 
     const searchedWords = fieldMatches.map(({ field, value }) => {
@@ -89,60 +45,25 @@ const useBuildParameters = (): UseButtonParameters => {
       }));
     });
     const terms = flatten(searchedWords);
-    const hasMultipleSearch =
-      [...new Map(terms.map((term) => [term.field, term])).values()].length !==
-      terms?.length;
 
-    if (hasMultipleSearch) {
-      return {
-        conditions: terms.map((term) => ({
-          field: term.field,
-          values: { $rg: term.value }
-        }))
-      };
-    }
+    const getValues = ({ field, value }): Record<string, string | boolean> =>
+      customFields.includes(field)
+        ? {
+            $eq: !equals(field, Fields.IsRevoked)
+              ? value
+              : convertToBoolean(value)
+          }
+        : { $rg: value };
 
     return {
-      regex: {
-        fields: [...Object.values(Fields)],
-        value: updatedSearch
-      }
+      conditions: terms.map(({ field, value }) => ({
+        field,
+        values: getValues({ field, value })
+      }))
     };
   }, [search]);
 
-  const constructQueryParameters = ({
-    value,
-    field
-  }): ConstructQueryParameters => {
-    if (isNil(value)) {
-      return null;
-    }
-
-    const newValue = equals(field, Fields.IsRevoked)
-      ? convertToBoolean(value)
-      : value;
-
-    return {
-      name: field as string,
-      value: newValue
-    };
-  };
-
-  const queryParameters = useMemo(() => {
-    const customQueryField = getFoundFields({
-      fields: customQueriesData.map(({ field }) => field),
-      value: search
-    });
-
-    const result = pipe(
-      map(constructQueryParameters),
-      reject(isNil)
-    )(customQueryField);
-
-    return isEmpty(result) ? null : (result as Array<QueryParameter>);
-  }, [search]);
-
-  return { getSearchParameters, queryParameters };
+  return { getSearchParameters };
 };
 
 export default useBuildParameters;

@@ -511,11 +511,24 @@ describe('Api-token', () => {
         response: data
       });
     });
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
 
     fillInputs();
 
     cy.findByTestId(labelDuration).click();
-    cy.findByRole('option', { name: duration.name }).click();
+
+    cy.findByRole('option', { name: 'customize' }).click();
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '28' }).click();
+    cy.contains('OK').click();
+
+    cy.findByTestId(labelDuration).should(
+      'have.value',
+      'February 28, 2024 7:16 PM'
+    );
 
     cy.findByTestId('Confirm')
       .contains(labelGenerateNewToken)
@@ -613,11 +626,10 @@ describe('Api-token', () => {
       result: { current }
     } = renderHook(() => useBuildParameters());
 
-    const { getSearchParameters, queryParameters } = current;
+    const { getSearchParameters } = current;
 
     interceptListTokens({
       alias: 'getListTokensWithSearchableFields',
-      customQueryParameters: queryParameters,
       dataPath: 'apiTokens/listing/search/listWithAllSearchableFields.json',
       parameters: { ...DefaultParameters, search: getSearchParameters() }
     });
@@ -838,10 +850,9 @@ describe('Api-token', () => {
       result: { current }
     } = renderHook(() => useBuildParameters());
 
-    const { getSearchParameters, queryParameters } = current;
+    const { getSearchParameters } = current;
     interceptListTokens({
       alias: 'getListTokensWithSelectedFilters',
-      customQueryParameters: queryParameters,
       dataPath: 'apiTokens/listing/search/listWithSelectedFields.json',
       parameters: { ...DefaultParameters, search: getSearchParameters() }
     });
