@@ -84,12 +84,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -154,12 +149,7 @@ Then('the information about the selected metric is displayed', () => {
 Given('a dashboard featuring a single Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
   cy.visit('/centreon/home/dashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -199,12 +189,7 @@ Given(
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
     cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -242,12 +227,7 @@ Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -305,12 +285,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -351,12 +326,7 @@ Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
