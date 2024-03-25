@@ -72,7 +72,7 @@ Feature: Checking dashboard permissions
 
   @TEST_MON-22180
   Scenario: Accessing the list of shared dashboards as a non-admin dashboard viewer
-    Given a non-admin user with the dashboard viewer role is logged in on a platform with dashboards
+    Given a non-admin user with the dashboard viewer role is logged in on a platform
     When the dashboard viewer user accesses the dashboards library
     Then a list of the dashboards the dashboard viewer user has access to is displayed
     When the dashboard viewer user clicks on a dashboard
