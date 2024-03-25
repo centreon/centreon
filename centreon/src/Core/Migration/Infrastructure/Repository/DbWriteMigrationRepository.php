@@ -50,18 +50,12 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
 
     public function __construct(
         DatabaseConnection $db,
-        DependencyFactory $dependencyFactory,
+        private DependencyFactory $dependencyFactory,
         private MigrationFactory $migrationFactory,
         private Configuration $configuration,
-        # MigratorConfiguration $migratorConfiguration,
-        //MigratorConfigurationFactory $migratorConfigurationFactory,
-        //DbalMigrator $migrator,
     ) {
         $this->db = $db;
         $this->dbalMigrator = $dependencyFactory->getMigrator();
-        //$this->migratorConfiguration = $dependencyFactory->getConsoleInputMigratorConfigurationFactory()->getMigratorConfiguration($input);
-        //$this->dbalExecutor = $this->dbalMigrator->get;
-        //$this->migratorConfiguration = $dependencyFactory->getMigrator
     }
 
     /**
@@ -69,9 +63,14 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function executeMigration(string $name): void
     {
-        $version = new Version($name);
-        $migration = new MigrationPlan($version, $this->migrationFactory->createVersion('Migrations\\' . $name), 'UP');
-        $migrationPlanList = new MigrationPlanList([$migration], 'UP');
-        $this->dbalMigrator->migrate($migrationPlanList, new MigratorConfiguration($this->configuration));
+        $this->dependencyFactory->getMetadataStorage()->ensureInitialized();
+        $planCalculator = $this->dependencyFactory->getMigrationPlanCalculator();
+        $version = new Version('Migrations\\' . $name);
+        $migrationPlanList = $planCalculator->getPlanForVersions([$version], 'UP');
+        $migratorConfiguration = (new MigratorConfiguration())
+            ->setDryRun(false)
+            ->setTimeAllQueries(true)
+            ->setAllOrNothing(false);
+        $this->dbalMigrator->migrate($migrationPlanList, $migratorConfiguration);
     }
 }

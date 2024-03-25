@@ -45,7 +45,6 @@ final class ExecuteMigrationController extends AbstractController
 
         $migrationRequest = $this->createRequestDto($data);
         $useCase($migrationRequest, $presenter);
-        $useCase($presenter);
 
         return $presenter->show();
     }
