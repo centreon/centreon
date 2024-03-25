@@ -5,7 +5,6 @@ Feature:
 
   Background:
     Given a running cloud platform instance of Centreon Web API
-    And the endpoints are described in Centreon Web API documentation
 
   Scenario: Retrieve a notifiable Rule
     Given I am logged in
