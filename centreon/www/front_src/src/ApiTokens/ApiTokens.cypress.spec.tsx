@@ -539,6 +539,7 @@ describe('Api-token', () => {
 
     cy.makeSnapshot();
   });
+
   it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
@@ -691,8 +692,6 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  // Update the search bar and filter interface when using date filters for filtering 'case customize'.
-
   it('display the date filters on case customize', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByTestId('Filter options').click();
@@ -718,6 +717,43 @@ describe('Api-token', () => {
       cy.contains('Until');
       cy.findByTestId('calendarInput').should('have.value', initialDate);
     });
+
+    cy.makeSnapshot();
+  });
+
+  it('update the filter interface when applying custom date filters', () => {
+    cy.waitForRequest('@getListTokens');
+    cy.findByTestId('Filter options').click();
+
+    const now = new Date(2024, 1, 27, 18, 16, 33);
+
+    cy.clock(now);
+
+    cy.findByTestId(labelCreationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '28' }).click();
+    cy.contains('OK').click();
+
+    cy.findByTestId(labelCreationDate).should(
+      'have.value',
+      'February 28, 2024 7:16 PM'
+    );
+
+    cy.findByTestId(labelExpirationDate).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
+
+    cy.openCalendar('calendarInput');
+
+    cy.findByRole('gridcell', { name: '1' }).click();
+    cy.contains('OK').click();
+
+    cy.findByTestId(labelExpirationDate).should(
+      'have.value',
+      'February 1, 2024 7:16 PM'
+    );
 
     cy.makeSnapshot();
   });
@@ -760,13 +796,7 @@ describe('Api-token', () => {
     cy.findByTestId(labelCreationDate).click();
     cy.findByRole('option', { name: 'Customize' }).click();
 
-    cy.findByTestId('calendarInput').then(($input) => {
-      if ($input.attr('readonly')) {
-        cy.wrap($input).click();
-      } else {
-        cy.findByTestId('CalendarIcon').click();
-      }
-    });
+    cy.openCalendar('calendarInput');
 
     cy.findByRole('gridcell', { name: '5' }).click();
 
