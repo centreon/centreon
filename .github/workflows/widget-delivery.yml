@@ -72,7 +72,6 @@ jobs:
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
-          github_base_ref: ${{ inputs.github_base_ref }}
           release_type: ${{ inputs.release_type }}
           release_cloud: ${{ inputs.release_cloud }}
 
