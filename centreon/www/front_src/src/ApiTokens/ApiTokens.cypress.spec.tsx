@@ -519,7 +519,7 @@ describe('Api-token', () => {
 
     cy.findByTestId(labelDuration).click();
 
-    cy.findByRole('option', { name: 'customize' }).click();
+    cy.findByRole('option', { name: 'Customize' }).click();
     cy.openCalendar('calendarInput');
 
     cy.findByRole('gridcell', { name: '28' }).click();
