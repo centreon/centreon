@@ -28,16 +28,38 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Doctrine\Migrations\DbalMigrator;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Metadata\MigrationPlan;
+use Doctrine\Migrations\Version\MigrationFactory;
+use Doctrine\Migrations\Metadata\MigrationPlanList;
+use Doctrine\Migrations\MigratorConfiguration;
+use Doctrine\Migrations\MigratorConfigurationFactory;
+use Doctrine\Migrations\Version\DbalExecutor;
+use Doctrine\Migrations\Version\Version;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
     use LoggerTrait;
 
+    private MigratorConfiguration $migratorConfiguration;
+
+    private DbalMigrator $dbalMigrator;
+
+    private DbalExecutor $dbalExecutor;
+
     public function __construct(
         DatabaseConnection $db,
-        DbalMigrator $migrator,
+        DependencyFactory $dependencyFactory,
+        MigrationFactory $migrationFactory,
+        \Symfony\Component\Console\Input\InputInterface $input
+        //MigratorConfigurationFactory $migratorConfigurationFactory,
+        //DbalMigrator $migrator,
     ) {
         $this->db = $db;
+        $this->dbalMigrator = $dependencyFactory->getMigrator();
+        $this->migratorConfiguration = $dependencyFactory->getConsoleInputMigratorConfigurationFactory()->getMigratorConfiguration($input);
+        $this->dbalExecutor = $dependencyFactory->getVersionExecutor();
+        //$this->migratorConfiguration = $dependencyFactory->getMigrator
     }
 
     /**
@@ -45,6 +67,9 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function executeMigration(string $name): void
     {
-        
+        $version = new Version($name);
+        $migration = new MigrationPlan($version,);
+        $migrationPlanList = new MigrationPlanList([$migration], 'UP');
+        $this->dbalMigrator->migrate($this->migratorConfiguration);
     }
 }

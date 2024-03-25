@@ -30,6 +30,14 @@ services:
             $migrationsCollector: '@doctrine_migrations.migrations_collector'
         public: true
 
+    Core\Migration\Application\Repository\WriteMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\DbWriteMigrationRepository
+        arguments:
+            $dependencyFactory: '@doctrine.migrations.dependency_factory'
+            $migrationFactory: '@doctrine.migrations.migrations_factory'
+            # $migratorConfigurationFactory: '@doctrine.migrations.configuration'
+        public: true
+
     # Doctrine\Migrations\DependencyFactory:
     #     class: Doctrine\Migrations\DependencyFactory
 
