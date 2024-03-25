@@ -17526,3 +17526,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "All resources selected"
 # msgstr ""
+
+# msgid "Until"
+# msgstr ""

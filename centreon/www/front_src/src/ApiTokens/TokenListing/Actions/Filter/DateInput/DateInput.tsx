@@ -7,6 +7,7 @@ import { Typography } from '@mui/material';
 import { DateTimePickerInput } from '@centreon/ui';
 
 import { useStyles } from '../../../../TokenCreation/InputCalendar/inputCalendar.styles';
+import { labelUntil } from '../../../../translatedLabels';
 
 import HelperText from './HelperText';
 
@@ -87,7 +88,7 @@ const DateInput = ({
     >
       <div className={classes.containerDatePicker}>
         <div className={classes.secondaryContainer}>
-          <Typography variant="overline"> Until </Typography>
+          <Typography variant="overline"> {labelUntil} </Typography>
         </div>
         <DateTimePickerInput
           changeDate={changeDate}
