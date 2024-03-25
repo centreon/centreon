@@ -1,6 +1,10 @@
 FROM almalinux:8.5
 
-RUN <<EOF
+RUN bash -e <<EOF
+
+dnf module reset -y ruby
+dnf module enable ruby:3.0
+dnf install -y ruby
 
 dnf install -y rpm-build rpm-sign zstd perl-devel
 dnf clean all
