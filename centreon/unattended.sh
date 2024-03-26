@@ -1232,17 +1232,11 @@ function install_poller() {
 # update Centreon packages
 #
 function update_centreon_packages() {
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_PKG="centreon\*"
-	else
-		CENTREON_PKG="centreon-central"
-	fi
-
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		$PKG_MGR upgrade $CENTREON_PKG
 	else
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y $CENTREON_PKG --enablerepo=$CENTREON_REPO
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not update Centreon"
 		fi
