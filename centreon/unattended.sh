@@ -373,8 +373,10 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=$detected_os_version --mariadb-server-version=$detected_mariadb_version
+		$PKG_MGR install -y centreon-mariadb --no-install-recommends
 	else
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version=$detected_mariadb_version
+		$PKG_MGR install -y centreon-mariadb --enablerepo="$CENTREON_REPO"
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the repository"
@@ -397,9 +399,11 @@ function setup_mysql() {
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
+		$PKG_MGR install -y centreon-mysql --enablerepo="$CENTREON_REPO"
+	else
+		$PKG_MGR install -y centreon-mysql --enablerepo="$CENTREON_REPO"
 	fi
-
-	$PKG_MGR install -y mysql-server
+	$PKG_MGR install -y mysql-server mysql
 	systemctl enable --now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
