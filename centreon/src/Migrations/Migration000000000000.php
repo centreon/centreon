@@ -75,6 +75,5 @@ class Migration000000000000 extends AbstractMigration implements MigrationInterf
      */
     public function down(): void
     {
-        // nothing
     }
 }

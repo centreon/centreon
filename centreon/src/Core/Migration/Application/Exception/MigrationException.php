@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,4 +25,13 @@ namespace Core\Migration\Application\Exception;
 
 class MigrationException extends \Exception
 {
+    public static function findNotAllowed(): self
+    {
+        return new self(_('Only admin user can list migrations'));
+    }
+
+    public static function errorWhileRetrievingMigrations(): self
+    {
+        return new self(_('An error occurred while retrieving the migrations listing'));
+    }
 }

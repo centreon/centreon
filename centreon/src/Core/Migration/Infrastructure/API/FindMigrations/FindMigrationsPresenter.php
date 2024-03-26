@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,23 +47,6 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            /*
-            $data = [];
-            foreach ($response->migrations as $migrationDto) {
-                $moduleName = $migrationDto->moduleName ?: 'core';
-
-                if (!array_key_exists($moduleName, $data)) {
-                    $data[$moduleName] = [];
-                }
-
-                $data[$moduleName][] = [
-                    'name' => $migrationDto->name,
-                    'description' => $migrationDto->description,
-                ];
-            }
-            $this->present($data);
-            */
-
             $this->present(
                 array_map(static function ($migrationDto) {
                     return [
