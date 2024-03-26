@@ -1,7 +1,7 @@
 features
 GPL_LIB
 lang
-node_modules
+test2
 www/include/common/javascript/marked.js
 www/include/common/javascript/jquery
 www/lib/wz_tooltip/wz_tooltip.js
