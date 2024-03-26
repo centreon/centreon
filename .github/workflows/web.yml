@@ -158,3 +158,4 @@ jobs:
           echo "The run id is: $GITHUB_RUN_ID"
           echo "The GitHub Actor's username is: $GITHUB_ACTOR"
           echo "GitHub SHA: $GITHUB_SHA"
+          echo "Veracode svc var : ${{ vars.VERACODE_API_ID_SVC_EXT }}
