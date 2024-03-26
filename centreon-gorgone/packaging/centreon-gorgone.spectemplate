@@ -171,6 +171,10 @@ if [ \( \! -d %{_localstatedir}/lib/centreon-gorgone/.ssh \) -a \( -d %{_localst
   %{__chmod} 600 %{_localstatedir}/lib/centreon-gorgone/.ssh/id_rsa
 fi
 
+%{__chmod} 640 /etc/centreon-gorgone/config.d/30-centreon.yaml
+%{__chmod} 640 /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+%{__chmod} 640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+
 %post
 %systemd_post gorgoned.service || :
 
