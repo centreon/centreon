@@ -692,6 +692,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
@@ -746,3 +748,6 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+          github_base_ref: ${{ github.base_ref }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
