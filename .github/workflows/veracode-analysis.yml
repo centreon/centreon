@@ -90,6 +90,22 @@ jobs:
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
+          if [[ -z "${{ secrets.veracode_api_id }}" ]]; then
+            echo "[DEBUG] - secret is empty"
+          else
+            echo "[DEBUG] - secret is ${{ secrets.veracode_api_id }}"
+          fi
+          if [[ -z "${{ vars.VERACODE_API_ID_SVC_EXT }}" ]]; then
+            echo "[DEBUG] - vars is empty"
+          else
+            echo "[DEBUG] - vars is ${{ vars.VERACODE_API_ID_SVC_EXT }}"
+          fi
+          if [[ -z "${{ secrets.veracode_api_id || vars.VERACODE_API_ID_SVC_EXT }}" ]]; then
+            echo "[DEBUG] - workaround is empty"
+          else
+            echo "[DEBUG] - workaround is ${{ secrets.veracode_api_id || vars.VERACODE_API_ID_SVC_EXT }}"
+          fi
+
   pipeline-scan:
     needs: [build]
     name: Run a pipeline scan
