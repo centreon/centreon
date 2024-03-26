@@ -88,7 +88,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} centreon-gorgone/packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} centreon-gorgone/packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %{__cp} centreon-gorgone/packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
-%{__cp} centreon-gorgone/packaging/action.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/41-action.yaml
+%{__cp} centreon-gorgone/packaging/action.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/39-action.yaml
 %{__cp} centreon-gorgone/packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
 %{__cp} centreon-gorgone/packaging/whitelist.conf.d/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d/centreon.yaml
 
@@ -119,7 +119,7 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/centreon-gorgone/config.d/cron.d
 %dir %{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d
 %{_sysconfdir}/centreon-gorgone/config.yaml
-%{_sysconfdir}/centreon-gorgone/config.d/41-action.yaml
+%{_sysconfdir}/centreon-gorgone/config.d/39-action.yaml
 %{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d/centreon.yaml
 
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
