@@ -440,6 +440,9 @@ class CentreonStatistics
         return $data;
     }
 
+    /**
+     * @return array<string,array{rotation_time: int, dashboards_count: int, shared_users_groups_count: int}>
+     */
     private function getAdditionalDashboardPlaylistsInformation(): array
     {
         $data = [];
