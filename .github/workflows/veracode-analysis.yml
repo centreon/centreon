@@ -168,8 +168,8 @@ jobs:
         uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
-          vid: "vera01ei-${{ secrets.veracode_api_id != ""  && secrets.veracode_api_id || vars.VERACODE_API_ID_SVC_EXT }}"
-          vkey: "vera01es-${{ secrets.veracode_api_key != "" && secrets.veracode_api_key || vars.VERACODE_API_KEY_SVC_EXT }}"
+          vid: vera01ei-${{ secrets.veracode_api_id != "" && secrets.veracode_api_id || vars.VERACODE_API_ID_SVC_EXT }}
+          vkey: vera01es-${{ secrets.veracode_api_key != "" && secrets.veracode_api_key || vars.VERACODE_API_KEY_SVC_EXT }}
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
