@@ -1,0 +1,25 @@
+parameters:
+    max_filesize: 2M
+    max_file: 20
+    post_max: 8M
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    _instanceof:
+        Core\Migration\Application\Repository\MigrationInterface:
+            tags: ['platform.migrations']
+
+    Core\Migration\:
+        resource: '../../../../Core/Migration/*'
+
+    Migrations\:
+        resource: '../../../../Migrations/*'
+
+    Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
+        arguments:
+            $migrations: !tagged_iterator 'platform.migrations'
+        public: true

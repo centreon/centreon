@@ -2654,6 +2654,17 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'auto incremented id',
+  `module_id` int(11) DEFAULT NULL COMMENT 'linked module id',
+  `name` varchar(255) NOT NULL COMMENT 'name of the migration',
+  `executed_at` int(11) NOT NULL COMMENT 'migration execution date (timestamp)',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `migrations_module_id`
+    FOREIGN KEY (`module_id`)
+    REFERENCES `modules_informations` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'table to store executed migrations';
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
