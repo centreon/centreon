@@ -116,8 +116,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      veracode_api_id: ${{ vars.VERACODE_API_ID_SVC_EXT }}
-      veracode_api_key: ${{ vars.VERACODE_API_KEY_SVC_EXT }}
+      veracode_api_id: ""
+      veracode_api_key: ""
       veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
