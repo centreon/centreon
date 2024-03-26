@@ -21,13 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
+namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\Type\NoValue;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
@@ -36,21 +37,24 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+    use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 /**
- * @phpstan-import-type _RoleMapping from UpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _RoleMapping from PartialUpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _GroupsMapping from PartialUpdateOpenIdConfigurationRequest
+ * @phpstan-import-type _AuthConditions from PartialUpdateOpenIdConfigurationRequest
  */
-class UpdateOpenIdConfiguration
+final class PartialUpdateOpenIdConfiguration
 {
     use LoggerTrait;
 
@@ -71,55 +75,99 @@ class UpdateOpenIdConfiguration
     }
 
     /**
-     * @param UpdateOpenIdConfigurationPresenterInterface $presenter
-     * @param UpdateOpenIdConfigurationRequest $request
+     * @param PartialUpdateOpenIdConfigurationPresenterInterface $presenter
+     * @param PartialUpdateOpenIdConfigurationRequest $request
      */
     public function __invoke(
-        UpdateOpenIdConfigurationPresenterInterface $presenter,
-        UpdateOpenIdConfigurationRequest $request
+        PartialUpdateOpenIdConfigurationPresenterInterface $presenter,
+        PartialUpdateOpenIdConfigurationRequest $request
     ): void {
 
-        $this->info('Updating OpenID Provider');
+        $this->info('Partialy Updating OpenID Provider');
         try {
             $provider = $this->providerAuthenticationFactory->create(Provider::OPENID);
-            /**
-             * @var Configuration $configuration
-             */
+            /** @var Configuration */
             $configuration = $provider->getConfiguration();
-            $configuration->update($request->isActive, $request->isForced);
-            $requestArray = $request->toArray();
 
-            $requestArray['contact_template'] = $request->contactTemplate
-            && array_key_exists('id', $request->contactTemplate) !== null
-                ? $this->getContactTemplateOrFail($request->contactTemplate)
-                : null;
-            $requestArray['roles_mapping'] = $this->createAclConditions($request->rolesMapping);
-            $requestArray['authentication_conditions'] = $this->createAuthenticationConditions(
-                $request->authenticationConditions
+            $customConfiguration = $this->createUpdatedCustomConfiguration(
+                $configuration->getCustomConfiguration(),
+                $request
             );
-            $requestArray['groups_mapping'] = $this->createGroupsMapping($request->groupsMapping);
-            $requestArray['is_active'] = $request->isActive;
 
-            $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
+            $configuration->update(
+                isActive: $request->isActive instanceOf NoValue
+                    ? $configuration->isActive()
+                    : $request->isActive,
+                isForced: $request->isForced instanceOf NoValue
+                    ? $configuration->isForced()
+                    : $request->isForced
+            );
+            $configuration->setCustomConfiguration($customConfiguration);
 
-            $this->info('Updating OpenID Provider');
             $this->repository->updateConfiguration($configuration);
         } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
             $this->error(
-                'Unable to create OpenID Provider because one or several parameters are invalid',
+                'Unable to perform partial update on OpenID Provider because one or several parameters are invalid',
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
 
             return;
         } catch (\Throwable $ex) {
-            $this->error('Error during Opend ID Provider Update', ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new UpdateOpenIdConfigurationErrorResponse());
+            $this->error('Error during Opend ID Provider Partial Update', ['trace' => $ex->getTraceAsString()]);
+            $presenter->setResponseStatus(new PartialUpdateOpenIdConfigurationErrorResponse());
 
             return;
         }
 
         $presenter->setResponseStatus(new NoContentResponse());
+    }
+
+    /**
+     * @param CustomConfiguration $customConfig
+     * @param PartialUpdateOpenIdConfigurationRequest $request
+     *
+     * @return CustomConfiguration
+     */
+    private function createUpdatedCustomConfiguration(
+        CustomConfigurationInterface $customConfig,
+        PartialUpdateOpenIdConfigurationRequest $request
+    ): CustomConfiguration {
+        /** @var CustomConfiguration $customConfig */
+        $requestArray = $request->toArray();
+        $oldConfigArray = $customConfig->toArray();
+
+        foreach ($requestArray as $paramName => $paramValue) {
+            if ($paramName === 'contact_template') {
+                $requestArray['contact_template']
+                    = $paramValue instanceof NoValue
+                    ? $customConfig->getContactTemplate()
+                    : (
+                        $paramValue && array_key_exists('id', $paramValue) !== null
+                            ? $this->getContactTemplateOrFail($paramValue)
+                            : null
+                    );
+            } elseif ($paramName === 'roles_mapping') {
+                $requestArray['roles_mapping'] = $this->createUpdatedAclConditions(
+                    $paramValue,
+                    $customConfig->getACLConditions()
+                );
+            } elseif ($paramName === 'authentication_conditions') {
+                $requestArray['authentication_conditions'] = $this->createUpdatedAuthenticationConditions(
+                    $paramValue,
+                    $customConfig->getAuthenticationConditions()
+                );
+            } elseif ($paramName === 'groups_mapping') {
+                $requestArray['groups_mapping'] = $this->createUpdatedGroupsMapping(
+                    $paramValue,
+                    $customConfig->getGroupsMapping()
+                );
+            } elseif ($paramValue instanceOf NoValue) {
+                $requestArray[$paramName] = $oldConfigArray[$paramName];
+            }
+        }
+
+        return new CustomConfiguration($requestArray);
     }
 
     /**
@@ -143,6 +191,36 @@ class UpdateOpenIdConfiguration
         }
 
         return $contactTemplate;
+    }
+
+    /**
+     * @param _RoleMapping $paramValue
+     * @param ACLConditions $aclConditions
+     *
+     * @return ACLConditions
+     */
+    private function createUpdatedAclConditions(array $paramValue, ACLConditions $aclConditions): ACLConditions
+    {
+        return new ACLConditions(
+            isEnabled: $paramValue['is_enabled'] instanceOf NoValue
+                ? $aclConditions->isEnabled()
+                : $paramValue['is_enabled'],
+            applyOnlyFirstRole: $paramValue['apply_only_first_role'] instanceOf NoValue
+                ? $aclConditions->onlyFirstRoleIsApplied()
+                : $paramValue['apply_only_first_role'],
+            attributePath: $paramValue['attribute_path'] instanceOf NoValue
+                ? $aclConditions->getAttributePath()
+                : $paramValue['attribute_path'],
+            endpoint: $paramValue['endpoint'] instanceof NoValue
+                ? $aclConditions->getEndpoint()
+                : new Endpoint(
+                    $paramValue['endpoint']['type'],
+                    $paramValue['endpoint']['custom_endpoint']
+                ),
+            relations: $paramValue['relations'] instanceOf NoValue
+                ? $aclConditions->getRelations()
+                : $this->createAuthorizationRules($paramValue['relations']),
+        );
     }
 
     /**
@@ -183,26 +261,6 @@ class UpdateOpenIdConfiguration
         }
 
         return $authorizationRules;
-    }
-
-    /**
-     * @param _RoleMapping $rolesMapping
-     *
-     * @throws \Throwable
-     *
-     * @return ACLConditions
-     */
-    private function createAclConditions(array $rolesMapping): ACLConditions
-    {
-        $rules = $this->createAuthorizationRules($rolesMapping['relations']);
-
-        return new ACLConditions(
-            $rolesMapping['is_enabled'],
-            $rolesMapping['apply_only_first_role'],
-            $rolesMapping['attribute_path'],
-            new Endpoint($rolesMapping['endpoint']['type'], $rolesMapping['endpoint']['custom_endpoint']),
-            $rules
-        );
     }
 
     /**
@@ -267,92 +325,91 @@ class UpdateOpenIdConfiguration
     }
 
     /**
-     * Create Authentication Condition from request data.
-     *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "authorized_values": string[],
-     *  "trusted_client_addresses": string[],
-     *  "blacklist_client_addresses": string[],
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  }
-     * } $authenticationConditionsParameters
-     *
-     * @throws AssertionFailedException
-     * @throws ConfigurationException
+     * @param _AuthConditions $requestParam
+     * @param AuthenticationConditions $authConditions
      *
      * @return AuthenticationConditions
      */
-    private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
-    {
-        $authenticationConditions = new AuthenticationConditions(
-            $authenticationConditionsParameters['is_enabled'],
-            $authenticationConditionsParameters['attribute_path'],
-            new Endpoint(
-                $authenticationConditionsParameters['endpoint']['type'],
-                $authenticationConditionsParameters['endpoint']['custom_endpoint']
-            ),
-            $authenticationConditionsParameters['authorized_values'],
+    private function createUpdatedAuthenticationConditions(
+        array $requestParam,
+        AuthenticationConditions $authConditions
+    ): AuthenticationConditions {
+        $newAuthConditions = new AuthenticationConditions(
+            isEnabled: $requestParam['is_enabled'] instanceOf NoValue
+                ? $authConditions->isEnabled()
+                : $requestParam['is_enabled'],
+            attributePath: $requestParam['attribute_path'] instanceOf NoValue
+                ? $authConditions->getAttributePath()
+                : $requestParam['attribute_path'],
+            endpoint: $requestParam['endpoint'] instanceOf NoValue
+                ? $authConditions->getEndpoint()
+                : new Endpoint(
+                    $requestParam['endpoint']['type'],
+                    $requestParam['endpoint']['custom_endpoint']
+                ),
+            authorizedValues: $requestParam['authorized_values'] instanceOf NoValue
+                ? $authConditions->getAuthorizedValues()
+                : $requestParam['authorized_values'],
         );
-        $authenticationConditions->setTrustedClientAddresses(
-            $authenticationConditionsParameters['trusted_client_addresses']
+        $newAuthConditions->setTrustedClientAddresses(
+            $requestParam['trusted_client_addresses'] instanceOf NoValue
+                ? $authConditions->getTrustedClientAddresses()
+                : $requestParam['trusted_client_addresses']
         );
-        $authenticationConditions->setBlacklistClientAddresses(
-            $authenticationConditionsParameters['blacklist_client_addresses']
+        $newAuthConditions->setBlacklistClientAddresses(
+            $requestParam['blacklist_client_addresses'] instanceOf NoValue
+                ? $authConditions->getBlacklistClientAddresses()
+                : $requestParam['blacklist_client_addresses']
         );
 
-        return $authenticationConditions;
+        return $newAuthConditions;
     }
 
     /**
-     * Create Groups Mapping from data send to the request.
-     *
-     * @param array{
-     *  "is_enabled": bool,
-     *  "attribute_path": string,
-     *  "endpoint": array{
-     *      "type": string,
-     *      "custom_endpoint":string|null
-     *  },
-     *  "relations":array<array{
-     *      "group_value": string,
-     *      "contact_group_id": int
-     *  }>
-     * } $groupsMappingParameters
+     * @param _GroupsMapping $requestParam
+     * @param GroupsMapping $groupsMapping
      *
      * @return GroupsMapping
      */
-    private function createGroupsMapping(array $groupsMappingParameters): GroupsMapping
-    {
-        $contactGroupIds = $this->getContactGroupIds($groupsMappingParameters['relations']);
-        $foundContactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
-        $this->logNonExistentContactGroupsIds($contactGroupIds, $foundContactGroups);
+    private function createUpdatedGroupsMapping(
+        array $requestParam,
+        GroupsMapping $groupsMapping
+    ): GroupsMapping {
         $contactGroupRelations = [];
-        foreach ($groupsMappingParameters['relations'] as $contactGroupRelation) {
-            $contactGroup = $this->findContactGroupFromFoundcontactGroups(
-                $contactGroupRelation['contact_group_id'],
-                $foundContactGroups
-            );
-            if ($contactGroup !== null) {
-                $contactGroupRelations[] = new ContactGroupRelation(
-                    $contactGroupRelation['group_value'],
-                    $contactGroup
+        if (! $requestParam['relations'] instanceOf NoValue) {
+            $contactGroupIds = $this->getContactGroupIds($requestParam['relations']);
+            $foundContactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
+            $this->logNonExistentContactGroupsIds($contactGroupIds, $foundContactGroups);
+            foreach ($requestParam['relations'] as $contactGroupRelation) {
+                $contactGroup = $this->findContactGroupFromFoundcontactGroups(
+                    $contactGroupRelation['contact_group_id'],
+                    $foundContactGroups
                 );
+                if ($contactGroup !== null) {
+                    $contactGroupRelations[] = new ContactGroupRelation(
+                        $contactGroupRelation['group_value'],
+                        $contactGroup
+                    );
+                }
             }
         }
-        $endpoint = new Endpoint(
-            $groupsMappingParameters['endpoint']['type'],
-            $groupsMappingParameters['endpoint']['custom_endpoint']
-        );
 
         return new GroupsMapping(
-            $groupsMappingParameters['is_enabled'],
-            $groupsMappingParameters['attribute_path'],
-            $endpoint,
-            $contactGroupRelations
+            isEnabled: $requestParam['is_enabled'] instanceOf NoValue
+                ? $groupsMapping->isEnabled()
+                : $requestParam['is_enabled'],
+            attributePath: $requestParam['attribute_path'] instanceOf NoValue
+                ? $groupsMapping->getAttributePath()
+                : $requestParam['attribute_path'],
+            endpoint: $requestParam['endpoint'] instanceOf NoValue
+                ? $groupsMapping->getEndpoint()
+                : new Endpoint(
+                    $requestParam['endpoint']['type'],
+                    $requestParam['endpoint']['custom_endpoint']
+                ),
+            contactGroupRelations: $requestParam['relations'] instanceOf NoValue
+                ? $groupsMapping->getContactGroupRelations()
+                : $contactGroupRelations
         );
     }
 
