@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration;
+namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -32,28 +32,86 @@ use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateOpenIdConfiguration\{UpdateOpenIdConfiguration,
-    UpdateOpenIdConfigurationPresenterInterface,
-    UpdateOpenIdConfigurationRequest
+use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration\{
+    PartialUpdateOpenIdConfiguration,
+    PartialUpdateOpenIdConfigurationPresenterInterface,
+    PartialUpdateOpenIdConfigurationRequest
 };
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
     $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
-    $this->presenter = $this->createMock(UpdateOpenIdConfigurationPresenterInterface::class);
+    $this->presenter = $this->createMock(PartialUpdateOpenIdConfigurationPresenterInterface::class);
     $this->readOpenIdRepository = $this->createMock(ReadOpenIdConfigurationRepositoryInterface::class);
     $this->contactTemplateRepository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
-    $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
     $this->contactGroup = new ContactGroup(1, 'contact_group');
     $this->contactTemplate = new ContactTemplate(1, 'contact_template');
+    $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
+    $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
+    $this->configuration = $this->createMock(Configuration::class);
+    $this->customConfig = $this->createMock(CustomConfiguration::class);
+    $this->customConfigArray = [
+        'is_active' => false,
+        'is_forced' => false,
+        'base_url' => null,
+        'authorization_endpoint' => null,
+        'token_endpoint' => null,
+        'introspection_token_endpoint' => null,
+        'userinfo_endpoint' => null,
+        'endsession_endpoint' => null,
+        'connection_scopes' => [],
+        'login_claim' => null,
+        'client_id' => null,
+        'client_secret' => null,
+        'authentication_type' => 'client_secret_post',
+        'verify_peer' => true,
+        'auto_import' => false,
+        'contact_template' => null,
+        'email_bind_attribute' => null,
+        'fullname_bind_attribute' => null,
+        'roles_mapping' => [
+            'is_enabled' => false,
+            'apply_only_first_role' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => '',
+            ],
+            'relations' => [],
+        ],
+        'authentication_conditions' => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => null,
+            ],
+            'authorized_values' => [],
+            'trusted_client_addresses' => [],
+            'blacklist_client_addresses' => [],
+        ],
+        'groups_mapping' => [
+            'is_enabled' => false,
+            'attribute_path' => '',
+            'endpoint' => [
+                'type' => 'introspection_endpoint',
+                'custom_endpoint' => null,
+            ],
+            'relations' => [],
+        ],
+        'redirect_url' => null,
+    ];
 });
 
-it('should present a NoContentResponse when the use case is executed correctly', function () {
-    $request = new UpdateOpenIdConfigurationRequest();
+it('should present a NoContentResponse when the use case is executed correctly', function (): void {
+    $request = new PartialUpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
     $request->baseUrl = 'http://127.0.0.1/auth/openid-connect';
@@ -76,10 +134,30 @@ it('should present a NoContentResponse when the use case is executed correctly',
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
+
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
+    $this->customConfig
+        ->expects($this->once())
+        ->method('toArray')
+        ->willReturn($this->customConfigArray);
 
     $this->contactTemplateRepository
         ->expects($this->once())
@@ -92,7 +170,7 @@ it('should present a NoContentResponse when the use case is executed correctly',
         ->method('setResponseStatus')
         ->with(new NoContentResponse());
 
-    $useCase = new UpdateOpenIdConfiguration(
+    $useCase = new PartialUpdateOpenIdConfiguration(
         $this->repository,
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
@@ -102,8 +180,8 @@ it('should present a NoContentResponse when the use case is executed correctly',
     $useCase($this->presenter, $request);
 });
 
-it('should present an ErrorResponse when an error occured during the use case execution', function () {
-    $request = new UpdateOpenIdConfigurationRequest();
+it('should present an ErrorResponse when an error occured during the use case execution', function (): void {
+    $request = new PartialUpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
     $request->baseUrl = 'http://127.0.0.1/auth/openid-connect';
@@ -126,18 +204,38 @@ it('should present an ErrorResponse when an error occured during the use case ex
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
     $request->authenticationConditions = [
-        "is_enabled" => true,
-        "attribute_path" => "info.groups",
-        "endpoint" => ["type" => "introspection_endpoint", "custom_endpoint" => null],
-        "authorized_values" => ["groupsA"],
-        "trusted_client_addresses" => ['abcd_.@'],
-        "blacklist_client_addresses" => []
+        'is_enabled' => true,
+        'attribute_path' => 'info.groups',
+        'endpoint' => ['type' => 'introspection_endpoint', 'custom_endpoint' => null],
+        'authorized_values' => ['groupsA'],
+        'trusted_client_addresses' => ['abcd_.@'],
+        'blacklist_client_addresses' => [],
     ];
+
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
+    $this->customConfig
+        ->expects($this->once())
+        ->method('toArray')
+        ->willReturn($this->customConfigArray);
 
     $this->contactTemplateRepository
         ->expects($this->once())
@@ -152,7 +250,7 @@ it('should present an ErrorResponse when an error occured during the use case ex
             AssertionException::ipOrDomain('abcd_.@', 'AuthenticationConditions::trustedClientAddresses')->getMessage()
         ));
 
-    $useCase = new UpdateOpenIdConfiguration(
+    $useCase = new PartialUpdateOpenIdConfiguration(
         $this->repository,
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
@@ -163,8 +261,8 @@ it('should present an ErrorResponse when an error occured during the use case ex
     $useCase($this->presenter, $request);
 });
 
-it('should present an Error Response when auto import is enable and mandatory parameters are missing', function () {
-    $request = new UpdateOpenIdConfigurationRequest();
+it('should present an Error Response when auto import is enable and mandatory parameters are missing', function (): void {
+    $request = new PartialUpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
     $request->baseUrl = 'http://127.0.0.1/auth/openid-connect2';
@@ -186,9 +284,9 @@ it('should present an Error Response when auto import is enable and mandatory pa
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
 
     $missingParameters = [
@@ -197,6 +295,26 @@ it('should present an Error Response when auto import is enable and mandatory pa
         'fullname_bind_attribute',
     ];
 
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
+    $this->customConfig
+        ->expects($this->once())
+        ->method('toArray')
+        ->willReturn($this->customConfigArray);
+
     $this->presenter
         ->expects($this->once())
         ->method('setResponseStatus')
@@ -204,7 +322,7 @@ it('should present an Error Response when auto import is enable and mandatory pa
             ConfigurationException::missingAutoImportMandatoryParameters($missingParameters)->getMessage()
         ));
 
-    $useCase = new UpdateOpenIdConfiguration(
+    $useCase = new PartialUpdateOpenIdConfiguration(
         $this->repository,
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
@@ -215,8 +333,8 @@ it('should present an Error Response when auto import is enable and mandatory pa
     $useCase($this->presenter, $request);
 });
 
-it('should present an Error Response when auto import is enable and the contact template doesn\'t exist', function () {
-    $request = new UpdateOpenIdConfigurationRequest();
+it('should present an Error Response when auto import is enable and the contact template doesn\'t exist', function (): void {
+    $request = new PartialUpdateOpenIdConfigurationRequest();
     $request->isActive = true;
     $request->isForced = true;
     $request->baseUrl = 'http://127.0.0.1/auth/openid-connect';
@@ -232,9 +350,29 @@ it('should present an Error Response when auto import is enable and the contact 
     $request->authenticationType = 'client_secret_post';
     $request->verifyPeer = false;
     $request->isAutoImportEnabled = true;
-    $request->contactTemplate = ['id' => 1, "name" => 'contact_template'];
+    $request->contactTemplate = ['id' => 1, 'name' => 'contact_template'];
     $request->emailBindAttribute = 'email';
     $request->userNameBindAttribute = 'name';
+
+    $this->providerFactory
+        ->expects($this->once())
+        ->method('create')
+        ->willReturn($this->provider);
+
+    $this->provider
+        ->expects($this->once())
+        ->method('getConfiguration')
+        ->willReturn($this->configuration);
+
+    $this->configuration
+        ->expects($this->once())
+        ->method('getCustomConfiguration')
+        ->willReturn($this->customConfig);
+
+    $this->customConfig
+        ->expects($this->once())
+        ->method('toArray')
+        ->willReturn($this->customConfigArray);
 
     $this->contactTemplateRepository
         ->expects($this->once())
@@ -249,7 +387,7 @@ it('should present an Error Response when auto import is enable and the contact 
             ConfigurationException::contactTemplateNotFound($request->contactTemplate['name'])->getMessage()
         ));
 
-    $useCase = new UpdateOpenIdConfiguration(
+    $useCase = new PartialUpdateOpenIdConfiguration(
         $this->repository,
         $this->contactTemplateRepository,
         $this->contactGroupRepository,
