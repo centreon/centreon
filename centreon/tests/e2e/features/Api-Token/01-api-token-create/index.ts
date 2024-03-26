@@ -50,8 +50,6 @@ When('I fill in the following required fields', (dataTable: any) => {
     const field = element.Field;
     const value = element.Value;
 
-    cy.log(field, value);
-
     if (field === 'Name') {
       cy.get('#tokenName').type(value);
     }
