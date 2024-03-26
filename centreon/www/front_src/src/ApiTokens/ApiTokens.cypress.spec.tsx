@@ -4,7 +4,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import i18next from 'i18next';
-import { Provider, createStore, useAtomValue } from 'jotai';
+import { Provider, createStore, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -58,6 +58,7 @@ import {
   labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
+import { searchAtom } from './TokenListing/Actions/Search/atoms';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -198,13 +199,11 @@ interface InterceptListTokens {
 const interceptListTokens = ({
   dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
-  customQueryParameters = undefined,
   alias = 'getListTokens',
   method = Method.GET
 }: InterceptListTokens): void => {
   cy.fixture(dataPath).then((data) => {
     const endpoint = buildListEndpoint({
-      customQueryParameters,
       endpoint: listTokensEndpoint,
       parameters
     });
@@ -217,10 +216,9 @@ const interceptListTokens = ({
   });
 };
 
-const defaultParameters = 'page=2&limit=10&sort_by={"token_name":"asc"}';
-const firstPageParameter = 'page=1&limit=10';
-const secondPageParameter = 'page=2&limit=10';
-const customLimitParameters = 'page=1&limit=20';
+const defaultParameters = '?page=1&limit=10&sort_by={"token_name":"asc"}';
+const secondPageParameter = '?page=2&limit=10&sort_by={"token_name":"asc"}';
+const customLimitParameters = '?page=1&limit=20&sort_by={"token_name":"asc"}';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const parametersWithAllSearchableFields =
   'page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"admin\\s+admin"}}]},{"$or":[{"token_name":{"$rg":"test"}},{"token_name":{"$rg":"token1"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"User"}},{"user.name":{"$rg":"Guest"}}]}]}&creation_date="2024-02-20T16:04:33Z"&expiration_date="2024-03-28T16:04:33Z"&is_revoked=false';
@@ -324,7 +322,9 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
       expect(calls).to.have.length(2);
-      equals(expect(calls[0].request.url.search, defaultParameters));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
@@ -347,7 +347,9 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      equals(expect(calls[0].request.url.search, secondPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        secondPageParameter
+      );
     });
 
     interceptListTokens({
@@ -360,7 +362,9 @@ describe('Api-token', () => {
 
     cy.waitForRequest('@getListTokens');
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      equals(expect(calls[0].request.url.search, firstPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
 
     interceptListTokens({
@@ -369,12 +373,20 @@ describe('Api-token', () => {
       parameters: { ...DefaultParameters, page: 2 }
     });
 
+    interceptListTokens({
+      alias: 'getExpandedListTokens',
+      dataPath: 'apiTokens/listing/expandedList.json',
+      parameters: { ...DefaultParameters, limit: 20 }
+    });
+
     cy.findByLabelText(`Last page`).should('be.enabled').click();
 
     cy.waitForRequest('@getListTokensPage2');
 
     cy.getRequestCalls('@getListTokensPage2').then((calls) => {
-      equals(expect(calls[0].request.url.search, secondPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        secondPageParameter
+      );
     });
 
     interceptListTokens({
@@ -388,7 +400,9 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokens');
 
     cy.getRequestCalls('@getListTokens').then((calls) => {
-      equals(expect(calls[0].request.url.search, firstPageParameter));
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        defaultParameters
+      );
     });
 
     cy.findByTestId('Listing Pagination').contains(10).click();
@@ -396,12 +410,14 @@ describe('Api-token', () => {
       cy.contains(limit);
     });
 
-    cy.findByRole('option', { name: limits[2].toString() }).click();
+    cy.findByRole('option', { name: limits[1].toString() }).click();
 
-    cy.waitForRequest('@getListTokens');
+    cy.waitForRequest('@getExpandedListTokens');
 
-    cy.getRequestCalls('@getListTokens').then((calls) => {
-      equals(expect(calls[0].request.url.search, customLimitParameters));
+    cy.getRequestCalls('@getExpandedListTokens').then((calls) => {
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        customLimitParameters
+      );
     });
   });
 

@@ -17,12 +17,6 @@ interface UseBuildParameters {
 const useBuildParameters = (): UseBuildParameters => {
   const search = useAtomValue(searchAtom);
 
-  const customFields = [
-    Fields.CreationDate,
-    Fields.ExpirationDate,
-    Fields.IsRevoked
-  ];
-
   const getSearchParameters = useCallback(() => {
     if (!search) {
       return undefined;
@@ -46,14 +40,19 @@ const useBuildParameters = (): UseBuildParameters => {
     });
     const terms = flatten(searchedWords);
 
-    const getValues = ({ field, value }): Record<string, string | boolean> =>
-      customFields.includes(field)
-        ? {
-            $eq: !equals(field, Fields.IsRevoked)
-              ? value
-              : convertToBoolean(value)
-          }
-        : { $rg: value };
+    const getValues = ({ field, value }): Record<string, string | boolean> => {
+      if (equals(field, Fields.CreationDate)) {
+        return { $ge: value };
+      }
+      if (equals(field, Fields.ExpirationDate)) {
+        return { $le: value };
+      }
+      if (equals(field, Fields.IsRevoked)) {
+        return { $eq: convertToBoolean(value) };
+      }
+
+      return { $rg: value };
+    };
 
     return {
       conditions: terms.map(({ field, value }) => ({
