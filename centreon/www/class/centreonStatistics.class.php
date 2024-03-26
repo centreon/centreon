@@ -464,18 +464,18 @@ class CentreonStatistics
         );
         while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             $dashboardsCount = $record['dashboards'] !== null
-                ? count(explode(',',$record['dashboards']))
+                ? count(explode(',', $record['dashboards']))
                 : 0;
             $contactsCount = $record['contacts'] !== null
-                ? count(explode(',',$record['contacts']))
+                ? count(explode(',', $record['contacts']))
                 : 0;
             $contactGroupsCount = $record['contactgroups'] !== null
-                ? count(explode(',',$record['contactgroups']))
+                ? count(explode(',', $record['contactgroups']))
                 : 0;
             $data[$record['playlist_name']] = [
                     'rotation_time' => $record['rotation_time'],
                     'dashboards_count' => $dashboardsCount,
-                    'shared_users_groups_count' => $contactsCount + $contactGroupsCount
+                    'shared_users_groups_count' => $contactsCount + $contactGroupsCount,
             ];
         }
 
