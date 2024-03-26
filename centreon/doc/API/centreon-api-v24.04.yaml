@@ -68,7 +68,6 @@ tags:
   - name: Host template
   - name: Media
   - name: Monitoring server
-  - name: Notification
   - name: Proxy
   - name: Service
   - name: Service group
@@ -254,24 +253,14 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/broker/{brokerId}/outputs:
     $ref: "./v24.04/Configuration/Broker/AddBrokerOutput.yaml"
+  /configuration/broker/{brokerId}/outputs/{outputId}/file:
+    $ref: "./v24.04/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
     $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
     $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
   /configuration/connectors:
     $ref: "./v24.04/Configuration/Connector/FindConnectors.yaml"
-  /configuration/notifications:
-    $ref: "./v24.04/Configuration/Notification/Notifications.yaml"
-  /configuration/notifications/_delete:
-    $ref: "./v24.04/Configuration/Notification/DeleteNotifications.yaml"
-  /configuration/notifications/{notification_id}:
-    $ref: "./v24.04/Configuration/Notification/Notification.yaml"
-  /configuration/notifications/resources:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableResources.yaml"
-  /configuration/notifications/{notification_id}/rules:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableRule.yaml"
-  /configuration/notifications/contact_groups:
-    $ref: "./v24.04/Configuration/Notification/FindNotifiableContactGroups.yaml"
   /configuration/hosts/{host_id}:
     $ref: './v24.04/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
   /configuration/hosts/templates:
@@ -680,6 +669,9 @@ paths:
 
         * `icon` was renamed `icon_id` and is no longer an object but the image ID
         * `icon_map` was renamed `icon_map_id` and is no longer an object but the image ID
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       responses:
         "200":
           description: "OK"
@@ -710,6 +702,9 @@ paths:
         * name
 
         `Since Centreon web 23.04`
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       requestBody:
         required: true
         content:
@@ -742,6 +737,9 @@ paths:
         `Since Centreon web 23.10`
 
         Get host group.
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       parameters:
         - $ref: '#/components/parameters/HostGroupId'
       responses:
@@ -788,6 +786,9 @@ paths:
         `Since Centreon web 23.10`
 
         Update host group.
+
+        *This endpoint has a specific behaviour on Cloud environments.*
+        *Please check the dedicated Cloud API documentation.*
       parameters:
         - $ref: '#/components/parameters/HostGroupId'
       requestBody:
@@ -6373,7 +6374,7 @@ components:
           description: "Check command timeperiod ID"
           example: 1
           nullable: true
-        max_check_attemps:
+        max_check_attempts:
           type: integer
           nullable: true
           description: "Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state"
