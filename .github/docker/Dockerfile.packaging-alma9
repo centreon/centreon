@@ -2,7 +2,7 @@ FROM almalinux:9
 
 RUN <<EOF
 
-dnf install -y make rpm-build rpm-sign zstd perl perl-devel selinux-policy-devel
+dnf install -y make rpm-build rpm-sign zstd perl-interpreter perl-devel selinux-policy-devel
 dnf clean all
 
 EOF
