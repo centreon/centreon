@@ -9,7 +9,6 @@ import {
   notificationSentCheck,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange,
-  checkServices,
   initializeDataFiles
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
@@ -293,10 +292,12 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      checkServices({
+      const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
+        name: `service_${i + 1}`,
         status: 'ok',
         statusType: 'hard'
-      });
+      }));
+      checkServicesAreMonitored(servicesToBeChecked);
   }
 });
 
@@ -446,7 +447,11 @@ Given(
 
     cy.applyPollerConfiguration();
 
-    checkServices({});
+    const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
+      name: `service_${i + 1}`
+    }));
+
+    checkServicesAreMonitored(servicesToBeChecked);
   }
 );
 
