@@ -31,7 +31,6 @@ use Core\Migration\Application\Exception\MigrationException;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 
 final class FindMigrations
 {
@@ -39,7 +38,6 @@ final class FindMigrations
 
     public function __construct(
         private readonly ContactInterface $user,
-        private ReadVersionRepositoryInterface $readVersionRepository,
         private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
         private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
     ) {
@@ -48,7 +46,7 @@ final class FindMigrations
     public function __invoke(FindMigrationsPresenterInterface $presenter): void
     {
         try {
-            if (!$this->user->isAdmin()) {
+            if (! $this->user->isAdmin()) {
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(MigrationException::findNotAllowed()->getMessage())
                 );
@@ -87,7 +85,7 @@ final class FindMigrations
         $this->info('Search for executed migrations');
         $executedMigrations = $this->readExecutedMigrationRepository->findAll();
 
-        $migrations = array_filter(
+        return array_filter(
             $availableMigrations,
             function ($availableMigration) use (&$executedMigrations) {
                 $availableMigrationName = $availableMigration->getName();
@@ -99,6 +97,7 @@ final class FindMigrations
                         && $availableMigrationModuleName === $executedMigration->getModuleName()
                     ) {
                         unset($executedMigrations[$executedMigrationKey]);
+
                         return false;
                     }
                 }
@@ -106,8 +105,6 @@ final class FindMigrations
                 return true;
             }
         );
-
-        return $migrations;
     }
 
     /**

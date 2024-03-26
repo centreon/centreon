@@ -27,8 +27,15 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\Migration;
+use Core\Migration\Domain\Model\ExecutedMigration;
 
+/**
+ * @phpstan-type _Output array{
+ *      id:int,
+ *      name:string,
+ *      module_name:null|string
+ * }
+ */
 class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements ReadExecutedMigrationRepositoryInterface
 {
     use LoggerTrait;
@@ -44,8 +51,9 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
     public function findAll(): array
     {
         $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
-        if ($result->rowCount() === 0) {
-            $this->logger->notice('Migrations table does not exist yet, considering not migrations has been done.');
+        if (! $result || $result->rowCount() === 0) {
+            $this->notice('Migrations table does not exist yet, considering not migrations has been done.');
+
             return [];
         }
 
@@ -59,11 +67,15 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
 
         $statement = $this->db->query($query);
 
+        if (! $statement) {
+            return [];
+        }
+
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         $migrations = [];
         foreach ($result as $migrationData) {
-            $migrations[] = new Migration(
+            $migrations[] = new ExecutedMigration(
                 $migrationData['id'],
                 $migrationData['name'],
                 $migrationData['module_name'],

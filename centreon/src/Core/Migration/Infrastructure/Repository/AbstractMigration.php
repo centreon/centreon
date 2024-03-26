@@ -26,30 +26,30 @@ namespace Core\Migration\Infrastructure\Repository;
 abstract class AbstractMigration
 {
     /**
-    * Define migration priority.
-    *
-    * @throws \Exception
-    *
-    * @return int
-    */
+     * Define migration priority.
+     *
+     * @throws \Exception
+     *
+     * @return int
+     */
     public static function getDefaultPriority(): int
     {
         $className = (new \ReflectionClass(static::class))->getShortName();
 
         if (preg_match('/^Migration(\d+)$/', $className, $matches)) {
-            return -$matches[1];
+            return -((int) $matches[1]);
         }
 
         throw new \Exception(sprintf(_('Bad migration name: %s'), $className));
     }
 
     /**
-    * Module name.
-    *
-    * @throws \Exception
-    *
-    * @return int
-    */
+     * Module name.
+     *
+     * @throws \Exception
+     *
+     * @return string|null
+     */
     public function getModuleName(): ?string
     {
         return null;
