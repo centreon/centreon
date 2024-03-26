@@ -24,11 +24,8 @@ import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { widgetPropertiesAtom } from '../../../atoms';
 
 import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
@@ -60,8 +57,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
-  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
 
   const canDisplayMetricsSelection =
     areResourcesFullfilled(resources) && !hasTooManyMetrics;
@@ -73,7 +69,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const warningMessages = [
     error && isTouched && error,
-    singleMetricSelection && metricWithSeveralResources && (
+    widgetProperties?.singleMetricSelection && metricWithSeveralResources && (
       <>
         <strong>{metricWithSeveralResources}</strong>{' '}
         {t(labelIsTheSelectedResource)}
@@ -95,7 +91,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <div className={classes.resourcesContainer}>
       {header}
       <div className={classes.resourceComposition}>
-        {singleMetricSelection && singleHostPerMetric ? (
+        {widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleHostPerMetric ? (
           <SingleAutocompleteField
             className={classes.resources}
             disabled={
@@ -132,7 +129,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             label={t(labelSelectMetric)}
             options={metrics}
             renderOption={
-              singleMetricSelection
+              widgetProperties?.singleMetricSelection
                 ? renderOptionsForSingleMetric
                 : renderOptionsForMultipleMetricsAndResources
             }

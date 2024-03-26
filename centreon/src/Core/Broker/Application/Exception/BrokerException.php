@@ -39,6 +39,14 @@ class BrokerException extends \Exception
     /**
      * @return self
      */
+    public static function updateBrokerOutput(): self
+    {
+        return new self(_('Error while updating a broker output'));
+    }
+
+    /**
+     * @return self
+     */
     public static function editNotAllowed(): self
     {
         return new self(_('You are not allowed to edit a broker configuration'));
@@ -122,5 +130,43 @@ class BrokerException extends \Exception
     public static function outputNotFound(int $brokerId, int $outputId): self
     {
         return new self(sprintf(_('Output #%d not found for broker configuration #%d'), $outputId, $brokerId));
+    }
+
+    /**
+     * @param string $outputType
+     *
+     * @return self
+     */
+    public static function outputTypeInvalidForThisAction(string $outputType): self
+    {
+        return new self(sprintf(_("Action not permitted for output of type '%s'"), $outputType));
+    }
+
+    /**
+     * @return self
+     */
+    public static function invalidJsonContent(): self
+    {
+        return new self(_('Content is not a valid JSON string'));
+    }
+
+    /**
+     * @param string $filePath
+     *
+     * @return self
+     */
+    public static function errorWhenCreatingFile(string $filePath): self
+    {
+        return new self(sprintf(_("An error occurred while creating the file '%s'"), $filePath));
+    }
+
+    /**
+     * @param string $filePath
+     *
+     * @return self
+     */
+    public static function errorWhenDeletingFile(string $filePath): self
+    {
+        return new self(sprintf(_("An error occurred while deleting the file '%s'"), $filePath));
     }
 }

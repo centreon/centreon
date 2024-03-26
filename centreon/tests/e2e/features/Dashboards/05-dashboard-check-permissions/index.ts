@@ -87,36 +87,16 @@ When('the admin user accesses the dashboards library', () => {
 Then(
   'the admin user can view all the dashboards configured on the platform',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromAdminUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the admin user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromAdminUser.name)
-    .click();
+  cy.contains(dashboards.fromAdminUser.name).click();
 });
 
 Then(
@@ -229,19 +209,17 @@ Given('an admin user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When('the admin user deletes the newly created dashboard', () => {
   cy.contains(dashboards.fromCurrentUser.name)
     .parent()
-    .find('button[aria-label="delete"]')
+    .parent()
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
@@ -250,12 +228,7 @@ When('the admin user deletes the newly created dashboard', () => {
 Then(
   "the admin's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
@@ -276,36 +249,16 @@ When('the dashboard administrator user accesses the dashboards library', () => {
 Then(
   'the dashboard administrator user can consult all the dashboards configured on the platform',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromAdminUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should('exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the dashboard administrator user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardAdministratorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 });
 
 Then(
@@ -425,12 +378,7 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When(
@@ -438,8 +386,11 @@ When(
   () => {
     cy.contains(dashboards.fromCurrentUser.name)
       .parent()
-      .find('button[aria-label="delete"]')
+      .parent()
+      .find('button[aria-label="More actions"]')
       .click();
+
+    cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
     cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboards');
@@ -449,12 +400,7 @@ When(
 Then(
   "the dashboard administrator's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
@@ -475,36 +421,18 @@ When('the dashboard editor user accesses the dashboards library', () => {
 Then(
   'a list of the dashboards the dashboard editor user has access to is displayed',
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromAdminUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromAdminUser.name).should('not.exist');
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should(
+      'not.exist'
+    );
 
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromDashboardCreatorUser.name)
-      .should('exist');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
   }
 );
 
 When('the dashboard editor user clicks on a dashboard', () => {
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardCreatorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
 });
 
 Then(
@@ -623,19 +551,17 @@ Given('a dashboard editor user who has just created a dashboard', () => {
 
   cy.visit('/centreon/home/dashboards');
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromCurrentUser.name)
-    .should('exist');
+  cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
 When('the dashboard editor user deletes the newly created dashboard', () => {
   cy.contains(dashboards.fromCurrentUser.name)
     .parent()
-    .find('button[aria-label="delete"]')
+    .parent()
+    .find('button[aria-label="More actions"]')
     .click();
+
+  cy.getByLabel({ label: 'Delete', tag: 'li' }).click();
 
   cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   cy.wait('@listAllDashboards');
@@ -644,147 +570,114 @@ When('the dashboard editor user deletes the newly created dashboard', () => {
 Then(
   "the dashboard editor's dashboard is deleted and does not appear anymore in the dashboards library",
   () => {
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCurrentUser.name)
-      .should('not.exist');
+    cy.contains(dashboards.fromCurrentUser.name).should('not.exist');
   }
 );
 
-// Given(
-//   'a non-admin user with the dashboard viewer role is logged in on a platform with dashboards',
-//   () => {
-//     cy.loginByTypeOfUser({
-//       jsonName: dashboardAdministratorUser.login,
-//       loginViaApi: true
-//     });
-//     cy.visit('/centreon/home/dashboards');
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardCreatorUser.name)
-//       .click();
-//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-//     cy.contains(dashboardViewerUser.login).click();
-//     cy.getByTestId({ testId: 'add' }).click();
-//     cy.getByLabel({ label: 'Save', tag: 'button' })
-//       .should('be.enabled')
-//       .click();
-//     cy.logoutViaAPI();
-//     cy.loginByTypeOfUser({
-//       jsonName: dashboardViewerUser.login,
-//       loginViaApi: false
-//     });
-//   }
-// );
+Given(
+  'a non-admin user with the dashboard viewer role is logged in on a platform',
+  () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: true
+    });
+    cy.visit('/centreon/home/dashboards');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).click();
+    cy.getByTestId({ testId: 'add' }).click();
+    cy.getByLabel({ label: 'Save', tag: 'button' })
+      .should('be.enabled')
+      .click();
+    cy.logoutViaAPI();
+    cy.loginByTypeOfUser({
+      jsonName: dashboardViewerUser.login,
+      loginViaApi: false
+    });
+  }
+);
 
-// When('the dashboard viewer user accesses the dashboards library', () => {
-//   cy.visit('/centreon/home/dashboards');
-// });
+When('the dashboard viewer user accesses the dashboards library', () => {
+  cy.visit('/centreon/home/dashboards');
+});
 
-// Then(
-//   'a list of the dashboards the dashboard viewer user has access to is displayed',
-//   () => {
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromAdminUser.name)
-//       .should('not.exist');
+Then(
+  'a list of the dashboards the dashboard viewer user has access to is displayed',
+  () => {
+    cy.contains(dashboards.fromAdminUser.name).should('not.exist');
 
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardAdministratorUser.name)
-//       .should('not.exist');
+    cy.contains(dashboards.fromDashboardAdministratorUser.name).should(
+      'not.exist'
+    );
 
-//     cy.getByLabel({
-//       label: 'view',
-//       tag: 'button'
-//     })
-//       .contains(dashboards.fromDashboardCreatorUser.name)
-//       .should('exist');
-//   }
-// );
+    cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
+  }
+);
 
-// When('the dashboard viewer user clicks on a dashboard', () => {
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.fromDashboardCreatorUser.name)
-//     .click();
-// });
+When('the dashboard viewer user clicks on a dashboard', () => {
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+});
 
-// Then(
-//   'the dashboard viewer user is redirected to the detail page for this dashboard',
-//   () => {
-//     cy.location('pathname')
-//       .should('include', '/dashboards/')
-//       .invoke('split', '/')
-//       .should('not.be.empty')
-//       .then(last)
-//       .then(Number)
-//       .should('not.be', 'dashboards')
-//       .should('be.a', 'number');
+Then(
+  'the dashboard viewer user is redirected to the detail page for this dashboard',
+  () => {
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
 
-//     cy.getByLabel({ label: 'page header title' }).should(
-//       'contain.text',
-//       dashboards.fromDashboardCreatorUser.name
-//     );
-//     cy.getByLabel({ label: 'page header description' }).should(
-//       'contain.text',
-//       dashboards.fromDashboardCreatorUser.description
-//     );
-//   }
-// );
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      dashboards.fromDashboardCreatorUser.name
+    );
+    cy.getByLabel({ label: 'page header description' }).should(
+      'contain.text',
+      dashboards.fromDashboardCreatorUser.description
+    );
+  }
+);
 
-// Then(
-//   'the dashboard viewer user does not have access to any update or share-related options on a dashboard',
-//   () => {
-//     cy.getByTestId({ testId: 'edit' }).should('not.exist');
-//     cy.getByTestId({ testId: 'share' }).should('not.exist');
-//   }
-// );
+Then(
+  'the dashboard viewer user does not have access to any update or share-related options on a dashboard',
+  () => {
+    cy.getByTestId({ testId: 'edit' }).should('not.exist');
+    cy.getByTestId({ testId: 'share' }).should('not.exist');
+  }
+);
 
-// Given('a non-admin user with the viewer role on the dashboard feature', () => {
-//   cy.loginByTypeOfUser({
-//     jsonName: dashboardViewerUser.login,
-//     loginViaApi: false
-//   });
-// });
+Given('a non-admin user with the viewer role on the dashboard feature', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardViewerUser.login,
+    loginViaApi: false
+  });
+});
 
-// When('the dashboard viewer accesses the dashboards library', () => {
-//   cy.visit('/centreon/home/dashboards');
-// });
+When('the dashboard viewer accesses the dashboards library', () => {
+  cy.visit('/centreon/home/dashboards');
+});
 
-// Then('the option to create a new dashboard is not displayed', () => {
-//   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).should('not.exist');
-// });
+Then('the option to create a new dashboard is not displayed', () => {
+  cy.getByTestId({ testId: 'create-dashboard' }).should('not.exist');
+});
 
-// Given('a dashboard viewer user who could not create a dashboard', () => {
-//   cy.loginByTypeOfUser({
-//     jsonName: dashboardViewerUser.login,
-//     loginViaApi: false
-//   });
+Given('a dashboard viewer user who could not create a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardViewerUser.login,
+    loginViaApi: false
+  });
 
-//   cy.visit('/centreon/home/dashboards');
-// });
+  cy.visit('/centreon/home/dashboards');
+});
 
-// When('the dashboard viewer user tries to delete a dashboard', () => {
-//   cy.getByLabel({
-//     label: 'view',
-//     tag: 'button'
-//   })
-//     .contains(dashboards.fromDashboardCreatorUser.name)
-//     .should('exist');
-// });
+When('the dashboard viewer user tries to delete a dashboard', () => {
+  cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
+});
 
-// Then('the button to delete a dashboard does not appear', () => {
-//   cy.getByTestId({ testId: 'delete' }).should('not.exist');
-// });
+Then('the button to delete a dashboard does not appear', () => {
+  cy.getByTestId({ testId: 'delete' }).should('not.exist');
+});

@@ -20,28 +20,49 @@ contents:
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0775
+      mode: 0755
 
   - dst: "/etc/centreon-gorgone/config.d"
     type: dir
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0775
+      mode: 0770
 
   - dst: "/etc/centreon-gorgone/config.d/cron.d"
     type: dir
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0775
+      mode: 0770
+
+  - dst: "/etc/centreon-gorgone/config.d/whitelist.conf.d"
+    type: dir
+    file_info:
+      owner: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0770
 
   - src: "./configuration/config.yaml"
     dst: "/etc/centreon-gorgone/config.yaml"
     file_info:
       owner: centreon-gorgone
       group: centreon-gorgone
-      mode: 0664
+      mode: 0640
+
+  - src: "./configuration/action.yaml"
+    dst: "/etc/centreon-gorgone/config.d/39-action.yaml"
+    file_info:
+      owner: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0640
+
+  - src: "./configuration/whitelist.conf.d/centreon.yaml"
+    dst: "/etc/centreon-gorgone/config.d/whitelist.conf.d/centreon.yaml"
+    file_info:
+      owner: centreon-gorgone
+      group: centreon-gorgone
+      mode: 0640
 
   - dst: "/var/lib/centreon-gorgone"
     type: dir
