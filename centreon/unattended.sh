@@ -400,7 +400,7 @@ function setup_mysql() {
 	fi
 
 	$PKG_MGR install -y mysql-server
-	systemctl enable -now $mysql_service_name
+	systemctl enable --now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
 	systemctl daemon-reload
@@ -686,7 +686,7 @@ function secure_dbms_setup() {
 			DROP DATABASE IF EXISTS test;
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
-		EOF
+EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
@@ -697,7 +697,7 @@ function secure_dbms_setup() {
 			DROP DATABASE IF EXISTS test;
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
-		EOF
+EOF
 	fi
 
 	if [ $? -ne 0 ]; then
