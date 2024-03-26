@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\ExecuteMigration;
+namespace Core\Migration\Infrastructure\API\ExecuteMigrations;
 
-final class ExecuteMigrationResponse
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrationsPresenterInterface;
+
+class ExecuteMigrationsPresenter extends AbstractPresenter implements ExecuteMigrationsPresenterInterface
 {
-    /** @var MigrationDto[] */
-    public array $migrations = [];
 }

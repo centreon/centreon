@@ -21,27 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\ExecuteMigration\Validator;
+namespace Core\Migration\Application\UseCase\ExecuteMigrations\Validator;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Contact\Domain\Model\ContactGroup;
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface;
 
-class MigrationValidator
+class MigrationsValidator
 {
     use LoggerTrait;
 
     /**
      * Validate that provided user and contactgroup ids exists.
      *
-     * @param string $name
+     * @param string[] $names
      * @param MigrationsCollectorRepositoryInterface $migrationsCollectorRepository
      *
-     * @throws \Throwable|NotificationException
+     * @throws \Throwable
      */
     public function validateMigration(
-        string $name,
+        array $names,
         MigrationsCollectorRepositoryInterface $migrationsCollectorRepository,
     ): void {
         $migrations = $migrationsCollectorRepository->findAll();

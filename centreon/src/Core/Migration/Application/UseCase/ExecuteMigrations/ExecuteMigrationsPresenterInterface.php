@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\API\ExecuteMigration;
+namespace Core\Migration\Application\UseCase\ExecuteMigrations;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Migration\Application\UseCase\ExecuteMigration\ExecuteMigrationPresenterInterface;
+use Core\Application\Common\UseCase\PresenterInterface;
 
-class ExecuteMigrationPresenter extends AbstractPresenter implements ExecuteMigrationPresenterInterface
+interface ExecuteMigrationsPresenterInterface extends PresenterInterface
 {
 }

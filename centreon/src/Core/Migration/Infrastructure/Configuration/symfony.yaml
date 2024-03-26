@@ -24,17 +24,8 @@ services:
             $migrations: !tagged_iterator 'platform.migrations'
         public: true
 
-    Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface:
-        class: Core\Migration\Infrastructure\Repository\SymfonyMigrationsCollectorRepository
-        arguments:
-            $migrationsCollector: '@doctrine_migrations.migrations_collector'
-        public: true
-
     Core\Migration\Application\Repository\WriteMigrationRepositoryInterface:
         class: Core\Migration\Infrastructure\Repository\DbWriteMigrationRepository
         arguments:
-            $dependencyFactory: '@doctrine.migrations.dependency_factory'
-            $migrationFactory: '@doctrine.migrations.migrations_factory'
-            $configuration: '@doctrine.migrations.configuration'
-            # $migratorConfigurationFactory: '@doctrine.migrations.configuration'
+            $migrations: !tagged_iterator 'platform.migrations'
         public: true

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\ExecuteMigration;
+namespace Core\Migration\Application\UseCase\ExecuteMigrations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -29,15 +29,13 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
-use Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Migration\Application\UseCase\ExecuteMigration\Validator\MigrationValidator;
+use Core\Migration\Application\UseCase\ExecuteMigrations\Validator\MigrationsValidator;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
-final class ExecuteMigration
+final class ExecuteMigrations
 {
     use LoggerTrait;
 
@@ -46,33 +44,29 @@ final class ExecuteMigration
         private ReadVersionRepositoryInterface $readVersionRepository,
         private readonly UpdateLockerRepositoryInterface $updateLocker,
         private readonly WriteMigrationRepositoryInterface $writeMigrationRepository,
-        private readonly MigrationsCollectorRepositoryInterface $migrationsCollectorRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly UpdateLockerRepositoryInterface $updateLockerRepository
     ) {
     }
 
     public function __invoke(
-        ExecuteMigrationRequest $request,
-        ExecuteMigrationPresenterInterface $presenter
+        ExecuteMigrationsRequest $request,
+        ExecuteMigrationsPresenterInterface $presenter
     ): void
     {
         try {
-            if (!$this->user->isAdmin()) {
-                $presenter->setResponseStatus(new ForbiddenResponse('Only admin user can execute a migration'));
-
-                return;
-            }
-
-            $validator = new MigrationValidator();
+            /*
+            $validator = new MigrationsValidator();
             $validator->validateMigration(
-                $request->name,
+                $request->names,
                 $this->migrationsCollectorRepository,
             );
+            */
 
             $this->lockUpdate();
-            $this->writeMigrationRepository->executeMigration($request->name);
-            $this->unlockUpdate();
+            foreach ($request->names as $name) {
+                $this->writeMigrationRepository->executeMigration($name);
+            }
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (RequestParametersTranslatorException $ex) {
@@ -86,6 +80,8 @@ final class ExecuteMigration
                 new ErrorResponse(_($errorMessage))
             );
         }
+
+        $this->unlockUpdate();
     }
 
     /**
@@ -105,7 +101,6 @@ final class ExecuteMigration
     private function unlockUpdate(): void
     {
         $this->info('Unlocking centreon update process...');
-
         $this->updateLocker->unlock();
     }
 }

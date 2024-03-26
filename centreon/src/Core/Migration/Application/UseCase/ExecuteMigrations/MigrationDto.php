@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\ExecuteMigration;
+namespace Core\Migration\Application\UseCase\ExecuteMigrations;
 
 class MigrationDto
 {

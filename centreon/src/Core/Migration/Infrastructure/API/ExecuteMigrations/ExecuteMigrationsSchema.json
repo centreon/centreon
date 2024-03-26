@@ -4,11 +4,14 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
-        "name"
+        "names"
     ],
     "properties": {
-        "name": {
-            "type": "string"
+        "names": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     }
 }

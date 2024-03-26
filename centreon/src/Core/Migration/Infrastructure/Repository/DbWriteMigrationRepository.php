@@ -25,37 +25,28 @@ namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
-use Doctrine\Migrations\Configuration\Configuration;
-use Doctrine\Migrations\DbalMigrator;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Metadata\MigrationPlan;
-use Doctrine\Migrations\Version\MigrationFactory;
-use Doctrine\Migrations\Metadata\MigrationPlanList;
-use Doctrine\Migrations\MigratorConfiguration;
-use Doctrine\Migrations\MigratorConfigurationFactory;
-use Doctrine\Migrations\Version\DbalExecutor;
-use Doctrine\Migrations\Version\Version;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
     use LoggerTrait;
 
-    private MigratorConfiguration $migratorConfiguration;
-
-    private DbalMigrator $dbalMigrator;
-
-    //private DbalExecutor $dbalExecutor;
+    /** @var MigrationInterface[] */
+    private $migrations;
 
     public function __construct(
         DatabaseConnection $db,
-        private DependencyFactory $dependencyFactory,
-        private MigrationFactory $migrationFactory,
-        private Configuration $configuration,
+        \Traversable $migrations,
     ) {
         $this->db = $db;
-        $this->dbalMigrator = $dependencyFactory->getMigrator();
+
+        if (iterator_count($migrations) === 0) {
+            throw new \Exception('Migrations not found');
+        }
+
+        $this->migrations = iterator_to_array($migrations);
     }
 
     /**
@@ -63,14 +54,19 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function executeMigration(string $name): void
     {
-        $this->dependencyFactory->getMetadataStorage()->ensureInitialized();
-        $planCalculator = $this->dependencyFactory->getMigrationPlanCalculator();
-        $version = new Version('Migrations\\' . $name);
-        $migrationPlanList = $planCalculator->getPlanForVersions([$version], 'UP');
-        $migratorConfiguration = (new MigratorConfiguration())
-            ->setDryRun(false)
-            ->setTimeAllQueries(true)
-            ->setAllOrNothing(false);
-        $this->dbalMigrator->migrate($migrationPlanList, $migratorConfiguration);
+        $migration = $this->getMigrationFromName($name);
+        $migration->up();
+    }
+
+    private function getMigrationFromName(string $name): MigrationInterface
+    {
+        foreach ($this->migrations as $migration) {
+            $shortName = (new \ReflectionClass($migration))->getShortName();
+            if ($shortName === $name) {
+                return $migration;
+            }
+        }
+
+        throw new \Exception(sprintf('Migration %s not found', $name));
     }
 }
