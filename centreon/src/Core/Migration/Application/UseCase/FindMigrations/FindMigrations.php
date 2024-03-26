@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\UseCase\FindMigrations;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Migration\Application\Exception\MigrationException;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
@@ -37,7 +35,6 @@ final class FindMigrations
     use LoggerTrait;
 
     public function __construct(
-        private readonly ContactInterface $user,
         private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
         private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
     ) {
@@ -46,14 +43,6 @@ final class FindMigrations
     public function __invoke(FindMigrationsPresenterInterface $presenter): void
     {
         try {
-            if (! $this->user->isAdmin()) {
-                $presenter->setResponseStatus(
-                    new ForbiddenResponse(MigrationException::findNotAllowed()->getMessage())
-                );
-
-                return;
-            }
-
             $migrations = $this->findMigrations();
 
             if (empty($migrations)) {

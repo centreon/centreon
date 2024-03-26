@@ -29,13 +29,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\ExecutedMigration;
 
-/**
- * @phpstan-type _Output array{
- *      id:int,
- *      name:string,
- *      module_name:null|string
- * }
- */
 class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements ReadExecutedMigrationRepositoryInterface
 {
     use LoggerTrait;
