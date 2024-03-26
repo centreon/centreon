@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ### Define all supported constants
 OPTIONS="hst:v:r:l:p:d:"
@@ -33,7 +33,7 @@ function genpasswd() {
 	PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
 	PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
 	PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
-	PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\$\*\?' | head -c4)
+	PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\*\?' | head -c4)
 
 	_pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
 	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
