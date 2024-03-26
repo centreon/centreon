@@ -24,13 +24,10 @@ declare(strict_types=1);
 namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\Migration;
+use Core\Migration\Domain\Model\ExecutedMigration;
 
 class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements ReadExecutedMigrationRepositoryInterface
 {
@@ -44,16 +41,12 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
     /**
      * {@inheritDoc}
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array
+    public function findAll(): array
     {
-        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
-
         $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
-        if ($result->rowCount() === 0) {
-            $this->logger->notice('Migrations table does not exist yet, considering not migrations has been done.');
+        if (! $result || $result->rowCount() === 0) {
+            $this->notice('Migrations table does not exist yet, considering not migrations has been done.');
+
             return [];
         }
 
@@ -65,15 +58,17 @@ class DbReadExecutedMigrationRepository extends AbstractRepositoryRDB implements
                 SQL
         );
 
-        $statement = $this->db->prepare($query);
-        $sqlTranslator?->bindSearchValues($statement);
-        $statement->execute();
+        $statement = $this->db->query($query);
+
+        if (! $statement) {
+            return [];
+        }
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         $migrations = [];
         foreach ($result as $migrationData) {
-            $migrations[] = new Migration(
+            $migrations[] = new ExecutedMigration(
                 $migrationData['id'],
                 $migrationData['name'],
                 $migrationData['module_name'],

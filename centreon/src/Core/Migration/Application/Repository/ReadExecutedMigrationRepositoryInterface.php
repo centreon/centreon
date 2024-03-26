@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\Repository;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Migration\Domain\Model\Migration;
 
 interface ReadExecutedMigrationRepositoryInterface
@@ -31,11 +30,9 @@ interface ReadExecutedMigrationRepositoryInterface
     /**
      * Return all the migrations already applied.
      *
-     * @param RequestParametersInterface|null $requestParameters
-     *
      * @throws \Throwable
      *
      * @return Migration[]
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findAll(): array;
 }

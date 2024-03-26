@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Core\Migration\Application\Repository\MigrationInterface;
 
 class FsReadAvailableMigrationRepository implements ReadAvailableMigrationRepositoryInterface
 {
@@ -36,7 +36,7 @@ class FsReadAvailableMigrationRepository implements ReadAvailableMigrationReposi
     private $migrations;
 
     /**
-     * @param \Traversable $migrations
+     * @param \Traversable<MigrationInterface> $migrations
      */
     public function __construct(
         \Traversable $migrations,

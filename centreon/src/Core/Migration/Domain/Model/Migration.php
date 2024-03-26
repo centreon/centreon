@@ -45,7 +45,7 @@ class Migration
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
-        if ($moduleName !== null) {
+        if ($this->moduleName !== null) {
             Assertion::notEmptyString($this->moduleName, "{$shortName}::moduleName");
             Assertion::maxLength($this->moduleName, self::MAX_NAME_LENGTH, "{$shortName}::moduleName");
         }

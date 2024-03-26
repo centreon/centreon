@@ -26,10 +26,10 @@ namespace Core\Migration\Application\Repository;
 interface MigrationInterface
 {
     /**
-    * Define migration priority.
-    *
-    * @return int
-    */
+     * Define migration priority.
+     *
+     * @return int
+     */
     public static function getDefaultPriority(): int;
 
     /**
@@ -54,8 +54,6 @@ interface MigrationInterface
      * Upgrade operations.
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function up(): void;
 
@@ -63,8 +61,6 @@ interface MigrationInterface
      * Downgrade operations.
      *
      * @throws \Throwable
-     *
-     * @return void
      */
     public function down(): void;
 }

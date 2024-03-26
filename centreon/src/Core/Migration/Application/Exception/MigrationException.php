@@ -25,4 +25,8 @@ namespace Core\Migration\Application\Exception;
 
 class MigrationException extends \Exception
 {
+    public static function errorWhileRetrievingMigrations(): self
+    {
+        return new self(_('An error occurred while retrieving the migrations listing'));
+    }
 }

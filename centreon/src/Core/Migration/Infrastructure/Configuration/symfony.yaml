@@ -38,18 +38,3 @@ services:
             $configuration: '@doctrine.migrations.configuration'
             # $migratorConfigurationFactory: '@doctrine.migrations.configuration'
         public: true
-
-    # Doctrine\Migrations\DependencyFactory:
-    #     class: Doctrine\Migrations\DependencyFactory
-
-    # Doctrine\Migrations\Version\MigrationPlanCalculator:
-    #     class: Doctrine\Migrations\Version\SortedMigrationPlanCalculator
-
-    # Doctrine\Migrations\MigrationsRepository:
-    #     class: Doctrine\Migrations\FilesystemMigrationsRepository
-
-    # Doctrine\Migrations\Metadata\Storage\MetadataStorage:
-    #     class: Doctrine\Migrations\Metadata\Storage\TableMetadataStorage
-
-    # Doctrine\Migrations\Version\Comparator:
-    #     class: Doctrine\Migrations\Version\AlphabeticalComparator

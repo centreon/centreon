@@ -23,43 +23,27 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\UseCase\FindMigrations;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Migration\Application\Exception\MigrationException;
 use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
-use Core\Migration\Application\Repository\MigrationsCollectorRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 
 final class FindMigrations
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly ContactInterface $user,
-        private ReadVersionRepositoryInterface $readVersionRepository,
         private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
         private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
-        private readonly MigrationsCollectorRepositoryInterface $migrationsCollectorRepository,
-        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 
     public function __invoke(FindMigrationsPresenterInterface $presenter): void
     {
         try {
-            if (!$this->user->isAdmin()) {
-                $presenter->setResponseStatus(new ForbiddenResponse('Only admin user can list migrations'));
-
-                return;
-            }
-
-            // $migrations = $this->findMigrationsByCustom();
-            $migrations = $this->findMigrationsBySymfony();
+            $migrations = $this->findMigrations();
 
             if (empty($migrations)) {
                 $presenter->presentResponse(new FindMigrationsResponse());
@@ -70,12 +54,8 @@ final class FindMigrations
             $presenter->presentResponse(
                 $this->createResponse($migrations)
             );
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            dump($ex->getMessage());
-            $errorMessage = 'An error occurred while retrieving the migrations listing';
+            $errorMessage = MigrationException::errorWhileRetrievingMigrations()->getMessage();
             $this->error($errorMessage, ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new ErrorResponse(_($errorMessage))
@@ -83,15 +63,18 @@ final class FindMigrations
         }
     }
 
-    private function findMigrationsByCustom(): array
+    /**
+     * @return NewMigration[]
+     */
+    private function findMigrations(): array
     {
         $this->info('Search for available migrations');
         $availableMigrations = $this->readAvailableMigrationRepository->findAll();
 
         $this->info('Search for executed migrations');
-        $executedMigrations = $this->readExecutedMigrationRepository->findAll($this->requestParameters);
+        $executedMigrations = $this->readExecutedMigrationRepository->findAll();
 
-        $migrations = array_filter(
+        return array_filter(
             $availableMigrations,
             function ($availableMigration) use (&$executedMigrations) {
                 $availableMigrationName = $availableMigration->getName();
@@ -103,6 +86,7 @@ final class FindMigrations
                         && $availableMigrationModuleName === $executedMigration->getModuleName()
                     ) {
                         unset($executedMigrations[$executedMigrationKey]);
+
                         return false;
                     }
                 }
@@ -110,38 +94,6 @@ final class FindMigrations
                 return true;
             }
         );
-
-        return $migrations;
-    }
-
-    private function findMigrationsBySymfony(): array
-    {
-        return $this->migrationsCollectorRepository->findAll();
-    }
-
-    /**
-     * Get current version or fail.
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    private function getCurrentVersion(): string
-    {
-        $this->debug('Finding centreon-web current version');
-        try {
-            $currentVersion = $this->readVersionRepository->findCurrentVersion();
-        } catch (\Exception $exception) {
-            // @todo manage properly exception
-            throw new \Exception('Cannot retrieve centreon web version');
-        }
-
-        if ($currentVersion === null) {
-            // @todo manage properly exception
-            throw new \Exception('Cannot retrieve centreon web version');
-        }
-
-        return $currentVersion;
     }
 
     /**

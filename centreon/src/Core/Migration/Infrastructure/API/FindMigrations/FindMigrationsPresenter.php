@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Migration\Infrastructure\API\FindMigrations;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -33,7 +32,6 @@ use Core\Migration\Application\UseCase\FindMigrations\FindMigrationsResponse;
 class FindMigrationsPresenter extends AbstractPresenter implements FindMigrationsPresenterInterface
 {
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);
@@ -47,23 +45,6 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            /*
-            $data = [];
-            foreach ($response->migrations as $migrationDto) {
-                $moduleName = $migrationDto->moduleName ?: 'core';
-
-                if (!array_key_exists($moduleName, $data)) {
-                    $data[$moduleName] = [];
-                }
-
-                $data[$moduleName][] = [
-                    'name' => $migrationDto->name,
-                    'description' => $migrationDto->description,
-                ];
-            }
-            $this->present($data);
-            */
-
             $this->present(
                 array_map(static function ($migrationDto) {
                     return [

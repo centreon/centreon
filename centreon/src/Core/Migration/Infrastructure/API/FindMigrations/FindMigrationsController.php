@@ -40,7 +40,7 @@ final class FindMigrationsController extends AbstractController
      */
     public function __invoke(FindMigrations $useCase, FindMigrationsPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        $this->denyAccessUnlessAdmin();
 
         $useCase($presenter);
 
