@@ -473,9 +473,9 @@ class CentreonStatistics
                 ? count(explode(',', $record['contactgroups']))
                 : 0;
             $data[$record['playlist_name']] = [
-                    'rotation_time' => $record['rotation_time'],
-                    'dashboards_count' => $dashboardsCount,
-                    'shared_users_groups_count' => $contactsCount + $contactGroupsCount,
+                'rotation_time' => $record['rotation_time'],
+                'dashboards_count' => $dashboardsCount,
+                'shared_users_groups_count' => $contactsCount + $contactGroupsCount,
             ];
         }
 
