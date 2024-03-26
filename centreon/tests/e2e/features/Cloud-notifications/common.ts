@@ -239,202 +239,109 @@ const initializeDataFiles = () => {
   // The first service will got an id of 28
   for (let i = 28; i < 1028; i++) {
     // Generate values for centreon_storage_services.txt
-    const host_id = 15;
-    const description = `service_${i - 27}`;
-    const service_id = i;
-    const acknowledged = 0;
-    const acknowledgement_type = 0;
-    const action_url = '';
-    const active_checks = 0;
-    const check_attempt = 1;
-    const check_command = 'check_centreon_ping!3!200,20%!400,50%';
-    const check_freshness = 0;
-    const check_interval = 5;
-    const check_period = '24x7';
-    const check_type = 0;
-    const checked = 0;
-    const default_active_checks = 0;
-    const default_event_handler_enabled = 1;
-    const default_flap_detection = 1;
-    const default_notify = 0;
-    const default_passive_checks = 1;
-    const display_name = `service_${i - 27}`;
-    const enabled = 1;
-    const event_handler = '';
-    const event_handler_enabled = 1;
-    const execution_time = 0;
-    const first_notification_delay = 0;
-    const flap_detection = 1;
-    const flap_detection_on_critical = 1;
-    const flap_detection_on_ok = 1;
-    const flap_detection_on_unknown = 1;
-    const flap_detection_on_warning = 1;
-    const flapping = 0;
-    const freshness_threshold = 0;
-    const high_flap_threshold = 0;
-    const icon_image = '';
-    const icon_image_alt = '';
-    const last_hard_state = 0;
-    const last_update = 1710846876;
-    const latency = 0;
-    const low_flap_threshold = 0;
-    const max_check_attempts = 1;
-    const next_check = 0;
-    const no_more_notifications = 0;
-    const notification_interval = 0;
-    const notification_number = 0;
-    const notification_period = '24x7';
-    const notify = 0;
-    const notify_on_critical = 1;
-    const notify_on_downtime = 0;
-    const notify_on_flapping = 0;
-    const notify_on_recovery = 1;
-    const notify_on_unknown = 0;
-    const notify_on_warning = 1;
-    const obsess_over_service = 1;
-    const output = '';
-    const passive_checks = 1;
-    const percent_state_change = 0;
-    const perfdata = '';
-    const retain_nonstatus_information = 1;
-    const retain_status_information = 1;
-    const retry_interval = 1;
-    const scheduled_downtime_depth = 0;
-    const should_be_scheduled = 0;
-    const stalk_on_critical = 0;
-    const stalk_on_ok = 0;
-    const stalk_on_unknown = 0;
-    const stalk_on_warning = 0;
-    const state = 0;
-    const state_type = 1;
-    const volatile = 0;
-
     values = [
-      host_id,
-      description,
-      service_id,
-      acknowledged,
-      acknowledgement_type,
-      action_url,
-      active_checks,
-      check_attempt,
-      check_command,
-      check_freshness,
-      check_interval,
-      check_period,
-      check_type,
-      checked,
-      default_active_checks,
-      default_event_handler_enabled,
-      default_flap_detection,
-      default_notify,
-      default_passive_checks,
-      display_name,
-      enabled,
-      event_handler,
-      event_handler_enabled,
-      execution_time,
-      first_notification_delay,
-      flap_detection,
-      flap_detection_on_critical,
-      flap_detection_on_ok,
-      flap_detection_on_unknown,
-      flap_detection_on_warning,
-      flapping,
-      freshness_threshold,
-      high_flap_threshold,
-      icon_image,
-      icon_image_alt,
-      last_hard_state,
-      last_update,
-      latency,
-      low_flap_threshold,
-      max_check_attempts,
-      next_check,
-      no_more_notifications,
-      notification_interval,
-      notification_number,
-      notification_period,
-      notify,
-      notify_on_critical,
-      notify_on_downtime,
-      notify_on_flapping,
-      notify_on_recovery,
-      notify_on_unknown,
-      notify_on_warning,
-      obsess_over_service,
-      output,
-      passive_checks,
-      percent_state_change,
-      perfdata,
-      retain_nonstatus_information,
-      retain_status_information,
-      retry_interval,
-      scheduled_downtime_depth,
-      should_be_scheduled,
-      stalk_on_critical,
-      stalk_on_ok,
-      stalk_on_unknown,
-      stalk_on_warning,
-      state,
-      state_type,
-      volatile
+      15, // host_id
+      `service_${i - 27}`, // description
+      i, // service_id
+      0, // acknowledged
+      0, // acknowledgement_type
+      '', // action_url
+      0, // active_checks
+      1, // check_attempt
+      'check_centreon_ping!3!200,20%!400,50%', // check_command
+      0, // check_freshness
+      5, // check_interval
+      '24x7', // check_period
+      0, // check_type
+      0, // checked
+      0, // default_active_checks
+      1, // default_event_handler_enabled
+      1, // default_flap_detection
+      0, // default_notify
+      1, // default_passive_checks
+      `service_${i - 27}`, // display_name
+      1, // enabled
+      '', // event_handler
+      1, // event_handler_enabled
+      0, // execution_time
+      0, // first_notification_delay
+      1, // flap_detection
+      1, // flap_detection_on_critical
+      1, // flap_detection_on_ok
+      1, // flap_detection_on_unknown
+      1, // flap_detection_on_warning
+      0, // flapping
+      0, // freshness_threshold
+      0, // high_flap_threshold
+      '', // icon_image
+      '', // icon_image_alt
+      0, // last_hard_state
+      1710846876, // last_update
+      0, // latency
+      0, // low_flap_threshold
+      1, // max_check_attempts
+      0, // next_check
+      0, // no_more_notifications
+      0, // notification_interval
+      0, // notification_number
+      '24x7', // notification_period
+      0, // notify
+      1, // notify_on_critical
+      0, // notify_on_downtime
+      0, // notify_on_flapping
+      1, // notify_on_recovery
+      0, // notify_on_unknown
+      1, // notify_on_warning
+      1, // obsess_over_service
+      '', // output
+      1, // passive_checks
+      0, // percent_state_change
+      '', // perfdata
+      1, // retain_nonstatus_information
+      1, // retain_status_information
+      1, // retry_interval
+      0, // scheduled_downtime_depth
+      0, // should_be_scheduled
+      0, // stalk_on_critical
+      0, // stalk_on_ok
+      0, // stalk_on_unknown
+      0, // stalk_on_warning
+      0, // state
+      1, // state_type
+      0 // volatile
     ].join('\t');
     centreonStorageServicesValues += values + '\n';
 
     // Generate values for centreon_services.txt
-    const service_template_model_stm_id = 3;
-    const service_description = `service_${i - 27}`;
-    const service_is_volatile = 2;
-    const service_max_check_attempts = 1;
-    const service_active_checks_enabled = 0;
-    const service_passive_checks_enabled = 1;
-    const service_parallelize_check = 2;
-    const service_obsess_over_service = 2;
-    const service_check_freshness = 2;
-    const service_event_handler_enabled = 2;
-    const service_flap_detection_enabled = 2;
-    const service_process_perf_data = 2;
-    const service_retain_status_information = 2;
-    const service_retain_nonstatus_information = 2;
-    const service_notifications_enabled = 2;
-    const contact_additive_inheritance = 0;
-    const cg_additive_inheritance = 0;
-    const service_inherit_contacts_from_host = 1;
-    const service_use_only_contacts_from_host = 0;
-    const service_locked = 0;
-    const service_register = 1;
-    const service_activate = 1;
-
     values = [
-      service_id,
-      service_template_model_stm_id,
-      service_description,
-      service_is_volatile,
-      service_max_check_attempts,
-      service_active_checks_enabled,
-      service_passive_checks_enabled,
-      service_parallelize_check,
-      service_obsess_over_service,
-      service_check_freshness,
-      service_event_handler_enabled,
-      service_flap_detection_enabled,
-      service_process_perf_data,
-      service_retain_status_information,
-      service_retain_nonstatus_information,
-      service_notifications_enabled,
-      contact_additive_inheritance,
-      cg_additive_inheritance,
-      service_inherit_contacts_from_host,
-      service_use_only_contacts_from_host,
-      service_locked,
-      service_register,
-      service_activate
+      i, // service_id
+      3, // service_template_model_stm_id
+      `service_${i - 27}`, // service_description
+      2, // service_is_volatile
+      1, // service_max_check_attempts
+      0, // service_active_checks_enabled
+      1, // service_passive_checks_enabled
+      2, // service_parallelize_check
+      2, // service_obsess_over_service
+      2, // service_check_freshness
+      2, // service_event_handler_enabled
+      2, // service_flap_detection_enabled
+      2, // service_process_perf_data
+      2, // service_retain_status_information
+      2, // service_retain_nonstatus_information
+      2, // service_notifications_enabled
+      0, // contact_additive_inheritance
+      0, // cg_additive_inheritance
+      1, // service_inherit_contacts_from_host
+      0, // service_use_only_contacts_from_host
+      0, // service_locked
+      1, // service_register
+      1 // service_activate
     ].join('\t');
     centreonServicesValues += values + '\n';
 
     // Generate values for host_service_relation.txt
-    values = `${host_id}\t${service_id}\n`;
+    values = `15\t${i}\n`;
     hostServiceRelationValues += values;
 
     // Generate payload-check.json
@@ -477,5 +384,5 @@ export {
   initializeDataFiles,
   notificationSentCheck,
   setBrokerNotificationsOutput,
-  waitUntilLogFileChange,
+  waitUntilLogFileChange
 };
