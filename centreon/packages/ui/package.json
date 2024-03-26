@@ -116,6 +116,7 @@
     "@react-spring/web": "^9.7.3",
     "@visx/clip-path": "^3.3.0",
     "@visx/curve": "^2.1.0",
+    "@visx/event": "^3.3.0",
     "@visx/group": "^3.3.0",
     "@visx/legend": "^3.5.0",
     "@visx/pattern": "^3.3.0",

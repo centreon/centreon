@@ -33,24 +33,22 @@ const Template = ({ children, ...args }: ZoomProps): JSX.Element => (
 );
 
 const labels = {
-  clear: 'Clear',
-  zoomIn: '+',
-  zoomOut: '-'
-};
-
-export const Default: Story = {
-  args: {
-    children: content,
-    labels,
-    showMinimap: true
-  },
-  render: Template
+  clear: 'Clear'
 };
 
 export const WithoutMinimap: Story = {
   args: {
     children: content,
     labels
+  },
+  render: Template
+};
+
+export const WithMinimap: Story = {
+  args: {
+    children: content,
+    labels,
+    showMinimap: true
   },
   render: Template
 };

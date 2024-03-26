@@ -3,17 +3,19 @@ import { useState, useRef, useEffect } from 'react';
 import { Zoom as VisxZoom } from '@visx/zoom';
 import { RectClipPath } from '@visx/clip-path';
 
+import ZoomInIcon from '@mui/icons-material/Add';
+import ZoomOutIcon from '@mui/icons-material/Remove';
+
 import { ParentSize } from '../..';
-import { Button } from '../Button';
+import { Button, IconButton } from '../Button';
 
 import { useZoomStyles } from './Zoom.styles';
+import Minimap from './Minimap';
 
 export interface ZoomProps {
   children: JSX.Element;
   labels: {
     clear: string;
-    zoomIn: string;
-    zoomOut: string;
   };
   scaleMax?: number;
   scaleMin?: number;
@@ -43,7 +45,6 @@ const Zoom = ({
     height: number;
     width: number;
   } | null>(null);
-  const [isMouseOverMinimap, setIsMouseOverMinimap] = useState(false);
   const contentRef = useRef<SVGGElement | null>(null);
 
   const resizeObserver = new ResizeObserver(() => {
@@ -52,14 +53,6 @@ const Zoom = ({
       width: contentRef.current?.getBoundingClientRect().width || 0
     });
   });
-
-  const mouseEntersMinimap = (): void => {
-    setIsMouseOverMinimap(true);
-  };
-
-  const mouseLeavesMinimap = (): void => {
-    setIsMouseOverMinimap(false);
-  };
 
   useEffect(() => {
     if (contentRef.current) {
@@ -110,60 +103,37 @@ const Zoom = ({
                 >
                   {children}
                 </g>
-                {showMinimap && (
-                  <g
-                    className={classes.minimap}
-                    clipPath="url(#zoom-clip)"
-                    onMouseLeave={mouseLeavesMinimap}
-                    onMouseOver={mouseEntersMinimap}
+              </svg>
+              <svg className={classes.minimapContainer}>
+                {showMinimap && contentClientRect && (
+                  <Minimap
+                    contentClientRect={contentClientRect}
+                    height={height}
+                    width={width}
+                    zoom={zoom}
                   >
-                    <rect
-                      className={classes.minimapBackground}
-                      height={Math.max(contentClientRect?.height || 0, height)}
-                      rx={radius}
-                      width={Math.max(contentClientRect?.width || 0, width)}
-                    />
                     {children}
-                    <rect
-                      className={classes.minimapZoom}
-                      fillOpacity={0.2}
-                      height={height}
-                      rx={radius}
-                      transform={zoom.toStringInvert()}
-                      width={width}
-                    />
-                  </g>
+                  </Minimap>
                 )}
               </svg>
-              <div
-                className={classes.actions}
-                style={{
-                  top: showMinimap
-                    ? Math.max(contentClientRect?.height || 0, height) *
-                      (isMouseOverMinimap ? 0.28 : 0.18)
-                    : 8
-                }}
-              >
-                <Button
+              <div className={classes.actions}>
+                <IconButton
                   data-testid="zoom in"
+                  icon={<ZoomInIcon />}
                   size="small"
-                  variant="secondary"
                   onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
-                >
-                  {labels.zoomIn}
-                </Button>
-                <Button
+                />
+                <IconButton
                   data-testid="zoom out"
+                  icon={<ZoomOutIcon />}
                   size="small"
-                  variant="secondary"
                   onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
-                >
-                  {labels.zoomOut}
-                </Button>
+                />
+
                 <Button
                   data-testid="clear"
                   size="small"
-                  variant="secondary"
+                  variant="ghost"
                   onClick={zoom.clear}
                 >
                   {labels.clear}
