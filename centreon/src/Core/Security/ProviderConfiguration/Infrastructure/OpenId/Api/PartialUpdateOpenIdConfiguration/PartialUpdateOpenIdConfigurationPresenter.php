@@ -21,20 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\PartialUpdateOpenIdConfiguration;
 
-use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
-use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration\{
+    PartialUpdateOpenIdConfigurationPresenterInterface as PresenterInterface
+};
 
-class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
+class PartialUpdateOpenIdConfigurationPresenter extends AbstractPresenter implements PresenterInterface
 {
-    /**
-     * @return CustomConfiguration
-     */
-    public function getCustomConfiguration(): CustomConfiguration
-    {
-        return $this->customConfiguration instanceof CustomConfiguration
-            ? $this->customConfiguration
-            : throw ConfigurationException::unexpectedCustomConfiguration(($this->customConfiguration)::class);
-    }
 }

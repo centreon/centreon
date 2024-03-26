@@ -21,20 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
+namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration;
 
-use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
-use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 
-class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
+final class PartialUpdateOpenIdConfigurationErrorResponse extends ErrorResponse
 {
-    /**
-     * @return CustomConfiguration
-     */
-    public function getCustomConfiguration(): CustomConfiguration
+    public function __construct()
     {
-        return $this->customConfiguration instanceof CustomConfiguration
-            ? $this->customConfiguration
-            : throw ConfigurationException::unexpectedCustomConfiguration(($this->customConfiguration)::class);
+        parent::__construct('Error during OpenID Provider partial update');
     }
 }
