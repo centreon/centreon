@@ -29,6 +29,7 @@ use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Providers\DatasetProviderInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\NewRule;
 
 class AddRuleValidation
@@ -106,14 +107,17 @@ class AddRuleValidation
     public function assertIdsAreValid(string $type, array $ids): void
     {
         $validIds = [];
-        foreach ($this->repositoryProviders as $repository) {
-            if ($repository->isValidFor($type) === true) {
-                $validIds = $repository->areResourcesValid($ids);
-            }
-        }
 
-        if ([] !== ($invalidIds = array_diff($ids, $validIds))) {
-            throw RuleException::idsDoNotExist($type, $invalidIds);
+        if ($type !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+            foreach ($this->repositoryProviders as $repository) {
+                if ($repository->isValidFor($type) === true) {
+                    $validIds = $repository->areResourcesValid($ids);
+                }
+            }
+
+            if ([] !== ($invalidIds = array_diff($ids, $validIds))) {
+                throw RuleException::idsDoNotExist($type, $invalidIds);
+            }
         }
     }
 

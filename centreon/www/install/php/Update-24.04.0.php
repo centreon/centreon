@@ -189,6 +189,16 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
+    $pearDB->query(
+        <<<SQL
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
+        SQL
+    );
+};
+
 $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
@@ -215,6 +225,18 @@ $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): voi
     }
 };
 
+$removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to remove the dashboard beta tag';
+        $pearDB->query(
+            <<<SQL
+                UPDATE topology
+                SET topology_url_opt=NULL
+                WHERE topology_name='Dashboards'
+                AND topology_url_opt = 'Beta'
+                SQL
+        );
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -227,6 +249,7 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+    $alterTypeDefinitionDatasetFilterTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -242,6 +265,8 @@ try {
     $insertTopologyForResourceAccessManagement($pearDB);
 
     $updateTopologyForApiTokens($pearDB);
+
+    $removeBetaTagFromDashboards($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

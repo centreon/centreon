@@ -1475,6 +1475,7 @@
 									"/  Check code status\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The media has been added.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"\r",
@@ -1484,7 +1485,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"ppm\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
@@ -1514,7 +1515,7 @@
 									"key": "data",
 									"description": "please use images/[nameFile] on the CI",
 									"type": "file",
-									"src": "images/Admin-Potter.png"
+									"src": "images/Herbizarre.png"
 								},
 								{
 									"key": "directory",
@@ -1568,7 +1569,7 @@
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"ppm\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
@@ -1663,7 +1664,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Admin-Potter.png"
+									"src": "images/Herbizarre.png"
 								}
 							]
 						},
@@ -1972,7 +1973,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Salameche.png\",\r",
+									"        \"filename\": \"Carapuce.png\",\r",
 									"        \"directory\": \"user-WR-directory\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
 									"    });\r",
@@ -2001,7 +2002,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Salameche.png"
+									"src": "images/Carapuce.png"
 								},
 								{
 									"key": "directory",
@@ -2054,14 +2055,14 @@
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Salameche.png\",\r",
+									"        \"filename\": \"Carapuce.png\",\r",
 									"        \"directory\": \"user-WR-directory\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"ppm\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
@@ -2140,7 +2141,7 @@
 									"\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image3Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"user-WR-directory\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image3md5\")\r",
 									"    });\r",
@@ -2169,7 +2170,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Admin-Potter.png"
+									"src": "images/Herbizarre.png"
 								},
 								{
 									"key": "directory",
@@ -2222,21 +2223,21 @@
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image3Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"user-WR-directory\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image3md5\")\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Salameche.png\",\r",
+									"        \"filename\": \"Carapuce.png\",\r",
 									"        \"directory\": \"user-WR-directory\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Admin-Potter.png\",\r",
+									"        \"filename\": \"Herbizarre.png\",\r",
 									"        \"directory\": \"ppm\",\r",
 									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
 									"    });\r",
@@ -2309,7 +2310,7 @@
 									"pm.test(\"The media has not been added, because the directory is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.errors[0]).to.eql({\r",
-									"            \"filename\": \"Admin-Potter.png\",\r",
+									"            \"filename\": \"Herbizarre.png\",\r",
 									"            \"directory\": \"user-WR-directory\",\r",
 									"            \"reason\": \"Media already exists\"\r",
 									"        });\r",
@@ -2336,7 +2337,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Admin-Potter.png"
+									"src": "images/Herbizarre.png"
 								},
 								{
 									"key": "directory",
@@ -2535,7 +2536,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Salameche.png"
+									"src": "images/Carapuce.png"
 								},
 								{
 									"key": "directory",
@@ -2805,7 +2806,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Salameche.png"
+									"src": "images/Carapuce.png"
 								},
 								{
 									"key": "directory",

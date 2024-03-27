@@ -64,7 +64,7 @@ final class AddRuleController extends AbstractController
              *     contact_groups: non-empty-list<int>,
              *     dataset_filters: non-empty-list<array{
              *      type:string,
-             *      resources: non-empty-list<int>,
+             *      resources: list<int>,
              *      ...
              *     }>
              * } $data
