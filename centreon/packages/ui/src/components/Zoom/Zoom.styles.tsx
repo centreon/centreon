@@ -7,6 +7,7 @@ import { minimapScale } from './constants';
 export const useZoomStyles = makeStyles()((theme) => ({
   actions: {
     backgroundColor: alpha(theme.palette.background.paper, 0.8),
+    borderRadius: `0 ${theme.shape.borderRadius}px 0 0`,
     bottom: 0,
     display: 'flex',
     flexDirection: 'row',
