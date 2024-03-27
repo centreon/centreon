@@ -28,8 +28,8 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   version: "23.04"
 externalDocs:
-  description: You can contact us on our community Slack
-  url: 'https://centreon.slack.com/messages/CCRGLQSE5'
+  description: You can contact us on our community platform The Watch
+  url: 'https://thewatch.centreon.com/'
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}'
     variables:
