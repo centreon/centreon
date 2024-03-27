@@ -25,14 +25,13 @@ namespace Core\Migration\Application\UseCase\ExecuteMigrations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Migration\Application\UseCase\ExecuteMigrations\Validator\MigrationsValidator;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 final class ExecuteMigrations
@@ -41,39 +40,31 @@ final class ExecuteMigrations
 
     public function __construct(
         private readonly ContactInterface $user,
-        private ReadVersionRepositoryInterface $readVersionRepository,
+        private readonly ReadMigrationRepositoryInterface $readMigrationRepository,
+        private readonly ReadVersionRepositoryInterface $readVersionRepository,
+        private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
         private readonly UpdateLockerRepositoryInterface $updateLocker,
         private readonly WriteMigrationRepositoryInterface $writeMigrationRepository,
-        private readonly RequestParametersInterface $requestParameters,
         private readonly UpdateLockerRepositoryInterface $updateLockerRepository
     ) {
     }
 
     public function __invoke(
-        ExecuteMigrationsRequest $request,
         ExecuteMigrationsPresenterInterface $presenter
-    ): void
-    {
+    ): void {
         try {
-            /*
-            $validator = new MigrationsValidator();
-            $validator->validateMigration(
-                $request->names,
-                $this->migrationsCollectorRepository,
-            );
-            */
+            $migrations = $this->readMigrationRepository->findNewMigrations();
 
             $this->lockUpdate();
-            foreach ($request->names as $name) {
-                $this->writeMigrationRepository->executeMigration($name);
+
+            foreach ($migrations as $migration) {
+                $this->writeMigrationRepository->executeMigration($migration);
             }
 
+            $this->updateVersions();
+
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            dump($ex->getMessage());
             $errorMessage = 'An error occurred while executing migration';
             $this->error($errorMessage, ['trace' => (string) $ex]);
             $presenter->setResponseStatus(
@@ -90,7 +81,7 @@ final class ExecuteMigrations
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
-        if (! $this->updateLocker->lock()) {
+        if (!$this->updateLocker->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
     }
@@ -102,5 +93,60 @@ final class ExecuteMigrations
     {
         $this->info('Unlocking centreon update process...');
         $this->updateLocker->unlock();
+    }
+
+    /**
+     * @throws \Exception
+     * @throws UpdateVersionsException
+     * @throws \Throwable
+     */
+    private function updateVersions(): void
+    {
+        $installedVersion = $this->getInstalledVersion();
+        $availableVersion = $this->getAvailableVersion();
+
+        if ($installedVersion !== $availableVersion) {
+            $this->info(sprintf('Updating centreon-web installed version to %s', $availableVersion));
+            $this->writeUpdateRepository->updateVersionInformation($availableVersion);
+        }
+    }
+
+    /**
+     * Get installed version or fail.
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    private function getInstalledVersion(): string
+    {
+        $this->debug('Finding centreon-web installed version');
+        try {
+            $installedVersion = $this->readVersionRepository->findCurrentVersion();
+        } catch (\Exception $exception) {
+            throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($exception);
+        }
+
+        if ($installedVersion === null) {
+            throw UpdateVersionsException::cannotRetrieveCurrentVersion();
+        }
+
+        return $installedVersion;
+    }
+
+    /**
+     * Get available version or fail.
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    private function getAvailableVersion(): string
+    {
+        $this->debug('Finding centreon-web available version');
+
+        // @todo get version from environment file
+
+        return '24.04.0';
     }
 }

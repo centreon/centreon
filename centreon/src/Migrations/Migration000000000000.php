@@ -26,9 +26,9 @@ namespace Migrations;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Migration\Application\Repository\MigrationInterface;
-use Core\Migration\Infrastructure\Repository\AbstractMigration;
+use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
-class Migration000000000000 extends AbstractMigration implements MigrationInterface
+class Migration000000000000 extends AbstractCoreMigration implements MigrationInterface
 {
     use LoggerTrait;
 

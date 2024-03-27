@@ -42,16 +42,4 @@ abstract class AbstractMigration
 
         throw new \Exception(sprintf(_('Bad migration name: %s'), $className));
     }
-
-    /**
-     * Module name.
-     *
-     * @throws \Exception
-     *
-     * @return string|null
-     */
-    public function getModuleName(): ?string
-    {
-        return null;
-    }
 }

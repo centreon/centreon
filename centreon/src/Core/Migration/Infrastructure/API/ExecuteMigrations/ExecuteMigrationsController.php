@@ -25,10 +25,8 @@ namespace Core\Migration\Infrastructure\API\ExecuteMigrations;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrations;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrationsRequest;
 
 final class ExecuteMigrationsController extends AbstractController
 {
@@ -37,23 +35,12 @@ final class ExecuteMigrationsController extends AbstractController
      *
      * @return Response
      */
-    public function __invoke(Request $request, ExecuteMigrations $useCase, ExecuteMigrationsPresenter $presenter): Response
+    public function __invoke(ExecuteMigrations $useCase, ExecuteMigrationsPresenter $presenter): Response
     {
         $this->denyAccessUnlessAdmin();
 
-        $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/ExecuteMigrationsSchema.json');
-
-        $migrationRequest = $this->createRequestDto($data);
-        $useCase($migrationRequest, $presenter);
+        $useCase($presenter);
 
         return $presenter->show();
-    }
-
-    private function createRequestDto(array $data): ExecuteMigrationsRequest
-    {
-        $migrationRequest = new ExecuteMigrationsRequest();
-        $migrationRequest->names = $data['names'];
-
-        return $migrationRequest;
     }
 }

@@ -27,7 +27,7 @@ class MigrationDto
 {
     public string $name = '';
 
-    public ?string $moduleName = null;
+    public string $moduleName = '';
 
     public string $description = '';
 }

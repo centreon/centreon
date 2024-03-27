@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\Repository;
 
+use Core\Migration\Domain\Model\NewMigration;
+
 interface WriteMigrationRepositoryInterface
 {
     /**
@@ -30,5 +32,5 @@ interface WriteMigrationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function executeMigration(string $name): void;
+    public function executeMigration(NewMigration $newMigration): void;
 }

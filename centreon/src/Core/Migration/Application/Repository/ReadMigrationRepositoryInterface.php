@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\Repository;
 
+use Core\Migration\Domain\Model\ExecutedMigration;
 use Core\Migration\Domain\Model\NewMigration;
 
-interface ReadAvailableMigrationRepositoryInterface
+interface ReadMigrationRepositoryInterface
 {
     /**
      * Return all the migrations.
@@ -34,5 +35,23 @@ interface ReadAvailableMigrationRepositoryInterface
      *
      * @return NewMigration[]
      */
-    public function findAll(): array;
+    public function findAvailableMigrations(): array;
+
+    /**
+     * Return migrations already executed.
+     *
+     * @throws \Throwable
+     *
+     * @return ExecutedMigration[]
+     */
+    public function findExecutedMigrations(): array;
+
+    /**
+     * Return migrations not yet executed.
+     *
+     * @throws \Throwable
+     *
+     * @return NewMigration[]
+     */
+    public function findNewMigrations(): array;
 }

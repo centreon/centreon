@@ -28,6 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
+use Core\Migration\Domain\Model\NewMigration;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
@@ -52,21 +53,24 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     /**
      * {@inheritDoc}
      */
-    public function executeMigration(string $name): void
+    public function executeMigration(NewMigration $newMigration): void
     {
-        $migration = $this->getMigrationFromName($name);
+        $migration = $this->getMigrationClass($newMigration);
         $migration->up();
     }
 
-    private function getMigrationFromName(string $name): MigrationInterface
+    private function getMigrationClass(NewMigration $newMigration): MigrationInterface
     {
         foreach ($this->migrations as $migration) {
             $shortName = (new \ReflectionClass($migration))->getShortName();
-            if ($shortName === $name) {
+            if (
+                $migration->getModuleName() === $newMigration->getModuleName()
+                && $shortName === $newMigration->getName()
+            ) {
                 return $migration;
             }
         }
 
-        throw new \Exception(sprintf('Migration %s not found', $name));
+        throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
     }
 }

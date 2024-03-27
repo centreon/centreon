@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Application\UseCase\ExecuteMigrations;
+namespace Core\Migration\Infrastructure\Repository;
 
-final class ExecuteMigrationsRequest
+abstract class AbstractCoreMigration extends AbstractMigration
 {
-    /** @var string[] */
-    public array $names = [];
+
+    /**
+     * Module name.
+     *
+     * @return string
+     */
+    public function getModuleName(): string
+    {
+        return 'core';
+    }
 }
