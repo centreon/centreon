@@ -106,7 +106,7 @@ class UpdateRuleValidation
      *
      * @throws RuleException
      */
-    public function assertResourceIdsAreValid(string $type, array $ids): void
+    public function assertIdsAreValid(string $type, array $ids): void
     {
         $validIds = [];
         foreach ($this->repositoryProviders as $repository) {
