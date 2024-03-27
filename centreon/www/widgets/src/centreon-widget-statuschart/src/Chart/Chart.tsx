@@ -1,4 +1,5 @@
-import { equals, isNil } from 'ramda';
+import { equals, isEmpty, isNil, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { PieChart, BarStack } from '@centreon/ui';
 
@@ -7,6 +8,11 @@ import useLoadResources from '../useLoadResources';
 import { goToUrl } from '../../../utils';
 import Legend from '../Legend/Legend';
 import TooltipContent from '../Tooltip/Tooltip';
+import { NoResourcesFound } from '../../../NoResourcesFound';
+import {
+  labelNoHostsFound,
+  labelNoServicesFound
+} from '../../../translatedLabels';
 
 import { useStyles } from './Chart.styles';
 import ChartSkeleton from './LoadingSkeleton';
@@ -21,12 +27,12 @@ const Chart = ({
   refreshCount,
   refreshIntervalToUse,
   resources,
-  labelNoDataFound,
   getLinkToResourceStatusPage,
   isHorizontalBar,
   isSingleChart
 }: ChartType): JSX.Element => {
   const { cx, classes } = useStyles();
+  const { t } = useTranslation();
 
   const isPieCharts =
     equals(displayType, DisplayType.Pie) ||
@@ -53,6 +59,22 @@ const Chart = ({
     return <div />;
   }
 
+  const areAllValuesNull = isEmpty(
+    reject(({ value }) => equals(value, 0), data)
+  );
+
+  if (areAllValuesNull) {
+    return (
+      <NoResourcesFound
+        label={
+          equals(resourceType, 'host')
+            ? t(labelNoHostsFound)
+            : t(labelNoServicesFound)
+        }
+      />
+    );
+  }
+
   return (
     <div className={classes.container}>
       {isPieCharts ? (
@@ -69,7 +91,6 @@ const Chart = ({
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
-            labelNoDataFound={labelNoDataFound}
             title={title}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
@@ -93,7 +114,6 @@ const Chart = ({
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
-            labelNoDataFound={labelNoDataFound}
             legendDirection={isHorizontalBar ? 'row' : 'column'}
             size={80}
             title={title}

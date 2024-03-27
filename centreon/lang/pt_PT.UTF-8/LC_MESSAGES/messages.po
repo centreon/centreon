@@ -17477,7 +17477,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "Dashboard deleted"
-# msgstr 
+# msgstr
 
 # msgid "Dashboard duplicated"
 # msgstr ""
@@ -17520,3 +17520,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
+
+#  msgid "Error while updating a broker output"
+#  msgstr ""
+
+#  msgid "Action not permitted for output of type '%s'"
+#  msgstr ""
+
+#  msgid "Content is not a valid JSON string"
+#  msgstr ""
+
+#  msgid "An error occurred while creating the file '%s'"
+#  msgstr ""
+
+#  msgid "An error occurred while deleting the file '%s'"
+#  msgstr ""

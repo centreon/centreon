@@ -75,6 +75,7 @@ export const useWidgetInputs = (
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
     propEq(values.moduleName, 'moduleName'),
@@ -139,6 +140,10 @@ export const useWidgetInputs = (
     },
     useDeepCompare([selectedWidget])
   );
+
+  useEffect(() => {
+    setWidgetProperties(selectedWidget);
+  }, []);
 
   return inputs;
 };

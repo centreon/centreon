@@ -2,7 +2,11 @@ post:
   tags:
     - Service
   summary: "Add a service"
-  description: "Add a service configuration"
+  description: |
+    Add a service configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   requestBody:
     required: true
     content:
@@ -51,6 +55,9 @@ get:
     * hostgroup.name
     * hostcategory.id
     * hostcategory.name
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'

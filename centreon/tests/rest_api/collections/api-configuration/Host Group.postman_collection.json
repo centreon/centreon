@@ -5676,7 +5676,7 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"The host group has been granted to ACL resource.\", function () {",
+													"pm.test(\"The host category filter has been added to ACL resource.\", function () {",
 													"    pm.response.to.have.status(200);",
 													"});"
 												],
@@ -7107,7 +7107,7 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"pm.test(\"The host group has been granted to ACL resource.\", function () {",
+													"pm.test(\"The host has been granted to ACL resource.\", function () {",
 													"    pm.response.to.have.status(200);",
 													"});"
 												],

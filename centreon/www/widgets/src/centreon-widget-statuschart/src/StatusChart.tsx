@@ -1,5 +1,4 @@
 import { equals, includes } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { useRefreshInterval } from '@centreon/ui';
 
@@ -8,12 +7,7 @@ import { getResourcesUrl } from '../../utils';
 import { DisplayType, StatusChartProps } from './models';
 import Chart from './Chart/Chart';
 import { useStyles } from './StatusChart.styles';
-import {
-  labelHosts,
-  labelServices,
-  labelNoHostsFound,
-  labelNoServicesFound
-} from './translatedLabels';
+import { labelHosts, labelServices } from './translatedLabels';
 
 const StatusChart = ({
   globalRefreshInterval,
@@ -22,7 +16,6 @@ const StatusChart = ({
   refreshCount
 }: StatusChartProps): JSX.Element => {
   const { cx, classes } = useStyles();
-  const { t } = useTranslation();
 
   const {
     displayType,
@@ -73,9 +66,6 @@ const StatusChart = ({
             isHorizontalBar={isHorizontalBar}
             isSingleChart={isSingleChart}
             key={resourceType}
-            labelNoDataFound={
-              isOfTypeHost ? t(labelNoHostsFound) : t(labelNoServicesFound)
-            }
             refreshCount={refreshCount}
             refreshIntervalToUse={refreshIntervalToUse}
             resourceType={resourceType}

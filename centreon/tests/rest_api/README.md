@@ -9,24 +9,24 @@ Multiple collections, which are suffixed by `.postman_collection.json`, can be a
 
 ## Postman environment file
 
-An environment file, which is suffixed by `.postman_environment.json`, must be added at the same level than the postman collection.
+An environment file, which is suffixed by `.postman_environment.json`, must be added at the same level as the postman collection.
 
 ## Docker environment file (optional)
 
-A docker environment file `.env` can be added at the same level than the postman collection.
+A docker environment file `.env` can be added at the same level as the postman collection.
 
-The main usage is to set following environment variables :
-* `CENTREON_DATASET=0` # avoid to create sample resources (hosts, services...)
+The main usage is to set the following environment variables :
+* `CENTREON_DATASET=0` # avoid creating sample resources (hosts, services...)
 * `MYSQL_IMAGE=bitnami/mysql:8.3` # use mysql instead of mariadb
 
 ## Global setup script (optional)
 
-A script `setup.sh` can be added at the same level than the postman collection.
-It is run on the host machine once web container is started and healthy (before the postman collection is run).
-Usage example: `docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml cp $(dirname $0)/images/my_image.png web:/usr/share/centreon/www/img/media/my_image.png` in order to copy image in web container
+A script `setup.sh` can be added at the same level as the postman collection.
+It is run on the host machine once the web container is started and healthy (before the postman collection is run).
+Usage example: `docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml cp $(dirname $0)/images/my_image.png web:/usr/share/centreon/www/img/media/my_image.png` to copy image in web container
 
 ## Docker container web setup script (optional)
 
-A script `setup-web.sh` can be added at the same level than the postman collection.
+A script `setup-web.sh` can be added at the same level as the postman collection.
 It is run in the web container once it is started and healthy (before the postman collection is run).
-Usage example: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json` in order to update dashboard feature flags
+Usage example: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json` to update dashboard feature flags

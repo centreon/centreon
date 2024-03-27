@@ -223,16 +223,25 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
-    public function addDataset(string $name): int
-    {
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts = false,
+        bool $accessAllHostGroups = false,
+        bool $accessAllServiceGroups = false,
+    ): int {
         $request = $this->translateDbName(
             <<<'SQL'
-                    INSERT INTO `:db`.acl_resources (acl_res_name, acl_res_activate, changed, cloud_specific) VALUES (:name, '1', 1, 1)
+                INSERT INTO `:db`.acl_resources
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
                 SQL
         );
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+        $statement->bindValue(':allHosts', (int) $accessAllHosts, \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', (int) $accessAllHostGroups, \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', (int) $accessAllServiceGroups, \PDO::PARAM_STR);
         $statement->execute();
 
         return (int) $this->db->lastInsertId();

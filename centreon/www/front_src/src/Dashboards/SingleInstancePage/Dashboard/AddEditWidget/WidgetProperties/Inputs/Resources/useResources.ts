@@ -35,8 +35,8 @@ import {
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { getDataProperty } from '../utils';
 import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
+  hasMetricInputTypeDerivedAtom,
+  widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
 
 interface UseResourcesState {
@@ -104,14 +104,16 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
-const resourceQueryParameters = [
+const getServiceQueryParameters = (
+  onlyWithPerformanceData = false
+): Array<{ name: string; value: unknown }> => [
   {
     name: 'types',
     value: ['service']
   },
   {
     name: 'only_with_performance_data',
-    value: true
+    value: onlyWithPerformanceData
   },
   {
     name: 'limit',
@@ -140,8 +142,10 @@ const useResources = ({
     [getDataProperty({ obj: touched, propertyName })]
   );
 
-  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(
+    widgetPropertiesMetaPropertiesDerivedAtom
+  );
+  const hasMetricInputType = useAtomValue(hasMetricInputTypeDerivedAtom);
 
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
@@ -150,8 +154,8 @@ const useResources = ({
     resourceType: WidgetResourceType
   ): boolean | undefined => {
     return (
-      singleMetricSelection &&
-      singleHostPerMetric &&
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleHostPerMetric &&
       (equals(resourceType, WidgetResourceType.host) ||
         equals(resourceType, WidgetResourceType.service))
     );
@@ -208,7 +212,7 @@ const useResources = ({
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
-          ? resourceQueryParameters
+          ? getServiceQueryParameters(hasMetricInputType)
           : undefined,
         parameters: {
           ...parameters,
@@ -248,7 +252,10 @@ const useResources = ({
       return;
     }
 
-    if (singleMetricSelection && singleHostPerMetric) {
+    if (
+      widgetProperties?.singleMetricSelection &&
+      widgetProperties?.singleHostPerMetric
+    ) {
       setFieldValue(`data.${propertyName}`, [
         {
           resourceType: WidgetResourceType.host,
@@ -283,8 +290,8 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
-    singleHostPerMetric,
-    singleMetricSelection,
+    singleHostPerMetric: widgetProperties?.singleHostPerMetric,
+    singleMetricSelection: widgetProperties?.singleMetricSelection,
     value: value || []
   };
 };

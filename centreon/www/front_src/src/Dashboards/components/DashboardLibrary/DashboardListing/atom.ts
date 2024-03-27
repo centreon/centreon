@@ -15,7 +15,7 @@ export const searchAtom = atom<string>('');
 
 export const viewModeAtom = atomWithStorage<ViewMode>(
   'dashboards-view-mode',
-  ViewMode.Cards
+  ViewMode.List
 );
 
 export const askBeforeRevokeAtom = atom<{
