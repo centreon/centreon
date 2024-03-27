@@ -93,6 +93,9 @@ const InputCalendar = ({
       className: classes.popper
     },
     textField: {
+      inputProps: {
+        'data-testid': 'calendarInput'
+      },
       onKeyDown
     }
   };
