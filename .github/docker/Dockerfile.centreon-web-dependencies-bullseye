@@ -65,7 +65,7 @@ apt-get install -y \
   libnet-http-perl \
   libwww-perl \
   libxml-libxml-perl \
-  perl
+  perl-base
 
 #############################
 # install test dependencies #
