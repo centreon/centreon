@@ -392,7 +392,7 @@ Then('only the contents of the other widget are displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
+          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
         )
         .should('exist')
         .invoke('text')
