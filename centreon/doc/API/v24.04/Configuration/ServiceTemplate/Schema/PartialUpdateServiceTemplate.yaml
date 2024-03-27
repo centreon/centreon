@@ -38,7 +38,7 @@ properties:
   max_check_attempts:
     type: integer
     description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
-  normal_normal_check_interval:
+  normal_check_interval:
     type: integer
     description: |
       Define the number of 'time units' between regularly scheduled checks of the service.
