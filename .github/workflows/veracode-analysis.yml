@@ -98,7 +98,7 @@ jobs:
 
           # external contributions check
           INTERNAL_CONTRIB=false
-          if [[ ${{ github.event.issue.author_association }} == 'OWNER' || ${{ github.event.issue.author_association }} == 'COLLABORATOR') || (${{ github.event.issue.author_association }} == 'CONTRIBUTOR') || ${{ github.event.issue.author_association }} == 'MEMBER' ]]; then
+          if [[ ${{ github.event.issue.author_association }} == 'OWNER' || ${{ github.event.issue.author_association }} == 'COLLABORATOR' || ${{ github.event.issue.author_association }} == 'CONTRIBUTOR' || ${{ github.event.issue.author_association }} == 'MEMBER' ]]; then
             INTERNAL_CONTRIB=true
           fi
           echo "internal_contrib=$INTERNAL_CONTRIB" >> $GITHUB_OUTPUT
