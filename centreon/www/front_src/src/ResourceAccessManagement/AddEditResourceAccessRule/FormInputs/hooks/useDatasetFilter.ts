@@ -20,6 +20,7 @@ import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllResources,
   labelHost,
   labelHostCategory,
   labelHostGroup,
@@ -52,6 +53,11 @@ type UseDatasetFilterState = {
 };
 
 const resourceTypeOptions = [
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.All,
+    name: labelAllResources
+  },
   {
     availableResourceTypeOptions: [
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
@@ -212,14 +218,10 @@ const useDatasetFilter = (
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resourceType`,
-        e.target.value
-      );
-      setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
-        []
-      );
+      setFieldValue(`datasetFilters.${datasetFilterIndex}.${index}`, {
+        resourceType: e.target.value,
+        resources: []
+      });
     };
 
   const deleteResource = (index: number) => (): void => {
