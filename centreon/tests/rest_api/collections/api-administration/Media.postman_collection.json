@@ -1475,6 +1475,7 @@
 									"/  Check code status\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The media has been added.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"\r",
