@@ -207,10 +207,9 @@ final class PartialUpdateDashboard
      */
     private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard
     {
-        return new Dashboard(
+        return (new Dashboard(
             id: $dashboard->getId(),
             name: NoValue::coalesce($request->name, $dashboard->getName()),
-            description: NoValue::coalesce($request->description, $dashboard->getDescription()),
             createdBy: $dashboard->getCreatedBy(),
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
@@ -221,6 +220,6 @@ final class PartialUpdateDashboard
                     $dashboard->getRefresh()->getRefreshInterval()
                 )
                 : new Refresh($request->refresh->refreshType, $request->refresh->refreshInterval)
-        );
+        ))->setDescription(NoValue::coalesce($request->description, $dashboard->getDescription()));
     }
 }

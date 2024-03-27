@@ -150,7 +150,7 @@ final class AddDashboard
             $this->contact->getId(),
             $refresh
         );
-        $dashboard->setDescription($request->description ?? '');
+        $dashboard->setDescription($request->description);
 
         return $dashboard;
     }

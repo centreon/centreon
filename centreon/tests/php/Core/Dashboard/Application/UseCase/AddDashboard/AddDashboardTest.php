@@ -60,16 +60,15 @@ beforeEach(function (): void {
     $this->testedAddDashboardRequest = new AddDashboardRequest();
     $this->testedAddDashboardRequest->name = 'added-dashboard';
 
-    $this->testedDashboard = new Dashboard(
+    $this->testedDashboard = (new Dashboard(
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
-        $this->testedDashboardDescription = 'dashboard-description',
         $this->testedDashboardCreatedBy = 2,
         $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
         $this->testedDashboardGlobalRefresh = new Refresh(RefreshType::Global, null),
-    );
+    ))->setDescription('toto');
 });
 
 it(
@@ -204,7 +203,7 @@ it(
         expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe($this->testedDashboard->getDescription())
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual(
                 $this->testedDashboardUpdatedAt->getTimestamp()
