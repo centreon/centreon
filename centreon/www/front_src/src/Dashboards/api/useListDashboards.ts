@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { useAtomValue } from 'jotai';
 
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
@@ -23,8 +21,6 @@ type UseListDashboards = {
 };
 
 const useListDashboards = (): UseListDashboards => {
-  const isMounted = useRef(true);
-
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
   const sortField = useAtomValue(sortFieldAtom);
@@ -63,13 +59,9 @@ const useListDashboards = (): UseListDashboards => {
       search
     ],
     queryOptions: {
-      suspense: isMounted.current
+      suspense: false
     }
   });
-
-  if (isMounted) {
-    isMounted.current = false;
-  }
 
   return {
     data,

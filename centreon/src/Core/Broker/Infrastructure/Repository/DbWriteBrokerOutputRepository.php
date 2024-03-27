@@ -25,6 +25,7 @@ namespace Core\Broker\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Broker\Application\Repository\WriteBrokerOutputRepositoryInterface;
+use Core\Broker\Domain\Model\BrokerOutput;
 use Core\Broker\Domain\Model\BrokerOutputField;
 use Core\Broker\Domain\Model\NewBrokerOutput;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -45,10 +46,53 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function add(NewBrokerOutput $output, int $brokerId, array $parametersInfo): int
+    public function add(NewBrokerOutput $output, int $brokerId, array $outputFields): int
     {
         $outputId = $this->getNextOutputId($brokerId);
 
+        $this->addOutput($brokerId, $outputId, $output, $outputFields);
+
+        return $outputId;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(BrokerOutput $output, int $brokerId, array $outputFields): void
+    {
+        $this->delete($brokerId, $output->getId());
+        $this->addOutput($brokerId, $output->getId(), $output, $outputFields);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $brokerId, int $outputId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM cfg_centreonbroker_info
+                WHERE config_id = :brokerId
+                    AND config_group_id = :outputId
+                SQL
+        ));
+
+        $statement->bindValue(':outputId', $outputId, \PDO::PARAM_INT);
+        $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @param int $brokerId
+     * @param int $outputId
+     * @param BrokerOutput|NewBrokerOutput $output
+     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $outputFields
+     *
+     * @throws \Throwable
+     */
+    private function addOutput(int $brokerId, int $outputId, BrokerOutput|NewBrokerOutput $output, array $outputFields): void
+    {
         $query = <<<'SQL'
             INSERT INTO `:db`.`cfg_centreonbroker_info` (
                 config_id,
@@ -74,7 +118,7 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
             (:brokerId, 'blockId', :blockId, 'output', :outputId, 0, null, null, null)
             SQL;
 
-        [$paramInserts, $bindValues] = $this->buildAddQuery($parametersInfo, $output->getParameters());
+        [$paramInserts, $bindValues] = $this->getInsertQueries($outputFields, $output->getParameters());
         $inserts = [...$inserts, ...$paramInserts];
 
         $request = $query . ' ' . implode(',', $inserts);
@@ -94,8 +138,6 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
         }
 
         $statement->execute();
-
-        return $outputId;
     }
 
     /**
@@ -109,7 +151,7 @@ class DbWriteBrokerOutputRepository extends AbstractRepositoryRDB implements Wri
      *
      * @return array{string[],array<int|string|null>}
      */
-    private function buildAddQuery(
+    private function getInsertQueries(
         array $fields,
         array $values
     ): array {
