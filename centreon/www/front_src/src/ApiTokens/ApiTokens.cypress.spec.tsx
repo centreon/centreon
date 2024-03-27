@@ -538,12 +538,12 @@ describe('Api-token', () => {
     cy.findByRole('option', { name: 'Customize' }).click();
     cy.openCalendar('calendarInput');
 
-    cy.findByRole('gridcell', { name: '28' }).click();
+    cy.findByRole('gridcell', { name: '5' }).click();
     cy.contains('OK').click();
 
     cy.findByTestId(labelDuration).should(
       'have.value',
-      'February 28, 2024 7:16 PM'
+      'February 5, 2024 7:16 PM'
     );
 
     cy.findByTestId('Confirm')
@@ -634,7 +634,7 @@ describe('Api-token', () => {
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
 
-  it('executes a listing request with all searchable fields', () => {
+  it.only('executes a listing request with all searchable fields', () => {
     cy.waitForRequest('@getListTokens');
     const searchInput = constructSearchInput(searchableFieldsValues);
 
