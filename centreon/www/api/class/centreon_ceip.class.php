@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
 require_once __DIR__ . '/../../class/centreonStatistics.class.php';
+require_once __DIR__ . '/../../include/common/common-Func.php';
 require_once __DIR__ . '/webService.class.php';
 
 class CentreonCeip extends CentreonWebService
@@ -120,55 +121,29 @@ class CentreonCeip extends CentreonWebService
     {
         $locale = $this->user->get_lang();
 
-        $role = $this->user->admin
-            ? 'admin'
-            : 'user';
-        $countAcl = (int) $this->sqlFetchValue(
-            <<<SQL
-                SELECT COUNT(*) AS countAcl
-                FROM topology AS t
-                INNER JOIN acl_topology_relations AS atr ON (atr.topology_topology_id = t.topology_id)
-                INNER JOIN acl_topology AS atp ON (atp.acl_topo_id = atr.acl_topo_id)
-                INNER JOIN acl_group_topology_relations AS agtr ON (agtr.acl_topology_id = atr.acl_topo_id)
-                INNER JOIN acl_group_contacts_relations AS agcr ON (agcr.acl_group_id = agtr.acl_group_id)
-                INNER JOIN acl_group_contactgroups_relations AS agcgr ON (agcgr.acl_group_id = agtr.acl_group_id)
-                WHERE t.topology_page = '601'
-                AND agcr.contact_contact_id = :contact_id
-                   OR agcgr.acl_group_id IN (
-                   SELECT contactgroup_cg_id
-                   FROM contactgroup_contact_relation
-                   WHERE contact_contact_id = :contact_id
-                   )
-            SQL,
-            [':contact_id', $this->user->user_id, PDO::PARAM_INT]
-        );
+        if (isCloudPlatform()) { // Get the user role for the Centreon Cloud platform
+            // Get list of ACL Groups linked to this user
+            $grouplistStr = $this->user->access->getAccessGroupsString('NAME');
 
-        if (0 !== strcmp($role, 'admin')) {
-            $countAcl = (int) $this->sqlFetchValue(
-                <<<SQL
-                    SELECT COUNT(*) AS countAcl
-                    FROM acl_actions_rules AS aar
-                    INNER JOIN acl_actions AS aa ON (aa.acl_action_id = aar.acl_action_rule_id)
-                    INNER JOIN acl_group_actions_relations AS agar ON (agar.acl_action_id = aar.acl_action_rule_id)
-                    INNER JOIN acl_group_contacts_relations AS agcr ON (agcr.acl_group_id = agar.acl_group_id)
-                    INNER JOIN acl_group_contactgroups_relations AS agcgr ON (agcgr.acl_group_id = agar.acl_group_id)
-                    WHERE aar.acl_action_name LIKE "service\_%" OR aar.acl_action_name LIKE "host\_%"
-                    AND agcr.contact_contact_id = :contact_id
-                    OR agcgr.acl_group_id IN (
-                        SELECT contactgroup_cg_id
-                        FROM contactgroup_contact_relation
-                        WHERE contact_contact_id = :contact_id
-                    )
-                    SQL,
-                [':contact_id', $this->user->user_id, PDO::PARAM_INT]
-            );
-            if ($countAcl > 0) {
+            // Check main ACL Group
+            if (preg_match('/customer_admin_acl/', $grouplistStr)) {
+                $role = 'Administrator';
+            } elseif (preg_match('/customer_editor_acl/', $grouplistStr)) {
+                $role = 'Editor';
+            } elseif (preg_match('/customer_user_acl/', $grouplistStr)) {
+                $role = 'User';
+            } else {
                 $role = 'User';
             }
-        }elseif ($countAcl > 0) {
-            $role = 'editor';
-        }else{
-            $role = 'Administrator';
+        } else { // Get the user role for the Centreon on-premises platform
+            $role = $this->user->admin
+                ? 'admin'
+                : 'user';
+
+            // If user have access to monitoring configuration, it's an operator
+            if (0 !== strcmp($role, 'admin') && $this->user->access->page('601') > 0) {
+                $role = 'editor';
+            }
         }
 
         return [
