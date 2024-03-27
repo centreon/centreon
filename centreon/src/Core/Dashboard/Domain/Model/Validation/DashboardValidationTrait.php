@@ -54,7 +54,7 @@ trait DashboardValidationTrait
     private function ensureValidDescription(string $description): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-        Assertion::MinLength($description, Dashboard::MIN_DESCRIPTION_LENGTH, $shortName . '::description');
+        Assertion::minLength($description, Dashboard::MIN_DESCRIPTION_LENGTH, $shortName . '::description');
         Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::description');
     }
 

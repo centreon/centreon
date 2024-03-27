@@ -1,4 +1,4 @@
-<?php
+ﬁ<?php
 
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
@@ -465,7 +465,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         );
 
         if ($result['description'] !== null) {
-            $dashboard->setDescription($description);
+            $dashboard->setDescription($result['description']);
         }
 
         return $dashboard;
