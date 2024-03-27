@@ -93,7 +93,7 @@ jobs:
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
 
 
-          echo "[DEBUG] - vars svc_ext _test = ${{ vars.VERACODE_API_ID_SVC_EXT }}"
+          echo "[DEBUG] - vars svc_ext _test  = ${{ vars.VERACODE_API_ID_SVC_EXT }}"
           echo "[DEBUG] - external contrib status ? = ${{ github.event.pull_request.author_association }}"
 
           # external contributions check
