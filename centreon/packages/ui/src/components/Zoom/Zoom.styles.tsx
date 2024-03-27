@@ -1,14 +1,18 @@
 import { makeStyles } from 'tss-react/mui';
 
+import { alpha } from '@mui/system';
+
 import { minimapScale } from './constants';
 
 export const useZoomStyles = makeStyles()((theme) => ({
   actions: {
-    bottom: theme.spacing(1),
+    backgroundColor: alpha(theme.palette.background.paper, 0.8),
+    bottom: 0,
     display: 'flex',
     flexDirection: 'row',
     gap: theme.spacing(1),
-    left: theme.spacing(1),
+    left: 0,
+    padding: theme.spacing(1),
     position: 'absolute',
     transition: 'top 0.15s ease-out'
   },
