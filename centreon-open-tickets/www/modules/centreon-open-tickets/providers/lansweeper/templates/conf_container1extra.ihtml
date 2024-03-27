@@ -1,0 +1,61 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.Lansweeper}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.address.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.api_path.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.api_path.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.port.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.port.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.api_key.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.api_key.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.protocol.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.protocol.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.timeout.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.timeout.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.mappingTicket.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
+</tr>
