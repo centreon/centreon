@@ -79,6 +79,13 @@ interface WriteResourceAccessRepositoryInterface
     ): int;
 
     /**
+     * @param int $datasetId
+     * @param string $access (possible values: all_hostgroups, all_servicegroups, all_hosts)
+     * @param bool $full
+     */
+    public function updateDatasetAccess(int $datasetId, string $access, bool $full): void;
+
+    /**
      * @param int $ruleId
      * @param int $datasetId
      */

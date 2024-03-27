@@ -43,7 +43,7 @@ class DatasetFilterValidator
             throw new \InvalidArgumentException('You must add at least one dataset filter type provider');
         }
 
-        // Add special cases
+        // Add special case of all resources filter type
         $this->hiearchy[self::ALL_RESOURCES_FILTER] = [];
     }
 
