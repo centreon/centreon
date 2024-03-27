@@ -22,7 +22,7 @@ The main usage is to set the following environment variables :
 ## Global setup script (optional)
 
 A script `setup.sh` can be added at the same level as the postman collection.
-It is run on the host machine once web container is started and healthy (before the postman collection is run).
+It is run on the host machine once the web container is started and healthy (before the postman collection is run).
 Usage example: `docker compose -f $(dirname $0)/../../../../../.github/docker/docker-compose.yml cp $(dirname $0)/images/my_image.png web:/usr/share/centreon/www/img/media/my_image.png` to copy image in web container
 
 ## Docker container web setup script (optional)
