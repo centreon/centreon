@@ -244,7 +244,7 @@
         {if $o == "mc"}
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_notifopt_timeperiod.label}</td><td class="FormRowValue">{$form.mc_mod_notifopt_timeperiod.html}</td></tr>
         {/if}
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="notification_period"> {$form.timeperiod_tp_id2.label}</td><td class="FormRowValue">{$form.timeperiod_tp_id2.html}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="notification_period"> {$form.service_timeperiod_tp_id2.label}</td><td class="FormRowValue">{$form.service_timeperiod_tp_id2.html}</td></tr>
         {if $o == "mc"}
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_notifopts.label}</td><td class="FormRowValue">{$form.mc_mod_notifopts.html}</td></tr>
         {/if}
