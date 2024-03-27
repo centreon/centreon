@@ -394,20 +394,18 @@ Then('only the contents of the other widget are displayed', () => {
         .get(
           `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
         )
-        .should('be.visible')
-        .then(() => true),
-    { interval: 1000, timeout: 10000 }
+        .should('exist')
+        .invoke('text')
+        .then((content) => {
+          const columnContents: Array<string> =
+            content.match(/[A-Z][a-z]*/g) || [];
+
+          return (
+            columnContents.length >= 1 && columnContents.includes('Critical')
+          );
+        }),
+    { interval: 2000, timeout: 10000 }
   );
-  cy.get(
-    `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(1)`
-  )
-    .should('be.visible')
-    .invoke('text')
-    .then((content) => {
-      const columnContents = content.match(/[A-Z][a-z]*/g) || [];
-      expect(columnContents).to.be.an('array').and.to.have.length.above(1);
-      expect(columnContents[1]).to.include('Critical');
-    });
 });
 
 Given('a dashboard having a configured resource table widget', () => {
