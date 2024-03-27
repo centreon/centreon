@@ -36,9 +36,9 @@ class Dashboard
     public const MAX_DESCRIPTION_LENGTH = 65535;
     public const MIN_DESCRIPTION_LENGTH = 1;
 
-    private string $name = '';
-
     protected ?string $description = null;
+
+    private string $name = '';
 
     /**
      * @param int $id
