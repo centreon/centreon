@@ -1040,7 +1040,9 @@ sub action_servicediscoverylistener {
         %options
     );
 
-    if ($self->{service_discoveries}->{ $uuid }->is_finished()) {
+    if (defined($self->{service_discoveries}->{ $uuid }) && $self->{service_discoveries}->{ $uuid }->is_finished()) {
+        return 0 if ($self->{service_discoveries}->{ $uuid }->is_post_execution());
+        $self->{service_discoveries}->{ $uuid }->service_discovery_post_exec();
         delete $self->{service_discoveries}->{ $uuid };
     }
 }
@@ -1060,8 +1062,11 @@ sub action_launchservicediscovery {
         config_core => $self->{config_core},
         service_number => $self->{service_number},
         class_object_centreon => $self->{class_object_centreon},
-        class_object_centstorage => $self->{class_object_centstorage}
+        class_object_centstorage => $self->{class_object_centstorage},
+        class_autodiscovery => $self
     );
+
+    $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
     my $status = $svc_discovery->launchdiscovery(
         token => $options{token},
         frame => $options{frame}
@@ -1072,8 +1077,7 @@ sub action_launchservicediscovery {
             token => $options{token},
             data => { message => 'cannot launch discovery' }
         );
-    } elsif ($status == 0) {
-        $self->{service_discoveries}->{ $svc_discovery->get_uuid() } = $svc_discovery;
+        delete $self->{service_discoveries}->{ $svc_discovery->get_uuid() };
     }
 }
 
