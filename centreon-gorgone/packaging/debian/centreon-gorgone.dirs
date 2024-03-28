@@ -1,4 +1,5 @@
 etc/centreon-gorgone/config.d
+etc/centreon-gorgone/config.d/whitelist.conf.d
 etc/centreon-gorgone/config.d/cron.d
 var/cache/centreon-gorgone
 var/cache/centreon-gorgone/autodiscovery
