@@ -202,12 +202,7 @@ Given('the dashboard administrator redirected to dashboard interface', () => {
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardCreatorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -290,12 +285,7 @@ Then('the dashboard administrator save the dashboard', () => {
 Given('the dashboard administrator redirected to dashboard screen', () => {
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardCreatorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
 });
 
 When(
@@ -361,12 +351,7 @@ Then('the new widget positions must be saved', () => {
 Given('the dashboard administrator is now on the dashboard interface', () => {
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.fromDashboardCreatorUser.name)
-    .click();
+  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
 });
 
 When(
