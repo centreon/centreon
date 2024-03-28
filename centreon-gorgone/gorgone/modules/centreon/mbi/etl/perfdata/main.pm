@@ -178,7 +178,7 @@ sub purgeTables {
       
         if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne "day" && 
             (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0) && 
-            (!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0)) {
+            (!defined($etl->{run}->{options}->{centile_only}) || $etl->{run}->{options}->{centile_only} == 0)) {
             emptyTableForRebuild($etl, name => 'mod_bi_metrichourlyvalue', column => 'time_id', start => $hourly_start, end => $hourly_end);
         }
     }
