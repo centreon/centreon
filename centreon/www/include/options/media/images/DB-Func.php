@@ -174,34 +174,42 @@ function deleteImg($imageId)
     global $pearDB;
 
     $mediadir = "./img/media/";
-
-    $query = "SELECT dir_alias, img_path
+    try {
+        $pearDB->beginTransaction();
+        $query = "SELECT dir_alias, img_path
           FROM view_img, view_img_dir, view_img_dir_relation
           WHERE img_id = :imageId
           AND img_id = img_img_id
           AND dir_dir_parent_id = dir_id";
 
-    $dbResult = $pearDB->prepare($query);
-    $dbResult->bindParam(':imageId', $imageId, PDO::PARAM_INT);
-    $dbResult->execute();
-    while ($imagePath = $dbResult->fetch()) {
-        $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
-        if (is_file($fullpath)) {
-            unlink($fullpath);
-        }
-        $query1 = "DELETE FROM view_img WHERE img_id = :imageId";
-        $statement1 = $pearDB->prepare($query1);
-        $statement1->bindParam(':imageId', $imageId, PDO::PARAM_INT);
-        $statement1->execute();
-        $statement1->closeCursor();
+        $dbResult = $pearDB->prepare($query);
+        $dbResult->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+        $dbResult->execute();
+        while ($imagePath = $dbResult->fetch()) {
+            $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
+            if (is_file($fullpath)) {
+                unlink($fullpath);
+            }
+            $deleteQuery  = "DELETE FROM view_img WHERE img_id = :imageId";
+            $deleteStatement = $pearDB->prepare($deleteQuery);
+            $deleteStatement->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+            $deleteStatement->execute();
 
-        $query2 = "DELETE FROM view_img_dir_relation WHERE img_img_id = :imageId";
-        $statement2 = $pearDB->prepare($query2);
-        $statement2->bindParam(':imageId', $imageId, PDO::PARAM_INT);
-        $statement2->execute();
-        $statement2->closeCursor();
+            $deleteRelationQuery = "DELETE FROM view_img_dir_relation WHERE img_img_id = :imageId";
+            $deleteRelationStatement = $pearDB->prepare($deleteRelationQuery);
+            $deleteRelationStatement->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+            $deleteRelationStatement->execute();
+            $deleteRelationStatement->closeCursor();
+        }
+        $pearDB->commit();
+    } catch (PDOException $e) {
+        $pearDB->rollBack();
+        echo "Error: " . $e->getMessage();
+    } finally {
+        $dbResult->closeCursor();
+        $deleteStatement->closeCursor();
+        $deleteRelationStatement->closeCursor();
     }
-    $dbResult->closeCursor();
 }
 
 function moveMultImg($images, $dirName)
