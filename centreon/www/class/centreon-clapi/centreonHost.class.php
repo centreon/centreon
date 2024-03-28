@@ -1143,6 +1143,7 @@ class CentreonHost extends CentreonObject
         if (!$this->register) {
             throw new CentreonClapiException(self::UNKNOWN_METHOD);
         }
+        $hostName = substr($hostName, 0, strpos($hostName, ';'));
         if (($hostId = $this->getObjectId($hostName)) == 0) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $hostName);
         }
