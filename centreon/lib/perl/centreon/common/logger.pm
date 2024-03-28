@@ -1,33 +1,33 @@
 ################################################################################
-# Copyright 2005-2013 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2024 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give Centreon 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of Centreon choice, provided that 
-# Centreon also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give Centreon
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of Centreon choice, provided that
+# Centreon also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 #
 ####################################################################################
 
@@ -112,7 +112,7 @@ sub file_mode($$) {
 
 sub is_file_mode {
     my $self = shift;
-    
+
     if ($self->{log_mode} == 1) {
         return 1;
     }
@@ -121,7 +121,7 @@ sub is_file_mode {
 
 sub is_debug {
     my $self = shift;
-    
+
     if (($self->{severity} & 4) == 0) {
         return 0;
     }
@@ -188,7 +188,7 @@ sub withpid {
 sub get_date {
     my $self = shift;
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
-    return sprintf("%04d-%02d-%02d %02d:%02d:%02d", 
+    return sprintf("%04d-%02d-%02d %02d:%02d:%02d",
                    $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
@@ -197,14 +197,14 @@ sub writeLog {
 
     my $withdate = (defined $options{withdate}) ? $options{withdate} : 1;
     my $withseverity = (defined $options{withseverity}) ? $options{withseverity} : 1;
-    
+
     my $msg = $options{message};
     $msg = ($self->{withpid} == 1) ? "$$ - $msg " : $msg;
-    my $newmsg = ($withseverity) 
+    my $newmsg = ($withseverity)
       ? $options{severity_str} . " - $msg" : $msg;
-    $newmsg = ($withdate) 
+    $newmsg = ($withdate)
       ? $self->get_date . " - $newmsg" : $newmsg;
-    
+
 
     if (($self->{severity} & $options{severity}) == 0) {
         return;
@@ -224,25 +224,25 @@ sub writeLog {
 
 sub writeLogDebug {
     my ($self, $msg) = @_;
-    
+
     $self->writeLog(severity => 4, severity_str => 'DEBUG', message => $msg);
 }
 
 sub writeLogInfo {
     my ($self, $msg) = @_;
-    
+
     $self->writeLog(severity => 2, severity_str => 'INFO', message => $msg);
 }
 
 sub writeLogError {
     my ($self, $msg) = @_;
-    
+
     $self->writeLog(severity => 1, severity_str => 'ERROR', message => $msg);
 }
 
 sub DESTROY {
     my $self = shift;
-    
+
     if (defined $self->{filehandler}) {
         $self->{filehandler}->close();
     }

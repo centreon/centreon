@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -87,11 +87,11 @@ sub insert {
 	my $query = "INSERT INTO `mod_bi_servicecategories`".
 				" (`sc_id`, `sc_name`)".
 				" VALUES (?,?)";
-	my $sth = $db->prepare($query);	
+	my $sth = $db->prepare($query);
 	my $inst = $db->getInstance;
 	$inst->begin_work;
 	my $counter = 0;
-	
+
 	my $existingEntries = $self->getAllEntries;
 	foreach (@$data) {
 		if (!$self->entryExists($_, $existingEntries)) {
@@ -119,7 +119,7 @@ sub insert {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "TRUNCATE TABLE `mod_bi_servicecategories`";
 	$db->query({ query => $query });
 	$db->query({ query => "ALTER TABLE `mod_bi_servicecategories` AUTO_INCREMENT=1" });

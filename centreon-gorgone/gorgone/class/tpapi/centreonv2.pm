@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -238,7 +238,7 @@ sub get_monitoring_hosts {
     if (defined($options{search})) {
         $get_param = ['search=' . $options{search}];
     }
-    
+
     return $self->request(
         method => 'GET',
         endpoint => $endpoint,
@@ -253,7 +253,7 @@ sub get_platform_versions {
     return $self->request(
         method => 'GET',
         endpoint => '/platform/versions'
-    );    
+    );
 }
 
 sub get_scheduling_jobs {

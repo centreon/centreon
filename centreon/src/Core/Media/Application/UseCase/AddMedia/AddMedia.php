@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ final class AddMedia
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
-    
+
     /**
      * @param string $mimeType
      */
@@ -98,7 +98,7 @@ final class AddMedia
             $this->fileExtensionsAllowed[] = $oneMimeType;
         }
     }
-    
+
     private function addMimeTypeFilter(string ...$mimeTypes): void
     {
         foreach ($mimeTypes as $mimeType) {

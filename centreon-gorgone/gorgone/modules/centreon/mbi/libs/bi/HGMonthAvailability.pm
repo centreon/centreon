@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -68,7 +68,7 @@ sub insertStats {
 	my $counter = 0;
     my $query = $query_start;
     my $append = '';
-	
+
 	foreach my $entry (@$data) {
 		my $size = scalar(@$entry);
         $query .= $append . "($time_id";

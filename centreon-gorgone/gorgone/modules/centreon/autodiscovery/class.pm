@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -70,7 +70,7 @@ sub new {
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
     $connector->{tpapi_clapi_name} = defined($options{config}->{tpapi_clapi}) && $options{config}->{tpapi_clapi} ne '' ? $options{config}->{tpapi_clapi} : 'clapi';
-    $connector->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ? 
+    $connector->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ?
         $options{config}->{tpapi_centreonv2} : 'centreonv2';
 
     $connector->{is_module_installed} = 0;
@@ -145,7 +145,7 @@ sub hdisco_is_running_job {
 sub hdisco_add_cron {
     my ($self, %options) = @_;
 
-    if (!defined($options{job}->{execution}->{parameters}->{cron_definition}) || 
+    if (!defined($options{job}->{execution}->{parameters}->{cron_definition}) ||
         $options{job}->{execution}->{parameters}->{cron_definition} eq '') {
         return (1, "missing 'cron_definition' parameter");
     }
@@ -207,7 +207,7 @@ sub hdisco_addupdate_job {
     # cron changed: we remove old definition
     # right now: can be immediate or schedule (not both)
     if ($update == 1 &&
-        ($self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE || 
+        ($self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{execution}->{mode} == EXECUTION_MODE_IMMEDIATE ||
          (defined($self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{execution}->{parameters}->{cron_definition}) &&
           defined($options{job}->{execution}->{parameters}->{cron_definition}) &&
           $self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{execution}->{parameters}->{cron_definition} ne $options{job}->{execution}->{parameters}->{cron_definition}
@@ -230,7 +230,7 @@ sub hdisco_addupdate_job {
                 { id => $options{job}->{job_id} }
             ]
         ) == -1) {
-            return (1, 'cannot add discovery token'); 
+            return (1, 'cannot add discovery token');
         }
 
         $self->{hdisco_jobs_ids}->{ $options{job}->{job_id} }->{token} = $discovery_token;
@@ -332,7 +332,7 @@ sub hdisco_delete_cron {
     $self->send_internal_action({
         action => 'DELETECRON',
         token => $options{token},
-        data => {   
+        data => {
             variables => [ $options{discovery_token} ]
         }
     });
@@ -421,13 +421,13 @@ sub action_addhostdiscoveryjob {
             message => 'job ' . $data->{content}->{job_id} . ' added'
         }
     );
-    
+
     return 0;
 }
 
 sub launchhostdiscovery {
     my ($self, %options) = @_;
-    
+
     return (1, 'host discovery sync not done') if (!$self->is_hdisco_synced());
 
     my $job_id = $options{job_id};
@@ -796,7 +796,7 @@ sub discovery_command_result {
             }
         });
     }
-    
+
     $self->{logger}->writeLogDebug("[autodiscovery] -class- host discovery - finished discovery command job '$job_id'");
     $self->update_job_status(
         job_id => $job_id,
@@ -829,7 +829,7 @@ sub action_deletehostdiscoveryjob {
     my $data = $options{frame}->getData();
 
     my $discovery_token = $data->{variables}->[0];
-    my $job_id = (defined($discovery_token) && defined($self->{hdisco_jobs_tokens}->{$discovery_token})) ? 
+    my $job_id = (defined($discovery_token) && defined($self->{hdisco_jobs_tokens}->{$discovery_token})) ?
         $self->{hdisco_jobs_tokens}->{$discovery_token} : undef;
     if (!defined($discovery_token) || $discovery_token eq '') {
         $self->{logger}->writeLogError("[autodiscovery] -class- host discovery - missing ':token' variable to delete discovery");
@@ -871,7 +871,7 @@ sub action_deletehostdiscoveryjob {
         token => $options{token},
         data => { message => 'job ' . $discovery_token . ' deleted' }
     );
-    
+
     return 0;
 }
 
@@ -897,7 +897,7 @@ sub update_job_information {
 
     return 1 if (!defined($options{where_clause}) || ref($options{where_clause}) ne 'ARRAY' || scalar($options{where_clause}) < 1);
     return 1 if (!defined($options{values}) || ref($options{values}) ne 'HASH' || !keys %{$options{values}});
-    
+
     my $query = "UPDATE mod_host_disco_job SET ";
     my @bind_values = ();
     my $append = '';
@@ -935,12 +935,12 @@ sub action_hostdiscoveryjoblistener {
     my $data = $options{frame}->getData();
 
     my $job_id = $self->{hdisco_jobs_tokens}->{ $options{token} };
-    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
+    if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT &&
         $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-discovery') {
         $self->discovery_command_result(%options);
         return 1;
     }
-    #if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT && 
+    #if ($data->{code} == GORGONE_MODULE_ACTION_COMMAND_RESULT &&
     #    $data->{data}->{metadata}->{source} eq 'autodiscovery-host-job-postcommand') {
     #    $self->discovery_postcommand_result(%options);
     #    return 1;
@@ -1171,7 +1171,7 @@ sub run {
         force => 2,
         logger => $self->{logger}
     );
-    
+
     $self->{class_object_centreon} = gorgone::class::sqlquery->new(
         logger => $self->{logger},
         db_centreon => $self->{db_centreon}

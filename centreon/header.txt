@@ -1,9 +1,9 @@
 
-For GPL V2 PHP Files 
+For GPL V2 PHP Files
 --------------------
 
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -33,15 +33,15 @@ For GPL V2 PHP Files
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- * 
+ *
  */
 
 For Apache 2 PHP Files
 ----------------------
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
- * 
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -58,12 +58,12 @@ For Apache 2 PHP Files
  *
  */
 
-For Apache 2 Perl files 
+For Apache 2 Perl files
 -----------------------
 
 #
-# Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
-# 
+# Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at

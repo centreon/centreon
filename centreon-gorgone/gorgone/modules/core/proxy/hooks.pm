@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -42,7 +42,7 @@ $Archive::Tar::SAME_PERMISSIONS = 1;
 $Archive::Tar::WARN = 0;
 
 =begin comment
-for each proxy processus, we have: 
+for each proxy processus, we have:
     one control channel (DEALER identity: gorgone-proxy-$poolid)
     one channel by client (DEALER identity: gorgone-proxy-channel-$nodeid)
 =cut
@@ -74,7 +74,7 @@ my $synctime_option;
 my $synctimeout_option;
 my $ping_interval;
 
-my $last_pong = {}; 
+my $last_pong = {};
 my $register_nodes = {};
 # With static routes we have a pathscore. Dynamic no pathscore.
 # Dynamic comes from PONG result
@@ -236,7 +236,7 @@ sub routing {
         });
         return ;
     }
-    
+
     if ($options{action} eq 'GETLOG') {
         if (defined($register_nodes->{$target_parent}) && $register_nodes->{$target_parent}->{type} eq 'push_ssh') {
             gorgone::standard::library::add_history({
@@ -269,7 +269,7 @@ sub routing {
                 return undef;
             }
 
-            # We put the good time to get        
+            # We put the good time to get
             my $ctime = $synctime_nodes->{$target}->{ctime};
             $options{frame}->setData({ ctime => $ctime });
             $options{frame}->setRawData();
@@ -404,7 +404,7 @@ sub check {
 
         # Not me
         next if (!defined($pools_pid->{$pid}));
-        
+
         # If someone dead, we recreate
         my $pool_id = $pools_pid->{$pid};
         delete $pools->{$pools_pid->{$pid}};
@@ -422,7 +422,7 @@ sub check {
         $count++  if ($pools->{$_}->{running} == 1);
     }
 
-    # We check synclog/ping/ping request timeout 
+    # We check synclog/ping/ping request timeout
     foreach (keys %$synctime_nodes) {
         if ($register_nodes->{$_}->{type} =~ /^(?:pull|wss|pullwss)$/ && $constatus_ping->{$_}->{in_progress_ping} == 1) {
             my $ping_timeout = defined($register_nodes->{$_}->{ping_timeout}) ? $register_nodes->{$_}->{ping_timeout} : 30;
@@ -451,7 +451,7 @@ sub check {
             }
         }
 
-        if ($synctime_nodes->{$_}->{in_progress} == 1 && 
+        if ($synctime_nodes->{$_}->{in_progress} == 1 &&
             time() - $synctime_nodes->{$_}->{in_progress_time} > $synctimeout_option) {
             gorgone::standard::library::add_history({
                 dbh => $options{dbh},
@@ -469,7 +469,7 @@ sub check {
         $synctime_lasttime = time();
         full_sync_history(gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
     }
-    
+
     if ($stop == 0) {
         ping_send(gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
     }
@@ -627,8 +627,8 @@ sub setlogs {
         }
         $status = gorgone::standard::library::add_history({
             dbh => $options{dbh},
-            etime => $_->{etime}, 
-            code => $_->{code}, 
+            etime => $_->{etime},
+            code => $_->{code},
             token => $_->{token},
             instant => $_->{instant},
             data => $_->{data}
@@ -641,7 +641,7 @@ sub setlogs {
         return -1 if ($status == -1);
         $options{dbh}->transaction_mode(0);
 
-        $synctime_nodes->{ $options{data}->{data}->{id} }->{ctime} = $ctime_recent if ($ctime_recent != 0); 
+        $synctime_nodes->{ $options{data}->{data}->{id} }->{ctime} = $ctime_recent if ($ctime_recent != 0);
     } else {
         $options{dbh}->rollback();
         $options{dbh}->transaction_mode(0);
@@ -697,7 +697,7 @@ sub synclog {
 
 sub full_sync_history {
     my (%options) = @_;
-    
+
     foreach my $id (keys %{$register_nodes}) {
         if ($register_nodes->{$id}->{type} eq 'push_zmq') {
             routing(action => 'GETLOG', target => $id, frame => gorgone::class::frame->new(data => {}), gorgone => $options{gorgone}, dbh => $options{dbh}, logger => $options{logger});
@@ -709,7 +709,7 @@ sub full_sync_history {
 
 sub update_sync_time {
     my (%options) = @_;
-    
+
     # Nothing to update (no insert before)
     return 0 if ($options{ctime} == 0);
 
@@ -726,7 +726,7 @@ sub get_sync_time {
 
     my ($status, $sth) = $options{dbh}->query({ query => "SELECT * FROM gorgone_synchistory WHERE id = '" . $options{node_id} . "'" });
     if ($status == -1) {
-        $synctime_nodes->{$options{node_id}}->{synctime_error} = -1; 
+        $synctime_nodes->{$options{node_id}}->{synctime_error} = -1;
         return -1;
     }
 
@@ -915,7 +915,7 @@ sub unregister_nodes {
     }
 }
 
-# It comes from PONG result. 
+# It comes from PONG result.
 sub register_subnodes {
     my (%options) = @_;
 

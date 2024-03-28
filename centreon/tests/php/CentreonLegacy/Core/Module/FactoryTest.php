@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016 Centreon
+ * Copyright 2016 - 2024 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,31 +72,31 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $this->container->terminate();
         $this->container = null;
     }
-    
+
     public function testNewInformation()
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Information::class, $factory->newInformation());
     }
-    
+
     public function testNewInstaller()
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Installer::class, $factory->newInstaller('MyModule'));
     }
-    
+
     public function testNewUpgrader()
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Upgrader::class, $factory->newUpgrader('MyModule', 1));
     }
-    
+
     public function testNewRemover()
     {
         $factory = new Module\Factory($this->container);
         $this->assertInstanceOf(Module\Remover::class, $factory->newRemover('MyModule', 1));
     }
-    
+
     public function testNewLicense()
     {
         $factory = new Module\Factory($this->container);

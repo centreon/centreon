@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -35,7 +35,7 @@ sub metrics {
         services_count => 0,
         hostgroups_count => 0,
         servicegroups_count => 0,
-        acl_count => 0 
+        acl_count => 0
     };
 
     my ($status, $datas) = $options{centstorage_sqlquery}->custom_execute(

@@ -1,33 +1,33 @@
 ################################################################################
-# Copyright 2005-2019 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2024 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give Centreon 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of Centreon choice, provided that 
-# Centreon also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give Centreon
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of Centreon choice, provided that
+# Centreon also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 #
 ####################################################################################
 
@@ -69,7 +69,7 @@ sub new {
         "p=s" => \$self->{opt_p}, "poller" => \$self->{opt_p},
         "s=s" => \$self->{opt_s}, "startdate=s" => \$self->{opt_s}
     );
-    
+
     $self->{msg_type5_disabled} = 0;
     $self->{queries_per_transaction} = 500;
 
@@ -84,9 +84,9 @@ sub new {
 sub getPollerId {
     my ($self, $instance_name) = @_;
 
-    my ($status, $sth) = $self->{cdb}->query("SELECT id 
-        FROM nagios_server 
-        WHERE name = " . $self->{cdb}->quote($instance_name) . " 
+    my ($status, $sth) = $self->{cdb}->query("SELECT id
+        FROM nagios_server
+        WHERE name = " . $self->{cdb}->quote($instance_name) . "
         AND ns_activate = '1' LIMIT 1");
     if ($status == -1) {
         $self->{logger}->writeLogError("Can't get poller id");
@@ -231,10 +231,10 @@ sub parseArchive {
 
     if ($poller->{localhost}) {
         ($status, $sth) = $self->{cdb}->query("SELECT `log_file`
-            FROM `cfg_nagios`, `nagios_server` 
-            WHERE `nagios_server_id` = '$instance' 
-                AND `nagios_server`.`id` = `cfg_nagios`.`nagios_server_id` 
-                AND `nagios_server`.`ns_activate` = '1' 
+            FROM `cfg_nagios`, `nagios_server`
+            WHERE `nagios_server_id` = '$instance'
+                AND `nagios_server`.`id` = `cfg_nagios`.`nagios_server_id`
+                AND `nagios_server`.`ns_activate` = '1'
                 AND `cfg_nagios`.`nagios_activate` = '1' LIMIT 1");
         if ($status == -1) {
             $self->{logger}->writeLogError("Can't get information on poller");
@@ -310,9 +310,9 @@ sub run {
         $filter_instance = "ns_host_relation.nagios_server_id = '$instance_id' AND";
     }
 
-    my ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_id, host.host_name 
-        FROM host, ns_host_relation 
-        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id 
+    my ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_id, host.host_name
+        FROM host, ns_host_relation
+        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id
         AND host.host_activate = '1'");
     if ($status == -1) {
         $self->{logger}->writeLogError("Can't get host cache");
@@ -322,11 +322,11 @@ sub run {
         $self->{cache_host}{$tmp_cache->{'host_name'}} = $tmp_cache->{'host_id'};
     }
 
-    ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_name, host.host_id, service.service_id, service.service_description 
-        FROM host, host_service_relation, service, ns_host_relation 
-        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id 
-        AND host.host_id = host_service_relation.host_host_id 
-        AND host_service_relation.service_service_id = service.service_id 
+    ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_name, host.host_id, service.service_id, service.service_description
+        FROM host, host_service_relation, service, ns_host_relation
+        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id
+        AND host.host_id = host_service_relation.host_host_id
+        AND host_service_relation.service_service_id = service.service_id
         AND service.service_activate = '1'");
     if ($status == -1) {
         $self->{logger}->writeLogError("Can't get service cache");
@@ -336,12 +336,12 @@ sub run {
         $self->{cache_host_service}{$tmp_cache->{'host_name'} . ':' . $tmp_cache->{'service_description'}} = {'host_id' =>  $tmp_cache->{'host_id'}, 'service_id' =>  $tmp_cache->{'service_id'}};
     }
 
-    ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_name, host.host_id, service.service_id, service.service_description 
-        FROM host, host_service_relation, hostgroup_relation, service, ns_host_relation 
-        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id 
-        AND host.host_id = hostgroup_relation.host_host_id 
-        AND hostgroup_relation.hostgroup_hg_id = host_service_relation.hostgroup_hg_id 
-        AND host_service_relation.service_service_id = service.service_id 
+    ($status, $sth_cache) = $self->{cdb}->query("SELECT host.host_name, host.host_id, service.service_id, service.service_description
+        FROM host, host_service_relation, hostgroup_relation, service, ns_host_relation
+        WHERE $filter_instance ns_host_relation.host_host_id = host.host_id
+        AND host.host_id = hostgroup_relation.host_host_id
+        AND hostgroup_relation.hostgroup_hg_id = host_service_relation.hostgroup_hg_id
+        AND host_service_relation.service_service_id = service.service_id
         AND service.service_activate = '1'");
     if ($status == -1) {
         $self->{logger}->writeLogError("Can't get service by hostgroup cache");
@@ -357,9 +357,9 @@ sub run {
 	    $self->{logger}->writeLogInfo("Processing poller $self->{opt_p}");
 
         $self->{logger}->writeLogInfo("Purging data");
-        $self->{csdb}->query("DELETE FROM `logs` 
-            WHERE `ctime` >= $self->{retention_time} 
-            AND `ctime` < $self->{current_time} 
+        $self->{csdb}->query("DELETE FROM `logs`
+            WHERE `ctime` >= $self->{retention_time}
+            AND `ctime` < $self->{current_time}
             AND instance_name = " . $self->{csdb}->quote($self->{opt_p}));
         $self->{logger}->writeLogInfo("Purge completed");
 
@@ -376,12 +376,12 @@ sub run {
                 $self->{logger}->writeLogInfo("Processing poller $ns_server->{'name'}");
 
                 $self->{logger}->writeLogInfo("Purging data");
-                $self->{csdb}->query("DELETE FROM `logs` 
-                    WHERE `ctime` >= $self->{retention_time} 
-                    AND `ctime` < $self->{current_time} 
+                $self->{csdb}->query("DELETE FROM `logs`
+                    WHERE `ctime` >= $self->{retention_time}
+                    AND `ctime` < $self->{current_time}
                     AND instance_name = " . $self->{csdb}->quote($ns_server->{'name'}));
                 $self->{logger}->writeLogInfo("Purging completed");
-                
+
                 $self->{counter} = 0;
                 $self->{logger}->writeLogInfo("Importing data");
                 $self->parseArchive($ns_server->{'id'});

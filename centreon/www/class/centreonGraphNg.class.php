@@ -1,8 +1,8 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -1111,7 +1111,7 @@ class CentreonGraphNg
             $minimumValue = null;
             $maximumValue = null;
             $averageValue = null;
-            $isCurveInverted = (int) $this->metrics[$metric['metric_id']]['ds_data']['ds_invert'] === 1; 
+            $isCurveInverted = (int) $this->metrics[$metric['metric_id']]['ds_data']['ds_invert'] === 1;
 
             for (; $gprintsPos < $gprintsSize; $gprintsPos++) {
                 if (isset($rrdData['meta']['gprints'][$gprintsPos]['line'])) {

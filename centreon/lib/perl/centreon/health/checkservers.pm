@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -97,12 +97,12 @@ sub get_servers_informations {
             $self->{output}->{poller}{$row->{instance_id}}{version} = $row->{version};
         }
 
-        $sth = $options{csdb}->query("SELECT stat_key, stat_value, stat_label 
+        $sth = $options{csdb}->query("SELECT stat_key, stat_value, stat_label
                                       FROM nagios_stats
                                       WHERE instance_id = " . $options{cdb}->quote($id) . "");
 
         while (my $row = $sth->fetchrow_hashref()) {
-	        $self->{output}->{poller}->{$id}->{engine_stats}->{$row->{stat_label}}->{$row->{stat_key}} = $row->{stat_value}; 
+	        $self->{output}->{poller}->{$id}->{engine_stats}->{$row->{stat_label}}->{$row->{stat_key}} = $row->{stat_value};
         }
 
         $self->{output}->{global}->{hosts_by_poller_avg} = ($self->{output}->{global}->{count_poller} != 0) ? $self->{output}->{global}->{count_hosts} / $self->{output}->{global}->{count_poller} : '0';
@@ -111,7 +111,7 @@ sub get_servers_informations {
         $self->{output}->{global}->{metrics_by_service_avg} = ($self->{output}->{global}->{count_services} != 0) ? $self->{output}->{global}->{count_metrics} / $self->{output}->{global}->{count_services} : '0';
     }
 }
-     
+
 
 sub run {
     my $self = shift;

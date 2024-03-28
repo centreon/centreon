@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -41,7 +41,7 @@ sub new {
 	$self->{tmpTable} = "mod_bi_tmp_servicemetrics";
 	$self->{CRC32} = "mod_bi_tmp_servicemetrics_crc32";
 	$self->{table} = "mod_bi_servicemetrics";
-	
+
 	bless $self, $class;
 	return $self;
 }
@@ -61,7 +61,7 @@ sub update {
 	my ($self,$useMemory) = @_;
 
 	my $db = $self->{centstorage};
-	
+
 	$self->createTempTable($useMemory);
     $self->insertMetricsIntoTable($self->{tmpTable});
 	$self->createCRC32Table();
@@ -111,7 +111,7 @@ sub createTempTable {
 sub createCRC32Table {
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"CRC32"}."`" });
 	my $query = "CREATE TABLE `".$self->{"CRC32"}."`  CHARSET=utf8 COLLATE=utf8_general_ci";
 	$query .= " SELECT `id`, CRC32(CONCAT_WS('-', COALESCE(metric_id, '?'),";
@@ -150,7 +150,7 @@ sub insertNewEntries {
 sub createTodayTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `" . $self->{"today_table"} . "` (";
 	$query .= "`id` INT NOT NULL,";
@@ -190,7 +190,7 @@ sub insertTodayEntries {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "TRUNCATE TABLE `".$self->{"table"}."`";
 	$db->query({ query => $query });
 	$db->query({ query => "ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1" });

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -142,7 +142,7 @@ sub action_centcore {
     my $time = Time::HiRes::time();
     $time =~ s/\.//g;
     $centcore_cmd .= $time . '.cmd';
-    
+
     my $data = $options{data}->{content}->{command} . ':' . $options{data}->{content}->{target};
     $data .= ':' . $options{data}->{content}->{param} if (defined($options{data}->{content}->{param}) && $options{data}->{content}->{param} ne '');
     chomp $data;
@@ -193,7 +193,7 @@ sub action_command {
 
     my $errors = 0;
     my $results;
-    
+
     push @{$results}, {
         code => GORGONE_ACTION_BEGIN,
         data => {
@@ -227,7 +227,7 @@ sub action_command {
         } else {
             my $timeout = defined($command->{timeout}) && $command->{timeout} =~ /(\d+)/ ? $1 : 60;
             my $timeout_nodata = defined($command->{timeout_nodata}) && $command->{timeout_nodata} =~ /(\d+)/ ? $1 : 30;
-            
+
             my $start = time();
             my $ret = $self->execute_simple(
                 cmd => $command->{command},
@@ -350,7 +350,7 @@ sub action_enginecommand {
             $self->{logger}->writeLogError("[sshclient] Cannot open command file '$command_file'");
             return (-1, { message => "cannot open command file '$command_file'", error => $self->{sftp}->error() });
         }
-    
+
         push @{$results}, {
             code => GORGONE_ACTION_BEGIN,
             data => {
@@ -434,7 +434,7 @@ sub action_processcopy {
             data => {
                 message => 'process copy inprogress'
             }
-        }]);        
+        }]);
     }
     if ($options{data}->{content}->{status} eq 'end') {
         my $copy_file = $options{data}->{content}->{cache_dir} . '/copy_' . $options{token};
@@ -465,7 +465,7 @@ sub action_processcopy {
 
 sub action_remotecopy {
     my ($self, %options) = @_;
-    
+
     if (!defined($options{data}->{content}->{source}) || $options{data}->{content}->{source} eq '') {
         $self->{logger}->writeLogError('[sshclient] Action remote copy - need source');
         return (-1, { message => 'please set source' });
@@ -484,7 +484,7 @@ sub action_remotecopy {
     if ($options{target_direct} == 0) {
         $dst = $src;
         $dst_sftp = $src;
-    }    
+    }
 
     if (-f $options{data}->{content}->{source}) {
         $localsrc = $src;
@@ -492,7 +492,7 @@ sub action_remotecopy {
         $dst_sftp .= $srcname if ($dst =~ /\/$/);
     } elsif (-d $options{data}->{content}->{source}) {
         $srcname = (defined($options{data}->{content}->{type}) ? $options{data}->{content}->{type} : 'tmp') . '-' . $options{target} . '.tar.gz';
-        $localsrc = $options{data}->{content}->{cache_dir} . '/' . $srcname; 
+        $localsrc = $options{data}->{content}->{cache_dir} . '/' . $srcname;
         $dst_sftp = $options{data}->{content}->{cache_dir} . '/' . $srcname;
 
         ($code, $message) = $self->local_command(command => "tar czf $localsrc -C '" . $src . "' .");
@@ -548,7 +548,7 @@ sub action {
 
 sub close {
     my ($self, %options) = @_;
-    
+
     $self->disconnect();
 }
 

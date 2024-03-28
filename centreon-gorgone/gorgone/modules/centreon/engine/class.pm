@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -37,9 +37,9 @@ sub new {
     my ($class, %options) = @_;
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
-    
+
     $connector->{timeout} = defined($connector->{config}->{timeout}) ? $connector->{config}->{timeout} : 5;
-    
+
     $connector->set_signal_handlers;
     return $connector;
 }
@@ -109,7 +109,7 @@ sub action_enginecommand {
             }
         );
         return -1;
-    }    
+    }
     if (! -e $command_file) {
         $self->{logger}->writeLogError("[engine] Command file '$command_file' must exist");
         $self->send_log(
@@ -155,7 +155,7 @@ sub action_enginecommand {
         local $SIG{ALRM} = sub { die 'Timeout command' };
         alarm $self->{timeout};
         open($fh, ">", $command_file) or die "cannot open '$command_file': $!";
-        
+
         foreach my $command (@{$options{data}->{content}->{commands}}) {
             $self->{logger}->writeLogInfo("[engine] Processing external command '" . $command . "'");
             print $fh $command . "\n";
@@ -188,7 +188,7 @@ sub action_enginecommand {
         );
         return -1
     }
-    
+
     $self->send_log(
         socket => $options{socket_log},
         code => GORGONE_ACTION_FINISH_OK,
@@ -238,13 +238,13 @@ sub action_run {
 
 sub create_child {
     my ($self, %options) = @_;
-    
+
     $options{message} =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-    
+
     my ($action, $token) = ($1, $2);
     my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
     return undef if ($rv);
-    
+
     if ($action =~ /^BCAST.*/) {
         if ((my $method = $self->can('action_' . lc($action)))) {
             $method->($self, token => $token, data => $data);
@@ -263,7 +263,7 @@ sub create_child {
         );
         return undef;
     }
-    
+
     if ($child_pid == 0) {
         $self->set_fork();
         $self->action_run(action => $action, token => $token, data => $data);

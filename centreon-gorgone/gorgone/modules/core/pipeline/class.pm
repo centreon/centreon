@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -117,7 +117,7 @@ sub action_addpipeline {
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
     #[
-    #  { "action": "COMMAND", "data": { "content": [ { "command": "ls" } ] }, "continue": "ok", "continue_custom": "%{last_exit_code} == 1" }, // By default for COMMAND: "continue": "%{last_exit_code} == 0" 
+    #  { "action": "COMMAND", "data": { "content": [ { "command": "ls" } ] }, "continue": "ok", "continue_custom": "%{last_exit_code} == 1" }, // By default for COMMAND: "continue": "%{last_exit_code} == 0"
     #  { "action:" "COMMAND", "target": 10, "timeout": 60, "log_pace": 10, "data": { [ "content": { "command": "ls /tmp" } ] } }
     #]
 
@@ -200,7 +200,7 @@ sub check_timeout {
 
     foreach (keys %{$self->{pipelines}}) {
         my $current = $self->{pipelines}->{$_}->{current};
-        my $timeout = defined($self->{pipelines}->{$_}->{pipe}->[$current]->{timeout}) && $self->{pipelines}->{$_}->{pipe}->[$current]->{timeout} =~ /(\d+)/ ? 
+        my $timeout = defined($self->{pipelines}->{$_}->{pipe}->[$current]->{timeout}) && $self->{pipelines}->{$_}->{pipe}->[$current]->{timeout} =~ /(\d+)/ ?
             $1 : $self->{timeout};
 
         if ((time() - $self->{pipelines}->{$_}->{pipe}->[$current]->{created}) > $timeout) {

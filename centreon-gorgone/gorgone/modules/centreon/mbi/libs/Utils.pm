@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -49,13 +49,13 @@ sub checkBasicOptions {
 
     # check if options are set correctly for rebuild mode
     if (($options->{rebuild} == 1 || (defined($options->{create_tables}) && $options->{create_tables} == 1))
-        && ($options->{start} ne '' && $options->{end} eq '') 
+        && ($options->{start} ne '' && $options->{end} eq '')
         || ($options->{start} eq '' && $options->{end} ne '')) {
         $self->{logger}->writeLogError("Specify both options --start and --end or neither of them to use default data retention options");
         return 1;
     }
     # check start and end dates format
-    if ($options->{rebuild} == 1 && $options->{start} ne '' && $options->{end} ne '' 
+    if ($options->{rebuild} == 1 && $options->{start} ne '' && $options->{end} ne ''
         && !$self->checkDateFormat($options->{start}, $options->{end})) {
         $self->{logger}->writeLogError("Verify period start or end date format");
         return 1;
@@ -68,7 +68,7 @@ sub buildCliMysqlArgs {
     my ($self, $con) = @_;
 
     my $args = '-u "' . $con->{user} . '" ' .
-        '-p"' . $con->{password} . '" ' . 
+        '-p"' . $con->{password} . '" ' .
         '-h "' . $con->{host} . '" ' .
 		'-P ' . $con->{port};
     return $args;
@@ -204,7 +204,7 @@ sub checkDateFormat {
 
 sub getRebuildPeriods {
 	my ($self, $start, $end) = @_;
-	
+
 	my ($day,$month,$year) = (localtime($start))[3,4,5];
 	$start = POSIX::mktime(0,0,0,$day,$month,$year,0,0,-1);
 	my $previousDay = POSIX::mktime(0,0,0,$day - 1,$month,$year,0,0,-1);
@@ -215,7 +215,7 @@ sub getRebuildPeriods {
 		    $start = POSIX::mktime(0,0,0, ++$day, $month, $year,0,0,-1);
 		}
 		my $dayEnd = POSIX::mktime(0, 0, 0, ++$day, $month, $year, 0, 0, -1);
-		
+
 		my %period = ("start" => $start, "end" => $dayEnd);
 		$days[scalar(@days)] = \%period;
 		$previousDay = $start;
@@ -230,13 +230,13 @@ sub parseAndReplaceFlatFile{
     my $file = shift;
     my $key = shift;
     my $value = shift;
-    
+
  	if (!-e $file) {
  		$self->{logger}->writeLog('ERROR', "File missing [".$file."]. Make sure you installed all the pre-requisites before executing this script");
- 	} 
-   
+ 	}
+
     tie my @flatfile, 'Tie::File', $file or die $!;
-	
+
 	foreach my $line(@flatfile)
     {
 		if( $line =~ m/$key/ ) {

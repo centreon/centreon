@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -45,7 +45,7 @@ sub getEntriesDtime {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my ($start, $end) = @_;
 	my $query = "SELECT date_format('%Y-%m-%d', dtime) as dtime";
 	$query .= " FROM `mod_bi_time`";
@@ -64,7 +64,7 @@ sub getEntryID {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my $dtime  = shift;
 	my ($interval, $type);
 	if (@_) {
@@ -96,7 +96,7 @@ sub getDayOfWeek {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
 	my $date = shift;
-	
+
 	my $sth = $db->query({ query => "SELECT LOWER(DAYNAME('".$date."')) as dayOfWeek" });
 	my $dayofweek;
 	if (my $row = $sth->fetchrow_hashref()) {
@@ -112,7 +112,7 @@ sub getDayOfWeek {
 
 sub getYesterdayTodayDate {
 	my $self = shift;
-	
+
 	# get yesterday date. date format : YYYY-MM-DD
 	my $sth = $self->{centstorage}->query({ query => "SELECT CURRENT_DATE() as today, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) as yesterday" });
 
@@ -166,7 +166,7 @@ sub insertTimeEntriesForPeriod {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my ($start, $end) = @_;
-	
+
 	my $interval = $self->getTotalDaysInPeriod($start, $end) * 24;
 	my $counter = 0;
 	my $date = "ADDDATE('".$start."',INTERVAL ".$counter." HOUR)";
@@ -180,7 +180,7 @@ sub insertTimeEntriesForPeriod {
 		$query_suffix .=  "YEAR(".$date."),";
 		$query_suffix .=  "WEEK(".$date.", 3),";
 		$query_suffix .= "LOWER(DAYNAME(".$date.")),";
-		$query_suffix .=  "UNIX_TIMESTAMP(".$date."),"; 
+		$query_suffix .=  "UNIX_TIMESTAMP(".$date."),";
 		$query_suffix .=  "".$date."),";
 		$counter++;
 		$date = "ADDDATE('".$start."',INTERVAL ".$counter." HOUR)";
@@ -234,7 +234,7 @@ sub getTotalDaysInPeriod {
 	}
 	if (!defined($diff)){
 		$logger->writeLog("ERROR", "TIME : Cannot get difference between period start and end");
-	} 
+	}
 	if($diff == 0) {
 		$logger->writeLog("ERROR", "TIME : start date is equal to end date");
 	}elsif ($diff < 0) {
@@ -246,7 +246,7 @@ sub getTotalDaysInPeriod {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "TRUNCATE TABLE `mod_bi_time`";
 	$db->query({ query => $query });
 	$db->query({ query => "ALTER TABLE `mod_bi_time` AUTO_INCREMENT=1" });
@@ -256,7 +256,7 @@ sub deleteEntriesForPeriod {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my ($start, $end) = @_;
-	
+
 	my $query = "DELETE FROM `mod_bi_time` WHERE dtime >= '".$start."' AND dtime < '".$end."'";
 	$db->query({ query => $query });
 }

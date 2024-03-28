@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -40,7 +40,7 @@ sub new {
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
 
-    $connector->{register_nodes} = {}; 
+    $connector->{register_nodes} = {};
 
     $connector->{default_resync_time} = (defined($options{config}->{resync_time}) && $options{config}->{resync_time} =~ /(\d+)/) ? $1 : 600;
     $connector->{resync_time} = $connector->{default_resync_time};
@@ -181,7 +181,7 @@ sub action_centreonnodessync {
         }
     }
 
-    my $unregister_nodes = [];    
+    my $unregister_nodes = [];
     foreach (keys %{$self->{register_nodes}}) {
         if (!defined($register_temp->{$_})) {
             push @$unregister_nodes, { id => $_ };

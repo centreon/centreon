@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -31,14 +31,14 @@ use Try::Tiny;
 sub reload_db_config {
     my ($logger, $config_file, $cdb, $csdb) = @_;
     my ($cdb_mod, $csdb_mod) = (0, 0);
-    
+
     unless (my $return = do $config_file) {
         $logger->writeLogError("[core] Couldn't parse $config_file: $@") if $@;
         $logger->writeLogError("[core] Couldn't do $config_file: $!") unless defined $return;
         $logger->writeLogError("[core] Couldn't run $config_file") unless $return;
         return -1;
     }
-    
+
     if (defined($cdb)) {
         if ($centreon_config->{centreon_db} ne $cdb->db() ||
             $centreon_config->{db_host} ne $cdb->host() ||
@@ -54,7 +54,7 @@ sub reload_db_config {
             $cdb_mod = 1;
         }
     }
-    
+
     if (defined($csdb)) {
         if ($centreon_config->{centstorage_db} ne $csdb->db() ||
             $centreon_config->{db_host} ne $csdb->host() ||
@@ -70,7 +70,7 @@ sub reload_db_config {
             $csdb_mod = 1;
         }
     }
-   
+
     return (0, $cdb_mod, $csdb_mod);
 }
 
@@ -79,7 +79,7 @@ sub get_all_options_config {
 
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
-    
+
     my ($status, $stmt) = $centreon_db_centreon->query({
         query => 'SELECT `key`, `value` FROM options WHERE `key` LIKE ? LIMIT 1',
         bind_values => [$prefix . '_%']
@@ -94,17 +94,17 @@ sub get_all_options_config {
             $extra_config->{$data->{key}} = $data->{value};
         }
     }
-    
+
     $centreon_db_centreon->force($save_force);
 }
 
 sub get_option_config {
     my ($extra_config, $centreon_db_centreon, $prefix, $key) = @_;
     my $data;
- 
+
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
-    
+
     my ($status, $stmt) = $centreon_db_centreon->query({
         query => 'SELECT value FROM options WHERE `key` = ? LIMIT 1',
         bind_values => [$prefix . '_' . $key]
@@ -116,13 +116,13 @@ sub get_option_config {
     if (($data = $stmt->fetchrow_hashref()) && defined($data->{value})) {
         $extra_config->{$key} = $data->{value};
     }
-    
+
     $centreon_db_centreon->force($save_force);
 }
 
 sub check_debug {
     my ($logger, $key, $cdb, $name) = @_;
-    
+
     my ($status, $sth) =  $cdb->query({
         query => 'SELECT `value` FROM options WHERE `key` = ?',
         bind_values => [$key]
@@ -155,7 +155,7 @@ sub backtick {
     my @output;
     my $pid;
     my $return_code;
-    
+
     my $sig_do;
     if ($arg{wait_exit} == 0) {
         $sig_do = 'IGNORE';
@@ -171,7 +171,7 @@ sub backtick {
         $arg{logger}->writeLogError("[core] Cant fork: $!");
         return (-1000, "cant fork: $!");
     }
-    
+
     if ($pid) {
         try {
            local $SIG{ALRM} = sub { die "Timeout by signal ALARM\n"; };
@@ -191,7 +191,7 @@ sub backtick {
             return (-1000, "Command too long to execute (timeout)...", -1);
         };
         if ($arg{wait_exit} == 1) {
-            # We're waiting the exit code                
+            # We're waiting the exit code
             waitpid($pid, 0);
             $return_code = ($? >> 8);
         }
@@ -222,7 +222,7 @@ sub mymodule_load {
     my (%options) = @_;
     my $file;
     ($file = ($options{module} =~ /\.pm$/ ? $options{module} : $options{module} . '.pm')) =~ s{::}{/}g;
-    
+
     eval {
         local $SIG{__DIE__} = 'IGNORE';
         require $file;
@@ -252,7 +252,7 @@ sub write_file {
 
 sub trim {
     my ($value) = $_[0];
-    
+
     # Sometimes there is a null character
     $value =~ s/\x00$//;
     $value =~ s/^[ \t\n]+//;

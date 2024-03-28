@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -56,7 +56,7 @@ sub getAllEntries {
 	my $query = "SELECT `hc_id`, `hc_name`";
 	$query .= " FROM `hostcategories`";
 	if(!defined($etlProperties->{'dimension.all.hostcategories'}) && $etlProperties->{'dimension.hostcategories'} ne ''){
-		$query .= " WHERE `hc_id` IN (".$etlProperties->{'dimension.hostcategories'}.")"; 
+		$query .= " WHERE `hc_id` IN (".$etlProperties->{'dimension.hostcategories'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	my @entries = ();

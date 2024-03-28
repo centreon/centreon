@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -49,7 +49,7 @@ sub emptyTableForRebuild {
     $structure =~ s/KEY.*\(\`$options{column}\`\)\,//g;
 	$structure =~ s/KEY.*\(\`$options{column}\`\)//g;
 	$structure =~ s/\,[\n\s+]+\)/\n\)/g;
-    
+
     if (defined($options{start})) {
         $structure =~ s/\n.*PARTITION.*//g;
         $structure =~ s/\,[\n\s]+\)/\)/;
@@ -125,19 +125,19 @@ sub purgeTables {
     if ($etl->{run}->{options}->{nopurge} == 1) {
         # deleting data that will be rewritten
         if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne 'hour' && (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0)) {
-            if ((!defined($etl->{run}->{options}->{centile_only}) || $etl->{run}->{options}->{centile_only} == 0)) {                
+            if ((!defined($etl->{run}->{options}->{centile_only}) || $etl->{run}->{options}->{centile_only} == 0)) {
                 deleteEntriesForRebuild($etl, name => 'mod_bi_metricdailyvalue', start => $daily_start, end => $daily_end);
 
                 if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne "day" && (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0)) {
                     deleteEntriesForRebuild($etl, name => 'mod_bi_metrichourlyvalue', start => $hourly_start, end => $hourly_end);
                 }
-          
+
                 #Deleting monthly data only if start and end are not in the same month
                 if (!$startAndEndSameMonth) {
                     deleteEntriesForRebuild($etl, name => 'mod_bi_metricmonthcapacity', start => $firstDayOfMonth, end => $daily_end);
                 }
             }
-           
+
             if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0)) {
                 if (defined($etl->{run}->{etlProperties}->{'centile.day'}) && $etl->{run}->{etlProperties}->{'centile.day'} eq '1') {
                     deleteEntriesForRebuild($etl, name => 'mod_bi_metriccentiledailyvalue', start => $daily_start, end => $daily_end);
@@ -145,7 +145,7 @@ sub purgeTables {
                 if (defined($etl->{run}->{etlProperties}->{'centile.week'}) && $etl->{run}->{etlProperties}->{'centile.week'} eq '1') {
                     deleteEntriesForRebuild($etl, name => 'mod_bi_metriccentileweeklyvalue', start => $daily_start, end => $daily_end);
                 }
-            
+
                 if (defined($etl->{run}->{etlProperties}->{'centile.month'}) && $etl->{run}->{etlProperties}->{'centile.month'} eq '1' && !$startAndEndSameMonth) {
                     deleteEntriesForRebuild($etl, name => 'mod_bi_metriccentilemonthlyvalue', start => $firstDayOfMonth, end => $daily_end);
                 }
@@ -159,7 +159,7 @@ sub purgeTables {
 
                 emptyTableForRebuild($etl, name => 'mod_bi_metricmonthcapacity', column => 'time_id');
             }
-        
+
             if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0)) {
                 #Managing Daily Centile table
                 if (defined($etl->{run}->{etlProperties}->{'centile.day'}) && $etl->{run}->{etlProperties}->{'centile.day'} eq '1') {
@@ -175,9 +175,9 @@ sub purgeTables {
                 }
             }
         }
-      
-        if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne "day" && 
-            (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0) && 
+
+        if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} ne "day" &&
+            (!defined($etl->{run}->{options}->{month_only}) || $etl->{run}->{options}->{month_only} == 0) &&
             (!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0)) {
             emptyTableForRebuild($etl, name => 'mod_bi_metrichourlyvalue', column => 'time_id', start => $hourly_start, end => $hourly_end);
         }
@@ -187,7 +187,7 @@ sub purgeTables {
 sub processDay {
     my ($etl, $liveServices, $start, $end) = @_;
 
-    if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} eq 'hour' || 
+    if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} eq 'hour' ||
         (defined($etl->{run}->{options}->{month_only}) && $etl->{run}->{options}->{month_only} == 1)) {
         return 1;
     }
@@ -248,7 +248,7 @@ sub processMonth {
     $time->insertTimeEntriesForPeriod($start, $end);
 
     my ($previousMonthStartTimeId, $previousMonthStartUtime) = $time->getEntryID($start);
-    my ($previousMonthEndTimeId, $previousMonthEndUtime) = $time->getEntryID($end);    
+    my ($previousMonthEndTimeId, $previousMonthEndUtime) = $time->getEntryID($end);
 
     if (!defined($etl->{run}->{etlProperties}->{'capacity.include.servicecategories'}) || $etl->{run}->{etlProperties}->{'capacity.include.servicecategories'} eq ""
         || !defined($etl->{run}->{etlProperties}->{'capacity.include.liveservices'}) || $etl->{run}->{etlProperties}->{'capacity.include.liveservices'} eq "") {
@@ -265,7 +265,7 @@ sub processMonth {
         };
     }
 
-    if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0) && 
+    if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0) &&
         $etl->{run}->{etlProperties}->{'centile.month'} && $etl->{run}->{etlProperties}->{'perfdata.granularity'} ne 'hour') {
         if (defined($etl->{run}->{etlProperties}->{'centile.include.servicecategories'}) && $etl->{run}->{etlProperties}->{'centile.include.servicecategories'} ne '') {
             push @{$etl->{run}->{schedule}->{perfdata}->{stages}->[2]}, {
@@ -279,9 +279,9 @@ sub processMonth {
 
 sub processHours {
      my ($etl, $start, $end) = @_;
-    
-    if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} eq 'day' || 
-        (defined($etl->{run}->{options}->{month_only}) && $etl->{run}->{options}->{month_only} == 1) || 
+
+    if ($etl->{run}->{etlProperties}->{'perfdata.granularity'} eq 'day' ||
+        (defined($etl->{run}->{options}->{month_only}) && $etl->{run}->{options}->{month_only} == 1) ||
         (defined($etl->{run}->{options}->{centile_only}) && $etl->{run}->{options}->{centile_only} == 1)) {
         return 1;
     }
@@ -351,7 +351,7 @@ sub dailyProcessing {
     processDayAndMonthAgregation($etl, $liveServices, $start, $end);
 
     # processing agregation by hour
-    processHours($etl, $start, $end); 
+    processHours($etl, $start, $end);
 }
 
 sub rebuildProcessing {
@@ -408,7 +408,7 @@ sub prepare {
         return ;
     }
 
-    if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0) && 
+    if ((!defined($etl->{run}->{options}->{no_centile}) || $etl->{run}->{options}->{no_centile} == 0) &&
         defined($etl->{run}->{etlProperties}->{'centile.include.servicecategories'}) and $etl->{run}->{etlProperties}->{'centile.include.servicecategories'} eq '') {
         $etl->send_log(code => GORGONE_MODULE_CENTREON_MBIETL_PROGRESS, token => $etl->{run}->{token}, data => { messages => [ ['I', '[SCHEDULER][PERFDATA] No service categories selected for centile calculation - centile agregation will not be calculated' ] ] });
     }

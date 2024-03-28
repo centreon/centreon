@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -99,7 +99,7 @@ sub file_mode($$) {
 
 sub is_file_mode {
     my $self = shift;
-    
+
     if ($self->{log_mode} == 1) {
         return 1;
     }
@@ -108,7 +108,7 @@ sub is_file_mode {
 
 sub is_debug {
     my $self = shift;
-    
+
     if (($self->{severity} & 4) == 0) {
         return 0;
     }
@@ -188,7 +188,7 @@ sub get_date {
     my $self = shift;
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
     return sprintf(
-        '%04d-%02d-%02d %02d:%02d:%02d', 
+        '%04d-%02d-%02d %02d:%02d:%02d',
         $year+1900, $mon+1, $mday, $hour, $min, $sec
     );
 }
@@ -229,19 +229,19 @@ sub writeLog {
 
 sub writeLogDebug {
     my ($self) = shift;
-    
+
     $self->writeLog({ severity => 4, severity_str => 'DEBUG', message => $_[0] });
 }
 
 sub writeLogInfo {
     my ($self) = shift;
-    
+
     $self->writeLog({ severity => 2, severity_str => 'INFO', message => $_[0] });
 }
 
 sub writeLogError {
     my ($self) = shift;
-    
+
     $self->writeLog({ severity => 1, severity_str => 'ERROR', message => $_[0] });
 }
 
