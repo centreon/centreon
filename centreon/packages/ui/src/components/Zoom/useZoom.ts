@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { Point, ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { localPoint } from './localPoint';
 import { ZoomState } from './models';
@@ -22,7 +22,7 @@ export const useZoom = (): UseZoomState => {
   const dragStart = useCallback(
     (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) =>
       (e): void => {
-        if (!equals(e.nativeEvent.which, 1)) {
+        if (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) {
           return;
         }
         const { translateX, translateY } = zoom.transformMatrix;

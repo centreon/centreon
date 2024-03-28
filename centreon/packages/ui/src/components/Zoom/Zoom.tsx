@@ -94,6 +94,7 @@ const Zoom = ({
               <svg
                 className={classes.svg}
                 data-is-grabbing={isDragging}
+                data-testid="zoom-container"
                 height={height}
                 width={width}
                 onMouseDown={dragStart(zoom)}

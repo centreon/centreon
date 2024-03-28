@@ -163,7 +163,7 @@ describe('Zoom', () => {
     cy.makeSnapshot();
   });
 
-  it('moves the view when the mouse is hover the minimap with the correspondiong button pressed down', () => {
+  it('moves the view when the mouse is hover the minimap with the corresponding button pressed down', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
@@ -177,6 +177,25 @@ describe('Zoom', () => {
       'have.attr',
       'transform',
       'matrix(1, 0, 0, 1, -640, -200)'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('moves the view when the mouse is hover the content with the corresponding button pressed down', () => {
+    initialize({ showMinimap: true });
+
+    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('svg').should('have.attr', 'height', '400');
+
+    cy.findByTestId('zoom-container')
+      .trigger('mousedown', 400, 200)
+      .trigger('mousemove', 600, 200);
+
+    cy.findByTestId('zoom-content').should(
+      'have.attr',
+      'transform',
+      'matrix(1, 0, 0, 1, 200, 0)'
     );
 
     cy.makeSnapshot();
