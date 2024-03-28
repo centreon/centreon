@@ -633,6 +633,9 @@ importers:
       '@visx/curve':
         specifier: ^2.1.0
         version: 2.17.0
+      '@visx/event':
+        specifier: ^3.3.0
+        version: 3.3.0
       '@visx/group':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
@@ -645,6 +648,9 @@ importers:
       '@visx/pattern':
         specifier: ^3.3.0
         version: 3.3.0(react@18.2.0)
+      '@visx/point':
+        specifier: ^3.3.0
+        version: 3.3.0
       '@visx/scale':
         specifier: ^3.5.0
         version: 3.5.0

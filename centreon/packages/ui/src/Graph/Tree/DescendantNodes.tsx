@@ -1,6 +1,8 @@
+import { useState } from 'react';
+
 import { HierarchyPointNode } from '@visx/hierarchy/lib/types';
 import { Group } from '@visx/group';
-import { pluck } from 'ramda';
+import { gt, isNil, pluck } from 'ramda';
 
 import { BaseProp, Node, TreeProps } from './models';
 
@@ -21,6 +23,32 @@ const DescendantNodes = <TData extends BaseProp>({
   getExpanded,
   nodeSize
 }: Props<TData>): Array<JSX.Element> => {
+  const [pressEventTimeStamp, setPressEventTimeStamp] = useState<number | null>(
+    null
+  );
+
+  const mouseDown = (e: MouseEvent): void => {
+    setPressEventTimeStamp(e.timeStamp);
+  };
+
+  const mouseUp =
+    (callback) =>
+    (e: MouseEvent): void => {
+      if (isNil(pressEventTimeStamp)) {
+        callback();
+
+        return;
+      }
+
+      const diffTimeStamp = e.timeStamp - pressEventTimeStamp;
+
+      if (gt(diffTimeStamp, 120)) {
+        return;
+      }
+
+      callback();
+    };
+
   return descendants.map((node) => {
     const top = node.x;
     const left = node.y;
@@ -35,14 +63,23 @@ const DescendantNodes = <TData extends BaseProp>({
 
     return (
       <Group key={key} left={left} top={top}>
-        {children({
-          ancestors: pluck('data', node.ancestors()),
-          depth: node.depth,
-          expandCollapseNode,
-          isExpanded: !!getExpanded(node.data),
-          node: node.data,
-          nodeSize
-        })}
+        <foreignObject
+          height={nodeSize.height}
+          width={nodeSize.width}
+          x={-nodeSize.width / 2}
+          y={-nodeSize.height / 2}
+        >
+          {children({
+            ancestors: pluck('data', node.ancestors()),
+            depth: node.depth,
+            expandCollapseNode,
+            isExpanded: !!getExpanded(node.data),
+            node: node.data,
+            nodeSize,
+            onMouseDown: mouseDown,
+            onMouseUp: mouseUp
+          })}
+        </foreignObject>
       </Group>
     );
   });

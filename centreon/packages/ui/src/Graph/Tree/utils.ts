@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, omit } from 'ramda';
 
 import { BaseProp, Node } from './models';
 
@@ -17,7 +17,10 @@ export const updateNodeFromTree = <TData extends BaseProp>({
     return tree;
   }
 
-  if (equals(tree.data, targetNode.data)) {
+  if (
+    equals(tree.data, targetNode.data) &&
+    equals(tree.children, targetNode.children)
+  ) {
     return {
       ...tree,
       ...callback(tree)
@@ -29,5 +32,18 @@ export const updateNodeFromTree = <TData extends BaseProp>({
     children: tree.children?.map((child) =>
       updateNodeFromTree({ callback, targetNode, tree: child })
     )
+  };
+};
+
+export const cleanUpTree = <TData extends BaseProp>(
+  tree: Node<TData>
+): Node<TData> => {
+  if (!tree.children) {
+    return tree;
+  }
+
+  return {
+    ...omit(['isExpanded'], tree),
+    children: tree.children?.map((child) => cleanUpTree(child))
   };
 };

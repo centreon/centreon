@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 
 import { Zoom as VisxZoom } from '@visx/zoom';
 import { RectClipPath } from '@visx/clip-path';
+import { Group } from '@visx/group';
+import { equals, type } from 'ramda';
 
 import ZoomInIcon from '@mui/icons-material/Add';
 import ZoomOutIcon from '@mui/icons-material/Remove';
@@ -11,9 +13,11 @@ import { Button, IconButton } from '../Button';
 
 import { useZoomStyles } from './Zoom.styles';
 import Minimap from './Minimap';
+import { useZoom } from './useZoom';
+import { minimapScale } from './constants';
 
 export interface ZoomProps {
-  children: JSX.Element;
+  children: JSX.Element | (({ width, height }) => JSX.Element);
   labels: {
     clear: string;
   };
@@ -47,6 +51,8 @@ const Zoom = ({
   } | null>(null);
   const contentRef = useRef<SVGGElement | null>(null);
 
+  const { move, dragEnd, dragStart, isDragging } = useZoom();
+
   const resizeObserver = new ResizeObserver(() => {
     setContentClientRect({
       height: contentRef.current?.getBoundingClientRect().height || 0,
@@ -69,6 +75,8 @@ const Zoom = ({
     };
   }, [contentRef.current]);
 
+  const isChildrenObject = equals(type(children), 'Object');
+
   return (
     <ParentSize>
       {({ width, height }) => (
@@ -85,10 +93,13 @@ const Zoom = ({
             <div style={{ position: 'relative' }}>
               <svg
                 className={classes.svg}
-                data-is-grabbing={zoom.isDragging}
+                data-is-grabbing={isDragging}
                 height={height}
-                ref={zoom.containerRef}
                 width={width}
+                onMouseDown={dragStart(zoom)}
+                onMouseMove={move(zoom)}
+                onMouseUp={dragEnd}
+                onWheel={zoom.handleWheel}
               >
                 <RectClipPath
                   height={Math.max(contentClientRect?.height || 0, height)}
@@ -101,18 +112,33 @@ const Zoom = ({
                   ref={contentRef}
                   transform={zoom.toString()}
                 >
-                  {children}
+                  {isChildrenObject ? children : children({ height, width })}
                 </g>
               </svg>
-              <svg className={classes.minimapContainer}>
+              <svg
+                className={classes.minimapContainer}
+                data-testid="minimap"
+                height={
+                  Math.max(contentClientRect?.height || 0, height) *
+                  minimapScale
+                }
+                width={
+                  Math.max(contentClientRect?.width || 0, width) * minimapScale
+                }
+              >
                 {showMinimap && contentClientRect && (
                   <Minimap
                     contentClientRect={contentClientRect}
                     height={height}
+                    isDraggingFromContainer={isDragging}
                     width={width}
                     zoom={zoom}
                   >
-                    {children}
+                    <Group left={0} top={contentClientRect.height / 10}>
+                      {isChildrenObject
+                        ? children
+                        : children({ height, width })}
+                    </Group>
                   </Minimap>
                 )}
               </svg>

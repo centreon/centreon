@@ -3,17 +3,11 @@ import { useCallback } from 'react';
 import { ProvidedZoom } from '@visx/zoom/lib/types';
 import { equals, gt } from 'ramda';
 
-interface ZoomState {
-  transformMatrix: {
-    scaleX: number;
-    scaleY: number;
-    skewX: number;
-    skewY: number;
-  };
-}
+import { ZoomState } from './models';
 
 export interface UseMinimapProps {
   height: number;
+  isDraggingFromContainer: boolean;
   minimapScale: number;
   width: number;
   zoom: ProvidedZoom<SVGSVGElement> & ZoomState;
@@ -29,7 +23,8 @@ export const useMinimap = ({
   width,
   height,
   zoom,
-  minimapScale
+  minimapScale,
+  isDraggingFromContainer
 }: UseMinimapProps): UseMinimapState => {
   const getMatrixPoint = useCallback(
     (event): { x: number; y: number } => {
@@ -48,6 +43,9 @@ export const useMinimap = ({
 
   const transformTo = useCallback(
     (e): void => {
+      if (!equals(e.nativeEvent.which, 1)) {
+        return;
+      }
       const { x, y } = getMatrixPoint(e);
       zoom.setTransformMatrix({
         ...zoom.transformMatrix,
@@ -60,12 +58,12 @@ export const useMinimap = ({
 
   const move = useCallback(
     (e): void => {
-      if (!equals(e.buttons, 1)) {
+      if (!equals(e.nativeEvent.which, 1) || isDraggingFromContainer) {
         return;
       }
       transformTo(e);
     },
-    [zoom.transformMatrix]
+    [zoom.transformMatrix, isDraggingFromContainer]
   );
 
   const zoomInOut = useCallback(

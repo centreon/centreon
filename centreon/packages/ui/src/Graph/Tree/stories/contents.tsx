@@ -1,17 +1,11 @@
-import { always, cond, equals, T } from 'ramda';
+import { always, cond, equals, has, T } from 'ramda';
 
-import { useTheme } from '@mui/material';
+import { Avatar, Paper, Typography, useTheme } from '@mui/material';
+import SpaIcon from '@mui/icons-material/Spa';
 
 import { ChildrenProps } from '..';
 
-import { SimpleData } from './datas';
-
-const symbol = (
-  <symbol id="SpaIcon" viewBox="0 0 24 24">
-    <path d="M8.55 12c-1.07-.71-2.25-1.27-3.53-1.61 1.28.34 2.46.9 3.53 1.61m10.43-1.61c-1.29.34-2.49.91-3.57 1.64 1.08-.73 2.28-1.3 3.57-1.64" />
-    <path d="M15.49 9.63c-.18-2.79-1.31-5.51-3.43-7.63-2.14 2.14-3.32 4.86-3.55 7.63 1.28.68 2.46 1.56 3.49 2.63 1.03-1.06 2.21-1.94 3.49-2.63m-6.5 2.65c-.14-.1-.3-.19-.45-.29.15.11.31.19.45.29m6.42-.25c-.13.09-.27.16-.4.26.13-.1.27-.17.4-.26M12 15.45C9.85 12.17 6.18 10 2 10c0 5.32 3.36 9.82 8.03 11.49.63.23 1.29.4 1.97.51.68-.12 1.33-.29 1.97-.51C18.64 19.82 22 15.32 22 10c-4.18 0-7.85 2.17-10 5.45" />
-  </symbol>
-);
+import { ComplexData, SimpleData } from './datas';
 
 export const SimpleContent = ({
   node,
@@ -29,52 +23,142 @@ export const SimpleContent = ({
 
   if (equals(depth, 0)) {
     return (
-      <>
-        <circle fill={fillColor} r={nodeSize.width / 2} />
-        <text textAnchor="middle">{node.data.name}</text>
-        <text alignmentBaseline="text-before-edge" textAnchor="middle">
-          {isExpanded ? 'Expanded' : 'Collapsed'}
-        </text>
-      </>
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          height: '100%',
+          justifyContent: 'center',
+          width: '100%'
+        }}
+      >
+        <Avatar
+          sx={{
+            backgroundColor: fillColor,
+            color: theme.palette.text.primary,
+            cursor: 'pointer'
+          }}
+        >
+          {node.data.name}
+        </Avatar>
+      </div>
     );
   }
 
   return (
-    <>
-      {symbol}
-      <rect
-        fill={fillColor}
-        height={nodeSize.height}
-        rx={10}
-        width={nodeSize.width}
-        x={-nodeSize.width / 2}
-        y={-nodeSize.height / 2}
-      />
-      <text textAnchor="middle">{node.data.name}</text>
-      {node.children ? (
-        <text textAnchor="middle" y={nodeSize.height / 2.5}>
-          {isExpanded ? 'Expanded' : 'Collapsed'}
-        </text>
-      ) : (
-        <use
-          fill="black"
-          height="24"
-          href="#SpaIcon"
-          width="24"
-          x={nodeSize.width / 5}
-          y={-nodeSize.height / 2.2}
+    <Paper
+      sx={{
+        alignItems: 'center',
+        backgroundColor: fillColor,
+        cursor: node.children ? 'pointer' : 'default',
+        display: 'flex',
+        flexDirection: 'column',
+        height: nodeSize.height,
+        justifyContent: 'center',
+        p: 1,
+        position: 'relative',
+        width: nodeSize.width
+      }}
+      onClick={() => {
+        expandCollapseNode(node);
+      }}
+    >
+      {!node.children && (
+        <SpaIcon
+          fontSize="small"
+          sx={{ position: 'absolute', right: 8, top: 8 }}
         />
       )}
-      <rect
-        fill="transparent"
-        height={nodeSize.height}
-        rx={10}
-        style={{ cursor: node.children ? 'pointer' : 'default' }}
-        width={nodeSize.width}
-        x={-nodeSize.width / 2}
-        y={-nodeSize.height / 2}
-        onClick={() => expandCollapseNode(node)}
-      />
-    </>
+      <Typography>{node.data.name}</Typography>
+      {node.children && (
+        <Typography>{isExpanded ? 'Expanded' : 'Collapsed'}</Typography>
+      )}
+    </Paper>
+  );
+};
+
+export const ComplexContent = ({
+  node,
+  depth,
+  nodeSize,
+  expandCollapseNode,
+  onMouseDown,
+  onMouseUp
+}: ChildrenProps<ComplexData>): JSX.Element => {
+  const theme = useTheme();
+  const fillColor = cond([
+    [equals('critical'), always(theme.palette.error.main)],
+    [equals('warning'), always(theme.palette.warning.main)],
+    [T, always(theme.palette.success.main)]
+  ])(node.data.status);
+
+  if (equals(depth, 0)) {
+    return (
+      <Paper
+        sx={{
+          alignItems: 'center',
+          backgroundColor: fillColor,
+          display: 'flex',
+          flexDirection: 'column',
+          height: nodeSize.height,
+          justifyContent: 'center',
+          p: 1,
+          position: 'relative',
+          width: nodeSize.width
+        }}
+      >
+        <Typography>{node.data.name}</Typography>
+      </Paper>
+    );
+  }
+
+  if (has('count', node.data)) {
+    return (
+      <div
+        style={{
+          alignItems: 'center',
+          display: 'flex',
+          height: '100%',
+          justifyContent: 'center',
+          width: '100%'
+        }}
+      >
+        <Avatar
+          sx={{
+            backgroundColor: fillColor,
+            color: theme.palette.text.primary,
+            cursor: 'pointer'
+          }}
+          onMouseDown={onMouseDown}
+          onMouseUp={onMouseUp(() => expandCollapseNode(node))}
+        >
+          {node.data.count}
+        </Avatar>
+      </div>
+    );
+  }
+
+  return (
+    <Paper
+      sx={{
+        alignItems: 'center',
+        backgroundColor: fillColor,
+        display: 'flex',
+        flexDirection: 'column',
+        height: nodeSize.height,
+        justifyContent: 'center',
+        p: 1,
+        position: 'relative',
+        width: nodeSize.width
+      }}
+    >
+      {!node.children && (
+        <SpaIcon
+          fontSize="small"
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        />
+      )}
+      <Typography>{node.data.name}</Typography>
+    </Paper>
   );
 };

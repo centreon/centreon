@@ -8,6 +8,7 @@ interface Props extends Omit<UseMinimapProps, 'minimapScale'> {
     height: number;
     width: number;
   };
+  isDraggingFromContainer: boolean;
 }
 
 const Minimap = ({
@@ -15,12 +16,14 @@ const Minimap = ({
   children,
   height,
   width,
-  contentClientRect
+  contentClientRect,
+  isDraggingFromContainer
 }: Props): JSX.Element => {
   const { classes } = useZoomStyles();
 
   const { transformTo, move, zoomInOut } = useMinimap({
     height,
+    isDraggingFromContainer,
     minimapScale,
     width,
     zoom

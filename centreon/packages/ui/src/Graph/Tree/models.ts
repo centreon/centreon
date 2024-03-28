@@ -24,18 +24,21 @@ export interface ChildrenProps<TData> {
     height: number;
     width: number;
   };
+  onMouseDown: (e) => void;
+  onMouseUp: (callback) => (e) => void;
 }
 
 export interface TreeProps<TData> {
+  changeTree: (newTree: Node<TData>) => void;
   children: (props: ChildrenProps<TData>) => JSX.Element;
   containerHeight: number;
   containerWidth: number;
-  data: Node<TData>;
   node: {
     height: number;
     isDefaultExpanded?: (data: TData) => boolean;
     width: number;
   };
+  tree: Node<TData>;
   treeLink: {
     getStroke?: (props: LinkProps<TData>) => string | undefined;
     getStrokeDasharray?: (

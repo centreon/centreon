@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { Group } from '@visx/group';
 import { hierarchy, Tree as VisxTree } from '@visx/hierarchy';
@@ -15,20 +15,19 @@ import DescendantNodes from './DescendantNodes';
 export const Tree = <TData extends BaseProp>({
   containerHeight,
   containerWidth,
-  data,
+  tree,
   node,
   treeLink = {},
+  changeTree,
   children
 }: TreeProps<TData>): JSX.Element => {
-  const formattedData: Node<TData> = useMemo(
+  const formattedTree: Node<TData> = useMemo(
     () => ({
-      ...data,
+      ...tree,
       isExpanded: true
     }),
-    useDeepCompare([data])
+    useDeepCompare([tree])
   );
-
-  const [tree, setTree] = useState(formattedData);
 
   const toggleTreeNodesExpanded = useCallback(
     ({ currentTree, targetNode }): Node<TData> => {
@@ -53,11 +52,14 @@ export const Tree = <TData extends BaseProp>({
     [node.isDefaultExpanded]
   );
 
-  const expandCollapseNode = useCallback((targetNode: Node<TData>): void => {
-    setTree((currentTree) => {
-      return toggleTreeNodesExpanded({ currentTree, targetNode });
-    });
-  }, []);
+  const expandCollapseNode = useCallback(
+    (targetNode: Node<TData>): void => {
+      changeTree(
+        toggleTreeNodesExpanded({ currentTree: formattedTree, targetNode })
+      );
+    },
+    [formattedTree]
+  );
 
   const getExpanded = useCallback(
     (d: Node<TData>): Array<Node<TData>> | undefined | null => {
@@ -82,13 +84,14 @@ export const Tree = <TData extends BaseProp>({
     <Group left={node.width / 2} top={margins.top}>
       <VisxTree
         nodeSize={[node.width + nodeMargins.y, node.height + nodeMargins.x]}
-        root={hierarchy(tree, getExpanded)}
+        root={hierarchy(formattedTree, getExpanded)}
         separation={() => 1}
         size={[containerWidth, containerHeight]}
       >
         {(subTree) => (
           <Group left={origin.x} top={origin.y}>
             <Links links={subTree.links()} treeLink={treeLink} />
+
             <DescendantNodes
               descendants={subTree.descendants()}
               expandCollapseNode={expandCollapseNode}
