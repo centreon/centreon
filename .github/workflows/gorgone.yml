@@ -27,8 +27,23 @@ jobs:
     with:
       version_file: centreon-gorgone/.version
 
-  veracode-analysis:
+  check-version:
     needs: [get-version]
+    runs-on: ubuntu-22.04
+    # SHALL NOT RUN ON CLOUD RELEASE (master target branch)
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'master' }}
+
+    steps:
+      - name: Check version
+        uses: ./.github/actions/check-version
+        with:
+          module_name: gorgone
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  veracode-analysis:
+    needs: [get-version, check-version]
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-gorgone
@@ -46,8 +61,8 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   package:
-    needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-version, check-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')}}
 
     strategy:
       fail-fast: false
@@ -126,8 +141,8 @@ jobs:
 
   deliver-sources:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -145,8 +160,8 @@ jobs:
 
   deliver-rpm:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -170,8 +185,8 @@ jobs:
 
   deliver-deb:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       matrix:
@@ -194,8 +209,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:

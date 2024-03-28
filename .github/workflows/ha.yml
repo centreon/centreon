@@ -27,9 +27,24 @@ jobs:
     with:
       version_file: centreon-ha/.env
 
-  package:
+  check-version:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    runs-on: ubuntu-22.04
+    # SHALL NOT RUN ON CLOUD RELEASE (master target branch)
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'master' }}
+
+    steps:
+      - name: Check version
+        uses: ./.github/actions/check-version
+        with:
+          module_name: ha
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  package:
+    needs: [get-version, check-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       fail-fast: true
@@ -66,8 +81,8 @@ jobs:
 
   deliver-sources:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -84,8 +99,8 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   delivery-rpm:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -110,8 +125,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   delivery-deb:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -135,8 +150,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:

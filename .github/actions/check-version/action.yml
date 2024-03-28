@@ -1,0 +1,55 @@
+name: "check-version"
+description: "Compare current stable version with version from branch"
+inputs:
+  module_name:
+    description: "The module name"
+    required: true
+  major_version:
+    description: "The major version"
+    required: true
+  minor_version:
+    description: "The minor version"
+    required: true
+  stability:
+    description: "The stability"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: check_version
+      run: |
+        set -eux
+
+        # Make sure version is NOT the same as the current stable.
+        # If it is, abort any job beyond this point
+
+        CURRENT_STABLE_VERSION=$(git tag -l 'centreon-${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}' | awk -F '-' '{print $3}' )
+        CURRENT_STABLE_MAJOR_VERSION=$(awk -F '.' '{printf "%s.%s",$1,$2}' <<< $CURRENT_STABLE_VERSION)
+        CURRENT_STABLE_MINOR_VERSION=$(awk -F '.' '{print $3}' <<< $CURRENT_STABLE_VERSION)
+        BRANCH_VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
+        BRANCH_MAJOR_VERSION="${{ inputs.major_version }}"
+        BRANCH_MINOR_VERSION="${{ inputs.minor_version }}"
+
+        #echo "Current stable tag is: $CURRENT_STABLE_TAG"
+        echo "Current stable version is: $CURRENT_STABLE_VERSION"
+        echo "Branch version is: $BRANCH_VERSION"
+
+        # Compare current stable version with branch version (examples below)
+        # CURRENT_STABLE_VERSION = BRANCH_VERSION => FAILURE
+        # CURRENT_STABLE_VERSION >= BRANCH_VERSION+2 => FAILURE
+        # CURRENT_STABLE_VERSION > BRANCH_VERSION
+
+        if [[ "$CURRENT_STABLE_VERSION" == "$BRANCH_VERSION" ]];then
+          echo "::error::Current stable version $CURRENT_STABLE_VERSION is the same as release branch version $BRANCH_VERSION, action required, aborting."
+          exit 1
+        elif [[ "$BRANCH_MINOR_VERSION" -lt "$CURRENT_STABLE_MINOR_VERSION" ]];then
+          echo "::error::Current branch minor version $BRANCH_MINOR_VERSION is smaller than stable version $CURRENT_STABLE_MINOR_VERSION, action required, aborting."
+          exit 1
+        elif [[ "$BRANCH_MINOR_VERSION" -gt $(($CURRENT_STABLE_MINOR_VERSION+1)) ]];then
+          echo "::error::Release branch version $BRANCH_MINOR_VERSION is bigger than stable version + 1 ($(($CURRENT_STABLE_MINOR_VERSION+1))), action required, aborting."
+        else
+          echo "Release branch version is ok."
+        fi
+
+      shell: bash

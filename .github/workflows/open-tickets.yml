@@ -27,8 +27,23 @@ jobs:
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
-  veracode-analysis:
+  check-version:
     needs: [get-version]
+    runs-on: ubuntu-22.04
+    # SHALL NOT RUN ON CLOUD RELEASE (master target branch)
+    if: ${{ contains(fromJson('["testing"]'), needs.get-version.outputs.stability) && github.base_ref != 'master' }}
+
+    steps:
+      - name: Check version
+        uses: ./.github/actions/check-version
+        with:
+          module_name: open-tickets
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  veracode-analysis:
+    needs: [get-version, check-version]
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-open-tickets
@@ -46,7 +61,7 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-22.04
-    needs: [get-version]
+    needs: [get-version, check-version]
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -69,8 +84,8 @@ jobs:
         working-directory: centreon-open-tickets
 
   package:
-    needs: [get-version, backend-lint]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs: [get-version, check-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
     strategy:
       fail-fast: false
@@ -126,8 +141,8 @@ jobs:
 
   deliver-sources:
     runs-on: [self-hosted, common]
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
 
     steps:
       - name: Checkout sources
@@ -144,8 +159,8 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   delivery-rpm:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -170,8 +185,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   delivery-deb:
-    needs: [get-version, package]
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    needs: [get-version, package, check-version]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -195,8 +210,8 @@ jobs:
           release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
-    needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && github.event_name != 'workflow_dispatch' }}
+    needs: [get-version, check-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && github.event_name != 'workflow_dispatch' }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
