@@ -824,6 +824,14 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+        * servicecategory.id
+        * servicecategory.name
       responses:
         "200":
           description: "OK"
