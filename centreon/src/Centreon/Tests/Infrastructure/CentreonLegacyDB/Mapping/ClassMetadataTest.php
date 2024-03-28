@@ -49,27 +49,27 @@ class ClassMetadataTest extends TestCase
         EntityMock::loadMetadata($this->metadata);
     }
 
-    public function testGetTableName()
+    public function testGetTableName(): void
     {
         $this->assertEquals('mock_table', $this->metadata->getTableName());
     }
 
-    public function testGetPrimaryKey()
+    public function testGetPrimaryKey(): void
     {
         $this->assertEquals('id', $this->metadata->getPrimaryKey());
     }
 
-    public function testGetPrimaryKeyColumn()
+    public function testGetPrimaryKeyColumn(): void
     {
         $this->assertEquals('id_column', $this->metadata->getPrimaryKeyColumn('id'));
     }
 
-    public function testGetType()
+    public function testGetType(): void
     {
         $this->assertEquals(PDO::PARAM_INT, $this->metadata->getType('id'));
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $this->assertEquals([
             ClassMetadata::COLUMN => 'name_column',

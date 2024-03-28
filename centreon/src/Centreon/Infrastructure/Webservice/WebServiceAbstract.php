@@ -109,7 +109,7 @@ abstract class WebServiceAbstract extends \CentreonWebService
      *
      * @param \Pimple\Container $di
      */
-    public function setDi(Container $di)
+    public function setDi(Container $di): void
     {
         $this->di = $di;
     }

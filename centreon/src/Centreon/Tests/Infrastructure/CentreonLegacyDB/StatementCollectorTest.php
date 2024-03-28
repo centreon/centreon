@@ -43,7 +43,7 @@ use PDOStatement;
 
 class StatementCollectorTest extends TestCase
 {
-    public function testBind()
+    public function testBind(): void
     {
         $value = '...';
         $key = 'key';

@@ -95,7 +95,7 @@ class WebSSO implements ProviderAuthenticationInterface
             'auth_type' => Provider::WEB_SSO,
         ];
 
-        $this->provider->setLegacySession(new \Centreon($sessionUserInfos));
+        $this->provider->setLegacySession(new Centreon($sessionUserInfos));
 
         $this->authenticatedUser = $user;
 

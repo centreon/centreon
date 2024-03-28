@@ -279,7 +279,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
     /**
      * We want to make the conversion between a role and its string table representation here.
      *
-     * @param \Core\Dashboard\Domain\Model\Role\DashboardSharingRole $role
+     * @param DashboardSharingRole $role
      *
      * @return string
      */

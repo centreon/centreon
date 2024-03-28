@@ -56,7 +56,7 @@ class WebServiceAbstractTest extends TestCase
             ->getMockForAbstractClass();
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $_GET = [
             'test1' => '1',
@@ -66,12 +66,12 @@ class WebServiceAbstractTest extends TestCase
         $this->assertEquals($_GET, $this->webservice->query());
     }
 
-    public function testPayloadRaw()
+    public function testPayloadRaw(): void
     {
         $this->assertEquals('', $this->webservice->payloadRaw());
     }
 
-    public function testPayload()
+    public function testPayload(): void
     {
         $webservice = $this->getMockBuilder(WebServiceAbstract::class)
             ->disableOriginalConstructor()
@@ -89,7 +89,7 @@ class WebServiceAbstractTest extends TestCase
         ], $webservice->payload());
     }
 
-    public function testPayloadWithException()
+    public function testPayloadWithException(): void
     {
         $webservice = $this->getMockBuilder(WebServiceAbstract::class)
             ->disableOriginalConstructor()

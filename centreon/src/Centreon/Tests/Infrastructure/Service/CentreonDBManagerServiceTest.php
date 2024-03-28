@@ -73,7 +73,7 @@ class CentreonDBManagerServiceTest extends TestCase
         $this->service = new CentreonDBManagerService(new ContainerWrap($container));
     }
 
-    public function testGetAdapter()
+    public function testGetAdapter(): void
     {
         (function () {
             $adapter = $this->service->getAdapter('configuration_db');
@@ -90,7 +90,7 @@ class CentreonDBManagerServiceTest extends TestCase
         })();
     }
 
-    public function testGetDefaultAdapter()
+    public function testGetDefaultAdapter(): void
     {
         $adapter = $this->service->getDefaultAdapter();
 
@@ -98,7 +98,7 @@ class CentreonDBManagerServiceTest extends TestCase
         $this->assertEquals($this->db1, $adapter->getCentreonDBInstance());
     }
 
-    public function testGetRepository()
+    public function testGetRepository(): void
     {
         $repository = $this->service->getRepository(RepositoryMock::class);
 

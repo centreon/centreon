@@ -29,7 +29,8 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 final class LoginController extends AbstractController
 {
@@ -40,16 +41,16 @@ final class LoginController extends AbstractController
      * @param Request $request
      * @param Login $useCase
      * @param LoginPresenter $presenter
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      *
-     * @return object
+     * @return Response
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         LoginPresenter $presenter,
-        SessionInterface $session
-    ): object {
+        RequestStack $requestStack
+    ): Response {
         /** @var string $content */
         $content = $request->getContent();
         /** @var array{login?: string, password?: string} $payload */
@@ -73,7 +74,7 @@ final class LoginController extends AbstractController
         }
 
         $presenter->setResponseHeaders(
-            ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+            ['Set-Cookie' => 'PHPSESSID=' . $requestStack->getSession()->getId()]
         );
 
         return $presenter->show();

@@ -38,7 +38,7 @@ class Step5 extends AbstractStep
         return $template->fetch('content.tpl');
     }
 
-    public function setAdminConfiguration($parameters)
+    public function setAdminConfiguration($parameters): void
     {
         $configurationFile = __DIR__ . '/../../../../../www/install/tmp/admin.json';
         file_put_contents($configurationFile, json_encode($parameters));

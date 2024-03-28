@@ -82,7 +82,7 @@ class CentreonI18n extends Webservice\WebServiceAbstract implements
      *
      * @param \Pimple\Container $di
      */
-    public function setDi(Container $di)
+    public function setDi(Container $di): void
     {
         $this->services = new ServiceLocator($di, [
             ServiceProvider::CENTREON_I18N_SERVICE,

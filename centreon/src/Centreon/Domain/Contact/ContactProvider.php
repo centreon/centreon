@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Centreon\Domain\Contact;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -31,10 +31,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  */
 class ContactProvider implements UserProviderInterface
 {
-    /**
-     * @var ContactRepositoryInterface
-     */
-    private $contactRepository;
+    private ContactRepositoryInterface $contactRepository;
 
     /**
      * ContactProvider constructor.
@@ -56,13 +53,29 @@ class ContactProvider implements UserProviderInterface
      *
      * @return UserInterface
      *
-     * @throws UsernameNotFoundException if the user is not found
+     * @throws UserNotFoundException if the user is not found
+     * @throws \Exception
      */
-    public function loadUserByUsername($username)
+    public function loadUserByUsername(string $username): UserInterface
     {
         $contact = $this->contactRepository->findByName($username);
         if (is_null($contact)) {
-            throw new UsernameNotFoundException();
+            throw new UserNotFoundException();
+        }
+        return $contact;
+    }
+
+    /**
+     * @param string $identifier
+     *
+     * @throws \Exception
+     * @return UserInterface
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        $contact = $this->contactRepository->findByName($identifier);
+        if (is_null($contact)) {
+            throw new UserNotFoundException();
         }
         return $contact;
     }
@@ -79,7 +92,7 @@ class ContactProvider implements UserProviderInterface
      * @return UserInterface
      *
      */
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): UserInterface
     {
         return $user;
     }
@@ -91,7 +104,7 @@ class ContactProvider implements UserProviderInterface
      *
      * @return bool
      */
-    public function supportsClass($class)
+    public function supportsClass(string $class): bool
     {
         return $class === Contact::class;
     }

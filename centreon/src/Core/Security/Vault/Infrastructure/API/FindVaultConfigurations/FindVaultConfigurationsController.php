@@ -25,8 +25,7 @@ namespace Core\Security\Vault\Infrastructure\API\FindVaultConfigurations;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
-    FindVaultConfigurations,
-    FindVaultConfigurationsRequest
+    FindVaultConfigurations
 };
 
 final class FindVaultConfigurationsController extends AbstractController

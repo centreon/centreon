@@ -73,7 +73,7 @@ class StatementCollector
      * @param mixed $value
      * @param int $data_type
      */
-    public function addColumn($parameter, $value, int $data_type = PDO::PARAM_STR)
+    public function addColumn($parameter, $value, int $data_type = PDO::PARAM_STR): void
     {
         $this->columns[$parameter] = [
             'value' => $value,
@@ -88,7 +88,7 @@ class StatementCollector
      * @param mixed $value
      * @param int $data_type
      */
-    public function addValue($parameter, $value, int $data_type = PDO::PARAM_STR)
+    public function addValue($parameter, $value, int $data_type = PDO::PARAM_STR): void
     {
         $this->values[$parameter] = [
             'value' => $value,
@@ -103,7 +103,7 @@ class StatementCollector
      * @param mixed $value
      * @param int $data_type
      */
-    public function addParam($parameter, $value, int $data_type = PDO::PARAM_STR)
+    public function addParam($parameter, $value, int $data_type = PDO::PARAM_STR): void
     {
         $this->params[$parameter] = [
             'value' => $value,
@@ -116,7 +116,7 @@ class StatementCollector
      *
      * @param PDOStatement $stmt
      */
-    public function bind(PDOStatement $stmt)
+    public function bind(PDOStatement $stmt): void
     {
         // bind columns to statment
         foreach ($this->values as $parameter => $data) {

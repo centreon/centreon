@@ -65,7 +65,12 @@ it('should order found updates', function () {
     $this->finder
         ->expects($this->once())
         ->method('name')
-        ->willReturn(
+        ->willReturn($this->finder);
+
+    $this->finder
+        ->expects($this->once())
+        ->method('getIterator')
+        ->willReturn(new \ArrayIterator(
             [
                 new \SplFileInfo('Update-21.10.0.php'),
                 new \SplFileInfo('Update-22.04.0.php'),
@@ -74,7 +79,7 @@ it('should order found updates', function () {
                 new \SplFileInfo('Update-22.10.0-beta.3.php'),
                 new \SplFileInfo('Update-22.10.0-alpha.1.php'),
             ]
-        );
+        ));
 
     $availableUpdates = $repository->findOrderedAvailableUpdates('22.04.0');
     expect($availableUpdates)->toEqual([

@@ -192,7 +192,7 @@ class CentreonDBAdapter
      * @throws \Exception
      *
      */
-    public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns)
+    public function loadDataInfile(string $file, string $table, array $fieldsClause, array $linesClause, array $columns): void
     {
         // SQL statement format:
         // LOAD DATA
@@ -286,17 +286,17 @@ class CentreonDBAdapter
         return $this->errorInfo;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->db->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->db->commit();
     }
 
-    public function rollBack()
+    public function rollBack(): void
     {
         $this->db->rollBack();
     }

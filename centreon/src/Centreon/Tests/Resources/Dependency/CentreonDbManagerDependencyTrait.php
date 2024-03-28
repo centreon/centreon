@@ -62,7 +62,7 @@ trait CentreonDbManagerDependencyTrait
      *
      * @param \Pimple\Container $container
      */
-    public function setUpCentreonDbManager(Container $container)
+    public function setUpCentreonDbManager(Container $container): void
     {
         $container[ServiceProvider::CENTREON_DB_MANAGER] =
             loadDependencyInjector()[ServiceProvider::CENTREON_DB_MANAGER];

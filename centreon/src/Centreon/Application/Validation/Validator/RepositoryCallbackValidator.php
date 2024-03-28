@@ -54,7 +54,7 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
      * {@inheritdoc}
      * @return void
      */
-    public function validate($object, Constraint $constraint)
+    public function validate($object, Constraint $constraint): void
     {
         if (!$constraint instanceof RepositoryCallback) {
             throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\RepositoryCallback');

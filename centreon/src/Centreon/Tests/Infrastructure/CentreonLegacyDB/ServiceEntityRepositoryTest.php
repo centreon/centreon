@@ -57,7 +57,7 @@ class ServiceEntityRepositoryTest extends TestCase
         $this->repository = new Mock\RepositoryMock($this->db, $this->manager);
     }
 
-    public function testEntityClass()
+    public function testEntityClass(): void
     {
         $this->assertEquals(
             'Centreon\\Infrastructure\\CentreonLegacyDB\\ServiceEntity',
@@ -65,7 +65,7 @@ class ServiceEntityRepositoryTest extends TestCase
         );
     }
 
-    public function testGetEntityPersister()
+    public function testGetEntityPersister(): void
     {
         $result = $this->repository->getEntityPersister();
         $classMetadata = $this->getProtectedProperty($result, 'classMetadata');
@@ -76,7 +76,7 @@ class ServiceEntityRepositoryTest extends TestCase
         $this->assertEquals($this->repository->getClassMetadata()->getTableName(), $classMetadata->getTableName());
     }
 
-    public function testUpdateRelationData()
+    public function testUpdateRelationData(): void
     {
         $list = [1, 2];
         $id = 7;

@@ -96,14 +96,14 @@ class LocalProvider implements LocalProviderInterface
         $pearDB = $this->dependencyInjector['configuration_db'];
 
         $log = new \CentreonUserLog(0, $this->dependencyInjector['configuration_db']);
-        $auth = new \CentreonAuth(
+        $auth = new CentreonAuth(
             $this->dependencyInjector,
             $credentials['login'],
             $credentials['password'],
-            \CentreonAuth::AUTOLOGIN_DISABLE,
+            CentreonAuth::AUTOLOGIN_DISABLE,
             $this->dependencyInjector['configuration_db'],
             $log,
-            \CentreonAuth::ENCRYPT_MD5,
+            CentreonAuth::ENCRYPT_MD5,
             ''
         );
 
@@ -114,7 +114,7 @@ class LocalProvider implements LocalProviderInterface
         $this->debug(
             '[LOCAL PROVIDER] local provider trying to authenticate using legacy Authentication',
             [
-                'class' => \CentreonAuth::class,
+                'class' => CentreonAuth::class,
             ],
             function () use ($auth) {
                 $userInfos = $auth->userInfos;
@@ -160,7 +160,7 @@ class LocalProvider implements LocalProviderInterface
         $auth->userInfos['auth_type'] = $auth->userInfos['contact_auth_type'] === CentreonAuth::AUTH_TYPE_LDAP
             ? $auth->userInfos['contact_auth_type']
             : Provider::LOCAL;
-        $this->setLegacySession(new \Centreon($auth->userInfos));
+        $this->setLegacySession(new Centreon($auth->userInfos));
         $this->info('[LOCAL PROVIDER] authentication succeeded');
     }
 

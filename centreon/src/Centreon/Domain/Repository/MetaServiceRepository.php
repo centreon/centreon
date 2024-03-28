@@ -100,7 +100,7 @@ SQL;
         return $result;
     }
 
-    public function truncate()
+    public function truncate(): void
     {
         $sql = <<<SQL
 TRUNCATE TABLE `meta_service_relation`;

@@ -27,13 +27,13 @@ use Psr\Container\ContainerInterface;
 
 class Widget
 {
-    /** @var \CentreonLegacy\Core\Widget\Information */
+    /** @var Information */
     protected $informationObj;
 
     /** @var string */
     protected $widgetName;
 
-    /** @var \CentreonLegacy\Core\Utils\Utils */
+    /** @var Utils */
     protected $utils;
 
     /** @var array */
@@ -45,10 +45,10 @@ class Widget
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
-     * @param \CentreonLegacy\Core\Widget\Information $informationObj
+     * @param ContainerInterface $services
+     * @param Information $informationObj
      * @param string $widgetName
-     * @param \CentreonLegacy\Core\Utils\Utils $utils
+     * @param Utils $utils
      */
     public function __construct(
         ContainerInterface $services,

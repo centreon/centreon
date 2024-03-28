@@ -152,7 +152,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * @param Request $request
      *
      * @throws SSOAuthenticationException
-     * @throws \Core\Security\Authentication\Domain\Exception\AuthenticationException
+     * @throws CentreonAuthenticationException
      *
      * @return SelfValidatingPassport
      */

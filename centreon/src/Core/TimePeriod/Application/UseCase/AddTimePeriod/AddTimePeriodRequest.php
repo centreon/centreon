@@ -29,7 +29,7 @@ final class AddTimePeriodRequest
 
     public string $alias = '';
 
-    /** @var array<array{day: integer, time_range: string}> */
+    /** @var array<array{day: int, time_range: string}> */
     public array $days = [];
 
     /** @var int[] */

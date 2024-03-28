@@ -159,7 +159,7 @@ class OpenId implements ProviderAuthenticationInterface
 
         $user = $this->provider->getUser();
         if ($user === null) {
-            throw new \Exception("can't initialize legacy session, user does not exist");
+            throw new Exception("can't initialize legacy session, user does not exist");
         }
 
         $sessionUserInfos = [

@@ -40,7 +40,7 @@ class Factory
     }
 
     /**
-     * @return \CentreonLegacy\Core\Widget\Information
+     * @return Information
      */
     public function newInformation()
     {
@@ -50,7 +50,7 @@ class Factory
     /**
      * @param string $widgetDirectory
      *
-     * @return \CentreonLegacy\Core\Widget\Installer
+     * @return Installer
      */
     public function newInstaller($widgetDirectory)
     {
@@ -60,7 +60,7 @@ class Factory
     /**
      * @param string $widgetDirectory
      *
-     * @return \CentreonLegacy\Core\Widget\Upgrader
+     * @return Upgrader
      */
     public function newUpgrader($widgetDirectory)
     {
@@ -70,7 +70,7 @@ class Factory
     /**
      * @param string $widgetDirectory
      *
-     * @return \CentreonLegacy\Core\Widget\Remover
+     * @return Remover
      */
     public function newRemover($widgetDirectory)
     {

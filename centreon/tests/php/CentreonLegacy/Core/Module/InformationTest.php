@@ -152,7 +152,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in'))
+            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -162,12 +162,13 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn($finder);
         $finder->expects($this->any())
             ->method('in')
-            ->willReturn(
-                array(
-                    new \SplFileInfo('MyModule1'),
-                    new \SplFileInfo('MyModule2')
-                )
-            );
+            ->willReturn($finder);
+        $finder->expects($this->any())
+            ->method('getIterator')
+            ->willReturn(new \ArrayIterator([
+                new \SplFileInfo('MyModule1'),
+                new \SplFileInfo('MyModule2'),
+            ]));
         $this->container->registerProvider(new FinderProvider($finder));
 
         $moduleConfiguration1 = array(
