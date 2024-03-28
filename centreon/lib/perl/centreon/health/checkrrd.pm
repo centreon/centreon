@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -46,9 +46,9 @@ sub get_rrd_path {
         $self->{rrd_metrics} = $row->{RRDdatabase_path};
         $self->{rrd_status} = $row->{RRDdatabase_status_path};
     }
-    
+
 }
-     
+
 sub get_rrd_infos {
     my $self = shift;
 
@@ -84,7 +84,7 @@ sub get_rrd_infos {
 sub run {
     my $self = shift;
     my ($centstorage_db, $flag, $logger) = @_;
- 
+
     $self->get_rrd_path(csdb => $centstorage_db);
     $self->get_rrd_infos();
 

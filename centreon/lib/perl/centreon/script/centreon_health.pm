@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -55,11 +55,11 @@ sub new {
 	"skip-logs"		=> \$self->{opt_skiplogs},
 	"anonymous"		=> \$self->{opt_anonymous}
     );
-	
+
     $self->{data} = {};
     $self->{final_output} = {};
     $self->{opt_checkprotocol} = 'snmp';
-    $self->{opt_outputformat} = 'JSON' if (!defined$self->{opt_outputformat}); 
+    $self->{opt_outputformat} = 'JSON' if (!defined$self->{opt_outputformat});
     $self->{opt_community} = 'public' if (!defined $self->{opt_community});
     $self->{opt_csdb} = 'centreon_storage' if (!defined $self->{opt_csdb});
     $self->{opt_majorversion} = '2.8' if (!defined $self->{opt_majorversion});
@@ -72,7 +72,7 @@ sub run {
     $self->SUPER::run();
 
     $self->{data}->{rrd} = centreon::health::checkrrd->new->run($self->{csdb}) if (!defined($self->{opt_skiprrd}));
-    $self->{data}->{database} = centreon::health::checkdb->new->run($self->{cdb}, $self->{csdb}, $self->{opt_csdb}) if (!defined($self->{opt_skipdb}));    
+    $self->{data}->{database} = centreon::health::checkdb->new->run($self->{cdb}, $self->{csdb}, $self->{opt_csdb}) if (!defined($self->{opt_skipdb}));
     $self->{data}->{module} = centreon::health::checkmodules->new->run($self->{cdb});
     $self->{data}->{server} = centreon::health::checkservers->new->run($self->{cdb}, $self->{csdb}, $self->{opt_majorversion});
     $self->{data}->{systems} = centreon::health::checksystems->new->run($self->{data}->{server}->{poller}, $self->{opt_checkprotocol}, $self->{opt_community}, $self->{opt_majorversion});

@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2016 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@
 /*require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
 require_once _CENTREON_PATH_."www/class/centreonDB.class.php";
 
-/* Translation 
+/* Translation
 require_once(_CENTREON_PATH_ . "www/class/centreonSession.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreon.class.php");
 require_once(_CENTREON_PATH_ . "www/class/centreonLang.class.php");

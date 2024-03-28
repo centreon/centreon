@@ -1,6 +1,6 @@
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -59,7 +59,7 @@ function generatePassword(what, securityPolicy = null)
 
     for (i=0; i < length; i++) {
         numI = getRandomNum();
-        while (checkPunc(numI)) { 
+        while (checkPunc(numI)) {
             numI = getRandomNum();
         }
         sPassword = sPassword + String.fromCharCode(numI);

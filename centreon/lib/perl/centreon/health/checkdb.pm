@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -41,7 +41,7 @@ sub run {
     my ($sth, $status);
 
     foreach my $db_name ('centreon', $centstorage_db_name) {
-        $sth = $centreon_db->query("SELECT table_schema AS db_name, SUM(data_length+index_length) AS db_size 
+        $sth = $centreon_db->query("SELECT table_schema AS db_name, SUM(data_length+index_length) AS db_size
                                     FROM information_schema.tables
 				    WHERE table_schema=".$centreon_db->quote($db_name)."");
         while (my $row = $sth->fetchrow_hashref) {
@@ -58,18 +58,18 @@ sub run {
             while (my $row = $sth->fetchrow_hashref()) {
                 $self->{output}->{table_size}->{$row->{table_name}} = centreon::health::misc::format_bytes(bytes_value =>$row->{table_size});
             }
-	    
+
 	    next if ($table =~ m/downtimes/);
-            $sth = $centreon_db->query("SELECT MAX(CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER)) as lastPart 
-					FROM INFORMATION_SCHEMA.PARTITIONS 
-					WHERE TABLE_NAME='" . $table . "' 
+            $sth = $centreon_db->query("SELECT MAX(CONVERT(PARTITION_DESCRIPTION, SIGNED INTEGER)) as lastPart
+					FROM INFORMATION_SCHEMA.PARTITIONS
+					WHERE TABLE_NAME='" . $table . "'
 					AND TABLE_SCHEMA='" . $db_name . "' GROUP BY TABLE_NAME;");
 
             while (my $row = $sth->fetchrow_hashref()) {
 	        $self->{output}->{partitioning_last_part}->{$table} = defined($row->{lastPart}) ? strftime("%m/%d/%Y %H:%M:%S",localtime($row->{lastPart})) : $table . " has no partitioning !";
 	    }
 	}
-    
+
     }
 
     my $var_list = { 'innodb_file_per_table' => 0,
@@ -89,7 +89,7 @@ sub run {
     }
 
     return $self->{output};
-    
+
 }
 
 1;

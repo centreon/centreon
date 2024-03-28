@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -92,7 +92,7 @@ sub get_pollers_config {
         $self->{logger}->writeLogError('[engine] Cannot get Pollers configuration');
         return -1;
     }
-    
+
     return $data;
 }
 
@@ -107,7 +107,7 @@ sub get_broker_stats_collection_flag {
         $self->{logger}->writeLogError('[statistics] Cannot get Broker statistics collection flag');
         return -1;
     }
-    
+
     return $data->[0]->[0];
 }
 
@@ -115,7 +115,7 @@ sub action_brokerstats {
     my ($self, %options) = @_;
 
     $options{token} = 'broker_stats' if (!defined($options{token}));
-    
+
     $self->{logger}->writeLogDebug("[statistics] No Broker statistics collection configured");
 
     $self->send_log(
@@ -136,7 +136,7 @@ sub action_brokerstats {
                 message => 'no collection configured'
             }
         );
-        
+
         return 0;
     }
 
@@ -147,7 +147,7 @@ sub action_brokerstats {
     if (defined($options{data}->{variables}[0]) && $options{data}->{variables}[0] =~ /\d+/) {
         $request .= " AND id = '" . $options{data}->{variables}[0] . "'";
     }
-    
+
     if (!defined($options{data}->{content}->{collect_localhost}) ||
         $options{data}->{content}->{collect_localhost} eq 'false') {
         $request .= " AND localhost = '0'";
@@ -182,7 +182,7 @@ sub action_brokerstats {
                     event => 'STATISTICSLISTENER',
                     target => $target,
                     token => $options{token} . '-' . $target,
-                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
+                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ?
                         $1 + $self->{log_pace} + 5: undef,
                     log_pace => $self->{log_pace}
                 }
@@ -195,7 +195,7 @@ sub action_brokerstats {
             token => $options{token} . '-' . $target,
             data => {
                 instant => 1,
-                content => [ 
+                content => [
                     {
                         command => 'cat ' . $statistics_file,
                         timeout => $options{data}->{content}->{timeout},
@@ -254,20 +254,20 @@ sub action_enginestats {
                     event => 'STATISTICSLISTENER',
                     target => $target,
                     token => $options{token} . '-' . $target,
-                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ? 
+                    timeout => defined($options{data}->{content}->{timeout}) && $options{data}->{content}->{timeout} =~ /(\d+)/ ?
                         $1 + $self->{log_pace} + 5: undef,
                     log_pace => $self->{log_pace}
                 }
             ]
         });
-        
+
         $self->send_internal_action({
             target => $target,
             action => 'COMMAND',
             token => $options{token} . '-' . $target,
             data => {
                 instant => 1,
-                content => [ 
+                content => [
                     {
                         command => $enginestats_file . ' -c ' . $config_file,
                         timeout => $options{data}->{content}->{timeout},
@@ -313,7 +313,7 @@ sub write_broker_stats {
         !defined($options{data}->{metadata}->{poller_id}) || !defined($options{data}->{metadata}->{config_name}));
 
     my $broker_cache_dir = $self->{config}->{broker_cache_dir} . '/' . $options{data}->{metadata}->{poller_id};
-    
+
     if (! -d $broker_cache_dir ) {
         if (make_path($broker_cache_dir) == 0) {
             $self->{logger}->writeLogError("[statistics] Cannot create directory '" . $broker_cache_dir . "': $!");
@@ -527,7 +527,7 @@ sub rrd_create {
     foreach my $ds (@{$options{ds}}) {
         push @ds, "DS:" . $ds . ":GAUGE:" . $options{interval} . ":0:U";
     }
-    
+
     RRDs::create(
         $options{file},
         "-s" . $options{interval},
@@ -540,7 +540,7 @@ sub rrd_create {
         $self->{logger}->writeLogError("[statistics] Error creating RRD file '" . $options{file} . "': " . $error);
         return 1
     }
-    
+
     foreach my $ds (@{$options{ds}}) {
         RRDs::tune($options{file}, "-h",  $ds . ":" . $options{heartbeat});
         if (RRDs::error()) {
@@ -577,7 +577,7 @@ sub rrd_update {
         $self->{logger}->writeLogError("[statistics] Error updating RRD file '" . $options{file} . "': " . $error);
         return 1
     }
-    
+
     return 0;
 }
 
@@ -630,7 +630,7 @@ sub run {
 
     if (defined($self->{config}->{cron})) {
         $self->send_internal_action({
-            action => 'ADDCRON', 
+            action => 'ADDCRON',
             data => {
                 content => $self->{config}->{cron}
             }

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -49,7 +49,7 @@ my ($biHostgroup, $biServicecategory, $biHostcategory, $hostgroup, $servicecateg
 sub initVars {
     my ($etlwk, %options) = @_;
 
-    # instance of 
+    # instance of
     $host = gorgone::modules::centreon::mbi::libs::centreon::Host->new($etlwk->{messages}, $etlwk->{dbbi_centreon_con});
     $hostcategory = gorgone::modules::centreon::mbi::libs::centreon::HostCategory->new($etlwk->{messages}, $etlwk->{dbbi_centreon_con});
     $servicecategory = gorgone::modules::centreon::mbi::libs::centreon::ServiceCategory->new($etlwk->{messages}, $etlwk->{dbbi_centreon_con});
@@ -84,7 +84,7 @@ sub copyLiveServicesToMonitoringDB {
 
 sub truncateDimensionTables {
     my ($etlwk, %options) = @_;
-    
+
     if ($options{options}->{rebuild} == 1 && $options{options}->{nopurge} == 0) {
         $biHostgroup->truncateTable();
         $biHostcategory->truncateTable();
@@ -106,7 +106,7 @@ sub denormalizeDimensionsFromCentreon {
     $servicecategory->setEtlProperties($options{etlProperties});
     $hostgroup->setEtlProperties($options{etlProperties});
     $service->setEtlProperties($options{etlProperties});
-    
+
     $etlwk->{messages}->writeLog("INFO", "Getting host properties from Centreon database");
     my $rows = $host->getHostGroupAndCategories();
     $etlwk->{messages}->writeLog("INFO", "Updating host dimension in Centstorage");
@@ -158,7 +158,7 @@ sub denormalizeDimensionsFromCentreon {
     $timeperiods = $timePeriod->getPeriods($options{etlProperties}->{'liveservices.perfdata'});
     $liveService->insertList($timeperiods);
     $timeperiods = $timePeriod->getCentilePeriods();
-    $liveService->insertList($timeperiods);    
+    $liveService->insertList($timeperiods);
 }
 
 sub insertCentileParamToBIStorage{
@@ -170,9 +170,9 @@ sub insertCentileParamToBIStorage{
     #Insert potential missing time periods related to centile calculation in mod_bi_liveservices
     $sth = $etlwk->{dbbi_centreon_con}->query({ query => "SELECT tp_id, tp_name FROM timeperiod WHERE tp_id IN (SELECT timeperiod_id FROM mod_bi_options_centiles)" });
     while (my $row = $sth->fetchrow_hashref()) {
-        $result{$row->{tp_id}} = $row->{tp_name};    
+        $result{$row->{tp_id}} = $row->{tp_name};
     }
-    
+
     #If not time period is found in centile configuration, exit the function
     if (%result eq 0){
         $etlwk->{messages}->writeLog("INFO", "No configuration found for centile calculation");
@@ -236,7 +236,7 @@ sub startCbisAclSync{
 
     # notify server that request has been sent
     shutdown($socket, 1);
-    
+
     # receive a response of up to 1024 characters from server
     my $response = "";
     $socket->recv($response, 1024);

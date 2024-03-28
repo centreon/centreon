@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -79,21 +79,21 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
     if (is_null($indexId) && isset($gsvs["index_id"])) {
         $indexId = $gsvs["index_id"];
     }
-    
+
     $prepareVirtualM = $pearDB->prepare(
         "SELECT vmetric_id FROM virtual_metrics WHERE "
         . "vmetric_name = :metric_name AND index_id = :index_id"
     );
-    
+
     $prepareVirtualM->bindValue(':metric_name', $vmetricName, \PDO::PARAM_STR);
     $prepareVirtualM->bindValue(':index_id', $indexId, \PDO::PARAM_INT);
-    
+
     try {
         $prepareVirtualM->execute();
     } catch (\PDOException $e) {
         print "DB Error : " . $e->getMessage();
     }
-    
+
     $vmetric = $prepareVirtualM->fetch();
     $numberOfVirtualMetric = $prepareVirtualM->rowCount();
     $prepareVirtualM->closeCursor();
@@ -102,20 +102,20 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
         "SELECT metric_id FROM metrics WHERE "
         . "metric_name = :metric_name AND index_id = :index_id"
     );
-    
+
     $prepareMetric->bindValue(':metric_name', $vmetricName, \PDO::PARAM_STR);
     $prepareMetric->bindValue(':index_id', $indexId, \PDO::PARAM_INT);
-    
+
     try {
         $prepareMetric->execute();
     } catch (\PDOException $e) {
         print "DB Error : " . $e->getMessage();
     }
-    
+
     $metric = $prepareMetric->fetch();
     $numberOfVirtualMetric += $prepareMetric->rowCount();
     $prepareMetric->closeCursor();
-    
+
     if (($numberOfVirtualMetric >= 1
         && $vmetric["vmetric_id"] != $gsvs["vmetric_id"])
         || isset($metric["metric_id"])
@@ -163,16 +163,16 @@ function multipleVirtualMetricInDB($vmetrics = array(), $nbrDup = array())
             "SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1"
         );
         $prepareStatement->bindValue(':vmetric_id', $vmetricId, \PDO::PARAM_INT);
-        
+
         try {
             $prepareStatement->execute();
         } catch (\PDOException $e) {
             print "DB Error : " . $e->getMessage();
         }
-        
+
         $vmConfiguration = $prepareStatement->fetch();
         $vmConfiguration["vmetric_id"] = '';
-        
+
         for ($newIndex= 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
             $val = null;
             $virtualMetricName = null;
@@ -187,7 +187,7 @@ function multipleVirtualMetricInDB($vmetrics = array(), $nbrDup = array())
                     }
                     $cfgValue = $virtualMetricName;
                 }
-                
+
                 if (is_null($val)) {
                     $val .= ($cfgValue == null)
                         ? 'NULL'

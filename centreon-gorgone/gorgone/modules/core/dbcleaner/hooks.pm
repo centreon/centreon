@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -64,7 +64,7 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-    
+
     if ($options{action} eq 'DBCLEANERREADY') {
         $dbcleaner->{ready} = 1;
         return undef;
@@ -120,16 +120,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($dbcleaner->{pid}) || $dbcleaner->{pid} != $pid);
-        
+
         $dbcleaner = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++ if (defined($dbcleaner->{running}) && $dbcleaner->{running} == 1);
-    
+
     return $count;
 }
 

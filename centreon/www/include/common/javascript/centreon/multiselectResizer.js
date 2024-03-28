@@ -1,6 +1,6 @@
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -72,13 +72,13 @@ jQuery(function() {
     if (maxWidth < minAllowedWidth) {
         maxWidth = minAllowedWidth;
     }
-                                         
+
     // set max width
     if (maxWidth > maxAllowedWidth) {
         maxWidth = maxAllowedWidth;
     }
-   
-    // resize all boxes 
+
+    // resize all boxes
     jQuery("select[multiple=multiple]").each(function() {
         if(!jQuery(this).width() || jQuery(this).css('visibility') == 'hidden') {
             return;

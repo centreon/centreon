@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -81,7 +81,7 @@ sub getLiveServicesByNameForTpId {
 	$query .= "WHERE timeperiod_id = ".$tpId;
 	my $sth = $db->query({ query => $query });
 	my ($name, $id);
-	
+
 	while (my $row = $sth->fetchrow_hashref()) {
 		($name, $id) = ($row->{'name'}, $row->{'id'});
 	}
@@ -93,9 +93,9 @@ sub getLiveServiceIdsInString {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{'logger'};
 	my $ids = shift;
-	
+
 	my $idStr = "";
-	
+
 	my $query = "SELECT `id`";
 	$query .= " FROM mod_bi_liveservice";
 	$query .= " WHERE timeperiod_id IN (".$ids.")";
@@ -117,7 +117,7 @@ sub getLiveServicesByNameForTpIds {
 
 	foreach my $key (keys %$ids) {
 		if ($idStr eq "") {
-		$idStr .= $key;			
+		$idStr .= $key;
 		}else {
 			$idStr .= ",".$key;
 		}
@@ -139,7 +139,7 @@ sub getLiveServicesByNameForTpIds {
 sub getTimeperiodName {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $id = shift;
 	my $query = "SELECT name FROM mod_bi_liveservice WHERE timeperiod_id=".$id;
 	my $sth = $db->query({ query => $query });
@@ -153,7 +153,7 @@ sub getTimeperiodName {
 sub getTimeperiodId {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $name = shift;
 	my $query = "SELECT timeperiod_id FROM mod_bi_liveservice WHERE name='".$name."'";
 	my $sth = $db->query({ query => $query });
@@ -167,7 +167,7 @@ sub getTimeperiodId {
 sub insert {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $name = shift;
 	my $id = shift;
 	my $query = "INSERT INTO `mod_bi_liveservice` (`name`, `timeperiod_id`) VALUES ('".$name."', ".$id.")";
@@ -178,12 +178,12 @@ sub insertList {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $list = shift;
-	
+
 	while (my ($id, $name) = each %$list) {
 		my $tpName = $self->getTimeperiodName($id);
 		my $tpId = $self->getTimeperiodId($name);
 		if ($tpName ne "" && $name ne $tpName) {
-				$self->updateById($id, $name);	
+				$self->updateById($id, $name);
 		}elsif ($tpId > 0 && $tpId != $id) {
 			$self->update($name, $id);
 		}elsif ($tpId == 0 && $tpName eq "") {
@@ -195,7 +195,7 @@ sub insertList {
 sub update {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $name = shift;
 	my $id = shift;
 	my $query = "UPDATE `mod_bi_liveservice` SET `timeperiod_id`=".$id." WHERE name='".$name."'";
@@ -205,7 +205,7 @@ sub update {
 sub updateById {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my ($id, $name) = (shift, shift);
 	my $query = "UPDATE `mod_bi_liveservice` SET `name`='".$name."' WHERE timeperiod_id=".$id;
 	$db->query({ query => $query });
@@ -214,7 +214,7 @@ sub updateById {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "TRUNCATE TABLE `mod_bi_liveservice`";
 	$db->query({ query => $query });
 	$db->query({ query => "ALTER TABLE `mod_bi_liveservice` AUTO_INCREMENT=1" });

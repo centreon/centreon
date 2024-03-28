@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -251,7 +251,7 @@ sub run {
             my $msg = "[httpserver] " . $connection->peerhost() . " " . $request->method . " '" . $request->uri->path . "'";
             $msg .= " '" . $request->header("User-Agent") . "'" if (defined($request->header("User-Agent")) && $request->header("User-Agent") ne '');
             $connector->{logger}->writeLogInfo($msg);
-            
+
             if ($connector->{allowed_hosts_enabled} == 1) {
                 if ($connector->check_allowed_host(peer_addr => inet_ntoa($connection->peeraddr())) == 0) {
                     $connector->{logger}->writeLogError("[httpserver] " . $connection->peerhost() . " Unauthorized");
@@ -314,7 +314,7 @@ sub authentication {
 
     ($header =~ /Basic\s(.*)$/);
     my ($user, $password) = split(/:/, MIME::Base64::decode($1), 2);
-    return 1 if (defined($self->{config}->{auth}->{user}) && $user eq $self->{config}->{auth}->{user} && 
+    return 1 if (defined($self->{config}->{auth}->{user}) && $user eq $self->{config}->{auth}->{user} &&
         defined($self->{config}->{auth}->{password}) && $password eq $self->{config}->{auth}->{password});
 
     return 0;
@@ -325,7 +325,7 @@ sub send_response {
 
     if (defined($options{response}) && $options{response} ne '') {
         my $response = HTTP::Response->new(200);
-        $response->header('Content-Type' => 'application/json'); 
+        $response->header('Content-Type' => 'application/json');
         $response->content($options{response} . "\n");
         $options{connection}->send_response($response);
     } else {
@@ -338,7 +338,7 @@ sub send_error {
     my ($self, %options) = @_;
 
     my $response = HTTP::Response->new($options{code});
-    $response->header('Content-Type' => 'application/json'); 
+    $response->header('Content-Type' => 'application/json');
     $response->content($options{response} . "\n");
     $options{connection}->send_response($response);
 }

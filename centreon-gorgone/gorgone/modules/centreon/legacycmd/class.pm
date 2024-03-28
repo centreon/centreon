@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -627,7 +627,7 @@ sub move_cmd_file {
             $self->{logger}->writeLogError("[legacycmd] Cannot open file '" . $options{dst} . "': $!");
             return -1;
         }
-        
+
         return (0, $handle);
     }
 
@@ -689,7 +689,7 @@ sub handle_centcore_cmd {
 
 sub handle_centcore_dir {
     my ($self, %options) = @_;
-    
+
     my ($dh, @files);
     if (!opendir($dh, $self->{config}->{cmd_dir})) {
         $self->{logger}->writeLogError("[legacycmd] Cannot open directory '" . $self->{config}->{cmd_dir} . "': $!");

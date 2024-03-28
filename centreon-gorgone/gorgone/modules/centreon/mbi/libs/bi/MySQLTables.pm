@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -76,7 +76,7 @@ sub createTable {
 sub dumpTableStructure {
 	my $self = shift;
 	my ($tableName) = (shift);
-	
+
 	my $sql = "";
 	my $sth = $self->{centstorage}->query({ query => "SHOW CREATE TABLE " . $tableName });
     if (my $row = $sth->fetchrow_hashref()) {
@@ -94,7 +94,7 @@ sub createParts {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my ($start, $end, $tableStructure, $tableName, $column) = @_;
 	if (!defined($tableStructure)) {
 		$logger->writeLog("FATAL", "[CREATE] Cannot find table [".$tableName."] structure");
@@ -125,7 +125,7 @@ sub updateParts {
 	my $logger = $self->{"logger"};
 	my ($rangeEnd, $tableName) = @_;
 	my $timeObj = Time->new($logger,$db);
-	
+
 	my $isPartitioned = $self->isTablePartitioned($tableName);
 	if (!$isPartitioned) {
 		$logger->writeLog("WARNING", "[UPDATE PARTS] partitioning is not activated for table [".$tableName."]");
@@ -185,7 +185,7 @@ sub deleteEntriesForRebuild {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
 	my ($start, $end, $tableName) = @_;
-	
+
 	if (!$self->isTablePartitioned($tableName)) {
 		$db->query({ query => "DELETE FROM ".$tableName." WHERE time_id >= UNIX_TIMESTAMP('".$start."') AND time_id < UNIX_TIMESTAMP('".$end."')" });
 	} else {
@@ -197,8 +197,8 @@ sub deleteEntriesForRebuild {
 		while(my $row = $sth->fetchrow_hashref()) {
 			$db->query({ query => "ALTER TABLE ".$tableName." TRUNCATE PARTITION ".$row->{'partition_name'} });
 		}
-		$self->updateParts($end, $tableName);	
-	}	
+		$self->updateParts($end, $tableName);
+	}
 }
 
 sub emptyTableForRebuild {
@@ -208,7 +208,7 @@ sub emptyTableForRebuild {
 	my $tableName = shift;
 	my $structure = shift;
 	my $column = shift;
-	
+
 	$structure =~ s/KEY.*\(\`$column\`\)\,//g;
 	$structure =~ s/KEY.*\(\`$column\`\)//g;
 	$structure =~ s/\,[\n\s+]+\)/\n\)/g;
@@ -218,7 +218,7 @@ sub emptyTableForRebuild {
 	} else {
 		my ($start, $end) = @_;
 		$db->query({ query => "DROP TABLE IF EXISTS ".$tableName });
-		$self->createParts($start, $end, $structure, $tableName, $column);		
+		$self->createParts($start, $end, $structure, $tableName, $column);
 	}
 	$db->query({ query => "ALTER TABLE `".$tableName."` ADD INDEX `idx_".$tableName."_".$column."` (`".$column."`)" });
 }
@@ -227,7 +227,7 @@ sub dailyPurge {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my ($retentionDate, $tableName, $column) = @_;
 	if (!$self->isTablePartitioned($tableName)) {
 		$db->query({ query => "DELETE FROM `".$tableName."` WHERE ".$column." < UNIX_TIMESTAMP('".$retentionDate."')" });

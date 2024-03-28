@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -45,7 +45,7 @@ my $config_check_containers_time;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centstorage = $options{config_db_centstorage};
@@ -77,12 +77,12 @@ sub routing {
         });
         return undef;
     }
-    
+
     if ($options{action} eq 'SCOMREADY') {
         $containers->{ $data->{container_id} }->{ready} = 1;
         return undef;
     }
-    
+
     if (!defined($data->{container_id}) || !defined($last_containers->{ $data->{container_id} })) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -93,7 +93,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$containers->{ $data->{container_id} }->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -104,7 +104,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-scom-' . $data->{container_id},
         action => $options{action},
@@ -148,12 +148,12 @@ sub check {
         sync_container_childs(logger => $options{logger});
         $timer_check = time();
     }
-    
+
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($containers_pid->{$pid}));
-        
+
         # If someone dead, we recreate
         delete $containers->{$containers_pid->{$pid}};
         delete $containers_pid->{$pid};
@@ -163,7 +163,7 @@ sub check {
             sync_container_childs(logger => $options{logger});
         }
     }
-    
+
     return $count;
 }
 
@@ -209,7 +209,7 @@ sub get_containers {
             username => $_->{username},
             password => $_->{password},
             httpauth => defined($_->{httpauth}) && $_->{httpauth} =~ /(basic|ntlmv2)/ ? $_->{httpauth} : 'basic',
-            resync_time => 
+            resync_time =>
                 (defined($_->{resync_time}) && $_->{resync_time} =~ /(\d+)/) ? $1 : 300,
             api_version => (defined($_->{api_version}) && $_->{api_version} =~ /(2012|2016|1801)/) ? $1 : '2016',
             dsmhost => $_->{dsmhost},
@@ -226,7 +226,7 @@ sub get_containers {
 
 sub sync_container_childs {
     my (%options) = @_;
-    
+
     $last_containers = get_containers(logger => $options{logger});
     foreach my $container_id (keys %$last_containers) {
         if (!defined($containers->{$container_id})) {
@@ -242,7 +242,7 @@ sub sync_container_childs {
             $options{logger}->writeLogDebug("[scom] Send KILL signal for container '" . $container_id . "'");
             CORE::kill('KILL', $containers->{$container_id}->{pid});
         }
-        
+
         delete $containers_pid->{ $containers->{$container_id}->{pid} };
         delete $containers->{$container_id};
     }
@@ -250,7 +250,7 @@ sub sync_container_childs {
 
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[scom] Create 'gorgone-scom' process for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {

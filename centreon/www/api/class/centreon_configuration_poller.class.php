@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -126,8 +126,8 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
         $stmt = $this->pearDB->prepare($queryPoller);
         $stmt->bindParam(':name', $queryValues['name'], PDO::PARAM_STR);
         // bind exluded master Remote Server
-        if (isset($this->arguments['t']) 
-            && $this->arguments['t'] == 'remote' 
+        if (isset($this->arguments['t'])
+            && $this->arguments['t'] == 'remote'
             && isset($this->arguments['e'])
         ) {
             $stmt->bindParam(':masterId', $queryValues['masterId'], PDO::PARAM_STR);

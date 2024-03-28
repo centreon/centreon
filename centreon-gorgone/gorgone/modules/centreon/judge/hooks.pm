@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -60,12 +60,12 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-    
+
     if ($options{action} eq 'JUDGEREADY') {
         $judge->{ready} = 1;
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$judge->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -76,7 +76,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-judge',
         action => $options{action},
@@ -116,16 +116,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($judge->{pid}) || $judge->{pid} != $pid);
-        
+
         $judge = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++ if (defined($judge->{running}) && $judge->{running} == 1);
-    
+
     return $count;
 }
 

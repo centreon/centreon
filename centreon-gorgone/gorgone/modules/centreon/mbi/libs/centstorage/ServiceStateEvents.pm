@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -38,7 +38,7 @@ sub new {
 	if (@_) {
 		$self->{"centreon"}  = shift;
 	}
-	
+
 	$self->{"name"} = "servicestateevents";
 	$self->{"timeColumn"} = "end_time";
 	bless $self, $class;
@@ -59,7 +59,7 @@ sub agreggateEventsByTimePeriod {
 	my ($self, $timeperiodList, $start, $end, $liveServiceByTpId, $mode) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-		
+
 	my $rangesByTP = ($self->{"timePeriodObj"})->getTimeRangesForPeriodAndTpList($timeperiodList, $start, $end);
 	my $query = "SELECT e.host_id,e.service_id, start_time, end_time, ack_time, state, last_update";
 	$query .= " FROM `servicestateevents` e";
@@ -74,7 +74,7 @@ sub agreggateEventsByTimePeriod {
 	my $sth = $db->query({ query => $query });
 	$serviceEventObjects->createTempBIEventsTable();
 	$serviceEventObjects->prepareTempQuery();
-	
+
 	while (my $row = $sth->fetchrow_hashref()) {
 		if (!defined($row->{'end_time'})) {
 			$row->{'end_time'} = $end;
@@ -104,7 +104,7 @@ sub processIncidentForTp {
 	my ($self, $timeRanges, $start, $end) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my $rangeSize = scalar(@$timeRanges);
 	my $duration = 0;
 	my $slaDuration = 0;
@@ -147,7 +147,7 @@ sub dailyPurge {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
 	my ($end) = @_;
-	
+
 	$logger->writeLog("DEBUG", "[PURGE] [servicestateevents] purging data older than ".$end);
 	my $query = "DELETE FROM `servicestateevents` where end_time < UNIX_TIMESTAMP('".$end."')";
 	$db->query({ query => $query });
@@ -159,7 +159,7 @@ sub getNbEvents {
 	my ($start, $end) = @_;
 	my $nbEvents = 0;
 	my $logger = $self->{"logger"};
-	
+
 	my $query = "SELECT count(*) as nbEvents";
 	$query .= " FROM `servicestateevents` e";
 	$query .= " RIGHT JOIN (select host_id,service_id from mod_bi_tmp_today_services group by host_id,service_id) t2";
@@ -167,7 +167,7 @@ sub getNbEvents {
 	$query .= " WHERE start_time < ".$end."";
 	$query .= " AND end_time > ".$start."";
 	$query .= " AND in_downtime = 0 ";
-	
+
 	my $sth = $db->query({ query => $query });
 
 	while (my $row = $sth->fetchrow_hashref()) {

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -157,7 +157,7 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($pools_pid->{$pid}));
-        
+
         # If someone dead, we recreate
         my $pool_id = $pools_pid->{$pid};
         delete $pools->{$pools_pid->{$pid}};

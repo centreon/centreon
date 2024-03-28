@@ -1,33 +1,33 @@
 ################################################################################
-# Copyright 2005-2013 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2024 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give Centreon 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of Centreon choice, provided that 
-# Centreon also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give Centreon
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of Centreon choice, provided that
+# Centreon also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 #
 ####################################################################################
 
@@ -49,7 +49,7 @@ sub new {
     );
 
     bless $self, $class;
-    
+
     $self->{no_description} = 0;
     $self->{no_variables} = 0;
     $self->{no_format_summary} = 0;
@@ -59,7 +59,7 @@ sub new {
     $self->{no_desc_wildcard} = 0;
     $self->{no_severity} = 0;
     $self->{severity} = 'Normal';
-    
+
     # Set this to 1 to have the --TYPE string prepended to the --SUMMARY string.
     # Set to 0 to disable
     $self->{prepend_type} = 1;
@@ -67,19 +67,19 @@ sub new {
     $self->{total_translations} = 0;
     $self->{successful_translations} = 0;
     $self->{failed_translations} = 0;
-    
+
     $self->add_options(
         "f=s" => \$self->{opt_f}, "file=s" => \$self->{opt_f},
         "m=s" => \$self->{opt_m}, "man=s" => \$self->{opt_m}
     );
-    
+
     return $self;
 }
 
 sub check_snmptranslate_version {
     my $self = shift;
     $self->{snmptranslate_use_On} = 1;
-    
+
     if (open SNMPTRANSLATE, "snmptranslate -V 2>&1|") {
         my $snmptranslatever = <SNMPTRANSLATE>;
         close SNMPTRANSLATE;
@@ -137,9 +137,9 @@ sub insert_into_centreon {
     if (!$self->existsInDB()) {
         ($status, $sth) = $self->{centreon_dbc}->query(
             "INSERT INTO `traps` (`traps_name`, `traps_oid`, `traps_status`, `manufacturer_id`, `traps_submit_result_enable`) VALUES ("
-            . $self->{centreon_dbc}->quote($self->{trap_name}) . ", " 
-            . $self->{centreon_dbc}->quote($self->{trap_oid}) . ", " 
-            . $self->{centreon_dbc}->quote($self->getStatus()) . ", " 
+            . $self->{centreon_dbc}->quote($self->{trap_name}) . ", "
+            . $self->{centreon_dbc}->quote($self->{trap_oid}) . ", "
+            . $self->{centreon_dbc}->quote($self->getStatus()) . ", "
             . $self->{centreon_dbc}->quote($self->{opt_m}) . ", '1')"
         );
     }
@@ -155,22 +155,22 @@ sub insert_into_centreon {
 #
 sub main {
     my $self = shift;
-    
+
     if (!open(FILE, $self->{opt_f})) {
 		$self->{logger}->writeLogError("Cannot get mib file : $self->{opt_f}");
 		exit(1);
     }
-    
+
     # From snmpconvertmib
     # Copyright 2002-2013 Alex Burger
     # alex_b@users.sourceforge.net
-    
+
     # Get complete path of input file (MIB) in a portable way (needed for -m switch for snmptranslate)
     my $dirname = dirname $self->{opt_f};
     my $basename = basename $self->{opt_f};
     my $input = File::Spec->catfile($dirname, $basename);
     $ENV{MIBS} = $input;
-    
+
     $self->check_snmptranslate_version();
     my @mibfile;
     while (<FILE>) {
@@ -188,7 +188,7 @@ sub main {
         my $line = $mibfile[$currentline];
 
         # Sometimes DEFINITIONS ::= BEGIN will appear on the line following the mib name.
-        # Look for DEFINITIONS ::= BEGIN with nothing (white space allowed) around it and a previous line with 
+        # Look for DEFINITIONS ::= BEGIN with nothing (white space allowed) around it and a previous line with
         # only a single word with whitespace around it.
         if ($currentline > 0 && $line =~ /^\s*DEFINITIONS\s*::=\s*BEGIN\s*$/ && $mibfile[$currentline-1] =~ /^\s*(\S+)\s*$/) {
             # We should have found the mib name
@@ -208,12 +208,12 @@ sub main {
         $self->{logger}->writeLogError("Could not find DEFINITIONS ::= BEGIN statement in MIB file!");
         exit (1);
     }
-    
+
     while ($currentline <= $#mibfile) {
         my $line = $mibfile[$currentline];
 
         # Sometimes DEFINITIONS ::= BEGIN will appear on the line following the mib name.
-        # Look for DEFINITIONS ::= BEGIN with nothing (white space allowed) around it and a previous line with 
+        # Look for DEFINITIONS ::= BEGIN with nothing (white space allowed) around it and a previous line with
         # only a single word with whitespace around it.
         if ($currentline > 0 && $line =~ /^\s*DEFINITIONS\s*::=\s*BEGIN\s*$/ && $mibfile[$currentline-1] =~ /^\s*(\S+)\s*$/) {
             # We should have found the mib name
@@ -238,7 +238,7 @@ sub main {
         #
         # eg: 'mngmtAgentTrap-23003 TRAP-TYPE';
         # eg: 'ciscoSystemClockChanged NOTIFICATION-TYPE';
-        if ($line =~ /(.*)\s*TRAP-TYPE.*/ || 
+        if ($line =~ /(.*)\s*TRAP-TYPE.*/ ||
             $line =~ /(.*)\s*(?<!--)NOTIFICATION-TYPE.*/) {
             my $trapname = $1;
 
@@ -300,8 +300,8 @@ sub main {
             $self->{trap_severity} = '';
             $self->{trap_format} = '';
             $self->{trap_description} = '';
-            
-            
+
+
             my $traptype = "";
             my $trapsummary = "";
             my @description = ();
@@ -429,16 +429,16 @@ sub main {
                             $line4 = $mibfile[$currentline];
                             next;
                         }
-                        
+
                         # If next line is a --#ARGUMENTS, pull out the information and place in $arguments
                         if ($line4 =~ /--#ARGUMENTS\s*{(.*)}/) {
                             @arguments = split /,/, $1;
 
                             for(my $i=0;$i <= $#arguments;$i++) {
-                                # Most ARGUMENTS lines have %n where n is a number starting 
+                                # Most ARGUMENTS lines have %n where n is a number starting
                                 # at 0, but some MIBS have an ARGUMENTS line that have $1, $2,
-                                # etc and start at 1.  These need to have the $ removed and 
-                                # the number downshifted so the FORMAT will be generated 
+                                # etc and start at 1.  These need to have the $ removed and
+                                # the number downshifted so the FORMAT will be generated
                                 # properly.
                                 if ($arguments[$i] =~ /^\s*\$\d+/) {
                                     $arguments[$i] =~ s/^\s*\$(\d+)/$1/;
@@ -746,7 +746,7 @@ sub main {
 
         $currentline++; # Increment to the next line
     }
-    
+
     $self->{logger}->writeLogInfo("Done");
     $self->{logger}->writeLogInfo("Total translations:        $self->{total_translations}");
     $self->{logger}->writeLogInfo("Successful translations:   $self->{successful_translations}");
@@ -771,7 +771,7 @@ sub run {
     if ($self->{centreon_dbc}->connect() == -1) {
         exit(1);
     }
-    
+
     $self->main();
     exit(0);
 }

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -157,7 +157,7 @@ sub is_failover_status {
 sub is_spare_ready {
     my (%options) = @_;
 
-    if (!defined($options{module}->{nodes}->{ $options{cluster}->{spare} }->{running}) || 
+    if (!defined($options{module}->{nodes}->{ $options{cluster}->{spare} }->{running}) ||
         $options{module}->{nodes}->{ $options{cluster}->{spare} }->{running} == 0 ||
         ($options{ctime} - $options{cluster}->{alive_timeout}) > $options{module}->{nodes}->{ $options{cluster}->{spare} }->{last_alive}
     ) {
@@ -401,8 +401,8 @@ sub migrate_steps_1_2_3 {
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_GENERATE_CONFIGS started");
     $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_GENERATE_CONFIGS;
-    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
-    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_failed} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8);
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8);
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     $options{module}->send_internal_action(
@@ -427,7 +427,7 @@ sub migrate_steps_1_2_3 {
                 data => {
                     content => [ {
                         command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{node_src},
-                    } ] 
+                    } ]
                 }
             }
         ]
@@ -455,7 +455,7 @@ sub migrate_steps_1_2_3 {
                 data => {
                     content => [ {
                         command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{spare},
-                    } ] 
+                    } ]
                 }
             }
         ]
@@ -488,7 +488,7 @@ sub migrate_step_3 {
         );
         return -1;
     }
-    
+
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_responses}++;
     if ($options{clusters}->{ $options{cluster} }->{live}->{token_config_responses} < 2) {
         return 0;
@@ -545,7 +545,7 @@ sub migrate_step_4 {
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_MIGRATION_POLLER_SPARE started");
     $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_POLLER_SPARE;
-    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_POLLER_SPARE . '##' . $options{module}->generate_token(length => 8); 
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_spare} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_MIGRATION_POLLER_SPARE . '##' . $options{module}->generate_token(length => 8);
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     $options{module}->send_internal_action(
@@ -600,7 +600,7 @@ sub migrate_step_5 {
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_MIGRATION_UPDATE_RUNNING_POLLER_FAILED;
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILOVER_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
-    if (!defined($options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed}) || 
+    if (!defined($options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed}) ||
         $options{clusters}->{ $options{cluster} }->{live}->{no_update_running_failed} != 1) {
         my ($status) = $options{module}->{class_object_centstorage}->custom_execute(
             request => 'UPDATE instances SET running = 0 ' .
@@ -699,7 +699,7 @@ sub failback_start {
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{clusters}->{ $options{cluster} }->{live}->{token},
             data => { message => 'cannot get sqlite information' }
-        );        
+        );
         return -1;
     }
     my $row = $sth->fetchrow_hashref();
@@ -710,7 +710,7 @@ sub failback_start {
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{clusters}->{ $options{cluster} }->{live}->{token},
             data => { message => 'no data in sqlite' }
-        );        
+        );
         return -1;
     }
     ($status, my $decoded) = $options{module}->json_decode(
@@ -770,8 +770,8 @@ sub failback_start {
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_GENERATE_CONFIGS started");
     $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_GENERATE_CONFIGS;
-    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
-    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8); 
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_src} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8);
+    $options{clusters}->{ $options{cluster} }->{live}->{token_config_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_GENERATE_CONFIGS . '##' . $options{module}->generate_token(length => 8);
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     $options{module}->send_internal_action(
@@ -796,7 +796,7 @@ sub failback_start {
                 data => {
                     content => [ {
                         command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{live}->{node_src}
-                    } ] 
+                    } ]
                 }
             }
         ]
@@ -824,7 +824,7 @@ sub failback_start {
                 data => {
                     content => [ {
                         command => 'centreon -u ' . $options{module}->{clapi_user} . ' -p ' . $options{module}->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{clusters}->{ $options{cluster} }->{live}->{node_dst}
-                    } ] 
+                    } ]
                 }
             }
         ]
@@ -857,7 +857,7 @@ sub failback_generate_configs {
         );
         return -1;
     }
-    
+
     $options{clusters}->{ $options{cluster} }->{live}->{token_config_responses}++;
     if ($options{clusters}->{ $options{cluster} }->{live}->{token_config_responses} < 2) {
         return 0;
@@ -932,7 +932,7 @@ sub failback_poller_src {
     $options{module}->{logger}->writeLogInfo("[judge] -class- cluster '" . $options{clusters}->{ $options{cluster} }->{name} . "' step STATE_FAILBACK_POLLER_DST started");
     $options{module}->{logger}->writeLogInfo('[judge] -class- ************************************');
     $options{clusters}->{ $options{cluster} }->{live}->{state} = STATE_FAILBACK_POLLER_DST;
-    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_POLLER_DST . '##' . $options{module}->generate_token(length => 8); 
+    $options{clusters}->{ $options{cluster} }->{live}->{token_pipeline_node_dst} = 'judge-spare##' . $options{clusters}->{ $options{cluster} }->{name} . '##' . STATE_FAILBACK_POLLER_DST . '##' . $options{module}->generate_token(length => 8);
     send_log(module => $options{module}, code => GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING, live => $options{clusters}->{ $options{cluster} }->{live});
 
     $options{module}->send_internal_action(

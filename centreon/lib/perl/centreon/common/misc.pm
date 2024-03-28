@@ -1,33 +1,33 @@
 ################################################################################
-# Copyright 2005-2013 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2024 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give Centreon 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of Centreon choice, provided that 
-# Centreon also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give Centreon
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of Centreon choice, provided that
+# Centreon also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 #
 ####################################################################################
 
@@ -43,14 +43,14 @@ my $read_size = 1*1024*1024*10; # 10Mo
 sub reload_db_config {
     my ($logger, $config_file, $cdb, $csdb) = @_;
     my ($cdb_mod, $csdb_mod) = (0, 0);
-    
+
     unless (my $return = do $config_file) {
         $logger->writeLogError("couldn't parse $config_file: $@") if $@;
         $logger->writeLogError("couldn't do $config_file: $!") unless defined $return;
         $logger->writeLogError("couldn't run $config_file") unless $return;
         return -1;
     }
-    
+
     if (defined($cdb)) {
         if ($centreon_config->{centreon_db} ne $cdb->db() ||
             $centreon_config->{db_host} ne $cdb->host() ||
@@ -66,7 +66,7 @@ sub reload_db_config {
             $cdb_mod = 1;
         }
     }
-    
+
     if (defined($csdb)) {
         if ($centreon_config->{centstorage_db} ne $csdb->db() ||
             $centreon_config->{db_host} ne $csdb->host() ||
@@ -82,7 +82,7 @@ sub reload_db_config {
             $csdb_mod = 1;
         }
     }
-   
+
     return (0, $cdb_mod, $csdb_mod);
 }
 
@@ -91,7 +91,7 @@ sub get_all_options_config {
 
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
-    
+
     my ($status, $stmt) = $centreon_db_centreon->query("SELECT `key`, `value` FROM options WHERE `key` LIKE " . $centreon_db_centreon->quote($prefix . "_%") . " LIMIT 1");
     if ($status == -1) {
         $centreon_db_centreon->force($save_force);
@@ -103,17 +103,17 @@ sub get_all_options_config {
             $extra_config->{$data->{key}} = $data->{value};
         }
     }
-    
+
     $centreon_db_centreon->force($save_force);
 }
 
 sub get_option_config {
     my ($extra_config, $centreon_db_centreon, $prefix, $key) = @_;
     my $data;
- 
+
     my $save_force = $centreon_db_centreon->force();
     $centreon_db_centreon->force(0);
-    
+
     my ($status, $stmt) = $centreon_db_centreon->query("SELECT value FROM options WHERE `key` = " . $centreon_db_centreon->quote($prefix . "_" . $key) . " LIMIT 1");
     if ($status == -1) {
         $centreon_db_centreon->force($save_force);
@@ -122,13 +122,13 @@ sub get_option_config {
     if (($data = $stmt->fetchrow_hashref()) && defined($data->{value})) {
         $extra_config->{$key} = $data->{value};
     }
-    
+
     $centreon_db_centreon->force($save_force);
 }
 
 sub check_debug {
     my ($logger, $key, $cdb, $name) = @_;
-    
+
     my $request = "SELECT value FROM options WHERE `key` = " . $cdb->quote($key);
     my ($status, $sth) =  $cdb->query($request);
     return -1 if ($status == -1);
@@ -213,7 +213,7 @@ sub backtick {
     my @output;
     my $pid;
     my $return_code;
-    
+
     my $sig_do;
     if ($arg{wait_exit} == 0) {
         $sig_do = 'IGNORE';
@@ -226,7 +226,7 @@ sub backtick {
         $arg{logger}->writeLogError("Cant fork: $!");
         return -1;
     }
-    
+
     if ($pid) {
         eval {
            local $SIG{ALRM} = sub { die "Timeout by signal ALARM\n"; };
@@ -252,7 +252,7 @@ sub backtick {
             return (-1, join("\n", @output), -1);
         } else {
             if ($arg{wait_exit} == 1) {
-                # We're waiting the exit code                
+                # We're waiting the exit code
                 waitpid($pid, 0);
                 $return_code = ($? >> 8);
             }
@@ -271,5 +271,5 @@ sub backtick {
 
     return (0, join("\n", @output), $return_code);
 }
-        
+
 1;

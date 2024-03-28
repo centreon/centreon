@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ final class FindResourcesByParent
                 }
             }
 
-            // Set total to the number of children found 
+            // Set total to the number of children found
             $this->requestParameters->setTotal($totalChildrenFound);
 
             // Restore search and sort from initial request (for accurate meta in presenter).

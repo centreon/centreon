@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -102,20 +102,20 @@ sub saveStatsInFile {
 	my ($data, $time_id, $liveserviceId,$fh)  = @_;
 	my $query;
 	my $row;
-	
+
 	while (my ($modBiHostId, $stats) = each %$data) {
 		my @tab = @$stats;
 		if ($stats->[0]+$stats->[1]+$stats->[4] == 0) {
 			next;
 		}
-		
+
 		#Filling the dump file with data
 		$row = $modBiHostId."\t".$time_id."\t".$liveserviceId;
 		for (my $i = 0; $i < scalar(@$stats); $i++) {
 			$row.= "\t".$stats->[$i]
 		}
 		$row .= "\n";
-		
+
 		#Write row into file
 		print $fh $row;
 		$self->{"nbLinesInFile"}+=1;
@@ -140,7 +140,7 @@ sub setCurrentNbLines{
 sub getHGMonthAvailability {
 	my ($self, $start, $end, $eventObj) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$self->{"logger"}->writeLog("DEBUG","[HOST] Calculating availability for hosts");
 	my $query = "SELECT h.hg_id, h.hc_id, hc.id as cat_id, hg.id as group_id, ha.liveservice_id, avg(available/(available+unavailable+unreachable)) as av_percent,";
 	$query .= " sum(available) as av_time, sum(unavailable) as unav_time, sum(alert_unavailable_opened) as unav_opened, sum(alert_unavailable_closed) as unav_closed,";
@@ -153,23 +153,23 @@ sub getHGMonthAvailability {
 	$query .= " WHERE t.year = YEAR('".$start."') AND t.month = MONTH('".$start."') and t.hour=0";
 	$query .= " GROUP BY h.hg_id, h.hc_id, ha.liveservice_id";
 	my $sth = $db->query({ query => $query });
-	
-	$self->{"logger"}->writeLog("DEBUG","[HOST] Calculating MTBF/MTRS/MTBSI for Host");	
+
+	$self->{"logger"}->writeLog("DEBUG","[HOST] Calculating MTBF/MTRS/MTBSI for Host");
 	my @data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
-		my ($totalDownEvents, $totalUnrEvents) = $eventObj->getNbEvents($start, $end, $row->{'hg_id'}, $row->{'hc_id'}, $row->{'liveservice_id'}); 
+		my ($totalDownEvents, $totalUnrEvents) = $eventObj->getNbEvents($start, $end, $row->{'hg_id'}, $row->{'hc_id'}, $row->{'liveservice_id'});
 		my ($mtrs, $mtbf, $mtbsi) = (undef, undef, undef);
 		if (defined($totalDownEvents) && $totalDownEvents != 0) {
 			$mtrs = $row->{'unav_time'}/$totalDownEvents;
 			$mtbf = $row->{'av_time'}/$totalDownEvents;
 			$mtbsi = ($row->{'unav_time'}+$row->{'av_time'})/$totalDownEvents;
 		}
-		my @tab = ($row->{'group_id'}, $row->{'cat_id'}, $row->{'liveservice_id'}, $row->{'av_percent'}, $row->{'unav_time'}, 
-					$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'unr_opened'}, $row->{'unr_closed'}, 
+		my @tab = ($row->{'group_id'}, $row->{'cat_id'}, $row->{'liveservice_id'}, $row->{'av_percent'}, $row->{'unav_time'},
+					$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'unr_opened'}, $row->{'unr_closed'},
 					$totalDownEvents, $totalUnrEvents, $mtrs, $mtbf, $mtbsi);
 		push @data, \@tab;
 	}
-	
+
 	return \@data;
 }
 1;

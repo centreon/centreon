@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -95,7 +95,7 @@ sub parse {
         $self->{action} = $1;
         $self->{token} = $2;
         $self->{target} = $3;
-        
+
         if (defined($options) && defined($options->{decode})) {
             try {
                 $self->{data} = JSON::XS->new->decode(substr(${$self->{frame}}, pos(${$self->{frame}})));

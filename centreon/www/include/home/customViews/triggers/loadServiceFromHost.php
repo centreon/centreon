@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2023 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -88,7 +88,7 @@ try {
             $xml->startElement('option');
             $xml->writeElement('id', $row['service_id']);
             // For meta services, use display_name column instead of service_description
-            $serviceDescription = (preg_match('/meta_/', $row['service_description'])) 
+            $serviceDescription = (preg_match('/meta_/', $row['service_description']))
                 ? $row['display_name'] : $row['service_description'];
             $xml->writeElement('label', $serviceDescription);
             $xml->endElement();

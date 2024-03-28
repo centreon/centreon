@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -44,7 +44,7 @@ sub getCentileParams {
     my $self = shift;
     my $centreon = $self->{centreon};
     my $logger = $self->{logger};
-    
+
     my $centileParams = [];
     my $query = "SELECT `centile_param`, `timeperiod_id` FROM `mod_bi_options_centiles`";
     my $sth = $centreon->query({ query => $query });

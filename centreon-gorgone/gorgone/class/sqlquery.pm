@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -38,7 +38,7 @@ sub builder {
 
     my $where = defined($options{where}) ? ' WHERE ' . $options{where} : '';
     my $extra_suffix = defined($options{extra_suffix}) ? $options{extra_suffix} : '';
-    my $request = $options{request} . " " . join(', ', @{$options{fields}}) . 
+    my $request = $options{request} . " " . join(', ', @{$options{fields}}) .
         ' FROM ' . join(', ', @{$options{tables}}) . $where . $extra_suffix;
     return $request;
 }
@@ -46,7 +46,7 @@ sub builder {
 sub do {
     my ($self, %options) = @_;
     my $mode = defined($options{mode}) ? $options{mode} : 0;
-    
+
     my ($status, $sth) = $self->{db_centreon}->query({ query => $options{request}, bind_values => $options{bind_values} });
     if ($status == -1) {
         return (-1, undef);
@@ -71,13 +71,13 @@ sub do {
 
 sub custom_execute {
     my ($self, %options) = @_;
-    
+
     return $self->do(%options);
 }
 
 sub execute {
     my ($self, %options) = @_;
-    
+
     my $request = $self->builder(%options);
     return $self->do(request => $request, %options);
 }
@@ -127,7 +127,7 @@ sub transaction_query {
         $self->rollback();
         return -1;
     }
-    
+
     $status = $self->commit();
     return -1 if ($status == -1);
 

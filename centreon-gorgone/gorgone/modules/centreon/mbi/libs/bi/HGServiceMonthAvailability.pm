@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -61,7 +61,7 @@ sub insertStats {
         " (`time_id`, `modbihg_id`, `modbihc_id`, `modbisc_id`, `liveservice_id`, `available`,".
         " `unavailable_time`, `degraded_time`, `alert_unavailable_opened`, `alert_unavailable_closed`, ".
         " `alert_degraded_opened`, `alert_degraded_closed`, ".
-        " `alert_other_opened`, `alert_other_closed`, ".				
+        " `alert_other_opened`, `alert_other_closed`, ".
         " `alert_degraded_total`, `alert_unavailable_total`,".
         " `alert_other_total`, `mtrs`, `mtbf`, `mtbsi`)".
         " VALUES ";

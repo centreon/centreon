@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -357,7 +357,7 @@ sub is_command_authorized {
 
 sub action_command {
     my ($self, %options) = @_;
-    
+
     if (!defined($options{data}->{content}) || ref($options{data}->{content}) ne 'ARRAY') {
         $self->send_log(
             socket => $options{socket_log},
@@ -402,7 +402,7 @@ sub action_command {
 
         $index++;
     }
-    
+
     $self->send_log(
         socket => $options{socket_log},
         code => GORGONE_ACTION_BEGIN,
@@ -550,7 +550,7 @@ sub action_command {
 
 sub action_processcopy {
     my ($self, %options) = @_;
-    
+
     if (!defined($options{data}->{content}) || $options{data}->{content} eq '') {
         $self->send_log(
             code => GORGONE_ACTION_FINISH_KO,
@@ -562,7 +562,7 @@ sub action_processcopy {
     }
 
     my $cache_file = $options{data}->{content}->{cache_dir} . '/copy_' . $options{token};
-    if ($options{data}->{content}->{status} eq 'inprogress' && defined($options{data}->{content}->{chunk}->{data})) {        
+    if ($options{data}->{content}->{status} eq 'inprogress' && defined($options{data}->{content}->{chunk}->{data})) {
         my $fh;
         if (!sysopen($fh, $cache_file, O_RDWR|O_APPEND|O_CREAT, 0660)) {
             # no need to insert too many logs
@@ -823,7 +823,7 @@ sub create_child {
         );
         return undef;
     }
-    
+
     if ($child_pid == 0) {
         $self->set_fork();
         $self->action_run(action => $options{action}, token => $options{token}, data => $options{data});
@@ -843,10 +843,10 @@ sub event {
         next if (!defined($message));
 
         $self->{logger}->writeLogDebug("[action] Event: $message");
-        
+
         if ($message !~ /^\[ACK\]/) {
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m;
-            
+
             my ($action, $token) = ($1, $2);
             my ($rv, $data) = $self->json_decode(argument => $3, token => $token);
             next if ($rv);

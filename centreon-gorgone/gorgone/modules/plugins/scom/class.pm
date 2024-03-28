@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -50,12 +50,12 @@ sub new {
     $connector->{dsmrecoverymessage} = $options{config_scom}->{dsmrecoverymessage};
     $connector->{resync_time} = $options{config_scom}->{resync_time};
     $connector->{last_resync_time} = time() - $connector->{resync_time};
-    $connector->{centcore_cmd} = 
+    $connector->{centcore_cmd} =
         defined($connector->{config}->{centcore_cmd}) && $connector->{config}->{centcore_cmd} ne '' ? $connector->{config}->{centcore_cmd} : '/var/lib/centreon/centcore.cmd';
 
     $connector->{scom_session_id} = undef;
 
-    $connector->{dsmclient_bin} = 
+    $connector->{dsmclient_bin} =
         defined($connector->{config}->{dsmclient_bin}) ? $connector->{config}->{dsmclient_bin} : '/usr/share/centreon/bin/dsmclient.pl';
 
     $connector->set_signal_handlers();
@@ -125,9 +125,9 @@ sub get_httpauth {
 
 sub get_method {
     my ($self, %options) = @_;
-    
+
     my $api = 2016;
-    $api = 1801 if ($self->{api_version} == 1801); 
+    $api = 1801 if ($self->{api_version} == 1801);
     return $self->can($options{method} . '_' . $api);
 }
 
@@ -197,7 +197,7 @@ sub acknowledge_alert_2016 {
         full_url => $self->{config_scom}->{url} . 'alerts/' . $options{alert_id},
         query_form_post => $encoded_argument,
         credentials => 1,
-        %$httpauth, 
+        %$httpauth,
         username => $self->{config_scom}->{username},
         password => $self->{config_scom}->{password},
         header => [
@@ -206,7 +206,7 @@ sub acknowledge_alert_2016 {
         ],
         curl_opt => $curl_opts,
     );
-    
+
     return 1 if ($self->http_check_error(status => $status, method => 'data/alert') == 1);
 
     return 0;
@@ -252,7 +252,7 @@ sub get_realtime_scom_alerts_1801 {
         ],
         curl_opt => $curl_opts,
     );
-    
+
     return 1 if ($self->http_check_error(status => $status, method => 'data/alert') == 1);
 
     return 0;
@@ -268,14 +268,14 @@ sub get_realtime_scom_alerts_2016 {
         }
     }
     my $httpauth = $self->get_httpauth();
-    
+
 
     $self->{scom_realtime_alerts} = {};
     my ($status, $response) = $self->{http}->request(
         method => 'GET', hostname => '',
         full_url => $self->{config_scom}->{url} . 'alerts',
         credentials => 1,
-        %$httpauth, 
+        %$httpauth,
         username => $self->{config_scom}->{username},
         password => $self->{config_scom}->{password},
         header => [
@@ -296,7 +296,7 @@ sub get_realtime_scom_alerts_2016 {
     #    254 => Resolved
     #    250 => Scheduled
     #    247 => Awaiting Evidence
-    #    248 => Assigned to Engineering 
+    #    248 => Assigned to Engineering
     #    249 => Acknowledge
     # Severity:
     #    0 => Information
@@ -306,7 +306,7 @@ sub get_realtime_scom_alerts_2016 {
         next if (!defined($_->{alertGenerated}->{resolutionState}));
         next if ($_->{alertGenerated}->{resolutionState} == 255);
         next if ($_->{alertGenerated}->{severity} == 0);
-        
+
         $self->{scom_realtime_alerts}->{$_->{alertGenerated}->{id}} = {
             monitoringobjectdisplayname => $_->{alertGenerated}->{monitoringObjectDisplayName},
             resolutionstate => $_->{alertGenerated}->{resolutionState},
@@ -326,7 +326,7 @@ sub get_realtime_slots {
     $self->{realtime_slots} = {};
     my $request = "
         SELECT hosts.instance_id, hosts.host_id, hosts.name, services.description, services.state, cv.name, cv.value, services.acknowledged, hosts.instance_id
-        FROM hosts, services 
+        FROM hosts, services
         LEFT JOIN customvariables cv ON services.host_id = cv.host_id AND services.service_id = cv.service_id AND cv.name = '$self->{dsmmacro}'
         WHERE hosts.name = '$self->{dsmhost}' AND hosts.host_id = services.host_id AND services.enabled = '1' AND services.description LIKE '$self->{dsmslot}';
     ";
@@ -361,7 +361,7 @@ sub sync_alerts {
             $self->{scom_realtime_alerts}->{$alert_id}->{resolutionstate} == 255
         );
         $func->(
-            $self, 
+            $self,
             alert_id => $alert_id,
             resolutionstate => 254,
         );
@@ -380,9 +380,9 @@ sub sync_alerts {
                 );
                 $self->execute_shell_cmd(
                     cmd => $self->{config}->{dsmclient_bin} .
-                        ' --Host "' . $connector->{dsmhost} . '"' . 
+                        ' --Host "' . $connector->{dsmhost} . '"' .
                         ' --pool-prefix "' . $pool_prefix . '"' .
-                        ' --status ' . $self->{scom_realtime_alerts}->{$alert_id}->{severity} . 
+                        ' --status ' . $self->{scom_realtime_alerts}->{$alert_id}->{severity} .
                         ' --id "' . $alert_id . '"' .
                         ' --output "' . $output . '"'
                 );
@@ -400,7 +400,7 @@ sub sync_alerts {
         );
         $self->execute_shell_cmd(
             cmd => $self->{config}->{dsmclient_bin} .
-                ' --Host "' . $connector->{dsmhost} . '"' . 
+                ' --Host "' . $connector->{dsmhost} . '"' .
                 ' --pool-prefix "' . $pool_prefix . '"' .
                 ' --status 0 ' .
                 ' --id "' . $alert_id . '"' .
@@ -416,10 +416,10 @@ sub sync_acks {
     foreach my $alert_id (keys %{$self->{realtime_slots}}) {
         next if ($self->{realtime_slots}->{$alert_id}->{state} == 0);
         next if ($self->{realtime_slots}->{$alert_id}->{acknowledged} == 0);
-        next if (!defined($self->{scom_realtime_alerts}->{$alert_id}) || 
+        next if (!defined($self->{scom_realtime_alerts}->{$alert_id}) ||
             $self->{scom_realtime_alerts}->{$alert_id}->{resolutionstate} == 249);
         $func->(
-            $self, 
+            $self,
             alert_id => $alert_id,
             resolutionstate => 249,
         );

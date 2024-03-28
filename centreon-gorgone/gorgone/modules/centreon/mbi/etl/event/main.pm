@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -49,7 +49,7 @@ sub emptyTableForRebuild {
     $structure =~ s/KEY.*\(\`$options{column}\`\)\,//g;
 	$structure =~ s/KEY.*\(\`$options{column}\`\)//g;
 	$structure =~ s/\,[\n\s+]+\)/\n\)/g;
-    
+
     if (defined($options{start})) {
         $structure =~ s/\n.*PARTITION.*//g;
         $structure =~ s/\,[\n\s]+\)/\)/;
@@ -140,12 +140,12 @@ sub purgeAvailabilityTables {
             }
             deleteEntriesForRebuild($etl, name => 'mod_bi_hgservicemonthavailability', start => $firstDayOfMonth, end => $end);
         }
-    }    
+    }
 }
 
 sub processByDay {
 	my ($etl, $liveServices, $start, $end) = @_;
-			
+
    	while (my ($liveserviceName, $liveserviceId) = each (%$liveServices)) {
    		if (!defined($etl->{run}->{options}->{service_only}) || $etl->{run}->{options}->{service_only} == 0) {
             push @{$etl->{run}->{schedule}->{event}->{stages}->[1]}, {
@@ -156,7 +156,7 @@ sub processByDay {
                 end => $end
             };
         }
-		
+
         if (!defined($etl->{run}->{options}->{host_only}) || $etl->{run}->{options}->{host_only} == 0) {
             push @{$etl->{run}->{schedule}->{event}->{stages}->[1]}, {
                 type => 'availability_day_services',
@@ -252,7 +252,7 @@ sub rebuildAvailability {
 
 sub rebuildProcessing {
     my ($etl, $liveServices) = @_;
-    
+
     if ($etl->{run}->{options}->{start} ne '' && $etl->{run}->{options}->{end} ne '') {
         # setting manually start and end dates for each granularity of perfdata
         ($start, $end) = ($etl->{run}->{options}->{start}, $etl->{run}->{options}->{end});

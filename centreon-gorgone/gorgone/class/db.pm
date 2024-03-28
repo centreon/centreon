@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -39,7 +39,7 @@ sub new {
     );
     my $self = {%defaults, %options};
     $self->{type} = 'mysql' if (!defined($self->{type}));
-    
+
     # strip double-quotes
     if (defined($self->{dsn})) {
         $self->{dsn} =~ s/^\s*"//;
@@ -243,7 +243,7 @@ sub connect() {
             );
         } elsif ($self->{type} =~ /SQLite/i) {
             $self->{instance} = DBI->connect(
-                "DBI:".$self->{type} 
+                "DBI:".$self->{type}
                     .":".$self->{db},
                 $self->{user},
                 $self->{password},
@@ -251,7 +251,7 @@ sub connect() {
             );
         } else {
             $self->{instance} = DBI->connect(
-                "DBI:".$self->{type} 
+                "DBI:".$self->{type}
                     .":".$self->{db}
                     .":".$self->{host}
                     .":".$self->{port},
@@ -270,11 +270,11 @@ sub connect() {
         }
 
         my ($package, $filename, $line) = caller;
-        $self->{logger}->writeLogError("MySQL error : cannot connect to database '" . 
+        $self->{logger}->writeLogError("MySQL error : cannot connect to database '" .
             (defined($self->{db}) ? $self->{db} : $self->{dsn}) . "': " . $DBI::errstr . " (caller: $package:$filename:$line) (try: $count)"
         );
         if ($self->{force} == 0 || ($self->{force} == 2 && $count == 1)) {
-            $self->{lastError} = "MySQL error : cannot connect to database '" . 
+            $self->{lastError} = "MySQL error : cannot connect to database '" .
                 (defined($self->{db}) ? $self->{db} : $self->{dsn}) . "': " . $DBI::errstr;
             $status = -1;
             last;

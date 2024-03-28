@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -40,7 +40,7 @@ my $stop = 0;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config->{command_file} = defined($config->{command_file}) ? $config->{command_file} : '/var/lib/centreon-engine/rw/centengine.cmd';
@@ -55,12 +55,12 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-    
+
     if ($options{action} eq 'ENGINEREADY') {
         $engine->{ready} = 1;
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$engine->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -71,7 +71,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-engine',
         action => $options{action},
@@ -111,16 +111,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($engine->{pid}) || $engine->{pid} != $pid);
-        
+
         $engine = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++  if (defined($engine->{running}) && $engine->{running} == 1);
-    
+
     return $count;
 }
 
@@ -133,7 +133,7 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[engine] Create module 'engine' process");
     my $child_pid = fork();
     if ($child_pid == 0) {

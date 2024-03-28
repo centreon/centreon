@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -1503,7 +1503,7 @@ class CentreonGraph
                 $this->colorCache[$row['metric_id']] = $row['rnd_color'];
             }
         }
-        
+
         if (isset($this->colorCache[$metricId]) && preg_match("/^\#[a-f0-9]{6,6}/i", $this->colorCache[$metricId])) {
             return $this->colorCache[$metricId];
         }

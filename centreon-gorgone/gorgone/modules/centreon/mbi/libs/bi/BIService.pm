@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -40,7 +40,7 @@ sub new {
 	$self->{"tmpTable"} = "mod_bi_tmp_services";
 	$self->{"CRC32"} = "mod_bi_tmp_services_crc32";
 	$self->{"table"} = "mod_bi_services";
-	
+
 	bless $self, $class;
 	return $self;
 }
@@ -60,7 +60,7 @@ sub insert {
 sub update {
 	my ($self, $data, $useMemory) = @_;
 	my $db = $self->{"centstorage"};
-			
+
 	$self->createTempTable($useMemory);
     $self->insertIntoTable($self->{"tmpTable"}, $data);
     $self->createCRC32Table();
@@ -84,11 +84,11 @@ sub insertIntoTable {
 				" (`service_id`, `service_description`, `sc_id`, `sc_name`,".
 				" `host_id`, `host_name`,`hg_id`, `hg_name`, `hc_id`, `hc_name`)".
 				" VALUES (?,?,?,?,?,?,?,?,?,?)";
-	my $sth = $db->prepare($query);	
+	my $sth = $db->prepare($query);
 	my $inst = $db->getInstance;
 	$inst->begin_work;
 	my $counter = 0;
-	
+
 	foreach (@$data) {
 		my ($service_id, $service_description, $sc_id, $sc_name, $host_id, $host_name, $hg_id, $hg_name, $hc_id, $hc_name) = split(";", $_);
 		$sth->bind_param(1, $service_id);
@@ -138,7 +138,7 @@ sub createTempTable {
 sub createCRC32Table {
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"CRC32"}."`" });
 	my $query = "CREATE TABLE `".$self->{"CRC32"}."` CHARSET=utf8 COLLATE=utf8_general_ci";
 	$query .= " SELECT `id`, CRC32(CONCAT_WS('-', COALESCE(service_id, '?'),COALESCE(service_description, '?'),";
@@ -174,7 +174,7 @@ sub insertNewEntries {
 sub createTodayTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `".$self->{"today_table"}."` (";
 	$query .= "`id` INT NOT NULL,";
@@ -212,7 +212,7 @@ sub insertTodayEntries {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "TRUNCATE TABLE `".$self->{"table"}."`";
 	$db->query({ query => $query });
 	$db->query({ query => "ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1" });

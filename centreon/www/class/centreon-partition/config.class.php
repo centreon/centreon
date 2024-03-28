@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -84,7 +84,7 @@ class Config
             $this->defaultConfiguration[$row['key']] = $row['value'];
         }
     }
-    
+
     /**
      * Parse XML configuration file to get properties of table to process
      *
@@ -110,33 +110,33 @@ class Config
                 $table->setType((string) $table_config->type);
                 $table->setDuration('daily');
                 $table->setTimezone((string) $table_config->timezone);
-                
+
                 if (isset($this->defaultConfiguration['partitioning_retention'])) {
                     $table->setRetention((string) $this->defaultConfiguration['partitioning_retention']);
                 } else {
                     $table->setRetention('365');
                 }
-    
+
                 if (isset($this->defaultConfiguration['partitioning_retention_forward'])) {
                     $table->setRetentionForward((string) $this->defaultConfiguration['partitioning_retention_forward']);
                 } else {
                     $table->setRetentionForward('10');
                 }
-    
+
                 if (isset($this->defaultConfiguration['partitioning_backup_directory'])) {
                     $table->setBackupFolder((string) $this->defaultConfiguration['partitioning_backup_directory']);
                 } else {
                     $table->setBackupFolder('/var/backups/');
                 }
-                
+
                 $table->setBackupFormat('%Y-%m-%d');
-                
+
                 $table->setCreateStmt((string) $table_config->createstmt);
                 $this->tables[$table->getName()] = $table;
             }
         }
     }
-    
+
     /**
      * Return all tables partitioning properties
      *
@@ -146,7 +146,7 @@ class Config
     {
         return ($this->tables);
     }
-    
+
     /**
      * Return partitioning properties for a specific table
      *
@@ -164,7 +164,7 @@ class Config
 
         return (null);
     }
-    
+
     /**
      * Check if each table property is set
      *

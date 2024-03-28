@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -87,7 +87,7 @@ sub update {
 	my ($self, $data, $useMemory) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger =  $self->{"logger"};
-			
+
 	$self->createTempComparisonTable($useMemory);
     $self->insertIntoTable($self->{"tmp_comp"}, $data);
     $self->createTempStorageTable($useMemory);
@@ -108,11 +108,11 @@ sub insertIntoTable {
 	my $query = "INSERT INTO `".$table."`".
 				" (`host_id`, `host_name`, `hg_id`, `hg_name`, `hc_id`, `hc_name`)".
 				" VALUES (?,?,?,?,?,?)";
-	my $sth = $db->prepare($query);	
+	my $sth = $db->prepare($query);
 	my $inst = $db->getInstance;
 	$inst->begin_work;
 	my $counter = 0;
-	
+
 	foreach (@$data) {
 		my ($host_id, $host_name, $hg_id, $hg_name, $hc_id, $hc_name) = split(";", $_);
 		$sth->bind_param(1, $host_id);
@@ -157,7 +157,7 @@ sub createTempComparisonTable {
 sub createTempStorageTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `" . $self->{"tmp_comp_storage"} . "`" });
 	my $query = "CREATE TABLE `".$self->{"tmp_comp_storage"}."` (";
 	$query .= "`id` INT NOT NULL,";
@@ -176,7 +176,7 @@ sub createTempStorageTable {
 sub createTempTodayTable {
 	my ($self,$useMemory) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `".$self->{"today_table"}."` (";
 	$query .= "`id` INT NOT NULL,";
@@ -195,7 +195,7 @@ sub createTempTodayTable {
 sub joinNewAndCurrentEntries {
 	my ($self) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "INSERT INTO ".$self->{"tmp_comp_storage"}. " (id, host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
 	$query .= " SELECT IFNULL(h.id, 0), t.host_name, t.host_id, t.hc_id, t.hc_name, t.hg_id, t.hg_name FROM ".$self->{"tmp_comp"}." t";
 	$query .= " LEFT JOIN ".$self->{"table"}." h USING (host_name, host_id, hc_id, hc_name, hg_id, hg_name)";
@@ -225,7 +225,7 @@ sub insertTodayEntries {
 sub truncateTable {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	$db->query({ query => "TRUNCATE TABLE `".$self->{"table"}."`" });
 	$db->query({ query => "ALTER TABLE `".$self->{"table"}."` AUTO_INCREMENT=1" });
 }

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -58,7 +58,7 @@ sub root {
         $response = call_internal(
             action => $options{api_endpoints}->{$options{method} . '_/internal/' . $3},
             target => $2,
-            data => { 
+            data => {
                 content => $options{content},
                 parameters => $options{parameters},
                 variables => \@variables
@@ -73,7 +73,7 @@ sub root {
         $response = call_action(
             action => $options{api_endpoints}->{$options{method} . '_/' . $3 . '/' . $4 . '/' . $5},
             target => $2,
-            data => { 
+            data => {
                 content => $options{content},
                 parameters => $options{parameters},
                 variables => \@variables
@@ -126,7 +126,7 @@ sub call_internal {
     my (%options) = @_;
 
     $action_token = gorgone::standard::library::generate_token();
-    if (defined($options{target}) && $options{target} ne '') {        
+    if (defined($options{target}) && $options{target} ne '') {
         return call_action(
             target => $options{target},
             action => $options{action},

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -67,7 +67,7 @@ sub handle_TERM {
     my $self = shift;
     $self->{logger}->writeLogDebug("[pullwss] $$ Receiving order to stop...");
     $self->{stop} = 1;
-    
+
     my $message = gorgone::standard::library::build_protocol(
         action => 'UNREGISTERNODES',
         data => {
@@ -242,7 +242,7 @@ sub transmit_back {
         if ($@) {
             return $options{message};
         }
-        
+
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             return '[SETLOGS] [' . $1 . '] [] ' . $2;
         }

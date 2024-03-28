@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,7 +190,7 @@ class Information
 
         return $modules;
     }
-    
+
     /**
      * @param string $moduleName
      *
@@ -272,13 +272,13 @@ class Information
     private function isUpgradeable($availableVersion, $installedVersion)
     {
         $comparisonResult = false;
-        
+
         $compare = version_compare($availableVersion, $installedVersion);
-        
+
         if ($compare == 1) {
             $comparisonResult = true;
         }
-        
+
         return $comparisonResult;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -116,7 +116,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
         $result = $this->getResult($sql, $filterTab);
         return $result;
     }
-    
+
     /**
      * Delete host template / host relation
      * Order has importance

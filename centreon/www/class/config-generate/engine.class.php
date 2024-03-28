@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -351,7 +351,7 @@ class Engine extends AbstractObject
         $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
 
         $this->engine = array_pop($result);
-        $this->engine['enable_notifications'] = $this->shouldEngineNotificationsBeDisabled() ? '0' : '1'; 
+        $this->engine['enable_notifications'] = $this->shouldEngineNotificationsBeDisabled() ? '0' : '1';
 
         if (is_null($this->engine)) {
             throw new Exception(

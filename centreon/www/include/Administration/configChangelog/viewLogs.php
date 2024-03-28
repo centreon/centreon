@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -49,7 +49,7 @@ require_once "./include/common/autoNumLimit.php";
 function searchUserName($username)
 {
     global $pearDB;
-    
+
     $contactIds = [];
     $prepareContact = $pearDB->prepare(
         "SELECT contact_id FROM contact " .
@@ -189,7 +189,7 @@ $valuesToBind = [];
 if (!empty($searchO) || !empty($searchU) || $otype != 0) {
     $logQuery .= ' WHERE ';
     $hasMultipleSubRequest = false;
-    
+
     if (!empty($searchO)) {
         $logQuery .= "object_name LIKE :object_name ";
         $valuesToBind[':object_name'] = "%" . $searchO . "%";

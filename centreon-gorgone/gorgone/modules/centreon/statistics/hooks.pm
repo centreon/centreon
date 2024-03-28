@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -44,7 +44,7 @@ my $stop = 0;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
@@ -53,7 +53,7 @@ sub register {
         $config->{broker_cache_dir} : '/var/cache/centreon/broker-stats/';
     $config->{engine_stats_dir} = defined($config->{config}->{engine_stats_dir}) ?
         $config->{config}->{engine_stats_dir} : "/var/lib/centreon/nagios-perf/";
-    
+
     $config->{interval} = defined($config->{interval}) ? $config->{interval} : 300;
     $config->{length} = defined($config->{length}) ? $config->{length} : 365;
     $config->{number} = $config->{length} * 24 * 60 * 60 / $config->{interval};
@@ -76,7 +76,7 @@ sub routing {
         $statistics->{ready} = 1;
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$statistics->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -87,7 +87,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-statistics',
         action => $options{action},
@@ -127,16 +127,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($statistics->{pid}) || $statistics->{pid} != $pid);
-        
+
         $statistics = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++  if (defined($statistics->{running}) && $statistics->{running} == 1);
-    
+
     return $count;
 }
 
@@ -149,7 +149,7 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[statistics] Create module 'statistics' process");
     my $child_pid = fork();
     if ($child_pid == 0) {

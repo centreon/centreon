@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -47,7 +47,7 @@ class CentreonResources
     {
         $this->db = $pearDB;
     }
-    
+
     /**
      *
      * @param integer $field
@@ -70,10 +70,10 @@ class CentreonResources
                 $parameters['relationObject']['comparator'] = 'resource_id';
                 break;
         }
-        
+
         return $parameters;
     }
-    
+
     /**
      *
      * @param \CentreonDB $db
@@ -85,16 +85,16 @@ class CentreonResources
     {
         $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '$name'";
         $resultQueryResources = $db->query($queryResources);
-        
+
         $finalResource = array();
         while ($resultResources = $resultQueryResources->fetchRow()) {
             $finalResource = $resultResources;
         }
-        
+
         if (count($finalResource) === 0) {
             throw new Exception("No central broker found", 500);
         }
-        
+
         return $finalResource;
     }
 }

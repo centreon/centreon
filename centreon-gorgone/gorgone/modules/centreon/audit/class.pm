@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -201,7 +201,7 @@ sub action_centreonauditnodelistener {
             instant => 1,
             data => {
                 message => 'current progress',
-                complete => sprintf('%.2f', $progress) 
+                complete => sprintf('%.2f', $progress)
             }
         );
     }
@@ -217,7 +217,7 @@ sub action_centreonauditschedule {
     $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action schedule proceed' });
 
     my $params = {};
-    
+
     my ($status, $datas) = $self->{centstorage_sqlquery}->custom_execute(
         request => 'SELECT RRDdatabase_path, RRDdatabase_status_path FROM config',
         mode => 2

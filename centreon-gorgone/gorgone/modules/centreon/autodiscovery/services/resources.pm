@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -25,7 +25,7 @@ use warnings;
 
 sub get_pollers {
     my (%options) = @_;
-    
+
     my ($status, $pollers) = $options{class_object_centreon}->custom_execute(
         request => 'SELECT id, name FROM nagios_server',
         mode => 1,
@@ -115,7 +115,7 @@ sub get_vault_configured {
 
 sub get_rules {
     my (%options) = @_;
-    
+
     my $filter = "rule_activate = '1' AND ";
     if (defined($options{force_rule}) && $options{force_rule} == 1) {
         $filter = '';
@@ -147,9 +147,9 @@ sub get_rules {
     if (scalar(keys %$rules) == 0) {
         return (-1, 'no rules found in configuration');
     }
-    
+
     $filter = '(' . join(',', keys %$rules) . ')';
-    
+
     ############################
     # Get mod_auto_disco_change
     ($status, my $datas) = $options{class_object_centreon}->custom_execute(
@@ -163,7 +163,7 @@ sub get_rules {
         $rules->{ $_->[0] }->{change} = [] if (!defined($rules->{ $_->[0] }->{change}));
         push @{$rules->{ $_->[0] }->{change}}, { change_str => $_->[1], change_regexp => $_->[2], change_replace => $_->[3], change_modifier => $_->[4] };
     }
-    
+
     #########################################
     # Get mod_auto_disco_inclusion_exclusion
     ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -177,7 +177,7 @@ sub get_rules {
         $rules->{ $_->[0] }->{exinc} = [] if (!defined($rules->{ $_->[0] }->{exinc}));
         push @{$rules->{ $_->[0] }->{exinc}}, { exinc_type => $_->[1], exinc_str => $_->[2], exinc_regexp => $_->[3] };
     }
-    
+
     #########################################
     # Get mod_auto_disco_macro
     ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -191,7 +191,7 @@ sub get_rules {
         $rules->{ $_->[0] }->{macro} = {} if (!defined($rules->{ $_->[0] }->{macro}));
         $rules->{ $_->[0] }->{macro}->{ $_->[1] } = { macro_value => $_->[2], is_empty => $_->[3] };
     }
-    
+
     #########################################
     # Get mod_auto_disco_inst_rule_relation
     ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -219,7 +219,7 @@ sub get_rules {
         $rules->{ $_->[0] }->{host_template} = [] if (!defined($rules->{ $_->[0] }->{host_template}));
         push @{$rules->{ $_->[0] }->{host_template}}, $_->[1];
     }
-    
+
     ########################################
     # Get services added by autodisco
     ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -236,7 +236,7 @@ sub get_rules {
             service_activate => $_->[3], service_description => $_->[4]
         };
     }
-    
+
     #########################################
     # Get Contact
     ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -283,7 +283,7 @@ sub get_rules {
                     last;
                 }
             }
-            
+
             if ($find == 0) {
                 delete $rules->{$_};
             }
@@ -411,7 +411,7 @@ sub get_hosts {
 
 sub set_macro {
     my ($macros, $name, $value) = @_;
-    
+
     if (!defined($macros->{$name})) {
         $macros->{$name} = $value;
     }
@@ -423,7 +423,7 @@ sub get_macros_host {
     my %macros = ();
     my %loop_stop = ();
     my @stack = ($options{host_id});
-    
+
     while ((my $lhost_id = shift(@stack))) {
         if (defined($loop_stop{$lhost_id})) {
             # Already done the host
@@ -482,7 +482,7 @@ sub get_macros_host {
 
 sub substitute_service_discovery_command {
     my (%options) = @_;
-    
+
     my $command = $options{command_line};
     while ($command =~ /(\$_HOST.*?\$)/) {
         my ($substitute_str, $macro) = ('', $1);
@@ -494,14 +494,14 @@ sub substitute_service_discovery_command {
         $substitute_str = $options{poller}->{resources}->{$macro} if (defined($options{poller}->{resources}->{$macro}));
         $command =~ s/\Q$macro\E/$substitute_str/g;
     }
-    
+
     $command =~ s/\$HOSTADDRESS\$/$options{host}->{host_address}/g;
     $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
 
     if ($options{vault_count} > 0) {
         $command .= ' --pass-manager="centreonvault"';
     }
-    
+
     return $command;
 }
 
@@ -511,7 +511,7 @@ sub change_vars {
     # First we change '$$' values
     if (defined($options{rule}->{change})) {
         foreach my $change (@{$options{rule}->{change}}) {
-            next if (!defined($change->{change_str}) || $change->{change_str} eq '' || 
+            next if (!defined($change->{change_str}) || $change->{change_str} eq '' ||
                      !defined($change->{change_regexp}) || $change->{change_regexp} eq '' ||
                      $change->{change_str} =~ /\@SERVICENAME\@/);
 
@@ -534,11 +534,11 @@ sub change_vars {
         service_name => $options{discovery_svc}->{service_name},
         attributes => $options{discovery_svc}->{attributes}
     );
-    
+
     if (defined($options{rule}->{change})) {
         # Second pass for service_name now
         foreach my $change (@{$options{rule}->{change}}) {
-            next if (!defined($change->{change_str}) || $change->{change_str} eq '' || 
+            next if (!defined($change->{change_str}) || $change->{change_str} eq '' ||
                      !defined($change->{change_regexp}) || $change->{change_regexp} eq '' ||
                      $change->{change_str} !~ /\@SERVICENAME\@/);
             eval "\$options{discovery_svc}->{service_name} =~ s{$change->{change_regexp}}{$change->{change_replace}}$change->{change_modifier}";
@@ -564,7 +564,7 @@ sub change_bytes {
     my $divide = defined($options{network}) ? 1000 : 1024;
     my @units = ('K', 'M', 'G', 'T');
     my $unit = '';
-    
+
     for (my $i = 0; $i < scalar(@units); $i++) {
         last if (($options{value} / $divide) < 1);
         $unit = $units[$i];
@@ -576,7 +576,7 @@ sub change_bytes {
 
 sub check_exinc {
     my (%options) = @_;
-    
+
     return 0 if (!defined($options{rule}->{exinc}));
     foreach my $exinc (@{$options{rule}->{exinc}}) {
         next if (!defined($exinc->{exinc_str}) || $exinc->{exinc_str} eq '');
@@ -593,14 +593,14 @@ sub check_exinc {
             return 1;
         }
     }
-    
+
     return 0;
 }
 
 sub get_macros {
     my (%options) = @_;
     my $macros = {};
-    
+
     return $macros if (!defined($options{rule}->{macro}));
     foreach my $macro (keys %{$options{rule}->{macro}}) {
         $macros->{$macro} = substitute_vars(
@@ -609,7 +609,7 @@ sub get_macros {
             attributes => $options{discovery_svc}->{attributes}
         );
     }
-    
+
     return $macros;
 }
 
@@ -618,7 +618,7 @@ sub get_service {
 
     my $service;
     my ($status, $datas) = $options{class_object_centreon}->custom_execute(
-        request => 'SELECT service_id, service_template_model_stm_id, service_activate, svc_macro_name, svc_macro_value FROM host, host_service_relation, service LEFT JOIN on_demand_macro_service ON on_demand_macro_service.svc_svc_id = service.service_id WHERE host_id = ' . $options{host_id} . 
+        request => 'SELECT service_id, service_template_model_stm_id, service_activate, svc_macro_name, svc_macro_value FROM host, host_service_relation, service LEFT JOIN on_demand_macro_service ON on_demand_macro_service.svc_svc_id = service.service_id WHERE host_id = ' . $options{host_id} .
                 " AND host.host_id = host_service_relation.host_host_id AND host_service_relation.service_service_id = service.service_id AND service.service_description = ?",
         bind_values => [$options{service_name}],
         mode => 2
@@ -631,7 +631,7 @@ sub get_service {
     foreach (@$datas) {
         $service = {
             id => $_->[0],
-            template_id => $_->[1], 
+            template_id => $_->[1],
             activate => $_->[2],
             macros => {}
         } if (!defined($service->{id}));

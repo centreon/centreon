@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -104,7 +104,7 @@ sub bindParam {
 	my ($self, $row) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my $size = scalar(@$row);
 	my $sth = $self->{'statement'};
 	for (my $i = 0; $i < $size; $i++) {
@@ -125,7 +125,7 @@ sub bindParam {
 		($self->{'dbinstance'})->begin_work;
 	}
 	$self->{'bind_counter'} += 1;
-	
+
 }
 
 sub getDayEvents {
@@ -134,7 +134,7 @@ sub getDayEvents {
 	my $timeperiod = $self->{'timeperiod'};
 	my ($start, $end, $liveserviceId, $ranges) = @_;
 	my %results = ();
-	
+
 	my $query = "SELECT start_time, end_time, state, modbihost_id";
 	$query .= " FROM `" . $self->{name} . "`";
 	$query .= " WHERE `start_time` < ".$end."";
@@ -147,23 +147,23 @@ sub getDayEvents {
     my $rows = [];
     while (my $row = (
             shift(@$rows) ||
-            shift(@{$rows = $sth->fetchall_arrayref(undef,10_000) || []}) ) 
-        ) {	
+            shift(@{$rows = $sth->fetchall_arrayref(undef,10_000) || []}) )
+        ) {
 		my $entryID = $row->[3];
-		
+
 		my ($started, $ended) = (0, 0);
 		my $rangeSize = scalar(@$ranges);
 		my $eventDuration = 0;
 		for(my $count = 0; $count < $rangeSize; $count++) {
 			my $currentStart = $row->[0];
 			my $currentEnd = $row->[1];
-				
+
 	    	my $range = $ranges->[$count];
 			my ($rangeStart, $rangeEnd) = ($range->[0], $range->[1]);
 				if ($currentStart < $rangeEnd && $currentEnd > $rangeStart) {
 			    	if ($currentStart < $rangeStart) {
 		    			$currentStart = $rangeStart;
-		    		}elsif ($count == 0) { 
+		    		}elsif ($count == 0) {
 		    			$started = 1;
 			    	}
 			    	if ($currentEnd > $rangeEnd) {
@@ -176,16 +176,16 @@ sub getDayEvents {
 			}
 			if (!defined($results{$entryID})) {
 				my @tab = (0, 0, 0, 0, 0, 0, 0);
-			
+
 				#New version - sync with tables in database
 				#  0: UP,  1: DOWN time,  2:  Unreachable time , 3 : DOWN alerts opened
 				#  4: Down time alerts closed, 5: unreachable alerts started, 6 : unreachable alerts ended
-				$results{$entryID} = \@tab;			
+				$results{$entryID} = \@tab;
 			}
-			
+
 		my $stats = $results{$entryID};
 		my $state = $row->[2];
-		
+
 		if ($state == 0) {
 			$stats->[0] += $eventDuration;
 		}elsif ($state == 1) {
@@ -208,7 +208,7 @@ sub getDayEvents {
 sub getNbEvents {
 	my ($self, $start, $end, $groupId, $catId, $liveServiceID) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "SELECT count(state) as nbEvents, state";
 	$query .= " FROM mod_bi_hosts h, ".$self->{'name'}." e";
 	$query .= " WHERE h.hg_id = ".$groupId." AND h.hc_id=".$catId;
@@ -219,7 +219,7 @@ sub getNbEvents {
 	$query .= " AND state in (1,2)";
 	$query .= " GROUP BY state";
 	my $sth = $db->query({ query => $query });
-	
+
 	my ($downEvents, $unrEvents) = (undef, undef);
 	while (my $row = $sth->fetchrow_hashref()) {
 		if ($row->{'state'} == 1) {
@@ -234,7 +234,7 @@ sub getNbEvents {
 sub deleteUnfinishedEvents {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "DELETE FROM `mod_bi_hoststateevents`";
 	$query .= " WHERE last_update = 1 OR end_time is null";
 	$db->query({ query => $query });

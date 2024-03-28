@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -23,7 +23,7 @@ package gorgone::standard::library;
 use strict;
 use warnings;
 use gorgone::standard::constants qw(:all);
-use ZMQ::FFI qw(ZMQ_DEALER ZMQ_ROUTER ZMQ_ROUTER_HANDOVER ZMQ_IPV6 ZMQ_TCP_KEEPALIVE 
+use ZMQ::FFI qw(ZMQ_DEALER ZMQ_ROUTER ZMQ_ROUTER_HANDOVER ZMQ_IPV6 ZMQ_TCP_KEEPALIVE
     ZMQ_CONNECT_TIMEOUT ZMQ_DONTWAIT ZMQ_SNDMORE ZMQ_IDENTITY ZMQ_FD ZMQ_EVENTS
     ZMQ_LINGER ZMQ_SNDHWM ZMQ_RCVHWM ZMQ_RECONNECT_IVL);
 use JSON::XS;
@@ -47,7 +47,7 @@ my %zmq_type = ('ZMQ_ROUTER' => ZMQ_ROUTER, 'ZMQ_DEALER' => ZMQ_DEALER);
 
 sub read_config {
     my (%options) = @_;
-    
+
     my $config;
     try {
         $config = YAML::XS::LoadFile($options{config_file});
@@ -56,7 +56,7 @@ sub read_config {
         $options{logger}->writeLogError($@);
         exit(1);
     };
-    
+
     return $config;
 }
 
@@ -151,7 +151,7 @@ sub loadprivkey {
 
 sub zmq_core_pubkey_response {
     my (%options) = @_;
-    
+
     if (defined($options{identity})) {
         $options{socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
     }
@@ -190,7 +190,7 @@ sub generate_token {
 
 sub generate_symkey {
     my (%options) = @_;
-    
+
     my $random_key = Crypt::PRNG::random_bytes($options{keysize});
     return (0, $random_key);
 }
@@ -249,7 +249,7 @@ sub is_client_can_connect {
             }
         }
     }
-    
+
     if ($is_authorized == 0) {
         $options{logger}->writeLogError("[core] Client pubkey is not authorized. Thumbprint is '$thumbprint'");
         return -1;
@@ -297,7 +297,7 @@ sub getthumbprint {
 
 sub information {
     my (%options) = @_;
-    
+
     my $data = {
         counters => $options{gorgone}->{counters},
         modules => $options{gorgone}->{modules_id},
@@ -319,7 +319,7 @@ sub unloadmodule {
         return (GORGONE_ACTION_BEGIN, { action => 'unloadmodule', message => "module '$data->{content}->{package}' unload in progress" }, 'UNLOADMODULE');
     }
     if (defined($data->{content}->{name}) &&
-        defined($options{gorgone}->{modules_id}->{$data->{content}->{name}}) && 
+        defined($options{gorgone}->{modules_id}->{$data->{content}->{name}}) &&
         defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$data->{content}->{name}} })) {
         $options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{$data->{content}->{name}} }->{gently}->(logger => $options{gorgone}->{logger});
         return (GORGONE_ACTION_BEGIN, { action => 'unloadmodule', message => "module '$data->{content}->{name}' unload in progress" }, 'UNLOADMODULE');
@@ -390,7 +390,7 @@ sub constatus {
             return (GORGONE_ACTION_FINISH_OK, { action => 'constatus', message => 'ok', data => $method->() }, 'CONSTATUS');
         }
     }
-    
+
     return (GORGONE_ACTION_FINISH_KO, { action => 'constatus', message => 'cannot get value' }, 'CONSTATUS');
 }
 
@@ -473,7 +473,7 @@ sub putlog {
     }
 
     my $status = add_history({
-        dbh => $options{gorgone}->{db_gorgone}, 
+        dbh => $options{gorgone}->{db_gorgone},
         etime => $data->{etime},
         token => $data->{token},
         instant => $data->{instant},
@@ -539,7 +539,7 @@ sub kill {
         return (GORGONE_ACTION_FINISH_OK, { action => 'kill', message => "module '$data->{content}->{package}' kill in progress" });
     }
     if (defined($data->{content}->{name}) &&
-        defined($options{gorgone}->{modules_id}->{ $data->{content}->{name} }) && 
+        defined($options{gorgone}->{modules_id}->{ $data->{content}->{name} }) &&
         defined($options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{ $data->{content}->{name} } })) {
         $options{gorgone}->{modules_register}->{ $options{gorgone}->{modules_id}->{ $data->{content}->{name} } }->{kill}->(logger => $options{gorgone}->{logger});
         return (GORGONE_ACTION_FINISH_OK, { action => 'kill', message => "module '$data->{content}->{name}' kill in progress" });
@@ -965,7 +965,7 @@ sub init_database {
     }
 
     $options{logger}->writeLogInfo("[core] update schema $db_version -> $options{version}");
-    
+
     if ($db_version eq '1.0') {
         my $schema = [
             q{
@@ -1007,5 +1007,5 @@ sub init_database {
         $options{gorgone}->{db_gorgone}->query({ query => "UPDATE gorgone_information SET `value` = '$options{version}' WHERE `key` = 'version'" });
     }
 }
-        
+
 1;

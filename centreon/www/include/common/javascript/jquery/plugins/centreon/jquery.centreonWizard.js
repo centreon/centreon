@@ -1,6 +1,6 @@
 /*
- * Copyright 2005-2012 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -106,7 +106,7 @@
                     	$('#c-wiz-step-' + data.step).html(html);
                         $('#c-wiz-step-' + data.step + ' :radio').each(function(idx, el) {
                         	$(el).parent().click(function() {
-                        		$(el).attr('checked', true);			       
+                        		$(el).attr('checked', true);
                         	});
                         });
                         $('#c-wiz-step-' + data.step + ' :checkbox').each(function(idx, el) {

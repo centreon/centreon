@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -37,7 +37,7 @@ require_once dirname(__FILE__) . "/formConnectorFunction.php";
 try {
     $tpl = new Smarty();
     $tpl = initSmartyTpl($path, $tpl);
-    
+
     $cnt = array();
     if (($o == "c" || $o == "w") && isset($connector_id)) {
         $cnt = $connectorObj->read((int)$connector_id);
@@ -156,7 +156,7 @@ try {
         $subA = $form->addElement('submit', 'submitA', _("Save"), array("class" => "btc bt_success"));
         $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
     }
-    
+
     $form->addRule('connector_name', _("Name"), 'required');
     $form->addRule('command_line', _("Command Line"), 'required');
     $form->registerRule('exist', 'callback', 'testConnectorExistence');
@@ -209,7 +209,7 @@ try {
             $helptext .= '<span style="display:none" id="help:'.$key.'">'.$text.'</span>'."\n";
         }
         $tpl->assign("helptext", $helptext);
-        
+
         $tpl->display("formConnector.ihtml");
     }
 } catch (Exception $e) {

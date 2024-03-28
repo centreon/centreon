@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -51,7 +51,7 @@ if (!isset($centreon)) {
 function hasTopologyNameNeverUsed($topologyName = null)
 {
     global $pearDB, $form;
-    
+
     $topologyId = null;
     if (isset($form)) {
         $topologyId = $form->getSubmitValue('lca_id');
@@ -92,7 +92,7 @@ function hasTopologyNameNeverUsed($topologyName = null)
 function enableLCAInDB($aclTopologyId = null, $acls = array())
 {
     global $pearDB, $centreon;
-    
+
     if (!is_int($aclTopologyId) && empty($acls)) {
         return;
     }
@@ -110,7 +110,7 @@ function enableLCAInDB($aclTopologyId = null, $acls = array())
             $currentAclTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if (!$prepareUpdate->execute()) {
             continue;
         }
@@ -124,7 +124,7 @@ function enableLCAInDB($aclTopologyId = null, $acls = array())
             $currentAclTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if ($prepareSelect->execute()) {
             $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
             $centreon->CentreonLogAction->insertLog(
@@ -155,7 +155,7 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
     if (is_int($aclTopologyId)) {
         $acls = array($aclTopologyId => "1");
     }
-    
+
     foreach (array_keys($acls) as $currentTopologyId) {
         $prepareUpdate = $pearDB->prepare(
             "UPDATE `acl_topology` SET acl_topo_activate = '0' "
@@ -166,11 +166,11 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
             $currentTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if (!$prepareUpdate->execute()) {
             continue;
         }
-        
+
         $prepareSelect = $pearDB->prepare(
             "SELECT acl_topo_name FROM `acl_topology` "
             . "WHERE acl_topo_id = :topology_id LIMIT 1"
@@ -180,7 +180,7 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
             $currentTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if ($prepareSelect->execute()) {
             $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
             $centreon->CentreonLogAction->insertLog(
@@ -203,7 +203,7 @@ function disableLCAInDB($aclTopologyId = null, $acls = array())
 function deleteLCAInDB($acls = array())
 {
     global $pearDB, $centreon;
-    
+
     foreach (array_keys($acls) as $currentTopologyId) {
         $prepareSelect = $pearDB->prepare(
             "SELECT acl_topo_name FROM `acl_topology` "
@@ -214,14 +214,14 @@ function deleteLCAInDB($acls = array())
             $currentTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if (!$prepareSelect->execute()) {
             continue;
         }
-        
+
         $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
         $topologyName = $result['acl_topo_name'];
-        
+
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM `acl_topology` WHERE acl_topo_id = :topology_id'
         );
@@ -252,7 +252,7 @@ function deleteLCAInDB($acls = array())
 function multipleLCAInDB($acls = array(), $duplicateNbr = array())
 {
     global $pearDB, $centreon;
-    
+
     foreach (array_keys($acls) as $currentTopologyId) {
         $prepareSelect = $pearDB->prepare(
             "SELECT * FROM `acl_topology` WHERE acl_topo_id = :topology_id LIMIT 1"
@@ -262,13 +262,13 @@ function multipleLCAInDB($acls = array(), $duplicateNbr = array())
             $currentTopologyId,
             \PDO::PARAM_INT
         );
-        
+
         if (!$prepareSelect->execute()) {
             continue;
         }
-        
+
         $topology = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-               
+
         $topology["acl_topo_id"] = '';
         for ($newIndex = 1; $newIndex <= $duplicateNbr[$currentTopologyId]; $newIndex++) {
             $val = null;
@@ -294,12 +294,12 @@ function multipleLCAInDB($acls = array(), $duplicateNbr = array())
                         ? ', NULL'
                         : ", '" . $pearDB->escape($value) . "'";
                 }
-                
+
                 if ($column !== 'acl_topo_id' && $column !== 'acl_topo_name') {
                     $fields[$column] = $value;
                 }
             }
-            
+
             if (!is_null($val)) {
                 $pearDB->query(
                     "INSERT INTO acl_topology VALUES ($val)"
@@ -458,7 +458,7 @@ function insertLCA()
         $submitedValues['acl_comments'],
         \PDO::PARAM_STR
     );
-    
+
     return $prepare->execute()
         ? $pearDB->lastInsertId()
         : null;
@@ -478,7 +478,7 @@ function updateLCA($aclId = null)
         return;
     }
     $submitedValues = $form->getSubmitValues();
-    
+
     $isAclActivate = false;
     if (isset($submitedValues['acl_topo_activate'])
         && isset($submitedValues['acl_topo_activate']['acl_topo_activate'])
@@ -486,7 +486,7 @@ function updateLCA($aclId = null)
     ) {
         $isAclActivate = true;
     }
-    
+
     $prepareUpdate = $pearDB->prepare(
         "UPDATE `acl_topology` "
         . "SET acl_topo_name = :acl_name, "
@@ -495,33 +495,33 @@ function updateLCA($aclId = null)
         . "acl_comments = :acl_comment "
         . "WHERE acl_topo_id = :acl_id"
     );
-    
+
     $prepareUpdate->bindValue(
         ':acl_name',
         $submitedValues["acl_topo_name"],
         \PDO::PARAM_STR
     );
-    
+
     $prepareUpdate->bindValue(
         ':acl_alias',
         $submitedValues["acl_topo_alias"],
         \PDO::PARAM_STR
     );
-    
+
     $prepareUpdate->bindValue(
         ':is_activate',
         ($isAclActivate ? '1': '0'),
         \PDO::PARAM_STR
     );
-    
+
     $prepareUpdate->bindValue(
         ':acl_comment',
         $submitedValues["acl_comments"],
         \PDO::PARAM_STR
     );
-    
+
     $prepareUpdate->bindValue(':acl_id', $aclId, \PDO::PARAM_INT);
-    
+
     $prepareUpdate->execute();
 }
 
@@ -536,16 +536,16 @@ function updateLCA($aclId = null)
 function updateLCARelation($aclId = null)
 {
     global $form, $pearDB;
-    
+
     if (!$aclId) {
         return;
     }
-    
+
     $prepareDelete = $pearDB->prepare(
         "DELETE FROM acl_topology_relations WHERE acl_topo_id = :acl_id"
     );
     $prepareDelete->bindValue(':acl_id', $aclId, \PDO::PARAM_INT);
-    
+
     if ($prepareDelete->execute()) {
         $submitedValues = $form->getSubmitValue("acl_r_topos");
         foreach ($submitedValues as $key => $value) {
@@ -578,13 +578,13 @@ function updateGroups($aclId = null)
     if (!$aclId) {
         return;
     }
-    
+
     $prepareDelete = $pearDB->prepare(
         "DELETE FROM acl_group_topology_relations WHERE acl_topology_id = :acl_id"
     );
-    
+
     $prepareDelete->bindValue(':acl_id', $aclId, \PDO::PARAM_INT);
-    
+
     if ($prepareDelete->execute()) {
         $submitedValues = $form->getSubmitValue("acl_groups");
         if (isset($submitedValues)) {

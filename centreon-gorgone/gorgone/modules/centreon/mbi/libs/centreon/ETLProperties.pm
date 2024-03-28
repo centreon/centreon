@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -108,7 +108,7 @@ sub getRetentionPeriods {
     my $sth = $self->{centreon}->query({ query => $query });
     my %periods = ();
     while (my $row = $sth->fetchrow_hashref()) {
-        $row->{'opt_key'} =~ s/etl.retention.//; 
+        $row->{'opt_key'} =~ s/etl.retention.//;
         $periods{$row->{'opt_key'}} = { start => $row->{period_start}, end => $row->{period_end}} ;
     }
     if (!scalar(keys %periods)){

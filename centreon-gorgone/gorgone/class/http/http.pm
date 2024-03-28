@@ -1,5 +1,5 @@
 #
-# Copyright 2019 Centreon (http://www.centreon.com/)
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -133,7 +133,7 @@ sub check_options {
             }
         }
     }
-    
+
     $self->{'backend_' . $self->{http_backend}}->check_options(%options);
     return 0;
 }

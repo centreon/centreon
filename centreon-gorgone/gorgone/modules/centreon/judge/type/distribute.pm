@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -40,7 +40,7 @@ sub check_config {
         $options{logger}->writeLogError("[judge] -class- please set nodes for cluster '" . $config->{name} . "'");
         return undef;
     }
-    
+
     return $config;
 }
 

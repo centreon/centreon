@@ -4,7 +4,7 @@
     <link rel="shortcut icon" href="../img/favicon.ico">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2017 Open Source Matters. All rights reserved."/>
+    <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2024 Open Source Matters. All rights reserved."/>
     <meta name="robots" content="index, nofollow"/>
     <link rel="stylesheet" href="../Themes/Generic-theme/Variables-css/variables.css" type="text/css">
     <link rel="stylesheet" href="../Themes/Generic-theme/style.css" type="text/css">

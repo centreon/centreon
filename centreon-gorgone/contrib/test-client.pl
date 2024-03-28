@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -37,44 +37,44 @@ my $results = {};
 
 sub get_command_result {
     my ($current_retries, $retries) = (0, 4);
-    $stopped->{$client2->{identity}} = '^(1|2)$'; 
+    $stopped->{$client2->{identity}} = '^(1|2)$';
     $client2->send_message(
-        action => 'COMMAND', data => { content => { command => 'ls /' } }, target => 100, 
+        action => 'COMMAND', data => { content => { command => 'ls /' } }, target => 100,
         json_encode => 1
     );
     while (1) {
         my $poll = [];
-     
+
         $client2->ping(poll => $poll);
         my $rev = zmq_poll($poll, 15000);
-        
+
         if (defined($results->{$client2->{identity}})) {
             print "The result: " . Data::Dumper::Dumper($results->{$client2->{identity}});
             last;
         }
-        
+
         if (!defined($rev) || $rev == 0) {
             $current_retries++;
             last if ($current_retries >= $retries);
-            
+
             if (defined($identities_token->{$client2->{identity}})) {
                 # We ask a sync
                 print "==== send logs ===\n";
                 $client2->send_message(action => 'GETLOG', target => 150, json_encode => 1);
-                $client2->send_message(action => 'GETLOG', token => $identities_token->{$client2->{identity}}, data => { token => $identities_token->{$client2->{identity}} }, 
+                $client2->send_message(action => 'GETLOG', token => $identities_token->{$client2->{identity}}, data => { token => $identities_token->{$client2->{identity}} },
                                        json_encode => 1);
             }
         }
-        
+
     }
 }
 
 sub read_response_result {
     my (%options) = @_;
-    
+
     $options{data} =~ /^\[ACK\]\s+\[(.*?)\]\s+(.*)$/m;
     $identities_token->{$options{identity}} = $1;
-        
+
     my $data;
     eval {
         $data = JSON::XS->new->utf8->decode($2);
@@ -82,7 +82,7 @@ sub read_response_result {
     if ($@) {
         return undef;
     }
-        
+
     if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
         if (defined($data->{data}->{result})) {
             foreach my $key (keys %{$data->{data}->{result}}) {
@@ -97,7 +97,7 @@ sub read_response_result {
 
 sub read_response {
     my (%options) = @_;
-    
+
     print "==== PLOP = " . $options{data} . "===\n";
 }
 
@@ -108,8 +108,8 @@ my $uuid;
 UUID::generate($uuid);
 
 #$client = gorgone::class::clientzmq->new(
-#    identity => 'toto', 
-#    cipher => 'Cipher::AES', 
+#    identity => 'toto',
+#    cipher => 'Cipher::AES',
 #    vector => '0123456789012345',
 #    server_pubkey => 'keys/central/pubkey.crt',
 #    client_pubkey => 'keys/poller/pubkey.crt',
@@ -120,7 +120,7 @@ UUID::generate($uuid);
 #);
 #$client->init(callback => \&read_response);
 $client2 = gorgone::class::clientzmq->new(
-    identity => 'tata', 
+    identity => 'tata',
     cipher => 'Cipher::AES',
     vector => '0123456789012345',
     server_pubkey => 'keys/central/pubkey.crt',
@@ -133,19 +133,19 @@ $client2->init(callback => \&read_response_result);
 
 #$client->send_message(
 #    action => 'SCOMRESYNC',
-#    data => { container_id => 'toto' }, 
+#    data => { container_id => 'toto' },
 #    json_encode => 1
 #);
 #$client->send_message(action => 'PUTLOG', data => { code => 120, etime => time(), token => 'plopplop', data => { 'nawak' => 'nawak2' } },
 #                      json_encode => 1);
-#$client2->send_message(action => 'RELOADCRON', data => { }, 
+#$client2->send_message(action => 'RELOADCRON', data => { },
 #                       json_encode => 1);
 
 # We send a request to a poller
-#$client2->send_message(action => 'ENGINECOMMAND', data => { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd' }, target => 120, 
+#$client2->send_message(action => 'ENGINECOMMAND', data => { command => '[1417705150] ENABLE_HOST_CHECK;host1', engine_pipe => '/var/lib/centreon-engine/rw/centengine.cmd' }, target => 120,
 #                       json_encode => 1);
 
-#$client2->send_message(action => 'COMMAND', data => { content => { command => 'ls' } }, target => 150, 
+#$client2->send_message(action => 'COMMAND', data => { content => { command => 'ls' } }, target => 150,
 #                       json_encode => 1);
 #$client2->send_message(action => 'CONSTATUS');
 $client2->send_message(
@@ -155,9 +155,9 @@ $client2->send_message(
 );
 
 # It will transform
-#$client2->send_message(action => 'GETLOG', data => { cmd => 'ls' }, target => 120, 
+#$client2->send_message(action => 'GETLOG', data => { cmd => 'ls' }, target => 120,
 #                       json_encode => 1);
-#$client2->send_message(action => 'GETLOG', data => {}, target => 140, 
+#$client2->send_message(action => 'GETLOG', data => {}, target => 140,
 #                       json_encode => 1);
 
 get_command_result();
@@ -180,7 +180,7 @@ while (1) {
 }
 
 $client->close();
-$client2->close();  
+$client2->close();
 exit(0);
 
 #zmq_close($requester);

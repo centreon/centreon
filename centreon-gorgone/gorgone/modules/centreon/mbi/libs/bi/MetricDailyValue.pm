@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -73,7 +73,7 @@ sub insertValues {
 	my $logger =  $self->{"logger"};
 	my $liveServiceId = shift;
 	my $timeId = shift;
-	
+
 	my $query = "INSERT INTO " . $self->{"name"};
 	$query .= " SELECT sm.id as servicemetric_id, '".$timeId."', ".$liveServiceId." as liveservice_id,";
 	$query .= " mmavt.avg_value, mmavt.min_value, mmavt.max_value, flvt.`first_value`, flvt.`last_value`, m.max,";
@@ -85,7 +85,7 @@ sub insertValues {
 	$db->query({ query => $query });
 
 	$self->dropTempTables();
-} 
+}
 
 sub getMetricCapacityValuesOnPeriod {
 	my $self = shift;
@@ -111,7 +111,7 @@ sub getMetricCapacityValuesOnPeriod {
 		my @table = ($row->{"servicemetric_id"}, $row->{"liveservice_id"}, $row->{first_value}, $row->{"total"});
 		$data{$row->{"servicemetric_id"}.";".$row->{"liveservice_id"}} = \@table;
 	}
-	
+
 	$query = 	" SELECT servicemetric_id, liveservice_id, ";
 	$query .= 		"`last_value`, total";
 	$query .= 	" FROM mod_bi_liveservice l, mod_bi_servicemetrics m, ".$self->{"name"}." v";

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -110,7 +110,7 @@ sub processEventsHosts {
 
     $etlwk->{messages}->writeLog("INFO", "[HOST] Loading calculated events in reporting table");
     $etlwk->{dbbi_centstorage_con}->query({ query => $request });
-	
+
 	if ($options{options}->{rebuild} == 1 && $options{options}->{rebuild} == 0) {
 		$etlwk->{messages}->writeLog("DEBUG", "[HOST] Creating index");
 		$etlwk->{dbbi_centstorage_con}->query({ query => 'ALTER TABLE mod_bi_hoststateevents ADD INDEX `modbihost_id` (`modbihost_id`,`modbiliveservice_id`,`state`,`start_time`,`end_time`)' });

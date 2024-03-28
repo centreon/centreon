@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -28,7 +28,7 @@ my $command_results = {};
 
 sub new {
     my $class = shift @_ || __PACKAGE__;
-    my $self; 
+    my $self;
     $self->{session} = undef;
     $self->{host} = undef;
     $self->{port} = undef;
@@ -89,5 +89,5 @@ sub main {
 
     return $self->{data}
 }
-        
+
 1;

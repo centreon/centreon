@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ################################################################################
-# Copyright 2005-2020 Centreon
+# Copyright 2005-2024 Centreon
 # Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
 #
@@ -197,7 +197,7 @@ sub print_usage() {
 
 sub print_help() {
     print "##############################################\n";
-    print "#    Copyright (c) 2005-2020 Centreon        #\n";
+    print "#    Copyright (c) 2005-2024 Centreon        #\n";
     print "#    Bugs to http://forge.centreon.com       #\n";
     print "##############################################\n";
     print "\n";
@@ -306,7 +306,7 @@ sub getMySQLConfFile() {
             return $MYSQL_CONF;
         } elsif ( -e '/etc/my.cnf' ) {
             return '/etc/my.cnf';
-        }    
+        }
     } else {
         print STDERR "Unable to get Mysql configuration\n";
     }

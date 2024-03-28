@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016 Centreon
+ * Copyright 2016 - 2024 Centreon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,13 +79,13 @@ class FactoryTest extends \PHPUnit\Framework\TestCase
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Installer::class, $factory->newInstaller('MyWidget'));
     }
-    
+
     public function testNewUpgrader()
     {
         $factory = new Widget\Factory($this->container);
         $this->assertInstanceOf(Widget\Upgrader::class, $factory->newUpgrader('MyWidget'));
     }
-    
+
     public function testNewRemover()
     {
         $factory = new Widget\Factory($this->container);
