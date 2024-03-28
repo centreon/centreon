@@ -69,7 +69,7 @@ if (version_compare($current, '2.8.0-beta1') < 0) {
 */
 } else {
     $contents = _('<p>Currently upgrading... please do not interrupt this process.</p>');
-    $contents .= "<table cellpadding='0' cellspacing='0' border='0' width='80%' class='StyleDottedHr' align='center'>
+    $contents .= "<table cellpadding='0' cellspacing='0' border='0' width='100%' class='StyleDottedHr' align='center'>
                     <thead>
                         <tr>
                             <th>" . _('Step') . "</th>
@@ -142,7 +142,7 @@ $template->display('content.tpl');
     function nextStep(name, moduleName, description) {
         const uniqueName = `${moduleName}-${name}`;
         stepContent.append('<tr>');
-        stepContent.append(`<td>[${moduleName}] ${description}</td>`);
+        stepContent.append(`<td><b>[${moduleName}]</b> ${description}</td>`);
         stepContent.append(
             `<td style="font-weight: bold;" name="${uniqueName}"><img src="../img/misc/ajax-loader.gif"></td>`
         );
@@ -176,7 +176,7 @@ $template->display('content.tpl');
       stepContent.append('<tr>');
       stepContent.append('<td>Application cache generation</td>');
       stepContent.append(
-        '<td style="font-weight: bold;" name="api.cache"><img src="../img/misc/ajax-loader.gif"></td>'
+        '<td style="font-weight: bold;" name="api.cache"><img style="margin: -4px;" src="../img/misc/ajax-loader.gif"></td>'
       );
       stepContent.append('</tr>');
       doProcess(
@@ -195,16 +195,6 @@ $template->display('content.tpl');
             jQuery('#refresh').show();
           }
         });
-    }
-
-    /**
-     * Replace dot with dash characters
-     *
-     * @param string str
-     * @return void
-     */
-    function replaceDot(str) {
-        return str.replace(/\./g, '-');
     }
 
     /**

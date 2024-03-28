@@ -24,16 +24,22 @@ declare(strict_types=1);
 namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
+use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
-class Migration000000000001 extends AbstractCoreMigration implements MigrationInterface
+class Migration000023100100 extends AbstractCoreMigration implements MigrationInterface, LegacyMigrationInterface
 {
+    private const VERSION = '23.10.1';
+
     use LoggerTrait;
 
-    public function __construct(private DatabaseConnection $db)
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersion(): string
     {
+        return self::VERSION;
     }
 
     /**
@@ -41,7 +47,7 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
      */
     public function getDescription(): string
     {
-        return _('Synchronization of migrations');
+        return sprintf(_('Update to %s'), self::VERSION);
     }
 
     /**
@@ -49,7 +55,7 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
      */
     public function up(): void
     {
-        // @todo scan all LegacyMigrationInterface and check current version is above
+        // @todo migration Update-2.8.0 script
     }
 
     /**

@@ -35,7 +35,9 @@
 body {
 	font-family: 'open sans', Arial, Verdana, Helvetica, sans-serif;
 	margin: 0px;
-	background-color : #a7a9ac;
+	background-color: rgb(153, 153, 153);
+	/* background-color: rgba(0, 0, 0, 0.12); */
+	/* background-color : #a7a9ac; */
 	color : #333333;
 	height: auto;
 	}
@@ -105,20 +107,25 @@ textarea {
 }
 
 table.shell {
-	border: 1px solid #fff;
+	padding: 0px;
+	/* border: 1px solid #fff; */
 	height: 300px;
 	margin: 60px auto;
 	width: 650px;
-	box-shadow: 0px 0px 0px 1px #818285;
-	}
+	/* box-shadow: 0px 0px 0px 1px #818285; */
 
-table.shell {
-	text-align: left;
-	padding: 0px;
+	/*
+	border-spacing: 0;
+	border-collapse: separate;
+	border-radius: 10px;
+	*/
+
+	/* border: 1px solid black; */
 }
 
 table.shell .install-header {
-	background-color: #dddddd;
+	background-color: rgb(255, 255, 255);
+	/* background-color: #dddddd; */
 	height: 80px;
 }
 
@@ -144,11 +151,29 @@ table.shell th {
 
 table.shell td {
 	padding: 6px;
-	background-color: #d6d5d5;
+	background-color: rgb(255, 255, 255);
+	/* background-color: #d6d5d5; */
+}
+
+table.shell tr:first-child th:first-child {
+    border-top-left-radius: 4px;
+}
+
+table.shell tr:first-child th:last-child {
+    border-top-right-radius: 4px;
+}
+
+table.shell tr:last-child td:first-child {
+    border-bottom-left-radius: 4px;
+}
+
+table.shell tr:last-child td:last-child {
+    border-bottom-right-radius: 4px;
 }
 
 table.shell .install-body {
-	background-color: #e7e7e8;
+	background-color: rgb(255, 255, 255);
+	/* background-color: #e7e7e8; */
 }
 
 table.stdTable td {
@@ -162,16 +187,15 @@ table.stdTable th {
 	}
 
 table.StyleDottedHr td {
-border-bottom: 1px dotted #cccccc;
-	padding: 2px;
-	}
+	border-bottom: 1px solid #cccccc;
+	padding: 4px;
+}
 table.StyleDottedHr th {
-
-	padding: 2px;
+	padding: 4px;
 	background-color: #444444;
 	font-size: 14px;
 	color: #dddddd;
-	}
+}
 
 
 .small {

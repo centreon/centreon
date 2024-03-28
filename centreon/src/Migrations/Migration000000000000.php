@@ -41,7 +41,7 @@ class Migration000000000000 extends AbstractCoreMigration implements MigrationIn
      */
     public function getDescription(): string
     {
-        return _('Create migrations table');
+        return _('Preparation of migrations storage');
     }
 
     /**

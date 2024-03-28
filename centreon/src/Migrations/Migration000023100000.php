@@ -28,9 +28,9 @@ use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
-class Migration000002080000 extends AbstractCoreMigration implements MigrationInterface, LegacyMigrationInterface
+class Migration000023100000 extends AbstractCoreMigration implements MigrationInterface, LegacyMigrationInterface
 {
-    private const VERSION = '2.8.0';
+    private const VERSION = '23.10.0';
 
     use LoggerTrait;
 
