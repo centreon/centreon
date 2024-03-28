@@ -1,7 +1,7 @@
 %define selinuxdevel %{_datadir}/selinux/devel
 
 Name:       centreon-gorgone
-Version:    23.10.4
+Version:    23.10.5
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
@@ -103,11 +103,14 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/cron.d/
+%{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d/
 %{__install} -d %buildroot%{_localstatedir}/cache/centreon-gorgone/autodiscovery
 %{__cp} centreon-gorgone/packaging/config.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/
 %{__cp} centreon-gorgone/packaging/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/30-centreon.yaml
 %{__cp} centreon-gorgone/packaging/centreon-api.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/31-centreon-api.yaml
+%{__cp} centreon-gorgone/packaging/action.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/39-action.yaml
 %{__cp} centreon-gorgone/packaging/centreon-audit.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/50-centreon-audit.yaml
+%{__cp} centreon-gorgone/packaging/whitelist.conf.d/centreon.yaml %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d/centreon.yaml
 
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
 %{__cp} centreon-gorgone/packaging/sudoers.d/centreon-gorgone %buildroot%{_sysconfdir}/sudoers.d/centreon-gorgone
@@ -138,7 +141,11 @@ rm -rf %{buildroot}
 %dir %{_sysconfdir}/centreon-gorgone
 %dir %{_sysconfdir}/centreon-gorgone/config.d
 %dir %{_sysconfdir}/centreon-gorgone/config.d/cron.d
+%dir %{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d
 %{_sysconfdir}/centreon-gorgone/config.yaml
+%{_sysconfdir}/centreon-gorgone/config.d/39-action.yaml
+%{_sysconfdir}/centreon-gorgone/config.d/whitelist.conf.d/centreon.yaml
+
 %defattr(-, centreon-gorgone, centreon-gorgone, -)
 %{_localstatedir}/lib/centreon-gorgone
 %{_localstatedir}/log/centreon-gorgone
