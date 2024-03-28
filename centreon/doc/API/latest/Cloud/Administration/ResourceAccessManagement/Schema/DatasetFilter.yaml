@@ -3,7 +3,7 @@ nullable: true
 properties:
   type:
     type: string
-    enum: [host, hostgroup, host_category, service, servicegroup, service_category, meta_service]
+    enum: [host, hostgroup, host_category, service, servicegroup, service_category, meta_service, business_view, all]
     description: "Type of the dataset filter"
     example: "host"
   resources:
