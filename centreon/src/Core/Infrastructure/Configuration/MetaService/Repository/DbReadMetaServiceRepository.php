@@ -26,7 +26,9 @@ namespace Core\Infrastructure\Configuration\MetaService\Repository;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\Domain\Configuration\Model\MetaService;
+use Core\Domain\Configuration\Model\MetaServiceNamesById;
 
 class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadMetaServiceRepositoryInterface
 {
@@ -36,6 +38,51 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(int ...$ids): MetaServiceNamesById
+    {
+        $ids = array_unique($ids);
+
+        $fields = '';
+        foreach ($ids as $index => $id) {
+            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+        }
+
+        $request = <<<SQL
+                SELECT
+                    m.meta_id, m.meta_name
+                FROM
+                    `:db`.meta_service m
+                WHERE
+                    m.meta_id IN ({$fields})
+            SQL;
+
+        $statement = $this->db->prepare(
+            $this->translateDbName($request)
+        );
+
+        foreach ($ids as $index => $id) {
+            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $names = new MetaServiceNamesById();
+
+        foreach ($statement as $record) {
+            /** @var array{meta_id:int,meta_name:string} $record */
+            $names->addName(
+                $record['meta_id'],
+                new TrimmedString($record['meta_name'])
+            );
+        }
+
+        return $names;
     }
 
     /**

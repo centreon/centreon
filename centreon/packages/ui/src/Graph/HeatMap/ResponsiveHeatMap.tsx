@@ -40,7 +40,7 @@ const ResponsiveHeatMap = <TData,>({
     const theoricalTotalTilesWidth =
       tilesLength * tileWidth + (tilesLength - 1) * gap;
 
-    if (lt(width, 680) && gt(maxTotalTilesWidth, width)) {
+    if (lt(width, 680) && gt(maxTotalTilesWidth, width) && !tileSizeFixed) {
       return smallestTileSize;
     }
 
@@ -66,13 +66,19 @@ const ResponsiveHeatMap = <TData,>({
       }}
     >
       {tiles.map(({ backgroundColor, id, data }) => (
-        <Box className={classes.heatMapTile} key={id} sx={{ backgroundColor }}>
+        <Box
+          className={classes.heatMapTile}
+          data-testid={id}
+          key={id}
+          sx={{ backgroundColor }}
+        >
           <Tooltip
             hasCaret
             classes={{
               arrow: cx(classes.heatMapTooltipArrow, arrowClassName),
               tooltip: classes.heatMapTooltip
             }}
+            data-testid={`tooltip-${data?.id}`}
             followCursor={false}
             label={
               displayTooltipCondition?.(data) &&

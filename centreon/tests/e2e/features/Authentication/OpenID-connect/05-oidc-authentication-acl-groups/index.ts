@@ -7,12 +7,10 @@ import {
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer()
-    .startOpenIdProviderContainer()
-    .then(() => {
-      configureProviderAcls();
-      initializeOIDCUserAndGetLoginPage();
-    });
+  cy.startContainers({ profiles: ['openid'] }).then(() => {
+    configureProviderAcls();
+    initializeOIDCUserAndGetLoginPage();
+  });
 });
 
 beforeEach(() => {
@@ -147,5 +145,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer().stopOpenIdProviderContainer();
+  cy.stopContainers();
 });

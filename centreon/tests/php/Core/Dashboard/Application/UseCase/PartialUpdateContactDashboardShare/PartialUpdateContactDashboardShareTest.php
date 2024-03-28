@@ -74,7 +74,7 @@ it(
     'should present a ForbiddenResponse when the user has no rights',
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(false);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(false);
 
         ($this->useCase)(
             $this->testedDashboard->getId(),
@@ -173,7 +173,7 @@ it(
     'should present a proper NoContentResponse as a user with allowed ROLE',
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canUpdateShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
@@ -197,7 +197,7 @@ it(
     'should present a proper ForbiddenResponse as a user with NOT allowed ROLE',
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canUpdateShare')->willReturn(false);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);

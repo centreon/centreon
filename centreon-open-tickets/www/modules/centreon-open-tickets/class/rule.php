@@ -21,6 +21,7 @@
 
 class Centreon_OpenTickets_Rule
 {
+    /** @var CentreonDB */
     protected $_db;
     protected $_provider = null;
 
@@ -339,6 +340,9 @@ class Centreon_OpenTickets_Rule
         $this->_db->commit();
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getRuleList()
     {
         $result = array();
@@ -431,7 +435,7 @@ class Centreon_OpenTickets_Rule
                 "SELECT * FROM mod_open_tickets_rule WHERE rule_id = '" . $ruleId . "' LIMIT 1"
             );
             if (!$res->rowCount()) {
-                throw new Exception(sprintf('Rule ID: % not found', $ruleId));
+                throw new Exception(sprintf('Rule ID: %d not found', $ruleId));
             }
             $row = $res->fetch();
 
@@ -499,7 +503,7 @@ class Centreon_OpenTickets_Rule
     /**
      * Delete rules
      *
-     * @param array select
+     * @param array $select
      * @return void
      */
     public function delete($select)

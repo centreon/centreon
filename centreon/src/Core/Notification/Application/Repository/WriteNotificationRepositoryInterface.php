@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
-use Core\Infrastructure\Common\Repository\RepositoryException;
+use Centreon\Domain\Repository\RepositoryException;
 use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;

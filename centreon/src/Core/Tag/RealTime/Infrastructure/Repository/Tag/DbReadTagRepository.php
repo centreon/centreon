@@ -29,7 +29,16 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
+use Utility\SqlConcatenator;
 
+/**
+ *  @phpstan-type _tag array{
+ *      id: int,
+ *      name: string,
+ *      type: int
+ * }
+ */
 class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagRepositoryInterface
 {
     use LoggerTrait;
@@ -99,6 +108,153 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         $tags = [];
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _tag $record */
+            $tags[] = DbTagFactory::createFromRecord($record);
+        }
+
+        return $tags;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllByTypeIdAndAccessGroups(int $typeId, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            $this->debug('No access group for this user, return empty');
+
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $this->info(
+            'Fetching tags from database of type and access groups',
+            ['type' => $typeId, 'access_group_ids' => $accessGroupIds]
+        );
+
+        if ((
+                $typeId === Tag::HOST_CATEGORY_TYPE_ID
+                && ! $this->hasRestrictedAccessToHostCategories($accessGroupIds)
+            )
+            || (
+                $typeId === Tag::SERVICE_CATEGORY_TYPE_ID
+                && ! $this->hasRestrictedAccessToServiceCategories($accessGroupIds)
+                )
+            ) {
+            return $this->findAllByTypeId($typeId);
+        }
+
+        switch ($typeId) {
+            case Tag::HOST_CATEGORY_TYPE_ID:
+                $aclJoins = <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_hc_relations arhr
+                        ON tags.id = arhr.hc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL;
+                break;
+            case Tag::SERVICE_CATEGORY_TYPE_ID:
+                $aclJoins = <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_sc_relations arsr
+                        ON tags.id = arsr.sc_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arsr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL;
+                break;
+            case Tag::HOST_GROUP_TYPE_ID:
+                $aclJoins = <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON hg.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL;
+                break;
+            case Tag::SERVICE_GROUP_TYPE_ID:
+                $aclJoins = <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_sg_relations arsr
+                        ON sg.sg_id = arsr.sg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arsr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL;
+                break;
+            default:
+                throw new \Exception('Unknown tag type');
+        }
+
+        // Handle search
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $search = $searchRequest === null ? 'WHERE' : "{$searchRequest} AND ";
+
+        foreach ($accessGroupIds as $key => $id) {
+            $bindValues[":access_group_id_{$key}"] = $id;
+        }
+        $aclGroupBind = implode(', ', array_keys($bindValues));
+
+        // Handle sort
+        $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $sort = $sortRequest !== null ? $sortRequest : ' ORDER BY name ASC';
+
+        // Handle pagination
+        $pagination = $this->sqlRequestTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT SQL_CALC_FOUND_ROWS 1 AS REALTIME, id, name, `type`
+                FROM `:dbstg`.tags
+                {$aclJoins}
+                {$search}
+                type = :type AND EXISTS (
+                    SELECT 1 FROM `:dbstg`.resources_tags AS rtags
+                    WHERE rtags.tag_id = tags.tag_id
+                )
+                AND ag.acl_group_id IN ({$aclGroupBind})
+                {$sort}
+                {$pagination}
+                SQL
+        ));
+
+        foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
+            /** @var int */
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+
+        $statement->bindValue(':type', $typeId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindName => $bindValue) {
+            $statement->bindValue($bindName, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        // Set total
+        $result = $this->db->query('SELECT FOUND_ROWS() AS REALTIME');
+        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
+        $tags = [];
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _tag $record */
             $tags[] = DbTagFactory::createFromRecord($record);
         }
 
@@ -135,9 +291,88 @@ class DbReadTagRepository extends AbstractRepositoryDRB implements ReadTagReposi
 
         $tags = [];
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _tag $record */
             $tags[] = DbTagFactory::createFromRecord($record);
         }
 
         return $tags;
+    }
+
+    /**
+     * Determine if service categories are filtered for given access group ids:
+     *  - true: accessible service categories are filtered
+     *  - false: accessible service categories are not filtered.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.acl_resources_sc_relations arsr
+                INNER JOIN `:db`.acl_resources res
+                    ON arsr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * Determine if host categories are filtered for given access group ids:
+     *  - true: accessible host categories are filtered
+     *  - false: accessible host categories are not filtered.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhr
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }

@@ -1,7 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import 'cypress-real-events/support';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -11,7 +14,7 @@ import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widget
 import singleMetricDoubleWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoWidgets.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
@@ -22,7 +25,7 @@ before(() => {
     : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
 
   cy.intercept({
@@ -31,7 +34,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -44,6 +47,13 @@ before(() => {
       status: 'ok'
     }
   ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -53,7 +63,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -74,7 +84,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -96,7 +106,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -113,7 +123,7 @@ Then(
     cy.getByLabel({ label: 'RichTextEditor' }).should('exist');
     cy.contains('Value settings').should('exist');
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
-    cy.get('[class*="graphTypeContainer"]').should('be.visible');
+    cy.get('[class*="displayTypeContainer"]').should('be.visible');
   }
 );
 
@@ -124,10 +134,10 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.getByTestId({ testId: 'Resource type' }).realClick();
-    cy.getByLabel({ label: 'Host Group' }).click();
-    cy.getByTestId({ testId: 'Select resource' }).click();
-    cy.contains('Linux-Servers').realClick();
+    cy.getByTestId({ testId: 'Select resource' }).eq(0).click();
+    cy.contains('Centreon-Server').realClick();
+    cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+    cy.contains('Ping').realClick();
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
     cy.contains('rta (ms)').realClick();
   }
@@ -167,9 +177,9 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -207,7 +217,7 @@ Given(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'
@@ -230,7 +240,7 @@ Then(
       .invoke('text')
       .then((text) => {
         if (parseFloat(text) !== 0) {
-          expect(text).to.match(/\d+\.\d{3,}/);
+          expect(text).to.match(/\d+\.\d{2,}/);
         }
       });
   }
@@ -366,7 +376,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 

@@ -299,3 +299,13 @@ export const labelDisplayView = 'Display view:';
 export const labelViewAllResources = 'View all resources';
 export const labelViewByHost = 'View by host';
 export const labelViewByService = 'View by service';
+export const labelResourceDetailsForcedCheckCommandSent =
+  'Forced check command sent !';
+export const labelResourceDetailsCheckCommandSent = 'Check command sent !';
+
+export const labelResourceDetailsCheckDescription =
+  'Check this resource only within configured check period';
+export const labelResourceDetailsForcedCheckDescription =
+  'Check this resource even outside configured check period';
+
+export const labelYourCommentSent = 'Your comment has been saved.';

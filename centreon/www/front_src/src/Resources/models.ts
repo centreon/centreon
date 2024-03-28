@@ -36,14 +36,13 @@ export interface Severity {
   type: string;
 }
 
-export type Parent = Omit<Resource, 'parent'>;
+export type Parent = Omit<Resource, 'parent' | 'uuid'>;
 export interface Status {
   name: string;
   severity_code: number;
 }
 
 export interface Resource extends NamedEntity {
-  children?;
   duration?: string;
   has_active_checks_enabled?: boolean;
   has_passive_checks_enabled?: boolean;
@@ -57,7 +56,7 @@ export interface Resource extends NamedEntity {
   parent?: Parent | null;
   service_id?: number;
   severity_level?: number;
-  short_type: ResourceShortType;
+  short_type?: ResourceShortType;
   status?: Status;
   tries?: string;
   type: ResourceType;
@@ -113,7 +112,7 @@ export interface ResourceExternals {
 
 export interface ResourceLinks {
   endpoints: ResourceEndpoints;
-  externals: ResourceExternals;
+  externals?: ResourceExternals;
   uris: ResourceUris;
 }
 
@@ -128,4 +127,20 @@ export enum Visualization {
   All = 'All',
   Host = 'By host',
   Service = 'By service'
+}
+
+export interface AcknowledgementDetails {
+  author_id: number;
+  author_name: string;
+  comment: string;
+  deletion_time: string;
+  entry_time: string;
+  host_id: number;
+  id: number;
+  is_notify_contacts: boolean;
+  is_persistent_comment: boolean;
+  is_sticky: boolean;
+  poller_id: number;
+  service_id: number;
+  state: number;
 }

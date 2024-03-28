@@ -53,6 +53,7 @@ class EasyvistaSoapProvider extends AbstractProvider
     public const ARG_CI_NAME = 27;
     public const ARG_SUBMIT_DATE = 28;
 
+    /** @var array<int, array<mixed>> */
     protected $internal_arg_name = array(
         self::ARG_ACCOUNT => array(
             'formid' => 'Account',
@@ -93,14 +94,19 @@ class EasyvistaSoapProvider extends AbstractProvider
         self::ARG_SUBMIT_DATE => array('formid' => 'SubmitDate', 'soapname' => 'SUBMIT_DATE'),
     );
 
-    function __destruct()
+    /** @var string */
+    protected $ws_error;
+    /** @var null|array */
+    protected $soap_result;
+    /** @var string */
+    protected $_ticket_number;
+
+    public function __destruct()
     {
     }
 
     /**
      * Set default extra value
-     *
-     * @return void
      */
     protected function setDefaultValueExtra()
     {
@@ -125,8 +131,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Check form
-     *
-     * @return a string
      */
     protected function checkConfigForm()
     {
@@ -152,8 +156,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Build the specifc config: from, to, subject, body, headers
-     *
-     * @return void
      */
     protected function getConfigContainer1Extra()
     {
@@ -235,8 +237,6 @@ class EasyvistaSoapProvider extends AbstractProvider
 
     /**
      * Build the specific advanced config: -
-     *
-     * @return void
      */
     protected function getConfigContainer2Extra()
     {
@@ -347,10 +347,12 @@ class EasyvistaSoapProvider extends AbstractProvider
         return $result;
     }
 
-    /*
+    /**
      *
      * SOAP API
      *
+     * @param string $error
+     * @return void
      */
     protected function setWsError($error)
     {
@@ -460,7 +462,7 @@ class EasyvistaSoapProvider extends AbstractProvider
         *   </SOAP-ENV:Body></SOAP-ENV:Envelope>
         */
         if (!preg_match('/<return.*?>(.*?)<\/return>/msi', $this->soap_result, $matches)) {
-            $this->setWsError($result);
+            $this->setWsError('');
             return -1;
         }
         $return_value = $matches[1];

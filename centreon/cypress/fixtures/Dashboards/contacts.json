@@ -2,24 +2,23 @@
   "result": [
     {
       "id": 1,
-      "name": "admin admin"
-    },
-    {
-      "id": 4,
-      "name": "centreon-gorgone"
+      "name": "admin admin",
+      "most_permissive_role": "editor"
     },
     {
       "id": 17,
-      "name": "Guest"
+      "name": "Guest",
+      "most_permissive_role": "viewer"
     },
     {
       "id": 18,
-      "name": "User"
+      "name": "User",
+      "most_permissive_role": "viewer"
     }
   ],
   "meta": {
     "page": 1,
-    "limit": 1000,
+    "limit": 10,
     "search": {},
     "sort_by": {},
     "total": 4

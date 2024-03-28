@@ -35,4 +35,21 @@ class DashboardGlobalRoleConverter
             DashboardGlobalRole::Viewer => 'viewer',
         };
     }
+
+    /**
+     * @param string $role
+     *
+     * @throws \UnexpectedValueException
+     *
+     * @return DashboardGlobalRole
+     */
+    public static function fromString(string $role): DashboardGlobalRole
+    {
+        return match ($role) {
+            'Administrator' => DashboardGlobalRole::Administrator,
+            'Creator' => DashboardGlobalRole::Creator,
+            'Viewer' => DashboardGlobalRole::Viewer,
+            default => throw new \UnexpectedValueException('Invalid role provided')
+        };
+    }
 }

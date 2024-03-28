@@ -68,8 +68,9 @@ const getDetailCardLines = ({
   changeExpandedCards
 }: DetailCardLineProps): Array<DetailCardLine> => {
   const checksDisabled =
-    details.active_checks === false && details.passive_checks === false;
-  const activeChecksDisabled = details.active_checks === false;
+    details.has_active_checks_enabled === false &&
+    details.has_passive_checks_enabled === false;
+  const activeChecksDisabled = details.has_active_checks_enabled === false;
 
   const displayChecksIcon = checksDisabled || activeChecksDisabled;
 
@@ -156,8 +157,8 @@ const getDetailCardLines = ({
     {
       line: (
         <ChecksIcon
-          has_active_checks_enabled={details?.active_checks}
-          has_passive_checks_enabled={details?.passive_checks}
+          has_active_checks_enabled={details?.has_active_checks_enabled}
+          has_passive_checks_enabled={details?.has_passive_checks_enabled}
         />
       ),
       shouldBeDisplayed: displayChecksIcon,

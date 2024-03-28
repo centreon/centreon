@@ -28,6 +28,7 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
 $errorMessage = '';
 
+// ------------ Widgets database updates ---------------- //
 $updateWidgetModelsTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to add column is_internal to table widget_models';
     if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
@@ -90,6 +91,19 @@ $dropColumnVersionFromDashboardWidgetsTable = function(CentreonDB $pearDB): void
             <<<'SQL'
                     ALTER TABLE dashboard_widgets
                     DROP COLUMN `version`
+                SQL
+        );
+    }
+};
+
+$insertResourcesTableWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-resourcestable')
                 SQL
         );
     }
@@ -160,7 +174,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
         <<<SQL
-        CREATE TABLE `dataset_filters` (
+        CREATE TABLE IF NOT EXISTS `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
             `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
@@ -173,6 +187,19 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         SQL
     );
+};
+
+$insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-groupmonitoring')
+                SQL
+        );
+    }
 };
 
 try {
@@ -195,6 +222,8 @@ try {
 
     $errorMessage = "Could not set core widgets to internal";
     $setCoreWidgetsToInternal($pearDB);
+    $insertResourcesTableWidget($pearDB);
+    $insertGroupMonitoringWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 

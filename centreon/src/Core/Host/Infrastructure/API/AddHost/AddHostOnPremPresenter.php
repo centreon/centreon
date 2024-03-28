@@ -50,7 +50,7 @@ class AddHostOnPremPresenter extends AbstractPresenter implements AddHostPresent
                         'monitoring_server_id' => $response->monitoringServerId,
                         'name' => $response->name,
                         'address' => $response->address,
-                        'alias' => $response->alias,
+                        'alias' => $this->emptyStringAsNull($response->alias),
                         'snmp_version' => $response->snmpVersion,
                         'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'geo_coords' => $response->geoCoords,

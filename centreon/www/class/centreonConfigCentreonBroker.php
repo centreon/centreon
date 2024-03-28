@@ -864,16 +864,31 @@ class CentreonConfigCentreonBroker
     public function updateConfig(int $id, array $values)
     {
         // Insert the Centreon Broker configuration
-        $query = "UPDATE cfg_centreonbroker SET config_name = :config_name, config_filename = :config_filename, "
-            . "ns_nagios_server = :ns_nagios_server, config_activate = :config_activate, daemon = :daemon, "
-            . "config_write_timestamp = :config_write_timestamp, config_write_thread_id = :config_write_thread_id, "
-            . "stats_activate = :stats_activate, cache_directory = :cache_directory, "
-            . "event_queue_max_size = :event_queue_max_size, event_queues_total_size = :event_queues_total_size, "
-            . "command_file = :command_file, log_directory = :log_directory, log_filename = :log_filename, "
-            . "log_max_size = :log_max_size, pool_size = :pool_size, bbdo_version = :bbdo_version "
-            . "WHERE config_id = :config_id";
+        $query = "";
         try {
-            $stmt = $this->db->prepare($query);
+            $stmt = $this->db->prepare(
+                <<<'SQL'
+                    UPDATE cfg_centreonbroker SET
+                        config_name = :config_name,
+                        config_filename = :config_filename,
+                        ns_nagios_server = :ns_nagios_server,
+                        config_activate = :config_activate,
+                        daemon = :daemon,
+                        config_write_timestamp = :config_write_timestamp,
+                        config_write_thread_id = :config_write_thread_id,
+                        stats_activate = :stats_activate,
+                        cache_directory = :cache_directory,
+                        event_queue_max_size = :event_queue_max_size,
+                        event_queues_total_size = :event_queues_total_size,
+                        command_file = :command_file,
+                        log_directory = :log_directory,
+                        log_filename = :log_filename,
+                        log_max_size = :log_max_size,
+                        pool_size = :pool_size,
+                        bbdo_version = :bbdo_version
+                    WHERE config_id = :config_id
+                    SQL
+            );
             $stmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
             $stmt->bindValue(':config_name', $values['name'], \PDO::PARAM_STR);
             $stmt->bindValue(':config_filename', $values['filename'], \PDO::PARAM_STR);
@@ -911,8 +926,13 @@ class CentreonConfigCentreonBroker
          * Log
          */
         $logs = $this->getLogsOption();
-        $query = "DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = " . $id;
-        $this->db->query($query);
+        $deleteStmt = $this->db->prepare(
+            <<<'SQL'
+                DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = :config_id
+                SQL
+        );
+        $deleteStmt->bindValue(':config_id', $id, \PDO::PARAM_INT);
+        $deleteStmt->execute();
 
         $queryLog = "INSERT INTO cfg_centreonbroker_log (id_centreonbroker, id_log, id_level) VALUES ";
         foreach (array_keys($logs) as $logId) {
@@ -1809,10 +1829,16 @@ class CentreonConfigCentreonBroker
             return $bExist;
         }
 
-        $query = "SELECT COUNT(config_id) as nb FROm cfg_centreonbroker
-            WHERE config_name = '" . $this->db->escape($sName) . "'";
-        $res = $this->db->query($query);
-        $row = $res->fetch();
+        $statement = $this->db->prepare(
+            <<<'SQL'
+                SELECT COUNT(config_id) as nb FROm cfg_centreonbroker
+                WHERE config_name = :configName
+                SQL
+        );
+        $statement->bindValue(':configName', $this->db->escape($sName), \PDO::PARAM_STR);
+        $statement->execute();
+
+        $row = $statement->fetch();
         if ($row['nb'] > 0) {
             $bExist = 1;
         }

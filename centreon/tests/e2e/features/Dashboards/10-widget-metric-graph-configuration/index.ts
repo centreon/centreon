@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -8,7 +11,7 @@ import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/me
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -19,7 +22,7 @@ before(() => {
     : 'www-data';
   cy.execInContainer({
     command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
+    name: 'web'
   });
 
   cy.intercept({
@@ -28,7 +31,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -45,6 +48,13 @@ before(() => {
       status: 'ok'
     }
   ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 beforeEach(() => {
@@ -54,7 +64,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -82,7 +92,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -104,7 +114,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -135,7 +145,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('rta (ms)').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
     cy.wait('@performanceData');
   }
 );
@@ -191,7 +201,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -283,7 +293,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -323,7 +333,7 @@ When(
     cy.getByTestId({ testId: 'DeleteIcon' }).click();
     cy.getByLabel({
       label: 'Delete',
-      tag: 'li'
+      tag: 'button'
     }).realClick();
   }
 );
@@ -353,7 +363,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreVertIcon' }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -365,7 +375,7 @@ When(
   'the dashboard administrator user selects a metric with a different unit than the initial metric in the dataset selection',
   () => {
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('pl (%)').realClick();
+    cy.getByTestId({ testId: 'pl' }).realClick();
   }
 );
 

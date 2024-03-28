@@ -17,6 +17,7 @@ import {
   resourceDetailsUpdatedAtom,
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
+import { resourceDetailsDecoder } from '../decoders';
 
 import { ResourceDetails } from './models';
 import {
@@ -37,6 +38,7 @@ const useLoadDetails = (): DetailsState => {
   const { t } = useTranslation();
 
   const { sendRequest, sending } = useRequest<ResourceDetails>({
+    decoder: resourceDetailsDecoder,
     getErrorMessage: ifElse(
       pathEq(404, ['response', 'status']),
       always(t(labelNoResourceFound)),
@@ -68,7 +70,9 @@ const useLoadDetails = (): DetailsState => {
     sendRequest({
       endpoint: selectedResourceDetailsEndpoint
     })
-      .then(setDetails)
+      .then((data) => {
+        setDetails(data);
+      })
       .catch(() => {
         clearSelectedResource();
       });

@@ -17,7 +17,7 @@ import { checkIfConfigurationIsExported } from '../../../commons';
 let dateBeforeLogin: Date;
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.addCheckCommand({
     command: 'echo "Post command"',
@@ -70,10 +70,13 @@ Given('some pollers are created', () => {
 
 Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
-    cy.executeSqlRequestInContainer(`DELETE FROM poller_command_relations`);
-    cy.executeSqlRequestInContainer(
-      `INSERT INTO poller_command_relations (poller_id, command_id, command_order) SELECT ${pollerId},c.command_id,1 FROM command c WHERE c.command_name = 'post_command'`
-    );
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: 'DELETE FROM poller_command_relations'
+    }).requestOnDatabase({
+      database: 'centreon',
+      query: `INSERT INTO poller_command_relations (poller_id, command_id, command_order) SELECT ${pollerId},c.command_id,1 FROM command c WHERE c.command_name = 'post_command'`
+    });
   });
 });
 
@@ -256,5 +259,5 @@ Then('the configuration is not generated on selected pollers', () => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

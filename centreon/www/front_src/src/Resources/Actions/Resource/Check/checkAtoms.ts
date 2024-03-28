@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-interface CheckActionAtom {
+export interface CheckActionAtom {
   checked: boolean;
   forcedChecked: boolean;
 }

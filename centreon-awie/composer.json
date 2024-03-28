@@ -7,11 +7,12 @@
         "codestyle": "phpcs --extensions=php --standard=./ruleset.xml ./",
         "codestyle:ci": "@codestyle --report=checkstyle --report-file=./build/checkstyle.xml --no-cache"
     },
-    "config": {
-        "secure-http": false,
-        "platform": {
-            "php": "8.0"
-        }
+    "repositories": [{
+        "type": "path",
+        "url": "../centreon"
+    }],
+    "require": {
+        "centreon/centreon": "dev-develop"
     },
     "require-dev": {
         "behat/behat": "^3.10",
@@ -21,5 +22,14 @@
         "centreon/centreon-test-lib": "dev-master",
         "squizlabs/php_codesniffer": "3.5.8",
         "psr/container": "1.1.1"
+    },
+    "config": {
+        "secure-http": false,
+        "platform": {
+            "php": "8.1"
+        },
+        "allow-plugins": {
+            "symfony/flex": false
+        }
     }
 }

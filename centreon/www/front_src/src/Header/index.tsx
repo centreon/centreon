@@ -14,12 +14,17 @@ import HostStatusCounter from './Resources/Host';
 import ServiceStatusCounter from './Resources/Service';
 import UserMenu from './UserMenu';
 
+import { useFullscreen } from 'packages/ui/src';
+
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
 
 export const headerHeight = 7;
 
 const useStyles = makeStyles()((theme) => ({
+  fullscreenActivated: {
+    display: 'none'
+  },
   header: {
     alignItems: 'center',
     backgroundColor: isDarkMode(theme)
@@ -64,11 +69,19 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const Header = (): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const headerRef = useRef<HTMLElement>(null);
 
+  const { isFullscreenActivated } = useFullscreen();
+
   return (
-    <header className={classes.header} ref={headerRef}>
+    <header
+      className={cx(
+        classes.header,
+        isFullscreenActivated && classes.fullscreenActivated
+      )}
+      ref={headerRef}
+    >
       <div className={classes.leftContainer}>
         <div className={classes.item}>
           <Poller />

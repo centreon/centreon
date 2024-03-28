@@ -20,16 +20,10 @@
  */
 
 /**
- * This plugin exists to avoid using the deprecated {php} tag
- * when we use it only for the pagination.
+ * This plugin is a wrapper around the legacy commonly included file `include/common/pagination.php`
+ * which displays a pagination bar in the legacy pages before + after the tables.
  *
- * Before <pre>
- *     {php}
- *     include('./include/common/pagination.php');
- *     {/php}
- * </pre>
- *
- * After <pre>
+ * Usage: <pre>
  *     {pagination}
  * </pre>
  */

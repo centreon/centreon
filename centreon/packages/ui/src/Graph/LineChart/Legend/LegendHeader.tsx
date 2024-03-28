@@ -38,7 +38,7 @@ const LegendHeader = ({
 
   const getEndText = (): string => {
     if (value) {
-      return `${value}${hasUnit ? ` ${unit}` : ''}`;
+      return value;
     }
 
     return hasUnit ? ` ${unitName}` : '';

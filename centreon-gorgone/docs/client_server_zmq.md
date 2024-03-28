@@ -39,7 +39,7 @@ $ perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path='/var/spool/centreon/
 
 #### Server
 
-In the */etc/centreon/confid.d/20-gorgoned.yaml* configuration file, add the following directives under the 
+In the */etc/centreon/config.d/20-gorgoned.yaml* configuration file, add the following directives under the 
 *gorgonecore* 
 section:
 

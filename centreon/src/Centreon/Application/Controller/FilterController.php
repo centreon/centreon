@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,20 +22,21 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use Centreon\Domain\Filter\Interfaces\FilterServiceInterface;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Filter\Filter;
 use Centreon\Domain\Filter\FilterCriteria;
 use Centreon\Domain\Filter\FilterException;
-use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Filter\Interfaces\FilterServiceInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use FOS\RestBundle\Context\Context;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use Centreon\Domain\Entity\EntityCreator;
-use Centreon\Domain\Contact\Contact;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Used to manage filters of the current user
@@ -98,10 +99,13 @@ class FilterController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
 
         $payload = $this->validateAndRetrieveDataSent(
             $request,
@@ -163,10 +167,14 @@ class FilterController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
+
         $this->filterService->filterByContact($user);
 
         $payload = $this->validateAndRetrieveDataSent(
@@ -213,10 +221,14 @@ class FilterController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
+
         $this->filterService->filterByContact($user);
 
         $propertyToPatch = json_decode((string) $request->getContent(), true);
@@ -258,10 +270,13 @@ class FilterController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
 
         $filter = $this->filterService->findFilterByUserId($user->getId(), $pageName, $filterId);
         if ($filter === null) {
@@ -286,10 +301,13 @@ class FilterController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
 
         $filters = $this->filterService->findFiltersByUserId($user->getId(), $pageName);
 
@@ -313,10 +331,13 @@ class FilterController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+        $this->validatePageNameOrFail($pageName);
+
         /**
          * @var Contact $user
          */
         $user = $this->getUser();
+        $this->userHasAccessToResourceStatusOrFail($user);
 
         $filter = $this->filterService->findFilterByUserId($user->getId(), $pageName, $filterId);
         if ($filter === null) {
@@ -329,4 +350,31 @@ class FilterController extends AbstractController
 
         return $this->view($filter)->setContext($context);
     }
+
+    /**
+     * @param string $pageName
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validatePageNameOrFail(string $pageName): void
+    {
+        $pageNames = ['events-view'];
+        if (! in_array($pageName, $pageNames, true)) {
+            throw new FilterException(
+                sprintf(_('Invalid page name. Valid page names are: %s'), implode(', ', $pageNames))
+            );
+        }
+    }
+
+     /**
+      * @param Contact $user
+      *
+      * @throws \RestForbiddenException
+      */
+     private function userHasAccessToResourceStatusOrFail(Contact $user): void
+     {
+        if (! $user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            throw new FilterException(_('You are not allowed to access the Resources Status page'), 403);
+        }
+     }
 }

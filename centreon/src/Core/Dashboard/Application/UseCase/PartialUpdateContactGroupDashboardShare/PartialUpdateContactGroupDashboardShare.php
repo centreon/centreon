@@ -80,7 +80,7 @@ final class PartialUpdateContactGroupDashboardShare
                     );
                     $response = $this->updateContactGroupShareAsAdmin($dashboard, $contactGroup, $request);
                 }
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
                 $contactGroup = $this->readContactGroupRepository->find($contactGroupId);
 

@@ -71,9 +71,7 @@
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+            {pagination}
         </tr>
     </table>
     <table class="ListTable">
@@ -95,11 +93,10 @@
             <td class="ListColHeaderCenter" style="width:170px;">{$status_trans}</td>
             <td class="ListColHeaderCenter">{$actions_trans}&nbsp;&nbsp;&nbsp;</td>
         </tr>
-        {assign var="line" value=0}
-        {php} $l = 0; {/php}
+        {lineTemplate->reset}
         {if $selection == 1}
         {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+        <tr class="{lineTemplate->get}">
             <td class="ListColCenter"><img class="ico-14" src="./img/icons/service.png"></td>
             <td class="ListColLeft">
                 <a
@@ -122,7 +119,7 @@
                 <a name="Create wiki page"
                    href='./include/configuration/configKnowledge/popup.php?object=Service_:_{$elem}&type={$selection}'
                    target='_blank'>{t}Create wiki page{/t}</a>
-                &nbsp;&nbsp;&nbsp;{$line}
+                &nbsp;&nbsp;&nbsp;
                 {/if}
                 {if $stt == 1}
                 <a href="{$WikiURL}/index.php?title=Service_:_{$elem}" target='_blank'>{t}View wiki page{/t}</a>
@@ -138,12 +135,11 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
         {/foreach}
         {else}
-        {php} $l = 0; {/php}
+        {lineTemplate->reset}
         {foreach key=elem from=$content item=stt}
-        <tr class="{php} global $line; print $line[$l%2]; {/php}">
+        <tr class="{lineTemplate->get}">
             <td class="ListColCenter">
             {if $selection == 1 || $selection == 3}
                 <img class="ico-14" src="./img/icons/service.png">
@@ -215,15 +211,12 @@
                 {/if}
             </td>
         </tr>
-        {php} $l++ ; {/php}
         {/foreach}
         {/if}
     </table>
     <table class="ToolbarTable table">
         <tr class="ToolbarTR">
-            {php}
-            include('./include/configuration/configKnowledge/pagination.php');
-            {/php}
+            {pagination}
         </tr>
     </table>
     <input type='hidden' name='o' id='o' value='42'>

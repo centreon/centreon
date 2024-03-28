@@ -6,8 +6,11 @@ import {
   labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
-import { dashboardRefreshIntervalAtom } from '../../../../atoms';
+import {
+  dashboardRefreshIntervalAtom,
+  hasEditPermissionAtom,
+  isEditingAtom
+} from '../../../../atoms';
 
 import RefreshInterval from './RefreshInterval';
 
@@ -23,11 +26,9 @@ const initializeComponent = (
   const store = createStore();
 
   store.set(dashboardRefreshIntervalAtom, refreshInterval);
+  store.set(hasEditPermissionAtom, true);
+  store.set(isEditingAtom, true);
 
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit: true,
-    canEditField: true
-  });
   cy.mount({
     Component: (
       <Provider store={store}>

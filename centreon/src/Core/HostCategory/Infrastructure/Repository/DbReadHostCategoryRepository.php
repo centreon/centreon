@@ -34,6 +34,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostCategory\Domain\Model\HostCategoryNamesById;
 use Utility\SqlConcatenator;
 
 /**
@@ -55,6 +56,42 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNames(array $hostCategoryIds): HostCategoryNamesById
+    {
+        $concatenator = new SqlConcatenator();
+
+        $hostCategoryIds = array_unique($hostCategoryIds);
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                    SELECT hc.hc_id, hc.hc_name
+                    FROM `:db`.hostcategories hc
+                    WHERE hc.hc_id IN (:hostCategoryIds)
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':hostCategoryIds', $hostCategoryIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $names = new HostCategoryNamesById();
+
+        foreach ($statement as $record) {
+            /** @var array{hc_id:int,hc_name:string} $record */
+            $names->addName(
+                $record['hc_id'],
+                new TrimmedString($record['hc_name'])
+            );
+        }
+
+        return $names;
     }
 
     /**

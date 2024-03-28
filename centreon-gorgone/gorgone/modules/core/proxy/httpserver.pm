@@ -34,6 +34,7 @@ use IO::Handle;
 use JSON::XS;
 use IO::Poll qw(POLLIN POLLPRI);
 use EV;
+use HTML::Entities;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -52,6 +53,8 @@ websocket '/' => sub {
 
     $mojo->on(message => sub {
         my ($mojo, $msg) = @_;
+
+        $msg =  HTML::Entities::decode_entities($msg);
 
         $connector->{ws_clients}->{ $mojo->tx->connection }->{last_update} = time();
 

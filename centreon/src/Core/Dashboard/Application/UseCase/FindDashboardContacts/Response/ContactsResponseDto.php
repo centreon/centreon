@@ -23,12 +23,21 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboardContacts\Response;
 
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+
 final class ContactsResponseDto
 {
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $email
+     * @param DashboardGlobalRole $mostPermissiveRole
+     */
     public function __construct(
         public int $id = 0,
         public string $name = '',
-    )
-    {
+        public string $email = '',
+        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
+    ) {
     }
 }

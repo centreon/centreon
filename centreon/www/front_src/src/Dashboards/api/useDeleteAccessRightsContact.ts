@@ -3,8 +3,16 @@ import {
   UseMutationResult,
   useQueryClient
 } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+import {
+  Method,
+  ResponseError,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
+
+import { labelUserDeleted } from '../translatedLabels';
 
 import { DeleteAccessRightDto, resource } from './models';
 import { getDashboardAccessRightsContactEndpoint } from './endpoints';
@@ -24,6 +32,9 @@ type UseDeleteAccessRightsContact<
 >;
 
 const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
+  const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -73,7 +84,13 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
         onSettled: onSettledWithInvalidateQueries,
         ...restOptions
       }
-    );
+    ).then(() => {
+      queryClient.invalidateQueries({
+        queryKey: [resource.dashboards]
+      });
+
+      showSuccessMessage(t(labelUserDeleted));
+    });
   };
 
   return {

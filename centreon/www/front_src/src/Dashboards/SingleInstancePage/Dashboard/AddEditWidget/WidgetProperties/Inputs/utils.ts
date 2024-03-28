@@ -21,6 +21,7 @@ import {
 import {
   ShowInput,
   WidgetDataResource,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
@@ -42,13 +43,13 @@ const metricSchema = Yup.object().shape({
 });
 
 interface GetYupValidatorTypeProps {
+  properties: WidgetPropertyProps;
   t: TFunction;
-  widgetOptionType: FederatedWidgetOptionType;
 }
 
 const getYupValidatorType = ({
   t,
-  widgetOptionType
+  properties
 }: GetYupValidatorTypeProps):
   | Yup.StringSchema
   | Yup.AnyObjectSchema
@@ -82,8 +83,13 @@ const getYupValidatorType = ({
           .of(
             Yup.object()
               .shape({
-                resourceType: Yup.string().required(t(labelRequired) as string),
-                resources: Yup.array().of(namedEntitySchema).min(1)
+                resourceType:
+                  properties.required || properties.requireResourceType
+                    ? Yup.string().required(t(labelRequired) as string)
+                    : Yup.string(),
+                resources: properties.required
+                  ? Yup.array().of(namedEntitySchema).min(1)
+                  : Yup.array()
               })
               .optional()
           )
@@ -126,33 +132,26 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(Yup.number().min(1))
     ]
-  ])(widgetOptionType);
+  ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  required?: boolean;
+  properties: WidgetPropertyProps;
   t: TFunction;
-  type: FederatedWidgetOptionType;
 }
 
 export const buildValidationSchema = ({
-  type,
-  required,
-  t
+  t,
+  properties
 }: BuildValidationSchemaProps): Yup.StringSchema => {
-  const yupValidator = getYupValidatorType({ t, widgetOptionType: type });
+  const yupValidator = getYupValidatorType({
+    properties,
+    t
+  });
 
-  return required
+  return properties.required
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };
-
-export const areResourcesFullfilled = (
-  value: Array<WidgetDataResource>
-): boolean =>
-  value?.every(
-    ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
-  );
 
 export const isAtLeastOneResourceFullfilled = (
   value: Array<WidgetDataResource>
@@ -198,3 +197,11 @@ export const showInput = ({
 
   return true;
 };
+
+export const areResourcesFullfilled = (
+  value: Array<WidgetDataResource> = []
+): boolean =>
+  value.every(
+    ({ resourceType, resources }) =>
+      !isEmpty(resourceType) && !isEmpty(resources)
+  );

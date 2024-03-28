@@ -29,8 +29,8 @@ const useBackToVisualizationByAll = (): void => {
 
   const isSearchIncludesTypesService =
     isViewByHost &&
-    ['service', 'metaservice', 'anomaly-detection'].some(
-      (type) => searchType?.[0].includes(type)
+    ['service', 'metaservice', 'anomaly-detection'].some((type) =>
+      searchType?.[0].includes(type)
     );
 
   const isSearchIncludesOtherTypes = or(

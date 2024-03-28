@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,40 +23,57 @@ declare(strict_types=1);
 
 namespace Tests\Core\Platform\Application\UseCase\UpdateVersions;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersions;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
 use Core\Platform\Application\Validator\RequirementException;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
-use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Pimple\Container;
 
-beforeEach(function () {
-    $this->requirementValidators =  $this->createMock(RequirementValidatorsInterface::class);
-    $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class);
-    $this->readVersionRepository = $this->createMock(ReadVersionRepositoryInterface::class);
-    $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class);
-    $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class);
-    $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
+beforeEach(function (): void {
     $this->centreonModuleService = $this->createMock(CentreonModuleService::class);
-    $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]);
+
+    $this->useCase = new UpdateVersions(
+        $this->requirementValidators = $this->createMock(RequirementValidatorsInterface::class),
+        $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class),
+        $this->readVersionRepository = $this->createMock(ReadVersionRepositoryInterface::class),
+        $this->readUpdateRepository = $this->createMock(ReadUpdateRepositoryInterface::class),
+        $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class),
+        $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]),
+        $this->user = $this->createMock(ContactInterface::class),
+    );
+
+    $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
 });
 
-it('should stop update process when an other update is already started', function () {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+it('should present a Forbidden Response when user is not admin', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->presenter
+        ->expects($this->once())
+        ->method('setResponseStatus')
+        ->with(new ForbiddenResponse('Only admin user can perform upgrades'));
+
+    ($this->useCase)($this->presenter);
+});
+
+it('should stop update process when an other update is already started', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -68,18 +85,14 @@ it('should stop update process when an other update is already started', functio
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Update already in progress'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
-it('should present an error response if a requirement is not validated', function () {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+it('should present an error response if a requirement is not validated', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->requirementValidators
         ->expects($this->once())
@@ -91,18 +104,14 @@ it('should present an error response if a requirement is not validated', functio
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Requirement is not validated'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
-it('should present an error response if current centreon version is not found', function () {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+it('should present an error response if current centreon version is not found', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -119,18 +128,14 @@ it('should present an error response if current centreon version is not found', 
         ->method('setResponseStatus')
         ->with(new ErrorResponse('Cannot retrieve the current version'));
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });
 
-it('should run found updates', function () {
-    $updateVersions = new UpdateVersions(
-        $this->requirementValidators,
-        $this->updateLockerRepository,
-        $this->readVersionRepository,
-        $this->readUpdateRepository,
-        $this->writeUpdateRepository,
-        $this->dependencyInjector,
-    );
+it('should run found updates', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
 
     $this->updateLockerRepository
         ->expects($this->once())
@@ -149,9 +154,15 @@ it('should run found updates', function () {
         ->willReturn(['22.10.0-beta.1', '22.10.0', '22.10.1']);
 
     $this->centreonModuleService
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getList')
-        ->willReturn(['widget' => []]);
+        ->will(
+            $this->onConsecutiveCalls(
+                ['module' => []],
+                ['widget' => []],
+            )
+        );
+
 
     $this->writeUpdateRepository
         ->expects($this->exactly(3))
@@ -167,5 +178,5 @@ it('should run found updates', function () {
         ->method('setResponseStatus')
         ->with(new NoContentResponse());
 
-    $updateVersions($this->presenter);
+    ($this->useCase)($this->presenter);
 });

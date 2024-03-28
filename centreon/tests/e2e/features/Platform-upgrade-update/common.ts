@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -36,13 +38,12 @@ const getCentreonStableMinorVersions = (
         command: `bash -e <<EOF
           dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       })
-      .exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
-      );
+      .execInContainer({
+        command: `dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print $2 }' | tr '\n' ' '`,
+        name: 'web'
+      });
   } else {
     commandResult = cy
       .execInContainer({
@@ -51,21 +52,20 @@ EOF`,
           mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
           apt-get update
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       })
-      .exec(
-        `docker exec -i ${Cypress.env(
-          'dockerName'
-        )} sh -c "apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'"`
-      );
+      .execInContainer({
+        command: `apt list -a centreon-web | grep '${majorVersion}' | awk '{ print $2 }'`,
+        name: 'web'
+      });
   }
 
-  return commandResult.then(({ stdout }): Cypress.Chainable<Array<number>> => {
+  return commandResult.then(({ output }): Cypress.Chainable<Array<number>> => {
     const stableVersions: Array<number> = [];
 
     const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
-    [...stdout.matchAll(versionsRegex)].forEach((result) => {
+    [...output.matchAll(versionsRegex)].forEach((result) => {
       cy.log(`available version found: ${majorVersion}.${result[1]}`);
       stableVersions.push(Number(result[1]));
     });
@@ -75,7 +75,7 @@ EOF`,
         command: `bash -e <<EOF
             dnf config-manager --set-enabled 'centreon-*'
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       });
     } else {
       cy.execInContainer({
@@ -84,7 +84,7 @@ EOF`,
             mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
             apt-get update
 EOF`,
-        name: Cypress.env('dockerName')
+        name: 'web'
       });
     }
 
@@ -109,7 +109,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
         dnf config-manager --set-enabled 'centreon-*'
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
   } else {
     cy.execInContainer({
@@ -135,7 +135,7 @@ EOF`,
         apt-get update
         usermod -a -G centreon-broker www-data # temporary fix (MON-20769)
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
   }
 
@@ -221,7 +221,7 @@ EOF`,
         systemctl restart centengine
         systemctl restart gorgoned
 EOF`,
-      name: Cypress.env('dockerName')
+      name: 'web'
     });
 };
 
@@ -229,54 +229,58 @@ const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
       destination: '/tmp/packages-update-centreon',
-      source: './fixtures/packages'
+      source: './fixtures/packages',
+      type: CopyToContainerContentType.Directory
     })
     .getWebVersion()
     .then(({ major_version }) => {
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
         return cy.execInContainer({
-          command: `bash -e <<EOF
-          rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm
-          dnf install -y /tmp/packages-update-centreon/*.rpm
-EOF`,
-          name: Cypress.env('dockerName')
+          command: [
+            `rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm`,
+            'dnf install -y /tmp/packages-update-centreon/*.rpm'
+          ],
+          name: 'web'
         });
       }
 
       return cy.execInContainer({
-        command: `bash -e <<EOF
-        rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
-        apt-get update
-        apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
-EOF`,
-        name: Cypress.env('dockerName')
+        command: [
+          `rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb`,
+          'apt-get update',
+          'apt-get install -y /tmp/packages-update-centreon/centreon-*.deb'
+        ],
+        name: 'web'
       });
     })
     .execInContainer({
-      command: `bash -e <<EOF
-        systemctl restart cbd
-        systemctl restart centengine
-        systemctl restart gorgoned
-EOF`,
-      name: Cypress.env('dockerName')
+      command: [
+        'systemctl restart cbd',
+        'systemctl restart centengine',
+        'systemctl restart gorgoned'
+      ],
+      name: 'web'
     });
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
   const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? `rpm -qa | grep centreon-web | cut -d '-' -f3`
-    : `apt list --installed centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
+    ? `rpm -qa | grep centreon-web | cut -d '-' -f3 | tr -d '\n'`
+    : `apt list --installed centreon-web | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
 
   return cy
-    .exec(`docker exec -i ${Cypress.env('dockerName')} sh -c "${command}"`)
-    .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isExpected = platformVersion === stdout;
+    .execInContainer({
+      command,
+      name: 'web'
+    })
+    .then(({ output }): Cypress.Chainable<null> | null => {
+      const isExpected = platformVersion === output;
       if (isExpected) {
         return null;
       }
 
       throw new Error(
-        `The platform version is not the correct one (expected: ${platformVersion}, actual: ${stdout}).`
+        `The platform version is not the correct one (expected: ${platformVersion}, actual: ${output}).`
       );
     });
 };
@@ -418,7 +422,7 @@ Then('legacy services grid page should still work', () => {
 });
 
 Given('a successfully updated platform', () => {
-  cy.waitForContainerAndSetToken();
+  cy.setUserTokenApiV1();
 
   cy.loginByTypeOfUser({
     jsonName: 'admin'

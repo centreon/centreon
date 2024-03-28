@@ -9,7 +9,7 @@ import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 
-import { TextField } from '@centreon/ui';
+import { NumberField } from '@centreon/ui';
 import { refreshIntervalAtom } from '@centreon/ui-context';
 
 import { getProperty } from '../utils';
@@ -72,13 +72,9 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
   };
 
-  const changeCustomRefreshInterval = (
-    event: ChangeEvent<HTMLInputElement>
-  ): void => {
-    const newInterval = parseInt(event.target.value || '0', 10);
-
-    setCustomInterval(newInterval);
-    setFieldValue(`options.${refreshIntervalCustomProperty}`, newInterval);
+  const changeCustomRefreshInterval = (inputValue: number): void => {
+    setCustomInterval(inputValue);
+    setFieldValue(`options.${refreshIntervalCustomProperty}`, inputValue);
   };
 
   const defaultLabel = equals(dashboardRefreshInterval?.type, 'manual')
@@ -95,16 +91,17 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
         <Box className={classes.customInterval}>
           <Typography>{t(labelCustomRefreshInterval)}</Typography>
           <div>
-            <TextField
+            <NumberField
               className={classes.customIntervalField}
               dataTestId={labelInterval}
+              defaultValue={customInterval}
               disabled={!equals(RadioOptions.custom, value)}
+              fallbackValue={defaultInterval}
               inputProps={{
                 min: 1
               }}
               size="compact"
               type="number"
-              value={`${customInterval}`}
               onChange={changeCustomRefreshInterval}
             />
           </div>

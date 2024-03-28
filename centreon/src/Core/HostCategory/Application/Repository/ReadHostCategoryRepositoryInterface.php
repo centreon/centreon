@@ -26,6 +26,7 @@ namespace Core\HostCategory\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostCategory\Domain\Model\HostCategoryNamesById;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostCategoryRepositoryInterface
@@ -156,4 +157,13 @@ interface ReadHostCategoryRepositoryInterface
      * @return HostCategory[]
      */
     public function findByHostAndAccessGroups(int $hostId, array $accessGroups): array;
+
+    /**
+     * Find Host Categories names by their IDs.
+     *
+     * @param int[] $hostCategoryIds
+     *
+     * @return HostCategoryNamesById
+     */
+    public function findNames(array $hostCategoryIds): HostCategoryNamesById;
 }

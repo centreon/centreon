@@ -37,13 +37,13 @@ contents:
 overrides:
   rpm:
     depends:
-      - mariadb-server
+      - "(mariadb-server or mysql-server)"
       - centreon-broker < ${NEXT_MAJOR_VERSION}
       - centreon-engine-daemon >= ${MAJOR_VERSION}
       - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
   deb:
     depends:
-      - mariadb-server
+      - "mariadb-server | mysql-server"
       - "centreon-broker (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-engine-daemon (>= ${MAJOR_VERSION}~)"
       - "centreon-engine-daemon (<< ${NEXT_MAJOR_VERSION}~)"

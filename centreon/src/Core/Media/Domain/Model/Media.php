@@ -25,8 +25,10 @@ namespace Core\Media\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Common\Domain\Comparable;
+use Core\Common\Domain\Identifiable;
 
-class Media
+class Media implements Comparable, Identifiable
 {
     /**
      * @param int $id
@@ -92,5 +94,15 @@ class Media
     public function hash(): ?string
     {
         return $this->data !== null ? md5($this->data) : null;
+    }
+
+    public function isEqual(object $object): bool
+    {
+        return $object instanceof self && $object->getEqualityHash() === $this->getEqualityHash();
+    }
+
+    public function getEqualityHash(): string
+    {
+        return md5($this->getRelativePath());
     }
 }

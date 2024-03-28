@@ -47,6 +47,10 @@ get:
     * severity.name
     * group.id
     * group.name
+    * hostgroup.id
+    * hostgroup.name
+    * hostcategory.id
+    * hostcategory.name
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'

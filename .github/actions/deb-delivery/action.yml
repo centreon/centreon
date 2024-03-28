@@ -19,18 +19,24 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  release_cloud:
+    description: "Release context (cloud or not cloud)"
+    required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache/restore@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@901bb9632db90821c2d3f076012bdeaf66598555 # v3.4.1
+    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -55,6 +61,12 @@ runs:
           exit 0
         fi
 
+        if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
+          REPO_PREFIX="ubuntu"
+        else
+          REPO_PREFIX="apt"
+        fi
+
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
@@ -64,6 +76,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "apt-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "${REPO_PREFIX}-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash

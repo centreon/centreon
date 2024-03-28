@@ -71,7 +71,7 @@ final class DeleteContactGroupDashboardShare
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 }
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
                     $this->info(
                         'Delete a contact contact group for dashboard',

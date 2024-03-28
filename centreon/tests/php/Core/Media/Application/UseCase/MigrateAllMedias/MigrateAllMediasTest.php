@@ -28,7 +28,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
-use Core\Media\Application\UseCase\MigrateAllMedias\MediaRecordedDto;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMedias;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMediasRequest;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrationAllMediasResponse;
@@ -73,26 +72,28 @@ it('should present a MigrateAllMediasResponse when the user is an admin', functi
         ->willReturn($medias);
 
     ($this->useCase)($this->request, $this->presenter);
-    $firstResponseMedia = $this->presenter->response->results->current();
-    expect($this->presenter->response)
-        ->toBeInstanceOf(MigrationAllMediasResponse::class)
-        ->and($firstResponseMedia->filename)
-        ->tobe('media1.png')
-        ->and($firstResponseMedia->directory)
-        ->tobe('img')
-        ->and($firstResponseMedia->reason)
-        ->tobe('The file img/media1.png does not exist');
+    expect($this->presenter->response)->toBeInstanceOf(MigrationAllMediasResponse::class);
 
-    $this->presenter->response->results->next();
-
-    /** @var MediaRecordedDto $secondeResponseMedia */
-    $secondeResponseMedia = $this->presenter->response->results->current();
-    expect($this->presenter->response)
-        ->toBeInstanceOf(MigrationAllMediasResponse::class)
-        ->and($secondeResponseMedia->filename)
-        ->tobe('media2.png')
-        ->and($secondeResponseMedia->directory)
-        ->tobe('img')
-        ->and($secondeResponseMedia->md5)
-        ->tobe(md5($mediaWithData->getData() ?? ''));
+    $check = [
+        $mediaWithoutData->getFilename() => 0,
+        $mediaWithData->getFilename() => 0,
+    ];
+    foreach ($this->presenter->response->results as $responseMedia) {
+        if ($responseMedia->filename === $mediaWithoutData->getFilename()) {
+            $check[$mediaWithoutData->getFilename()]++;
+            expect($responseMedia->directory)
+                ->tobe('img')
+                ->and($responseMedia->reason)
+                ->tobe('The file img/media1.png does not exist');
+        }
+        if ($responseMedia->filename === $mediaWithData->getFilename()) {
+            $check[$mediaWithData->getFilename()]++;
+            expect($responseMedia->directory)
+                ->tobe('img')
+                ->and($responseMedia->md5)
+                ->tobe(md5($mediaWithData->getData() ?? ''));
+        }
+    }
+    expect($check[$mediaWithoutData->getFilename()])->toBe(1);
+    expect($check[$mediaWithData->getFilename()])->toBe(1);
 });

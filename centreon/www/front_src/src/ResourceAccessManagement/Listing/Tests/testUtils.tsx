@@ -3,7 +3,7 @@ import { Column, ColumnType } from '@centreon/ui';
 import {
   labelActions,
   labelDescription,
-  labelRules,
+  labelName,
   labelStatus
 } from '../../translatedLabels';
 // TODO: replace Component once action endpoints are implemented
@@ -58,7 +58,7 @@ export const getListingColumns = (): Array<Column> => {
       disablePadding: false,
       getFormattedString: ({ name }): string => name,
       id: 'name',
-      label: labelRules,
+      label: labelName,
       sortField: 'name',
       sortable: true,
       type: ColumnType.string

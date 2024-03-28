@@ -38,9 +38,9 @@ interface ReadServiceGroupRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return list<ServiceGroup>
+     * @return \Traversable<int, ServiceGroup>&\Countable
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findAll(?RequestParametersInterface $requestParameters): \Traversable&\Countable;
 
     /**
      * Find All service groups with access groups.
@@ -50,9 +50,20 @@ interface ReadServiceGroupRepositoryInterface
      *
      * @throws \Throwable
      *
+     * @return \Traversable<int, ServiceGroup>&\Countable
+     */
+    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable;
+
+    /**
+     * Find service groups by their ID.
+     *
+     * @param int ...$serviceGroupIds
+     *
+     * @throws \Throwable
+     *
      * @return list<ServiceGroup>
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): array;
+    public function findByIds(int ...$serviceGroupIds): array;
 
     /**
      * Find one service group without acl.
@@ -162,6 +173,8 @@ interface ReadServiceGroupRepositoryInterface
      * Find service group names by their IDs.
      *
      * @param int[] $serviceGroupIds
+     *
+     * @throws \Throwable
      *
      * @return ServiceGroupNamesById
      */

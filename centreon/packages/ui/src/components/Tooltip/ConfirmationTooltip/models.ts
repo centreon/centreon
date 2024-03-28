@@ -11,7 +11,7 @@ interface Labels {
 }
 
 export interface Props {
-  children: (toggleTooltip) => ReactElement;
+  children: ({ toggleTooltip, isOpen }) => ReactElement;
   confirmVariant?: ActionVariants;
   labels: Labels;
   onConfirm: () => void;

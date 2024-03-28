@@ -25,66 +25,33 @@ namespace Core\Host\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Common\Domain\SimpleEntity;
-use Core\Common\Domain\TrimmedString;
+use Core\Common\Domain\Comparable;
+use Core\Common\Domain\Identifiable;
 
-class TinyHost
+class TinyHost implements Comparable, Identifiable
 {
-    public const MAX_NAME_LENGTH = NewHost::MAX_NAME_LENGTH,
-        MAX_ADDRESS_LENGTH = NewHost::MAX_ADDRESS_LENGTH;
-
-    /** @var list<int> */
-    private array $categoryIds = [];
-
-    /** @var list<int> */
-    private array $groupIds = [];
-
-    /** @var list<int> */
-    private array $templateIds = [];
-
     /**
      * @param int $id
-     * @param TrimmedString $name
-     * @param ?TrimmedString $alias
-     * @param TrimmedString $ipAddress
-     * @param int|null $normalCheckInterval
-     * @param int|null $retryCheckInterval
-     * @param bool $isActivated
-     * @param SimpleEntity $monitoringServer
-     * @param SimpleEntity|null $checkTimePeriod
-     * @param SimpleEntity|null $notificationTimePeriod
-     * @param SimpleEntity|null $severity
+     * @param string $name
+     * @param ?string $alias
+     * @param int $monitoringServerId
      *
      * @throws AssertionFailedException
      */
     public function __construct(
         private readonly int $id,
-        private readonly TrimmedString $name,
-        private readonly ?TrimmedString $alias,
-        private readonly TrimmedString $ipAddress,
-        private readonly ?int $normalCheckInterval,
-        private readonly ?int $retryCheckInterval,
-        private readonly bool $isActivated,
-        private readonly SimpleEntity $monitoringServer,
-        private readonly ?SimpleEntity $checkTimePeriod,
-        private readonly ?SimpleEntity $notificationTimePeriod,
-        private readonly ?SimpleEntity $severity,
-    )
-    {
-        $shortName = 'Host';
-        Assertion::positiveInt($id, "{$shortName}::id");
-        Assertion::notEmptyString($name->value, "{$shortName}::name");
-        if ($alias !== null) {
-            Assertion::notEmptyString($alias->value, "{$shortName}::alias");
+        private string $name,
+        private ?string $alias,
+        private readonly int $monitoringServerId,
+    ) {
+        Assertion::positiveInt($this->id, 'Host::id');
+        $this->name = trim($this->name);
+        Assertion::notEmptyString($this->name, 'Host::name');
+        if ($this->alias !== null) {
+            $this->alias = trim($this->alias);
+            Assertion::notEmptyString($this->alias, 'Host::alias');
         }
-        Assertion::notEmptyString($ipAddress->value, "{$shortName}::ipAddress");
-
-        if ($normalCheckInterval !== null) {
-            Assertion::positiveInt($normalCheckInterval, "{$shortName}::checkInterval");
-        }
-        if ($retryCheckInterval !== null) {
-            Assertion::min($retryCheckInterval, 1, "{$shortName}::retryCheckInterval");
-        }
+        Assertion::positiveInt($this->id, 'Host::monitoringServerId');
     }
 
     public function getId(): int
@@ -92,92 +59,28 @@ class TinyHost
         return $this->id;
     }
 
-    public function getName(): TrimmedString
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getAlias(): ?TrimmedString
+    public function getAlias(): ?string
     {
         return $this->alias;
     }
 
-    public function getIpAddress(): TrimmedString
+    public function getMonitoringServerId(): int
     {
-        return $this->ipAddress;
+        return $this->monitoringServerId;
     }
 
-    public function getNormalCheckInterval(): ?int
+    public function isEqual(object $object): bool
     {
-        return $this->normalCheckInterval;
+        return $object instanceof self && $object->getEqualityHash() === $this->getEqualityHash();
     }
 
-    public function getRetryCheckInterval(): ?int
+    public function getEqualityHash(): string
     {
-        return $this->retryCheckInterval;
-    }
-
-    public function isActivated(): bool
-    {
-        return $this->isActivated;
-    }
-
-    public function getCheckTimePeriod(): ?SimpleEntity
-    {
-        return $this->checkTimePeriod;
-    }
-
-    public function getNotificationTimePeriod(): ?SimpleEntity
-    {
-        return $this->notificationTimePeriod;
-    }
-
-    public function getSeverity(): ?SimpleEntity
-    {
-        return $this->severity;
-    }
-
-    public function getMonitoringServer(): SimpleEntity
-    {
-        return $this->monitoringServer;
-    }
-
-    public function addCategoryId(int $categoryId): void
-    {
-        $this->categoryIds[] = $categoryId;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getCategoryIds(): array
-    {
-        return $this->categoryIds;
-    }
-
-    public function addGroupId(int $groupId): void
-    {
-        $this->groupIds[] = $groupId;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getGroupIds(): array
-    {
-        return $this->groupIds;
-    }
-
-    public function addTemplateId(int $templateId): void
-    {
-        $this->templateIds[] = $templateId;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getTemplateIds(): array
-    {
-        return $this->templateIds;
+        return md5($this->getName());
     }
 }

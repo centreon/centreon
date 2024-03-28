@@ -76,3 +76,17 @@ export const WithSelectInputs: Story = {
     onAddItem: stub
   }
 };
+
+export const WithLinkedItems: Story = {
+  args: {
+    children: [...Array(5)].map((_, i) => (
+      <ItemComposition.Item key={i} labelDelete="Delete" onDeleteItem={stub}>
+        <Typography>Item 1</Typography>
+        <Typography>Item 2</Typography>
+      </ItemComposition.Item>
+    )),
+    displayItemsAsLinked: true,
+    labelAdd: 'Add',
+    onAddItem: stub
+  }
+};

@@ -12,7 +12,6 @@ import { PopoverMenu, useMemoComponent } from '@centreon/ui';
 
 import { hoveredNavigationItemsAtom } from '../../../Navigation/Sidebar/sideBarAtoms';
 import { labelSearchOptions } from '../../translatedLabels';
-import useActionFilter from '../Edit/EditButton/useActionFilter';
 import CriteriasNewInterface from '../criteriasNewInterface';
 import Actions from '../criteriasNewInterface/actions';
 import Save from '../criteriasNewInterface/actions/Save';
@@ -67,15 +66,10 @@ const CriteriasContent = ({
   const { classes } = useStyles({ display });
   const { t } = useTranslation();
   const [isCreatingFilter, setIsCreatingFilter] = useState(false);
-  const [isUpdatingFilter, setIsUpdatingFilter] = useState(false);
 
   const hoveredNavigationItem = useAtomValue(hoveredNavigationItemsAtom);
-  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const { newCriteriaValueName, newSelectableCriterias } = useFilterByModule();
-
-  const { canSaveFilter, loadFiltersAndUpdateCurrent, canSaveFilterAsNew } =
-    useActionFilter();
 
   const filterByInstalledModulesWithParsedSearch = useAtomValue(
     filterByInstalledModulesWithParsedSearchDerivedAtom
@@ -89,6 +83,7 @@ const CriteriasContent = ({
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const setIsCriteriasPanelOpen = useSetAtom(isCriteriasPanelOpenAtom);
+  const canOpenPopover = isNil(hoveredNavigationItem);
 
   const getSelectableCriterias = (): Array<CriteriaModel> => {
     const criteriasValue = filterByInstalledModulesWithParsedSearch({
@@ -121,10 +116,6 @@ const CriteriasContent = ({
 
   const getIsCreateFilter = (boolean: boolean): void => {
     setIsCreatingFilter(boolean);
-  };
-
-  const getIsUpdateFilter = (boolean: boolean): void => {
-    setIsUpdatingFilter(boolean);
   };
 
   const getPopoverData = (data: PopoverData): void => {
@@ -175,11 +166,8 @@ const CriteriasContent = ({
                   <Actions
                     save={
                       <Save
-                        canSaveFilter={canSaveFilter}
-                        canSaveFilterAsNew={canSaveFilterAsNew}
                         closePopover={closePopover}
                         getIsCreateFilter={getIsCreateFilter}
-                        getIsUpdateFilter={getIsUpdateFilter}
                       />
                     }
                     onClear={clearFilters}
@@ -199,8 +187,6 @@ const CriteriasContent = ({
 
       <SaveActions
         dataCreateFilter={{ isCreatingFilter, setIsCreatingFilter }}
-        dataUpdateFilter={{ isUpdatingFilter, setIsUpdatingFilter }}
-        loadFiltersAndUpdateCurrent={loadFiltersAndUpdateCurrent}
       />
     </>
   );

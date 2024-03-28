@@ -1,22 +1,18 @@
-import { createStore } from 'jotai';
 import { extend } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
-import { GlobalRefreshInterval } from '../../models';
+import { Data, CommonWidgetProps } from '../../models';
 
 import LineChart from './LineChart';
-import { Data, PanelOptions } from './models';
+import { PanelOptions } from './models';
 
 extend(duration);
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
+interface Props extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
   panelOptions: PanelOptions;
-  refreshCount: number;
-  store: ReturnType<typeof createStore>;
 }
 
 const Input = ({

@@ -1,4 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
@@ -7,12 +8,14 @@ import {
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
   isEditingAtom,
-  setPanelOptionsAndDataDerivedAtom
+  setPanelOptionsAndDataDerivedAtom,
+  switchPanelsEditionModeDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../../components/FederatedComponents';
-import { editProperties } from '../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
+import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -24,6 +27,12 @@ interface Props {
 const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const { classes, cx } = usePanelHeaderStyles();
 
+  const { changeViewMode } = useLinkToResourceStatus();
+
+  const [searchParams, setSearchParams] = useSearchParams(
+    window.location.search
+  );
+
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
   );
@@ -33,16 +42,27 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
   const isEditing = useAtomValue(isEditingAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
+  const switchPanelsEditionMode = useSetAtom(
+    switchPanelsEditionModeDerivedAtom
+  );
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
   const { saveDashboard } = useSaveDashboard();
 
   const panelOptionsAndData = getPanelOptionsAndData(id);
 
   const panelConfigurations = getPanelConfigurations(id);
 
-  const changePanelOptions = (newPanelOptions): void => {
-    setPanelOptions({ id, options: newPanelOptions });
+  const changePanelOptions = (partialOptions: object): void => {
+    switchPanelsEditionMode(true);
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
+
+    setPanelOptions({
+      data: panelOptionsAndData?.data,
+      id,
+      options: { ...panelOptionsAndData?.options, ...partialOptions }
+    });
   };
 
   const displayDescription =
@@ -72,6 +92,7 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
             <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}
+              changeViewMode={changeViewMode}
               globalRefreshInterval={refreshInterval}
               id={id}
               isEditingDashboard={isEditing}

@@ -5,7 +5,10 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { actionBackgroundColors } from '../common';
 
 const serviceInDtName = 'service_downtime_1';
@@ -40,7 +43,7 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
 };
 
 beforeEach(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   cy.intercept({
     method: 'GET',
@@ -141,6 +144,13 @@ Given('the platform is configured with at least one resource', () => {
     },
     {
       name: serviceInAcknowledgementName
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 
@@ -253,7 +263,7 @@ When('the user creates a downtime on a resource', () => {
     .find('input[type="checkbox"]:first')
     .click();
 
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByTestId({ testId: 'mainSetDowntime' }).last().click();
 
   cy.getByLabel({ label: 'Set downtime' }).last().click();
 
@@ -544,5 +554,5 @@ Then(
 );
 
 afterEach(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

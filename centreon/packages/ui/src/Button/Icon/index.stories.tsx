@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
 import { Theme } from '@mui/material';
 
-import IconButton from '.';
+import { IconButton } from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {

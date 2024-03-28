@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { labelDashboardLibrary } from './translatedLabels';
+import { labelDashboards } from './translatedLabels';
 import { DashboardsOverviewSkeleton } from './components/DashboardLibrary/DashboardsOverview/DashboardsOverviewSkeleton';
 import { DashboardConfigModal } from './components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { DashboardAccessRightsModal } from './components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import DashboardPageLayout from './components/DashboardPageLayout';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
+import DeleteDashboardModal from './components/DashboardLibrary/DeleteDashboardModal';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ const DashboardsPage = (): ReactElement => {
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={t(labelDashboardLibrary)} />
+            <PageHeader.Title title={t(labelDashboards)} />
           </PageHeader.Main>
           <PageHeader.Actions>
             <DashboardNavbar />
@@ -33,6 +34,7 @@ const DashboardsPage = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal />
       <DashboardAccessRightsModal />
+      <DeleteDashboardModal />
     </PageLayout>
   );
 };

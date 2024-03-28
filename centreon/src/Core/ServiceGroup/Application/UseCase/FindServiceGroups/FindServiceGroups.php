@@ -113,11 +113,11 @@ final class FindServiceGroups
     }
 
     /**
-     * @param list<ServiceGroup> $serviceGroups
+     * @param iterable<ServiceGroup> $serviceGroups
      *
      * @return FindServiceGroupsResponse
      */
-    private function createResponse(array $serviceGroups): FindServiceGroupsResponse
+    private function createResponse(iterable $serviceGroups): FindServiceGroupsResponse
     {
         $response = new FindServiceGroupsResponse();
 

@@ -25,12 +25,12 @@ namespace Core\Host\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
-use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -42,7 +42,6 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\SnmpVersion;
-use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -123,6 +122,16 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @param int $maxItemsByRequest
+     */
+    public function setMaxItemsByRequest(int $maxItemsByRequest): void
+    {
+        if ($maxItemsByRequest > 0) {
+            $this->maxItemsByRequest = $maxItemsByRequest;
+        }
     }
 
     /**
@@ -327,6 +336,53 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function findByIds(array $hostIds): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    h.host_id AS id,
+                    h.host_name AS name,
+                    h.host_alias AS alias,
+                    nsr.nagios_server_id AS monitoring_server_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.ns_host_relation nsr
+                    ON nsr.host_host_id = h.host_id
+                WHERE h.host_id IN (%s)
+                SQL
+        );
+
+        $hosts = [];
+        foreach (array_chunk($hostIds, $this->maxItemsByRequest) as $ids) {
+            [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($ids, ':id_');
+            $finalRequest = sprintf($request, $hostIdsQuery);
+            $statement = $this->db->prepare($finalRequest);
+            foreach ($bindValues as $bindKey => $hostGroupId) {
+                $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+            }
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            /** @var array{id: int, name: string, alias: string|null, monitoring_server_id: int} $result */
+            foreach ($statement as $result) {
+                $hosts[] = TinyHostFactory::createFromDb($result);
+            }
+        }
+
+        return $hosts;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByNames(array $hostNames): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findParents(int $hostId): array
     {
         $this->info('Find parent IDs of host with ID #' . $hostId);
@@ -356,9 +412,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     public function findNames(array $hostIds): HostNamesById
     {
         $concatenator = new SqlConcatenator();
+
+        $hostIds = array_unique($hostIds);
+
         $concatenator->defineSelect(
             <<<'SQL'
-                SELECT DISTINCT(h.host_id), h.host_name
+                SELECT h.host_id, h.host_name
                 FROM `:db`.host h
                 WHERE h.host_id IN (:hostIds)
                     AND h.host_register = '1'
@@ -593,7 +652,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
 
         foreach ($statement as $data) {
             /** @var _TinyHost $data */
-            $hosts[] = $this->createLittleHost($data);
+            $hosts[] = SmallHostFactory::createFromDb($data);
         }
 
         return $hosts;
@@ -749,90 +808,5 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             addInheritedContact: (bool) $result['contact_additive_inheritance'],
             isActivated: (bool) $result['host_activate'],
         );
-    }
-
-    /**
-     * @param _TinyHost $result
-     *
-     * @throws AssertionFailedException
-     *
-     * @return TinyHost
-     */
-    private function createLittleHost(array $result): TinyHost
-    {
-        $severity = $result['severity_id'] !== null && $result['severity_name'] !== null
-            ? new SimpleEntity(
-                (int) $result['severity_id'],
-                new TrimmedString($result['severity_name']),
-                'Host'
-            ) : null;
-
-        $checkTimePeriod
-            = $result['check_timeperiod_id'] !== null && $result['check_timeperiod_name'] !== null
-                ? new SimpleEntity(
-                    (int) $result['check_timeperiod_id'],
-                    new TrimmedString($result['check_timeperiod_name']),
-                    'Host'
-                ) : null;
-
-        $notificationTimePeriod
-            = $result['notification_timeperiod_id'] !== null && $result['notification_timeperiod_name'] !== null
-            ? new SimpleEntity(
-                (int) $result['notification_timeperiod_id'],
-                new TrimmedString($result['notification_timeperiod_name']),
-                'Host'
-            ) : null;
-
-        $host = new TinyHost(
-            (int) $result['id'],
-            new TrimmedString($result['name']),
-            $result['alias'] !== null ? new TrimmedString($result['alias']) : null ,
-            new TrimmedString($result['ip_address']),
-            $this->intOrNull($result, 'check_interval'),
-            $this->intOrNull($result, 'retry_check_interval'),
-            $result['is_activated'] === '1',
-            new SimpleEntity(
-                (int) $result['monitoring_server_id'],
-                new TrimmedString($result['monitoring_server_name']),
-                'Host'
-            ),
-            $checkTimePeriod,
-            $notificationTimePeriod,
-            $severity,
-        );
-
-        if ($result['category_ids'] !== null) {
-            $categoryIds = explode(',', $result['category_ids']);
-            foreach ($categoryIds as $categoryId) {
-                $host->addCategoryId((int) $categoryId);
-            }
-        }
-        if ($result['hostgroup_ids'] !== null) {
-            $groupIds = explode(',', $result['hostgroup_ids']);
-            foreach ($groupIds as $groupId) {
-                $host->addGroupId((int) $groupId);
-            }
-        }
-        if ($result['template_ids'] !== null) {
-            $templateIds = explode(',', $result['template_ids']);
-            foreach ($templateIds as $templateId) {
-                $host->addTemplateId((int) $templateId);
-            }
-        }
-
-        return $host;
-    }
-
-    /**
-     * @param _TinyHost $data
-     * @param string $property
-     *
-     * @return int|null
-     */
-    private function intOrNull(array $data, string $property): ?int
-    {
-        return array_key_exists($property, $data) && $data[$property] !== null
-            ? (int) $data[$property]
-            : null;
     }
 }

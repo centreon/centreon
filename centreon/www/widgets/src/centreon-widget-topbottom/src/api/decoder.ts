@@ -16,6 +16,7 @@ export const metricsTopDecoder = JsonDecoder.object<MetricsTop>(
           min: JsonDecoder.nullable(JsonDecoder.number),
           name: JsonDecoder.string,
           parentName: JsonDecoder.string,
+          uuid: JsonDecoder.nullable(JsonDecoder.string),
           warningHighThreshold: JsonDecoder.nullable(JsonDecoder.number),
           warningLowThreshold: JsonDecoder.nullable(JsonDecoder.number)
         },

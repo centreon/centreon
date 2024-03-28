@@ -13,3 +13,8 @@ export enum WidgetResourceType {
   serviceCategory = 'service-category',
   serviceGroup = 'service-group'
 }
+
+export interface Metric {
+  excludedMetrics: Array<number>;
+  name: string;
+}

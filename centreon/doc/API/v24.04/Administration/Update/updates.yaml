@@ -1,30 +1,15 @@
 ---
-patch:
+post:
   tags:
     - Platform
-  summary: "Update Centreon web"
+  summary: "Fully update the platform"
   description: |
-    Update Centreon web component
+    Update Centreon web component and installed modules / widgets
   requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            components:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    enum: [ centreon-web ]
+    required: false
   responses:
     204:
       description: "Platform updated"
-    404:
-      description: "Updates not found"
     500:
       $ref: "../../Common/Response/InternalServerError.yaml"
 ...

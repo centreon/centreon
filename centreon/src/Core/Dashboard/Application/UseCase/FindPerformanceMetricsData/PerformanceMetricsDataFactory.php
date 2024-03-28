@@ -88,6 +88,8 @@ class PerformanceMetricsDataFactory
      * @param array<_MetricData> $metricsData
      * @param string[] $metricNames
      *
+     * @throws MetricException
+     *
      * @return PerformanceMetricsData
      */
     public function createFromRecords(array $metricsData, array $metricNames): PerformanceMetricsData
@@ -102,9 +104,10 @@ class PerformanceMetricsDataFactory
             $metrics['index:' . $index . ';host_name:' . $hostName] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
-        $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->createMetricInformations($metrics, $metricNames);
-        $times = $this->getTimes($times);
+
+        $base = ! empty($metricBases) ? $this->getHighestBase($metricBases) : PerformanceMetricsData::DEFAULT_BASE;
+        $metricsInfo = ! empty($metrics) ? $this->createMetricInformations($metrics, $metricNames) : [];
+        $times = ! empty($times) ? $this->getTimes($times) : [];
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }

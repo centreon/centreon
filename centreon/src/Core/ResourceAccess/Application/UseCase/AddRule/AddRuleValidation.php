@@ -24,37 +24,33 @@ declare(strict_types=1);
 namespace Core\ResourceAccess\Application\UseCase\AddRule;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
-use Core\ResourceAccess\Domain\Model\DatasetFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilterTypeConverter;
+use Core\ResourceAccess\Application\Providers\DatasetProviderInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\NewRule;
-use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
-use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
-use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 
 class AddRuleValidation
 {
     use LoggerTrait;
 
+    /** @var DatasetProviderInterface[] */
+    private array $repositoryProviders;
+
+    /**
+     * @param ReadResourceAccessRepositoryInterface $repository
+     * @param ReadContactRepositoryInterface $contactRepository
+     * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param \Traversable<DatasetProviderInterface> $repositoryProviders
+     */
     public function __construct(
-        private readonly ReadRuleRepositoryInterface $repository,
+        private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-        private readonly ReadHostRepositoryInterface $hostRepository,
-        private readonly ReadHostGroupRepositoryInterface $hostgroupRepository,
-        private readonly ReadHostCategoryRepositoryInterface $hostCategoryRepository,
-        private readonly ReadServiceGroupRepositoryInterface $servicegroupRepository,
-        private readonly ReadServiceCategoryRepositoryInterface $serviceCategoryRepository,
-        private readonly ReadServiceRepositoryInterface $serviceRepository,
-        private readonly ReadMetaServiceRepositoryInterface $metaRepository
+        \Traversable $repositoryProviders
     ) {
+        $this->repositoryProviders = iterator_to_array($repositoryProviders);
     }
 
     /**
@@ -109,21 +105,31 @@ class AddRuleValidation
      */
     public function assertIdsAreValid(string $type, array $ids): void
     {
-        $resourceType = DatasetFilterTypeConverter::fromString($type);
-
-        $validIds = match ($resourceType) {
-            DatasetFilterType::Host => $this->hostRepository->exist($ids),
-            DatasetFilterType::Hostgroup => $this->hostgroupRepository->exist($ids),
-            DatasetFilterType::HostCategory => $this->hostCategoryRepository->exist($ids),
-            DatasetFilterType::Servicegroup => $this->servicegroupRepository->exist($ids),
-            DatasetFilterType::Service => $this->serviceRepository->exist($ids),
-            DatasetFilterType::ServiceCategory => $this->serviceCategoryRepository->exist($ids),
-            DatasetFilterType::MetaService => $this->metaRepository->exist($ids)
-        };
+        $validIds = [];
+        foreach ($this->repositoryProviders as $repository) {
+            if ($repository->isValidFor($type) === true) {
+                $validIds = $repository->areResourcesValid($ids);
+            }
+        }
 
         if ([] !== ($invalidIds = array_diff($ids, $validIds))) {
             throw RuleException::idsDoNotExist($type, $invalidIds);
         }
     }
-}
 
+    /**
+     * @param int[] $contactIds
+     * @param int[] $contactGroupIds
+     *
+     * @throws RuleException
+     */
+    public function assertContactsAndContactGroupsAreNotEmpty(array $contactIds, array $contactGroupIds): void
+    {
+        if (
+            [] === $contactIds
+            && [] === $contactGroupIds
+        ) {
+            throw RuleException::noLinkToContactsOrContactGroups();
+        }
+    }
+}

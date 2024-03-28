@@ -26,6 +26,7 @@ namespace Core\Host\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
+use Core\Host\Domain\Model\SmallHost;
 use Core\Host\Domain\Model\TinyHost;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -55,13 +56,35 @@ interface ReadHostRepositoryInterface
     public function findById(int $hostId): ?Host;
 
     /**
+     * Find hosts by their id.
+     *
+     * @param list<int> $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<TinyHost>
+     */
+    public function findByIds(array $hostIds): array;
+
+    /**
+     * Find hosts by their names.
+     *
+     * @param list<string> $hostNames
+     *
+     * @throws \Throwable
+     *
+     * @return list<TinyHost>
+     */
+    public function findByNames(array $hostNames): array;
+
+    /**
      * Find hosts based on query parameters.
      *
      * @param RequestParametersInterface $requestParameters
      *
      * @throws \Throwable
      *
-     * @return TinyHost[]
+     * @return SmallHost[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 
@@ -72,7 +95,9 @@ interface ReadHostRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups If the list is empty, no restrictions will be applied
      *
-     * @return TinyHost[]
+     * @throws \Throwable
+     *
+     * @return SmallHost[]
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
@@ -95,6 +120,8 @@ interface ReadHostRepositoryInterface
      *
      * @param int $hostId
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function exists(int $hostId): bool;
@@ -103,6 +130,8 @@ interface ReadHostRepositoryInterface
      * Indicates whether the hosts exist and return the ids found.
      *
      * @param int[] $hostIds
+     *
+     * @throws \Throwable
      *
      * @return int[]
      */
@@ -114,6 +143,8 @@ interface ReadHostRepositoryInterface
      * @param int $hostId
      * @param AccessGroup[] $accessGroups
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function existsByAccessGroups(int $hostId, array $accessGroups): bool;
@@ -121,9 +152,11 @@ interface ReadHostRepositoryInterface
     /**
      * Find host names by their IDs.
      *
-     * @param int[] $hostGroupIds
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
      *
      * @return HostNamesById
      */
-    public function findNames(array $hostGroupIds): HostNamesById;
+    public function findNames(array $hostIds): HostNamesById;
 }

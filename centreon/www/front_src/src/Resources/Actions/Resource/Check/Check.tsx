@@ -1,81 +1,35 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { ClickAwayListener, useMediaQuery, useTheme } from '@mui/material';
+import { ClickAwayListener } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
-import ResourceActionButton from '../ResourceActionButton';
-import useMediaQueryListing from '../useMediaQueryListing';
-
-import CheckOptionsList from './CheckOptionsList';
 import IconArrow from './IconArrow';
-
-const useStyles = makeStyles()((theme) => ({
-  buttonGroup: {
-    alignItems: 'center'
-  },
-  condensed: {
-    marginRight: theme.spacing(2)
-  },
-  container: {
-    '& .MuiButton-root': {
-      backgroundColor: 'transparent',
-      boxShadow: theme.spacing(0, 0)
-    },
-    backgroundColor: theme.palette.primary.main
-  },
-  disabled: {
-    backgroundColor: theme.palette.action.disabledBackground
-  },
-  iconArrow: {
-    color: theme.palette.background.paper
-  }
-}));
-
-const defaultDisabledList = { disableCheck: false, disableForcedCheck: false };
-
-interface ClickList {
-  onClickCheck: () => void;
-  onClickForcedCheck: () => void;
-}
-interface Disabled {
-  disableCheck: boolean;
-  disableForcedCheck: boolean;
-}
+import { useStyles } from './check.styles';
+import { Arguments, ClickList, Params } from './models';
 
 interface Props {
-  disabledButton: boolean;
-  disabledList?: Disabled;
-  icon: JSX.Element;
-  isActionPermitted: boolean;
-  isDefaultChecked?: boolean;
-  labelButton: string;
+  disabledButton?: boolean;
+  displayCondensed?: boolean;
   onClickActionButton: () => void;
   onClickList?: ClickList;
-  testId: string;
+  renderCheckOptionList?: (args: Arguments) => ReactNode;
+  renderResourceActionButton: (params: Params) => ReactNode;
 }
 
 const Check = ({
   disabledButton,
-  disabledList = defaultDisabledList,
-  labelButton,
-  isActionPermitted,
-  testId,
-  onClickList,
   onClickActionButton,
-  icon,
-  isDefaultChecked = false
+  renderResourceActionButton,
+  displayCondensed = false,
+  renderCheckOptionList
 }: Props): JSX.Element | null => {
   const { classes, cx } = useStyles();
-  const { t } = useTranslation();
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const displayList = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
@@ -83,11 +37,6 @@ const Check = ({
 
   const arrowIconId = 'arrowIcon';
   const isOpen = Boolean(anchorEl);
-
-  const { applyBreakPoint } = useMediaQueryListing();
-
-  const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const iconProps = displayCondensed
     ? {
@@ -147,14 +96,7 @@ const Check = ({
         })}
         onClick={handleClick}
       >
-        <ResourceActionButton
-          disabled={disabledButton}
-          icon={icon}
-          label={t(labelButton)}
-          permitted={isActionPermitted}
-          testId={testId}
-          onClick={handleClickActionButton}
-        />
+        {renderResourceActionButton({ onClick: handleClickActionButton })}
         <IconButton
           ariaLabel="arrow"
           className={cx({ [classes.iconArrow]: !displayCondensed })}
@@ -164,14 +106,10 @@ const Check = ({
         >
           <IconArrow {...iconProps} open={isOpen} />
         </IconButton>
-        <CheckOptionsList
-          anchorEl={anchorEl}
-          disabled={disabledList}
-          isDefaultChecked={isDefaultChecked}
-          open={isOpen}
-          onClickCheck={onClickList?.onClickCheck}
-          onClickForcedCheck={onClickList?.onClickForcedCheck}
-        />
+        {renderCheckOptionList?.({
+          anchorEl,
+          isOpen
+        })}
       </ButtonGroup>
     </ClickAwayListener>
   );

@@ -1,0 +1,8 @@
+FindRule:
+  methods: GET
+  path: /administration/resource-access/rules/{ruleId}
+  controller: 'Core\ResourceAccess\Infrastructure\API\FindRule\FindRuleController'
+  condition: "request.attributes.get('version') >= 24.04 and request.attributes.get('feature.resource_access_management')"
+  requirements:
+    ruleId: '\d+'
+

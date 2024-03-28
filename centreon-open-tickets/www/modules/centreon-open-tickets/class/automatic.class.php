@@ -22,20 +22,32 @@
 
 class Automatic
 {
+    /** @var Centreon  */
     protected $centreon;
+    /** @var CentreonDB */
     protected $dbCentstorage;
+    /** @var CentreonDB */
     protected $dbCentreon;
+    /** @var string */
+    protected $centreonPath;
+    /** @var string */
     protected $openTicketPath;
+    /** @var Centreon_OpenTickets_Rule */
     protected $rule;
+    /** @var string */
+    protected $uniqId;
+    /** @var array<string, int> */
+    protected $registerProviders;
 
     /**
      * Constructor
      *
-     * @param  object $rule
-     * @param  string $centreonPath
-     * @param  string $openTicketPath
-     * @param  object $dbCentstorage
-     * @param  object $dbCentreon
+     * @param Centreon_OpenTickets_Rule $rule
+     * @param string $centreonPath
+     * @param string $openTicketPath
+     * @param Centreon $centreon
+     * @param CentreonDB $dbCentstorage
+     * @param CentreonDB $dbCentreon
      * @return void
      */
     public function __construct($rule, $centreonPath, $openTicketPath, $centreon, $dbCentstorage, $dbCentreon)
@@ -78,7 +90,7 @@ class Automatic
     /**
      * Get contact information
      *
-     * @param  string   $name
+     * @param array $params
      * @return array
      */
     protected function getContactInformation($params)
@@ -133,7 +145,7 @@ class Automatic
             $query .=
                 ' AND EXISTS(
                 SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->grouplistStr . ') AND ' .
+                $this->centreon->user->groupListStr . ') AND ' .
                 '   centreon_acl.host_id = :host_id AND centreon_acl.service_id = :service_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
@@ -207,7 +219,7 @@ class Automatic
             $query .=
                 ' AND EXISTS(
                 SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (' .
-                $this->centreon->user->grouplistStr . ') AND ' .
+                $this->centreon->user->groupListStr . ') AND ' .
                 '   centreon_acl.host_id = :host_id)';
         }
         $stmt = $this->dbCentstorage->prepare($query);
@@ -438,7 +450,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -515,7 +527,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -620,7 +632,7 @@ class Automatic
      *
      * @param mixed $params
      * @param string $macroName
-     * @return int $ticketId
+     * @return ?int $ticketId
     */
     protected function getHostTicket($params, $macroName)
     {
@@ -641,14 +653,14 @@ class Automatic
             $ticketId = $row['ticket_id'];
         }
 
-        return $ticketId;
+        return $ticketId ?? null;
     }
 
     /**
      *
      * @param mixed $params
      * @param string $macroName
-     * @return int $ticketId
+     * @return ?int $ticketId
     */
     protected function getServiceTicket($params, $macroName)
     {
@@ -668,7 +680,7 @@ class Automatic
             $ticketId = $row['ticket_id'];
         }
 
-        return $ticketId;
+        return $ticketId ?? null;
     }
 
     /**
@@ -751,7 +763,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';
@@ -785,7 +797,7 @@ class Automatic
     {
         require_once $this->centreonPath . 'www/class/centreonExternalCommand.class.php';
 
-        $externalCmd = new CentreonExternalCommand($this->centreon);
+        $externalCmd = new CentreonExternalCommand();
         $methodExternalName = 'set_process_command';
         if (method_exists($externalCmd, $methodExternalName) == false) {
             $methodExternalName = 'setProcessCommand';

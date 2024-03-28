@@ -74,6 +74,7 @@ const DisacknowledgeForm = ({
     <Dialog
       open
       confirmDisabled={sendingDisacknowledgeResources}
+      data-testid="modalDisacknowledge"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDisacknowledge)}
       labelTitle={t(labelDisacknowledge)}

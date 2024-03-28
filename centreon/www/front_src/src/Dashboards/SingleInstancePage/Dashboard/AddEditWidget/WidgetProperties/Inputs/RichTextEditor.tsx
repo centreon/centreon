@@ -7,7 +7,7 @@ import { equals, isNil } from 'ramda';
 import { RichTextEditor } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
-import { editProperties } from '../../../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
 
@@ -21,7 +21,7 @@ const WidgetRichTextEditor = ({
   const { errors, values, setFieldValue, setFieldTouched } =
     useFormikContext<Widget>();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const isGenericTextWidget = equals(
     values.moduleName,

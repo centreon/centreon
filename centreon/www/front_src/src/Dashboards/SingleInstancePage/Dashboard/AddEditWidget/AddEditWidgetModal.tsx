@@ -5,7 +5,7 @@ import { Formik } from 'formik';
 import { isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
 
-import { Paper } from '@mui/material';
+import { Paper, useMediaQuery, useTheme } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
@@ -15,7 +15,7 @@ import {
   labelViewWidgetProperties
 } from '../translatedLabels';
 import Title from '../../../components/Title';
-import { editProperties } from '../hooks/useCanEditDashboard';
+import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import { isSidebarOpenAtom } from '../../../../Navigation/navigationAtoms';
 
 import useWidgetForm from './useWidgetModal';
@@ -38,7 +38,7 @@ const AddWidgetModal = (): JSX.Element | null => {
 
   const { classes } = useAddWidgetStyles();
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
 
   const isSidebarOpen = useAtomValue(isSidebarOpenAtom);
 
@@ -52,6 +52,9 @@ const AddWidgetModal = (): JSX.Element | null => {
     discardChanges,
     closeModal
   } = useWidgetForm();
+
+  const theme = useTheme();
+  const isSmallDisplay = useMediaQuery(theme.breakpoints.down('sm'));
 
   const isAddingWidget = isNil(widgetFormInitialData?.id);
 
@@ -96,22 +99,35 @@ const AddWidgetModal = (): JSX.Element | null => {
           </Modal.Header>
           <>
             <Modal.Body>
-              <div className={classes.container}>
-                <div className={classes.widgetProperties}>
+              {isSmallDisplay ? (
+                <div className={classes.smallContainer}>
                   <WidgetSelection />
-                  <div className={classes.widgetPropertiesContentContainer}>
-                    <div className={classes.widgetPropertiesContent}>
-                      <WidgetProperties />
-                    </div>
-                  </div>
-                </div>
-                <div>
                   <Paper className={classes.preview}>
                     <Preview />
                   </Paper>
+                  <div className={classes.smallWidgetProperties}>
+                    <WidgetProperties />
+                  </div>
                   <WidgetData />
                 </div>
-              </div>
+              ) : (
+                <div className={classes.container}>
+                  <div className={classes.widgetProperties}>
+                    <WidgetSelection />
+                    <div className={classes.widgetPropertiesContentContainer}>
+                      <div className={classes.widgetPropertiesContent}>
+                        <WidgetProperties />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Paper className={classes.preview}>
+                      <Preview />
+                    </Paper>
+                    <WidgetData />
+                  </div>
+                </div>
+              )}
             </Modal.Body>
             <Actions closeModal={askBeforeCloseModal} />
             <UnsavedChanges

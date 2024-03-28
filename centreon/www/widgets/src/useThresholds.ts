@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -39,11 +39,15 @@ const useThresholds = ({
   data,
   metricName = '',
   displayAsRaw
-}: Props): UseThresholdsState => {
+}: Props): UseThresholdsState | undefined => {
   const { t } = useTranslation();
 
   const isDefaultWarning = equals(thresholds.warningType, 'default');
   const isDefaultCritical = equals(thresholds.criticalType, 'default');
+
+  if (isEmpty(data?.metrics)) {
+    return undefined;
+  }
 
   const warningThresholds = isDefaultWarning
     ? [

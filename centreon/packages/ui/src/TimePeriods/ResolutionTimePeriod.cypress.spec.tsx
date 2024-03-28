@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/fr';
+import 'dayjs/locale/en';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -19,18 +19,18 @@ dayjs.extend(localizedFormatPlugin);
 
 const data = [
   {
-    locale: 'fr_FR',
-    resolution: { height: 720, width: 500 },
+    locale: 'en_US',
+    resolution: { height: 590, width: 500 },
     timezone: 'Europe/Paris'
   },
   {
-    locale: 'fr_FR',
-    resolution: { height: 720, width: 200 },
+    locale: 'en_US',
+    resolution: { height: 590, width: 200 },
     timezone: 'Europe/Paris'
   },
   {
-    locale: 'fr_FR',
-    resolution: { height: 720, width: 1024 },
+    locale: 'en_US',
+    resolution: { height: 590, width: 1024 },
     timezone: 'Europe/Paris'
   }
 ];
@@ -45,7 +45,7 @@ data.forEach((item) =>
 
       store.set(userAtom, {
         ...retrievedUser,
-        locale: 'fr_FR',
+        locale: 'en_US',
         timezone: 'Europe/Paris'
       });
 
@@ -59,7 +59,10 @@ data.forEach((item) =>
     });
 
     it(`displays correctly the dates design when screen resolution is ${width}px`, () => {
-      cy.makeSnapshot(`${width}px`);
+      cy.makeSnapshotWithCustomResolution({
+        resolution: { height, width },
+        title: `${width}px`
+      });
     });
   })
 );

@@ -27,6 +27,8 @@ use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
 
 class PerformanceMetricsData
 {
+    public const DEFAULT_BASE = 1000;
+
     /**
      * @param int $base
      * @param MetricInformation[] $metricsInformation

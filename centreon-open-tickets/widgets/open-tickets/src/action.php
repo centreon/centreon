@@ -208,6 +208,7 @@ try {
     if (CentreonSession::checkSession(session_id(), $db) == 0) {
         throw new Exception('Invalid session');
     }
+    /** @var \Centreon $centreon */
     $centreon = $_SESSION['centreon'];
     $oreon = $centreon;
     $cmd = $_REQUEST['cmd'];

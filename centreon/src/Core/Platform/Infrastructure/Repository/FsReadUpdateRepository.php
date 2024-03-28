@@ -25,7 +25,6 @@ namespace Core\Platform\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -64,29 +63,25 @@ class FsReadUpdateRepository implements ReadUpdateRepositoryInterface
      */
     private function findAvailableUpdates(string $currentVersion): array
     {
-        if (! $this->filesystem->exists($this->installDir)) {
-            $this->error('Install directory not found on filesystem: ' . $this->installDir);
-
-            throw UpdateNotFoundException::updatesNotFound();
-        }
 
         $fileNameVersionRegex = '/Update-(?<version>[a-zA-Z0-9\-\.]+)\.php/';
-        $availableUpdates = [];
+        $updates = [];
 
-        $updateFiles = $this->finder->files()
-            ->in($this->installDir)
-            ->name($fileNameVersionRegex);
+        if ($this->filesystem->exists($this->installDir)) {
+            $files = $this->finder->files()
+                ->in($this->installDir)
+                ->name($fileNameVersionRegex);
 
-        foreach ($updateFiles as $updateFile) {
-            if (preg_match($fileNameVersionRegex, $updateFile->getFilename(), $matches)) {
-                if (version_compare($matches['version'], $currentVersion, '>')) {
-                    $this->info('Update version found: ' . $matches['version']);
-                    $availableUpdates[] = $matches['version'];
+            foreach ($files as $file) {
+                if (preg_match($fileNameVersionRegex, $file->getFilename(), $matches)) {
+                    if (version_compare($matches['version'], $currentVersion, '>')) {
+                        $updates[] = $matches['version'];
+                    }
                 }
             }
         }
 
-        return $availableUpdates;
+        return $updates;
     }
 
     /**

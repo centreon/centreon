@@ -34,6 +34,23 @@ export enum ContactType {
   contactGroup = 'contact_group'
 }
 
+export interface UserRole {
+  id: number;
+  name: string;
+  email?: string | null;
+  role: DashboardRole;
+}
+
+export interface Shares {
+  contacts: Array<UserRole>;
+  contactGroups: Array<UserRole>;
+}
+
+export enum ShareType {
+  Contact = 'contact',
+  ContactGroup = 'contact_group'
+}
+
 /**
  * dashboard
  */
@@ -46,11 +63,24 @@ export type Dashboard = NamedEntity & {
   updatedBy: NamedEntity;
   ownRole: DashboardRole;
   panels?: Array<DashboardPanel>;
+  shares: Shares;
   refresh: {
     type: 'global' | 'manual';
     interval: number | null;
   };
 };
+
+export interface FormattedShare {
+  id: number | string;
+  role: DashboardRole;
+  name: string;
+  dashboardId: number | string;
+  type: ShareType;
+}
+
+export interface FormattedDashboard extends Omit<Dashboard, 'shares'> {
+  shares: Array<FormattedShare>;
+}
 
 export type CreateDashboardDto = Omit<
   Dashboard,

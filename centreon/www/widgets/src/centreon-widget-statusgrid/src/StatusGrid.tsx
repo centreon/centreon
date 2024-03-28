@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { gt, isEmpty, isNil } from 'ramda';
+import { gt, isNil } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -12,11 +12,11 @@ import {
 } from '@centreon/ui';
 
 import { areResourcesFullfilled } from '../../utils';
+import NoResources from '../../NoResources';
 
 import { ResourceData, ResourceStatus, StatusGridProps } from './models';
 import { buildResourcesEndpoint } from './api/endpoints';
 import Tile from './Tile';
-import NoResources from './NoResources';
 import HeatMapSkeleton from './LoadingSkeleton';
 import { getColor } from './utils';
 import Tooltip from './Tooltip/Tooltip';
@@ -26,7 +26,7 @@ const StatusGrid = ({
   panelData,
   panelOptions,
   refreshCount
-}: StatusGridProps): JSX.Element => {
+}: Omit<StatusGridProps, 'store'>): JSX.Element => {
   const theme = useTheme();
 
   const {
@@ -46,8 +46,7 @@ const StatusGrid = ({
     refreshIntervalCustom
   });
 
-  const areResourcesOk =
-    !isEmpty(resources) && areResourcesFullfilled(resources);
+  const areResourcesOk = areResourcesFullfilled(resources);
 
   const { data, isLoading } = useFetchQuery<ListingModel<ResourceStatus>>({
     getEndpoint: () =>
@@ -82,6 +81,7 @@ const StatusGrid = ({
     () =>
       (data?.result || []).map(
         ({
+          id,
           uuid,
           name,
           parent,
@@ -103,15 +103,18 @@ const StatusGrid = ({
             data: {
               acknowledgementEndpoint: links?.endpoints.acknowledgement,
               downtimeEndpoint: links?.endpoints.downtime,
+              id,
               information,
               is_acknowledged,
               is_in_downtime,
               metricsEndpoint: links?.endpoints.metrics,
               name,
+              parentId: parent?.id,
               parentName: parent?.name,
               parentStatus: parent?.status?.severity_code,
               status: status?.severity_code,
-              statusName: status?.name.toLocaleLowerCase()
+              statusName: status?.name.toLocaleLowerCase(),
+              uuid
             },
             id: uuid
           };

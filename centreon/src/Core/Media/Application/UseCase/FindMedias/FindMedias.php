@@ -51,7 +51,10 @@ final class FindMedias
     public function __invoke(FindMediasPresenterInterface $presenter): void
     {
         try {
-            $this->info('Find medias', ['user' => $this->user->getId()]);
+            $this->info(
+                'Find medias',
+                ['user' => $this->user->getId(), 'request' => $this->requestParameters->toArray()]
+            );
             if (! $this->canAccessToListing()) {
                 $this->error(
                     "User doesn't have sufficient rights to list media",

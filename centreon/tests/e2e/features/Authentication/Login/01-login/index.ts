@@ -1,10 +1,9 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../../commons';
 import { initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.startWebContainer()
+  cy.startContainers()
     .then(() => {
       return initializeConfigACLAndGetLoginPage();
     })
@@ -29,7 +28,7 @@ Then('I am redirected to the default page', () => {
 });
 
 Given('I am logged in', () => {
-  loginAsAdminViaApiV2();
+  cy.loginAsAdminViaApiV2();
   cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
@@ -45,5 +44,5 @@ Then('I am logged out and redirected to the login page', () => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

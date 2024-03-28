@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\ResourceAccess\Application\UseCase\AddRule;
 
@@ -30,27 +30,51 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
-use Core\ResourceAccess\Application\Repository\WriteRuleRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRule;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleRequest;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleResponse;
 use Core\ResourceAccess\Application\UseCase\AddRule\AddRuleValidation;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\AddRule\AddRulePresenterStub;
 
 beforeEach(closure: function (): void {
     $this->presenter = new AddRulePresenterStub($this->createMock(PresenterFormatterInterface::class));
 
+    foreach ([
+        HostFilterType::class,
+        HostGroupFilterType::class,
+        HostCategoryFilterType::class,
+        ServiceFilterType::class,
+        ServiceGroupFilterType::class,
+        ServiceCategoryFilterType::class,
+        MetaServiceFilterType::class,
+    ] as $className) {
+        $this->filterTypes[] = new $className();
+    }
+
+    $this->datasetValidator = new DatasetFilterValidator(new \ArrayObject($this->filterTypes));
+
     $this->useCase = new AddRule(
-        readRepository: $this->readRepository = $this->createMock(ReadRuleRepositoryInterface::class),
-        writeRepository: $this->writeRepository = $this->createMock(WriteRuleRepositoryInterface::class),
+        readRepository: $this->readRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
+        writeRepository: $this->writeRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
         validator: $this->validator = $this->createMock(AddRuleValidation::class),
-        accessGroupRepository: $this->createMock(ReadAccessGroupRepositoryInterface::class)
+        accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        datasetValidator: $this->datasetValidator
     );
 
     $this->request = new AddRuleRequest();
@@ -78,15 +102,25 @@ beforeEach(closure: function (): void {
 
     $this->request->datasetFilters = [$datasetFilterData0, $datasetFilterData1];
 
-    $datasetFilter0 = (new DatasetFilter($datasetFilterData0['type'], $datasetFilterData0['resources']));
+    $datasetFilter0 = new DatasetFilter(
+        $datasetFilterData0['type'],
+        $datasetFilterData0['resources'],
+        $this->datasetValidator
+    );
+
     $datasetFilter0->setDatasetFilter(
         new DatasetFilter(
             $datasetFilterData0['dataset_filter']['type'],
-            $datasetFilterData0['dataset_filter']['resources']
+            $datasetFilterData0['dataset_filter']['resources'],
+            $this->datasetValidator
         )
     );
 
-    $datasetFilter1 = new DatasetFilter($datasetFilterData1['type'], $datasetFilterData1['resources']);
+    $datasetFilter1 = new DatasetFilter(
+        $datasetFilterData1['type'],
+        $datasetFilterData1['resources'],
+        $this->datasetValidator
+    );
 
     $this->datasetFilters = [$datasetFilter0, $datasetFilter1];
 
@@ -101,26 +135,53 @@ beforeEach(closure: function (): void {
     );
 });
 
-it(
-    'should present a ForbiddenResponse when a user has insufficient rights',
-    function (): void {
-        $this->user
-            ->expects($this->once())
-            ->method('hasTopologyRole')
-            ->willReturn(false);
+it('should present a Forbidden response when user does not have sufficient rights (missing page access)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
 
-        ($this->useCase)($this->request, $this->presenter);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(false);
 
-        expect($this->presenter->response)
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->response->getMessage())
-            ->toBe(RuleException::notAllowed()->getMessage());
-    }
-);
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(RuleException::notAllowed()->getMessage());
+});
+
+it('should present a Forbidden response when user does not have sufficient rights (not an admin)', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'lame_acl', 'not an admin')]
+        );
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(RuleException::notAllowed()->getMessage());
+});
 
 it(
     'should present a ConflictResponse when name is already used',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -153,6 +214,13 @@ it(
 it(
     'should present an ErrorResponse when contact ids provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -185,6 +253,13 @@ it(
 it(
     'should present an ErrorResponse when contact group ids provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -217,6 +292,13 @@ it(
 it(
     'should present an ErrorResponse when resources provided does not exist',
     function (): void {
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn(
+                [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+            );
+
         $this->user
             ->expects($this->once())
             ->method('hasTopologyRole')
@@ -251,6 +333,13 @@ it(
 );
 
 it('should present an ErrorResponse if the newly created rule cannot be retrieved', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -275,6 +364,13 @@ it('should present an ErrorResponse if the newly created rule cannot be retrieve
 });
 
 it('should return created object on success', function (): void {
+    $this->accessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn(
+            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
+        );
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -307,7 +403,7 @@ it('should return created object on success', function (): void {
 
     $this->writeRepository
         ->expects($this->any())
-        ->method('linkHostsToDataset');
+        ->method('linkResourcesToDataset');
 
     $this->readRepository
         ->expects($this->once())

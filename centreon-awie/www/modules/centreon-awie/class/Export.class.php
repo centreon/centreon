@@ -21,17 +21,25 @@
  */
 class Export
 {
-    protected $bash = array();
+    /** @var array<mixed> */
+    protected $bash = [];
+    /** @var string */
     protected $user = '';
+    /** @var string */
     protected $pwd = '';
+    /** @var string */
     protected $tmpFile = '';
+    /** @var string */
     protected $tmpName = '';
+    /** @var CentreonDB */
     protected $db;
+    /** @var ClapiObject */
     protected $clapiConnector;
 
     /**
      * Export constructor.
-     * @param $clapiConnector
+     * @param ClapiObject $clapiConnector
+     * @param \Pimple\Container $dependencyInjector
      */
     public function __construct($clapiConnector, $dependencyInjector)
     {
@@ -42,18 +50,21 @@ class Export
     }
 
     /**
-     * @param $type
-     * @return array
+     * @param string $type
+     * @return array{
+     *     result: string,
+     *     error: string,
+     * }
      */
     private function generateCmd($type)
     {
-        $cmdScript = array('result' => '', 'error' => '');
-        $cmdTypeRelation = array(
+        $cmdScript = ['result' => '', 'error' => ''];
+        $cmdTypeRelation = [
             'n' => 1,
             'c' => 2,
             'm' => 3,
             'd' => 4
-        );
+        ];
         $query = 'SELECT `command_name` FROM `command`WHERE `command_type` =' . $cmdTypeRelation[$type];
         $res = $this->db->query($query);
 
@@ -66,8 +77,11 @@ class Export
     }
 
     /**
-     * @param $value
-     * @return array
+     * @param array<mixed> $value
+     * @return array{
+     *     result: string,
+     *     error: string,
+     * }
      */
     private function generateInstance($value)
     {
@@ -150,9 +164,12 @@ class Export
     }
 
     /**
-     * @param $object
-     * @param $value
-     * @return array
+     * @param string $object
+     * @param array<mixed> $value
+     * @return array{
+     *     result: string,
+     *     error: string,
+     * }|null
      */
     public function generateGroup($object, $value)
     {
@@ -163,24 +180,27 @@ class Export
             }
         } elseif ($object == 'INSTANCE') {
             return $this->generateInstance($value);
-        } else {
-            if (isset($value[$object])) {
-                return $this->generateObject($object);
-            } elseif (!empty($value[$object . '_filter'])) {
-                $filter = ';' . $value[$object . '_filter'];
-                return $this->generateObject($object, $filter);
-            }
+        } elseif (isset($value[$object])) {
+            return $this->generateObject($object);
+        } elseif (!empty($value[$object . '_filter'])) {
+            $filter = ';' . $value[$object . '_filter'];
+            return $this->generateObject($object, $filter);
         }
+
+        return null;
     }
 
     /**
-     * @param $object
+     * @param string $object
      * @param string $filter
-     * @return array
+     * @return array{
+     *     result: string,
+     *     error: string,
+     * }
      */
     public function generateObject($object, $filter = '')
     {
-        $content = array('result' => '', 'error' => '');
+        $content = ['result' => '', 'error' => ''];
         $result = '';
         if ($object == 'ACL') {
             $acl = $this->generateAcl();
@@ -209,15 +229,18 @@ class Export
     }
 
     /**
-     * @return array
+     * @return array{
+     *     result: string,
+     *     error: string,
+     * }
      */
     private function generateAcl()
     {
-        $aclScript = array(
+        $aclScript = [
             'result' => '',
             'error' => '',
-        );
-        $oAcl = array('ACLMENU', 'ACLACTION', 'ACLRESOURCE', 'ACLGROUP');
+        ];
+        $oAcl = ['ACLMENU', 'ACLACTION', 'ACLRESOURCE', 'ACLGROUP'];
         foreach ($oAcl as $acl) {
             $result = $this->generateObject($acl);
             $aclScript['result'] .= $result['result'];
@@ -228,7 +251,7 @@ class Export
     }
 
     /**
-     * @param $content
+     * @param array<string> $content
      * @return string
      */
     public function clapiExport($content)

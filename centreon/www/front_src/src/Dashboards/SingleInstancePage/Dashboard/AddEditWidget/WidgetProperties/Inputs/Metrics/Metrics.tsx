@@ -13,21 +13,30 @@ import {
   labelIsTheSelectedResource,
   labelMetrics,
   labelSelectMetric,
+  labelThresholdsAreAutomaticallyHidden,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
-import { isAtLeastOneResourceFullfilled } from '../utils';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
-import { singleMetricSelectionAtom } from '../../../atoms';
+import {
+  areResourcesFullfilled,
+  isAtLeastOneResourceFullfilled
+} from '../utils';
+import {
+  singleHostPerMetricAtom,
+  singleMetricSelectionAtom
+} from '../../../atoms';
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 
 import useMetrics from './useMetrics';
+import { useMetricsStyles } from './Metrics.styles';
 
 const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
+  const { classes: metricsClasses } = useMetricsStyles();
   const { t } = useTranslation();
 
   const {
@@ -39,51 +48,51 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     resources,
     selectedMetrics,
     getOptionLabel,
-    changeMetrics,
-    getMetricOptionDisabled,
-    getMultipleOptionLabel,
+    getTagLabel,
     deleteMetricItem,
     error,
     isTouched,
     hasReachedTheLimitOfUnits,
-    metricWithSeveralResources
+    metricWithSeveralResources,
+    renderOptionsForSingleMetric,
+    renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
-  const { canEditField } = editProperties.useCanEditProperties();
+  const { canEditField } = useCanEditProperties();
   const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
+  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
 
   const canDisplayMetricsSelection =
-    isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
+    areResourcesFullfilled(resources) && !hasTooManyMetrics;
 
   const title =
     metricCount && isAtLeastOneResourceFullfilled(resources)
       ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
       : t(labelMetrics);
 
+  const warningMessages = [
+    error && isTouched && error,
+    hasReachedTheLimitOfUnits && (
+      <>
+        <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
+        <br />
+        <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
+      </>
+    ),
+    singleMetricSelection && metricWithSeveralResources && (
+      <>
+        <strong>{metricWithSeveralResources}</strong>{' '}
+        {t(labelIsTheSelectedResource)}
+      </>
+    )
+  ];
+
   const header = (
     <div className={classes.resourcesHeader}>
       <Avatar compact className={avatarClasses.widgetAvatar}>
         3
       </Avatar>
-      <div>
-        <Typography className={classes.resourceTitle}>{title}</Typography>
-        {error && isTouched && (
-          <Typography className={classes.warningText} variant="body2">
-            {error}
-          </Typography>
-        )}
-        {hasReachedTheLimitOfUnits && (
-          <Typography className={classes.warningText} variant="body2">
-            {t(labelYouCanSelectUpToTwoMetricUnits)}
-          </Typography>
-        )}
-        {singleMetricSelection && metricWithSeveralResources && (
-          <Typography className={classes.warningText} variant="body2">
-            <strong>{metricWithSeveralResources}</strong>{' '}
-            {t(labelIsTheSelectedResource)}
-          </Typography>
-        )}
-      </div>
+      <Typography className={classes.resourceTitle}>{title}</Typography>
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
@@ -91,11 +100,13 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      <div>
-        {canDisplayMetricsSelection && singleMetricSelection && (
+      <div className={classes.resourceComposition}>
+        {singleMetricSelection && singleHostPerMetric ? (
           <SingleAutocompleteField
             className={classes.resources}
-            disabled={!canEditField || isLoadingMetrics}
+            disabled={
+              !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
+            }
             getOptionItemLabel={getOptionLabel}
             getOptionLabel={getOptionLabel}
             isOptionEqualToValue={(option, selectedValue) =>
@@ -106,30 +117,53 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             value={head(selectedMetrics || []) || undefined}
             onChange={changeMetric}
           />
-        )}
-        {canDisplayMetricsSelection && !singleMetricSelection && (
+        ) : (
           <MultiAutocompleteField
+            disableSortedOptions
+            ListboxProps={{
+              className: metricsClasses.listBox
+            }}
             chipProps={{
               color: 'primary',
               onDelete: (_, option): void => deleteMetricItem(option)
             }}
             className={classes.resources}
-            disabled={!canEditField || isLoadingMetrics}
-            getOptionDisabled={getMetricOptionDisabled}
+            disabled={
+              !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
+            }
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
-            getTagLabel={getMultipleOptionLabel}
+            getTagLabel={getTagLabel}
             label={t(labelSelectMetric)}
             options={metrics}
+            renderOption={
+              singleMetricSelection
+                ? renderOptionsForSingleMetric
+                : renderOptionsForMultipleMetricsAndResources
+            }
             value={selectedMetrics || []}
-            onChange={changeMetrics}
+            onChange={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
           />
         )}
-        {hasTooManyMetrics && (
-          <Typography sx={{ color: 'text.disabled' }}>
-            {t(labelYouHaveTooManyMetrics)}
+      </div>
+      {hasTooManyMetrics && (
+        <Typography sx={{ color: 'text.disabled' }}>
+          {t(labelYouHaveTooManyMetrics)}
+        </Typography>
+      )}
+      <div>
+        {warningMessages.map((content) => (
+          <Typography
+            className={classes.warningText}
+            key={content?.toString()}
+            variant="body2"
+          >
+            {content}
           </Typography>
-        )}
+        ))}
       </div>
     </div>
   );

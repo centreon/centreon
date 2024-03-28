@@ -5,7 +5,6 @@ export const useStyles = makeStyles()((theme) => ({
     justifyContent: 'start',
     minWidth: theme.spacing(5)
   },
-
   container: {
     gap: 0,
     justifyContent: 'space-between'

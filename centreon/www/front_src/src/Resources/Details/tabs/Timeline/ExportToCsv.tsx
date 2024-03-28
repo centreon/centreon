@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import SaveIcon from '@mui/icons-material/SaveAlt';
-import { Button, Stack } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 
 import { getSearchQueryParameterValue } from '@centreon/ui';
 import type { SearchParameter } from '@centreon/ui';
@@ -39,7 +39,7 @@ const ExportToCsv = ({
         variant="contained"
         onClick={exportToCsv}
       >
-        {t(labelExportToCSV)}
+        <Typography variant="body2"> {t(labelExportToCSV)} </Typography>
       </Button>
     </Stack>
   );

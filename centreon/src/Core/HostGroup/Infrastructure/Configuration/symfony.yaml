@@ -1,0 +1,18 @@
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    Core\HostGroup\:
+        resource: '../../../../Core/HostGroup/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
+    Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface:
+        class: Core\HostGroup\Infrastructure\Repository\DbReadHostGroupRepository
+
+    Core\HostGroup\Infrastructure\Repository\ApiReadHostGroupRepository:
+        arguments:
+            $logger: '@Centreon\Domain\Log\Logger'
+

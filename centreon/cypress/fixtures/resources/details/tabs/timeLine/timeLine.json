@@ -1,0 +1,107 @@
+{
+    "result": [
+        {
+            "id": 3202594,
+            "type": "event",
+            "date": "2024-01-10T16:38:32+01:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "CPU usage : 21.59% [user:6.56%] [system:11.88%] [wait:3.14%]",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 3202562,
+            "type": "event",
+            "date": "2024-01-10T16:37:32+01:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "CPU usage : 87.30% [user:25.15%] [system:56.91%] [wait:5.24%]",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 2
+        },
+        {
+            "id": 3202540,
+            "type": "event",
+            "date": "2024-01-10T16:36:32+01:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "CPU usage : 87.30% [user:25.15%] [system:56.91%] [wait:5.24%]",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 3145159,
+            "type": "event",
+            "date": "2024-01-08T16:54:57+01:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "CPU usage : 28.49% [user:8.22%] [system:14.74%] [wait:5.53%]",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+            "$and": [
+                {
+                    "$and": [
+                        {
+                            "type": {
+                                "$in": [
+                                    "event",
+                                    "notification",
+                                    "comment",
+                                    "acknowledgement",
+                                    "downtime"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "$and": [
+                        {
+                            "$or": [
+                                {
+                                    "date": {
+                                        "$gt": "2024-01-09T15:49:34.298Z"
+                                    }
+                                },
+                                {
+                                    "date": {
+                                        "$lt": "2024-01-10T15:49:34.298Z"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "sort_by": {},
+        "total": 123
+    }
+}

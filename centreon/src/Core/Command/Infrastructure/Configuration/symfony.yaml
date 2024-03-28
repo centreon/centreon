@@ -29,5 +29,5 @@ services:
 
     Core\Command\Infrastructure\Repository\ApiWriteCommandRepository:
         calls:
-        - method: setApiTimeOut
+        - method: setTimeOut
           arguments: [ '%curl.timeout%' ]

@@ -12,22 +12,21 @@ const useStyles = makeStyles()((theme) => ({
   },
   containerDates: {
     display: 'flex',
-    gap: theme.spacing(0.5),
     [theme.breakpoints.down('sm')]: {
-      columnGap: theme.spacing(0.5),
-      flexDirection: 'column'
+      flexDirection: 'column',
+      gap: theme.spacing(0.5)
     }
   },
   date: {
-    minWidth: theme.spacing(12.5),
+    minWidth: theme.spacing(12),
     textAlign: 'start'
   },
   error: {
     textAlign: 'center'
   },
   label: {
-    minWidth: theme.spacing(3),
-    textAlign: 'start'
+    minWidth: theme.spacing(3.5),
+    textAlign: 'end'
   },
 
   picker: {
@@ -39,7 +38,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   timeContainer: {
     alignItems: 'center',
-    columnGap: theme.spacing(1),
+    columnGap: theme.spacing(0.5),
     display: 'flex',
     flexDirection: 'row',
     [theme.breakpoints.down('sm')]: {

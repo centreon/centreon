@@ -10,3 +10,7 @@
 /usr/bin/python3
 /usr/libexec/platform-python
 /usr/bin/dnf
+/usr/bin/mydumper
+/usr/bin/myloader
+/usr/bin/zstd
+/usr/bin/gpg

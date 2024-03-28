@@ -130,11 +130,10 @@ const WrapperThresholdLines = ({
 
   return (
     <g>
-      {filteredThresholdLines.map(
-        (element) =>
-          element?.map(({ Component, props, key }) => (
-            <Component {...props} id={key} key={key} />
-          ))
+      {filteredThresholdLines.map((element) =>
+        element?.map(({ Component, props, key }) => (
+          <Component {...props} id={key} key={key} />
+        ))
       )}
     </g>
   );

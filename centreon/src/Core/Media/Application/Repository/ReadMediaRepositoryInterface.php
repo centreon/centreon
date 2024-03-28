@@ -42,9 +42,9 @@ interface ReadMediaRepositoryInterface
     /**
      * @throws \Throwable
      *
-     * @return \Iterator<int, Media>&\Countable
+     * @return \Traversable<int, Media>&\Countable
      */
-    public function findAll(): \Iterator&\Countable;
+    public function findAll(): \Traversable&\Countable;
 
     /**
      * @param RequestParametersInterface $requestParameters

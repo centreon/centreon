@@ -25,14 +25,36 @@ namespace Tests\Core\ResourceAccess\Domain\Model;
 
 use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\ResourceAccess\Domain\Model\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\MetaServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
 
 beforeEach(function (): void {
     $this->contacts = [1, 2];
     $this->contactGroups = [3, 4];
     $this->resources = [10, 11];
-    $this->datasets = [new DatasetFilter('host', $this->resources)];
+
+    foreach ([
+        HostFilterType::class,
+        HostGroupFilterType::class,
+        HostCategoryFilterType::class,
+        ServiceFilterType::class,
+        ServiceGroupFilterType::class,
+        ServiceCategoryFilterType::class,
+        MetaServiceFilterType::class,
+    ] as $className) {
+        $this->filterTypes[] = new $className();
+    }
+
+    $this->validator = new DatasetFilterValidator(new \ArrayObject($this->filterTypes));
+    $this->datasets = [new DatasetFilter('host', $this->resources, $this->validator)];
 });
 
 it('should return properly set Rule instance (all properties)', function (): void {
@@ -135,34 +157,19 @@ it('should throw an exception when rules name is an string exceeding max size', 
     )->getMessage(),
 );
 
-it('should throw an exception when linked contacts is an empty array', function (): void {
+it('should throw an exception when linked contact groups and contacts are empty arrays', function (): void {
     new Rule(
         id: 1,
         name: 'FULL',
         description: 'Full access',
         linkedContacts: [],
-        linkedContactGroups: $this->contactGroups,
-        datasets: $this->datasets,
-        isEnabled: true
-    );
-})->throws(
-    InvalidArgumentException::class,
-    AssertionException::notEmpty('Rule::linkedContactIds')->getMessage()
-);
-
-it('should throw an exception when linked contact groups is an empty array', function (): void {
-    new Rule(
-        id: 1,
-        name: 'FULL',
-        description: 'Full access',
-        linkedContacts: $this->contacts,
         linkedContactGroups: [],
         datasets: $this->datasets,
         isEnabled: true
     );
 })->throws(
-    InvalidArgumentException::class,
-    AssertionException::notEmpty('Rule::linkedContactGroupIds')->getMessage()
+    \InvalidArgumentException::class,
+    'At least one contact or contactgroup should be linked to the rule'
 );
 
 it('should throw an exception when linked contacts is not an array of int', function (): void {

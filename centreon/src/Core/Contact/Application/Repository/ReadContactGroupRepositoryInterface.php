@@ -90,4 +90,24 @@ interface ReadContactGroupRepositoryInterface
      * @return int[]
      */
     public function exist(array $contactGroupIds): array;
+
+    /**
+     * Check that the contact group ID provided exists.
+     *
+     * @param int $contactGroupId
+     *
+     * @return bool
+     */
+    public function exists(int $contactGroupId): bool;
+
+    /**
+     * Find contact group names by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    public function findNamesByIds(int ...$ids): array;
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { equals, isNil, pick } from 'ramda';
+import { equals, isEmpty, isNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -200,7 +200,13 @@ const AutocompleteField = React.forwardRef(
           ),
           style: {
             background: 'transparent',
-            paddingRight: theme.spacing(5)
+            minWidth: 0,
+            padding: theme.spacing(
+              0.75,
+              isEmpty(placeholder) ? 0 : 5,
+              0.75,
+              0.75
+            )
           }
         }}
         autoFocus={autoFocus}

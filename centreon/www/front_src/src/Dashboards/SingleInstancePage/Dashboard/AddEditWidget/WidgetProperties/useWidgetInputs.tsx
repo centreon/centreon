@@ -6,12 +6,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
 
-import {
-  ConditionalOptions,
-  ShowInput,
-  Widget,
-  WidgetPropertyProps
-} from '../models';
+import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
@@ -26,7 +21,6 @@ import {
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
-  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
@@ -34,21 +28,14 @@ import {
   WidgetTopBottomSettings,
   WidgetRadio,
   WidgetCheckboxes,
-  WidgetTiles
+  WidgetTiles,
+  DisplayType
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
   key: string;
-  props: {
-    defaultValue: unknown | ConditionalOptions<unknown>;
-    label: string;
-    propertyName: string;
-    propertyType: string;
-    required?: boolean;
-    show?: ShowInput;
-    type: FederatedWidgetOptionType;
-  };
+  props: WidgetPropertyProps;
 }
 
 export const propertiesInputType = {
@@ -58,17 +45,18 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]:
-    WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
   [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
   [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
   [FederatedWidgetOptionType.radio]: WidgetRadio,
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
-  [FederatedWidgetOptionType.tiles]: WidgetTiles
+  [FederatedWidgetOptionType.tiles]: WidgetTiles,
+  [FederatedWidgetOptionType.displayType]: DisplayType
 };
 
-const DefaultComponent = (): JSX.Element => <div />;
+const DefaultComponent = (): JSX.Element => (
+  <div data-testid="unknown widget property" />
+);
 
 export const useWidgetInputs = (
   widgetKey: string
@@ -101,15 +89,9 @@ export const useWidgetInputs = (
               Component,
               key,
               props: {
-                defaultValue: value.defaultValue,
-                label: value.label,
-                options: value.options,
+                ...(value as WidgetPropertyProps),
                 propertyName: key,
-                propertyType: widgetKey,
-                required: value.required,
-                secondaryLabel: value.secondaryLabel,
-                show: value.show,
-                type: value.type
+                propertyType: widgetKey
               }
             };
           })

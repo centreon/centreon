@@ -65,25 +65,16 @@ abstract class AbstractMigrationCommand extends Command
      *
      * @return string
      */
-    protected function askAuthenticationToken(int $platform, InputInterface $input, OutputInterface $output): string
+    protected function askAuthenticationToken(int $platform, InputInterface $input, OutputInterface $output):
+    string
     {
-        $message = match ($platform) {
+        $question = match ($platform) {
             self::LOCAL_PLATFORM => 'Local authentication token? ',
             self::TARGET_PLATFORM => 'Target authentication token? ',
             default => throw new \InvalidArgumentException('Please choose an available platform type')
         };
-        /** @var QuestionHelper $helper */
-        $helper = $this->getHelper('question');
-        $tokenQuestion = new Question($message, '');
-        $tokenQuestion->setHidden(true);
-        /** @var string $response */
-        $response = $helper->ask($input, $output, $tokenQuestion);
 
-        if ($response === '') {
-            throw MigrationCommandException::tokenCannotBeEmpty();
-        }
-
-        return $response;
+        return $this->askQuestion($question, $input, $output);
     }
 
     protected function writeError(string $message, OutputInterface $output): void
@@ -116,5 +107,31 @@ abstract class AbstractMigrationCommand extends Command
         self::$isProxyAlreadyLoaded = true;
 
         return self::$proxy;
+    }
+
+    /**
+     * @param string $message Question to display
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @throws MigrationCommandException
+     * @throws \Exception
+     *
+     * @return string Response
+     */
+    protected function askQuestion(string $message, InputInterface $input, OutputInterface $output): string
+    {
+        /** @var QuestionHelper $helper */
+        $helper = $this->getHelper('question');
+        $tokenQuestion = new Question($message, '');
+        $tokenQuestion->setHidden(true);
+        /** @var string $response */
+        $response = $helper->ask($input, $output, $tokenQuestion);
+
+        if ($response === '') {
+            throw MigrationCommandException::tokenCannotBeEmpty();
+        }
+
+        return $response;
     }
 }

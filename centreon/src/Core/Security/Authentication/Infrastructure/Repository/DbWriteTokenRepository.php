@@ -47,15 +47,6 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
 
     /**
      * @inheritDoc
-     */
-    public function deleteExpiredSecurityTokens(): void
-    {
-        $this->deleteExpiredProviderRefreshTokens();
-        $this->deleteExpiredProviderTokens();
-    }
-
-    /**
-     * @inheritDoc
      *
      * @throws Exception
      */
@@ -166,49 +157,6 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         );
         $deleteSecurityTokenStatement->bindValue(':token', $token, \PDO::PARAM_STR);
         $deleteSecurityTokenStatement->execute();
-    }
-
-    /**
-     * Delete expired provider refresh tokens.
-     */
-    private function deleteExpiredProviderRefreshTokens(): void
-    {
-        $this->debug('Deleting expired refresh tokens');
-
-        $this->db->query(
-            $this->translateDbName(
-                'DELETE st FROM `:db`.security_token st
-                WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
-                AND EXISTS (
-                    SELECT 1
-                    FROM `:db`.security_authentication_tokens sat
-                    WHERE sat.provider_token_refresh_id = st.id
-                    LIMIT 1
-                )'
-            )
-        );
-    }
-
-    /**
-     * Delete provider refresh tokens which are not linked to a refresh token.
-     */
-    private function deleteExpiredProviderTokens(): void
-    {
-        $this->debug('Deleting expired tokens which are not linked to a refresh token');
-
-        $this->db->query(
-            $this->translateDbName(
-                'DELETE st FROM `:db`.security_token st
-                WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM `:db`.security_authentication_tokens sat
-                    WHERE sat.provider_token_id = st.id
-                    AND sat.provider_token_refresh_id IS NOT NULL
-                    LIMIT 1
-                )'
-            )
-        );
     }
 
     /**

@@ -3,9 +3,11 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
+import { Link } from 'react-router-dom';
 
 import { CardHeader } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import DvrIcon from '@mui/icons-material/Dvr';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 
@@ -14,21 +16,25 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions } from '../../translatedLabels';
+import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
 
 interface PanelHeaderProps {
+  changeViewMode: (displayType) => void;
   displayMoreActions: boolean;
   id: string;
+  linkToResourceStatus?: string;
   setRefreshCount?: (id) => void;
 }
 
 const PanelHeader = ({
   id,
   setRefreshCount,
-  displayMoreActions
+  linkToResourceStatus,
+  displayMoreActions,
+  changeViewMode
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -60,11 +66,28 @@ const PanelHeader = ({
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
+            {linkToResourceStatus && (
+              <Link
+                data-testid={labelSeeMore}
+                style={{ all: 'unset' }}
+                target="_blank"
+                to={linkToResourceStatus as string}
+              >
+                <IconButton
+                  ariaLabel={t(labelSeeMore)}
+                  title={t(labelSeeMore)}
+                  onClick={changeViewMode}
+                >
+                  <DvrIcon fontSize="small" />
+                </IconButton>
+              </Link>
+            )}
             <IconButton
               ariaLabel={t(labelMoreActions) as string}
+              title={t(labelMoreActions) as string}
               onClick={openMoreActions}
             >
-              <MoreVertIcon fontSize="small" />
+              <MoreHorizIcon fontSize="small" />
             </IconButton>
             <MorePanelActions
               anchor={moreActionsOpen}

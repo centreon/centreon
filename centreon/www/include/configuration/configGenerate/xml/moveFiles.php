@@ -348,7 +348,10 @@ try {
                     }
                 }
             } else {
-                passthru("echo 'SENDCFGFILE:" . $host['id'] . "' >> $centcore_pipe", $return);
+                passthru(
+                    escapeshellcmd("echo 'SENDCFGFILE:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
+                    $return
+                );
                 if ($return) {
                     throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
                 }
@@ -356,7 +359,10 @@ try {
                     $msg_restart[$host["id"]] = "";
                 }
                 if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> $centcore_pipe", $return);
+                    passthru(
+                        escapeshellcmd("echo 'SENDCBCFG:{$host['id']}") . ' >> ' . escapeshellcmd($centcore_pipe),
+                        $return
+                    );
                     if ($return) {
                         throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
                     }

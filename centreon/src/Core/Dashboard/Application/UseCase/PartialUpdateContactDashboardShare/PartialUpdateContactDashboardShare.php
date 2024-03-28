@@ -77,7 +77,7 @@ final class PartialUpdateContactDashboardShare
                     $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
                 }
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
                 $contact = $this->contactRepository->findById($contactId);
 

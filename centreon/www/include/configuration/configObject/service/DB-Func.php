@@ -934,7 +934,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
         ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id = null, ";
+
+    $rq .= "command_command_id = ";
+    isset($ret["command_command_id"]) && $ret["command_command_id"] != null
+        ? $rq .= "'" . $ret["command_command_id"] . "', "
+        : $rq .= "NULL, ";
         $rq .= "timeperiod_tp_id = ";
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
@@ -1640,7 +1644,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
         ? $request .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
         : $request .= "NULL, ";
-    $request .= "null, "; // command_command_id => null
+
+    isset($submittedValues["command_command_id"]) && $submittedValues["command_command_id"] != null
+        ? $request .= "'" . $submittedValues["command_command_id"] . "', "
+        : $request .= "NULL, ";
 
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "

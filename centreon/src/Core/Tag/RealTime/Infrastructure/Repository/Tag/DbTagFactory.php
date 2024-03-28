@@ -25,12 +25,15 @@ namespace Core\Tag\RealTime\Infrastructure\Repository\Tag;
 
 use Core\Tag\RealTime\Domain\Model\Tag;
 
+/**
+ * @phpstan-import-type _tag from DbReadTagRepository
+ */
 class DbTagFactory
 {
     /**
      * Create ServiceCategory model using data from database.
      *
-     * @param array<string, mixed> $data
+     * @param _tag $data
      *
      * @return Tag
      */

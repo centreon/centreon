@@ -240,7 +240,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    hcr.hostcategories_hc_id AS severity_id
+                    hc.hc_id AS severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id

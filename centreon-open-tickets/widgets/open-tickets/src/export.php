@@ -58,6 +58,7 @@ $template = initSmartyTplForPopup($centreon_path . "www/widgets/open-tickets/src
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+/** @var \Centreon $centreon */
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);	
 $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);

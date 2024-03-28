@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, InvalidArgumentResponse};
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -86,8 +87,8 @@ final class FindPerformanceMetricsData
             $this->error('Metric from RRD are not correctly formatted', ['trace' => (string) $ex]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving metrics data', ['trace' => (string) $ex]);
-            $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics data'));
+            $this->error('An error occurred while retrieving metrics data', ['trace' => (string) $ex]);
+            $presenter->presentResponse(new ErrorResponse('An error occurred while retrieving metrics data'));
         }
     }
 
@@ -108,23 +109,8 @@ final class FindPerformanceMetricsData
             $request->metricNames,
             $this->requestParameters
         );
-        $metricsData = [];
-        $this->metricRepositoryLegacy->setContact($this->user);
-        foreach ($services as $service) {
-            /** @var _MetricData $data */
-            $data = $this->metricRepositoryLegacy->findMetricsByService(
-                $service,
-                $request->startDate,
-                $request->endDate
-            );
-            $metricsData[] = $data;
-        }
-        if (empty($metricsData)) {
-            throw MetricException::metricsNotFound();
-        }
 
-        return (new PerformanceMetricsDataFactory())
-            ->createFromRecords($metricsData, $request->metricNames);
+        return $this->createPerformanceMetricsData($services, $request);
     }
 
     /**
@@ -147,6 +133,32 @@ final class FindPerformanceMetricsData
             $accessGroups,
             $this->requestParameters
         );
+
+        return $this->createPerformanceMetricsData($services, $request);
+    }
+
+    private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
+    {
+        $response = new FindPerformanceMetricsDataResponse();
+        $response->base = $performanceMetricsData->getBase();
+        $response->metricsInformation = $performanceMetricsData->getMetricsInformation();
+        $response->times = $performanceMetricsData->getTimes();
+
+        return $response;
+    }
+
+    /**
+     * @param Service[] $services
+     * @param FindPerformanceMetricsDataRequest $request
+     *
+     * @throws MetricException|\Exception
+     *
+     * @return PerformanceMetricsData
+     */
+    private function createPerformanceMetricsData(
+        array $services,
+        FindPerformanceMetricsDataRequest $request
+    ): PerformanceMetricsData {
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);
         foreach ($services as $service) {
@@ -158,21 +170,8 @@ final class FindPerformanceMetricsData
             );
             $metricsData[] = $data;
         }
-        if ([] === $metricsData) {
-            throw MetricException::metricsNotFound();
-        }
 
         return (new PerformanceMetricsDataFactory())
             ->createFromRecords($metricsData, $request->metricNames);
-    }
-
-    private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
-    {
-        $response = new FindPerformanceMetricsDataResponse();
-        $response->base = $performanceMetricsData->getBase();
-        $response->metricsInformation = $performanceMetricsData->getMetricsInformation();
-        $response->times = $performanceMetricsData->getTimes();
-
-        return $response;
     }
 }

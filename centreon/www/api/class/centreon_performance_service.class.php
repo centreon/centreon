@@ -179,7 +179,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
 
         $query .= $virtualServicesCondition . ') as t_union ' .
             'WHERE fullname LIKE :fullName ' .
-            'GROUP BY host_id, service_id ' .
+            'GROUP BY host_id, service_id, fullname, index_id ' .
             'ORDER BY fullname ';
 
         if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {

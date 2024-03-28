@@ -79,7 +79,9 @@ const useDuplicateRequest = ({
           name: values?.name
         } as NotificationType);
 
-    return mutateAsync(payload)
+    return mutateAsync({
+      payload
+    })
       .then((response) => {
         const { isError, message } = response as ResponseError;
 

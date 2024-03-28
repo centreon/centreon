@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
 
-/**
- * @package Centreon\Domain\Repository
- */
 class RepositoryException extends \Exception
 {
+    public static function notYetImplemented(): self
+    {
+        return new self(_('Not yet implemented'));
+    }
 }

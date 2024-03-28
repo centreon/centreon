@@ -1,7 +1,7 @@
 import { ChangeEvent, KeyboardEvent } from 'react';
 
 import { useFormik } from 'formik';
-import { equals, not, path, omit } from 'ramda';
+import { not, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
@@ -15,13 +15,11 @@ import {
   labelSave,
   labelUpdateFilter
 } from '../../translatedLabels';
-import { Action } from '../Criterias/models';
 import { Filter } from '../models';
 
 type InputChangeEvent = (event: ChangeEvent<HTMLInputElement>) => void;
 
 interface Props {
-  action?: Action;
   callbackSuccess?: (data) => void;
   onCancel: () => void;
   open: boolean;
@@ -34,8 +32,7 @@ const CreateFilterDialog = ({
   request,
   callbackSuccess,
   open,
-  onCancel,
-  action = Action.create
+  onCancel
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -47,16 +44,7 @@ const CreateFilterDialog = ({
       name: payloadAction?.filter?.name || ''
     },
     onSubmit: (values) => {
-      const payloadCreation = { ...payloadAction, name: values.name };
-      const filterPayloadAction = omit(['order'], payloadAction.filter);
-      const payloadUpdate = {
-        ...payloadAction,
-        filter: { ...filterPayloadAction, name: values.name }
-      };
-
-      const payload = equals(action, Action.create)
-        ? payloadCreation
-        : payloadUpdate;
+      const payload = { ...payloadAction, name: values.name };
 
       sendRequest(payload)
         .then(callbackSuccess)
@@ -99,6 +87,7 @@ const CreateFilterDialog = ({
       <TextField
         autoFocus
         ariaLabel={t(labelName) as string}
+        dataTestId={labelName}
         disabled={isUpdatingFilter}
         error={form.touched.name ? form.errors.name : undefined}
         label={t(labelName)}

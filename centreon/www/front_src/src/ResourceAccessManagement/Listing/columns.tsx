@@ -5,7 +5,7 @@ import { Column, ColumnType } from '@centreon/ui';
 import {
   labelActions,
   labelDescription,
-  labelRules,
+  labelName,
   labelStatus
 } from '../translatedLabels';
 
@@ -20,7 +20,7 @@ const useListingColumns = (): Array<Column> => {
       disablePadding: false,
       getFormattedString: ({ name }): string => name,
       id: 'name',
-      label: t(labelRules),
+      label: t(labelName),
       sortField: 'name',
       sortable: true,
       type: ColumnType.string

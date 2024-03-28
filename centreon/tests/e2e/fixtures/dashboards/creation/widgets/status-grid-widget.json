@@ -28,8 +28,9 @@
              "options":{
                 "resourceType":"host",
                 "statuses":[
-                   "up",
-                   "down"
+                   "success",
+                   "warning",
+                   "problem"
                 ],
                 "states":[
                 ],

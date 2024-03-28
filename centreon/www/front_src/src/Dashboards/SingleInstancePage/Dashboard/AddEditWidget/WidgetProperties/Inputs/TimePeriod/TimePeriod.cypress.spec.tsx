@@ -1,4 +1,5 @@
 import { Formik } from 'formik';
+import { Provider, createStore } from 'jotai';
 
 import {
   labelCustomize,
@@ -6,34 +7,37 @@ import {
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-import { editProperties } from '../../../../hooks/useCanEditDashboard';
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
-const initializeComponent = (): void => {
-  cy.stub(editProperties, 'useCanEditProperties').returns({
-    canEdit: true,
-    canEditField: true
-  });
+const initializeComponent = (canEdit = true): void => {
+  const store = createStore();
+
+  store.set(hasEditPermissionAtom, canEdit);
+  store.set(isEditingAtom, canEdit);
+
   cy.clock(new Date(2023, 5, 5, 8, 0, 0).getTime());
   cy.viewport('macbook-13');
   cy.mount({
     Component: (
-      <Formik
-        initialValues={{
-          moduleName: 'widget',
-          options: {
-            timeperiod: {
-              end: null,
-              start: null
+      <Provider store={store}>
+        <Formik
+          initialValues={{
+            moduleName: 'widget',
+            options: {
+              timeperiod: {
+                end: null,
+                start: null
+              }
             }
-          }
-        }}
-        onSubmit={cy.stub()}
-      >
-        <TimePeriod label="" propertyName="timeperiod" />
-      </Formik>
+          }}
+          onSubmit={cy.stub()}
+        >
+          <TimePeriod label="" propertyName="timeperiod" />
+        </Formik>
+      </Provider>
     )
   });
 };
@@ -84,5 +88,15 @@ describe('Time Period', () => {
 
     cy.get('input').eq(1).should('have.value', '04/05/2023 07:00 AM');
     cy.get('input').eq(2).should('have.value', '05/05/2023 08:00 AM');
+  });
+});
+
+describe('Time period disabled', () => {
+  beforeEach(() => initializeComponent(false));
+
+  it('displays the time period field as disabled when the user is not allowed to edit field', () => {
+    cy.findByTestId(labelTimePeriod).should('be.disabled');
+
+    cy.makeSnapshot();
   });
 });

@@ -34,7 +34,7 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\UseCase\FindHosts\FindHosts;
 use Core\Host\Application\UseCase\FindHosts\FindHostsResponse;
-use Core\Host\Domain\Model\TinyHost;
+use Core\Host\Domain\Model\SmallHost;
 use Core\Common\Domain\SimpleEntity;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -147,7 +147,7 @@ it('should present a FindHostsResponse when no error occurs for an admin user', 
         ->method('isAdmin')
         ->willReturn(true);
 
-    $oneHost = new TinyHost(
+    $oneHost = new SmallHost(
         1,
         new TrimmedString('my_host'),
         new TrimmedString('my_alias'),

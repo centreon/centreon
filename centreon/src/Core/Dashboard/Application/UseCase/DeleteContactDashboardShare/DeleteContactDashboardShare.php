@@ -68,7 +68,7 @@ final class DeleteContactDashboardShare
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 }
-            } elseif ($this->rights->canAccess()) {
+            } elseif ($this->rights->canCreate()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
                     $this->info('Delete a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->deleteContactShareAsContact($dashboard, $contactId);

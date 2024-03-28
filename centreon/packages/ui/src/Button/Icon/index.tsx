@@ -38,7 +38,7 @@ type Props = {
     | 'top-start';
 } & IconButtonProps;
 
-const IconButton = ({
+export const IconButton = ({
   title = '',
   ariaLabel,
   className,
