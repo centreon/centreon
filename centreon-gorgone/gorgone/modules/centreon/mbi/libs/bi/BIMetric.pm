@@ -153,7 +153,7 @@ sub createTodayTable {
 	
 	$db->query({ query => "DROP TABLE IF EXISTS `".$self->{"today_table"}."`" });
 	my $query = "CREATE TABLE `" . $self->{"today_table"} . "` (";
-	$query .= "`id` INT NOT NULL,";
+	$query .= "`id` BIGINT(20) UNSIGNED NOT NULL,";
 	$query .= "`metric_id` int(11) NOT NULL,";
 	$query .= "`metric_name` varchar(255) NOT NULL,";
 	$query .= "`sc_id` int(11) NOT NULL,";
