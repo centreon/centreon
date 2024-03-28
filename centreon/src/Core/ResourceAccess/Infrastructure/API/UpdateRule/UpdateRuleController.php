@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\Response;
  *     contact_groups: non-empty-list<int>,
  *     dataset_filters: non-empty-list<array{
  *      type:string,
- *      resources: non-empty-list<int>,
+ *      resources: list<int>,
  *      ...
  *     }>
  * }

@@ -189,6 +189,16 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
+    $pearDB->query(
+        <<<SQL
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
+        SQL
+    );
+};
+
 $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
@@ -239,6 +249,7 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+    $alterTypeDefinitionDatasetFilterTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {

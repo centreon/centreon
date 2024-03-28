@@ -32,7 +32,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: 'Schema/PartialUpdateHostGroup.yaml'
+          $ref: 'Schema/FindAndUpdateHostGroup.yaml'
   responses:
     '204':
       $ref: '../../../../Common/Response/NoContent.yaml'
