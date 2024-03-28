@@ -633,12 +633,12 @@ describe('Api-token', () => {
     cy.findByRole('option', { name: 'Customize' }).click();
     cy.openCalendar('calendarInput');
 
-    cy.findByRole('gridcell', { name: '5' }).click();
+    cy.findByRole('gridcell', { name: '29' }).click();
     cy.contains('OK').click();
 
     cy.findByTestId(labelDuration).should(
       'have.value',
-      'February 5, 2024 7:16 PM'
+      'February 29, 2024 7:16 PM'
     );
 
     cy.findByTestId('Confirm')
