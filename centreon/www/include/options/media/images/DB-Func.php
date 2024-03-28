@@ -175,19 +175,31 @@ function deleteImg($imageId)
 
     $mediadir = "./img/media/";
 
-    $dbResult = $pearDB->query(
-        "SELECT dir_alias, img_path "
-        . "FROM view_img, view_img_dir, view_img_dir_relation "
-        . "WHERE img_id = $imageId AND img_id = img_img_id "
-        . "AND dir_dir_parent_id = dir_id"
-    );
+    $query = "SELECT dir_alias, img_path
+          FROM view_img, view_img_dir, view_img_dir_relation
+          WHERE img_id = :imageId
+          AND img_id = img_img_id
+          AND dir_dir_parent_id = dir_id";
+
+    $dbResult = $pearDB->prepare($query);
+    $dbResult->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+    $dbResult->execute();
     while ($imagePath = $dbResult->fetch()) {
         $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
         if (is_file($fullpath)) {
             unlink($fullpath);
         }
-        $pearDB->query("DELETE FROM view_img WHERE img_id = $imageId");
-        $pearDB->query("DELETE FROM view_img_dir_relation WHERE img_img_id = $imageId");
+        $query1 = "DELETE FROM view_img WHERE img_id = :imageId";
+        $statement1 = $pearDB->prepare($query1);
+        $statement1->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+        $statement1->execute();
+        $statement1->closeCursor();
+
+        $query2 = "DELETE FROM view_img_dir_relation WHERE img_img_id = :imageId";
+        $statement2 = $pearDB->prepare($query2);
+        $statement2->bindParam(':imageId', $imageId, PDO::PARAM_INT);
+        $statement2->execute();
+        $statement2->closeCursor();
     }
     $dbResult->closeCursor();
 }
@@ -291,13 +303,15 @@ function testDirectoryIsEmpty($dir_id)
     }
     global $pearDB;
 
-    $rq = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = '".$dir_id."'";
-    $dbResult = $pearDB->query($rq);
+    $query = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :dir_id";
+    $statement = $pearDB->prepare($query);
+    $statement->bindParam(':dir_id', $dir_id, \PDO::PARAM_INT);
+    $statement->execute();
     $empty = true;
-    if ($dbResult && $dbResult->rowCount() >= 1) {
+    if ($statement->rowCount() >= 1) {
         $empty = false;
     }
-    $dbResult->closeCursor();
+    $statement->closeCursor();
     return $empty;
 }
 
@@ -343,21 +357,22 @@ function deleteDirectory($directoryId)
     /*
      * Purge images of the directory
      */
-    $dbResult = $pearDB->query(
-        "SELECT img_img_id "
-        . "FROM view_img_dir_relation "
-        . "WHERE dir_dir_parent_id = $directoryId"
-    );
-    while ($img = $dbResult->fetch()) {
+    $query = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directory_id";
+    $statement = $pearDB->prepare($query);
+    $statement->bindParam(':directory_id', $directoryId);
+    $statement->execute();
+    while ($img = $statement->fetch()) {
         deleteImg($img["img_img_id"]);
     }
     /*
      * Delete directory
      */
-    $dbResult = $pearDB->query(
-        "SELECT dir_alias FROM view_img_dir WHERE dir_id = $directoryId"
-    );
-    $dirAlias = $dbResult->fetch();
+    $query = "SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId";
+    $statement = $pearDB->prepare($query);
+    $statement->bindParam(':directoryId', $directoryId, PDO::PARAM_INT);
+    $statement->execute();
+    $dirAlias = $statement->fetch();
+    $statement->closeCursor();
     $safeDirAlias = basename($dirAlias["dir_alias"]);
     $filenames = scandir($mediadir . $safeDirAlias);
     foreach ($filenames as $fileName) {
@@ -367,7 +382,11 @@ function deleteDirectory($directoryId)
     }
     rmdir($mediadir . $safeDirAlias);
     if (!is_dir($mediadir . $safeDirAlias)) {
-        $dbResult = $pearDB->query("DELETE FROM view_img_dir WHERE dir_id = $directoryId");
+        $query = "DELETE FROM view_img_dir WHERE dir_id = :directoryId";
+        $statement = $pearDB->prepare($query);
+        $statement->bindParam(':directoryId', $directoryId);
+        $statement->execute();
+        $statement->closeCursor();
     }
 }
 
