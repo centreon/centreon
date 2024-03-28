@@ -29,13 +29,16 @@ const Minimap = ({
     zoom
   });
 
+  const finalHeight = Math.max(contentClientRect?.height || 0, height);
+  const finalWidth = Math.max(contentClientRect?.width || 0, width);
+
   return (
     <g className={classes.minimap} clipPath="url(#zoom-clip)">
       <rect
         className={classes.minimapBackground}
-        height={Math.max(contentClientRect?.height || 0, height)}
+        height={finalHeight}
         rx={radius}
-        width={Math.max(contentClientRect?.width || 0, width)}
+        width={finalWidth}
       />
       {children}
       <rect
@@ -49,9 +52,9 @@ const Minimap = ({
       <rect
         data-testid="minimap-interaction"
         fill="transparent"
-        height={Math.max(contentClientRect?.height || 0, height)}
+        height={finalHeight}
         rx={radius}
-        width={Math.max(contentClientRect?.width || 0, width)}
+        width={finalWidth}
         onMouseDown={transformTo}
         onMouseMove={move}
         onWheel={zoomInOut}

@@ -4,7 +4,6 @@ import type {
   TouchEvent as ReactTouchEvent
 } from 'react';
 
-import { has } from 'ramda';
 import { Point } from '@visx/point';
 
 type EventType =
@@ -44,16 +43,7 @@ const getXAndYFromEvent = (event?: EventType): PointCoords => {
     };
   }
 
-  const boundingClientRect = has('getBoundingClientRect', event.target)
-    ? event.target.getBoundingClientRect()
-    : null;
-
-  if (!boundingClientRect) return { ...DEFAULT_POINT };
-
-  return {
-    x: boundingClientRect.x + boundingClientRect.width / 2,
-    y: boundingClientRect.y + boundingClientRect.height / 2
-  };
+  return { ...DEFAULT_POINT };
 };
 
 export const localPoint = (event: EventType): PointCoords | null => {
