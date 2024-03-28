@@ -54,7 +54,7 @@ $datasetRoutes = [
     'default_service_templates' => BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=defaultValues&target=service&field=service_template_model_stm_id&id=' . $service_id,
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=service&field=command_command_id2&id=' . $service_id,
     'default_check_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=service&field=timeperiod_tp_id&id=' . $service_id,
-    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=service&field=timeperiod_tp_id2&id=' . $service_id,
+    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=service&field=service_timeperiod_tp_id2&id=' . $service_id,
     'default_host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=defaultValues&target=service&field=service_hgPars&id=' . $service_id,
     'default_service_groups' => BASE_ROUTE . '?object=centreon_configuration_servicegroup&action=defaultValues&target=service&field=service_sgs&id=' . $service_id,
     'default_traps' => BASE_ROUTE . '?object=centreon_configuration_trap&action=defaultValues&target=service&field=service_traps&id=' . $service_id,
@@ -631,7 +631,7 @@ if (! $isCloudPlatform) {
         $form->setDefaults(['mc_mod_notifopt_timeperiod' => '0']);
     }
 
-    $form->addElement('select2', 'timeperiod_tp_id2', _('Notification Period'), [], $attributes['notification_periods']);
+    $form->addElement('select2', 'service_timeperiod_tp_id2', _('Notification Period'), [], $attributes['notification_periods']);
 
     if ($o === SERVICE_MASSIVE_CHANGE) {
         $mc_mod_notifopts = [

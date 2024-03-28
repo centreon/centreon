@@ -1823,8 +1823,8 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["command_command_id2"]) && $submittedValues["command_command_id2"] != null
         ? $rq .= "'" . $submittedValues["command_command_id2"] . "', "
         : $rq .= "NULL, ";
-    isset($submittedValues["timeperiod_tp_id2"]) && $submittedValues["timeperiod_tp_id2"] != null
-        ? $rq .= "'" . $submittedValues["timeperiod_tp_id2"] . "', "
+    isset($submittedValues["service_timeperiod_tp_id2"]) && $submittedValues["service_timeperiod_tp_id2"] != null
+        ? $rq .= "'" . $submittedValues["service_timeperiod_tp_id2"] . "', "
         : $rq .= "NULL, ";
     isset($submittedValues["service_description"]) && $submittedValues["service_description"] != null
         ? $rq .= "'" . CentreonDB::escape($submittedValues["service_description"]) . "', "
@@ -2657,10 +2657,10 @@ function updateServiceNotifOptionTimeperiod($service_id = null, $ret = array())
         return;
     }
 
-    if (isset($ret["timeperiod_tp_id2"])) {
-        $ret = $ret["timeperiod_tp_id2"];
+    if (isset($ret["service_timeperiod_tp_id2"])) {
+        $ret = $ret["service_timeperiod_tp_id2"];
     } else {
-        $ret = $form->getSubmitValue("timeperiod_tp_id2");
+        $ret = $form->getSubmitValue("service_timeperiod_tp_id2");
     }
 
     $rq = "UPDATE service SET ";
@@ -2679,7 +2679,7 @@ function updateServiceNotifOptionTimeperiod_MC($service_id = null)
         return;
     }
 
-    $ret = $form->getSubmitValue("timeperiod_tp_id2");
+    $ret = $form->getSubmitValue("service_timeperiod_tp_id2");
 
     if (isset($ret) && $ret != null) {
         $rq = "UPDATE service SET ";

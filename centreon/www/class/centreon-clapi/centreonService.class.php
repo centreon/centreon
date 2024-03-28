@@ -603,8 +603,6 @@ class CentreonService extends CentreonObject
                         $field = "timeperiod_tp_id";
                         break;
                     case "notification_period":
-                        $field = "timeperiod_tp_id2";
-                        break;
                     case "template":
                         $field = "service_template_model_stm_id";
                         break;
