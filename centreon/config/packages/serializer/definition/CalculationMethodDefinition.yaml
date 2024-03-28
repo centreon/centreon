@@ -1,0 +1,8 @@
+CentreonBam\Domain\BusinessActivity\CalculationMethod:
+  attributes:
+    name:
+      groups: ['group1']
+    id:
+      groups: ['group1']
+    isPercentage:
+      groups: [ 'group1' ]

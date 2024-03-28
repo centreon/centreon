@@ -16,6 +16,7 @@ framework:
         storage_id: 'session.storage.native'
 
     serializer:
+        name_converter: 'serializer.name_converter.camel_case_to_snake_case'
         mapping:
             paths:
-                - '%env(_CENTREON_PATH_)%/config/packages/serializer/Infrastructure/**/serializer.yaml'
+                - '/usr/share/centreon/config/packages/serializer/definition'

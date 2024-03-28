@@ -1,0 +1,18 @@
+CentreonBam\BusinessActivity\Domain\Model\TinyBusinessActivity:
+  attributes:
+    id:
+      groups: ['group1']
+    name:
+      groups: ['group1']
+    description:
+      groups: ['group1']
+    levelWarning:
+      groups: ['group1']
+    levelCritical:
+      groups: ['group1']
+    calculationMethod:
+      groups: ['group1']
+    icon:
+      groups: ['group1']
+    isEnabled:
+      groups: ['group1']
