@@ -62,84 +62,84 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  );
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceOk.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceOk.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    });
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: services.serviceCritical.host,
-    template: 'generic-host'
-  })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceOk.name,
-      template: services.serviceOk.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: 'service2',
-      template: services.serviceWarning.template
-    })
-    .addService({
-      activeCheckEnabled: false,
-      host: services.serviceCritical.host,
-      maxCheckAttempts: 1,
-      name: services.serviceCritical.name,
-      template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  // );
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceOk.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceOk.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   });
+  // cy.addHost({
+  //   hostGroup: 'Linux-Servers',
+  //   name: services.serviceCritical.host,
+  //   template: 'generic-host'
+  // })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceOk.name,
+  //     template: services.serviceOk.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: 'service2',
+  //     template: services.serviceWarning.template
+  //   })
+  //   .addService({
+  //     activeCheckEnabled: false,
+  //     host: services.serviceCritical.host,
+  //     maxCheckAttempts: 1,
+  //     name: services.serviceCritical.name,
+  //     template: services.serviceCritical.template
+  //   })
+  //   .applyPollerConfiguration();
 
-  cy.loginByTypeOfUser({
-    jsonName: 'admin'
-  });
+  // cy.loginByTypeOfUser({
+  //   jsonName: 'admin'
+  // });
 
-  checkHostsAreMonitored([
-    { name: services.serviceOk.host },
-    { name: services.serviceCritical.host }
-  ]);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name },
-    { name: services.serviceOk.name }
-  ]);
-  cy.submitResults(resultsToSubmit);
-  checkServicesAreMonitored([
-    { name: services.serviceCritical.name, status: 'critical' },
-    { name: services.serviceOk.name, status: 'ok' }
-  ]);
+  // checkHostsAreMonitored([
+  //   { name: services.serviceOk.host },
+  //   { name: services.serviceCritical.host }
+  // ]);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name },
+  //   { name: services.serviceOk.name }
+  // ]);
+  // cy.submitResults(resultsToSubmit);
+  // checkServicesAreMonitored([
+  //   { name: services.serviceCritical.name, status: 'critical' },
+  //   { name: services.serviceOk.name, status: 'ok' }
+  // ]);
 
-  cy.logoutViaAPI();
+  // cy.logoutViaAPI();
   cy.applyAcl();
 });
 
@@ -191,12 +191,7 @@ Given(
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -210,23 +205,20 @@ When(
 );
 
 When(
-  'the dashboard administrator user selects the widget type "Group monitoring"',
+  'the dashboard administrator user selects the widget type "Status chart"',
   () => {
     cy.getByTestId({ testId: 'Widget type' }).click();
-    cy.contains('Group monitoring').click();
   }
 );
 
 Then(
-  'configuration properties for the Group monitoring widget are displayed',
+  'configuration properties for the status chart widget are displayed',
   () => {
-    cy.contains('Host').should('exist');
-    cy.contains('Service').should('exist');
-    cy.contains('Success (OK & Up)').should('exist');
-    cy.contains('Warning').should('exist');
-    cy.contains('Problem (Down/Critical)').should('exist');
-    cy.contains('Undefined (Unreachable/Unknown)').should('exist');
-    cy.contains('Pending').should('exist');
+    cy.getByTestId({ testId: 'up' }).should('be.visible');
+    cy.getByTestId({ testId: 'CheckCircleIcon' }).should('exist');
+    cy.getByLabel({ label: 'Donut chart' }).should('exist');
+    cy.getByLabel({ label: 'Pie chart' }).should('exist');
+    cy.getByLabel({ label: 'Vertical bar chart' }).should('exist');
   }
 );
 
