@@ -14,7 +14,7 @@ import {
 } from './stories/datas';
 import { ComplexContent, SimpleContent } from './stories/contents';
 
-import { StandaloneTree, Tree } from '.';
+import { StandaloneTree, Tree, TreeProps } from '.';
 
 const meta: Meta<typeof StandaloneTree> = {
   component: StandaloneTree
@@ -29,7 +29,10 @@ const StandaloneTreeTemplate = (args): JSX.Element => (
   </div>
 );
 
-const TreeWithZoom = ({ tree, ...args }): JSX.Element => {
+const TreeWithZoom = <TData,>({
+  tree,
+  ...args
+}: TreeProps<TData>): JSX.Element => {
   const [currentTree, setTree] = useState(tree);
 
   return (
