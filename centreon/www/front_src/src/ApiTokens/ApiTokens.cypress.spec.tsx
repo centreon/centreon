@@ -636,7 +636,9 @@ describe('Api-token', () => {
     cy.findByRole('gridcell', { name: '29' }).click({
       waitForAnimations: false
     });
-    cy.contains('OK').click();
+    cy.contains('OK').click({
+      waitForAnimations: false
+    });
 
     cy.findByTestId(labelDuration).should(
       'have.value',
