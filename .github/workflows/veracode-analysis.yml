@@ -60,23 +60,23 @@ jobs:
         run: |
           # setting QG state
           ENABLE_QG="true"
-          if [ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ] || [ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]; then
+          if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
             ENABLE_QG="false"
           fi
 
           # QG parameters
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
-          if [ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]; then
+          if [[ $CHECK_BRANCH != "merge" && "${{ github.event_name }}" != 'pull_request' && "${{ inputs.stability }}" == 'stable' ]]; then
             # e.g master
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Release"
             DISPLAY_SUMMARY="false"
-          elif [ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]; then
+          elif [[ $CHECK_BRANCH != "merge" && "${{ github.event_name }}" != 'pull_request' && "${{ inputs.stability }}" == 'unstable' ]]; then
             # e.g develop
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
-          elif [ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]; then
+          elif [[ $CHECK_BRANCH == "merge" && -n "${{ github.head_ref }}" && "${{ github.head_ref }}" =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Development"
@@ -90,7 +90,7 @@ jobs:
           # external contributions check
           echo "[DEBUG] - author_association = ${{ github.event.issue.author_association }}"
           INTERNAL_CONTRIB="false"
-          if [ "${{ github.event.issue.author_association }}" == "OWNER" || "${{ github.event.issue.author_association }}" == "COLLABORATOR" || "${{ github.event.issue.author_association }}" == "CONTRIBUTOR" || "${{ github.event.issue.author_association }}" == "MEMBER" ]; then
+          if [[ "${{ github.event.issue.author_association }}" == 'OWNER' || "${{ github.event.issue.author_association }}" == 'COLLABORATOR' || "${{ github.event.issue.author_association }}" == 'CONTRIBUTOR' || "${{ github.event.issue.author_association }}" == 'MEMBER' ]]; then
             INTERNAL_CONTRIB="true"
           fi
 
