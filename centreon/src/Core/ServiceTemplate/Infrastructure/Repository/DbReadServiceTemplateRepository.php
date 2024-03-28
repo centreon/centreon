@@ -399,7 +399,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $data['service_template_model_stm_id'],
             $data['command_command_id'],
             $data['command_command_id2'],
-            $data['service_timeperiod_tp_id2'],
+            $data['timeperiod_tp_id2'],
             $data['timeperiod_tp_id'],
             $data['esi_icon_image'],
             $data['severity_id'] !== null ? (int) $data['severity_id'] : null,
