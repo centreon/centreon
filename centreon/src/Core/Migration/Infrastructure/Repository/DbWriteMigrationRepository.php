@@ -56,7 +56,11 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     public function executeMigration(NewMigration $newMigration): void
     {
         $migration = $this->getMigrationClass($newMigration);
+
+        $this->info(sprintf('Run migration %s.', $newMigration->getName()));
         $migration->up();
+
+        $this->storeMigration($newMigration);
     }
 
     private function getMigrationClass(NewMigration $newMigration): MigrationInterface
@@ -72,5 +76,59 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         }
 
         throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
+    }
+
+    private function storeMigration(NewMigration $newMigration): void
+    {
+        $this->info(sprintf('Store migration %s in database.', $newMigration->getName()));
+
+        $moduleId = $this->getModuleIdFromName($newMigration->getName());
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.migrations
+                (
+                    module_id,
+                    name,
+                    executed_at
+                )
+                VALUES
+                (
+                    :module_id,
+                    :name,
+                    :executed_at
+                )
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':module_id', $moduleId, \PDO::PARAM_STR);
+        $statement->bindValue(':name', $newMigration->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':executed_at', time(), \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    private function getModuleIdFromName(string $moduleName): ?int
+    {
+        $this->info(sprintf('Get id of module %s.', $moduleName));
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT id
+                FROM `:db`.modules_informations
+                WHERE name = :name
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':name', $moduleName, \PDO::PARAM_STR);
+
+        $statement->execute();
+
+        $moduleId = null;
+        if ($result = $statement->fetch()) {
+            $moduleId = $result['id'];
+        }
+
+        return $moduleId;
     }
 }

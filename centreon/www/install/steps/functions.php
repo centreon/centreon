@@ -220,21 +220,20 @@ function exitProcess($id, $result, $msg)
  * Exit upgrade process
  *
  * @param int $result | 0 = ok, 1 = nok
- * @param string $current
- * @param string $next
+ * @param NewMigration|null $migration
  * @param string $msg | error message
  * @return void
  */
-function exitUpgradeProcess($result, $current, $next, $msg)
+function exitUpgradeProcess($result, $migration, $msg)
 {
-    $msg = str_replace('"', '\"', $msg);
-    $msg = str_replace('\\', '\\\\', $msg);
-    echo '{
-        "result" : "' . $result . '",
-        "current" : "' . $current . '",
-        "next" : "' . $next . '",
-        "msg" : "' . $msg . '"
-        }';
+    echo json_encode([
+        'result' => (int) $result,
+        'name' => $migration ? $migration->getName() : '',
+        'module_name' => $migration ? $migration->getModuleName() : '',
+        'description' => $migration ? $migration->getDescription() : '',
+        'msg' => $msg,
+    ]);
+
     exit;
 }
 

@@ -77,7 +77,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     {
         $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
         if (! $result || $result->rowCount() === 0) {
-            $this->notice('Migrations table does not exist yet, considering not migrations has been done.');
+            $this->notice('Migrations table does not exist yet, considering no migrations has been done.');
 
             return [];
         }
@@ -101,10 +101,10 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         $migrations = [];
         foreach ($result as $migrationData) {
             $migrations[] = new ExecutedMigration(
-                $migrationData['id'],
                 $migrationData['name'],
                 $migrationData['module_name'] ?: 'core',
-                new \DateTime($migrationData['executed_at']),
+                $migrationData['id'],
+                (new \DateTime())->setTimestamp($migrationData['executed_at']),
             );
         }
 
