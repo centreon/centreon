@@ -586,10 +586,10 @@ sub check_exinc {
             attributes => $options{discovery_svc}->{attributes}
         );
         if ($exinc->{exinc_type} == 1 && $value =~ /$exinc->{exinc_regexp}/) {
-            $options{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> inclusion '$exinc->{exinc_regexp}'");
+            $options{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> inclusion '$exinc->{exinc_regexp}'");
             return 0;
         } elsif ($exinc->{exinc_type} == 0 && $value =~ /$exinc->{exinc_regexp}/) {
-            $options{logger}->writeLogInfo("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> exclusion '$exinc->{exinc_regexp}'");
+            $options{logger}->writeLogDebug("$options{logger_pre_message} [" . $options{discovery_svc}->{service_name} . "] -> exclusion '$exinc->{exinc_regexp}'");
             return 1;
         }
     }
