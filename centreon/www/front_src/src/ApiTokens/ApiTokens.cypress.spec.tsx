@@ -645,6 +645,10 @@ describe('Api-token', () => {
       'February 29, 2024 7:16 PM'
     );
 
+    cy.clock().then((clock) => {
+      clock.restore();
+    });
+
     cy.findByTestId('Confirm')
       .contains(labelGenerateNewToken)
       .should('be.enabled')
