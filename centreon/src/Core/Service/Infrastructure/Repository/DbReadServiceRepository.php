@@ -267,7 +267,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                        service.command_command_id_arg,
                        service.command_command_id_arg2,
                        service.timeperiod_tp_id,
-                       service.timeperiod_tp_id2 as service_timeperiod_tp_id2,
+                       service.timeperiod_tp_id2,
                        service.geo_coords,
                        service_acknowledgement_timeout,
                        service_activate,
