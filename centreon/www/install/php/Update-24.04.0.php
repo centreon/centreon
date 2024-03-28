@@ -204,7 +204,7 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
 
 $addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to alter created_at for task table';
-    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp DEFAULT CURRENT_TIMESTAMP");
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
 };
 
 $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
