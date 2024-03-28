@@ -4,7 +4,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import i18next from 'i18next';
-import { Provider, createStore, useAtomValue, useSetAtom } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -25,7 +25,6 @@ import {
   DefaultParameters,
   Fields
 } from './TokenListing/Actions/Filter/models';
-import useBuildParameters from './TokenListing/Actions/Search/useBuildParametrs';
 import {
   convertToBoolean,
   translateWhiteSpaceToRegex
@@ -58,7 +57,6 @@ import {
   labelTokenDeletedSuccessfully,
   labelUser
 } from './translatedLabels';
-import { searchAtom } from './TokenListing/Actions/Search/atoms';
 
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
@@ -188,19 +186,25 @@ const checkTokenInput = (token: string): void => {
 const tokenName = 'slack';
 const duration = { id: '1year', name: '1 year' };
 
+interface Query {
+  name: string;
+  value: string;
+}
 interface InterceptListTokens {
   alias: string;
   customQueryParameters?: Array<QueryParameter> | null;
   dataPath: string;
   method?: Method;
   parameters?: ListingParameters;
+  query?: Query;
 }
 
 const interceptListTokens = ({
   dataPath = 'apiTokens/listing/list.json',
   parameters = DefaultParameters,
   alias = 'getListTokens',
-  method = Method.GET
+  method = Method.GET,
+  query
 }: InterceptListTokens): void => {
   cy.fixture(dataPath).then((data) => {
     const endpoint = buildListEndpoint({
@@ -210,7 +214,8 @@ const interceptListTokens = ({
     cy.interceptAPIRequest({
       alias,
       method,
-      path: `./api/latest${endpoint}**`,
+      path: `./api/latest${endpoint}`,
+      query,
       response: data
     });
   });
@@ -221,14 +226,104 @@ const secondPageParameter = '?page=2&limit=10&sort_by={"token_name":"asc"}';
 const customLimitParameters = '?page=1&limit=20&sort_by={"token_name":"asc"}';
 const limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 const parametersWithAllSearchableFields =
-  'page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"admin\\s+admin"}}]},{"$or":[{"token_name":{"$rg":"test"}},{"token_name":{"$rg":"token1"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"User"}},{"user.name":{"$rg":"Guest"}}]}]}&creation_date="2024-02-20T16:04:33Z"&expiration_date="2024-03-28T16:04:33Z"&is_revoked=false';
+  '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T16:04:33Z"}}]},{"$or":[{"creator.id":{"$rg":"1"}}]},{"$or":[{"creator.name":{"$rg":"paul"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T16:04:33Z"}}]},{"$or":[{"is_revoked":{"$eq":false}}]},{"$or":[{"token_name":{"$rg":"token1"}},{"token_name":{"$rg":"test"}}]},{"$or":[{"user.id":{"$rg":"18"}},{"user.id":{"$rg":"17"}}]},{"$or":[{"user.name":{"$rg":"Guest"}},{"user.name":{"$rg":"User"}}]}]}';
+
 const parametersWithSelectedFilters =
-  '?page=1&limit=10&sort_by={"token_name":"asc"}&search={"$and":[{"user.name":{"$rg":"User"}}]}&creation_date="2024-02-20T16:04:33Z"&expiration_date="2024-03-28T16:04:33Z"';
+  '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T15:16:33Z"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T15:16:33Z"}}]},{"$or":[{"user.name":{"$rg":"User"}}]}]}';
 const tokenToDelete = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
   'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
 
+const searchParametersWithAllSearchableFields = [
+  {
+    field: 'creation_date',
+    values: {
+      $ge: '2024-02-20T16:04:33Z'
+    }
+  },
+  {
+    field: 'creator.id',
+    values: {
+      $rg: '1'
+    }
+  },
+  {
+    field: 'creator.name',
+    values: {
+      $rg: 'paul'
+    }
+  },
+  {
+    field: 'expiration_date',
+    values: {
+      $le: '2024-03-28T16:04:33Z'
+    }
+  },
+  {
+    field: 'is_revoked',
+    values: {
+      $eq: false
+    }
+  },
+  {
+    field: 'token_name',
+    values: {
+      $rg: 'token1'
+    }
+  },
+  {
+    field: 'token_name',
+    values: {
+      $rg: 'test'
+    }
+  },
+  {
+    field: 'user.id',
+    values: {
+      $rg: '18'
+    }
+  },
+  {
+    field: 'user.id',
+    values: {
+      $rg: '17'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'Guest'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'User'
+    }
+  }
+];
+
+const searchParametersWithSelectedFields = [
+  {
+    field: 'creation_date',
+    values: {
+      $ge: '2024-02-20T15:16:33Z'
+    }
+  },
+  {
+    field: 'expiration_date',
+    values: {
+      $le: '2024-03-28T15:16:33Z'
+    }
+  },
+  {
+    field: 'user.name',
+    values: {
+      $rg: 'User'
+    }
+  }
+];
 const searchableFieldsValues = [
   {
     field: Fields.CreationDate,
@@ -246,7 +341,7 @@ const searchableFieldsValues = [
   {
     field: Fields.CreatorName,
     type: 'string',
-    values: ['admin admin']
+    values: ['paul']
   },
   { field: Fields.TokenName, type: 'string', values: ['token1', 'test'] },
   { field: Fields.IsRevoked, type: 'boolean', values: ['false'] }
@@ -634,28 +729,31 @@ describe('Api-token', () => {
     cy.findAllByTestId('deleteDialog').should('not.exist');
   });
 
-  it.only('executes a listing request with all searchable fields', () => {
+  it('executes a listing request with all searchable fields', () => {
     cy.waitForRequest('@getListTokens');
-    const searchInput = constructSearchInput(searchableFieldsValues);
-
-    const {
-      result: { current }
-    } = renderHook(() => useBuildParameters());
-
-    const { getSearchParameters } = current;
-
     interceptListTokens({
       alias: 'getListTokensWithSearchableFields',
       dataPath: 'apiTokens/listing/search/listWithAllSearchableFields.json',
-      parameters: { ...DefaultParameters, search: getSearchParameters() }
+      parameters: {
+        ...DefaultParameters,
+        search: { conditions: searchParametersWithAllSearchableFields }
+      },
+      query: { name: 'search', value: parametersWithAllSearchableFields }
     });
+
+    const searchInput = constructSearchInput(searchableFieldsValues);
 
     cy.findByTestId('inputSearch').type(`${searchInput}{enter}`);
 
+    cy.findByTestId('inputSearch').should(
+      'have.value',
+      'creation_date:2024-02-20T16:04:33Z expiration_date:2024-03-28T16:04:33Z creator.id:1 user.id:18,17 user.name:Guest,User creator.name:paul token_name:token1,test is_revoked:false'
+    );
+
     cy.waitForRequest('@getListTokensWithSearchableFields');
     cy.getRequestCalls('@getListTokensWithSearchableFields').then((calls) => {
-      expect(
-        equals(calls[0].request.url.search, parametersWithAllSearchableFields)
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        `${defaultParameters}&search=${parametersWithAllSearchableFields}`
       );
     });
 
@@ -862,15 +960,14 @@ describe('Api-token', () => {
       });
     });
 
-    const {
-      result: { current }
-    } = renderHook(() => useBuildParameters());
-
-    const { getSearchParameters } = current;
     interceptListTokens({
       alias: 'getListTokensWithSelectedFilters',
       dataPath: 'apiTokens/listing/search/listWithSelectedFields.json',
-      parameters: { ...DefaultParameters, search: getSearchParameters() }
+      parameters: {
+        ...DefaultParameters,
+        search: { conditions: searchParametersWithSelectedFields }
+      },
+      query: { name: 'search', value: parametersWithSelectedFilters }
     });
 
     cy.findByTestId('Filter options').click();
@@ -899,8 +996,8 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListTokensWithSelectedFilters');
 
     cy.getRequestCalls('@getListTokensWithSelectedFilters').then((calls) => {
-      expect(
-        equals(calls[0].request.url.search, parametersWithSelectedFilters)
+      expect(decodeURIComponent(calls[0].request.url.search)).to.deep.equal(
+        `${defaultParameters}&search=${parametersWithSelectedFilters}`
       );
     });
 
