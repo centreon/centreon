@@ -1,0 +1,24 @@
+type: object
+nullable: true
+properties:
+  type:
+    type: string
+    enum: [host, hostgroup, host_category, service, servicegroup, service_category, meta_service, business_view, all]
+    description: "Type of the dataset filter"
+    example: "host"
+  resources:
+    type: array
+    description: "Resources to link to the resource access rule"
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID of the resource"
+          example: 1
+        name:
+          type: string
+          description: "Name of the resource"
+          example: "Server"
+  dataset_filter:
+    $ref: 'DatasetFilterWithNames.yaml'

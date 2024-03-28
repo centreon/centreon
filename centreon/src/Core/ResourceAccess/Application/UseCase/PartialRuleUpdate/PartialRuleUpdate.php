@@ -154,6 +154,10 @@ final class PartialRuleUpdate
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
