@@ -4,6 +4,7 @@ export enum ModalMode {
 }
 
 export enum ResourceTypeEnum {
+  All = 'all',
   Empty = '',
   Host = 'host',
   HostCategory = 'host_category',

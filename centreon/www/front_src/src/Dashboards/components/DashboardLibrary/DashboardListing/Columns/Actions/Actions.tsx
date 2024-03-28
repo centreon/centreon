@@ -1,4 +1,3 @@
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -15,8 +14,8 @@ import {
   labelUnshare,
   labelShareWithContacts
 } from '../../translatedLabels';
-import { DashboardRole } from '../../../../../api/models';
 import { useColumnStyles } from '../useColumnStyles';
+import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
 
 import useActions from './useActions';
 import MoreActions from './MoreActions';
@@ -24,7 +23,7 @@ import MoreActions from './MoreActions';
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
-  const { ownRole } = row;
+  const { hasEditPermission } = useDashboardUserPermissions();
   const {
     isNestedRow,
     editAccessRights,
@@ -42,7 +41,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
     );
   }
 
-  if (equals(ownRole, DashboardRole.viewer)) {
+  if (!hasEditPermission(row)) {
     return <Box className={classes.line}>-</Box>;
   }
 

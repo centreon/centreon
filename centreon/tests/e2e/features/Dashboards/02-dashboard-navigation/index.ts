@@ -48,12 +48,6 @@ When('the user accesses the dashboard overview page with no dashboards', () => {
 Then(
   'an empty state message and a button to create a new dashboard are displayed instead of the dashboards',
   () => {
-    cy.getByTestId({ testId: 'data-table-empty-state' }).should('be.visible');
-
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    }).should('not.exist');
     cy.getByLabel({
       label: 'create',
       tag: 'button'
@@ -69,12 +63,7 @@ Given('a list of dashboards', () => {
 When('the user clicks on the dashboard they want to select', () => {
   const lastDashboard = dashboardsOnePage[dashboardsOnePage.length - 1];
 
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(lastDashboard.name)
-    .click();
+  cy.contains(lastDashboard.name).click();
 });
 
 Then('the user is redirected to the detail page for this dashboard', () => {

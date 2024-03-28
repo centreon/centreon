@@ -25,6 +25,8 @@ namespace Core\ResourceAccess\Domain\Model\DatasetFilter;
 
 class DatasetFilterValidator
 {
+    public const ALL_RESOURCES_FILTER = 'all';
+
     /** @var array<string, array<string>> */
     private array $hiearchy = [];
 
@@ -40,6 +42,9 @@ class DatasetFilterValidator
         if ([] === $this->hiearchy) {
             throw new \InvalidArgumentException('You must add at least one dataset filter type provider');
         }
+
+        // Add special cases
+        $this->hiearchy[self::ALL_RESOURCES_FILTER] = [];
     }
 
     /**

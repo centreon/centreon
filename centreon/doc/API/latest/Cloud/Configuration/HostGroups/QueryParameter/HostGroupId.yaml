@@ -1,0 +1,8 @@
+in: path
+name: hostgroup_id
+description: "ID of the host group"
+required: true
+schema:
+  type: integer
+  format: int64
+  example: 5
