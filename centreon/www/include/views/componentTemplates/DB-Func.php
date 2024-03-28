@@ -49,12 +49,12 @@ function DsHsrTestExistence($name = null)
 
     $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
 
-    if (!empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
+    if (!empty($formValues['host_service_id'])) {
+        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_service_id'], $matches)) {
             $formValues['host_id'] = (int) $matches[1];
             $formValues['service_id'] = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('host_id must be a combination of integers');
+            throw new \InvalidArgumentException('host_service_id must be a combination of integers');
         }
     }
 
@@ -81,9 +81,9 @@ function DsHsrTestExistence($name = null)
 
     $stmt->execute();
     $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === $formValues['compo_id']) {
+    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
         return true;
-    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== $formValues['compo_id']) {
+    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']) {
         return false;
     } else {
         return true;
@@ -98,13 +98,15 @@ function NameHsrTestExistence($name = null)
     if (isset($form)) {
         $formValues = $form->getSubmitValues();
     }
+
     $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
-    if (!empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
+    
+    if (!empty($formValues['host_service_id'])) {
+        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_service_id'], $matches)) {
             $formValues['host_id'] = (int) $matches[1];
             $formValues['service_id'] = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('chartId must be a combination of integers');
+            throw new \InvalidArgumentException('host_service_id must be a combination of integers');
         }
     }
 
@@ -131,9 +133,9 @@ function NameHsrTestExistence($name = null)
 
     $stmt->execute();
     $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === $formValues['compo_id']) {
+    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
         return true;
-    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== $formValues['compo_id']) {
+    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']) {
         return false;
     } else {
         return true;
@@ -247,7 +249,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_id']);
+    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_service_id']);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
