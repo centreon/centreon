@@ -103,8 +103,10 @@ class Dashboard
 
     /**
      * @param string|null $description
-     * @return $this
+     *
      * @throws AssertionFailedException
+     *
+     * @return $this
      */
     public function setDescription(?string $description): self
     {
