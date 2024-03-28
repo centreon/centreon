@@ -634,7 +634,7 @@ describe('Api-token', () => {
     cy.openCalendar('calendarInput');
 
     cy.findByRole('gridcell', { name: '29' }).click({
-      animationDistanceThreshold: 20
+      waitForAnimations: false
     });
     cy.contains('OK').click();
 
