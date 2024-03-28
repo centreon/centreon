@@ -1,9 +1,9 @@
-import { ReactElement } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { DataTable } from '@centreon/ui/components';
 
@@ -23,6 +23,7 @@ import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
+import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -46,6 +47,11 @@ const DashboardsOverview = (): ReactElement => {
       })
     );
 
+  const isCardsView = useMemo(
+    () => equals(viewMode, ViewMode.Cards),
+    [viewMode]
+  );
+
   const emptyStateLabels = {
     actions: {
       create: t(labelCreateADashboard)
@@ -53,7 +59,11 @@ const DashboardsOverview = (): ReactElement => {
     title: t(labelWelcomeToDashboardInterface)
   };
 
-  if (isEmptyList && !search) {
+  if (isCardsView && isLoading && isNil(data)) {
+    return <DashboardsOverviewSkeleton />;
+  }
+
+  if (isEmptyList && !search && !isLoading) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
@@ -88,7 +98,7 @@ const DashboardsOverview = (): ReactElement => {
       <DashboardListing
         customListingComponent={GridTable}
         data={data}
-        displayCustomListing={equals(viewMode, ViewMode.Cards)}
+        displayCustomListing={isCardsView}
         loading={isLoading}
         openConfig={createDashboard}
       />

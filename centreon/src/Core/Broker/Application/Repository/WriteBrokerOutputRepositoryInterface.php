@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Broker\Application\Repository;
 
 use Core\Broker\Domain\Model\Broker;
+use Core\Broker\Domain\Model\BrokerOutput;
 use Core\Broker\Domain\Model\BrokerOutputField;
 use Core\Broker\Domain\Model\NewBrokerOutput;
 
@@ -41,4 +42,25 @@ interface WriteBrokerOutputRepositoryInterface
      * @return int
      */
     public function add(NewBrokerOutput $output, int $brokerId, array $parameters): int;
+
+    /**
+     * Delete a broker output configuration.
+     *
+     * @param int $brokerId
+     * @param int $outputId
+     *
+     * @throws \Throwable
+     */
+    public function delete(int $brokerId, int $outputId): void;
+
+    /**
+     * Update a broker output configuration.
+     *
+     * @param BrokerOutput $output
+     * @param int $brokerId
+     * @param array<string,BrokerOutputField|array<string,BrokerOutputField>> $outputFields
+     *
+     * @throws \Throwable
+     */
+    public function update(BrokerOutput $output, int $brokerId, array $outputFields): void;
 }

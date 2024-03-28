@@ -1,12 +1,13 @@
+/* eslint-disable import/no-unresolved */
+
 import { Formik } from 'formik';
 import { createStore, Provider } from 'jotai';
+import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import { omit } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
+import { widgetPropertiesAtom } from '../../../atoms';
 import { WidgetResourceType } from '../../../models';
 import {
   labelAddFilter,
@@ -17,6 +18,8 @@ import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import Resources from './Resources';
 import { resourceTypeBaseEndpoints } from './useResources';
+
+import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
 
 const generateResources = (resourceLabel: string): object => ({
   meta: {
@@ -34,6 +37,7 @@ interface InitializeProps {
   emptyData?: boolean;
   hasEditPermission?: boolean;
   isEditing?: boolean;
+  properties?: FederatedWidgetProperties;
   restrictedResourceTypes?: Array<string>;
   singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
@@ -47,11 +51,15 @@ const initialize = ({
   restrictedResourceTypes = [],
   singleHostPerMetric = false,
   singleMetricSelection = false,
-  emptyData = false
+  emptyData = false,
+  properties = widgetDataProperties
 }: InitializeProps): void => {
   const store = createStore();
-  store.set(singleHostPerMetricAtom, singleHostPerMetric);
-  store.set(singleMetricSelectionAtom, singleMetricSelection);
+  store.set(widgetPropertiesAtom, {
+    ...properties,
+    singleHostPerMetric,
+    singleMetricSelection
+  });
   store.set(isEditingAtom, isEditing);
   store.set(hasEditPermissionAtom, hasEditPermission);
 
@@ -100,6 +108,23 @@ const initialize = ({
 };
 
 describe('Resources', () => {
+  it('does not request services only with performance data when the widget input is not defined', () => {
+    const widgetPropertiesWithoutMetrics = {
+      ...widgetDataProperties,
+      data: omit(['metrics'], widgetDataProperties.data)
+    };
+    initialize({
+      properties: widgetPropertiesWithoutMetrics,
+      singleHostPerMetric: true,
+      singleMetricSelection: true
+    });
+
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.waitForRequest('@getServices').then(({ request }) => {
+      expect(request.url.href).contain('only_with_performance_data=false');
+    });
+  });
+
   it('displays host and service type when the corresponding atom is set to true', () => {
     initialize({ singleHostPerMetric: true, singleMetricSelection: true });
 
@@ -111,7 +136,9 @@ describe('Resources', () => {
     cy.contains('Host 0').click();
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
-    cy.waitForRequest('@getServices');
+    cy.waitForRequest('@getServices').then(({ request }) => {
+      expect(request.url.href).contain('only_with_performance_data=true');
+    });
     cy.contains('Service 0').click();
 
     cy.findAllByTestId(labelSelectAResource)
