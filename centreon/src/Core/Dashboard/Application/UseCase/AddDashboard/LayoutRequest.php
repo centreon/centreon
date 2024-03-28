@@ -23,20 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
-use Core\Dashboard\Domain\Model\Refresh\RefreshType;
-
-final class AddDashboardRequest
+final class LayoutRequest
 {
-    public string $name = '';
+    public int $xAxis = 0;
 
-    public ?string $description = null;
+    public int $yAxis = 0;
 
-    /** @var array<PanelRequest> */
-    public array $panels = [];
+    public int $width = 0;
 
-    /** @var array{type:RefreshType, interval: int|null} */
-    public array $refresh = [
-        'type' => RefreshType::Global,
-        'interval' => null,
-    ];
+    public int $height = 0;
+
+    public int $minWidth = 0;
+
+    public int $minHeight = 0;
 }
