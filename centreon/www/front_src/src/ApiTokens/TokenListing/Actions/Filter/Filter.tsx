@@ -1,4 +1,4 @@
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
@@ -23,12 +23,7 @@ import { getUniqData, translateWhiteSpaceToRegex } from '../Search/utils';
 
 import DateInputWrapper from './DateInput';
 import Status from './Status';
-import {
-  creatorsAtom,
-  currentFilterAtom,
-  customQueryParametersAtom,
-  usersAtom
-} from './atoms';
+import { creatorsAtom, currentFilterAtom, usersAtom } from './atoms';
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
 import useBuildFilterValues from './useBuildFilterValues';
@@ -41,8 +36,7 @@ const Filter = (): JSX.Element => {
   const [creators, setCreators] = useAtom(creatorsAtom);
   const [users, setUsers] = useAtom(usersAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const setCustomQueryParameters = useSetAtom(customQueryParametersAtom);
-  const { queryParameters, getSearchParameters } = useBuildParameters();
+  const { getSearchParameters } = useBuildParameters();
 
   const { initialize } = useInitializeFilter();
 
@@ -91,7 +85,6 @@ const Filter = (): JSX.Element => {
 
   const handleSearch = (): void => {
     setCurrentFilter({ ...currentFilter, search: getSearchParameters() });
-    setCustomQueryParameters(queryParameters);
   };
 
   return (

@@ -1,13 +1,13 @@
 import { KeyboardEvent, useEffect, useRef } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { SearchField } from '@centreon/ui';
 
 import { renderEndAdornmentFilter } from '../../../../Resources/Filter';
 import { labelSearch } from '../../../translatedLabels';
-import { currentFilterAtom, customQueryParametersAtom } from '../Filter/atoms';
+import { currentFilterAtom } from '../Filter/atoms';
 import useInitializeFilter from '../Filter/useInitializeFilter';
 import { useStyles } from '../actions.styles';
 
@@ -21,9 +21,8 @@ const TokenSearch = (): JSX.Element => {
   const searchRef = useRef<HTMLDivElement | null>(null);
   const [searchValue, setSearchValue] = useAtom(searchAtom);
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
-  const setCustomQueryParameters = useSetAtom(customQueryParametersAtom);
   const { initialize } = useInitializeFilter();
-  const { queryParameters, getSearchParameters } = useBuildParameters();
+  const { getSearchParameters } = useBuildParameters();
 
   useSearch();
 
@@ -46,7 +45,6 @@ const TokenSearch = (): JSX.Element => {
       ...currentFilter,
       search: getSearchParameters()
     });
-    setCustomQueryParameters(queryParameters);
   };
 
   useEffect(() => {
@@ -54,7 +52,6 @@ const TokenSearch = (): JSX.Element => {
       return;
     }
     setCurrentFilter({ ...currentFilter, search: undefined });
-    setCustomQueryParameters(queryParameters);
   }, [searchValue]);
 
   return (

@@ -1,0 +1,291 @@
+{
+  "result": [
+    {
+      "name": "a-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "b-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "c-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "d-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "e-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "f-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "g-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "h-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "i-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "j-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "k-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-08-31T15:46:00+02:00",
+      "expiration_date": "2024-08-31T00:00:00+00:00",
+      "is_revoked": false
+    },
+    {
+      "name": "l-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "m-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "n-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "o-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "l-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "p-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "q-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "r-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    },
+    {
+      "name": "s-token",
+      "user": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creator": {
+        "id": 23,
+        "name": "Jane Doe"
+      },
+      "creation_date": "2023-09-31T15:46:00+02:00",
+      "expiration_date": "2024-09-15T00:00:00+00:00",
+      "is_revoked": true
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "search": {},
+    "sort_by": { "token_name": "ASC"},
+    "total": 12
+  }
+}

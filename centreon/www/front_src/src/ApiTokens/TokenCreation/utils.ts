@@ -15,7 +15,7 @@ export const minimumLifeSpanToken = { unit: 'day', value: 1 };
 export const isInvalidDate = ({ startTime = new Date(), endTime }): boolean => {
   return (
     dayjs(endTime).diff(dayjs(startTime), minimumLifeSpanToken.unit) <
-    minimumLifeSpanToken.value
+      minimumLifeSpanToken.value || !dayjs(endTime).isValid()
   );
 };
 
@@ -40,7 +40,7 @@ export const getDuration = ({
     return { id: 'customize', name };
   }
 
-  const numberOfDays = endDate.diff(startDate, UnitDate.Day);
+  const numberOfDays = Math.round(endDate.diff(startDate, UnitDate.Day, true));
 
   if (numberOfDays <= maxDays) {
     const durationName = `${numberOfDays} days`;

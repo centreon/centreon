@@ -86,10 +86,21 @@ Cypress.Commands.add('waitForRequestAndVerifyBody', (requestAlias, body) => {
   });
 });
 
+Cypress.Commands.add('openCalendar', (testId) => {
+  cy.findByTestId(testId).then(($input) => {
+    if ($input.attr('readonly')) {
+      cy.wrap($input).click();
+    } else {
+      cy.findByTestId('CalendarIcon').click();
+    }
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
       clickOutside: () => Cypress.Chainable;
+      openCalendar: (testId: string) => Cypress.Chainable;
       render: (options) => Cypress.Chainable;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
       waitForRequestAndVerifyBody: (requestAlias, body) => Cypress.Chainable;
