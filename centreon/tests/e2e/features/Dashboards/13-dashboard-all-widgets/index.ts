@@ -424,7 +424,7 @@ Then(
 
       case 'status grid':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = ['Up', 'Up', 'Up'];
+        const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
         for (let i = 0; i < statusGridStatuses.length; i++) {
           cy.get('[class$="chip-statusColumnChip"]')
             .eq(i)
