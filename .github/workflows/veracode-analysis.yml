@@ -88,9 +88,9 @@ jobs:
           fi
 
           # external contributions check
-          echo "[DEBUG] - author_association = '${{ github.event.issue.author_association }}'"
+          echo "[DEBUG] - author_association = ${{ github.event.issue.author_association }}"
           INTERNAL_CONTRIB="false"
-          if [ '${{ github.event.issue.author_association }}' == "OWNER" || '${{ github.event.issue.author_association }}' == "COLLABORATOR" || '${{ github.event.issue.author_association }}' == "CONTRIBUTOR" || '${{ github.event.issue.author_association }}' == "MEMBER" ]; then
+          if [ "${{ github.event.issue.author_association }}" == "OWNER" || "${{ github.event.issue.author_association }}" == "COLLABORATOR" || "${{ github.event.issue.author_association }}" == "CONTRIBUTOR" || "${{ github.event.issue.author_association }}" == "MEMBER" ]; then
             INTERNAL_CONTRIB="true"
           fi
 
