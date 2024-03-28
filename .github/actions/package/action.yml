@@ -158,7 +158,7 @@ runs:
 
         fi
 
-        debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
+        debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "${{ inputs.distrib }}"
         debuild-pbuilder --no-lintian
 
         # This makes shure that widget pkgs end up in the same dir as non widgets
