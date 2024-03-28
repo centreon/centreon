@@ -86,7 +86,7 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
           ROOT_REPO_PATHS="rpm-standard"
-          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
         else
           echo "Invalid combination of release_type and release_cloud"
           exit 1
