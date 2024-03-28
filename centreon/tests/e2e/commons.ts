@@ -476,6 +476,7 @@ export {
   checkMetricsAreMonitored,
   checkServicesAreMonitored,
   getStatusNumberFromString,
+  getStatusTypeNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,

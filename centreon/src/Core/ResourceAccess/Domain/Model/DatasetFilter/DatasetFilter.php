@@ -56,8 +56,10 @@ class DatasetFilter
         Assertion::notEmptyString($type, "{$shortName}::type");
         $this->assertTypeIsValid($type);
 
-        Assertion::notEmpty($this->resourceIds, "{$shortName}::resourceIds");
-        Assertion::arrayOfTypeOrNull('int', $this->resourceIds, "{$shortName}::resourceIds");
+        if ($type !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+            Assertion::notEmpty($this->resourceIds, "{$shortName}::resourceIds");
+            Assertion::arrayOfTypeOrNull('int', $this->resourceIds, "{$shortName}::resourceIds");
+        }
 
     }
 

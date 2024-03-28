@@ -144,3 +144,15 @@ export interface GetDate {
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
 }
+
+export interface GraphTooltipData {
+  date: string;
+  highlightedMetricId: number | null;
+  metrics: Array<{
+    color: string;
+    id: number;
+    name: string;
+    unit: string;
+    value: number;
+  }>;
+}

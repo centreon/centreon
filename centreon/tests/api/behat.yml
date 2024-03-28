@@ -18,12 +18,6 @@ default:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts:
         - Centreon\Test\Api\Context\ClapiContext
-    dashboard:
-      paths:
-        - "%paths.base%/features/DashboardWithOpenApi.feature"
-        - "%paths.base%/features/DashboardWithoutOpenApi.feature"
-      contexts:
-        - Centreon\Test\Api\Context\DashboardContext
     host_category:
       paths: [ "%paths.base%/features/HostCategory.feature" ]
       contexts:

@@ -62,7 +62,6 @@ beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = random_int(1, 1_000_000),
         $this->testedDashboardName = uniqid('name', true),
-        $this->testedDashboardDescription = uniqid('description', true),
         $this->testedDashboardCreatedBy = random_int(1, 1_000_000),
         $this->testedDashboardUpdatedBy = random_int(1, 1_000_000),
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),

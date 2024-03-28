@@ -56,7 +56,6 @@ beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = random_int(1, 1_000_000),
         $this->testedDashboardName = uniqid('name', true),
-        $this->testedDashboardDescription = uniqid('description', true),
         $this->testedDashboardCreatedBy = random_int(1, 1_000_000),
         $this->testedDashboardUpdatedBy = random_int(1, 1_000_000),
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
@@ -165,7 +164,7 @@ it(
             ->and($dashboard->createdBy->name)->toBe($creator)
             ->and($dashboard->updatedBy->id)->toBe($this->testedDashboardUpdatedBy)
             ->and($dashboard->updatedBy->name)->toBe($updater)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
@@ -187,7 +186,7 @@ it(
         expect($dashboard)->toBeInstanceOf(FindDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
@@ -211,7 +210,7 @@ it(
         expect($dashboard)->toBeInstanceOf(FindDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
