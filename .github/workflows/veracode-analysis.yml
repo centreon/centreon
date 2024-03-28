@@ -60,23 +60,23 @@ jobs:
         run: |
           # setting QG state
           ENABLE_QG="true"
-          if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
+          if [ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ] || [ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]; then
             ENABLE_QG="false"
           fi
 
           # QG parameters
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
-          if [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]]; then
+          if [ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]; then
             # e.g master
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Release"
             DISPLAY_SUMMARY="false"
-          elif [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
+          elif [ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]; then
             # e.g develop
             FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
-          elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
+          elif [ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]; then
             # e.g release-23.04-next
             FAIL_BUILD="false"
             DEVELOPMENT_STAGE="Development"
@@ -89,7 +89,7 @@ jobs:
 
           # external contributions check
           INTERNAL_CONTRIB="false"
-          if [[ ${{ github.event.issue.author_association }} != 'NONE' ]] || [[ ${{ github.event.issue.author_association }} == 'COLLABORATOR' ]] || [[ ${{ github.event.issue.author_association }} == 'CONTRIBUTOR' ]] || [[ ${{ github.event.issue.author_association }} == 'MEMBER' ]]; then
+          if [ "OWNER" == "${{ github.event.issue.author_association }}" || "COLLABORATOR" == "${{ github.event.issue.author_association }}" || "CONTRIBUTOR" == "${{ github.event.issue.author_association }}" || "MEMBER" == "${{ github.event.issue.author_association }}" ]; then
             INTERNAL_CONTRIB="true"
           fi
 
@@ -128,7 +128,7 @@ jobs:
           baseline_file_path=""
           create_baseline_from=""
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
-          if [[ "${{ inputs.stability }}" == "testing" ]] || [[ ${{ github.base_ref || github.ref_name }} =~ ^hotfix-[2-9][0-9].[0-9][0-9]-next ]]; then
+          if [ "${{ inputs.stability }}" == "testing" ] || [ ${{ github.base_ref || github.ref_name }} =~ ^hotfix-[2-9][0-9].[0-9][0-9]-next ]; then
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "${{ inputs.major_version }}.x" master )
           else
             TARGETS=( "${{ github.base_ref || github.ref_name }}" "dev-${{ inputs.major_version }}.x" develop )
@@ -138,7 +138,7 @@ jobs:
             RESULT=0
             echo "[INFO] - Searching baseline file for $TARGET's"
             aws s3 ls "$BUCKET/$TARGET/results.json" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 0 ]]; then
+            if [ $RESULT -eq 0 ]; then
               aws s3 cp "$BUCKET/$TARGET/results.json" "/tmp/results.json"
               echo "[INFO] - Found $TARGET's baseline file"
               baseline_file_path="/tmp/results.json"
@@ -204,23 +204,23 @@ jobs:
 
           function backup_baseline(){
             echo "" # adding a blank line
-            if [[ -z $1 ]]; then
+            if [ -z $1 ]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               exit 0
             fi
             CURRENT_NAME=$1
 
             # specific case for downloaded baseline file
-            if [[ -n $2 && "$2" != "downloaded" ]]; then
+            if [ -n $2 && "$2" != "downloaded" ]; then
               echo "[ERROR] Missing downloaded baseline mandatory parameter to continue"
               exit 0
             fi
-            [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
-            [[ -n $2 ]] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
-            [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
+            [ -n $2 ] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
+            [ -n $2 ] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
+            [ -n $2 ] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
 
             echo "[DEBUG] FILENAME = $FILENAME"
-            if [[ -s "$FILENAME" ]]; then
+            if [ -s "$FILENAME" ]; then
               FILE_DETAILS=$( stat -c '%s %y' "$FILENAME" )
               DETAILS=(${FILE_DETAILS//\ / })
 
@@ -264,7 +264,7 @@ jobs:
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
-            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
+            if [ "${{ github.ref_name }}" == "$BRANCH" ]; then
               mv *results.json /tmp
               BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
               aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
@@ -351,7 +351,7 @@ jobs:
           find ./ -type f -name "package.json" -o -name "package-lock.json" -o -name "npm-shrinkwrap.json" -delete
 
           RESULT=`find ./ -type f -name "composer.lock" -o -name "composer.json"`
-          if [[ -n ${RESULT[0]} ]]; then
+          if [ -n ${RESULT[0]} ]; then
           	echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
