@@ -94,7 +94,10 @@ const DatasetFilter = ({
                 equals(resource.resourceType, ResourceTypeEnum.All)
               }
               field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
+              getEndpoint={getResourceBaseEndpoint(
+                resourceIndex,
+                resource.resourceType
+              )}
               label={
                 equals(resource.resourceType, ResourceTypeEnum.All)
                   ? (t(labelAllResourcesSelected) as string)
