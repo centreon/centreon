@@ -154,13 +154,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
+  cy.applyAcl();
 });
 
 beforeEach(() => {
