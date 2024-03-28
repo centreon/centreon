@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -53,15 +53,15 @@ sub parseFile {
     my $root  = $parser->parse_file($file);
     foreach my $profile ($root->findnodes('/DataTools.ServerProfiles/profile')) {
 		my $base = $profile->findnodes('@name');
-		   
+
 		foreach my $property ($profile->findnodes('./baseproperties/property')) {
 			my $name = $property->findnodes('@name')->to_literal;
 			my $value = $property->findnodes('@value')->to_literal;
 			if ($name eq 'odaURL') {
 				if ($value =~ /jdbc\:[a-z]+\:\/\/([^:]*)(\:\d+)?\/(.*)/) {
 					$connProfiles{$base."_host"} = $1;
-					if(defined($2) && $2 ne ''){  
-						$connProfiles{$base."_port"} = $2; 
+					if(defined($2) && $2 ne ''){
+						$connProfiles{$base."_port"} = $2;
 						$connProfiles{$base."_port"} =~ s/\://;
 					}else{
 						$connProfiles{$base."_port"} = '3306';
@@ -78,8 +78,8 @@ sub parseFile {
 			}
 		}
     }
-	
+
     return (\%connProfiles);
 }
-   
+
 1;

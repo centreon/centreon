@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -37,7 +37,7 @@ sub new {
     my ($class, %options) = @_;
     $connector = $class->SUPER::new(%options);
     bless $connector, $class;
-    
+
     $connector->set_signal_handlers();
     return $connector;
 }
@@ -76,7 +76,7 @@ sub class_handle_HUP {
 
 sub action_getcron {
     my ($self, %options) = @_;
-    
+
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     my $data;
@@ -172,7 +172,7 @@ sub action_getcron {
 
 sub action_addcron {
     my ($self, %options) = @_;
-    
+
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] Cron add start");
@@ -190,7 +190,7 @@ sub action_addcron {
             return 1;
         }
     }
-    
+
     eval {
         foreach my $definition (@{$options{data}->{content}}) {
             my $idx = $self->{cron}->check_entry($definition->{id});
@@ -236,11 +236,11 @@ sub action_addcron {
 
 sub action_updatecron {
     my ($self, %options) = @_;
-    
+
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] Cron update start");
-    
+
     my $id = $options{data}->{variables}[0];
     if (!defined($id)) {
         $self->{logger}->writeLogError("[cron] Cron update missing id");
@@ -274,7 +274,7 @@ sub action_updatecron {
         );
         return 1;
     }
-    
+
     my $definition = $options{data}->{content};
     if ((!defined($definition->{timespec}) || $definition->{timespec} eq '') &&
         (!defined($definition->{command_line}) || $definition->{command_line} eq '')) {
@@ -286,7 +286,7 @@ sub action_updatecron {
         );
         return 1;
     }
-    
+
     eval {
         my $entry = $self->{cron}->get_entry($idx);
         $entry->{time} = $definition->{timespec};
@@ -317,11 +317,11 @@ sub action_updatecron {
 
 sub action_deletecron {
     my ($self, %options) = @_;
-    
+
     $options{token} = $self->generate_token() if (!defined($options{token}));
 
     $self->{logger}->writeLogDebug("[cron] Cron delete start");
-    
+
     my $id = $options{data}->{variables}->[0];
     if (!defined($id) || $id eq '') {
         $self->{logger}->writeLogError("[cron] Cron delete missing id");
@@ -355,7 +355,7 @@ sub action_deletecron {
         );
         return 1;
     }
-    
+
     eval {
         $self->{cron}->delete_entry($idx);
     };
@@ -382,7 +382,7 @@ sub event {
     my ($self, %options) = @_;
 
     while ($self->{internal_socket}->has_pollin()) {
-        my ($message) = $self->read_message(); 
+        my ($message) = $self->read_message();
         next if (!defined($message));
 
         $self->{logger}->writeLogDebug("[cron] Event: $message");
@@ -441,7 +441,7 @@ sub dispatcher {
         },
         json_encode => 1
     });
- 
+
     my $timeout = 5;
     my $ctime = time();
     while (1) {

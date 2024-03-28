@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2012 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -45,12 +45,12 @@ class CentreonCriticality
      */
     protected $db;
     protected $tree;
-    
+
     public function __construct($db)
     {
         $this->db = $db;
     }
-    
+
     /**
      * Get data of a criticality object
      *
@@ -74,7 +74,7 @@ class CentreonCriticality
     public function getDataForHosts($critId)
     {
         static $data = array();
-        
+
         if (!isset($data[$critId])) {
             $sql = "SELECT hc_id, hc_name, level, icon_id, hc_comment
                     FROM hostcategories 
@@ -93,7 +93,7 @@ class CentreonCriticality
         }
         return null;
     }
-    
+
     /**
      * Get data of a criticality object for services
      *
@@ -103,7 +103,7 @@ class CentreonCriticality
     public function getDataForServices($critId)
     {
         static $data = array();
-        
+
         if (!isset($data[$critId])) {
             $sql = "SELECT sc_id, sc_name, level, icon_id, sc_description
                     FROM service_categories 
@@ -122,7 +122,7 @@ class CentreonCriticality
         }
         return null;
     }
-    
+
     /**
      * Get list of criticality
      *
@@ -253,7 +253,7 @@ class CentreonCriticality
         }
         return $elements;
     }
-    
+
     /**
      * Get list of service criticalities
      *
@@ -318,7 +318,7 @@ class CentreonCriticality
         }
         return 0;
     }
-    
+
     /**
      * Get service criticality
      *

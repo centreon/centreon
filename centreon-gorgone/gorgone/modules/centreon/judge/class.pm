@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -165,7 +165,7 @@ sub get_clapi_user {
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => "SELECT contact_alias, contact_passwd " .
             "FROM `contact` " .
-            "WHERE `contact_admin` = '1' " . 
+            "WHERE `contact_admin` = '1' " .
             "AND `contact_activate` = '1' " .
             "AND `contact_passwd` IS NOT NULL " .
             "LIMIT 1 ",
@@ -213,7 +213,7 @@ sub action_judgemove {
         );
         return -1;
     }
-    
+
     my $node_configured = 0;
     foreach (@{$self->{clusters_spare}->{ $options{data}->{content}->{cluster_name} }->{nodes}}) {
         if ($_ eq $options{data}->{content}->{node_move}) {
@@ -255,7 +255,7 @@ sub action_judgemove {
             data => { message => 'cluster spare not ready' }
         );
         return -1;
-    }    
+    }
 
     gorgone::modules::centreon::judge::type::spare::migrate_steps_1_2_3(
         token => $options{token},
@@ -396,9 +396,9 @@ sub check_alive {
         GROUP BY instances.instance_id
     );
     my ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
-        request => $request, 
+        request => $request,
         mode => 2
-    );    
+    );
     if ($status == -1) {
         $self->{logger}->writeLogError('[judge] -class- cannot get pollers status');
         return 1;
@@ -447,16 +447,16 @@ sub add_pipeline_config_reload_poller {
                    owner => 'centreon-broker',
                    group => 'centreon-broker',
                 }
-            } 
+            }
         },
         {
             action => 'COMMAND',
-            target => $options{poller_id}, 
+            target => $options{poller_id},
             timeout => 60,
             data => {
                 content => [ {
                     command => 'sudo ' . $self->{pollers_config}->{ $options{poller_id} }->{engine_reload_command}
-                } ] 
+                } ]
             }
         }
     ];
@@ -464,11 +464,11 @@ sub add_pipeline_config_reload_poller {
     if (!defined($options{no_generate_config})) {
         my $cmd = 'centreon -u ' . $self->{clapi_user} . ' -p ' . $self->{clapi_password} . ' -a POLLERGENERATE -v ' . $options{poller_id};
         unshift @$actions, {
-            action => 'COMMAND', 
+            action => 'COMMAND',
             data => {
                 content => [ {
-                    command => $cmd 
-                } ] 
+                    command => $cmd
+                } ]
             }
         };
     }
@@ -495,7 +495,7 @@ sub test_types {
     }
 
     if (scalar(keys %$all_pollers) > 0 &&
-        $self->get_clapi_user() == 0 && 
+        $self->get_clapi_user() == 0 &&
         $self->get_pollers_config() == 0
         ) {
         foreach (keys %$all_pollers) {

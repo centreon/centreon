@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -47,7 +47,7 @@ my $stop = 0;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
@@ -119,16 +119,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($autodiscovery->{pid}) || $autodiscovery->{pid} != $pid);
-        
+
         $autodiscovery = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++  if (defined($autodiscovery->{running}) && $autodiscovery->{running} == 1);
-    
+
     return $count;
 }
 
@@ -141,7 +141,7 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[autodiscovery] Create module 'autodiscovery' process");
     my $child_pid = fork();
     if ($child_pid == 0) {

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -60,13 +60,13 @@ sub insertValues {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger =  $self->{"logger"};
-	
+
 	my $query = "INSERT INTO ".$self->{"name"};
 	$query .= " SELECT sm.id as servicemetric_id, t.id as time_id, mmavt.avg_value, mmavt.min_value, mmavt.max_value, m.max , m.warn, m.crit";
 	$query .= " FROM " . $self->{name_minmaxavg_tmp} . " mmavt";
 	$query .= " JOIN (metrics m, " . $self->{servicemetrics} . " sm, mod_bi_time t)";
 	$query .= " ON (mmavt.id_metric = m.metric_id and mmavt.id_metric = sm.metric_id AND mmavt.valueTime = t.dtime)";
 	$db->query({ query => $query });
-} 
+}
 
 1;

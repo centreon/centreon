@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -103,7 +103,7 @@ sub is_set {
     my ($status, $sth) = $self->{dbc}->query({
         query => "SELECT id,running,pid,time_launch FROM cron_operation WHERE name LIKE '$self->{name}'"
     });
-    
+
     return 1 if ($status == -1);
     my $data = $sth->fetchrow_hashref();
 

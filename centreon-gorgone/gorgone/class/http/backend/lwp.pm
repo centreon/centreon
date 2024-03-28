@@ -1,5 +1,5 @@
 #
-# Copyright 2019 Centreon (http://www.centreon.com/)
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -35,7 +35,7 @@ sub new {
     $self->{logger} = $options{logger};
     $self->{ua} = undef;
     $self->{debug_handlers} = 0;
-    
+
     return $self;
 }
 
@@ -120,7 +120,7 @@ sub request {
                                                        autosave => 1));
         }
     }
-    
+
     if ($self->{logger}->is_debug() && $self->{debug_handlers} == 0) {
         $self->{debug_handlers} = 1;
         $self->{ua}->add_handler("request_send", sub {
@@ -128,9 +128,9 @@ sub request {
 
             $self->{logger}->writeLogDebug("======> request send");
             $self->{logger}->writeLogDebug($response->as_string);
-            return ; 
+            return ;
         });
-        $self->{ua}->add_handler("response_done", sub { 
+        $self->{ua}->add_handler("response_done", sub {
             my ($response, $ua, $handler) = @_;
 
             $self->{logger}->writeLogDebug("======> response done");
@@ -138,7 +138,7 @@ sub request {
             return ;
         });
     }
-    
+
     if (defined($request_options->{no_follow})) {
         $self->{ua}->requests_redirectable(undef);
     } else {
@@ -221,12 +221,12 @@ sub request {
 
 sub get_headers {
     my ($self, %options) = @_;
-    
+
     my $headers = '';
     foreach ($options{response}->header_field_names()) {
         $headers .= "$_: " . $options{response}->header($_) . "\n";
     }
-    
+
     return $headers;
 }
 
@@ -239,7 +239,7 @@ sub get_first_header {
     }
 
     return
-        defined($redirects[0]) ? 
+        defined($redirects[0]) ?
         $redirects[0]->headers()->header($options{name}) :
         $self->{headers}->header($options{name})
     ;

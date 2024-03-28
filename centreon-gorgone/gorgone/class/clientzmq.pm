@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -49,7 +49,7 @@ sub new {
     if (defined($connector->{config_core}) && defined($connector->{config_core}->{fingerprint_mgr}->{package})) {
         my ($code, $class_mgr) = gorgone::standard::misc::mymodule_load(
             logger => $connector->{logger},
-            module => $connector->{config_core}->{fingerprint_mgr}->{package}, 
+            module => $connector->{config_core}->{fingerprint_mgr}->{package},
             error_msg => "Cannot load module $connector->{config_core}->{fingerprint_mgr}->{package}"
         );
         if ($code == 0) {
@@ -79,7 +79,7 @@ sub new {
     $connector->{target_path} = $options{target_path};
     $connector->{ping} = defined($options{ping}) ? $options{ping} : -1;
     $connector->{ping_timeout} = defined($options{ping_timeout}) ? $options{ping_timeout} : 30;
-    $connector->{ping_progress} = 0; 
+    $connector->{ping_progress} = 0;
     $connector->{ping_time} = time();
     $connector->{ping_timeout_time} = time();
 
@@ -111,7 +111,7 @@ sub init {
 
 sub close {
     my ($self, %options) = @_;
-    
+
     delete $self->{core_watcher};
     $sockets->{ $self->{identity} }->close();
 }
@@ -130,7 +130,7 @@ sub get_server_pubkey {
 
     my $w1 = $self->{connect_loop}->timer(
         10,
-        0, 
+        0,
         sub {
             $self->{connect_loop}->break();
         }
@@ -253,7 +253,7 @@ sub check_server_pubkey {
 
 sub is_connected {
     my ($self, %options) = @_;
-    
+
     # Should be connected (not 100% sure)
     if ($self->{handshake} == 2) {
         return (0, $self->{ping_time});
@@ -264,8 +264,8 @@ sub is_connected {
 sub ping {
     my ($self, %options) = @_;
     my $status = 0;
-    
-    if ($self->{ping} > 0 && $self->{ping_progress} == 0 && 
+
+    if ($self->{ping} > 0 && $self->{ping_progress} == 0 &&
         time() - $self->{ping_time} > $self->{ping}) {
         $self->{ping_progress} = 1;
         $self->{ping_timeout_time} = time();
@@ -274,7 +274,7 @@ sub ping {
         $status = 1;
     }
 
-    if ($self->{ping_progress} == 1 && 
+    if ($self->{ping_progress} == 1 &&
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
@@ -319,7 +319,7 @@ sub event {
             $connectors->{ $options{identity} }->{handshake} = 1;
             if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
                 $connectors->{ $options{identity} }->{handshake} = -1;
-                
+
             }
         } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
             $self->{connect_loop}->break();
@@ -415,7 +415,7 @@ sub send_message {
         if ($status == -1) {
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo crypt handshake issue [2]");
             $self->{verbose_last_message} = 'crypt handshake issue';
-            return (-1, $self->{verbose_last_message}); 
+            return (-1, $self->{verbose_last_message});
         }
 
         $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_helo sent [2]");

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use Time::Local;
 use gorgone::modules::centreon::mbi::libs::Utils;
- 
+
 package gorgone::modules::centreon::mbi::libs::centreon::Timeperiod;
 
 # Constructor
@@ -94,7 +94,7 @@ sub getTimeRangesForDayByDateTime {
     	}
 	}
 	$sth->finish();
-		
+
 	return (\@results);
 }
 
@@ -104,7 +104,7 @@ sub getRangeTable {
 		$rangeStr = "";
 	}
 	my @ranges = split(",", $rangeStr);
-	
+
 	my @results = ();
 	foreach(@ranges) {
 		my ($start, $end) = split("-", $_);
@@ -123,7 +123,7 @@ sub getAllRangesForTpId {
 	$query .= " FROM timeperiod";
 	$query .= " WHERE  tp_id='".$timeperiod_id."'";
 	my $sth = $db->query({ query => $query });
-	
+
 	my @results = ();
 	if(my $row = $sth->fetchrow_hashref()) {
 		$results[0] = $self->getRangeTable($row->{'tp_sunday'});
@@ -159,7 +159,7 @@ sub getTimeRangesForPeriod {
 sub getTimeRangesForPeriodAndTpList {
 	my $self = shift;
 	my ($timeperiodList, $start, $end) = @_;
-	
+
 	my %rangesByTP = ();
 	while (my ($key, $value) = each %$timeperiodList) {
 		$rangesByTP{$key} = $self->getTimeRangesForPeriod($key, $start, $end);
@@ -171,7 +171,7 @@ sub getId {
 	my $self = shift;
 	my $db = $self->{"centreon"};
 	my $name = shift;
-	
+
 	my $query = "SELECT tp_id";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_name = '".$name."'";
@@ -187,7 +187,7 @@ sub getPeriodsLike {
 	my $self = shift;
 	my $db = $self->{"centreon"};
 	my $name = shift;
-	
+
 	my $query = "SELECT tp_id, tp_name";
 	$query .= " FROM timeperiod";
 	$query .= " WHERE tp_name like '".$name."%'";
@@ -204,12 +204,12 @@ sub getPeriods {
 	my $db = $self->{"centreon"};
 	my $logger = $self->{'logger'};
 	my $ids = shift;
-	
+
 	my $idStr = "";
-	
+
 	foreach my $key (keys %$ids) {
 		if ($idStr eq "") {
-		$idStr .= $key;			
+		$idStr .= $key;
 		}else {
 			$idStr .= ",".$key;
 		}

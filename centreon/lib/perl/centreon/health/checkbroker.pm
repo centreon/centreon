@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -38,13 +38,13 @@ sub new {
 
 sub json_parsing {
     my ($self, %options) = @_;
-    
+
     my $json_content = JSON->new->decode($options{json_content});
     foreach my $key (keys %$json_content) {
 	if ($key =~ m/^endpoint/) {
 	foreach my $broker_metric (keys %{$json_content->{$key}}) {
 		next if ($broker_metric !~ m/version|event_processing|last_connection|queued|state/);
-		$self->{output}->{$options{poller_name}}->{$options{file_name}}->{$broker_metric} = ($broker_metric =~ m/^last_connection/ && $json_content->{$key}->{$broker_metric} != -1) 
+		$self->{output}->{$options{poller_name}}->{$options{file_name}}->{$broker_metric} = ($broker_metric =~ m/^last_connection/ && $json_content->{$key}->{$broker_metric} != -1)
 										? strftime("%m/%d/%Y %H:%M:%S",localtime($json_content->{$key}->{$broker_metric}))
 										: $json_content->{$key}->{$broker_metric} ;
 	    }
@@ -54,7 +54,7 @@ sub json_parsing {
 
     }
 
-    return $self->{output} 
+    return $self->{output}
 
 }
 
@@ -71,9 +71,9 @@ sub run {
 
     return if ($centreon_version ne "2.8");
     foreach my $server (keys %$server_list) {
-	$sth = $centreon_db->query("SELECT config_name, cache_directory 
-					FROM cfg_centreonbroker 
-					WHERE stats_activate='1' 
+	$sth = $centreon_db->query("SELECT config_name, cache_directory
+					FROM cfg_centreonbroker
+					WHERE stats_activate='1'
 					AND ns_nagios_server=".$centreon_db->quote($server)."");
 
 	if ($server_list->{$server}->{localhost} eq "YES") {
@@ -95,7 +95,7 @@ sub run {
 
             }
         }
-       
+
     }
     return $self->{output}
 }

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -83,10 +83,10 @@ sub getMetricValueByHour {
     my $self = shift;
     my $db = $self->{"centstorage"};
     my $logger = $self->{"logger"};
-    
+
     my ($start, $end, $useMemory) = @_;
     my $dateFormat = "%Y-%c-%e %k:00:00";
-    
+
     # Getting min, max, average
     $self->createTempTableMetricMinMaxAvgValues($useMemory, "hour");
     my $query = "INSERT INTO `" . $self->{name_minmaxavg_tmp} .  "` SELECT id_metric, avg(value) as avg_value, min(value) as min_value, max(value) as max_value, ";
@@ -95,7 +95,7 @@ sub getMetricValueByHour {
     $query .= "WHERE ";
     $query .= "ctime >=UNIX_TIMESTAMP('".$start."') AND ctime < UNIX_TIMESTAMP('".$end."') ";
     $query .= "GROUP BY id_metric, date_format(FROM_UNIXTIME(ctime), '".$dateFormat."')";
-    
+
     $db->query({ query => $query });
     $self->addIndexTempTableMetricMinMaxAvgValues("hour");
 }
@@ -104,10 +104,10 @@ sub getMetricsValueByDay {
     my $self = shift;
     my $db = $self->{"centstorage"};
     my $logger = $self->{"logger"};
-    
+
     my ($period, $useMemory) = @_;
     my $dateFormat = "%Y-%c-%e";
-    
+
     # Getting min, max, average
     $self->createTempTableMetricMinMaxAvgValues($useMemory, "day");
     my $query = "INSERT INTO `" . $self->{name_minmaxavg_tmp} . "` SELECT id_metric, avg(value) as avg_value, min(value) as min_value, max(value) as max_value ";
@@ -127,7 +127,7 @@ sub getMetricsValueByDay {
         }
         $query .= "(ctime >= UNIX_TIMESTAMP(".($range->[0]). ") AND ctime < UNIX_TIMESTAMP(".($range->[1]) .")) OR ";
     }
-    
+
     $query =~  s/OR $//;
     $query .= "GROUP BY id_metric";
 
@@ -195,16 +195,16 @@ sub dropTempTableCtimeMinMaxValues {
 sub getFirstAndLastValues {
     my $self = shift;
     my $db = $self->{"centstorage"};
-    
+
     my ($start_date, $end_date, $useMemory) = @_;
-    
+
     $self->createTempTableCtimeMinMaxValues($useMemory);
     my $query = "INSERT INTO `" . $self->{name_minmaxctime_tmp} . "` SELECT min(ctime) as min_val, max(ctime) as max_val, id_metric ";
     $query .= " FROM `data_bin`";
     $query .= " WHERE ctime >= UNIX_TIMESTAMP(" . $start_date . ") AND ctime < UNIX_TIMESTAMP(" . $end_date . ")";
     $query .= " GROUP BY id_metric";
     $db->query({ query => $query });
-    
+
     $self->createTempTableMetricDayFirstLastValues($useMemory);
     $query = "INSERT INTO " . $self->{name_firstlast_tmp} . " SELECT d.value as `first_value`, d2.value as `last_value`, d.id_metric";
     $query .= " FROM data_bin as d, data_bin as d2, " . $self->{name_minmaxctime_tmp} . " as db";
@@ -221,7 +221,7 @@ sub dailyPurge {
     my $db = $self->{"centstorage"};
     my $logger = $self->{"logger"};
     my ($end) = @_;
-    
+
     my $query = "DELETE FROM `data_bin` where ctime < UNIX_TIMESTAMP('" . $end . "')";
     $logger->writeLog("DEBUG", "[PURGE] [data_bin] purging data older than " . $end);
     $db->query({ query => $query });

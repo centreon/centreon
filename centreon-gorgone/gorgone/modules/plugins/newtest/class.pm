@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -107,7 +107,7 @@ sub class_handle_HUP {
 
 my %map_scenario_status = (
     Available => 0, Warning => 1, Failed => 2, Suspended => 2,
-    Canceled => 2, Unknown => 3, 
+    Canceled => 2, Unknown => 3,
     OutOfRange => 0, # Not Scheduled scenario
 );
 
@@ -136,7 +136,7 @@ sub newtestresync_init {
 sub perfdata_add {
     my ($self, %options) = @_;
 
-    my $perfdata = {label => '', value => '', unit => '', warning => '', critical => '', min => '', max => ''}; 
+    my $perfdata = {label => '', value => '', unit => '', warning => '', critical => '', min => '', max => ''};
     foreach (keys %options) {
         next if (!defined($options{$_}));
         $perfdata->{$_} = $options{$_};
@@ -153,9 +153,9 @@ sub add_output {
         $str .= " '" . $perf->{label} . "'=" . $perf->{value} . $perf->{unit} . ";" . $perf->{warning} . ";" . $perf->{critical} . ";" . $perf->{min} . ";" . $perf->{max};
     }
     $self->{perfdatas} = [];
-    
+
     $self->push_external_cmd(
-        cmd => 'PROCESS_SERVICE_CHECK_RESULT;' . $options{host_name} . ';' . 
+        cmd => 'PROCESS_SERVICE_CHECK_RESULT;' . $options{host_name} . ';' .
                 $options{service_name} . ';' . $self->{current_status} . ';' . $str,
         time => $options{time}
     );
@@ -163,8 +163,8 @@ sub add_output {
 
 sub convert_measure {
     my ($self, %options) = @_;
-    
-    if (defined($map_newtest_units{$options{unit}}) && 
+
+    if (defined($map_newtest_units{$options{unit}}) &&
         $map_newtest_units{$options{unit}} eq 'ms') {
         $options{value} /= 1000;
         $options{unit} = 's';
@@ -184,7 +184,7 @@ sub get_poller_id {
         $self->{logger}->writeLogError("[newtest] cannot get poller id for poller '" . $self->{poller_name} . "'.");
         return 1;
     }
-    
+
     if (!defined($datas->[0])) {
         $self->{logger}->writeLogError("[newtest] cannot find poller id for poller '" . $self->{poller_name} . "'.");
         return 1;
@@ -196,26 +196,26 @@ sub get_poller_id {
 
 sub get_centreondb_cache {
     my ($self, %options) = @_;
-    
+
     my $request = "
-        SELECT host.host_name, service.service_description 
-        FROM host 
-        LEFT JOIN (host_service_relation, service) ON 
-            (host_service_relation.host_host_id = host.host_id AND 
-             service.service_id = host_service_relation.service_service_id AND 
-             service.service_description LIKE ?) 
+        SELECT host.host_name, service.service_description
+        FROM host
+        LEFT JOIN (host_service_relation, service) ON
+            (host_service_relation.host_host_id = host.host_id AND
+             service.service_id = host_service_relation.service_service_id AND
+             service.service_description LIKE ?)
         WHERE host_name LIKE ? AND host_register = '1'";
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
         request => $request,
         bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
-    );    
+    );
     if ($status == -1) {
         $self->{logger}->writeLogError("[newtest] cannot get robot/scenarios list from centreon db.");
         return 1;
     }
-    
+
     foreach (@$datas) {
         $self->{db_newtest}->{$_->[0]} = {} if (!defined($self->{db_newtest}->{$_->[0]}));
         if (defined($_->[1])) {
@@ -228,21 +228,21 @@ sub get_centreondb_cache {
 
 sub get_centstoragedb_cache {
     my ($self, %options) = @_;
-    
-    my $request = 'SELECT hosts.name, services.description, services.last_check 
-        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ?  
+
+    my $request = 'SELECT hosts.name, services.description, services.last_check
+        FROM hosts LEFT JOIN services ON (services.host_id = hosts.host_id AND services.description LIKE ?
         WHERE name like ?';
     $request =~ s/%s/%/g;
     my ($status, $datas) = $self->{class_object_centstorage}->custom_execute(
         request => $request,
         bind_values => [$self->{service_prefix}, $self->{host_prefix}],
         mode => 2
-    );    
+    );
     if ($status == -1) {
         $self->{logger}->writeLogError("[newtest] cannot get robot/scenarios list from centstorage db.");
         return 1;
     }
-    
+
     foreach (@$datas) {
         if (!defined($self->{db_newtest}->{$_->[0]})) {
             $self->{logger}->writeLogError("[newtest] host '" . $_->[0]  . "'is in censtorage DB but not in centreon config...");
@@ -252,7 +252,7 @@ sub get_centstoragedb_cache {
             $self->{logger}->writeLogError("[newtest] host scenario '" . $_->[0]  . "/" .  $_->[1] . "' is in censtorage DB but not in centreon config...");
             next;
         }
-        
+
         if (defined($_->[1])) {
             $self->{db_newtest}->{$_->[0]}->{$_->[1]}->{last_execution_time} = $_->[2];
         }
@@ -283,13 +283,13 @@ sub push_external_cmd {
     my ($self, %options) = @_;
     my $time = defined($options{time}) ? $options{time} : time();
 
-    push @{$self->{external_commands}}, 
+    push @{$self->{external_commands}},
         'EXTERNALCMD:' . $self->{poller_id} . ':[' . $time . '] ' . $options{cmd};
 }
 
 sub submit_external_cmd {
     my ($self, %options) = @_;
-    
+
     foreach my $cmd (@{$self->{external_commands}}) {
         my ($lerror, $stdout, $exit_code) = gorgone::standard::misc::backtick(command => '/bin/echo "' . $cmd . '" >> ' . $self->{cmdFile},
             logger => $self->{logger},
@@ -314,7 +314,7 @@ sub push_config {
             return ;
         }
         $self->{logger}->writeLogInfo("[newtest] generation config for '$self->{poller_name}': succeeded.");
-        
+
         $self->{logger}->writeLogInfo("[newtest] move config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a CFGMOVE -v ' . $self->{poller_id},
                                 timeout => $self->{clapi_timeout}) != 0) {
@@ -322,7 +322,7 @@ sub push_config {
             return ;
         }
         $self->{logger}->writeLogInfo("[newtest] move config for '$self->{poller_name}': succeeded.");
-        
+
         $self->{logger}->writeLogInfo("[newtest] restart/reload config for '$self->{poller_name}':");
         if ($self->clapi_execute(cmd => '-a ' . $self->{clapi_action_applycfg} . ' -v ' . $self->{poller_id},
                                 timeout => $self->{clapi_timeout}) != 0) {
@@ -335,13 +335,13 @@ sub push_config {
 
 sub get_newtest_diagnostic {
     my ($self, %options) = @_;
-    
+
     my $result = $self->{instance}->ListMessages('Instance', 30, 'Diagnostics', [$options{scenario}, $options{robot}]);
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] newtest API error 'ListMessages' method: " . $com_error);
         return -1;
     }
-    
+
     if (!(ref($result) && defined($result->{MessageItem}))) {
         $self->{logger}->writeLogError("[newtest] no diagnostic found for scenario: " . $options{scenario} . '/' . $options{robot});
         return 1;
@@ -349,19 +349,19 @@ sub get_newtest_diagnostic {
     if (ref($result->{MessageItem}) eq 'HASH') {
             $result->{MessageItem} = [$result->{MessageItem}];
     }
-    
+
     my $macro_value = '';
-    my $macro_append = ''; 
+    my $macro_append = '';
     foreach my $item (@{$result->{MessageItem}}) {
         if (defined($item->{SubCategory})) {
             $macro_value .= $macro_append . $item->{SubCategory} . ':' . $item->{Id};
             $macro_append = '|';
         }
     }
-    
+
     if ($macro_value ne '') {
-        $self->push_external_cmd(cmd => 
-            'CHANGE_CUSTOM_SVC_VAR;' . $options{host_name} . ';' . 
+        $self->push_external_cmd(cmd =>
+            'CHANGE_CUSTOM_SVC_VAR;' . $options{host_name} . ';' .
              $options{service_name} . ';NEWTEST_MESSAGEID;' . $macro_value
         );
     }
@@ -370,9 +370,9 @@ sub get_newtest_diagnostic {
 
 sub get_scenario_results {
     my ($self, %options) = @_;
-    
+
     # Already test the robot but no response
-    if (defined($self->{cache_robot_list_results}->{$options{robot}}) && 
+    if (defined($self->{cache_robot_list_results}->{$options{robot}}) &&
         !defined($self->{cache_robot_list_results}->{$options{robot}}->{ResultItem})) {
         $self->{current_text} = sprintf("[newtest] no result avaiblable for scenario '%s'", $options{scenario});
         $self->{current_status} = 3;
@@ -384,19 +384,19 @@ sub get_scenario_results {
             $self->{logger}->writeLogError("[newtest] newtest API error 'ListResults' method: " . $com_error);
             return -1;
         }
-        
+
         if (!(ref($result) && defined($result->{ResultItem}))) {
             $self->{cache_robot_list_results}->{$options{robot}} = {};
             $self->{logger}->writeLogError("[newtest] no results found for robot: " . $options{robot});
             return 1;
         }
-        
+
         if (ref($result->{ResultItem}) eq 'HASH') {
             $result->{ResultItem} = [$result->{ResultItem}];
         }
         $self->{cache_robot_list_results}->{$options{robot}} = $result;
     }
-    
+
     # stop at first
     foreach my $result (@{$self->{cache_robot_list_results}->{$options{robot}}->{ResultItem}}) {
         if ($result->{MeasureName} eq $options{scenario}) {
@@ -406,12 +406,12 @@ sub get_scenario_results {
             );
             $self->{current_text} = sprintf(
                 "Execution status '%s'. Scenario '%s' total duration is %d%s.",
-                 $result->{ExecutionStatus}, $options{scenario}, 
+                 $result->{ExecutionStatus}, $options{scenario},
                  $value, $unit
             );
             $self->perfdata_add(
-                label => $result->{MeasureName}, unit => $unit, 
-                value => sprintf("%d", $value), 
+                label => $result->{MeasureName}, unit => $unit,
+                value => sprintf("%d", $value),
                 min => 0
             );
 
@@ -425,31 +425,31 @@ sub get_scenario_results {
             return 0;
         }
     }
-    
+
     $self->{logger}->writeLogError("[newtest] no result found for scenario: " . $options{scenario} . '/' . $options{robot});
     return 1;
 }
 
 sub get_newtest_extra_metrics {
     my ($self, %options) = @_;
-    
+
     my $result = $self->{instance}->ListResultChildren($options{id});
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] newtest API error 'ListResultChildren' method: " . $com_error);
         return -1;
     }
-    
+
     if (!(ref($result) && defined($result->{ResultItem}))) {
         $self->{logger}->writeLogError("[newtest] no extra metrics found for scenario: " . $options{scenario} . '/' . $options{robot});
         return 1;
     }
-    
+
     if (ref($result->{ResultItem}) eq 'HASH') {
         $result->{ResultItem} = [$result->{ResultItem}];
     }
     foreach my $item (@{$result->{ResultItem}}) {
         $self->perfdata_add(
-            label => $item->{MeasureName}, unit => $map_newtest_units{$item->{MeasureUnit}}, 
+            label => $item->{MeasureName}, unit => $map_newtest_units{$item->{MeasureUnit}},
             value => $item->{ExecutionValue}
         );
     }
@@ -474,15 +474,15 @@ sub get_newtest_scenarios {
         );
     }
     my $result = $self->{instance}->ListScenarioStatus(
-        $self->{list_scenario_status}->{search}, 
-        0, 
+        $self->{list_scenario_status}->{search},
+        0,
         $self->{list_scenario_status}->{instances}
     );
     if (defined(my $com_error = gorgone::modules::plugins::newtest::libs::stubs::errors::get_error())) {
         $self->{logger}->writeLogError("[newtest] newtest API error 'ListScenarioStatus' method: " . $com_error);
         return -1;
     }
-    
+
     if (defined($result->{InstanceScenarioItem})) {
         if (ref($result->{InstanceScenarioItem}) eq 'HASH') {
             $result->{InstanceScenarioItem} = [$result->{InstanceScenarioItem}];
@@ -540,7 +540,7 @@ sub get_newtest_scenarios {
                         host_name => $host_name, service_name => $service_name
                     );
                 }
-                
+
                 if ($self->get_scenario_results(scenario => $scenario_name, robot => $robot_name,
                                                 host_name => $host_name, service_name => $service_name) == 1) {
                     $self->{current_text} = sprintf("No result avaiblable for scenario '%s'", $scenario_name);
@@ -558,11 +558,11 @@ sub action_newtestresync {
     my ($self, %options) = @_;
 
     $options{token} = $self->generate_token() if (!defined($options{token}));
-    
+
     $self->{logger}->writeLogDebug("gorgone-newtest: container $self->{container_id}: begin resync");
     $self->send_log(code => GORGONE_ACTION_BEGIN, token => $options{token}, data => { message => 'action newtestresync proceed' });
     $self->newtestresync_init();
-    
+
     if ($self->get_poller_id()) {
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get poller id' });
         return -1;
@@ -575,11 +575,11 @@ sub action_newtestresync {
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get centreon storage cache' });
         return -1;
     }
-    
+
     if ($self->get_newtest_scenarios(%options)) {
         $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot get newtest scenarios' });
         return -1;
-    }   
+    }
 
     $self->push_config();
     $self->submit_external_cmd();

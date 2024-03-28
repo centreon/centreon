@@ -1,33 +1,33 @@
 ################################################################################
-# Copyright 2005-2013 Centreon
-# Centreon is developped by : Julien Mathis and Romain Le Merlus under
+# Copyright 2005-2024 Centreon
+# Centreon is developed by : Julien Mathis and Romain Le Merlus under
 # GPL Licence 2.0.
-# 
-# This program is free software; you can redistribute it and/or modify it under 
-# the terms of the GNU General Public License as published by the Free Software 
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
 # Foundation ; either version 2 of the License.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
+#
+# You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses>.
-# 
-# Linking this program statically or dynamically with other modules is making a 
-# combined work based on this program. Thus, the terms and conditions of the GNU 
+#
+# Linking this program statically or dynamically with other modules is making a
+# combined work based on this program. Thus, the terms and conditions of the GNU
 # General Public License cover the whole combination.
-# 
-# As a special exception, the copyright holders of this program give Centreon 
-# permission to link this program with independent modules to produce an executable, 
-# regardless of the license terms of these independent modules, and to copy and 
-# distribute the resulting executable under terms of Centreon choice, provided that 
-# Centreon also meet, for each linked independent module, the terms  and conditions 
-# of the license of that module. An independent module is a module which is not 
-# derived from this program. If you modify this program, you may extend this 
+#
+# As a special exception, the copyright holders of this program give Centreon
+# permission to link this program with independent modules to produce an executable,
+# regardless of the license terms of these independent modules, and to copy and
+# distribute the resulting executable under terms of Centreon choice, provided that
+# Centreon also meet, for each linked independent module, the terms  and conditions
+# of the license of that module. An independent module is a module which is not
+# derived from this program. If you modify this program, you may extend this
 # exception to your version of the program, but you are not obliged to do so. If you
 # do not wish to do so, delete this exception statement from your version.
-# 
+#
 #
 ####################################################################################
 
@@ -69,7 +69,7 @@ sub init_modules {
             $args{logger}->writeLogDebug("********** MIBS: " . $args{config}->{mibs_environment} . " **********");
         }
     }
-    
+
     if ($args{config}->{duplicate_trap_window} > 0) {
         eval 'require Digest::MD5;';
         if ($@) {
@@ -80,7 +80,7 @@ sub init_modules {
             die("Quit");
         }
     }
-    
+
     if (defined($args{config}->{local_broker})) {
         eval 'require Monitoring::Livestatus;';
         if ($@) {
@@ -90,7 +90,7 @@ sub init_modules {
             $args{logger}->writeLogError("for system requirements.");
             die("Quit");
         }
-        
+
         $local_broker = Monitoring::Livestatus->new(
             socket => $args{config}->{local_broker},
             errors_are_fatal => 0,
@@ -98,7 +98,7 @@ sub init_modules {
             connect_timeout => 5,
         );
     }
-    
+
     eval "require HTML::Entities";
     if ($@) {
         ${$args{htmlentities}} = 0;
@@ -116,7 +116,7 @@ sub manage_params_conf {
     if (!defined($time_format) || $time_format eq "") {
         $time_format = "%H:%M:%S";
     }
-    
+
     return ($date_format, $time_format);
 }
 
@@ -128,7 +128,7 @@ sub manage_params_conf {
 sub get_oids {
     my ($cdb, $ids) = @_;
     my $ref_result;
-    
+
     my ($dstatus, $sth) = $cdb->query(
        "SELECT name, traps_log, traps_execution_command, traps_reschedule_svc_enable, traps_id, traps_args,
         traps_oid, traps_name, traps_mode, traps_advanced_treatment, traps_advanced_treatment_default, traps_execution_command_enable, traps_submit_result_enable, traps_status,
@@ -143,7 +143,7 @@ sub get_oids {
     );
     return -1 if ($dstatus == -1);
     $ref_result = $sth->fetchall_hashref('traps_id');
-    
+
     foreach (keys %$ref_result) {
         # Get Matching Status Rules
         if (defined($ref_result->{$_}->{traps_advanced_treatment}) && $ref_result->{$_}->{traps_advanced_treatment} == 1) {
@@ -158,7 +158,7 @@ sub get_oids {
                 push @{$ref_result->{$_}->{traps_matching_properties}}, $row;
             }
         }
-        
+
         # Get Trap PREEXEC Commands
         ($dstatus, $sth) = $cdb->query("SELECT * FROM traps_preexec WHERE trap_id = " . $_ . " ORDER BY tpe_order ASC");
         return -1 if ($dstatus == -1);
@@ -166,7 +166,7 @@ sub get_oids {
         while (my $row = $sth->fetchrow_hashref()) {
             push @{$ref_result->{$_}->{traps_preexec}}, $row;
         }
-        
+
         # Get Trap PREEXEC Commands
         ($dstatus, $sth) = $cdb->query("SELECT tg2.traps_id FROM traps_group_relation as tg1, traps_group_relation as tg2 WHERE tg1.traps_id = " . $_ . " AND tg1.traps_group_id = tg2.traps_group_id");
         return -1 if ($dstatus == -1);
@@ -192,17 +192,17 @@ sub get_hosts {
     my ($dstatus, $sth);
     my $ref_result;
     my $request;
-    
-    if ($args{trap_info}->{traps_routing_mode} == 1 
+
+    if ($args{trap_info}->{traps_routing_mode} == 1
         && defined($args{trap_info}->{traps_routing_value}) && $args{trap_info}->{traps_routing_value} ne '') {
         my $search_str = $args{centreontrapd}->substitute_string($args{trap_info}->{traps_routing_value});
         $search_str = $args{centreontrapd}->substitute_centreon_functions($search_str);
         $request = "SELECT host_id, host_name FROM host WHERE host_address = " . $args{cdb}->quote($search_str);
     } else {
         # Default Mode
-        $request = "SELECT host_id, host_name FROM host WHERE host_address = " . $args{cdb}->quote($args{agent_dns_name}) .  " OR host_address=" . $args{cdb}->quote($args{ip_address});  
+        $request = "SELECT host_id, host_name FROM host WHERE host_address = " . $args{cdb}->quote($args{agent_dns_name}) .  " OR host_address=" . $args{cdb}->quote($args{ip_address});
     }
-    
+
     ($dstatus, $sth) = $args{cdb}->query($request);
     return -1 if ($dstatus == -1);
     $ref_result = $sth->fetchall_hashref('host_id');
@@ -212,30 +212,30 @@ sub get_hosts {
             $args{logger}->writeLogDebug("Cant find a host. Request: " . $request);
         }
     }
-    
+
     # Get server_id
     foreach (keys %$ref_result) {
-        ($dstatus, $sth) = $args{cdb}->query("SELECT ns_host_relation.nagios_server_id, nagios_server.ns_ip_address FROM ns_host_relation, nagios_server WHERE 
+        ($dstatus, $sth) = $args{cdb}->query("SELECT ns_host_relation.nagios_server_id, nagios_server.ns_ip_address FROM ns_host_relation, nagios_server WHERE
                                               ns_host_relation.host_host_id = " . $ref_result->{$_}->{host_id} . " AND ns_host_relation.nagios_server_id = nagios_server.id LIMIT 1");
         return -1 if ($dstatus == -1);
         my $data = $sth->fetchrow_hashref();
         $ref_result->{$_}->{nagios_server_id} = $data->{nagios_server_id};
         $ref_result->{$_}->{ns_ip_address} = $data->{ns_ip_address};
     }
-    
+
     return (0, $ref_result);
 }
 
 sub get_services {
     my ($cdb, $trap_id, $host_id, $result) = @_;
     my $services_do = {};
-    
+
     ### Get service List for the Host
     my ($dstatus, $sth) = $cdb->query(
-        "SELECT s.service_id, s.service_description, esi.esi_notes FROM host h, host_service_relation hsr, service s LEFT JOIN extended_service_information esi ON s.service_id = esi.service_service_id WHERE 
+        "SELECT s.service_id, s.service_description, esi.esi_notes FROM host h, host_service_relation hsr, service s LEFT JOIN extended_service_information esi ON s.service_id = esi.service_service_id WHERE
             h.host_id = " . $host_id . " AND h.host_activate = '1' AND h.host_id = hsr.host_host_id AND hsr.service_service_id = s.service_id AND s.service_activate = '1'
-         UNION ALL SELECT s.service_id, s.service_description, esi.esi_notes  FROM 
-            host h, host_service_relation hsr, hostgroup_relation hgr, service s LEFT JOIN extended_service_information esi ON s.service_id = esi.service_service_id WHERE h.host_id = " . $host_id . " AND h.host_activate = '1' AND 
+         UNION ALL SELECT s.service_id, s.service_description, esi.esi_notes  FROM
+            host h, host_service_relation hsr, hostgroup_relation hgr, service s LEFT JOIN extended_service_information esi ON s.service_id = esi.service_service_id WHERE h.host_id = " . $host_id . " AND h.host_activate = '1' AND
             h.host_id = hgr.host_host_id AND hgr.hostgroup_hg_id = hsr.hostgroup_hg_id AND hsr.service_service_id = s.service_id AND s.service_activate = '1'"
     );
     return -1 if ($dstatus == -1);
@@ -244,14 +244,14 @@ sub get_services {
         # Search Template trap_id
         my %loop_stop = ();
         my @stack = ($service_id);
-        
+
         while ((my $lservice_id = shift(@stack))) {
             if (defined($loop_stop{$lservice_id})) {
                 # Already done
                 last;
             }
             $loop_stop{$lservice_id} = 1;
-            
+
             ($dstatus, $sth) = $cdb->query("SELECT traps_id FROM traps_service_relation WHERE service_id = '" . $lservice_id . "' AND traps_id = '" . $trap_id . "' LIMIT 1");
             return -1 if ($dstatus == -1);
             my $data = $sth->fetchrow_hashref();
@@ -259,7 +259,7 @@ sub get_services {
                 $services_do->{$service_id} = $result->{$service_id};
                 last;
             }
-            
+
             ($dstatus, $sth) = $cdb->query("SELECT service_template_model_stm_id FROM service WHERE service_id = " . $lservice_id . " LIMIT 1");
             return -1 if ($dstatus == -1);
             $data = $sth->fetchrow_hashref();
@@ -268,13 +268,13 @@ sub get_services {
             }
         }
     }
-    
+
     return (0, $services_do);
 }
 
 sub check_downtimes_local_broker {
     my (%options) = @_;
-    
+
     my $request = "GET services\nColumns: description host_scheduled_downtime_depth scheduled_downtime_depth\n";
     my $num = 0;
     my %description = ();
@@ -287,38 +287,38 @@ sub check_downtimes_local_broker {
         $request .= 'Or: ' . $num . "\n";
     }
     $request .= "Filter: host_name = " . $options{host_name} . "\nAnd: 2";
- 
+
     my $result = $local_broker->selectall_arrayref($request);
     if ($Monitoring::Livestatus::ErrorCode) {
         $options{logger}->writeLogError("Cannot request local broker for downtimes: " . $Monitoring::Livestatus::ErrorMessage);
         return -1;
     }
-    
+
     foreach (@{$result}) {
         if ($$_[1] == 1 || $$_[2] == 1) {
             $options{logger}->writeLogInfo("skipping trap: host '$options{host_name}' [id: $options{host_id}] and service '$$_[0]' in downtime");
             delete $options{ref_services}->{$description{$$_[0]}};
         }
     }
- 
+
     return 0;
 }
 
 sub check_downtimes {
     my (%options) = @_;
     my $ref_result;
-    
+
     if (defined($options{local_broker})) {
         return check_downtimes_local_broker(%options);
     }
-    
+
     # Only one request is $downtime == 2
     if ($options{downtime} == 2) {
         my ($dstatus, $sth) = $options{csdb}->query("SELECT DISTINCT IFNULL(service_id, 'host') as service_id FROM downtimes WHERE host_id = $options{host_id} AND start_time <= $options{trap_time} AND end_time >= $options{trap_time}");
         return -1 if ($dstatus == -1);
         $ref_result = $sth->fetchall_hashref('service_id');
     }
-    
+
     # Check if host is in downtime - if yes: return 1
     if ($options{downtime} == 1) {
         # Real-Time
@@ -337,18 +337,18 @@ sub check_downtimes {
             return 1;
         }
     }
-    
+
     if (scalar(keys %{$options{ref_services}}) == 0) {
         return 0;
     }
-    
+
     if ($options{downtime} == 1) {
         # Check some services only
         my ($dstatus, $sth) = $options{csdb}->query("SELECT service_id FROM services WHERE service_id IN (" . join(',', keys %{$options{ref_services}}) . ") AND scheduled_downtime_depth > 0");
         return -1 if ($dstatus == -1);
         $ref_result = $sth->fetchall_hashref('service_id');
     }
-    
+
     # Parse services
     foreach my $service_id (keys %{$options{ref_services}}) {
         if (defined($ref_result->{$service_id})) {
@@ -356,13 +356,13 @@ sub check_downtimes {
             delete $options{ref_services}->{$service_id};
         }
     }
-    
+
     return 0;
 }
 
 sub set_macro {
     my ($macros, $name, $value) = @_;
-    
+
     if (!defined($macros->{$name})) {
         $macros->{$name} = $value;
     }
@@ -374,14 +374,14 @@ sub get_macros_host {
     my %macros;
     my %loop_stop = ();
     my @stack = ($host_id);
-    
+
     while ((my $lhost_id = shift(@stack))) {
         if (defined($loop_stop{$lhost_id})) {
             # Already done the host
             next;
         }
         $loop_stop{$lhost_id} = 1;
-    
+
         ($dstatus, $sth) = $cdb->query("SELECT host_snmp_community, host_snmp_version FROM host WHERE host_id = " . $lhost_id . " LIMIT 1");
         return -1 if ($dstatus == -1);
         $value = $sth->fetchrow_hashref();
@@ -391,20 +391,20 @@ sub get_macros_host {
         if (defined($value->{host_snmp_version}) && $value->{host_snmp_version} ne "") {
             set_macro(\%macros, '$_HOSTSNMPVERSION$', $value->{host_snmp_version});
         }
-    
+
         ($dstatus, $sth) = $cdb->query("SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id);
         return -1 if ($dstatus == -1);
         while ($value = $sth->fetchrow_hashref()) {
             set_macro(\%macros, $value->{host_macro_name}, $value->{host_macro_value});
         }
-    
+
         ($dstatus, $sth) = $cdb->query("SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = " . $lhost_id . " ORDER BY `order` DESC");
         return -1 if ($dstatus == -1);
         while ($value = $sth->fetchrow_hashref()) {
             unshift @stack, $value->{host_tpl_id};
         }
     }
-        
+
     return (0, \%macros);
 }
 
@@ -414,7 +414,7 @@ sub get_macros_host {
 
 sub trim {
     my ($value) = $_[0];
-    
+
     # Sometimes there is a null character
     $value =~ s/\x00$//;
     $value =~ s/^[ \t]+//;
@@ -424,16 +424,16 @@ sub trim {
 
 sub trap_forward {
     my (%options) = @_;
-    
+
     my @arguments = split(',', $options{arguments});
     if (scalar(@arguments) < 2) {
         $options{logger}->writeLogError('At least 2 arguments for @TRAPFORWARD(oid, ip1, ...)@');
         return ;
     }
-    
+
     my $oid = trim(shift @arguments);
     my $agent_ip = ${$options{trap_data}->{var}}[4];
-    
+
     my @bindings = ();
     for (my $i = 0; $i <= $#{$options{trap_data}->{entvar}}; $i++) {
         $options{trap_data}->{entvarname}->[$i] =~ /^(.*?)\.(\d+)$/;
@@ -457,13 +457,13 @@ sub send_logdb {
     my %args = @_;
     my $pipe = $args{pipe};
     my $num_args = $#{$args{entvar}} + 1;
-    
+
     # Need atomic write (Limit to 4096 with Linux)
     $args{output_message} =~ s/\n/\\n/g;
-    my $value = $args{id} . ":0:$num_args:" . 
+    my $value = $args{id} . ":0:$num_args:" .
                 $args{trap_time} . "," .
                 $args{cdb}->quote($args{timeout}) . "," .
-                $args{cdb}->quote($args{host_name}) . "," .  
+                $args{cdb}->quote($args{host_name}) . "," .
                 $args{cdb}->quote($args{ip_address}) . "," .
                 $args{cdb}->quote($args{agent_host_name}) . "," .
                 $args{cdb}->quote($args{agent_ip_address}) . "," .
@@ -480,7 +480,7 @@ sub send_logdb {
     for (my $i=0; $i <= $#{$args{entvar}}; $i++) {
         my $value = ${$args{entvar}}[$i];
         $value =~ s/\n/\\n/g;
-        print $pipe $args{id} . ":1:$i:" . 
+        print $pipe $args{id} . ":1:$i:" .
                     $i . "," .
                     $args{cdb}->quote(${$args{entvarname}}[$i]) . "," .
                     $args{cdb}->quote($value) . "," .
@@ -500,7 +500,7 @@ sub get_cache_oids {
 
     my ($status, $sth) = $args{cdb}->query('SELECT traps_oid, traps_id, traps_mode FROM traps');
     return -1 if ($status == -1);
-    
+
     ${$args{oids_cache}} = { 0 => {}, 1 => {} };
     my $rows = [];
     while (my $row = (
@@ -518,7 +518,7 @@ sub get_cache_oids {
 
 sub display_unknown_traps {
     my %options = @_;
-    
+
     $options{logger}->writeLogInfo("Unknown trap");
     if ($options{config}->{unknown_trap_enable} == 1) {
         $options{logger_unknown}->writeLogInfo("Trap received from $options{trap_data}->{var}->[0]: $options{trap_data}->{var}->[3]");
@@ -526,15 +526,15 @@ sub display_unknown_traps {
             'hostname                  ',
             'ip address                ',
             'uptime                    ',
-            'trapname / OID            ', 
+            'trapname / OID            ',
             'ip address from trap agent',
             'trap community string     ',
             'enterprise                ',
-            'securityEngineID (not use)', 
+            'securityEngineID (not use)',
             'securityName     (not use)',
             'contextEngineID  (not use)',
             'contextName      (not)    '
-        ); 
+        );
         #print out all standard variables
         for (my $i=0; $i <= $#{$options{trap_data}->{var}}; $i++) {
             $options{logger_unknown}->writeLogInfo("$labels[$i]: " . $options{trap_data}->{var}->[$i]);
@@ -558,10 +558,10 @@ sub check_known_trap {
     my %args = @_;
     my $oid2verif = $args{oid2verif};
 
-    if (!defined(${$args{last_cache_time}}) || 
+    if (!defined(${$args{last_cache_time}}) ||
         ((time() - ${$args{last_cache_time}}) > $args{config}->{cache_unknown_traps_retention})) {
-        if (get_cache_oids(cdb => $args{cdb}, oids_cache => $args{oids_cache}, last_cache_time => $args{last_cache_time}) == -1) { 
-            $args{logger}->writeLogError("Cant load cache trap oids."); 
+        if (get_cache_oids(cdb => $args{cdb}, oids_cache => $args{oids_cache}, last_cache_time => $args{last_cache_time}) == -1) {
+            $args{logger}->writeLogError("Cant load cache trap oids.");
             return -1;
         }
     }
@@ -583,7 +583,7 @@ sub check_known_trap {
 
     display_unknown_traps(
         logger => $args{logger},
-        logger_unknown => $args{logger_unknown}, 
+        logger_unknown => $args{logger_unknown},
         config => $args{config},
         trap_data => $args{trap_data}
     );
@@ -603,7 +603,7 @@ sub get_trap {
     # filenames => ref array
     my %args = @_;
 
-    if (!@{$args{filenames}}) { 
+    if (!@{$args{filenames}}) {
         if (!(chdir($args{config}->{spool_directory}))) {
             $args{logger}->writeLogError("Unable to enter spool dir " . $args{config}->{spool_directory} . ":$!");
             return undef;
@@ -619,7 +619,7 @@ sub get_trap {
         closedir(DIR);
         @{$args{filenames}} = sort (@{$args{filenames}});
     }
-    
+
     while ((my $file = shift @{$args{filenames}})) {
         next if ($file eq ".");
         next if ($file eq "..");
@@ -631,7 +631,7 @@ sub get_trap {
 
 sub purge_duplicate_trap {
     # config => hash
-    # duplicate_traps => ref hash 
+    # duplicate_traps => ref hash
     my %args = @_;
 
     if ($args{config}->{duplicate_trap_window}) {
@@ -660,7 +660,7 @@ sub readtrap {
     # var => ref array
     # entvar => ref array
     # entvarname => ref array
-    
+
     my %args = @_;
     my $input = $args{handle};
 
@@ -708,14 +708,14 @@ sub readtrap {
     # Pull in passed SNMP info from snmptrapd via STDIN and place in the array @tempvar
     chomp($tempvar[0]=<$input>);	# hostname
     push(@rawtrap, $tempvar[0]);
-    $tempvar[0] =~ s(`)(')g;	#` Replace any back ticks with regular single quote 
+    $tempvar[0] =~ s(`)(')g;	#` Replace any back ticks with regular single quote
     if ($tempvar[0] eq "") {
         if ($args{logger}->is_debug()) {
             $args{logger}->writeLogDebug("  Invalid trap file.  Expected a hostname on line 2 but got nothing");
             return 0;
         }
     }
-        
+
     chomp($tempvar[1]=<$input>);	# ip address
     push(@rawtrap, $tempvar[1]);
     $tempvar[1] =~ s(`)(')g;	#` Replace any back ticks with regular single quote
@@ -732,7 +732,7 @@ sub readtrap {
     if ($tempvar[0] =~ /\[(\d+\.\d+\.\d+\.\d+)\].*?->\[(\d+\.\d+\.\d+\.\d+)\]/) {
         $tempvar[0] = $1;
     }
-    
+
     # Some systems pass the IP address as udp:ipaddress:portnumber.  This will pull
     # out just the IP address
     $tempvar[1] =~ /(\d+\.\d+\.\d+\.\d+)/;
@@ -766,7 +766,7 @@ sub readtrap {
         chomp ($line);
 
         if ($linenum == 1) {
-            # Check if line 1 contains 'variable value' or just 'value' 
+            # Check if line 1 contains 'variable value' or just 'value'
             if (defined($temp2)) {
                 $variable_fix = 0;
             } else {
@@ -811,17 +811,17 @@ sub readtrap {
             }
         } else {
             # Should have been variable value, but only value found.  Workaround
-            # 
+            #
             # Normally it is expected that a line contains a variable name
-            # followed by a space followed by the value (except for the 
+            # followed by a space followed by the value (except for the
             # first line which is the hostname and the second which is the
             # IP address).  If there is no variable name on the line (only
-            # one string), then add a variable string called 'variable' so 
+            # one string), then add a variable string called 'variable' so
             # it is handled correctly in the next section.
             # This happens with ucd-snmp v4.2.3 but not v4.2.1 or v4.2.5.
             # This appears to be a bug in ucd-snmp v4.2.3.  This works around
-            # the problem by using 'variable' for the variable name, although 
-            # v4.2.3 should NOT be used with SNMPTT as it prevents SNMP V2 traps 
+            # the problem by using 'variable' for the variable name, although
+            # v4.2.3 should NOT be used with SNMPTT as it prevents SNMP V2 traps
             # from being handled correctly.
 
             $args{logger}->writeLogDebug("Data passed from snmptrapd is incorrect.  UCD-SNMP v4.2.3 is known to cause this");
@@ -901,7 +901,7 @@ sub readtrap {
     # All others found are regular passed variables
     my $j=0;
     for (my $i=6;$i <= $#tempvar; $i+=2) {
-        
+
         if ($tempvar[$i] =~ /^.1.3.6.1.6.3.18.1.3.0$/) { # ip address from trap agent
             ${$args{var}}[4] = $tempvar[$i+1];
         } elsif ($tempvar[$i] =~ /^.1.3.6.1.6.3.18.1.4.0$/)	{ # trap community string
@@ -982,7 +982,7 @@ sub readtrap {
         $args{logger}->writeLogDebug("8:		securityName            (not use)");
         $args{logger}->writeLogDebug("9:		contextEngineID         (not use)");
         $args{logger}->writeLogDebug("10:		contextName             (not)");
-        $args{logger}->writeLogDebug("0+:		passed variables");	
+        $args{logger}->writeLogDebug("0+:		passed variables");
 
         #print out all standard variables
         for (my $i=0;$i <= $#{$args{var}};$i++) {
@@ -1002,7 +1002,7 @@ sub readtrap {
         my $md5 = Digest::MD5->new;
         # All variables except for uptime.
         $md5->add(${$args{var}}[0],${$args{var}}[1].${$args{var}}[3].${$args{var}}[4].${$args{var}}[5].${$args{var}}[6].${$args{var}}[7].${$args{var}}[8].${$args{var}}[9].${$args{var}}[10]."@{$args{entvar}}");
-        
+
         my $trap_digest = $md5->hexdigest;
         ${$args{digest_trap}} = $trap_digest;
 
@@ -1051,7 +1051,7 @@ sub translate_symbolic_to_oid
     my $temp = shift;
     my $logger = shift;
     my $config = shift;
-    
+
     # Check to see if OID passed from snmptrapd is fully numeric.  If not, try to translate
     if (! ($temp =~ /^(\.\d+)+$/))  {
         # Not numeric
@@ -1085,7 +1085,7 @@ sub strip_domain_name {
             $name =~ /^([^\.]+?)\./;
             $name = $1;
         }
-    } elsif ($mode == 2 && !($name =~ /^\d+\.\d+\.\d+\.\d+$/)) { # If mode = 2, strip off the domains as listed in strip_domain_list in .ini file 
+    } elsif ($mode == 2 && !($name =~ /^\d+\.\d+\.\d+\.\d+$/)) { # If mode = 2, strip off the domains as listed in strip_domain_list in .ini file
         if (@{$config->{strip_domain_list}}) {
             foreach my $strip_domain_list_temp (@{$config->{strip_domain_list}}) {
                 if ($strip_domain_list_temp =~ /^\..*/) { # If domain from list starts with a '.' then remove it first
@@ -1095,7 +1095,7 @@ sub strip_domain_name {
                 if ($name =~ /^.+\.$strip_domain_list_temp/) { # host is something . domain name?
                     $name =~ /(.*)\.$strip_domain_list_temp/;	# strip the domain name
                     $name = $1;
-                    last;  # Only process once 
+                    last;  # Only process once
                 }
             }
         }

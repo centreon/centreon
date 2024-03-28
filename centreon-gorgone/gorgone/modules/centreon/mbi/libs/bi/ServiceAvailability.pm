@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -61,20 +61,20 @@ sub saveStatsInFile {
 	my ($data, $time_id, $liveserviceId,$fh) = @_;
 	my $query;
 	my $row;
-	
+
 	while (my ($modBiServiceId, $stats) = each %$data) {
 		my @tab = @$stats;
 		if ($stats->[0]+$stats->[1]+$stats->[2] == 0) {
 			next;
 		}
-		
+
 		#Filling the dump file with data
 		$row = $modBiServiceId."\t".$time_id."\t".$liveserviceId;
 		for (my $i = 0; $i < scalar(@$stats); $i++) {
 			$row.= "\t".$stats->[$i]
 		}
 		$row .= "\n";
-		
+
 		#Write row into file
 		print $fh $row;
 		$self->{"nbLinesInFile"}++;
@@ -161,7 +161,7 @@ sub getHGMonthAvailability {
 
 	my @data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
-		my ($totalwarnEvents, $totalCritEvents, $totalOtherEvents) = $eventObj->getNbEvents($start, $end, $row->{'hg_id'}, $row->{'hc_id'}, $row->{'sc_id'}, $row->{'liveservice_id'}); 
+		my ($totalwarnEvents, $totalCritEvents, $totalOtherEvents) = $eventObj->getNbEvents($start, $end, $row->{'hg_id'}, $row->{'hc_id'}, $row->{'sc_id'}, $row->{'liveservice_id'});
 
 		my ($mtrs, $mtbf, $mtbsi) = (undef, undef, undef);
 		if (defined($totalCritEvents) && $totalCritEvents != 0) {
@@ -169,9 +169,9 @@ sub getHGMonthAvailability {
 			$mtbf = $row->{'av_time'}/$totalCritEvents;
 			$mtbsi = ($row->{'unav_time'}+$row->{'av_time'})/$totalCritEvents;
 		}
-		my @tab = ($row->{'group_id'}, $row->{'hcat_id'}, $row->{'scat_id'}, $row->{'liveservice_id'}, 
-				$row->{'av_percent'}, $row->{'unav_time'}, $row->{'degraded_time'}, 
-				$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'deg_opened'}, $row->{'deg_closed'}, $row->{'other_opened'}, $row->{'other_closed'}, 
+		my @tab = ($row->{'group_id'}, $row->{'hcat_id'}, $row->{'scat_id'}, $row->{'liveservice_id'},
+				$row->{'av_percent'}, $row->{'unav_time'}, $row->{'degraded_time'},
+				$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'deg_opened'}, $row->{'deg_closed'}, $row->{'other_opened'}, $row->{'other_closed'},
 					$totalwarnEvents, $totalCritEvents, $totalOtherEvents, $mtrs, $mtbf, $mtbsi);
 		push @data, \@tab;
 	}
@@ -181,8 +181,8 @@ sub getHGMonthAvailability {
 sub getHGMonthAvailability_optimised {
 	my ($self, $start, $end, $eventObj) = @_;
 	my $db = $self->{"centstorage"};
-	
-	my $query = "SELECT * from  ( SELECT  s.hg_id, s.hc_id, s.sc_id, sa.liveservice_id,   hc.id as hcat_id, hg.id as group_id, sc.id as scat_id,"; 
+
+	my $query = "SELECT * from  ( SELECT  s.hg_id, s.hc_id, s.sc_id, sa.liveservice_id,   hc.id as hcat_id, hg.id as group_id, sc.id as scat_id,";
 	$query .= "avg((available+degraded)/(available+unavailable+degraded)) as av_percent, ";
 	$query .= "sum(available) as av_time, sum(unavailable) as unav_time, sum(degraded) as degraded_time, ";
 	$query .= "sum(alert_unavailable_opened) as unav_opened,sum(alert_unavailable_closed) as unav_closed, ";
@@ -208,16 +208,16 @@ sub getHGMonthAvailability_optimised {
 	$query .= "ON availability.hg_id = events.hg_id AND availability.hc_id = events.hc_id ";
 	$query .= "AND availability.sc_id = events.sc_id ";
 	$query .= "AND availability.liveservice_id = events.modbiliveservice_id";
-	
+
 	#Fields returned :
-	#hg_id | hc_id | sc_id | liveservice_id | hcat_id | group_id | scat_id | av_percent | av_time    | unav_time | degraded_time | 
-	#unav_opened | unav_closed | deg_opened | deg_closed | other_opened | other_closed | hg_id | hc_id | sc_id | 
-	#modbiliveservice_id | warningEvents | criticalEvents | unknownEvents 
+	#hg_id | hc_id | sc_id | liveservice_id | hcat_id | group_id | scat_id | av_percent | av_time    | unav_time | degraded_time |
+	#unav_opened | unav_closed | deg_opened | deg_closed | other_opened | other_closed | hg_id | hc_id | sc_id |
+	#modbiliveservice_id | warningEvents | criticalEvents | unknownEvents
 	my $sth = $db->query({ query => $query });
-	
+
 	my @data = ();
 	while (my $row = $sth->fetchrow_hashref()) {
-		my ($totalwarnEvents, $totalCritEvents, $totalUnknownEvents) = ($row->{'warningEvents'},$row->{'criticalEvents'},$row->{'unknownEvents'}); 
+		my ($totalwarnEvents, $totalCritEvents, $totalUnknownEvents) = ($row->{'warningEvents'},$row->{'criticalEvents'},$row->{'unknownEvents'});
 
 		my ($mtrs, $mtbf, $mtbsi) = (undef, undef, undef);
 		if (defined($totalCritEvents) && $totalCritEvents != 0) {
@@ -225,9 +225,9 @@ sub getHGMonthAvailability_optimised {
 			$mtbf = $row->{'av_time'}/$totalCritEvents;
 			$mtbsi = ($row->{'unav_time'}+$row->{'av_time'})/$totalCritEvents;
 		}
-		my @tab = ($row->{'group_id'}, $row->{'hcat_id'}, $row->{'scat_id'}, $row->{'liveservice_id'}, 
-				$row->{'av_percent'}, $row->{'unav_time'}, $row->{'degraded_time'}, 
-				$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'deg_opened'}, $row->{'deg_closed'}, $row->{'other_opened'}, $row->{'other_closed'}, 
+		my @tab = ($row->{'group_id'}, $row->{'hcat_id'}, $row->{'scat_id'}, $row->{'liveservice_id'},
+				$row->{'av_percent'}, $row->{'unav_time'}, $row->{'degraded_time'},
+				$row->{'unav_opened'}, $row->{'unav_closed'}, $row->{'deg_opened'}, $row->{'deg_closed'}, $row->{'other_opened'}, $row->{'other_closed'},
 					$totalwarnEvents, $totalCritEvents, $totalUnknownEvents, $mtrs, $mtbf, $mtbsi);
 		push @data, \@tab;
 	}

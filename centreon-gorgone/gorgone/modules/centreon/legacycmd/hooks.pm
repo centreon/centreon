@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -42,7 +42,7 @@ my $config_db_centreon;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centreon = $options{config_db_centreon};
@@ -117,16 +117,16 @@ sub check {
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($legacycmd->{pid}) || $legacycmd->{pid} != $pid);
-        
+
         $legacycmd = {};
         delete $options{dead_childs}->{$pid};
         if ($stop == 0) {
             create_child(logger => $options{logger});
         }
     }
-    
+
     $count++  if (defined($legacycmd->{running}) && $legacycmd->{running} == 1);
-    
+
     return $count;
 }
 
@@ -139,7 +139,7 @@ sub broadcast {
 # Specific functions
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[legacycmd] Create module 'legacycmd' process");
 
     my $child_pid = fork();

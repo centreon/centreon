@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -35,7 +35,7 @@ BEGIN {
 
         GORGONE_MODULE_ACTION_COMMAND_RESULT => 100,
         GORGONE_MODULE_ACTION_PROCESSCOPY_INPROGRESS => 101,
-        
+
         GORGONE_MODULE_PIPELINE_RUN_ACTION => 200,
         GORGONE_MODULE_PIPELINE_FINISH_ACTION => 201,
 
@@ -43,9 +43,9 @@ BEGIN {
         GORGONE_MODULE_CENTREON_JUDGE_FAILBACK_RUNNING => 301,
 
         GORGONE_MODULE_CENTREON_AUTODISCO_SVC_PROGRESS => 400,
-        
+
         GORGONE_MODULE_CENTREON_AUDIT_PROGRESS => 500,
-        
+
         GORGONE_MODULE_CENTREON_MBIETL_PROGRESS => 600
     );
 }

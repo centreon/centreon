@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -45,7 +45,7 @@ my $config_check_containers_time;
 
 sub register {
     my (%options) = @_;
-    
+
     $config = $options{config};
     $config_core = $options{config_core};
     $config_db_centstorage = $options{config_db_centstorage};
@@ -78,12 +78,12 @@ sub routing {
         });
         return undef;
     }
-    
+
     if ($options{action} eq 'NEWTESTREADY') {
         $containers->{ $data->{container_id} }->{ready} = 1;
         return undef;
     }
-    
+
     if (!defined($data->{container_id}) || !defined($last_containers->{ $data->{container_id} })) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -94,7 +94,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     if (gorgone::class::core::waiting_ready(ready => \$containers->{ $data->{container_id} }->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -105,7 +105,7 @@ sub routing {
         });
         return undef;
     }
-    
+
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-newtest-' . $data->{container_id},
         action => $options{action},
@@ -149,12 +149,12 @@ sub check {
         sync_container_childs(logger => $options{logger});
         $timer_check = time();
     }
-    
+
     my $count = 0;
     foreach my $pid (keys %{$options{dead_childs}}) {
         # Not me
         next if (!defined($containers_pid->{$pid}));
-        
+
         # If someone dead, we recreate
         delete $containers->{$containers_pid->{$pid}};
         delete $containers_pid->{$pid};
@@ -164,7 +164,7 @@ sub check {
             sync_container_childs(logger => $options{logger});
         }
     }
-    
+
     return $count;
 }
 
@@ -212,24 +212,24 @@ sub get_containers {
             $options{logger}->writeLogError("[newtest] cannot load container '" . $_->{name} . "' - cannot decode list scenario option");
             next;
         }
-        
+
         $containers->{$_->{name}} = {
             nmc_endpoint => $_->{nmc_endpoint},
-            nmc_timeout => (defined($_->{nmc_timeout}) && $_->{nmc_timeout} =~ /(\d+)/) ? 
+            nmc_timeout => (defined($_->{nmc_timeout}) && $_->{nmc_timeout} =~ /(\d+)/) ?
                 $1 : 10,
             nmc_username => $_->{nmc_username},
             nmc_password => $_->{nmc_password},
             poller_name => $_->{poller_name},
             list_scenario_status => $list_scenario,
-            resync_time => 
+            resync_time =>
                 (defined($_->{resync_time}) && $_->{resync_time} =~ /(\d+)/) ? $1 : 300,
-            host_template => 
+            host_template =>
                 defined($_->{host_template}) && $_->{host_template} ne '' ? $_->{host_template} : 'generic-active-host-custom',
-            host_prefix => 
+            host_prefix =>
                 defined($_->{host_prefix}) && $_->{host_prefix} ne '' ? $_->{host_prefix} : 'Robot-%s',
-            service_template => 
+            service_template =>
                 defined($_->{service_template}) && $_->{service_template} ne '' ? $_->{service_template} : 'generic-passive-service-custom',
-            service_prefix => 
+            service_prefix =>
                 defined($_->{service_prefix}) && $_->{service_prefix} ne '' ? $_->{service_prefix} : 'Scenario-%s',
          };
     }
@@ -239,7 +239,7 @@ sub get_containers {
 
 sub sync_container_childs {
     my (%options) = @_;
-    
+
     $last_containers = get_containers(logger => $options{logger});
     foreach my $container_id (keys %$last_containers) {
         if (!defined($containers->{$container_id})) {
@@ -255,7 +255,7 @@ sub sync_container_childs {
             $options{logger}->writeLogDebug("[newtest] Send KILL signal for container '" . $container_id . "'");
             CORE::kill('KILL', $containers->{$container_id}->{pid});
         }
-        
+
         delete $containers_pid->{ $containers->{$container_id}->{pid} };
         delete $containers->{$container_id};
     }
@@ -263,7 +263,7 @@ sub sync_container_childs {
 
 sub create_child {
     my (%options) = @_;
-    
+
     $options{logger}->writeLogInfo("[newtest] Create 'gorgone-newtest' process for container '" . $options{container_id} . "'");
     my $child_pid = fork();
     if ($child_pid == 0) {

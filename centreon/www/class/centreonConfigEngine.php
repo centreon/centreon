@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -41,7 +41,7 @@
 class CentreonConfigEngine
 {
     protected $db;
-    
+
     /**
      * Constructor
      *
@@ -51,7 +51,7 @@ class CentreonConfigEngine
     {
         $this->db = $db;
     }
-    
+
     /**
      * Insert one or multiple broker directives
      *
@@ -63,7 +63,7 @@ class CentreonConfigEngine
     {
         $this->db->query("DELETE FROM cfg_nagios_broker_module
                 WHERE cfg_nagios_id = ".$this->db->escape($serverId));
-                    
+
         foreach ($directives as $value) {
             if ($value != "") {
                 $this->db->query("INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) 
@@ -71,7 +71,7 @@ class CentreonConfigEngine
             }
         }
     }
-    
+
     /**
      * Used by form only
      *

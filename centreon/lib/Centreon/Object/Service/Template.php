@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -45,8 +45,8 @@ class Centreon_Object_Service_Template extends Centreon_Object
     protected $table = "service";
     protected $primaryKey = "service_id";
     protected $uniqueLabelField = "service_description";
-    
-    
+
+
     /**
      * Generic method that allows to retrieve object ids
      * from another object parameter

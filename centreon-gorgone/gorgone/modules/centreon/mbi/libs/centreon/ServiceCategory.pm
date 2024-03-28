@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -56,12 +56,12 @@ sub getCategory {
 	if (@_) {
 		$scName  = shift;
 	}
-	
+
     my $result = "";
 	# getting services linked to hosts
 	my $query = "SELECT sc_id from service_categories WHERE sc_name='".$scName."'";
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
-		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
+		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")";
 	}
 	my $sth = $db->query({ query => $query });
     if(my $row = $sth->fetchrow_hashref()) {
@@ -70,7 +70,7 @@ sub getCategory {
 		($self->{"logger"})->writeLog("error", "Cannot find service category '" . $scName . "' in database");
 	}
 	$sth->finish();
-		
+
 	return ($result);
 }
 
@@ -82,7 +82,7 @@ sub getAllEntries {
 	my $query = "SELECT `sc_id`, `sc_name`";
 	$query .= " FROM `service_categories`";
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
-		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
+		$query .= " WHERE `sc_id` IN (".$etlProperties->{'dimension.servicecategories'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	my @entries = ();

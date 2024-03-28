@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -35,7 +35,7 @@ sub new {
 sub output_text {
     my ($self, %options) = @_;
 
-    my $output; 
+    my $output;
 
     $output = "\t ===CENTREON_HEALTH TEXT OUTPUT=== \n\n";
     $output .=  "\t\t CENTREON OVERVIEW\n\n";
@@ -68,7 +68,7 @@ sub output_text {
     if ($options{flag_db} != 1 || $options{flag_db} eq "") {
         $output .=  "\t\t DATABASES INFORMATIONS\n\n";
         $output .= "\tDatabases size\n\n";
-        foreach my $database (keys %{$options{data}->{database}->{db_size}}) { 
+        foreach my $database (keys %{$options{data}->{database}->{db_size}}) {
 	    $output .= "Size of " . $database . " database: " . $options{data}->{database}->{db_size}->{$database} . "\n";
         }
         $output .= "\n";
@@ -83,7 +83,7 @@ sub output_text {
         }
         $output .= "\n";
     }
-   
+
     $output .= "\t\t MODULE INFORMATIONS\n\n";
     foreach my $module_key (keys %{$options{data}->{module}}) {
 	$output .= "Module " . $options{data}->{module}->{$module_key}->{full_name} . " is installed. (Author: " . $options{data}->{module}->{$module_key}->{author} . " # Codename: " . $module_key . " # Version: " . $options{data}->{module}->{$module_key}->{version} . ")\n";
@@ -91,14 +91,14 @@ sub output_text {
     $output .= "\n";
 
     $output .= "\t\t CENTREON NODES INFORMATIONS\n\n";
-    
+
     foreach my $poller_id (keys %{$options{data}->{server}->{poller}}) {
         $output .= "\t" . $options{data}->{server}->{poller}->{$poller_id}->{name} . "\n\n";
 	$output .= "Identity: \n";
-	if (defined($options{data}->{server}->{poller}->{$poller_id}->{engine}) && defined($options{data}->{server}->{poller}->{$poller_id}->{version})) { 
+	if (defined($options{data}->{server}->{poller}->{$poller_id}->{engine}) && defined($options{data}->{server}->{poller}->{$poller_id}->{version})) {
   	    $output .= "    Engine (version): " . $options{data}->{server}->{poller}->{$poller_id}->{engine} . " (" . $options{data}->{server}->{poller}->{$poller_id}->{version} . ")\n";
             $output .= "    IP Address (SSH port): " . $options{data}->{server}->{poller}->{$poller_id}->{address} . " (" . $options{data}->{server}->{poller}->{$poller_id}->{ssh_port} . ")\n";
-	    $output .= "    Localhost: " . $options{data}->{server}->{poller}->{$poller_id}->{localhost} . "\n"; 
+	    $output .= "    Localhost: " . $options{data}->{server}->{poller}->{$poller_id}->{localhost} . "\n";
             $output .= "    Running: " . $options{data}->{server}->{poller}->{$poller_id}->{running} . "\n";
             $output .= "    Start time: " . $options{data}->{server}->{poller}->{$poller_id}->{start_time} . "\n";
             $output .= "    Last alive: " . $options{data}->{server}->{poller}->{$poller_id}->{last_alive} . "\n";
@@ -127,20 +127,20 @@ sub output_text {
             $output .= "    Last connection success: " . $options{data}->{broker}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{$broker_stat_file}->{last_connection_success} . "\n\n";
 	}
 
-	$output .= "System stats: \n"; 
-        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{cpu_usage}) ? 
+	$output .= "System stats: \n";
+        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{cpu_usage}) ?
 			"    CPU => " . $options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{cpu_usage} . "\n" :
                         "    CPU => Could not gather data \n";
-        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{load}) ? 
+        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{load}) ?
 			"    LOAD => " . $options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{load} . "\n" :
 			"    LOAD => Could not gather data \n";
         $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{mem_usage}) ?
 			"    MEMORY => " . $options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{mem_usage} . "\n" :
                         "    MEMORY => Could not gather data \n";
-        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{swap_usage}) ? 
+        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{swap_usage}) ?
 			"    SWAP => " . $options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{swap_usage} . "\n" :
 			"    SWAP => Could not gather data \n";
-        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{storage_usage}) ? 
+        $output .= defined($options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{storage_usage}) ?
 			"    STORAGE => " . $options{data}->{systems}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{storage_usage} . "\n\n" :
                         "    STORAGE => Could not gather data \n\n";
 
@@ -149,7 +149,7 @@ sub output_text {
             foreach my $log_topic (sort keys %{$options{data}->{logs}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}}) {
 	        foreach my $log_file (keys %{$options{data}->{logs}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{$log_topic}}) {
 	            $output .= "    " . $log_file . " (" . $log_topic . ")\n\n";
-		    $output .= $options{data}->{logs}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{$log_topic}->{$log_file} . "\n\n"; 
+		    $output .= $options{data}->{logs}->{$options{data}->{server}->{poller}->{$poller_id}->{name}}->{$log_topic}->{$log_file} . "\n\n";
 	        }
 	        $output .= "\n";
 	    }
@@ -303,5 +303,5 @@ sub run {
 	print Dumper($data);
     }
 }
-        
+
 1;

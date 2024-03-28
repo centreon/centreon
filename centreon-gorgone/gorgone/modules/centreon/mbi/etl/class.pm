@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -363,7 +363,7 @@ sub watch_etl_import {
                 action => 'CENTREONMBIETLWORKERSIMPORT',
                 substep => "import-$idx",
                 params => {
-                    type => $val->{type}, 
+                    type => $val->{type},
                     db => $val->{db},
                     sql => $val->{sql},
                     command => $val->{command},
@@ -383,7 +383,7 @@ sub watch_etl_import {
                     params => $val2
                 );
             }
-        }        
+        }
     }
 }
 
@@ -438,7 +438,7 @@ sub run_etl_event {
     $self->{run}->{schedule}->{event}->{current_stage} = 0;
     $self->{run}->{schedule}->{event}->{substeps_execute} = 0;
     $self->{run}->{schedule}->{event}->{substeps_executed} = 0;
-    $self->{run}->{schedule}->{event}->{substeps_total} = 
+    $self->{run}->{schedule}->{event}->{substeps_total} =
         scalar(@{$self->{run}->{schedule}->{event}->{stages}->[0]}) + scalar(@{$self->{run}->{schedule}->{event}->{stages}->[1]}) + scalar(@{$self->{run}->{schedule}->{event}->{stages}->[2]});
 
     $self->{logger}->writeLogDebug("[mbi-etl] event substeps " . $self->{run}->{schedule}->{event}->{substeps_total});
@@ -457,7 +457,7 @@ sub run_etl_perfdata {
     $self->{run}->{schedule}->{perfdata}->{current_stage} = 0;
     $self->{run}->{schedule}->{perfdata}->{substeps_execute} = 0;
     $self->{run}->{schedule}->{perfdata}->{substeps_executed} = 0;
-    $self->{run}->{schedule}->{perfdata}->{substeps_total} = 
+    $self->{run}->{schedule}->{perfdata}->{substeps_total} =
         scalar(@{$self->{run}->{schedule}->{perfdata}->{stages}->[0]}) + scalar(@{$self->{run}->{schedule}->{perfdata}->{stages}->[1]}) + scalar(@{$self->{run}->{schedule}->{perfdata}->{stages}->[2]});
 
     $self->{logger}->writeLogDebug("[mbi-etl] perfdata substeps " . $self->{run}->{schedule}->{perfdata}->{substeps_total});
@@ -641,8 +641,8 @@ sub check_basic_options {
         || ($options{daily} == 1 && $options{rebuild} == 1)) {
         die "Specify one execution method";
     }
-    if (($options{rebuild} == 1 || $options{create_tables} == 1) 
-        && (($options{start} ne '' && $options{end} eq '') 
+    if (($options{rebuild} == 1 || $options{create_tables} == 1)
+        && (($options{start} ne '' && $options{end} eq '')
         || ($options{start} eq '' && $options{end} ne ''))) {
         die "Specify both options start and end or neither of them to use default data retention options";
     }
@@ -676,13 +676,13 @@ sub action_centreonmbietlrun {
             perfdata => { status => UNPLANNED, stages => [ [], [], [] ] }
         };
         $self->{run}->{status} = RUNNING;
-    
+
         $self->{run}->{options} = $options{data}->{content};
 
         $self->send_log(code => GORGONE_MODULE_CENTREON_MBIETL_PROGRESS, token => $self->{run}->{token}, data => { messages => [ ['I', '[SCHEDULER] >>>>>>> start' ] ] });
 
-        $self->{run}->{dbmon} = $self->db_parse_xml(file => $self->{cbis_profile}); 
-        $self->{run}->{dbbi} = $self->db_parse_xml(file => $self->{reports_profile}); 
+        $self->{run}->{dbmon} = $self->db_parse_xml(file => $self->{cbis_profile});
+        $self->{run}->{dbbi} = $self->db_parse_xml(file => $self->{reports_profile});
 
         $self->{run}->{dbmon_centreon_con} = gorgone::class::db->new(
             type => 'mysql',
@@ -708,7 +708,7 @@ sub action_centreonmbietlrun {
 
         $self->{etlProp} = gorgone::modules::centreon::mbi::libs::centreon::ETLProperties->new($self->{logger}, $self->{run}->{dbmon_centreon_con});
         ($self->{run}->{etlProperties}, $self->{run}->{dataRetention}) = $self->{etlProp}->getProperties();
-    
+
         $self->planning();
         $self->run_etl();
     } catch {
@@ -762,7 +762,7 @@ sub action_centreonmbietlkill {
             }
         );
         return 0;
-    } 
+    }
 
     $self->{logger}->writeLogDebug('[mbi-etl] kill sent to the module etlworkers');
 

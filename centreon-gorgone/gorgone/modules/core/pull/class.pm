@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -84,7 +84,7 @@ sub exit_process {
 
     $self->{client}->send_message(
         action => 'UNREGISTERNODES',
-        data => { nodes => [ { id => $self->get_core_config(name => 'id') } ] }, 
+        data => { nodes => [ { id => $self->get_core_config(name => 'id') } ] },
         json_encode => 1
     );
     $self->{client}->close();
@@ -120,7 +120,7 @@ sub transmit_back {
         if ($@) {
             return $options{message};
         }
-        
+
         if (defined($data->{data}->{action}) && $data->{data}->{action} eq 'getlog') {
             return '[SETLOGS] [' . $1 . '] [] ' . $2;
         }
@@ -200,9 +200,9 @@ sub run {
         context => $self->{zmq_context},
         core_loop => $self->{loop},
         identity => 'gorgone-' . $self->get_core_config(name => 'id'),
-        cipher => $self->{config}->{cipher}, 
+        cipher => $self->{config}->{cipher},
         vector => $self->{config}->{vector},
-        client_pubkey => 
+        client_pubkey =>
             defined($self->{config}->{client_pubkey}) && $self->{config}->{client_pubkey} ne '' ?
                 $self->{config}->{client_pubkey} : $self->get_core_config(name => 'pubkey'),
         client_privkey =>

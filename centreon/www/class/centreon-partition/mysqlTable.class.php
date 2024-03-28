@@ -1,7 +1,7 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * Copyright 2005-2024 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -81,7 +81,7 @@ class MysqlTable
         $this->backupFormat = null;
         $this->setSchema($schema);
     }
-    
+
     /**
      * Set table name
      *
@@ -97,7 +97,7 @@ class MysqlTable
             $this->name = null;
         }
     }
-    
+
     /**
      * Get table name
      *
@@ -107,7 +107,7 @@ class MysqlTable
     {
         return $this->name;
     }
-    
+
     /**
      * Set table schema
      *
@@ -123,7 +123,7 @@ class MysqlTable
             $this->schema = null;
         }
     }
-    
+
     /**
      * Get table schema
      *
@@ -133,7 +133,7 @@ class MysqlTable
     {
         return $this->schema;
     }
-    
+
     /**
      * Set partitioning activation flag
      *
@@ -147,7 +147,7 @@ class MysqlTable
             $this->activate = $activate;
         }
     }
-    
+
     /**
      * Get activate value
      *
@@ -157,7 +157,7 @@ class MysqlTable
     {
         return $this->activate;
     }
-    
+
     /**
      * Set partitioning column name
      *
@@ -171,7 +171,7 @@ class MysqlTable
             $this->column = $column;
         }
     }
-    
+
     /**
      * Get column value
      *
@@ -181,7 +181,7 @@ class MysqlTable
     {
         return $this->column;
     }
-    
+
     /**
      * Set partitioning timezone
      *
@@ -197,7 +197,7 @@ class MysqlTable
             $this->timezone = date_default_timezone_get();
         }
     }
-    
+
     /**
      * Get timezone value
      *
@@ -207,7 +207,7 @@ class MysqlTable
     {
         return $this->timezone;
     }
-    
+
     /**
      * Set partitioning column type
      *
@@ -226,7 +226,7 @@ class MysqlTable
             );
         }
     }
-    
+
     /**
      * Get partitioning column type
      *
@@ -236,7 +236,7 @@ class MysqlTable
     {
         return $this->type;
     }
-    
+
     /**
      * Set partition range
      *

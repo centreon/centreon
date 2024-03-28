@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -157,10 +157,10 @@ sub connect {
         $self->{clients}->{$options{id}}->{class} = gorgone::class::clientzmq->new(
             context => $self->{zmq_context},
             core_loop => $self->{loop},
-            identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id}, 
-            cipher => $self->{clients}->{ $options{id} }->{cipher}, 
+            identity => 'gorgone-proxy-' . $self->{core_id} . '-' . $options{id},
+            cipher => $self->{clients}->{ $options{id} }->{cipher},
             vector => $self->{clients}->{ $options{id} }->{vector},
-            client_pubkey => 
+            client_pubkey =>
                 defined($self->{clients}->{ $options{id} }->{client_pubkey}) && $self->{clients}->{ $options{id} }->{client_pubkey} ne ''
                     ? $self->{clients}->{ $options{id} }->{client_pubkey} : $self->get_core_config(name => 'pubkey'),
             client_privkey =>
@@ -367,7 +367,7 @@ sub proxy_ssh {
 
 sub proxy {
     my (%options) = @_;
-    
+
     if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
         return undef;
     }
@@ -462,7 +462,7 @@ sub event {
         #$self->{logger}->writeLogDebug("[proxy] event channel $options{channel} delete: $self->{clients}->{ $options{channel} }->{delete} com_read_internal: $self->{clients}->{ $options{channel} }->{com_read_internal}")
         #    if (defined($self->{clients}->{ $options{channel} }));
         return if (
-            defined($self->{clients}->{ $options{channel} }) && 
+            defined($self->{clients}->{ $options{channel} }) &&
             ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
         );
 
@@ -481,7 +481,7 @@ sub event {
             $self->exit_process();
         }
         return if (
-            defined($self->{clients}->{ $options{channel} }) && 
+            defined($self->{clients}->{ $options{channel} }) &&
             ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
         );
     }

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -104,7 +104,7 @@ sub bindParam {
 	my ($self, $row) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my $size = scalar(@$row);
 	my $sth = $self->{'statement'};
 	for (my $i = 0; $i < $size; $i++) {
@@ -126,7 +126,7 @@ sub bindParam {
 		($self->{'dbinstance'})->begin_work;
 	}
 	$self->{'bind_counter'} += 1;
-	
+
 }
 
 sub getDayEvents {
@@ -152,7 +152,7 @@ sub getDayEvents {
     my $rows = [];
     while (my $row = (
             shift(@$rows) ||
-            shift(@{$rows = $sth->fetchall_arrayref(undef,10_000) || []}) ) 
+            shift(@{$rows = $sth->fetchall_arrayref(undef,10_000) || []}) )
         ) {
         my $entryID = $row->[3];
 
@@ -162,13 +162,13 @@ sub getDayEvents {
         for (my $count = 0; $count < $rangeSize; $count++) {
             my $currentStart = $row->[0];
             my $currentEnd = $row->[1];
-				
+
             my $range = $ranges->[$count];
             my ($rangeStart, $rangeEnd) = ($range->[0], $range->[1]);
             if ($currentStart < $rangeEnd && $currentEnd > $rangeStart) {
                 if ($currentStart < $rangeStart) {
                     $currentStart = $rangeStart;
-                } elsif ($count == 0) { 
+                } elsif ($count == 0) {
                     $started = 1;
                 }
                 if ($currentEnd > $rangeEnd) {
@@ -214,7 +214,7 @@ sub getDayEvents {
 sub getNbEvents {
 	my ($self, $start, $end, $groupId, $hcatId, $scatId, $liveServiceID) = @_;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "SELECT count(state) as nbEvents, state";
 	$query .= " FROM mod_bi_services s, ".$self->{'name'}." e";
 	$query .= " WHERE s.hg_id = ".$groupId." AND s.hc_id=".$hcatId." AND s.sc_id=".$scatId;
@@ -225,7 +225,7 @@ sub getNbEvents {
 	$query .= " AND e.state in (1,2,3)";
 	$query .= " GROUP BY e.state";
 	my $sth = $db->query({ query => $query });
-	
+
 	my ($warnEvents, $criticalEvents, $otherEvents) = (undef, undef, undef);
 	while (my $row = $sth->fetchrow_hashref()) {
 		if ($row->{'state'} == 1) {
@@ -242,7 +242,7 @@ sub getNbEvents {
 sub deleteUnfinishedEvents {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
-	
+
 	my $query = "DELETE FROM `".$self->{'name'}."`";
 	$query .= " WHERE last_update = 1 OR end_time is null";
 	$db->query({ query => $query });

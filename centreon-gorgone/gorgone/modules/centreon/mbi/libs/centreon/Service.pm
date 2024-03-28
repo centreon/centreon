@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -34,7 +34,7 @@ sub new {
 	$self->{"logger"}	= shift;
 	$self->{"centreon"} = shift;
 	$self->{'etlProperties'} = undef;
-	
+
 	if (@_) {
 		$self->{"centstorage"}  = shift;
 	}
@@ -57,7 +57,7 @@ sub getServicesWithHostAndCategory {
 		$serviceId = shift;
 	}
 	my $templateCategories = $self->getServicesTemplatesCategories;
-	
+
     my (@results);
 	# getting services linked to hosts
 	my $query = "SELECT service_description, service_id, host_id, service_template_model_stm_id as tpl".
@@ -82,14 +82,14 @@ sub getServicesWithHostAndCategory {
 		if (defined($row->{"tpl"}) && defined($templateCategories->{$row->{"tpl"}})) {
 	    	my $tplCategories = $templateCategories->{$row->{"tpl"}};
 		    while(my ($sc_id, $sc_name) = each(%$tplCategories)) {
-		    	if(!defined($categories->{$sc_id})) { 
+		    	if(!defined($categories->{$sc_id})) {
 	   				push @categoriesTable, $sc_id.";".$sc_name;
 		    	}
 			}
     	}
    		if (!scalar(@categoriesTable)) {
    			#ToDo push @categoriesTable, "0;NULL";
-   		}	
+   		}
     	if (defined($serviceHostTable)) {
     		foreach(@$serviceHostTable) {
     			my $hostInfos = $_;
@@ -125,14 +125,14 @@ sub getServicesWithHostAndCategory {
 		if (defined($row->{"tpl"}) && defined($templateCategories->{$row->{"tpl"}})) {
 	    	my $tplCategories = $templateCategories->{$row->{"tpl"}};
 		    while(my ($sc_id, $sc_name) = each(%$tplCategories)) {
-	   			if(!defined($categories->{$sc_id})) { 
+	   			if(!defined($categories->{$sc_id})) {
 	   				push @categoriesTable, $sc_id.";".$sc_name;
 		    	}
 			}
     	}
    		if (!scalar(@categoriesTable)) {
    			push @categoriesTable, "0;NULL";
-   		}	
+   		}
     	if (defined($serviceHostTable)) {
     		foreach(@$serviceHostTable) {
     			my $hostInfos = $_;
@@ -150,7 +150,7 @@ sub getServicesTemplatesCategories {
 	my $self = shift;
 	my $db = $self->{"centreon"};
 	my %results = ();
-	
+
 	my $query = "SELECT service_id, service_description, service_template_model_stm_id FROM service WHERE service_register = '0'";
 	my $sth = $db->query({ query => $query });
     while(my $row = $sth->fetchrow_hashref()) {
@@ -195,13 +195,13 @@ sub getServiceCategories {
 	my $id = shift;
 	my %results = ();
 	my $etlProperties = $self->{'etlProperties'};
-	
+
 	my $query = "SELECT sc.sc_id, sc_name ";
 	$query .= " FROM service_categories sc, service_categories_relation scr";
 	$query .= " WHERE service_service_id = ".$id;
 	$query .= " AND sc.sc_id = scr.sc_id";
 	if(!defined($etlProperties->{'dimension.all.servicecategories'}) && $etlProperties->{'dimension.servicecategories'} ne ''){
-		$query .= " AND sc.sc_id IN (".$etlProperties->{'dimension.servicecategories'}.")"; 
+		$query .= " AND sc.sc_id IN (".$etlProperties->{'dimension.servicecategories'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	while(my $row = $sth->fetchrow_hashref()) {

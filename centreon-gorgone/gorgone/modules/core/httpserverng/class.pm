@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -112,7 +112,7 @@ post '/*' => sub {
     );
 };
 
-get '/*' => sub { 
+get '/*' => sub {
     my $mojo = shift;
 
     $connector->api_call(
@@ -314,7 +314,7 @@ sub run {
     #my $loop = Mojo::IOLoop->new();
     #my $reactor = Mojo::Reactor::EV->new();
     #$reactor->io($socket => sub {
-    #    my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket}); 
+    #    my $message = gorgone::standard::library::zmq_dealer_read_message(socket => $connector->{internal_socket});
     #});
     #$reactor->watch($socket, 1, 0);
     #$loop->reactor($reactor);
@@ -399,7 +399,7 @@ sub read_zmq_events {
     while ($self->{internal_socket}->has_pollin()) {
         my ($message) = $connector->read_message();
         $connector->{logger}->writeLogDebug('[httpserverng] zmq message received: ' . $message);
-        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m || 
+        if ($message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+\[.*?\]\s+(.*)$/m ||
             $message =~ /^\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m) {
             my ($action, $token, $data) = ($1, $2, $3);
             if (defined($connector->{token_watch}->{$token})) {
@@ -638,7 +638,7 @@ sub api_root_ws {
             action => $self->{api_endpoints}->{ $options{content}->{method} . '_/internal/' . $1 },
             internal => $1,
             target => $options{target},
-            data => { 
+            data => {
                 content => $options{content}->{data},
                 parameters => $options{content}->{parameters},
                 variables => $options{content}->{variable}
@@ -652,7 +652,7 @@ sub api_root_ws {
             async => 0,
             action => $self->{api_endpoints}->{ $options{content}->{method} . '_/' . $1 . '/' . $2 . '/' . $3 },
             target => $options{target},
-            data => { 
+            data => {
                 content => $options{content}->{data},
                 parameters => $options{content}->{parameters},
                 variables => $options{content}->{variable}
@@ -677,8 +677,8 @@ sub api_root {
 
     # async mode:
     #   provide the token directly and close the connection. need to call GETLOG on the token
-    #   not working with GETLOG 
-    
+    #   not working with GETLOG
+
     # listener is used for other case.
 
     if ($options{method} eq 'GET' && $options{uri} =~ /^\/api\/(nodes\/(\w*)\/)?log\/(.*)$/) {
@@ -697,7 +697,7 @@ sub api_root {
             action => $self->{api_endpoints}->{ $options{method} . '_/internal/' . $3 },
             internal => $3,
             target => $2,
-            data => { 
+            data => {
                 content => $options{content},
                 parameters => $options{parameters},
                 variables => \@variables
@@ -711,7 +711,7 @@ sub api_root {
             async => $async,
             action => $self->{api_endpoints}->{ $options{method} . '_/' . $3 . '/' . $4 . '/' . $5 },
             target => $2,
-            data => { 
+            data => {
                 content => $options{content},
                 parameters => $options{parameters},
                 variables => \@variables

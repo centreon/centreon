@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -117,7 +117,7 @@ sub action_registerresync {
             nodes => $register_nodes
         }
     }) if (scalar(@$register_nodes) > 0);
-    
+
     $self->send_internal_action({
         action => 'UNREGISTERNODES',
         data => {

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -54,7 +54,7 @@ sub getDuplicateRelations {
 	my $self = shift;
 
 	my @relationIDS;
-	#Get duplicated relations and exclude BAM or Metaservices data 
+	#Get duplicated relations and exclude BAM or Metaservices data
 	my $duplicateEntriesQuery = "SELECT host_host_id, service_service_id, count(*) as nbRelations ".
         "FROM host_service_relation t1, host t2 WHERE t1.host_host_id = t2.host_id ".
         "AND t2.host_name not like '_Module%' group by host_host_id, service_service_id HAVING COUNT(*) > 1";
@@ -88,7 +88,7 @@ sub deleteDuplicateEntries {
 
 	my @relationIDS = @{$_[0]};
     #WARNING : very important so at least 1 relation is kept
-	pop @relationIDS; 
+	pop @relationIDS;
 	foreach (@relationIDS) {
 		my $idToDelete = $_;
 		my $deleteQuery = "DELETE FROM host_service_relation WHERE hsr_id = ".$idToDelete;

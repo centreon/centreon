@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -45,7 +45,7 @@ sub setStorageDir {
 	my $self = shift;
 	my $logger = $self->{'logger'};
 	my $tempFolder = shift;
-	
+
 	if (!defined($tempFolder)) {
 		$logger->writeLog("ERROR", "Temporary storage folder is not defined");
 	}
@@ -104,7 +104,7 @@ sub dumpTableStructure {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{'logger'};
 	my ($tableName) = (shift);
-	
+
 	my $sql = "";
 	my $sth = $db->query({ query => "SHOW CREATE TABLE ".$tableName });
     if (my $row = $sth->fetchrow_hashref()) {
@@ -123,7 +123,7 @@ sub insertData {
 	my $self = shift;
 	my $db = $self->{"centstorage"};
 	my $logger =  $self->{"logger"};
-	
+
 	my ($tableName, $inFile) = (shift, shift);
 	my $query = "LOAD DATA INFILE '".$inFile."' INTO TABLE `".$tableName."`";
 	my $sth = $db->query({ query => $query });

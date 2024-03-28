@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -58,7 +58,7 @@ sub agreggateEventsByTimePeriod {
 	my $logger = $self->{"logger"};
 	my $nbEvents;
 	my $db = $self->{"centstorage"};
-	
+
 	my $rangesByTP = ($self->{"timePeriodObj"})->getTimeRangesForPeriodAndTpList($timeperiodList, $start, $end);
 	my $query = " SELECT e.host_id, start_time, end_time, ack_time, state, last_update";
 	$query .= " FROM `hoststateevents` e";
@@ -68,8 +68,8 @@ sub agreggateEventsByTimePeriod {
 	$query .= " AND end_time > ".$start."";
 	$query .= " AND in_downtime = 0 ";
 	$query .= " ORDER BY start_time ";
-	
-	
+
+
 	my $hostEventObjects = $self->{"biHostStateEventsObj"};
 	my $sth = $db->query({ query => $query });
 	$hostEventObjects->createTempBIEventsTable();
@@ -94,7 +94,7 @@ sub agreggateEventsByTimePeriod {
 			if (defined($tab[3]) && $tab[3] != -1) {
 				$hostEventObjects->bindParam(\@tab);
 			}
-		
+
 		}
 	}
 	($db->getInstance)->commit;
@@ -104,7 +104,7 @@ sub processIncidentForTp {
 	my ($self, $timeRanges, $start, $end) = @_;
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
-	
+
 	my $rangeSize = scalar(@$timeRanges);
 	my $duration = 0;
 	my $slaDuration = 0;
@@ -113,14 +113,14 @@ sub processIncidentForTp {
 	my $processed = 0;
 	my $slaStart = $start;
 	my $slaStartModified = 0;
-	
+
 	foreach(@$timeRanges) {
 		my $currentStart = $start;
 		my $currentEnd = $end;
-		
+
     	$range = $_;
 		my ($rangeStart, $rangeEnd) = ($range->[0], $range->[1]);
-		
+
 		if ($currentStart < $rangeEnd && $currentEnd > $rangeStart) {
 			$processed = 1;
 			if ($currentStart > $rangeStart) {
@@ -141,7 +141,7 @@ sub processIncidentForTp {
 	if (!$processed) {
 		return (-1, -1, -1);
 	}
-	
+
 	return ($slaStart, $slaDuration);
 }
 
@@ -151,7 +151,7 @@ sub dailyPurge {
 	my $db = $self->{"centstorage"};
 	my $logger = $self->{"logger"};
 	my ($end) = @_;
-	
+
 	$logger->writeLog("DEBUG", "[PURGE] [hoststateevents] purging data older than ".$end);
 	my $query = "DELETE FROM `hoststateevents` where end_time < UNIX_TIMESTAMP('".$end."')";
 	$db->query({ query => $query });
@@ -163,7 +163,7 @@ sub getNbEvents{
 	my ($start, $end) = @_;
 	my $logger = $self->{"logger"};
 	my $nbEvents = 0;
-	
+
 	my $query = "SELECT count(*) as nbEvents";
 	$query .= " FROM `hoststateevents` e";
 	$query .= " RIGHT JOIN (select host_id from mod_bi_tmp_today_hosts group by host_id) t2";

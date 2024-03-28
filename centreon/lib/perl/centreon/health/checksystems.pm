@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Centreon (http://www.centreon.com/)
+# Copyright 2017 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -82,16 +82,16 @@ sub build_command_hash {
 
 sub get_remote_infos {
     my ($self, %options) = @_;
-  
-    
-    return centreon::health::ssh::new->main(host => $options{host}, port => $options{ssh_port}, command_pool => $self->{cmd_system_health}); 
-    
+
+
+    return centreon::health::ssh::new->main(host => $options{host}, port => $options{ssh_port}, command_pool => $self->{cmd_system_health});
+
 }
-     
+
 sub get_local_infos {
     my ($self, %options) = @_;
-    my ($lerror, $stdout);    
-    
+    my ($lerror, $stdout);
+
     my $results;
 
     foreach my $command (@{$self->{cmd_system_health}}) {
@@ -105,8 +105,8 @@ sub get_local_infos {
 	}
     }
 
-    return $results 
-    
+    return $results
+
 }
 
 sub run {
@@ -126,7 +126,7 @@ sub run {
 	    $self->{output}->{$name} = $self->get_local_infos(poller_name => $name);
 	}
     }
-    
+
     return $self->{output}
 }
 

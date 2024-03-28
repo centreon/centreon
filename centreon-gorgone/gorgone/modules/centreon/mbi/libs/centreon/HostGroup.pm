@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -69,7 +69,7 @@ sub getHostgroupServices {
 	$query .= " AND h.`host_activate` = '1'";
 	$query .= " AND h.`host_register` = '1'";
 	if(!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne ''){
-		$query .= " AND hg.`hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
+		$query .= " AND hg.`hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -85,7 +85,7 @@ sub getHostgroupHostServices {
 	my $self = shift;
 	my $db = $self->{"centreon"};
 	my %etlProperties = $self->{'etlProperties'};
-	
+
 	my $hgId = 0;
 	if (@_) {
 		$hgId  = shift;
@@ -103,7 +103,7 @@ sub getHostgroupHostServices {
 	$query .= " AND s.`service_activate` = '1'";
 	$query .= " AND s.`service_register` = '1'";
 	if(!defined($etlProperties{'etl.dimension.all.hostgroups'}) && $etlProperties{'etl.dimension.hostgroups'} ne ''){
-		$query .= " AND hg.`hg_id` IN (".$etlProperties{'etl.dimension.hostgroups'}.")"; 
+		$query .= " AND hg.`hg_id` IN (".$etlProperties{'etl.dimension.hostgroups'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	while (my $row = $sth->fetchrow_hashref()) {
@@ -121,7 +121,7 @@ sub getAllEntries {
 	my $query = "SELECT `hg_id`, `hg_name`";
 	$query .= " FROM `hostgroup`";
 	if(!defined($etlProperties->{'dimension.all.hostgroups'}) && $etlProperties->{'dimension.hostgroups'} ne ''){
-		$query .= " WHERE `hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")"; 
+		$query .= " WHERE `hg_id` IN (".$etlProperties->{'dimension.hostgroups'}.")";
 	}
 	my $sth = $db->query({ query => $query });
 	my @entries = ();

@@ -1,5 +1,5 @@
-# 
-# Copyright 2019 Centreon (http://www.centreon.com/)
+#
+# Copyright 2019 - 2024 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
 # the needs in IT infrastructure and application monitoring for
@@ -246,7 +246,7 @@ sub read_message_client {
 
 sub proxy {
     my (%options) = @_;
-    
+
     return undef if ($options{message} !~ /^\[(.+?)\]\s+\[(.*?)\]\s+\[(.*?)\]\s+(.*)$/m);
 
     my ($action, $token, $target_complete, $data) = ($1, $2, $3, $4);
@@ -317,7 +317,7 @@ sub is_logged_websocket {
 
     return 1 if ($self->{ws_clients}->{ $options{ws_id} }->{logged} == 1);
 
-    if (!defined($self->{ws_clients}->{ $options{ws_id} }->{authorization}) || 
+    if (!defined($self->{ws_clients}->{ $options{ws_id} }->{authorization}) ||
         $self->{ws_clients}->{ $options{ws_id} }->{authorization} !~ /^\s*Bearer\s+$self->{config}->{httpserver}->{token}\s*$/) {
         $self->close_websocket(
             code => 500,
@@ -363,7 +363,7 @@ sub clean_websocket {
     return if (!defined($self->{ws_clients}->{ $options{ws_id} }));
 
     $self->{ws_clients}->{ $options{ws_id} }->{tx}->finish() if (!defined($options{finish}));
-    delete $self->{identities}->{ $self->{ws_clients}->{ $options{ws_id} }->{identity} } 
+    delete $self->{identities}->{ $self->{ws_clients}->{ $options{ws_id} }->{identity} }
         if (defined($self->{ws_clients}->{ $options{ws_id} }->{identity}));
     delete $self->{ws_clients}->{ $options{ws_id} };
 }

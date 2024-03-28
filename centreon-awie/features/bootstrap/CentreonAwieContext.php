@@ -1,10 +1,10 @@
 <?php
 
 /*
-** Copyright 2021 Centreon
-**
-** All rights reserved.
-*/
+ * Copyright 2021 - 2024 Centreon
+ *
+ * All rights reserved.
+ */
 
 use Centreon\Test\Behat\CentreonContext;
 
