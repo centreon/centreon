@@ -29,6 +29,7 @@ use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -39,9 +40,10 @@ class NotificationResourceFactory
     use LoggerTrait;
 
     public function __construct(
-        private NotificationResourceRepositoryProviderInterface $repositoryProvider,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
+        private readonly NotificationResourceRepositoryProviderInterface $repositoryProvider,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ContactInterface $user,
+        private readonly NotificationRightsInterface $notificationRights,
     ) {
     }
 
@@ -64,7 +66,7 @@ class NotificationResourceFactory
     {
         $resourceIds = array_unique($resource['ids']);
 
-        if ($this->user->isAdmin()) {
+        if ($this->notificationRights->isAdmin($this->user)) {
             // Assert IDs validity without ACLs
             $existingResources = $repository->exist($resourceIds);
         } else {

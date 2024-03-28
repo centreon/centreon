@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -37,13 +37,13 @@ use Core\Notification\Application\UseCase\FindNotifiableResources\{
 use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService, NotificationServiceEvent};
 use Tests\Core\Notification\Infrastructure\API\FindNotifiableResources\FindNotifiableResourcesPresenterStub;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotifiableResourcesPresenterStub($this->presenterFormatter);
     $this->readRepository = $this->createMock(ReadNotifiableResourceRepositoryInterface::class);
 });
 
-it('should present a Forbidden Response when user doesn\'t have access to endpoint.', function () {
+it('should present a Forbidden Response when user doesn\'t have access to endpoint.', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $requestUid = '';
 
@@ -57,7 +57,7 @@ it('should present a Forbidden Response when user doesn\'t have access to endpoi
         ->toBe(NotificationException::listResourcesNotAllowed()->getMessage());
 });
 
-it('should present an Error Response when an unhandled error occurs.', function () {
+it('should present an Error Response when an unhandled error occurs.', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1);
     $requestUid = '';
 
@@ -77,7 +77,7 @@ it('should present an Error Response when an unhandled error occurs.', function 
 
 it(
     'should present a Not Modified Response when request UID header is equal to MD5 hash of database query',
-    function (iterable $notifiableResources) {
+    function (iterable $notifiableResources): void {
         $contact = (new Contact())->setAdmin(true)->setId(1);
         $requestUid = '40f7bc75fcc26954c7190dc743d0a9a6';
 
@@ -104,16 +104,16 @@ it(
                     'mytHost',
                     [],
                     [new NotifiableService(13, 'Ping', null, [NotificationServiceEvent::Ok])]
-                )
+                ),
             ]
-            )
-        ]
-    ]
+            ),
+        ],
+    ],
 ]);
 
 it(
     'should present a FindNotifiableResourcesResponse if request UID header isn\'t equal to MD5 hash of database query',
-    function (iterable $resources) {
+    function (iterable $resources): void {
         $contact = (new Contact())->setAdmin(true)->setId(1);
         $requestUid = '';
 
@@ -170,9 +170,9 @@ it(
                     'mytHost',
                     [],
                     [new NotifiableService(13, 'Ping', null, [NotificationServiceEvent::Ok])]
-                )
+                ),
             ]
-            )
-        ]
-    ]
+            ),
+        ],
+    ],
 ]);

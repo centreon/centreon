@@ -34,6 +34,7 @@ use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -48,6 +49,7 @@ final class FindNotifications
         private readonly NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
+        private readonly NotificationRightsInterface $notificationRights,
     ) {
     }
 
@@ -121,7 +123,7 @@ final class FindNotifications
 
         $repositories = $this->repositoryProvider->getRepositories();
 
-        if (! $this->user->isAdmin()) {
+        if (! $this->notificationRights->isAdmin($this->user)) {
             $resourcesCount = $this->getResourcesCountWithACL($repositories, $notificationsIds);
         } else {
             $resourcesCount = $this->getResourcesCountForAdmin($repositories, $notificationsIds);

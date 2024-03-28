@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifiableContactGroups;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Notification\Application\Rights\NotificationRightsInterface;
 use Core\Notification\Application\UseCase\FindNotifiableContactGroups\Response\NotifiableContactGroupDto;
 
 final class FindNotifiableContactGroups
@@ -36,19 +38,31 @@ final class FindNotifiableContactGroups
 
     /**
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ContactInterface $contact
+     * @param NotificationRightsInterface $notificationRights
      */
-    public function __construct(private readonly ReadContactGroupRepositoryInterface $contactGroupRepository)
-    {
+    public function __construct(
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly ContactInterface $contact,
+        private readonly NotificationRightsInterface $notificationRights,
+    ) {
     }
 
     /**
      * @param FindNotifiableContactGroupsPresenterInterface $presenter
      */
-    public function __invoke(FindNotifiableContactGroupsPresenterInterface $presenter): void
-    {
+    public function __invoke(
+        FindNotifiableContactGroupsPresenterInterface $presenter,
+    ): void {
         try {
             $this->info('Retrieving all contact groups.');
-            $contactGroups = $this->contactGroupRepository->findAll();
+
+            if ($this->notificationRights->isAdmin($this->contact)) {
+                $contactGroups = $this->contactGroupRepository->findAll();
+            } else {
+                $contactGroups = $this->contactGroupRepository->findAllByUserId($this->contact->getId());
+            }
+
             if ([] === $contactGroups) {
                 $this->error('Contact Groups not found');
                 $response = new NotFoundResponse('Contact Groups');
