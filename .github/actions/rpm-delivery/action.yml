@@ -99,7 +99,7 @@ runs:
               if [ "${{ inputs.stability }}" == "stable" ]; then
                 echo "[DEBUG] - Stability is ${{ inputs.stability }}, not delivering."
               elif [ "${{ inputs.stability }}" == "testing" ]; then
-                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
               else
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
