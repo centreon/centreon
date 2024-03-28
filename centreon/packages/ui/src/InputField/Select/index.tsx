@@ -27,6 +27,14 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
   noLabelInput: {
     padding: theme.spacing(1)
+  },
+  select: {
+    '& .MuiInputLabel-shrink~.MuiInputBase-root fieldset legend': {
+      maxWidth: '100%'
+    },
+    '& fieldset legend': {
+      maxWidth: 0
+    }
   }
 }));
 
@@ -79,7 +87,12 @@ const SelectField = ({
   };
 
   return (
-    <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
+    <FormControl
+      className={classes.select}
+      error={!isNil(error)}
+      fullWidth={fullWidth}
+      size="small"
+    >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         displayEmpty

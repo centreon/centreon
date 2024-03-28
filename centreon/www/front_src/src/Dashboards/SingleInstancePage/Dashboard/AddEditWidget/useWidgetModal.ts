@@ -74,7 +74,7 @@ const useWidgetModal = (): useWidgetModalState => {
   const closeModal = (): void =>
     startTransition(() => {
       setWidgetFormInitialDataAtom(null);
-      setWidgetProperties(null);
+      setWidgetProperties(undefined);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
       setSingleHostPerMetric(undefined);

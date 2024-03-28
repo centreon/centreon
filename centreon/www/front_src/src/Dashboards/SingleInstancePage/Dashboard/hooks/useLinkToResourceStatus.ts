@@ -1,5 +1,5 @@
 import { equals } from 'ramda';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
   getResourcesUrlForMetricsWidgets,
@@ -12,6 +12,10 @@ import {
   defaultSelectedColumnIdsforViewByHost,
   defaultSelectedColumnIds
 } from '../../../../Resources/Listing/columns';
+import {
+  metricInputKeyDerivedAtom,
+  resourcesInputKeyDerivedAtom
+} from '../AddEditWidget/atoms';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
@@ -19,19 +23,21 @@ interface UseLinkToResourceStatus {
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
+  const metricInputKey = useAtomValue(metricInputKeyDerivedAtom);
+  const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
-
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options): string => {
-    if (!data?.resources) {
+    if (resourcesInputKey && !data?.[resourcesInputKey]) {
       return '';
     }
 
-    if (options?.statuses && options?.states && data?.resources) {
+    if (metricInputKey && !data?.[metricInputKey]) {
       const { statuses, states } = options;
 
-      const type = options?.displayType || options?.resourceType;
+      const type =
+        options?.resourceType || options?.resourceTypes || options?.displayType;
 
       const { resources } = data;
 

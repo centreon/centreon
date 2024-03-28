@@ -4,19 +4,23 @@ import { isNil } from 'ramda';
 import { useSetAtom } from 'jotai';
 
 import { useDashboardConfig } from '../../../DashboardConfig/useDashboardConfig';
-import { useDashboardDelete } from '../../../../../hooks/useDashboardDelete';
 import { unformatDashboard } from '../../utils';
 import { askBeforeRevokeAtom } from '../../atom';
-import { isSharesOpenAtom } from '../../../../../atoms';
+import {
+  dashboardToDeleteAtom,
+  dashboardToDuplicateAtom,
+  isSharesOpenAtom
+} from '../../../../../atoms';
 
 interface UseActionsState {
   closeMoreActions: () => void;
-  deleteDashboard: () => void;
   editAccessRights: () => void;
   editDashboard: () => void;
   isNestedRow: boolean;
   moreActionsOpen: HTMLElement | null;
   openAskBeforeRevoke: () => void;
+  openDeleteModal: () => void;
+  openDuplicateModal: () => void;
   openMoreActions: (event) => void;
 }
 
@@ -25,8 +29,16 @@ const useActions = (row): UseActionsState => {
   const setAskBeforeRevoke = useSetAtom(askBeforeRevokeAtom);
 
   const { editDashboard } = useDashboardConfig();
-  const deleteDashboard = useDashboardDelete();
   const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
+
+  const seDashboardToDuplicate = useSetAtom(dashboardToDuplicateAtom);
+  const seDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
+
+  const openDuplicateModal = (): void =>
+    seDashboardToDuplicate(unformatDashboard(row));
+
+  const openDeleteModal = (): void =>
+    seDashboardToDelete(unformatDashboard(row));
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
@@ -49,12 +61,13 @@ const useActions = (row): UseActionsState => {
 
   return {
     closeMoreActions,
-    deleteDashboard: deleteDashboard(unformattedDashboard),
     editAccessRights: openShares(unformattedDashboard),
     editDashboard: editDashboard(unformattedDashboard),
     isNestedRow,
     moreActionsOpen,
     openAskBeforeRevoke,
+    openDeleteModal,
+    openDuplicateModal,
     openMoreActions
   };
 };

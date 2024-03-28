@@ -349,6 +349,10 @@ class CentreonStatistics
             $data['dashboards'] = $this->getAdditionalDashboardsInformation();
         }
 
+        if ($this->featureFlags?->isEnabled('dashboard_playlist')) {
+            $data['playlists'] = $this->getAdditionalDashboardPlaylistsInformation();
+        }
+
         $data['user_filter'] = $this->getAdditionalUserFiltersInformation();
 
         return $data;
@@ -431,6 +435,48 @@ class CentreonStatistics
                     ? null
                     : \count($widgetSettings['data']['metrics']);
             }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array<string,array{rotation_time: int, dashboards_count: int, shared_users_groups_count: int}>
+     */
+    private function getAdditionalDashboardPlaylistsInformation(): array
+    {
+        $data = [];
+        $statement = $this->dbConfig->query(
+            <<<SQL
+                SELECT dp.name as playlist_name, dp.rotation_time,
+                    GROUP_CONCAT(dplr.dashboard_id) as dashboards,
+                    GROUP_CONCAT(dpcr.contact_id) as contacts,
+                    GROUP_CONCAT(dpcgr.contactgroup_id) as contactgroups
+                FROM dashboard_playlist dp
+                    LEFT JOIN dashboard_playlist_relation dplr
+                        ON dplr.playlist_id = dp.id
+                    LEFT JOIN dashboard_playlist_contact_relation dpcr
+                        ON dpcr.playlist_id = dp.id
+                    LEFT JOIN dashboard_playlist_contactgroup_relation dpcgr
+                        ON dpcgr.playlist_id = dp.id
+                GROUP BY dp.name
+                SQL
+        );
+        while (false !== ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $dashboardsCount = $record['dashboards'] !== null
+                ? count(explode(',', $record['dashboards']))
+                : 0;
+            $contactsCount = $record['contacts'] !== null
+                ? count(explode(',', $record['contacts']))
+                : 0;
+            $contactGroupsCount = $record['contactgroups'] !== null
+                ? count(explode(',', $record['contactgroups']))
+                : 0;
+            $data[$record['playlist_name']] = [
+                'rotation_time' => $record['rotation_time'],
+                'dashboards_count' => $dashboardsCount,
+                'shared_users_groups_count' => $contactsCount + $contactGroupsCount,
+            ];
         }
 
         return $data;

@@ -27,7 +27,8 @@ import { DashboardEditActions } from './components/DashboardEdit/DashboardEditAc
 import { AddWidgetButton } from './AddEditWidget';
 import { useCanEditProperties } from './hooks/useCanEditDashboard';
 import { useDashboardStyles } from './Dashboard.styles';
-import useUnsavedChangesWarning from './hooks/useUnsavedChangesWarning';
+import DeleteWidgetModal from './components/DeleteWidgetModal';
+import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 
 const Dashboard = (): ReactElement => {
   const { classes } = useDashboardStyles();
@@ -37,8 +38,6 @@ const Dashboard = (): ReactElement => {
     dashboardId: dashboardId as string
   });
   const { editDashboard } = useDashboardConfig();
-
-  const unsavedChangesWarning = useUnsavedChangesWarning({ panels });
 
   const isEditing = useAtomValue(isEditingAtom);
   const { layout } = useAtomValue(dashboardAtom);
@@ -83,7 +82,6 @@ const Dashboard = (): ReactElement => {
               title={dashboard?.name || ''}
             />
           </PageHeader.Main>
-          <PageHeader.Message message={unsavedChangesWarning} />
           <DashboardNavbar />
         </PageHeader>
       </PageLayout.Header>
@@ -135,6 +133,8 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
+      <DeleteWidgetModal />
+      <DashboardSaveBlockerModal panels={panels} />
     </PageLayout>
   );
 };

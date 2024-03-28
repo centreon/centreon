@@ -19,15 +19,7 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-widget-metrics.json'
   );
-
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: 'web'
-  });
-
+  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -92,12 +84,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -162,12 +149,7 @@ Then('the information about the selected metric is displayed', () => {
 Given('a dashboard featuring a single Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
   cy.visit('/centreon/home/dashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -207,12 +189,7 @@ Given(
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
     cy.visit('/centreon/home/dashboards');
     cy.wait('@listAllDashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -250,12 +227,7 @@ Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -313,12 +285,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -359,12 +326,7 @@ Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -376,7 +338,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 

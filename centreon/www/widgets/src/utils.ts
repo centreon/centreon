@@ -12,7 +12,7 @@ import {
   map
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
 import { Resource, SeverityStatus } from './models';
 
@@ -144,7 +144,7 @@ export const getResourcesUrl = ({
   );
 
   if (!isForOneResource) {
-    return `${centreonBaseURL}/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
@@ -153,7 +153,7 @@ export const getResourcesUrl = ({
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 const getDetailsPanelQueriersForMetricsWidgets = (data): object => {
@@ -210,7 +210,7 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
     JSON.stringify(detailsPanelQueriers)
   );
 
-  return `${centreonBaseURL}/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+  return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
 
 export const formatStatusFilter = cond([
@@ -219,7 +219,7 @@ export const formatStatusFilter = cond([
   [equals(SeverityStatus.Problem), always(['down', 'critical'])],
   [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
   [equals(SeverityStatus.Pending), always(['pending'])],
-  [T, always([])]
+  [T, identity]
 ]);
 
 export const formatStatus = pipe(
@@ -227,3 +227,51 @@ export const formatStatus = pipe(
   flatten,
   map((status) => status.toLocaleUpperCase())
 );
+
+export const goToUrl = (url) => (): void => {
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
+
+const isTypeHost = equals('host');
+
+interface GetStatusNameByStatusSeverityandResourceTypeProps {
+  resourceType: string;
+  status: SeverityStatus;
+}
+
+export const getStatusNameByStatusSeverityandResourceType = ({
+  resourceType,
+  status
+}: GetStatusNameByStatusSeverityandResourceTypeProps): string =>
+  cond([
+    [
+      equals(SeverityStatus.Success),
+      always(isTypeHost(resourceType) ? 'up' : 'ok')
+    ],
+    [equals(SeverityStatus.Warning), always('warning')],
+    [
+      equals(SeverityStatus.Problem),
+      always(isTypeHost(resourceType) ? 'down' : 'critical')
+    ],
+    [
+      equals(SeverityStatus.Undefined),
+      always(isTypeHost(resourceType) ? 'unreachable' : 'unknown')
+    ],
+    [equals(SeverityStatus.Pending), always('pending')]
+  ])(status);
+
+export const severityCodeBySeverityStatus = {
+  [SeverityStatus.Problem]: SeverityCode.High,
+  [SeverityStatus.Warning]: SeverityCode.Medium,
+  [SeverityStatus.Success]: SeverityCode.OK,
+  [SeverityStatus.Undefined]: SeverityCode.None,
+  [SeverityStatus.Pending]: SeverityCode.Pending
+};
+
+export const severityStatusBySeverityCode = {
+  [SeverityCode.High]: SeverityStatus.Problem,
+  [SeverityCode.Medium]: SeverityStatus.Warning,
+  [SeverityCode.OK]: SeverityStatus.Success,
+  [SeverityCode.None]: SeverityStatus.Undefined,
+  [SeverityCode.Pending]: SeverityStatus.Pending
+};

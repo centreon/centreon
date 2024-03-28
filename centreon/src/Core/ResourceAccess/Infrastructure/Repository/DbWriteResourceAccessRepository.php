@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\ResourceAccess\Application\Repository\WriteDatasetRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
@@ -35,7 +36,7 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait;
+    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;
@@ -52,22 +53,54 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
 
     /**
      * @inheritDoc
+     * Here are the deletions (on cascade or not) that will occur on rule deletion
+     *     - Contact relations (ON DELETE CASCADE)
+     *     - Contact Group relations (ON DELETE CASCADE)
+     *     - Datasets relations + datasets (NEED MANUAL DELETION)
+     *     - DatasetFilters (ON DELETE CASCADE).
+     */
+    public function deleteRuleAndDatasets(int $ruleId): void
+    {
+        $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->deleteDatasets($datasetIds);
+            $this->deleteRule($ruleId);
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param int[] $ids
      */
     public function deleteDatasets(array $ids): void
     {
-        $fields = '';
-        foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
-        }
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':dataset_id_');
 
         $request = <<<SQL
-                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ({$fields})
+                DELETE FROM `:db`.acl_resources WHERE acl_res_id IN ({$bindQuery})
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
 
-        foreach ($ids as $index => $id) {
-            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
 
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
@@ -190,16 +223,25 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
-    public function addDataset(string $name): int
-    {
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts = false,
+        bool $accessAllHostGroups = false,
+        bool $accessAllServiceGroups = false,
+    ): int {
         $request = $this->translateDbName(
             <<<'SQL'
-                    INSERT INTO `:db`.acl_resources (acl_res_name, acl_res_activate, changed, cloud_specific) VALUES (:name, '1', 1, 1)
+                INSERT INTO `:db`.acl_resources
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
                 SQL
         );
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+        $statement->bindValue(':allHosts', (int) $accessAllHosts, \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', (int) $accessAllHostGroups, \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', (int) $accessAllServiceGroups, \PDO::PARAM_STR);
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
@@ -309,6 +351,44 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     }
 
     /**
+     * @param int $ruleId
+     *
+     * @return int[]
+     */
+    private function findDatasetIdsByRuleId(int $ruleId): array
+    {
+        // Retrieve first all the datasets linked to the rule
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                        SELECT acl_res_id FROM `:db`.acl_res_group_relations WHERE acl_group_id = :ruleId
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param int $ruleId
+     */
+    private function deleteRule(int $ruleId): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'DELETE FROM `:db`.acl_groups WHERE acl_group_id = :ruleId AND cloud_specific = 1'
+            )
+        );
+
+        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
      * @inheritDoc
      */
     private function updateBasicInformation(Rule $rule): void
@@ -338,6 +418,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
             \PDO::PARAM_STR
         );
         $statement->bindValue(':status', $rule->isEnabled() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':ruleId', $rule->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
     }

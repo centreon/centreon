@@ -35,6 +35,7 @@ use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Providers\DatasetProviderInterface;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -124,6 +125,7 @@ final class FindRule
         $response->id = $rule->getId();
         $response->name = $rule->getName();
         $response->description = $rule->getDescription();
+        $response->isEnabled = $rule->isEnabled();
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
@@ -139,6 +141,14 @@ final class FindRule
         $datasetFilterToArray = function (DatasetFilter $datasetFilter) use (&$datasetFilterToArray): array
         {
             $data['type'] = $datasetFilter->getType();
+
+            // special 'ALL' type dataset_filter type case
+            if ($data['type'] === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+                $data['resources'] = [];
+                $data['dataset_filter'] = null;
+
+                return $data;
+            }
 
             $resourcesNamesById = null;
             foreach ($this->repositoryProviders as $provider) {
@@ -173,10 +183,18 @@ final class FindRule
     }
 
     /**
+     * Check if current user is authorized to perform the action.
+     * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
+     * are authorized to add a Resource Access Rule.
+     *
      * @return bool
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
@@ -188,6 +206,6 @@ final class FindRule
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

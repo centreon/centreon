@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Add a new host group",
+  "title": "Update a host group",
   "type": "object",
   "required": [
     "name"

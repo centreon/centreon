@@ -65,15 +65,18 @@ interface WriteResourceAccessRepositoryInterface
 
     /**
      * @param string $name
+     * @param bool $accessAllHosts
+     * @param bool $accessAllHostGroups
+     * @param bool $accessAllServiceGroups
      *
      * @return int
      */
-    public function addDataset(string $name): int;
-
-    /**
-     * @param int[] $ids
-     */
-    public function deleteDatasets(array $ids): void;
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts,
+        bool $accessAllHostGroups,
+        bool $accessAllServiceGroups
+    ): int;
 
     /**
      * @param int $ruleId
@@ -98,5 +101,15 @@ interface WriteResourceAccessRepositoryInterface
      * @param int $ruleId
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, string $resourceType, array $resourceIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function deleteRuleAndDatasets(int $ruleId): void;
+
+    /**
+     * @param int[] $ids
+     */
+    public function deleteDatasets(array $ids): void;
 }
 
