@@ -8,7 +8,7 @@ Feature: Configuring dashboard with all widgets
     Given the dashboard administrator redirected to dashboard interface
     When the dashboard administrator add generic text widget
     And the dashboard administrator add single metric widget
-    And the dashboard administrator metrics graph widget
+    And the dashboard administrator add metrics graph widget
     And the dashboard administrator add top bottom widget
     And the dashboard administrator add Status grid widget
     Then the dashboard administrator save the dashboard

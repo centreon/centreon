@@ -130,6 +130,7 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     }
   );
 });
+
 Cypress.Commands.add(
   'insertDashboardWithWidget',
   (dashboardBody, patchBody) => {

@@ -227,7 +227,7 @@ When('the dashboard administrator add single metric widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator metrics graph widget', () => {
+When('the dashboard administrator add metrics graph widget', () => {
   cy.getByLabel({ label: 'Add a widget' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Metrics graph').click();
