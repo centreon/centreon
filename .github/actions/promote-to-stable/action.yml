@@ -56,19 +56,21 @@ runs:
           ROOT_REPO_PATH="rpm-standard-internal"
         fi
 
-        # Build search path based on release_cloud and release_type values
-        # if cloud, search in testing-<release_type> path
-        # if non-cloud, search in the testing usual path
-        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
-          SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}"
-        elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
-          SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module_name }}/"
-        else
-          echo "Invalid combination of release_type and release_cloud"
-        fi
 
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
+
+          # Build search path based on release_cloud and release_type values
+          # if cloud, search in testing-<release_type> path
+          # if non-cloud, search in the testing usual path
+          if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
+            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module }}"
+          elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
+            SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}"
+          else
+            echo "Invalid combination of release_type and release_cloud"
+          fi
+
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH/$SEARCH_REPO_PATH/*.rpm | jq -r '.[].path')
 
@@ -113,7 +115,7 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt s --include-dirs apt-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/${{ inputs.release_type }}/*.deb | jq -r '.[].path')
+        SRC_PATHS=$(jf rt s --include-dirs apt-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
