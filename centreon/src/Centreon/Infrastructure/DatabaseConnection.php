@@ -103,7 +103,7 @@ class DatabaseConnection extends \PDO
     /**
      * @param string $storageDbName
      */
-    public function setStorageDbName(string $storageDbName)
+    public function setStorageDbName(string $storageDbName): void
     {
         $this->storageDbName = $storageDbName;
     }

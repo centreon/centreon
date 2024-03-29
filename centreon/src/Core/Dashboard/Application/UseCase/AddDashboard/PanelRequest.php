@@ -19,26 +19,20 @@
  *
  */
 
-namespace CentreonLegacy\Core\Install;
+declare(strict_types=1);
 
-class Factory
+namespace Core\Dashboard\Application\UseCase\AddDashboard;
+
+final class PanelRequest
 {
-    /** @var \Pimple\Container */
-    protected $dependencyInjector;
+    public string $name = '';
 
-    /**
-     * @param \Pimple\Container $dependencyInjector
-     */
-    public function __construct(\Pimple\Container $dependencyInjector)
-    {
-        $this->dependencyInjector = $dependencyInjector;
-    }
+    public string $widgetType = '';
 
-    /**
-     * @return Information
-     */
-    public function newInformation()
+    /** @var array<mixed> */
+    public array $widgetSettings = [];
+
+    public function __construct(public LayoutRequest $layout)
     {
-        return new Information($this->dependencyInjector);
     }
 }

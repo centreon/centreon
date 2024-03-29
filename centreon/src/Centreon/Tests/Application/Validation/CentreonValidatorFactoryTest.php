@@ -39,8 +39,10 @@ namespace Centreon\Tests\Application\Validation;
 use PHPUnit\Framework\TestCase;
 use Centreon\Application\Validation\CentreonValidatorFactory;
 use Pimple\Container;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotBlankValidator;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @group Centreon
@@ -48,14 +50,14 @@ use Symfony\Component\Validator\Constraints\NotBlankValidator;
  */
 class CentreonValidatorFactoryTest extends TestCase
 {
-    public function testGetInstance()
+    public function testGetInstance(): void
     {
         $factory = new CentreonValidatorFactory(new Container());
 
         $this->assertInstanceOf(NotBlankValidator::class, $factory->getInstance(new NotBlank()));
     }
 
-    public function testGetInstanceWithService()
+    public function testGetInstanceWithService(): void
     {
         $service = 'service.constraint';
 
@@ -64,13 +66,26 @@ class CentreonValidatorFactoryTest extends TestCase
             ->willReturn($service);
 
         $factory = new CentreonValidatorFactory(new Container([
-            $service => new \stdClass(),
+            $service => new class implements \Symfony\Component\Validator\ConstraintValidatorInterface {
+                public function initialize(ExecutionContextInterface $context): void
+                {
+                    // TODO: Implement initialize() method.
+                }
+
+                public function validate(mixed $value, Constraint $constraint): void
+                {
+                    // TODO: Implement validate() method.
+                }
+            },
         ]));
 
-        $this->assertInstanceOf(\stdClass::class, $factory->getInstance($constraint));
+        $this->assertInstanceOf(
+            \Symfony\Component\Validator\ConstraintValidatorInterface::class,
+            $factory->getInstance($constraint)
+        );
     }
 
-    public function testGetInstanceWithoutValidator()
+    public function testGetInstanceWithoutValidator(): void
     {
         $service = 'service.constraint';
 

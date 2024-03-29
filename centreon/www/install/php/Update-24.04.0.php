@@ -212,6 +212,11 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
+$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to alter created_at for task table';
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+};
+
 $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
@@ -250,6 +255,8 @@ try {
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
     $alterTypeDefinitionDatasetFilterTable($pearDB);
+
+    $addDefaultValueforTaskTable($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
