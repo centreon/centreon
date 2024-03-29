@@ -37,7 +37,6 @@ beforeEach(function (): void {
             new Dashboard(
                 99,
                 'dashboard-name',
-                'dashboard-description',
                 null,
                 null,
                 new \DateTimeImmutable(),

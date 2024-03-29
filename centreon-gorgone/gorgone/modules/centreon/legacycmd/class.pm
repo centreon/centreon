@@ -554,8 +554,11 @@ sub action_addimporttaskwithparent {
         return -1;
     }
 
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time());
+    my $datetime = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year+1900, $mon+1, $mday, $hour, $min, $sec);
+
     my ($status, $datas) = $self->{class_object_centreon}->custom_execute(
-        request => "INSERT INTO task (`type`, `status`, `parent_id`) VALUES ('import', 'pending', '" . $options{data}->{content}->{parent_id} . "')"
+        request => "INSERT INTO task (`type`, `status`, `parent_id`, `created_at`) VALUES ('import', 'pending', '" . $options{data}->{content}->{parent_id} . "', '" . $datetime . "')"
     );
     if ($status == -1) {
         $self->send_log(
