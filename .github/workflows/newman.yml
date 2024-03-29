@@ -478,7 +478,7 @@ jobs:
           done
 
       - name: Change test execution status
-        if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+        # if: ${{ contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
         run: |
           for summary_file in newman-json-test-reports/*.json; do
               test_execution_id=${{ needs.associate-test-cases.outputs.test_execution_id }}
