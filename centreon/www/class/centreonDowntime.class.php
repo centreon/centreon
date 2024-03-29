@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -612,7 +612,7 @@ class CentreonDowntime
                         'service_id' => $service['service_id'],
                         'service_description' => $service['service_description']
                     ]
-                ); 
+                );
             }
         }
 
@@ -620,9 +620,9 @@ class CentreonDowntime
     }
 
     /**
-     * @param array $serviceTemplateIds 
-     * @return array 
-     * @throws PDOException 
+     * @param array $serviceTemplateIds
+     * @return array
+     * @throws PDOException
      */
     private function findServicesByServiceTemplateIds(array $serviceTemplateIds): array
     {

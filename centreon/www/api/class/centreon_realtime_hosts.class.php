@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 /**
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *

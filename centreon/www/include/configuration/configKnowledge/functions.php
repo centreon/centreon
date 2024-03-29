@@ -2,7 +2,7 @@
 /**
  * CENTREON
  *
- * Source Copyright 2005-2024 Centreon
+ * Source Copyright 2005 - 2024 Centreon
  *
  * Unauthorized reproduction, copy and distribution
  * are not allowed.

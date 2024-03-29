@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -83,7 +83,7 @@ class WebServiceAbstractTest extends TestCase
         $webservice
              ->method('payloadRaw')
              ->will($this->returnValue('{"id":"1"}'));
-        
+
         $this->assertEquals([
             'id' => '1',
         ], $webservice->payload());
@@ -101,7 +101,7 @@ class WebServiceAbstractTest extends TestCase
         $webservice
              ->method('payloadRaw')
              ->will($this->returnValue('{id":"1"}'));
-        
+
         $this->assertEquals([], $webservice->payload());
     }
 }

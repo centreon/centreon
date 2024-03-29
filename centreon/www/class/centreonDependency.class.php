@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -223,7 +223,7 @@ class CentreonDependency
         )";
         $db->query($sql);
     }
-    
+
     /**
      *
      * @param integer $field
@@ -344,7 +344,7 @@ class CentreonDependency
                 $parameters['relationObject']['comparator'] = 'dependency_dep_id';
                 break;
         }
-        
+
         return $parameters;
     }
 }

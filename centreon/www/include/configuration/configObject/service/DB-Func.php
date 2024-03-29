@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -3170,7 +3170,7 @@ function updateServiceExtInfos($serviceId = null, $submittedValues = [])
         ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image"]) . "' "
         : $rq .= "NULL ";
 
-    if (! $isCloudPlatform) { 
+    if (! $isCloudPlatform) {
         $rq .= ", esi_icon_image_alt = ";
         isset($submittedValues["esi_icon_image_alt"]) && $submittedValues["esi_icon_image_alt"] != null
             ? $rq .= "'" . CentreonDB::escape($submittedValues["esi_icon_image_alt"]) . "', "

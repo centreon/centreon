@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2024 Centreon
+ * Copyright 2005 - 2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -49,24 +49,24 @@ const BASE_ROUTE = './include/common/webServices/rest/internal.php';
 $datasetRoutes = [
     'timeperiods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=list',
     'default_check_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id&id=' . $hostId,
-    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $hostId, 
+    'default_notification_periods' => BASE_ROUTE . '?object=centreon_configuration_timeperiod&action=defaultValues&target=host&field=timeperiod_tp_id2&id=' . $hostId,
     'hosts' => BASE_ROUTE . '?object=centreon_configuration_host&action=list',
-    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $hostId, 
+    'default_host_parents' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_parents&id=' . $hostId,
     'default_host_child' => BASE_ROUTE . '?object=centreon_configuration_host&action=defaultValues&target=host&field=host_childs&id=' . $hostId,
     'host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=list',
     'default_host_groups' => BASE_ROUTE . '?object=centreon_configuration_hostgroup&action=defaultValues&target=host&field=host_hgs&id=' . $hostId,
     'host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=list&t=c',
     'default_host_categories' => BASE_ROUTE . '?object=centreon_configuration_hostcategory&action=defaultValues&target=host&field=host_hcs&id=' . $hostId,
-    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $hostId, 
+    'default_contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=defaultValues&target=host&field=host_cs&id=' . $hostId,
     'contacts' => BASE_ROUTE . '?object=centreon_configuration_contact&action=list',
     'default_contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=defaultValues&target=host&field=host_cgs&id=' . $hostId,
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $hostId,
-    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list', 
+    'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
     'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $hostId,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
-    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $hostId, 
+    'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $hostId,
     'default_acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=defaultValues&target=host&field=acl_groups&id=' . $hostId,
     'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list',
     'service_templates' => BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=list',
@@ -455,7 +455,7 @@ if (! $isCloudPlatform) {
         $form->setDefaults(['host_event_handler_enabled' => '2']);
     }
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']); 
+    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
     $eventHandlerSelect->addJsCallback(
         'change',
         'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
