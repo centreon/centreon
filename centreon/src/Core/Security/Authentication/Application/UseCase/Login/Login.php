@@ -48,7 +48,7 @@ use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class Login
 {
@@ -59,7 +59,7 @@ final class Login
 
     /**
      * @param ProviderAuthenticationFactoryInterface $providerFactory
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param WriteSessionRepositoryInterface $sessionRepository
      * @param ReadTokenRepositoryInterface $readTokenRepository
@@ -72,7 +72,7 @@ final class Login
      */
     public function __construct(
         private ProviderAuthenticationFactoryInterface $providerFactory,
-        private SessionInterface $session,
+        private RequestStack $requestStack,
         private DataStorageEngineInterface $dataStorageEngine,
         private WriteSessionRepositoryInterface $sessionRepository,
         private ReadTokenRepositoryInterface $readTokenRepository,
@@ -88,8 +88,6 @@ final class Login
     /**
      * @param LoginRequest $loginRequest
      * @param PresenterInterface $presenter
-     *
-     * @throws AuthenticationException
      */
     public function __invoke(LoginRequest $loginRequest, PresenterInterface $presenter): void
     {
@@ -111,13 +109,13 @@ final class Login
 
             $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
-                if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->session->getId()) === false) {
+                if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->requestStack->getSession()->getId()) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
                         // We create an API token in addition of the session token.
                         $this->createAuthenticationTokens(
                             $token = Encryption::generateRandomString(),
                             $user,
-                            $this->provider->getProviderToken($this->session->getId()),
+                            $this->provider->getProviderToken($this->requestStack->getSession()->getId()),
                             $this->provider->getProviderRefreshToken(),
                             $loginRequest->clientIp
                         );
@@ -127,9 +125,9 @@ final class Login
 
                     // Session token To keep the stateful authentication active anyway.
                     $this->createAuthenticationTokens(
-                        $this->session->getId(),
+                        $this->requestStack->getSession()->getId(),
                         $user,
-                        $this->provider->getProviderToken($this->session->getId()),
+                        $this->provider->getProviderToken($this->requestStack->getSession()->getId()),
                         $this->provider->getProviderRefreshToken(),
                         $loginRequest->clientIp
                     );
