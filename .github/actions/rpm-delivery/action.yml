@@ -1,5 +1,5 @@
 name: "rpm-delivery"
-description: "Package RPM Centreon"
+description: "Deliver rpm packages"
 inputs:
   module_name:
     description: "The package module name"
