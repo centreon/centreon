@@ -14668,7 +14668,7 @@
 							"query": [
 								{
 									"key": "search",
-									"value": "{ \"$and\":[{\"hostgroup.id\":{{HostGroup1Id}}},{\"hostcategory.id\":{{HostCategory1Id}}}]}"
+									"value": "{ \"$or\":[{\"hostgroup.id\":{{HostGroup1Id}}},{\"hostcategory.id\":{{HostCategory1Id}}}]}"
 								}
 							]
 						}
