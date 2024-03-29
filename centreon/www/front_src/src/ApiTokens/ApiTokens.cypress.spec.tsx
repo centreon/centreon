@@ -826,7 +826,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('display the date filters on case customize', () => {
+  it('display the date filters when Customize is selected', () => {
     cy.waitForRequest('@getListTokens');
     cy.findByTestId('Filter options').click();
 
