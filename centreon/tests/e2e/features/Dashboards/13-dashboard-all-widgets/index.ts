@@ -278,10 +278,13 @@ When(
   }
 );
 
-Then('the dashboard administrator is now in view mode', () => {
-  cy.wait('@updateDashboard');
-  cy.url().should('match', /\/centreon\/home\/dashboards\/library\/\d+/);
-});
+Then(
+  'the dashboard administrator is now on the newly created dashboard in view mode',
+  () => {
+    cy.wait('@updateDashboard');
+    cy.url().should('match', /\/centreon\/home\/dashboards\/library\/\d+/);
+  }
+);
 
 Given(
   'a dashboard administrator who has just configured a multi-widget dashboard',
