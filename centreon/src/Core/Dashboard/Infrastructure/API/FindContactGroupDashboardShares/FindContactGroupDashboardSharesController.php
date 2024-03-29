@@ -27,7 +27,6 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Dashboard\Application\UseCase\FindContactGroupDashboardShares\FindContactGroupDashboardShares;
 use Core\Dashboard\Application\UseCase\FindContactGroupDashboardShares\FindContactGroupDashboardSharesPresenterInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -37,7 +36,6 @@ final class FindContactGroupDashboardSharesController extends AbstractController
 
     /**
      * @param int $dashboardId
-     * @param Request $request
      * @param FindContactGroupDashboardShares $useCase
      * @param FindContactGroupDashboardSharesPresenter $presenter
      *
@@ -47,7 +45,6 @@ final class FindContactGroupDashboardSharesController extends AbstractController
      */
     public function __invoke(
         int $dashboardId,
-        Request $request,
         FindContactGroupDashboardShares $useCase,
         FindContactGroupDashboardSharesPresenterInterface $presenter
     ): Response {

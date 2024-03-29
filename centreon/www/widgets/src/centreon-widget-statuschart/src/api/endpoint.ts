@@ -20,6 +20,8 @@ const resourceTypesCustomParameters = [
   'service-category'
 ];
 
+const hostTypesCustomParameters = ['host-group', 'host-category'];
+
 const resourceTypesSearchParameters = ['host', 'service'];
 
 const categories = ['host-category', 'service-category'];
@@ -38,12 +40,15 @@ export const buildResourcesEndpoint = ({
     : serviceStatusesEndpoint;
 
   const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+    ({ resourceType }) =>
+      equals(type, 'host')
+        ? includes(resourceType, hostTypesCustomParameters)
+        : includes(resourceType, resourceTypesCustomParameters)
   );
+
   const resourcesToApplyToSearchParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
-
   const searchConditions = resourcesToApplyToSearchParameters.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({

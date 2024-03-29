@@ -1,0 +1,8 @@
+in: path
+name: output_id
+description: "ID of the broker configuration output"
+required: true
+schema:
+  type: integer
+  format: int64
+  example: 5

@@ -46,7 +46,7 @@ use Centreon\Application\Validation\Validator\UniqueEntityValidator;
  */
 class UniqueEntityTest extends TestCase
 {
-    public function testCheckDefaultValueOfProperties()
+    public function testCheckDefaultValueOfProperties(): void
     {
         $constraint = new UniqueEntity();
 
@@ -57,7 +57,7 @@ class UniqueEntityTest extends TestCase
         $this->assertEquals([], $constraint->fields);
     }
 
-    public function testValidatedBy()
+    public function testValidatedBy(): void
     {
         $this->assertEquals(
             UniqueEntityValidator::class,
@@ -65,7 +65,7 @@ class UniqueEntityTest extends TestCase
         );
     }
 
-    public function testGetTargets()
+    public function testGetTargets(): void
     {
         $this->assertEquals(
             UniqueEntity::CLASS_CONSTRAINT,
@@ -73,7 +73,7 @@ class UniqueEntityTest extends TestCase
         );
     }
 
-    public function testGetDefaultOption()
+    public function testGetDefaultOption(): void
     {
         $this->assertEquals(
             'fields',
