@@ -434,7 +434,6 @@ Then(
         break;
       case 'top buttom':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        let statusFound = false;
         const topButtomStatuses = [
           'Critical',
           'Warning',
@@ -447,16 +446,17 @@ Then(
           'OK',
           'OK'
         ];
+        let statusFound = false;
         for (let i = 0; i < topButtomStatuses.length; i++) {
           cy.get('[class$="chip-statusColumnChip"]')
             .eq(i)
             .then(($chip) => {
-              if (topButtomStatuses.includes($chip.text())) {
+              if (topButtomStatuses.includes($chip.text()) && !statusFound) {
                 statusFound = true;
+                cy.wrap(statusFound).should('be.true');
               }
             });
         }
-        cy.wrap(statusFound).should('be.true');
         break;
       default:
         break;
