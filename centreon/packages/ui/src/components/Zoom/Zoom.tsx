@@ -1,27 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
-
 import { Zoom as VisxZoom } from '@visx/zoom';
-import { RectClipPath } from '@visx/clip-path';
-import { Group } from '@visx/group';
-import { equals, type } from 'ramda';
-
-import ZoomInIcon from '@mui/icons-material/Add';
-import ZoomOutIcon from '@mui/icons-material/Remove';
 
 import { ParentSize } from '../..';
-import { Button, IconButton } from '../Button';
 
-import { useZoomStyles } from './Zoom.styles';
-import Minimap from './Minimap';
-import { useZoom } from './useZoom';
-import { minimapScale } from './constants';
 import ZoomContent from './ZoomContent';
+import { MinimapPosition } from './models';
 
 export interface ZoomProps {
   children: JSX.Element | (({ width, height }) => JSX.Element);
-  labels: {
-    clear: string;
-  };
+  minimapPosition?: MinimapPosition;
   scaleMax?: number;
   scaleMin?: number;
   showMinimap?: boolean;
@@ -35,14 +21,13 @@ const initialTransform = {
   translateX: 0,
   translateY: 0
 };
-const radius = 30;
 
 const Zoom = ({
   children,
   scaleMin = 0.5,
   scaleMax = 4,
   showMinimap = false,
-  labels
+  minimapPosition = 'top-left'
 }: ZoomProps): JSX.Element => {
   return (
     <ParentSize>
@@ -59,7 +44,7 @@ const Zoom = ({
           {(zoom) => (
             <ZoomContent
               height={height}
-              labels={labels}
+              minimapPosition={minimapPosition}
               showMinimap={showMinimap}
               width={width}
               zoom={zoom}

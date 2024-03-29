@@ -1,2 +1,2 @@
-export const radius = 30;
+export const radius = 16;
 export const minimapScale = 0.2;

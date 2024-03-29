@@ -8,3 +8,9 @@ export interface ZoomState {
     translateY: number;
   };
 }
+
+export type MinimapPosition =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right';

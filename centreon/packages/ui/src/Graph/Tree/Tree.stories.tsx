@@ -101,18 +101,6 @@ export const WithCustomLinks: Story = {
   render: StandaloneTreeTemplate
 };
 
-export const WithResetButton: Story = {
-  args: {
-    children: SimpleContent,
-    node: {
-      height: 90,
-      width: 90
-    },
-    tree: simpleData
-  },
-  render: StandaloneTreeTemplate
-};
-
 export const WithComplexData: Story = {
   args: {
     children: ComplexContent,

@@ -6,7 +6,7 @@ import { isNil } from 'ramda';
 
 import { useDeepCompare } from '../../utils';
 
-import { margins, nodeMargins } from './constants';
+import { nodeMargins } from './constants';
 import { BaseProp, Node, TreeProps } from './models';
 import { updateNodeFromTree } from './utils';
 import Links from './Links';
@@ -76,17 +76,19 @@ export const Tree = <TData extends BaseProp>({
   );
 
   const origin = useMemo(
-    () => ({ x: 0, y: containerHeight / 2 - margins.top }),
+    () => ({ x: 0, y: containerHeight / 2 }),
     [containerHeight]
   );
 
   return (
     <Group left={node.width / 2}>
       <VisxTree
+        left={0}
         nodeSize={[node.width + nodeMargins.y, node.height + nodeMargins.x]}
         root={hierarchy(formattedTree, getExpanded)}
         separation={() => 1}
         size={[containerWidth, containerHeight]}
+        top={0}
       >
         {(subTree) => (
           <Group left={origin.x} top={origin.y}>

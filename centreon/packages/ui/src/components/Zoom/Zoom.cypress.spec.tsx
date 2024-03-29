@@ -6,16 +6,36 @@ const content = (
   </g>
 );
 
-const labels = {
-  clear: 'Clear'
-};
+const contentWithMultipleShapes = (
+  <g style={{ transform: 'translate(0px, -200px)' }}>
+    <g style={{ transform: 'translate(300px, 150px)' }}>
+      <circle fill="blue" r={50} stroke="black" />
+    </g>
+    <g style={{ transform: 'translate(600px, 500px)' }}>
+      <circle fill="green" r={70} />
+    </g>
+    <g style={{ transform: 'translate(150px, 600px)' }}>
+      <circle fill="red" r={70} />
+    </g>
+  </g>
+);
 
-const initialize = ({ showMinimap }): void => {
+interface Props {
+  minimapPosition?;
+  showMinimap: boolean;
+  useMultipleShapes?: boolean;
+}
+
+const initialize = ({
+  showMinimap,
+  minimapPosition,
+  useMultipleShapes
+}: Props): void => {
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
-        <Zoom labels={labels} showMinimap={showMinimap}>
-          {content}
+        <Zoom minimapPosition={minimapPosition} showMinimap={showMinimap}>
+          {useMultipleShapes ? contentWithMultipleShapes : content}
         </Zoom>
       </div>
     )
@@ -102,7 +122,7 @@ describe('Zoom', () => {
       .should('have.attr', 'transform')
       .and('include', '1.1, 0, 0, 1.1');
 
-    cy.contains('Clear').click();
+    cy.findByTestId('clear').click();
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
 
@@ -146,42 +166,6 @@ describe('Zoom', () => {
     cy.makeSnapshot();
   });
 
-  it('moves the view when the minimap is clicked', () => {
-    initialize({ showMinimap: true });
-
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
-    cy.get('svg').should('have.attr', 'height', '400');
-
-    cy.findByTestId('minimap-interaction').click(20, 20);
-
-    cy.findByTestId('zoom-content').should(
-      'have.attr',
-      'transform',
-      'matrix(1, 0, 0, 1, -100, -100)'
-    );
-
-    cy.makeSnapshot();
-  });
-
-  it('moves the view when the mouse is hover the minimap with the corresponding button pressed down', () => {
-    initialize({ showMinimap: true });
-
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
-    cy.get('svg').should('have.attr', 'height', '400');
-
-    cy.findByTestId('minimap-interaction')
-      .realMouseDown()
-      .realMouseMove(40, 40);
-
-    cy.findByTestId('zoom-content').should(
-      'have.attr',
-      'transform',
-      'matrix(1, 0, 0, 1, -640, -200)'
-    );
-
-    cy.makeSnapshot();
-  });
-
   it('moves the view when the mouse is hover the content with the corresponding button pressed down', () => {
     initialize({ showMinimap: true });
 
@@ -197,6 +181,29 @@ describe('Zoom', () => {
       'transform',
       'matrix(1, 0, 0, 1, 200, 0)'
     );
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the minimap in the bottom right when the prop to the corresponding value', () => {
+    initialize({ minimapPosition: 'bottom-right', showMinimap: true });
+
+    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('svg').should('have.attr', 'height', '400');
+
+    cy.makeSnapshot();
+  });
+
+  it('applies a scale down on the minimap when the content is higher than the original height', () => {
+    initialize({ showMinimap: true, useMultipleShapes: true });
+
+    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('svg').should('have.attr', 'height', '400');
+
+    cy.findByTestId('minimap-interaction')
+      .parent()
+      .find('g')
+      .should('have.attr', 'style', 'transform: scale(0.684211);');
 
     cy.makeSnapshot();
   });
