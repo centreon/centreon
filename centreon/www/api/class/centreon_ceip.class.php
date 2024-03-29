@@ -210,7 +210,7 @@ class CentreonCeip extends CentreonWebService
             /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
 
-            /** @var array{}|array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
+            /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
             $licenseInformation = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
