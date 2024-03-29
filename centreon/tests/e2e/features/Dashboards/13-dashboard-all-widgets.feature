@@ -10,8 +10,8 @@ Feature: Configuring dashboard with all widgets
     And the dashboard administrator adds a Single metric widget
     And the dashboard administrator adds a Metrics graph widget
     And the dashboard administrator adds a Top bottom widget
-    And the dashboard administrator adds a Status grid widget
-    Then the dashboard administrator saves the dashboard
+    And the dashboard administrator adds a Status grid widget and saves changes
+    Then the dashboard administrator is now in view mode
 
   @TEST_MON-37043
   Scenario: Editing the layout of a multi-widget dashboard
@@ -29,5 +29,5 @@ Feature: Configuring dashboard with all widgets
       | widgetType      |
       | single metric   |
       | metrics graph   |
-      | top buttom      |
+      | top bottom      |
       | status grid     |

@@ -261,21 +261,26 @@ When('the dashboard administrator adds a Top bottom widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator adds a Status grid widget', () => {
-  cy.getByLabel({ label: 'Add a widget' }).click();
-  cy.getByTestId({ testId: 'Widget type' }).click();
-  cy.contains('Status grid').click();
-  cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-  cy.getByTestId({ testId: 'Resource type' }).realClick();
-  cy.getByLabel({ label: 'Host Group' }).click();
-  cy.getByTestId({ testId: 'Select resource' }).click();
-  cy.contains('Linux-Servers').realClick();
-  cy.get('input[name="success"]').click();
-  cy.getByTestId({ testId: 'confirm' }).click();
-});
+When(
+  'the dashboard administrator adds a Status grid widget and saves changes',
+  () => {
+    cy.getByLabel({ label: 'Add a widget' }).click();
+    cy.getByTestId({ testId: 'Widget type' }).click();
+    cy.contains('Status grid').click();
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains('Linux-Servers').realClick();
+    cy.get('input[name="success"]').click();
+    cy.getByTestId({ testId: 'confirm' }).click();
+    cy.getByTestId({ testId: 'save_dashboard' }).click();
+  }
+);
 
-Then('the dashboard administrator saves the dashboard', () => {
-  cy.getByTestId({ testId: 'save_dashboard' }).click();
+Then('the dashboard administrator is now in view mode', () => {
+  cy.wait('@updateDashboard');
+  cy.url().should('match', /\/centreon\/home\/dashboards\/library\/\d+/);
 });
 
 Given(
@@ -370,7 +375,7 @@ When(
         eqIndex = 1;
         break;
 
-      case 'top buttom':
+      case 'top bottom':
         eqIndex = 2;
         break;
 
