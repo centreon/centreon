@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { minimapScale, radius } from './constants';
 import { UseMinimapProps, useMinimap } from './useMinimap';
 import { useZoomStyles } from './Zoom.styles';
@@ -29,8 +31,25 @@ const Minimap = ({
     zoom
   });
 
-  const finalHeight = Math.max(contentClientRect?.height || 0, height);
-  const finalWidth = Math.max(contentClientRect?.width || 0, width);
+  const yMinimapScale = useMemo(
+    () => contentClientRect.height / zoom.transformMatrix.scaleY / height,
+    [contentClientRect.height, height]
+  );
+  const xMinimapScale = useMemo(
+    () => contentClientRect.width / zoom.transformMatrix.scaleX / width,
+    [contentClientRect.width, width]
+  );
+  const scale = 1 / Math.max(yMinimapScale, xMinimapScale);
+
+  const finalHeight = height;
+  const finalWidth = width;
+
+  const toStringInvert = (): string => {
+    const { translateX, translateY, scaleX, scaleY, skewX, skewY } =
+      zoom.invert();
+
+    return `matrix(${scaleX}, ${skewY}, ${skewX}, ${scaleY}, ${translateX}, ${translateY})`;
+  };
 
   return (
     <g className={classes.minimap} clipPath="url(#zoom-clip)">
@@ -40,13 +59,19 @@ const Minimap = ({
         rx={radius}
         width={finalWidth}
       />
-      {children}
+      <g
+        style={{
+          transform: `scale(${(scale > 1 ? 1 : scale) || 1})`
+        }}
+      >
+        {children}
+      </g>
       <rect
         className={classes.minimapZoom}
         fillOpacity={0.2}
         height={height}
         rx={radius}
-        transform={zoom.toStringInvert()}
+        transform={toStringInvert()}
         width={width}
       />
       <rect

@@ -76,12 +76,12 @@ export const Tree = <TData extends BaseProp>({
   );
 
   const origin = useMemo(
-    () => ({ x: 0, y: containerHeight / 2 }),
+    () => ({ x: 0, y: containerHeight / 2 - margins.top }),
     [containerHeight]
   );
 
   return (
-    <Group left={node.width / 2} top={margins.top}>
+    <Group left={node.width / 2}>
       <VisxTree
         nodeSize={[node.width + nodeMargins.y, node.height + nodeMargins.x]}
         root={hierarchy(formattedTree, getExpanded)}
