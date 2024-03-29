@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { scaleLinear } from '@visx/scale';
-import { equals } from 'ramda';
 
 import { minimapScale, radius } from './constants';
 import { UseMinimapProps, useMinimap } from './useMinimap';
