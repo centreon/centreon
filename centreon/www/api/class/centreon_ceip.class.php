@@ -121,7 +121,10 @@ class CentreonCeip extends CentreonWebService
     {
         $locale = $this->user->get_lang();
 
-        if (isCloudPlatform()) { // Get the user role for the Centreon Cloud platform
+        
+        if (isCloudPlatform()) { 
+            // Get the user role for the Centreon Cloud platform
+
             // Get list of ACL Groups linked to this user
             $grouplistStr = $this->user->access->getAccessGroupsString('NAME');
 
