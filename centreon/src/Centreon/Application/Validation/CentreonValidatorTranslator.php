@@ -36,23 +36,18 @@
 
 namespace Centreon\Application\Validation;
 
-use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-/**
- * The interface Symfony\Component\Translation\TranslatorInterface will be deprecated
- * since Symfony 4.2 (use Symfony\Contracts\Translation\TranslatorInterface instead)
- * and will be removed on version 5.0
- *
- * @todo remove implementation of Symfony\Component\Translation\TranslatorInterface interface
- * @todo remove transChoice, setLocale, and getLocale methods
- */
 class CentreonValidatorTranslator implements TranslatorInterface
 {
+    public function __construct(readonly private \CentreonUser $contact)
+    {
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = array(), $domain = null, $locale = null)
+    public function trans($id, array $parameters = array(), $domain = null, $locale = null): string
     {
         $message = gettext($id);
 
@@ -64,35 +59,11 @@ class CentreonValidatorTranslator implements TranslatorInterface
     }
 
     /**
-     * Remove when upgrading to 5.0 version of symfony/validator package
-     *
      * @codeCoverageIgnore
      * {@inheritdoc}
      */
-    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
+    public function getLocale(): string
     {
-        // ...
-    }
-
-    /**
-     * Remove when upgrading to 5.0 version of symfony/validator package
-     *
-     * @codeCoverageIgnore
-     * {@inheritdoc}
-     */
-    public function setLocale($locale)
-    {
-        // ...
-    }
-
-    /**
-     * Remove when upgrading to 5.0 version of symfony/validator package
-     *
-     * @codeCoverageIgnore
-     * {@inheritdoc}
-     */
-    public function getLocale()
-    {
-        // ...
+        return $this->contact->get_lang();
     }
 }

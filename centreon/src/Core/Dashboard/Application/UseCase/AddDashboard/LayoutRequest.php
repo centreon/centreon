@@ -19,26 +19,21 @@
  *
  */
 
-namespace CentreonLegacy\Core\Install;
+declare(strict_types=1);
 
-class Factory
+namespace Core\Dashboard\Application\UseCase\AddDashboard;
+
+final class LayoutRequest
 {
-    /** @var \Pimple\Container */
-    protected $dependencyInjector;
+    public int $xAxis = 0;
 
-    /**
-     * @param \Pimple\Container $dependencyInjector
-     */
-    public function __construct(\Pimple\Container $dependencyInjector)
-    {
-        $this->dependencyInjector = $dependencyInjector;
-    }
+    public int $yAxis = 0;
 
-    /**
-     * @return Information
-     */
-    public function newInformation()
-    {
-        return new Information($this->dependencyInjector);
-    }
+    public int $width = 0;
+
+    public int $height = 0;
+
+    public int $minWidth = 0;
+
+    public int $minHeight = 0;
 }

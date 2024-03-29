@@ -36,25 +36,16 @@ class Timeperiod implements Mapping\MetadataInterface
     public const TABLE = 'timeperiod';
     public const ENTITY_IDENTIFICATOR_COLUMN = 'tp_id';
 
-    /**
-     * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
-     *
-     * @var int an identification of entity
-     */
+    /** @var int an identification of entity */
+    #[Serializer\Groups([Timeperiod::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
-     *
-     * @var string
-     */
+    /** @var string */
+    #[Serializer\Groups([Timeperiod::SERIALIZER_GROUP_LIST])]
     private $name;
 
-    /**
-     * @Serializer\Groups({Timeperiod::SERIALIZER_GROUP_LIST})
-     *
-     * @var string
-     */
+    /** @var string */
+    #[Serializer\Groups([Timeperiod::SERIALIZER_GROUP_LIST])]
     private $alias;
 
     /**

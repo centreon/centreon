@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "aaea2561-bcd3-4d88-a1d6-a27354f0934a",
-		"name": "Service Severity",
+		"_postman_id": "2982c69d-9454-430e-9cc7-0b09a7ccbe6a",
+		"name": "Host_Group",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-aaea2561-bcd3-4d88-a1d6-a27354f0934a?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-2982c69d-9454-430e-9cc7-0b09a7ccbe6a?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "Log in as Admin      ",
+			"name": "Log in as Admin  ",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -61,7 +61,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights      ",
+			"name": "user_with_RW_rights  ",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights",
@@ -526,7 +526,7 @@
 			]
 		},
 		{
-			"name": "user_with_RW_rights_filters      ",
+			"name": "user_with_RW_rights_filters  ",
 			"item": [
 				{
 					"name": "Add user_with_RW_rights_filters",
@@ -940,7 +940,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights      ",
+			"name": "user_with_R_rights  ",
 			"item": [
 				{
 					"name": "Add user_with_R_rights",
@@ -1405,7 +1405,7 @@
 			]
 		},
 		{
-			"name": "user_with_R_rights_filters      ",
+			"name": "user_with_R_rights_filters  ",
 			"item": [
 				{
 					"name": "Add user_with_R_rights_filters",
@@ -1768,7 +1768,7 @@
 			]
 		},
 		{
-			"name": "user_nothing      ",
+			"name": "user_nothing  ",
 			"item": [
 				{
 					"name": "Add user_nothing",
@@ -2182,7 +2182,7 @@
 			]
 		},
 		{
-			"name": "Service Severity by Admin",
+			"name": "Host Group by Admin",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -2233,29 +2233,38 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity with all properties defined (successful)",
+					"name": "Creation of a new host group with all properties defined (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity1Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new service severity\r",
+									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity1Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostGroup1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"notes\": \"I am Groot\",\r",
+									"        \"notes_url\": \"www.google.fr\",\r",
+									"        \"action_url\": \"www.google.com\",\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": 3,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Hello world ! 1\",\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
+									"    \r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2265,8 +2274,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity1Name\", \"Test_S_Severity_1\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity1Alias\", \"I'm a service severity!\");\r",
+									"pm.collectionVariables.set(\"HostGroup1Name\", \"Test_H_Group_1\");\r",
+									"pm.collectionVariables.set(\"HostGroup1Alias\", \"I should be successful !\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -2283,24 +2292,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity1Name}}\",\n    \"alias\":\"{{ServiceSeverity1Alias}}\",\n    \"level\": 10,\n    \"icon_id\": 1,\n    \"is_activated\": false\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup1Name}}\",\n    \"alias\": \"{{HostGroup1Alias}}\",\n    \"notes\": \"I am Groot\",\n    \"notes_url\": \"www.google.fr\",\n    \"action_url\": \"www.google.com\",\n    \"icon_id\": null,\n    \"icon_map_id\": null,\n    \"rrd\": 3,\n    \"geo_coords\": \"\",\n    \"comment\": \"Hello world ! 1\",\n    \"is_activated\": false\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severity (1)",
+					"name": "Show available host group (1)",
 					"event": [
 						{
 							"listen": "test",
@@ -2309,7 +2318,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -2317,20 +2326,26 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity retrieved is listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severity (1)\r",
+									"pm.test(\"The host group retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"notes\": \"I am Groot\",\r",
+									"        \"notes_url\": \"www.google.fr\",\r",
+									"        \"action_url\": \"www.google.com\",\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": 3,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Hello world ! 1\",\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
-									"\r",
+									"    \r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -2359,42 +2374,52 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity with mandatory properties defined (successful)",
+					"name": "Creation of a new host group with mandatory properties defined (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity2Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup2Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new service severity\r",
+									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity2Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostGroup2Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity2Alias\"),\r",
-									"        \"level\": 1,\r",
-									"        \"icon_id\": 2,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2404,8 +2429,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity2Name\", \"Test_S_Severity_2\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity2Alias\", \"Oh I'm your second severity!\");\r",
+									"pm.collectionVariables.set(\"HostGroup2Name\", \"Test_H_Group_2\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -2422,24 +2446,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity2Name}}\",\n    \"alias\":\"{{ServiceSeverity2Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 2\n}"
+							"raw": "{\n    \"name\": \"{{HostGroup2Name}}\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severities (6)",
+					"name": "Show available host groups (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -2448,7 +2472,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -2456,583 +2480,38 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (2)\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
+									"    // Check the number of host groups (2)\r",
 									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"notes\": \"I am Groot\",\r",
+									"        \"notes_url\": \"www.google.fr\",\r",
+									"        \"action_url\": \"www.google.com\",\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": 3,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Hello world ! 1\",\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity2Alias\"),\r",
-									"        \"level\": 1,\r",
-									"        \"icon_id\": 2,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity without name, level or icon_id (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity has not been created, because the name, level and icon_id are mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n[level] The property level is required\\n[icon_id] The property icon_id is required\\n\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"alias\":\"Oh I'm your third severity!\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity  with empty name (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity has not been created, because the name could not be empty.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewServiceSeverity::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"\",\n    \"alias\":\"Hello, I'm your fourth severity!\",\n    \"level\":0,\n    \"icon_id\":1,\n    \"is_activated\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity without alias (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity has not been created, because the alias is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[alias] The property alias is required\\n\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"Test_S_Severity_2.5\",\n    \"level\": 4,\n    \"icon_id\": 5\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity with wrong type of value (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity has not been created, because there are values of the wrong type.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] NULL value found, but a string is required\\n[level] String value found, but an integer is required\\n[icon_id] NULL value found, but an integer is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":true,\n    \"alias\":null,\n    \"level\": \"un\",\n    \"icon_id\": null,\n    \"is_activated\":\"true\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity with special characters (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity3Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
-									"\r",
-									"    // Creation of a variable with the ID of the new service severity\r",
-									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity3Id\", response.id);\r",
-									"\r",
-									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity3Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity3Alias\"),\r",
-									"        \"level\": 3,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity3Name\", \"Test_S_Sévérity_3!\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity3Alias\", \"Finally, a third successful severity!\");\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "    {\n    \"name\":\"{{ServiceSeverity3Name}}\",\n    \"alias\":\"{{ServiceSeverity3Alias}}\",\n    \"level\": 3,\n    \"icon_id\": 1\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Show available service severities (3)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
-									"\r",
-									"    // Check the properties of each service severity\r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 10,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": false\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity2Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity2Alias\"),\r",
-									"        \"level\": 1,\r",
-									"        \"icon_id\": 2,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity3Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity3Alias\"),\r",
-									"        \"level\": 3,\r",
-									"        \"icon_id\": 1,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update a service severity (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The service severity has been successfully updated, with name '\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity1Alias\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity1Name\", \"Test_S_Severity_1_Updated\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity1Alias\", \"I'm a service severity (changed)!\");\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity1Name}}\",\n    \"alias\":\"{{ServiceSeverity1Alias}}\",\n    \"level\": 2,\n    \"icon_id\": 3,\n    \"is_activated\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity1Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity1Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a service severity (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The service severity with name '\" + pm.collectionVariables.get(\"ServiceSeverity2Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity2Alias\") + \"' has been successfully deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity2Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity2Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity2Id\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity2Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity2Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Show available service severity (2)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (2)\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"\r",
-									"    // Check the properties of each service severity\r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity3Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity3Alias\"),\r",
-									"        \"level\": 3,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
@@ -3064,14 +2543,744 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"alias\":\"Oh I'm your third group !\", \n\"comment\": \"Hello, I should not work !\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without name (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because the name can't be empty.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[NewHostGroup::name] The value \\\"\\\" is too short, it should have at least 1 characters, but only has 0 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":\"\",\n\"alias\":\"Hello, I'm your fourth group!\", \n\"comment\": \"Oh, I should not work too!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group without alias (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and no alias.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I'm blue!\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup3Name\", \"Test_H_Group_3\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\": \"{{HostGroup3Name}}\",\n\"comment\": \"I'm blue!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with wrong type of value (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group has not been created, because there are values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[alias] Boolean value found, but a string or a null is required\\n[notes] Integer value found, but a string or a null is required\\n[notes_url] Boolean value found, but a string or a null is required\\n[action_url] Integer value found, but a string or a null is required\\n[icon_id] String value found, but an integer or a null is required\\n[icon_map_id] String value found, but an integer or a null is required\\n[rrd] Boolean value found, but an integer or a null is required\\n[geo_coords] Boolean value found, but a string or a null is required\\n[comment] Integer value found, but a string or a null is required\\n[is_activated] String value found, but a boolean is required\\n\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\":true,\n\"alias\":true,\n\"notes\": 0,\n\"notes_url\": false,\n\"action_url\": 1,\n\"icon_id\": \"8\",\n\"icon_map_id\": \"ç\",\n\"rrd\": true,\n\"geo_coords\": true,\n\"is_activated\":\"true\",\n\"comment\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with special characters (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup4Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostGroup4Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free !\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\": \"{{HostGroup4Name}}\",\n\"alias\": \"{{HostGroup4Alias}}\",\n\"comment\":\"   \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (4)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup1Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup1Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup1Alias\"),\r",
+									"        \"notes\": \"I am Groot\",\r",
+									"        \"notes_url\": \"www.google.fr\",\r",
+									"        \"action_url\": \"www.google.com\",\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": 3,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Hello world ! 1\",\r",
+									"        \"is_activated\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I'm blue!\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I'm blue!\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group with name '\" + pm.collectionVariables.get(\"HostGroup1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup1Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Name\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup1Id\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group has been successfully updated, with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroup3Name\", \"Test_Update_H_Group_3\");\r",
+									"pm.collectionVariables.set(\"HostGroup3Alias\", \"I'm a your third group but I changgeeeee!\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{HostGroup3Name}}\",\n    \"alias\": \"{{HostGroup3Alias}}\",\n    \"is_activated\":false,\n    \"comment\":\"Transformmattiooonnnnnn!!!!!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (3)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup3Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Transformmattiooonnnnnn!!!!!\",\r",
+									"        \"is_activated\": false\r",
+									"    });\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
 							]
 						}
 					},
@@ -3158,7 +3367,7 @@
 			]
 		},
 		{
-			"name": "Service Severity by user R/W without filters",
+			"name": "Host Group by user R/W without filters",
 			"item": [
 				{
 					"name": "Login with Read/Write user",
@@ -3209,30 +3418,38 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity by user Read/Write (successful)",
+					"name": "Creation of a new host group by user Read/Write (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity4Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup5Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new service severity\r",
+									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity4Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostGroup5Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-									"        \"level\": 5,\r",
-									"        \"icon_id\": 3,\r",
-									"        \"is_activated\": false\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3242,8 +3459,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity4Name\", \"Test_S_severity_4\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity4Alias\", \"I'm the fourth successful severity!\");\r",
+									"pm.collectionVariables.set(\"HostGroup5Name\", \"Test_H_Group_5\");\r",
+									"pm.collectionVariables.set(\"HostGroup5Alias\", \"I'm the fifth successful group !\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -3260,24 +3477,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"{{ServiceSeverity4Name}}\",\n\"alias\":\"{{ServiceSeverity4Alias}}\",\n\"level\": 5,\n\"icon_id\": 3,\n\"is_activated\": false\n}"
+							"raw": "{\n\"name\":\"{{HostGroup5Name}}\",\n\"alias\":\"{{HostGroup5Alias}}\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severities (3)",
+					"name": "Show available host group (4)",
 					"event": [
 						{
 							"listen": "test",
@@ -3286,7 +3503,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -3294,35 +3511,68 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity3Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity3Alias\"),\r",
-									"        \"level\": 3,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-									"        \"level\": 5,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[3]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup3Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"Transformmattiooonnnnnn!!!!!\",\r",
 									"        \"is_activated\": false\r",
 									"    });\r",
 									"\r",
@@ -3354,31 +3604,108 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Deletion of a service severity (successful)",
+					"name": "Show one host group",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The service severity with name '\" + pm.collectionVariables.get(\"ServiceSeverity3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity3Alias\") + \"' has been successfully deleted.\", function () {\r",
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: name, alias, is_activated and comments\", function() {\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of a host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group with name '\" + pm.collectionVariables.get(\"HostGroup3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup3Alias\") + \"' has been successfully deleted.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity3Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity3Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity3Id\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Name\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Alias\");\r",
+									"    pm.collectionVariables.unset(\"HostGroup3Id\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3407,28 +3734,28 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity3Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup3Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity3Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup3Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update a service severity (successful)",
+					"name": "Update of a host group (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The service severity has been successfully updated, with name '\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity4Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully updated, with name '\" + pm.collectionVariables.get(\"HostGroup4Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup4Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -3439,8 +3766,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity4Name\", \"Test_S_severity_4\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity4Alias\", \"I'm the fourth successful severity!\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Update_Group_4\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Alias\", \"So many changes\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -3457,25 +3784,25 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity4Name}}\",\n    \"alias\":\"{{ServiceSeverity4Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 1,\n    \"is_activated\": true\n}"
+							"raw": "{\n    \"name\":\"{{HostGroup4Name}}\",\n    \"alias\":\"{{HostGroup4Alias}}\",\n    \"notes_url\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severities (2)",
+					"name": "Show available host group (3)",
 					"event": [
 						{
 							"listen": "test",
@@ -3484,7 +3811,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -3492,26 +3819,53 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (2)\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (3)\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-									"        \"level\": 1,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[2]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": \"I was created by the Read/Write user\",\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
@@ -3543,14 +3897,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
@@ -3637,7 +3991,7 @@
 			]
 		},
 		{
-			"name": "Service Severity by user R/W with filters",
+			"name": "Host Group by user R/W with filters",
 			"item": [
 				{
 					"name": "ACL Resources",
@@ -3697,7 +4051,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"A list of ACL Resources has been fetched.\", function () {",
+											"pm.test(\"A list of ACL Resource has been fetched.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"",
 											"    var response = JSON.parse(responseBody);",
@@ -3753,13 +4107,13 @@
 							"response": []
 						},
 						{
-							"name": "Add the new severity to the ACL Resource",
+							"name": "Grant the new Host Group to new ACL Resource",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The service severity has been added to ACL resource.\", function () {",
+											"pm.test(\"The host group has been granted to ACL resource.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});"
 										],
@@ -3790,7 +4144,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceSeverity1Name}}\"\n}"
+									"raw": "{\n  \"action\": \"addfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup4Name}}\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -3940,27 +4294,38 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity by user Read/Write with filters (successful)",
+					"name": "Creation of a new host group bu user Read/Write with filters (successful)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The service severity has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceSeverity5Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceSeverity5Alias\") + \"'.\", function () {\r",
+									"pm.test(\"The host group has been successfully created, with name '\" + pm.collectionVariables.get(\"HostGroup6Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostGroup6Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new service severity\r",
+									"    // Creation of a variable with the ID of the new host group\r",
 									"    var response = pm.response.json();\r",
-									"    pm.collectionVariables.set(\"ServiceSeverity5Id\", response.id);\r",
+									"    pm.collectionVariables.set(\"HostGroup6Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity5Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity5Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity5Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup6Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup6Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup6Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
+									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The Location parameter is in the header.\", function () {\r",
+									"    pm.response.to.have.header(\"Location\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3970,8 +4335,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"ServiceSeverity5Name\", \"Test_S_Severity_5\");\r",
-									"pm.collectionVariables.set(\"ServiceSeverity5Alias\", \"I'm the fifth successful severity!\");\r",
+									"pm.collectionVariables.set(\"HostGroup6Name\", \"Test_H_Group_6\");\r",
+									"pm.collectionVariables.set(\"HostGroup6Alias\", \"I'm the sixth successful group!\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -3988,24 +4353,24 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"{{ServiceSeverity5Name}}\",\n\"alias\":\"{{ServiceSeverity5Alias}}\",\n\"level\": 2,\n\"icon_id\": 3\n}"
+							"raw": "{\n\"name\":\"{{HostGroup6Name}}\",\n\"alias\":\"{{HostGroup6Alias}}\",\n\"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severity (1)",
+					"name": "Show available host group (2)",
 					"event": [
 						{
 							"listen": "test",
@@ -4014,7 +4379,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A service severity has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -4022,17 +4387,38 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severity retrieved is listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severity (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (2)\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup6Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup6Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup6Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": \"I was created by the Read/Write user\",\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"    \r",
@@ -4064,30 +4450,164 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update a service severity (error)",
+					"name": "Show one host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": \"I was created by the Read/Write user\",\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Host group not found\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service severity not found\", function () {\r",
+									"pm.test(\"Host group not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Service severity not found\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4113,34 +4633,34 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity4Name}}\",\n    \"alias\":\"{{ServiceSeverity4Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 1,\n    \"is_activated\": true\n}"
+							"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Deletion of a service severity (error)",
+					"name": "Deletion of a host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service severity not found\", function () {\r",
+									"pm.test(\"Host group not found\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Service severity not found\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Host group not found\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4169,15 +4689,15 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
 							]
 						}
 					},
@@ -4264,7 +4784,7 @@
 			]
 		},
 		{
-			"name": "Service Severity by user Read Only without filters",
+			"name": "Host Group by user Read Only without filters",
 			"item": [
 				{
 					"name": "Login with Read Only user",
@@ -4315,17 +4835,17 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity (error)",
+					"name": "Creation of a new host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to create service severity.\", function () {\r",
+									"pm.test(\"The user does not have the correct rights to create host group.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4351,87 +4871,33 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Severity_6\",\n\"alias\":\"I will not be created!\",\n\"level\": 10,\n\"icon_id\": 6\n}"
+							"raw": "{\n\"name\":\"Test_H_Group_7\",\n\"alias\":\"I will not be created!\",\n\"comment\":\"My user can't create me\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update a service severity (error)",
+					"name": "Deletion of a host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to edit service severity.\", function () {\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity4Name}}\",\n    \"alias\":\"{{ServiceSeverity4Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 1,\n    \"is_activated\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a service severity (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to delete service severity\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4460,22 +4926,75 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severities (3)",
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_5555\",\n    \"alias\":\"I'm the fiffftth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\" \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (4)",
 					"event": [
 						{
 							"listen": "test",
@@ -4484,7 +5003,7 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
@@ -4492,38 +5011,71 @@
 									"/  Check body content\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host groups (4)\r",
+									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
-									"    // Check the properties of each service severity\r",
+									"    // Check the properties of each host group\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity1Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity1Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup2Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup2Name\"),\r",
+									"        \"alias\": null,\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity4Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity4Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity4Alias\"),\r",
-									"        \"level\": 1,\r",
-									"        \"icon_id\": 1,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity5Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity5Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity5Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup6Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup6Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup6Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
 									"        \"is_activated\": true\r",
 									"    });\r",
-									"\r",
+									"        \r",
+									"    pm.expect(responseJson.result[3]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup4Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup4Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup4Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": \"I was created by the Read/Write user\",\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": null,\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"    \r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -4552,14 +5104,92 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    \r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
 							]
 						}
 					},
@@ -4646,7 +5276,7 @@
 			]
 		},
 		{
-			"name": "Service Severity by user Read Only with filters",
+			"name": "Host Group by user Read Only with filters",
 			"item": [
 				{
 					"name": "ACL Resources filters",
@@ -4700,13 +5330,13 @@
 							"response": []
 						},
 						{
-							"name": "Delete the service severity of the ACL Resources",
+							"name": "Delete the Host Group filter",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The service severity has been deleted of the ACL resource.\", function () {",
+											"pm.test(\"The host group has been deleted of the ACL resource.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});"
 										],
@@ -4737,7 +5367,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"delfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceSeverity1Name}}\"\n}\n"
+									"raw": "{\n  \"action\": \"delfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup4Name}}\"\n}\n"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -4759,13 +5389,13 @@
 							"response": []
 						},
 						{
-							"name": "Add the new severity to the ACL Resource",
+							"name": "Delete the Host Group filter",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The service severity has been added to ACL resource.\", function () {",
+											"pm.test(\"The host group has been deleted of the ACL resource.\", function () {",
 											"    pm.response.to.have.status(200);",
 											"});"
 										],
@@ -4796,7 +5426,66 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"action\": \"addfilter_servicecategory\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{ServiceSeverity5Name}}\"\n}"
+									"raw": "{\n  \"action\": \"delfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup6Name}}\"\n}\n"
+								},
+								"url": {
+									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
+									"host": [
+										"{{baseUriCentreonCLAPI}}"
+									],
+									"query": [
+										{
+											"key": "action",
+											"value": "action"
+										},
+										{
+											"key": "object",
+											"value": "centreon_clapi"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant a new Host Group to the ACL Resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The host group has been granted to ACL resource.\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"addfilter_hostgroup\",\n  \"object\": \"ACLRESOURCE\",\n  \"values\": \"{{ACLResources}};{{HostGroup5Name}}\"\n}"
 								},
 								"url": {
 									"raw": "{{baseUriCentreonCLAPI}}?action=action&object=centreon_clapi",
@@ -4946,17 +5635,17 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new service severity (error)",
+					"name": "Creation of a new host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to create service severities.\", function () {\r",
+									"pm.test(\"The user does not have the correct rights to create host group.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4982,160 +5671,33 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Severity_6\",\n\"alias\":\"I will not be created!\",\n\"level\": 10,\n\"icon_id\": 6\n}"
+							"raw": "{\n\"name\":\"Test_H_Group_7\",\n\"alias\":\"I will not be created!\",\n\"comment\":\"My user can't create me\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Show available service severity (1)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of service severities has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The service severities retrieved are listed with: name, alias, level, icon_id and is_activated\", function() {\r",
-									"    // Check the number of service severities (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    // Check the properties of each service severity\r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"ServiceSeverity5Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"ServiceSeverity5Name\"),\r",
-									"        \"alias\": pm.collectionVariables.get(\"ServiceSeverity5Alias\"),\r",
-									"        \"level\": 2,\r",
-									"        \"icon_id\": 3,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"    \r",
-									"})"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update a service severity (error)",
+					"name": "Deletion of a host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to edit service severity.\", function () {\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity4Name}}\",\n    \"alias\":\"{{ServiceSeverity4Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 1,\n    \"is_activated\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a service severity (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to delete service severities\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5164,15 +5726,225 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup4Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_4\",\n    \"alias\":\"I'm the fourth successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host group (1)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host group has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"    // Check the number of host group (1)\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"\r",
+									"    // Check the properties of each host group\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"pm.test(\"A host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"/  Check body content\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group retrieved is listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function() {\r",
+									"\r",
+									"    // Check the properties of the host group\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostGroup5Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostGroup5Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostGroup5Alias\"),\r",
+									"        \"notes\": null,\r",
+									"        \"notes_url\": null,\r",
+									"        \"action_url\": null,\r",
+									"        \"icon_id\": null,\r",
+									"        \"icon_map_id\": null,\r",
+									"        \"rrd\": null,\r",
+									"        \"geo_coords\": null,\r",
+									"        \"comment\": \"I was created by the Read/Write user\",\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"  \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
 							]
 						}
 					},
@@ -5259,7 +6031,7 @@
 			]
 		},
 		{
-			"name": "Service Severity By User with No Access",
+			"name": "Host Group By User with No Access",
 			"item": [
 				{
 					"name": "Login with user with no access",
@@ -5310,7 +6082,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available service severity (error)",
+					"name": "Creation of a new host group (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -5320,63 +6092,12 @@
 									"/  Check code status\r",
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service severity not found\", function () {\r",
+									"pm.test(\"The host group has not been  created, because the user does have the corrects rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access service severities\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Creation of a new service severity (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to create service severities.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to create service severities\");\r",
-									"});"
+									"});\r",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -5401,87 +6122,36 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"name\":\"Test_S_Severity_6\",\n\"alias\":\"I will not be created!\",\n\"level\": 10,\n\"icon_id\": 6\n}"
+							"raw": "{\n\"name\":\"Test_H_Group_1234567\",\n\"alias\":\"I will not be created !\",\n\"comment\":\"My user can't do anything\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities",
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities"
+								"hosts",
+								"groups"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Update a service severity (error)",
+					"name": "Deletion of a host group (error)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to edit service severity.\", function () {\r",
+									"pm.test(\"The user does not have the correct rights to delete host group\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to edit service severities\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\":\"{{ServiceSeverity4Name}}\",\n    \"alias\":\"{{ServiceSeverity4Alias}}\",\n    \"level\": 1,\n    \"icon_id\": 1,\n    \"is_activated\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of a service severity (error)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user does not have the correct rights to delete service severities\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete service severities\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5510,15 +6180,179 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update of a host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to update host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to perform write operations on host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Test_H_Group_55555\",\n    \"alias\":\"I'm the X successful group!\",\n    \"is_activated\":false,\n    \"comment\":\"I was created by the Read/Write user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show available host groups (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to list host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show one host group (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The user does not have the correct rights to list host group\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access host groups\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{HostGroup5Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups",
+								"{{HostGroup5Id}}"
 							]
 						}
 					},
@@ -5656,13 +6490,81 @@
 					"response": []
 				},
 				{
-					"name": "Deletion of all service severities",
+					"name": "Show available host groups for deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/*\r",
+									"/  Check code status\r",
+									"*/\r",
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"A list of host groups has been successfully fetched.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"\r",
+									"    let hostsGroupCreated = [];\r",
+									"    for(let count = 0; count < responseJson.result.length; count++){\r",
+									"        hostsGroupCreated.push(responseJson.result[count].id);\r",
+									"    }\r",
+									"\r",
+									"    pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);\r",
+									"    pm.collectionVariables.set(\"HostGroupTotal\", responseJson.meta.total);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletion of all hosts groups",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"let hostsGroupCreated = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+									"\r",
+									"let currentHostGroup = hostsGroupCreated.shift();\r",
+									"pm.collectionVariables.set(\"currentHostGroup\", currentHostGroup);\r",
+									"pm.collectionVariables.set(\"hostsGroupCreated\", hostsGroupCreated);"
 								],
 								"type": "text/javascript"
 							}
@@ -5671,13 +6573,22 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity1Name\") + \" has successfully been deleted.\", function () {\r",
+									"const hostGroups = pm.collectionVariables.get(\"hostsGroupCreated\");\r",
+									"const HostGroupTotal = pm.collectionVariables.get(\"HostGroupTotal\");\r",
+									"\r",
+									"pm.test(\"Host Group\" + pm.collectionVariables.get(\"currentHostGroup\") + \" has successfully been deleted.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity1Id\");\r",
 									"});\r",
-									""
+									"console.log(hostGroups.length);\r",
+									"if (hostGroups.length > 0) {\r",
+									"    postman.setNextRequest(\"Deletion of all hosts groups\");\r",
+									"} else if (HostGroupTotal > 0) {\r",
+									"    postman.setNextRequest(\"Show available host group for deletion\");\r",
+									"}\r",
+									"else {\r",
+									"    pm.collectionVariables.unset(\"currentHostGroup\");\r",
+									"    pm.collectionVariables.unset(\"hostsGroupCreated\");\r",
+									"}"
 								],
 								"type": "text/javascript"
 							}
@@ -5687,114 +6598,22 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity1Id}}",
+							"raw": "{{baseUrl}}/configuration/hosts/groups/{{currentHostGroup}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity1Id}}"
+								"hosts",
+								"groups",
+								"{{currentHostGroup}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Deletion of all service severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity4Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity4Id\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity4Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity4Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all service severities",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Service severity\" + pm.collectionVariables.get(\"ServiceSeverity5Name\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity5Name\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverity5Alias\");\r",
-									"    pm.collectionVariables.unset(\"ServiceSeverit53Id\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/services/severities/{{ServiceSeverity5Id}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"services",
-								"severities",
-								"{{ServiceSeverity5Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RAZ Logout from admin user",
+					"name": "Logout from admin user",
 					"event": [
 						{
 							"listen": "test",
