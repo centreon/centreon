@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Migration\Infrastructure\Repository;
 
+use CentreonUserLog;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
+use Pimple\Container;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
@@ -37,9 +39,13 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     /** @var MigrationInterface[] */
     private $migrations;
 
+    /** @var CentreonUserLog */
+    private CentreonUserLog $centreonLog;
+
     public function __construct(
         DatabaseConnection $db,
         \Traversable $migrations,
+        Container $dependencyInjector,
     ) {
         $this->db = $db;
 
@@ -48,6 +54,9 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         }
 
         $this->migrations = iterator_to_array($migrations);
+
+        $pearDB = $dependencyInjector['configuration_db'];
+        $this->centreonLog = new CentreonUserLog(-1, $pearDB);
     }
 
     /**
@@ -58,7 +67,31 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         $migration = $this->getMigrationClass($newMigration);
 
         $this->info(sprintf('Run migration %s.', $newMigration->getName()));
-        $migration->up();
+        try {
+            $migration->up();
+            $this->centreonLog->insertLog(
+                CentreonUserLog::TYPE_UPGRADE,
+                sprintf(
+                    ' [%s] [%s] %s: Success',
+                    $newMigration->getModuleName(),
+                    $newMigration->getName(),
+                    $newMigration->getDescription()
+                )
+            );
+        } catch (\Exception $e) {
+            $this->centreonLog->insertLog(
+                CentreonUserLog::TYPE_UPGRADE,
+                sprintf(
+                    ' [%s] [%s] %s: %s',
+                    $newMigration->getModuleName(),
+                    $newMigration->getName(),
+                    $newMigration->getDescription(),
+                    $e->getMessage()
+                )
+            );
+            throw $e;
+        }
+
 
         $this->storeMigration($newMigration);
     }

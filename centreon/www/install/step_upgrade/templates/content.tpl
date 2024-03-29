@@ -37,7 +37,7 @@
             {/if}
             <input class='btc bt_default' type='button' id='refresh' value='Refresh' onClick='jumpTo({$step});'/>
             {if (!isset($valid) || $valid)}
-                {if !$finish}
+                {if (!isset($finish) || !$finish)}
                     <input class='btc bt_info' type='button' id='next' value='Next'
                         onClick='if (validation() == true) jumpTo({$step+1});'/>
                 {else}
