@@ -13,12 +13,27 @@ A SSH client library make routing to non-gorgoned nodes possible.
 ## Configuration
 
 | Directive            | Description                                                         | Default value |
-| :------------------- | :------------------------------------------------------------------ | :------------ |
+|:---------------------|:--------------------------------------------------------------------|:--------------|
 | pool                 | Number of childs to instantiate to process events                   | `5`           |
 | synchistory_time     | Time in seconds between two logs synchronisation                    | `60`          |
 | synchistory_timeout  | Time in seconds before logs synchronisation is considered timed out | `30`          |
 | ping                 | Time in seconds between two node pings                              | `60`          |
 | pong_discard_timeout | Time in seconds before a node is considered dead                    | `300`         |
+
+this part of the configuration is only used if some poller must connect with pullwss module.
+
+| Directive     | Description                                                                                    | Default value |
+|:--------------|:-----------------------------------------------------------------------------------------------|:--------------|
+| httpserver    | array containing all below configuration for pullwss connnection                               | no value.     |
+| enable        | boolean if http server should be enabled                                                       | `false`       |
+| ssl           | should connection be made over tls/ssl or not                                                  | `false`       |
+| ssl_cert_file | Path to a ssl certificate file. required if ssl: true                                          |               |
+| ssl_key_file  | Path to a ssl key file associated to the certificate already configured. required if ssl: true |               |
+| passphrase    | No idea, maybe an optionnal pasphrase for the ssl key.                                         |               |
+| token         | Allow to authenticate node. Is required to enable http server.                                 |               |
+| address       | Address to listen to. can be 0.0.0.0 to listen on all ipv4 address                             |               |
+| port          | tcp port to listen to.                                                                         |               |
+
 
 #### Example
 
@@ -31,7 +46,15 @@ synchistory_time: 60
 synchistory_timeout: 30
 ping: 60
 pong_discard_timeout: 300
+httpserver:  # this is used only if you want to configure pullwss nodes. to work you have to add register module and configure a config file.
+  enable: true
+  ssl: true
+  ssl_cert_file: /etc/centreon-gorgone/keys/public.pem
+  ssl_key_file: /etc/centreon-gorgone/keys/private.pem
+  token: secure_token
+  address: "0.0.0.0"
 ```
+
 
 ## Events
 

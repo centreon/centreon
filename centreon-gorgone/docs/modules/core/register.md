@@ -28,9 +28,9 @@ Nodes are listed in a separate configuration file in a `nodes` table as below:
 ##### Using ZMQ (Gorgone running on node)
 
 | Directive       | Description                                                                |
-| :-------------- | :------------------------------------------------------------------------- |
+|:----------------|:---------------------------------------------------------------------------|
 | id              | Unique identifier of the node (can be Poller’s ID if using prevail option) |
-| type            | Way for the daemon to connect to the node (push\_zmq)                      |
+| type            | Way for the daemon to connect to the node (push\_zmq, pull, wss)           |
 | address         | IP address of the node                                                     |
 | port            | Port to connect to on the node                                             |
 | server\_pubkey  | Server public key (Default: ask the server pubkey when it connects)        |
