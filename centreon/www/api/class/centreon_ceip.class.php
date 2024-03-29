@@ -138,7 +138,8 @@ class CentreonCeip extends CentreonWebService
             } else {
                 $role = 'User';
             }
-        } else { // Get the user role for the Centreon on-premises platform
+        } else { 
+            // Get the user role for the Centreon on-premises platform
             $role = $this->user->admin
                 ? 'admin'
                 : 'user';
