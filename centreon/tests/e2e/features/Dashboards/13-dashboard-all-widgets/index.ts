@@ -192,7 +192,7 @@ after(() => {
   cy.stopContainers();
 });
 
-Given('the dashboard administrator redirected to dashboard interface', () => {
+Given('a dashboard administrator on the dashboard web interface', () => {
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -203,7 +203,7 @@ Given('the dashboard administrator redirected to dashboard interface', () => {
   }).click();
 });
 
-When('the dashboard administrator add generic text widget', () => {
+When('the dashboard administrator adds a Generic text widget', () => {
   cy.getByTestId({ testId: 'AddIcon' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Generic text').click();
@@ -215,7 +215,7 @@ When('the dashboard administrator add generic text widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator add single metric widget', () => {
+When('the dashboard administrator adds a Single metric widget', () => {
   cy.getByLabel({ label: 'Add a widget' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Single metric').click();
@@ -227,7 +227,7 @@ When('the dashboard administrator add single metric widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator add metrics graph widget', () => {
+When('the dashboard administrator adds a Metrics graph widget', () => {
   cy.getByLabel({ label: 'Add a widget' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Metrics graph').click();
@@ -243,7 +243,7 @@ When('the dashboard administrator add metrics graph widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator add top bottom widget', () => {
+When('the dashboard administrator adds a Top bottom widget', () => {
   cy.getByLabel({ label: 'Add a widget' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Top/bottom').click();
@@ -259,7 +259,7 @@ When('the dashboard administrator add top bottom widget', () => {
   cy.get('.MuiAlert-message').should('not.exist');
 });
 
-When('the dashboard administrator add Status grid widget', () => {
+When('the dashboard administrator adds a Status grid widget', () => {
   cy.getByLabel({ label: 'Add a widget' }).click();
   cy.getByTestId({ testId: 'Widget type' }).click();
   cy.contains('Status grid').click();
@@ -272,18 +272,21 @@ When('the dashboard administrator add Status grid widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
-Then('the dashboard administrator save the dashboard', () => {
+Then('the dashboard administrator saves the dashboard', () => {
   cy.getByTestId({ testId: 'save_dashboard' }).click();
 });
 
-Given('the dashboard administrator redirected to dashboard screen', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
-});
+Given(
+  'a dashboard administrator who has just configured a multi-widget dashboard',
+  () => {
+    cy.visit('/centreon/home/dashboards');
+    cy.wait('@listAllDashboards');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+  }
+);
 
 When(
-  'the dashboard administrator update widgets positions and save updates',
+  'the dashboard administrator updates the positions of the widgets and saves the dashboard',
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.on('uncaught:exception', (err) => {
@@ -327,7 +330,7 @@ When(
   }
 );
 
-Then('the new widget positions must be saved', () => {
+Then('the dashboard is updated with the new widget layout', () => {
   cy.get('.react-grid-item')
     .eq(3)
     .invoke('attr', 'style')
@@ -342,14 +345,17 @@ Then('the new widget positions must be saved', () => {
     });
 });
 
-Given('the dashboard administrator is now on the dashboard interface', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.fromDashboardCreatorUser.name).click();
-});
+Given(
+  'the dashboard administrator with a configured multi-widget dashboard',
+  () => {
+    cy.visit('/centreon/home/dashboards');
+    cy.wait('@listAllDashboards');
+    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+  }
+);
 
 When(
-  'the dashboard administrator clicks on view resource status button from {string} widget',
+  'the dashboard administrator clicks on the "view Resource Status" button from the {string} widget',
   (widgetType) => {
     let eqIndex;
 
@@ -392,7 +398,7 @@ When(
 );
 
 Then(
-  'the dashboard administrator should be redirected to {string} widget resources',
+  'the dashboard administrator should be redirected to the {string} widget resources',
   (widgetType) => {
     switch (widgetType) {
       case 'single metric':

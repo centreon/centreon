@@ -5,29 +5,29 @@ Feature: Configuring dashboard with all widgets
 
   @TEST_MON-37042
   Scenario: Adding all widgets into the same dashboard
-    Given the dashboard administrator redirected to dashboard interface
-    When the dashboard administrator add generic text widget
-    And the dashboard administrator add single metric widget
-    And the dashboard administrator add metrics graph widget
-    And the dashboard administrator add top bottom widget
-    And the dashboard administrator add Status grid widget
-    Then the dashboard administrator save the dashboard
+    Given a dashboard administrator on the dashboard web interface
+    When the dashboard administrator adds a Generic text widget
+    And the dashboard administrator adds a Single metric widget
+    And the dashboard administrator adds a Metrics graph widget
+    And the dashboard administrator adds a Top bottom widget
+    And the dashboard administrator adds a Status grid widget
+    Then the dashboard administrator saves the dashboard
 
   @TEST_MON-37043
-  Scenario: Editing widgets positions
-    Given the dashboard administrator redirected to dashboard screen
-    When the dashboard administrator update widgets positions and save updates
-    Then the new widget positions must be saved
+  Scenario: Editing the layout of a multi-widget dashboard
+    Given a dashboard administrator who has just configured a multi-widget dashboard
+    When the dashboard administrator updates the positions of the widgets and saves the dashboard
+    Then the dashboard is updated with the new widget layout
 
   @TEST_MON-37044
-  Scenario: Accessing to ressource status page while clicking on <widgetType> widget
-    Given the dashboard administrator is now on the dashboard interface
-    When the dashboard administrator clicks on view resource status button from '<widgetType>' widget
-    Then the dashboard administrator should be redirected to '<widgetType>' widget resources
+  Scenario: Accessing the resource status page when clicking on the <widgetType> widget
+    Given the dashboard administrator with a configured multi-widget dashboard
+    When the dashboard administrator clicks on the "view Resource Status" button from the '<widgetType>' widget
+    Then the dashboard administrator should be redirected to the '<widgetType>' widget resources
 
     Examples:
       | widgetType      |
       | single metric   |
       | metrics graph   |
-      | top button      |
+      | top buttom      |
       | status grid     |
