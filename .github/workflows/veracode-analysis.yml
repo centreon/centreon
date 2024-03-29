@@ -251,7 +251,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: geekyeggo/delete-artifact@65041433121f7239077fa20be14c0690f70569de # v4.1.0
+      - uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
           name: "Veracode Pipeline-Scan Results"
 
@@ -296,7 +296,7 @@ jobs:
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
 
         # Action forked due to an API call hardcoding the '.com' route
-        uses: sc979/veracode-sandboxes-helper@cf67241c27cbe6405ad8705111121ece9a48c4ff # v0.2
+        uses: sc979/veracode-sandboxes-helper@616cfc1e3428691c30382dab33d569f00b14f664 # v0.3
         with:
           activity: "promote-latest-scan"
           app-name: "${{ inputs.module_name }}"
