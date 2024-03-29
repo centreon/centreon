@@ -129,7 +129,11 @@ table.shell .install-header {
 	height: 80px;
 }
 
-table.shell .step-wrapper h3{
+table.shell .step-wrapper {
+	width: 40%;
+}
+
+table.shell .step-wrapper h3 {
 	color: #8a8a8a;
 	font-weight: normal;
 	margin: 12px 0;
@@ -150,7 +154,8 @@ table.shell th {
 }
 
 table.shell td {
-	padding: 6px;
+	/* padding: 6px; */
+	padding: 6px 18px;
 	background-color: rgb(255, 255, 255);
 	/* background-color: #d6d5d5; */
 }
@@ -176,26 +181,65 @@ table.shell .install-body {
 	/* background-color: #e7e7e8; */
 }
 
+table.shell input {
+	font-size: 12px;
+}
+
+table.shell input.bt_default, input.bt_back_install {
+	background-color: transparent !important;
+	color: rgb(46, 104, 170) !important;
+}
+
+table.shell input.bt_default:hover, input.bt_back_install:hover {
+	background-color: rgba(46, 104, 170, 0.06) !important;
+}
+
+table.shell input.bt_info, input.bt_success {
+	background-color: rgb(46, 104, 170) !important;
+	color: rgb(255, 255, 255) !important;
+}
+
+table.shell input.bt_info:hover, input.bt_success:hover {
+	background-color: rgb(37, 88, 145) !important;
+}
+
+table.shell input.bt_info:disabled, input.bt_success:disabled {
+	background-color: rgba(0, 0, 0, 0.12) !important;
+	color: rgb(153, 153, 153) !important;
+}
+
+table.stdTable {
+	font-size: 14px;
+}
+
 table.stdTable td {
-
 	padding: 2px;
-	}
+}
 table.stdTable th {
-
 	padding: 2px;
+}
 
-	}
+table.StyleDottedHr tr:first-child th:first-child {
+	border-top-left-radius: 0px;
+}
+
+table.StyleDottedHr tr:first-child th:last-child {
+	border-top-right-radius: 0px;
+}
+
+table.StyleDottedHr th {
+	padding: 8px;
+	background-color: rgb(102, 102, 102);
+	color: rgb(255, 255, 255);
+	font-size: 14px;
+}
 
 table.StyleDottedHr td {
+	border-radius: 0px;
 	border-bottom: 1px solid #cccccc;
-	padding: 4px;
+	padding: 4px 8px;
 }
-table.StyleDottedHr th {
-	padding: 4px;
-	background-color: #444444;
-	font-size: 14px;
-	color: #dddddd;
-}
+
 
 
 .small {
@@ -218,12 +262,13 @@ table.StyleDottedHr th {
 	color: #e00b3d;
 	font-weight: bold;
 	}
-        
+
 #troubleshoot {
     color: #e00b3d;
     font-weight: normal;
 }
 .link-group {
+	width: max-content;
 	margin-bottom: 0px;
 	padding: 5px 2px;
 }

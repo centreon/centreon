@@ -27,7 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
-class Migration202403181000 extends AbstractCoreMigration implements MigrationInterface
+class Migration202403181002 extends AbstractCoreMigration implements MigrationInterface
 {
     use LoggerTrait;
 
@@ -36,7 +36,7 @@ class Migration202403181000 extends AbstractCoreMigration implements MigrationIn
      */
     public function getDescription(): string
     {
-        return 'Create default Resource Status dataset filters';
+        return 'Add widget group monitoring';
     }
 
     /**
