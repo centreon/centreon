@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { equals, flatten } from 'ramda';
+import { equals, flatten, isEmpty } from 'ramda';
 
 import { SearchParameter, getFoundFields } from '@centreon/ui';
 
@@ -53,6 +53,15 @@ const useBuildParameters = (): UseBuildParameters => {
 
       return { $rg: value };
     };
+
+    if (isEmpty(terms)) {
+      return {
+        regex: {
+          fields: [...Object.values(Fields)],
+          value: search
+        }
+      };
+    }
 
     return {
       conditions: terms.map(({ field, value }) => ({
