@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable no-loop-func */
 /* eslint-disable newline-before-return */
 /* eslint-disable cypress/unsafe-to-chain-command */
@@ -447,16 +448,17 @@ Then(
           'OK'
         ];
         let statusFound = false;
-        for (let i = 0; i < topButtomStatuses.length; i++) {
-          cy.get('[class$="chip-statusColumnChip"]')
-            .eq(i)
-            .then(($chip) => {
-              if (topButtomStatuses.includes($chip.text()) && !statusFound) {
-                statusFound = true;
-                cy.wrap(statusFound).should('be.true');
-              }
-            });
-        }
+        cy.get('[class$="chip-statusColumnChip"]')
+          .each(($chip) => {
+            if (topButtomStatuses.includes($chip.text()) && !statusFound) {
+              statusFound = true;
+              return false;
+            }
+            return undefined;
+          })
+          .then(() => {
+            expect(statusFound).to.be.true;
+          });
         break;
       default:
         break;
