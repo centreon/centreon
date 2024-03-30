@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
-import { equals, type } from 'ramda';
 import { Group } from '@visx/group';
 import { ProvidedZoom } from '@visx/zoom/lib/types';
 
@@ -15,10 +14,10 @@ import { minimapScale, radius } from './constants';
 import { useZoom } from './useZoom';
 import { useZoomStyles } from './Zoom.styles';
 import Minimap from './Minimap';
-import { MinimapPosition, ZoomState } from './models';
+import { ChildrenProps, MinimapPosition, ZoomState } from './models';
 
 export interface Props {
-  children: JSX.Element | (({ width, height }) => JSX.Element);
+  children: ({ width, height, transformMatrix }: ChildrenProps) => JSX.Element;
   height: number;
   minimapPosition: MinimapPosition;
   showMinimap?: boolean;
@@ -62,8 +61,6 @@ const ZoomContent = ({
 
   const { move, dragEnd, dragStart, isDragging } = useZoom();
 
-  const isChildrenObject = equals(type(children), 'Object');
-
   return (
     <div style={{ position: 'relative' }}>
       <svg
@@ -90,7 +87,12 @@ const ZoomContent = ({
           ref={contentRef}
           transform={zoom.toString()}
         >
-          {isChildrenObject ? children : children({ height, width })}
+          {children({
+            contentClientRect,
+            height,
+            transformMatrix: zoom.transformMatrix,
+            width
+          })}
         </g>
       </svg>
       <div className={classes.actionsAndZoom} data-position={minimapPosition}>
@@ -109,7 +111,12 @@ const ZoomContent = ({
               zoom={zoom}
             >
               <Group left={0} top={contentClientRect.height / 10}>
-                {isChildrenObject ? children : children({ height, width })}
+                {children({
+                  contentClientRect,
+                  height,
+                  transformMatrix: zoom.transformMatrix,
+                  width
+                })}
               </Group>
             </Minimap>
           </svg>

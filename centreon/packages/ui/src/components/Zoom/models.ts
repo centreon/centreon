@@ -14,3 +14,12 @@ export type MinimapPosition =
   | 'top-right'
   | 'bottom-left'
   | 'bottom-right';
+
+export interface ChildrenProps extends ZoomState {
+  contentClientRect: {
+    height: number;
+    width: number;
+  } | null;
+  height: number;
+  width: number;
+}

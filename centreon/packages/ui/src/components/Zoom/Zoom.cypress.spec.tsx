@@ -1,24 +1,45 @@
+import { ChildrenProps } from './models';
 import Zoom from './Zoom';
 
-const content = (
+const Content = (): JSX.Element => (
   <g style={{ transform: 'translate(300px, 150px)' }}>
     <circle fill="blue" r={50} stroke="black" />
   </g>
 );
 
-const contentWithMultipleShapes = (
-  <g style={{ transform: 'translate(0px, -300px)' }}>
-    <g style={{ transform: 'translate(300px, 150px)' }}>
-      <circle fill="blue" r={50} stroke="black" />
+const contentWithMultipleShapes = ({
+  contentClientRect
+}: ChildrenProps): JSX.Element => {
+  const contentRect = {
+    height: contentClientRect?.height || 1,
+    width: contentClientRect?.width || 1
+  };
+  const isPortrait = contentRect.height > contentRect.width;
+  const sizes = isPortrait ? ['width', 'height'] : ['height', 'width'];
+  const sizeScale = contentRect[sizes[0]] / contentRect[sizes[1]];
+
+  const lengthToUse = isPortrait
+    ? contentRect[sizes[1]] - contentRect[sizes[0]]
+    : contentRect[sizes[0]];
+
+  return (
+    <g
+      style={{
+        transform: `translate(-${isPortrait ? 0 : contentRect.width * (sizeScale / 4)}px, -${lengthToUse * (isPortrait ? sizeScale + 0.08 : sizeScale / 2)}px)`
+      }}
+    >
+      <g style={{ transform: 'translate(300px, 150px)' }}>
+        <circle fill="blue" r={50} stroke="black" />
+      </g>
+      <g style={{ transform: 'translate(600px, 500px)' }}>
+        <circle fill="green" r={70} />
+      </g>
+      <g style={{ transform: 'translate(150px, 600px)' }}>
+        <circle fill="red" r={70} />
+      </g>
     </g>
-    <g style={{ transform: 'translate(600px, 500px)' }}>
-      <circle fill="green" r={70} />
-    </g>
-    <g style={{ transform: 'translate(150px, 600px)' }}>
-      <circle fill="red" r={70} />
-    </g>
-  </g>
-);
+  );
+};
 
 interface Props {
   minimapPosition?;
@@ -35,7 +56,7 @@ const initialize = ({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
         <Zoom minimapPosition={minimapPosition} showMinimap={showMinimap}>
-          {useMultipleShapes ? contentWithMultipleShapes : content}
+          {useMultipleShapes ? contentWithMultipleShapes : Content}
         </Zoom>
       </div>
     )
