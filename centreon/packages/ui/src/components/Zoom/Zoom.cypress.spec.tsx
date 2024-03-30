@@ -7,7 +7,7 @@ const content = (
 );
 
 const contentWithMultipleShapes = (
-  <g style={{ transform: 'translate(0px, -200px)' }}>
+  <g style={{ transform: 'translate(0px, -300px)' }}>
     <g style={{ transform: 'translate(300px, 150px)' }}>
       <circle fill="blue" r={50} stroke="black" />
     </g>
@@ -203,7 +203,11 @@ describe('Zoom', () => {
     cy.findByTestId('minimap-interaction')
       .parent()
       .find('g')
-      .should('have.attr', 'style', 'transform: scale(0.684211);');
+      .should(
+        'have.attr',
+        'style',
+        'transform: scale(0.684211) translate(0px, 57px);'
+      );
 
     cy.makeSnapshot();
   });

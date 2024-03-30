@@ -42,7 +42,7 @@ const Minimap = ({
     height,
     isDraggingFromContainer,
     minimapScale,
-    scale: (1 / scale > 1 ? 1 : scale) || 1,
+    scale: (invertedScale > 1 ? 1 : scale) || 1,
     width,
     zoom
   });
@@ -50,11 +50,39 @@ const Minimap = ({
   const finalHeight = height;
   const finalWidth = width;
 
-  const additionalScale = scaleLinear({
+  const additionalScaleScale = scaleLinear({
     clamp: true,
     domain: [contentClientRect.height, 0],
     range: [0, 0.05]
   });
+
+  const additionalScale =
+    additionalScaleScale(contentClientRect.height - height) /
+    2 /
+    zoom.transformMatrix.scaleY;
+
+  const getAdditionalPadding = (): number => {
+    if (additionalScale > 0.05) {
+      return 0;
+    }
+
+    const padding =
+      additionalScale > 0.012
+        ? (1 / additionalScale) * (1 / zoom.transformMatrix.scaleY)
+        : 1 / additionalScale / zoom.transformMatrix.scaleY;
+
+    if (additionalScale < 0.009) {
+      const test = scaleLinear({
+        clamp: true,
+        domain: [0.005, 0.002],
+        range: [1, 5]
+      });
+
+      return padding - padding / test(additionalScale);
+    }
+
+    return padding;
+  };
 
   return (
     <g className={classes.minimap} clipPath="url(#zoom-clip)">
@@ -66,7 +94,7 @@ const Minimap = ({
       />
       <g
         style={{
-          transform: `scale(${scaleToUse - additionalScale(contentClientRect.height - height) / 2})`
+          transform: `scale(${scaleToUse - additionalScale}) translate(0px, ${getAdditionalPadding()}px)`
         }}
       >
         {children}
@@ -92,6 +120,8 @@ const Minimap = ({
         rx={radius}
         width={finalWidth}
         onMouseDown={dragStart}
+        onMouseEnter={dragStart}
+        onMouseLeave={dragEnd}
         onMouseMove={move}
         onMouseUp={dragEnd}
         onWheel={zoomInOut}

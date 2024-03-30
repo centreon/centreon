@@ -37,15 +37,21 @@ export const useMinimap = ({
   const [startTranslate, setStartTranslate] = useState<Translate | null>(null);
 
   const getMatrixPoint = useCallback(
-    (event): { x: number; y: number } => {
+    (event, newScale?: number): { x: number; y: number } => {
       const hasScale = scale > 1;
       const point = {
         x: event.nativeEvent.offsetX * (1 / minimapScale),
         y: event.nativeEvent.offsetY * (1 / minimapScale)
       };
 
-      const dx = -(point.x * zoom.transformMatrix.scaleX - width / 2);
-      const dy = -(point.y * zoom.transformMatrix.scaleY - height / 2);
+      const dx = -(
+        point.x * (newScale || zoom.transformMatrix.scaleX) -
+        width / 2
+      );
+      const dy = -(
+        point.y * (newScale || zoom.transformMatrix.scaleY) -
+        height / 2
+      );
 
       return {
         x: !hasScale ? dx : dx * scale - width / 2,
@@ -72,7 +78,7 @@ export const useMinimap = ({
 
   const dragStart = (e): void => {
     if (
-      (!equals(e.buttons, 0) && !equals(e.nativeEvent.which, 1)) ||
+      (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) ||
       isDraggingFromContainer
     ) {
       return;
@@ -109,21 +115,35 @@ export const useMinimap = ({
   const zoomInOut = useCallback(
     (e): void => {
       const isZoomIn = gt(0, e.deltaY);
-      const { x, y } = getMatrixPoint(e);
+
+      const newScaleX = isZoomIn
+        ? zoom.transformMatrix.scaleX + 0.1
+        : zoom.transformMatrix.scaleX - 0.1;
+
+      const newScaleY = isZoomIn
+        ? zoom.transformMatrix.scaleX + 0.1
+        : zoom.transformMatrix.scaleX - 0.1;
+      const { x, y } = getMatrixPoint(e, newScaleX);
+
+      const diffX = x - zoom.transformMatrix.translateX;
+      const diffY = y - zoom.transformMatrix.translateY;
 
       zoom.setTransformMatrix({
         ...zoom.transformMatrix,
-        scaleX: isZoomIn
-          ? zoom.transformMatrix.scaleX + 0.1
-          : zoom.transformMatrix.scaleX - 0.1,
-        scaleY: isZoomIn
-          ? zoom.transformMatrix.scaleY + 0.1
-          : zoom.transformMatrix.scaleY - 0.1,
-        translateX: x,
-        translateY: y
+        scaleX: newScaleX,
+        scaleY: newScaleY,
+        translateX: zoom.transformMatrix.translateX + diffX / 4,
+        translateY: zoom.transformMatrix.translateY + diffY / 4
       });
     },
-    [zoom.transformMatrix]
+    [
+      zoom.transformMatrix,
+      width,
+      height,
+      isDraggingFromContainer,
+      scale,
+      startPoint
+    ]
   );
 
   return {

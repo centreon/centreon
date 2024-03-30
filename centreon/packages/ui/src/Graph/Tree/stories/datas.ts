@@ -287,7 +287,12 @@ export const moreComplexData: Node<ComplexData> = {
         { data: { id: 30, name: 'Indicator 30', status: 'ok' } },
         { data: { id: 31, name: 'Indicator 31', status: 'ok' } },
         { data: { id: 32, name: 'Indicator 32', status: 'ok' } },
-        { data: { id: 33, name: 'Indicator 33', status: 'ok' } }
+        { data: { id: 33, name: 'Indicator 33', status: 'ok' } },
+        { data: { id: 34, name: 'Indicator 34', status: 'ok' } },
+        { data: { id: 35, name: 'Indicator 35', status: 'ok' } },
+        { data: { id: 36, name: 'Indicator 36', status: 'ok' } },
+        { data: { id: 37, name: 'Indicator 37', status: 'ok' } },
+        { data: { id: 38, name: 'Indicator 38', status: 'ok' } }
       ],
       data: { count: 2, id: 0, name: 'ok', status: 'ok' }
     }
