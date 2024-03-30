@@ -72,13 +72,13 @@ const Minimap = ({
         : 1 / additionalScale / zoom.transformMatrix.scaleY;
 
     if (additionalScale < 0.009) {
-      const test = scaleLinear({
+      const tweakScale = scaleLinear({
         clamp: true,
-        domain: [0.005, 0.002],
-        range: [1, 5]
+        domain: [0.009, 0.002],
+        range: [1, 8]
       });
 
-      return padding - padding / test(additionalScale);
+      return padding - padding / tweakScale(additionalScale);
     }
 
     return padding;
