@@ -72,7 +72,7 @@ jobs:
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@8872c784b04a1420e81191df5d64fbd59d3d3033 # v2.30.2
         with:
           php-version: 8.1
           coverage: none
