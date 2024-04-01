@@ -110,7 +110,7 @@ const ZoomContent = ({
               width={width}
               zoom={zoom}
             >
-              <Group left={0} top={contentClientRect.height / 10}>
+              <Group>
                 {children({
                   contentClientRect,
                   height,

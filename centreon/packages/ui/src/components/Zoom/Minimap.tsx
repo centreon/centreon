@@ -61,29 +61,6 @@ const Minimap = ({
     2 /
     zoom.transformMatrix.scaleY;
 
-  const getAdditionalPadding = (): number => {
-    if (additionalScale > 0.05) {
-      return 0;
-    }
-
-    const padding =
-      additionalScale > 0.012
-        ? (1 / additionalScale) * (1 / zoom.transformMatrix.scaleY)
-        : 1 / additionalScale / zoom.transformMatrix.scaleY;
-
-    if (additionalScale < 0.009) {
-      const tweakScale = scaleLinear({
-        clamp: true,
-        domain: [0.009, 0.002],
-        range: [1, 8]
-      });
-
-      return padding - padding / tweakScale(additionalScale);
-    }
-
-    return padding;
-  };
-
   return (
     <g className={classes.minimap} clipPath="url(#zoom-clip)">
       <rect
@@ -94,15 +71,11 @@ const Minimap = ({
       />
       <g
         style={{
-          transform: `scale(${scaleToUse - additionalScale}) translate(0px, ${getAdditionalPadding()}px)`
+          transform: `scale(${scaleToUse - additionalScale})`
         }}
       >
         {children}
-        <g
-          style={{
-            transform: `translate(0px, ${contentClientRect.height / 10}px)`
-          }}
-        >
+        <g>
           <rect
             className={classes.minimapZoom}
             fillOpacity={0.2}

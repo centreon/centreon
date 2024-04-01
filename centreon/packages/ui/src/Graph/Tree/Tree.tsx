@@ -15,6 +15,7 @@ import DescendantNodes from './DescendantNodes';
 export const Tree = <TData extends BaseProp>({
   containerHeight,
   containerWidth,
+  contentHeight,
   tree,
   node,
   treeLink = {},
@@ -75,8 +76,16 @@ export const Tree = <TData extends BaseProp>({
     [node.isDefaultExpanded]
   );
 
+  const isContainerHeightGreaterThanContentHeight =
+    containerHeight > (contentHeight || 0);
+
   const origin = useMemo(
-    () => ({ x: 0, y: containerHeight / 2 }),
+    () => ({
+      x: 0,
+      y:
+        (containerHeight / 1.5) *
+        (isContainerHeightGreaterThanContentHeight ? 1 : 1.4)
+    }),
     [containerHeight]
   );
 
