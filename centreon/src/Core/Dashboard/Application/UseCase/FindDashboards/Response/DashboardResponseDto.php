@@ -57,8 +57,8 @@ final class DashboardResponseDto
         public ?string $description = null,
         public ?UserResponseDto $createdBy = null,
         public ?UserResponseDto $updatedBy = null,
-        public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+        public DateTimeImmutable $createdAt = new DateTimeImmutable(),
+        public DateTimeImmutable $updatedAt = new DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
         public array $shares = ['contacts' => [], 'contact_groups' => []]
     ) {

@@ -19,7 +19,7 @@ class BrokerConfigurationService
      *
      * @param CfgCentreonBrokerInfoInterface $cfgCentreonBrokerInfo the broker info repository
      */
-    public function setBrokerInfoRepository(CfgCentreonBrokerInfoInterface $cfgCentreonBrokerInfo)
+    public function setBrokerInfoRepository(CfgCentreonBrokerInfoInterface $cfgCentreonBrokerInfo): void
     {
         $this->brokerInfoRepository = $cfgCentreonBrokerInfo;
     }

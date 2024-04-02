@@ -73,7 +73,7 @@ class CentreonDBAdapterTest extends TestCase
         $this->dbAdapter = new CentreonDBAdapter($this->db, $this->manager);
     }
 
-    public function testGetRepository()
+    public function testGetRepository(): void
     {
         $this->assertInstanceOf(
             Mock\RepositoryMock::class,
@@ -81,14 +81,14 @@ class CentreonDBAdapterTest extends TestCase
         );
     }
 
-    public function testGetRepositoryWithException()
+    public function testGetRepositoryWithException(): void
     {
         $this->expectException(NotFoundException::class);
 
         $this->dbAdapter->getRepository(\stdClass::class);
     }
 
-    public function testGetCentreonDBInstance()
+    public function testGetCentreonDBInstance(): void
     {
         $this->assertInstanceOf(
             CentreonDB::class,
