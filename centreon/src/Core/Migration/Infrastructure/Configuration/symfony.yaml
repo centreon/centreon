@@ -12,11 +12,16 @@ services:
         Core\Migration\Application\Repository\MigrationInterface:
             tags: ['platform.migrations']
 
+        Core\Migration\Application\Repository\LegacyMigrationInterface:
+            tags: ['platform.legacy_migrations']
+
     Core\Migration\:
         resource: '../../../../Core/Migration/*'
 
     Migrations\:
         resource: '../../../../Migrations/*'
+        bind:
+            $legacyMigrations: !tagged_iterator 'platform.legacy_migrations'
 
     Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
         class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository

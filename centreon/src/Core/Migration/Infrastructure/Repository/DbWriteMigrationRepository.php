@@ -36,9 +36,6 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
 {
     use LoggerTrait;
 
-    /** @var MigrationInterface[] */
-    private $migrations;
-
     /** @var CentreonUserLog */
     private CentreonUserLog $centreonLog;
 
@@ -49,16 +46,10 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function __construct(
         DatabaseConnection $db,
-        \Traversable $migrations,
+        private readonly \Traversable $migrations,
         Container $dependencyInjector,
     ) {
         $this->db = $db;
-
-        if (iterator_count($migrations) === 0) {
-            throw new \Exception('Migrations not found');
-        }
-
-        $this->migrations = iterator_to_array($migrations);
 
         $pearDB = $dependencyInjector['configuration_db'];
         $this->centreonLog = new CentreonUserLog(-1, $pearDB);
@@ -104,33 +95,9 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     }
 
     /**
-     * Get migration instance from migration.
-     *
-     * @param NewMigration $newMigration
-     *
-     * @return MigrationInterface
+     * {@inheritDoc}
      */
-    private function getMigrationInstance(NewMigration $newMigration): MigrationInterface
-    {
-        foreach ($this->migrations as $migration) {
-            $shortName = (new \ReflectionClass($migration))->getShortName();
-            if (
-                $migration->getModuleName() === $newMigration->getModuleName()
-                && $shortName === $newMigration->getName()
-            ) {
-                return $migration;
-            }
-        }
-
-        throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
-    }
-
-    /**
-     * Store executed migration in database.
-     *
-     * @param NewMigration $newMigration
-     */
-    private function storeMigration(NewMigration $newMigration): void
+    public function storeMigration(NewMigration $newMigration): void
     {
         $this->info(sprintf('Store migration %s in database.', $newMigration->getName()));
 
@@ -158,6 +125,27 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         $statement->bindValue(':name', $newMigration->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':executed_at', time(), \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * Get migration instance from migration.
+     *
+     * @param NewMigration $newMigration
+     *
+     * @return MigrationInterface
+     */
+    private function getMigrationInstance(NewMigration $newMigration): MigrationInterface
+    {
+        foreach ($this->migrations as $migration) {
+            if (
+                $migration->getModuleName() === $newMigration->getModuleName()
+                && $migration->getName() === $newMigration->getName()
+            ) {
+                return $migration;
+            }
+        }
+
+        throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
     }
 
     /**

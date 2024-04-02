@@ -28,12 +28,18 @@ use Core\Migration\Domain\Model\Migration;
 abstract class AbstractCoreMigration extends AbstractMigration
 {
     /**
-     * Module name.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getModuleName(): string
     {
         return Migration::CORE_MODULE_NAME;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getName(): string
+    {
+        return trim((new \ReflectionClass($this))->getShortName());
     }
 }

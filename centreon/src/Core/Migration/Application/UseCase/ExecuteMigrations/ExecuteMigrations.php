@@ -50,11 +50,9 @@ final class ExecuteMigrations
         ExecuteMigrationsPresenterInterface $presenter
     ): void {
         try {
-            $migrations = $this->readMigrationRepository->findNewMigrations();
-
             $this->lockUpdate();
 
-            foreach ($migrations as $migration) {
+            while ($migration = array_shift($this->readMigrationRepository->findNewMigrations())) {
                 $this->writeMigrationRepository->executeMigration($migration);
             }
 

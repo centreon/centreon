@@ -35,24 +35,19 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
 {
     use LoggerTrait;
 
-    /** @var MigrationInterface[] */
-    private $migrations;
-
     /**
      * @param DatabaseConnection $db
      * @param \Traversable<MigrationInterface> $migrations
      */
     public function __construct(
         DatabaseConnection $db,
-        \Traversable $migrations,
+        private readonly \Traversable $migrations,
     ) {
         $this->db = $db;
 
         if (iterator_count($migrations) === 0) {
             throw new \Exception('Migrations not found');
         }
-
-        $this->migrations = iterator_to_array($migrations);
     }
 
     /**
@@ -63,10 +58,8 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         $migrations = [];
 
         foreach ($this->migrations as $migration) {
-            $shortName = (new \ReflectionClass($migration))->getShortName();
-
             $migrations[] = new NewMigration(
-                $shortName,
+                $migration->getName(),
                 $migration->getModuleName(),
                 $migration->getDescription(),
             );

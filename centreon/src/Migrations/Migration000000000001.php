@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,29 @@ namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\MigrationInterface;
+use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Migration\Application\Repository\LegacyMigrationInterface;
+use Core\Migration\Domain\Model\NewMigration;
 
 class Migration000000000001 extends AbstractCoreMigration implements MigrationInterface
 {
     use LoggerTrait;
 
-    public function __construct()
-    {
+    /**
+     * @param ReadVersionRepositoryInterface $readVersionRepository
+     * @param WriteMigrationRepositoryInterface $writeMigrationRepository
+     * @param \Traversable<LegacyMigrationInterface> $legacyMigrations
+     */
+    public function __construct(
+        private readonly ReadVersionRepositoryInterface $readVersionRepository,
+        private readonly WriteMigrationRepositoryInterface $writeMigrationRepository,
+        private readonly \Traversable $legacyMigrations,
+    ) {
+        if (iterator_count($legacyMigrations) === 0) {
+            throw new \Exception('Legacy migrations not found');
+        }
     }
 
     /**
@@ -48,7 +63,24 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
      */
     public function up(): void
     {
-        // @todo scan all LegacyMigrationInterface and check current version is above
+        $currentVersion = $this->readVersionRepository->findCurrentVersion();
+        if ($currentVersion === null) {
+            throw new \Exception('Cannot retrieve Centreon web version');
+        }
+
+        foreach ($this->legacyMigrations as $legacyMigration) {
+            if (
+                $legacyMigration->getModuleName() === $this->getModuleName()
+                && version_compare($currentVersion, $legacyMigration->getVersion(), '>=')
+            ) {
+                $migration = new NewMigration(
+                    $legacyMigration->getName(),
+                    $legacyMigration->getModuleName(),
+                    $legacyMigration->getDescription()
+                );
+                $this->writeMigrationRepository->storeMigration($migration);
+            }
+        }
     }
 
     /**

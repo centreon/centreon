@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\Repository;
 
-interface LegacyMigrationInterface
+interface LegacyMigrationInterface extends MigrationInterface
 {
     /**
      * Linked upgrade version.

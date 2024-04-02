@@ -35,4 +35,11 @@ interface WriteMigrationRepositoryInterface
      * @throws \Throwable
      */
     public function executeMigration(NewMigration $newMigration): void;
+
+    /**
+     * Store executed migration in database.
+     *
+     * @param NewMigration $newMigration
+     */
+    public function storeMigration(NewMigration $newMigration): void;
 }
