@@ -6,6 +6,9 @@ import { equals, isNil } from 'ramda';
 import { localPoint } from './localPoint';
 import { ZoomState } from './models';
 
+const isLeftMouseButtonClicked = (e): boolean =>
+  !isNil(e.nativeEvent.which) && equals(e.nativeEvent.which, 1);
+
 interface UseZoomState {
   dragEnd: () => void;
   dragStart: (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) => (e) => void;
@@ -14,20 +17,17 @@ interface UseZoomState {
 }
 
 export const useZoom = (): UseZoomState => {
-  const [startTranslate, setStartTranslate] = useState<Translate | undefined>(
-    undefined
-  );
-  const [startPoint, setStartPoint] = useState<Point | undefined>(undefined);
+  const [startTranslate, setStartTranslate] = useState<Translate | null>(null);
+  const [startPoint, setStartPoint] = useState<Point | null>(null);
 
   const dragStart = useCallback(
     (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) =>
       (e): void => {
-        const isLeftMouseButtonClicked = (e) => !isNil(e.nativeEvent.which) && equals(e.nativeEvent.which, 1);
         if (!isLeftMouseButtonClicked(e)) {
           return;
         }
         const { translateX, translateY } = zoom.transformMatrix;
-        setStartPoint(localPoint(e) || undefined);
+        setStartPoint(localPoint(e) || null);
         setStartTranslate({ translateX, translateY });
       },
     []
@@ -57,8 +57,8 @@ export const useZoom = (): UseZoomState => {
     [startPoint, startTranslate]
   );
   const dragEnd = useCallback((): void => {
-    setStartPoint(undefined);
-    setStartTranslate(undefined);
+    setStartPoint(null);
+    setStartTranslate(null);
   }, []);
 
   return {
