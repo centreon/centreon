@@ -221,7 +221,7 @@ table.stdTable th {
 
 table.stdTable td.install-step-status {
 	font-weight: bold;
-	margin: -4px;
+	margin: -4px 0px;
 }
 
 table.StyleDottedHr tr:first-child th:first-child {
