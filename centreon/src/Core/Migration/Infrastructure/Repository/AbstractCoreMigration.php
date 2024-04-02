@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Migration\Infrastructure\Repository;
 
+use Core\Migration\Domain\Model\Migration;
+
 abstract class AbstractCoreMigration extends AbstractMigration
 {
     /**
@@ -32,6 +34,6 @@ abstract class AbstractCoreMigration extends AbstractMigration
      */
     public function getModuleName(): string
     {
-        return 'core';
+        return Migration::CORE_MODULE_NAME;
     }
 }

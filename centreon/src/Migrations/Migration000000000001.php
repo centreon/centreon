@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
@@ -32,7 +31,7 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
 {
     use LoggerTrait;
 
-    public function __construct(private DatabaseConnection $db)
+    public function __construct()
     {
     }
 
