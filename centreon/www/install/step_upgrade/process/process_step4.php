@@ -30,9 +30,9 @@ use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
 
-$name = $_POST['name'];
-$moduleName = $_POST['module_name'];
-$description = $_POST['description'];
+$name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
+$moduleName = filter_input(INPUT_POST, 'module_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
+$description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
 $status = 0;
 
 $kernel = \App\Kernel::createForWeb();
