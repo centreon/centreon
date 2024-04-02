@@ -22,7 +22,8 @@ export const useZoom = (): UseZoomState => {
   const dragStart = useCallback(
     (zoom: ProvidedZoom<SVGSVGElement> & ZoomState) =>
       (e): void => {
-        if (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) {
+        const isLeftMouseButtonClicked = (e) => !isNil(e.nativeEvent.which) && equals(e.nativeEvent.which, 1);
+        if (!isLeftMouseButtonClicked(e)) {
           return;
         }
         const { translateX, translateY } = zoom.transformMatrix;
