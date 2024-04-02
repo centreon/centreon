@@ -30,10 +30,10 @@ central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first
 function genpasswd() {
 	local _pwd
 
-	PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
-	PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
-	PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
-	PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\*\?' | head -c4)
+	PWD_LOWER=$(tr -dc '[:lower:]' </dev/urandom | head -c4)
+	PWD_UPPER=$(tr -dc '[:upper:]' </dev/urandom | head -c4)
+	PWD_DIGIT=$(tr -dc '[:digit:]' </dev/urandom | head -c4)
+	PWD_SPECIAL=$(tr -dc '!?@*' </dev/urandom | head -c4)
 
 	_pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
 	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
