@@ -16759,3 +16759,6 @@ msgstr "Erweiterter Modus"
 
 #  msgid "An error occurred while deleting the file '%s'"
 #  msgstr ""
+
+# msgid "Until"
+# msgstr ""
