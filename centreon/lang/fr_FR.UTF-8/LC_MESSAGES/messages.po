@@ -18900,4 +18900,4 @@ msgid "Displays the distribution of current statuses on selected groups of resou
 msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
 
 msgid "Group monitoring"
-msgstr "Surveillance de groupe"
+msgstr "Group monitoring"
