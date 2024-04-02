@@ -30,6 +30,8 @@ interface WriteMigrationRepositoryInterface
     /**
      * Execute given migration name.
      *
+     * @param NewMigration $newMigration
+     *
      * @throws \Throwable
      */
     public function executeMigration(NewMigration $newMigration): void;

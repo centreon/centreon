@@ -24,19 +24,29 @@ declare(strict_types=1);
 namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 
-class Migration202403181002 extends AbstractCoreMigration implements MigrationInterface
+class Migration000002080000 extends AbstractCoreMigration implements MigrationInterface, LegacyMigrationInterface
 {
     use LoggerTrait;
+    private const VERSION = '2.8.0';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getVersion(): string
+    {
+        return self::VERSION;
+    }
 
     /**
      * {@inheritDoc}
      */
     public function getDescription(): string
     {
-        return 'Add widget group monitoring';
+        return sprintf(_('Update to %s'), self::VERSION);
     }
 
     /**
@@ -44,7 +54,7 @@ class Migration202403181002 extends AbstractCoreMigration implements MigrationIn
      */
     public function up(): void
     {
-        // nothing
+        // @todo Migrate 2.8.0 uprade script
     }
 
     /**

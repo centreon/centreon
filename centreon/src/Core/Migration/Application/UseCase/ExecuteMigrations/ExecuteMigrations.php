@@ -30,8 +30,8 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 final class ExecuteMigrations
@@ -81,7 +81,7 @@ final class ExecuteMigrations
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
-        if (!$this->updateLocker->lock()) {
+        if (! $this->updateLocker->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
     }
@@ -106,7 +106,7 @@ final class ExecuteMigrations
         $availableVersion = $this->getAvailableVersion();
 
         if ($installedVersion !== $availableVersion) {
-            $this->info(sprintf('Updating centreon-web installed version to %s', $availableVersion));
+            $this->info(sprintf('Updating centreon-web from %s to %s', $installedVersion, $availableVersion));
             $this->writeUpdateRepository->updateVersionInformation($availableVersion);
         }
     }
@@ -121,6 +121,7 @@ final class ExecuteMigrations
     private function getInstalledVersion(): string
     {
         $this->debug('Finding centreon-web installed version');
+
         try {
             $installedVersion = $this->readVersionRepository->findCurrentVersion();
         } catch (\Exception $exception) {

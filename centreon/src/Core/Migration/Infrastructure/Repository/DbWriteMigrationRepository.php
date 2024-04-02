@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Migration\Infrastructure\Repository;
 
-use CentreonUserLog;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Migration\Application\Repository\MigrationInterface;
+use CentreonUserLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
 use Pimple\Container;
@@ -64,7 +64,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function executeMigration(NewMigration $newMigration): void
     {
-        $migration = $this->getMigrationClass($newMigration);
+        $migration = $this->getMigrationInstance($newMigration);
 
         $this->info(sprintf('Run migration %s.', $newMigration->getName()));
         try {
@@ -89,14 +89,21 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
                     $e->getMessage()
                 )
             );
+
             throw $e;
         }
-
 
         $this->storeMigration($newMigration);
     }
 
-    private function getMigrationClass(NewMigration $newMigration): MigrationInterface
+    /**
+     * Get migration instance from migration.
+     *
+     * @param NewMigration $newMigration
+     *
+     * @return MigrationInterface
+     */
+    private function getMigrationInstance(NewMigration $newMigration): MigrationInterface
     {
         foreach ($this->migrations as $migration) {
             $shortName = (new \ReflectionClass($migration))->getShortName();
@@ -111,6 +118,11 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
     }
 
+    /**
+     * Store executed migration in database.
+     *
+     * @param NewMigration $newMigration
+     */
     private function storeMigration(NewMigration $newMigration): void
     {
         $this->info(sprintf('Store migration %s in database.', $newMigration->getName()));
@@ -141,6 +153,13 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         $statement->execute();
     }
 
+    /**
+     * Get module id from name.
+     *
+     * @param string $moduleName
+     *
+     * @return int|null
+     */
     private function getModuleIdFromName(string $moduleName): ?int
     {
         $this->info(sprintf('Get id of module %s.', $moduleName));

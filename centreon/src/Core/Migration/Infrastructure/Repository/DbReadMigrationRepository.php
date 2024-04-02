@@ -27,8 +27,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
-use Core\Migration\Domain\Model\NewMigration;
 use Core\Migration\Domain\Model\ExecutedMigration;
+use Core\Migration\Domain\Model\NewMigration;
 
 class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMigrationRepositoryInterface
 {
@@ -102,7 +102,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         foreach ($result as $migrationData) {
             $migrations[] = new ExecutedMigration(
                 $migrationData['name'],
-                $migrationData['module_name'] ?: 'core',
+                $migrationData['module_name'] ?: ExecutedMigration::CORE_MODULE_NAME,
                 $migrationData['id'],
                 (new \DateTime())->setTimestamp($migrationData['executed_at']),
             );

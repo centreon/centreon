@@ -25,7 +25,6 @@ namespace Core\Migration\Infrastructure\Repository;
 
 abstract class AbstractCoreMigration extends AbstractMigration
 {
-
     /**
      * Module name.
      *

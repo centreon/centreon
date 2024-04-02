@@ -27,6 +27,7 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Migration
 {
+    public const CORE_MODULE_NAME = 'core';
     public const MAX_NAME_LENGTH = 255;
 
     /**

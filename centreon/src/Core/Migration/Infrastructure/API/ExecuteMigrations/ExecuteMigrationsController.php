@@ -31,6 +31,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 final class ExecuteMigrationsController extends AbstractController
 {
     /**
+     * @param ExecuteMigrations $useCase
+     * @param ExecuteMigrationsPresenter $presenter
+     *
      * @throws AccessDeniedException
      *
      * @return Response
