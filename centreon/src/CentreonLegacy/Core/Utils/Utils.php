@@ -25,13 +25,13 @@ use Psr\Container\ContainerInterface;
 
 class Utils
 {
-    /** @var \Psr\Container\ContainerInterface */
+    /** @var ContainerInterface */
     protected $services;
 
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {
@@ -70,7 +70,7 @@ class Utils
      *
      * @throws \Exception
      */
-    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false)
+    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
     {
         $dbName = 'configuration_db';
         if ($monitoring) {
@@ -102,7 +102,7 @@ class Utils
      *
      * @throws \Exception
      */
-    public function executePhpFile($fileName)
+    public function executePhpFile($fileName): void
     {
         if (! file_exists($fileName)) {
             throw new \Exception('Cannot execute php file "' . $fileName . '" : File does not exist.');

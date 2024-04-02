@@ -76,4 +76,12 @@ class BrokerOutput
     {
         return $this->parameters;
     }
+
+    /**
+     * @param _BrokerOutputParameter[] $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
+    }
 }

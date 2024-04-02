@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
 require_once __DIR__ . '/../../class/centreonStatistics.class.php';
+require_once __DIR__ . '/../../include/common/common-Func.php';
 require_once __DIR__ . '/webService.class.php';
 
 class CentreonCeip extends CentreonWebService
@@ -120,31 +121,32 @@ class CentreonCeip extends CentreonWebService
     {
         $locale = $this->user->get_lang();
 
-        $role = $this->user->admin
-            ? 'admin'
-            : 'user';
+        
+        if (isCloudPlatform()) { 
+            // Get the user role for the Centreon Cloud platform
 
-        if (0 !== strcmp($role, 'admin')) {
-            $countAcl = (int) $this->sqlFetchValue(
-                <<<SQL
-                    SELECT COUNT(*) AS countAcl
-                    FROM acl_actions_rules AS aar
-                    INNER JOIN acl_actions AS aa ON (aa.acl_action_id = aar.acl_action_rule_id)
-                    INNER JOIN acl_group_actions_relations AS agar ON (agar.acl_action_id = aar.acl_action_rule_id)
-                    INNER JOIN acl_group_contacts_relations AS agcr ON (agcr.acl_group_id = agar.acl_group_id)
-                    INNER JOIN acl_group_contactgroups_relations AS agcgr ON (agcgr.acl_group_id = agar.acl_group_id)
-                    WHERE aar.acl_action_name LIKE "service\_%" OR aar.acl_action_name LIKE "host\_%"
-                    AND agcr.contact_contact_id = :contact_id
-                    OR agcgr.acl_group_id IN (
-                        SELECT contactgroup_cg_id
-                        FROM contactgroup_contact_relation
-                        WHERE contact_contact_id = :contact_id
-                    )
-                    SQL,
-                [':contact_id', $this->user->user_id, PDO::PARAM_INT]
-            );
-            if ($countAcl > 0) {
-                $role = 'operator';
+            // Get list of ACL Groups linked to this user
+            $grouplistStr = $this->user->access->getAccessGroupsString('NAME');
+
+            // Check main ACL Group
+            if (preg_match('/customer_admin_acl/', $grouplistStr)) {
+                $role = 'Administrator';
+            } elseif (preg_match('/customer_editor_acl/', $grouplistStr)) {
+                $role = 'Editor';
+            } elseif (preg_match('/customer_user_acl/', $grouplistStr)) {
+                $role = 'User';
+            } else {
+                $role = 'User';
+            }
+        } else { 
+            // Get the user role for the Centreon on-premises platform
+            $role = $this->user->admin
+                ? 'admin'
+                : 'user';
+
+            // If user have access to monitoring configuration, it's an operator
+            if (0 !== strcmp($role, 'admin') && $this->user->access->page('601') > 0) {
+                $role = 'editor';
             }
         }
 
@@ -205,15 +207,26 @@ class CentreonCeip extends CentreonWebService
         $licenseClientName = '';
         try {
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
+
+            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
-            /** @var \CentreonLicense\Infrastructure\Service\LicenseService $licenseInformation */
+
+            /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
             $licenseInformation = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
+
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
+                    /**
+                     * @var array<
+                     *  array-key,
+                     *  array<array-key, array<array-key, string|array<array-key, string>>>> $licenseInformation
+                     */
                     $licenseInformation[$module] = $licenseObject->getData();
+                    /** @var string $licenseClientName */
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
+
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
@@ -228,7 +241,7 @@ class CentreonCeip extends CentreonWebService
             }
         } catch (\Pimple\Exception\UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
         }
 
@@ -288,7 +301,7 @@ class CentreonCeip extends CentreonWebService
             $value = is_array($row) && isset($row[0]) ? $row[0] : null;
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
-        } catch (PDOException $exception) {
+        } catch (\PDOException $exception) {
             $this->logger->error($exception->getMessage(), ['context' => $exception]);
 
             return null;

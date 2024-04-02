@@ -157,6 +157,10 @@ final class AddRule
      */
     private function isAuthorized(): bool
     {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
             $this->accessGroupRepository->findByContact($this->user)
@@ -203,7 +207,21 @@ final class AddRule
             $datasetName = 'dataset_for_rule_' . $ruleId . '_' . $index;
 
             // Create new dataset in the database ...
-            $datasetId = $this->writeRepository->addDataset($datasetName);
+            if ($datasetFilter->getType() === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+                $datasetId = $this->writeRepository->addDataset(
+                    name: $datasetName,
+                    accessAllHosts: true,
+                    accessAllHostGroups: true,
+                    accessAllServiceGroups: true
+                );
+            } else {
+                $datasetId = $this->writeRepository->addDataset(
+                    name: $datasetName,
+                    accessAllHosts: false,
+                    accessAllHostGroups: false,
+                    accessAllServiceGroups: false
+                );
+            }
 
             // And link it to the rule
             $this->writeRepository->linkDatasetToRule($ruleId, $datasetId);
@@ -211,37 +229,39 @@ final class AddRule
             // dedicated table used in order to keep filters hierarchy for GET matters
             $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
 
-            // Extract from the DatasetFilter the final filter level and its parent.
-            [
-                'parent' => $parentApplicableFilter,
-                'last' => $applicableFilter
-            ] = DatasetFilter::findApplicableFilters($datasetFilter);
+            if ($datasetFilter->getType() !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+                // Extract from the DatasetFilter the final filter level and its parent.
+                [
+                    'parent' => $parentApplicableFilter,
+                    'last' => $applicableFilter
+                ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
-            /* Specific behaviour when the last level of filtering is of type
-             * *Category|*Group and that the parent of this filter is also of the same type.
-             * Then we need to save both types as those are on the same hierarchy level.
-             */
-            if (
-                DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
-                && $parentApplicableFilter !== null
-                && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
-            ) {
-                // link parent resources to the dataset
+                /* Specific behaviour when the last level of filtering is of type
+                 * *Category|*Group and that the parent of this filter is also of the same type.
+                 * Then we need to save both types as those are on the same hierarchy level.
+                 */
+                if (
+                    DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
+                    && $parentApplicableFilter !== null
+                    && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
+                ) {
+                    // link parent resources to the dataset
+                    $this->writeRepository->linkResourcesToDataset(
+                        $ruleId,
+                        $datasetId,
+                        $parentApplicableFilter->getType(),
+                        $parentApplicableFilter->getResourceIds()
+                    );
+                }
+
+                // link resources to the dataset
                 $this->writeRepository->linkResourcesToDataset(
                     $ruleId,
                     $datasetId,
-                    $parentApplicableFilter->getType(),
-                    $parentApplicableFilter->getResourceIds()
+                    $applicableFilter->getType(),
+                    $applicableFilter->getResourceIds()
                 );
             }
-
-            // link resources to the dataset
-            $this->writeRepository->linkResourcesToDataset(
-                $ruleId,
-                $datasetId,
-                $applicableFilter->getType(),
-                $applicableFilter->getResourceIds()
-            );
 
             $index++;
         }

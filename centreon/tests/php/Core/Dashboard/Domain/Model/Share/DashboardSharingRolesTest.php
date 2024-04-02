@@ -36,7 +36,7 @@ beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
         1,
         'dashboard-name',
-        'dashboard-description',
+
         null,
         null,
         new \DateTimeImmutable(),

@@ -6,6 +6,8 @@
 
 parameters:
     locale: en
+    api.header: "Api-Version"
+    api.version.latest: "24.04"
     database_host: "%env(hostCentreon)%"
     database_port: "%env(port)%"
     database_db: "%env(db)%"
@@ -113,3 +115,9 @@ services:
     Core\Security\Authentication\Application\UseCase\Login\Login:
         arguments:
             $defaultRedirectUri: '/monitoring/resources'
+
+    EventSubscriber\CentreonEventSubscriber:
+        arguments:
+            $apiVersionLatest: '%api.version.latest%'
+            $apiHeaderName: '%api.header%'
+            $translationPath: '%translation_path%'

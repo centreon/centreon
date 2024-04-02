@@ -1,8 +1,12 @@
-import { includes, isEmpty, split } from 'ramda';
+import { isEmpty } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { EllipsisTypography, formatMetricValue } from '../../..';
+import {
+  EllipsisTypography,
+  formatMetricName,
+  formatMetricValue
+} from '../../..';
 import { Line } from '../../common/timeSeries/models';
 import { Tooltip } from '../../../components';
 
@@ -29,12 +33,11 @@ const LegendHeader = ({
 
   const { unit, name, legend } = line;
 
+  const metricName = formatMetricName({ legend, name });
+
   const legendName = legend || name;
   const hasUnit = !isEmpty(unit);
   const unitName = `(${unit})`;
-  const metricName = includes('#', legendName)
-    ? split('#')(legendName)[1]
-    : legendName;
 
   const getEndText = (): string => {
     if (value) {
