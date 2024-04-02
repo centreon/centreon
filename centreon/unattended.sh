@@ -1335,7 +1335,7 @@ if [ "$operation" == "install" ]; then
 			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
 		else
 			test_password_policy
-   		echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
+   		    echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
 		fi
 		# Set from ENV or Administrator first name
 		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
