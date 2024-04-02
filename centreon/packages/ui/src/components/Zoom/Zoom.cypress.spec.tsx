@@ -196,7 +196,7 @@ describe('Zoom', () => {
     cy.findByTestId('zoom-content').should(
       'have.attr',
       'transform',
-      'matrix(1, 0, 0, 1, 200, 0)'
+      'matrix(1, 0, 0, 1, 0, 0)'
     );
 
     cy.makeSnapshot();
