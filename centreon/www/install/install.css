@@ -219,6 +219,11 @@ table.stdTable th {
 	padding: 2px;
 }
 
+table.stdTable td.install-step-status {
+	font-weight: bold;
+	margin: -4px;
+}
+
 table.StyleDottedHr tr:first-child th:first-child {
 	border-top-left-radius: 0px;
 }

@@ -144,7 +144,7 @@ $template->display('content.tpl');
         stepContent.append('<tr>');
         stepContent.append(`<td><b>[${moduleName}]</b> ${description}</td>`);
         stepContent.append(
-            `<td style="font-weight: bold;" name="${uniqueName}"><img src="../img/misc/ajax-loader.gif"></td>`
+            `<td class="install-step-status" name="${uniqueName}"><img src="../img/misc/ajax-loader.gif" /></td>`
         );
         stepContent.append('</tr>');
         doProcess(
@@ -176,7 +176,7 @@ $template->display('content.tpl');
       stepContent.append('<tr>');
       stepContent.append('<td>Application cache generation</td>');
       stepContent.append(
-        '<td style="font-weight: bold;" name="api.cache"><img style="margin: -4px;" src="../img/misc/ajax-loader.gif"></td>'
+        '<td class="install-step-status" name="api.cache"><img style="margin: -4px;" src="../img/misc/ajax-loader.gif" /></td>'
       );
       stepContent.append('</tr>');
       doProcess(
