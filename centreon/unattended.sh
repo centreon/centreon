@@ -395,7 +395,7 @@ function setup_mysql() {
 	log "INFO" "Install MySQL repository"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
-		export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
+		DEBIAN_FRONTEND="noninteractive" $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
 	fi
 	$PKG_MGR install -y mysql-server mysql
@@ -1201,7 +1201,7 @@ function install_central() {
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
 	secure_dbms_setup
-}
+}				
 #========= end of function install_central()
 
 #========= begin of function install_poller()
