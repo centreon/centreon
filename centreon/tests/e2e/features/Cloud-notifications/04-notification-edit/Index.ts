@@ -155,29 +155,29 @@ Then(
     if (!notificationEnabled) {
       notificationSentCheck({
         contain: false,
-        log: `<<${data.hosts.host1.name}>>`
+        logs: `<<${data.hosts.host1.name}>>`
       });
       notificationSentCheck({
         contain: false,
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
 
       return;
     }
 
-    notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
+    notificationSentCheck({ logs: `<<${data.hosts.host1.name}>>` });
 
     if (!notificationWithServices) {
       notificationSentCheck({
         contain: false,
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
 
       return;
     }
 
     notificationSentCheck({
-      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
     });
   }
 );
@@ -223,10 +223,10 @@ Then(
   () => {
     notificationSentCheck({
       contain: false,
-      log: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
+      logs: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
     });
     notificationSentCheck({
-      log: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
+      logs: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
     });
   }
 );
@@ -236,17 +236,17 @@ Then('{string} notification is sent for this rule once', (prefix) => {
     case 'no more':
       notificationSentCheck({
         contain: false,
-        log: `<<${data.hosts.host1.name}>>`
+        logs: `<<${data.hosts.host1.name}>>`
       });
       notificationSentCheck({
         contain: false,
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
       break;
     case 'one':
-      notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
+      notificationSentCheck({ logs: `<<${data.hosts.host1.name}>>` });
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
       break;
     default:

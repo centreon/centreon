@@ -70,7 +70,8 @@ class I18nTest extends TestCase
             ->getMock();
         $path = "/usr/share/centreon/www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.ser";
         $finderMock->method('name')->willReturn($finderMock);
-        $finderMock->method('in')->willReturn([$splFileInfoMock]);
+        $finderMock->method('in')->willReturn($finderMock);
+        $finderMock->method('getIterator')->willReturn(new \ArrayIterator([$splFileInfoMock]));
 
         $filesystemMock = $this->getMockBuilder(Filesystem::class)
             ->disableOriginalConstructor()
@@ -84,7 +85,7 @@ class I18nTest extends TestCase
     {
     }
 
-    public function testGetTranslation()
+    public function testGetTranslation(): void
     {
         $result = $this->translation->getTranslation();
 

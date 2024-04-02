@@ -2322,7 +2322,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `status` VARCHAR(40) NOT NULL,
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
-  `created_at` TIMESTAMP NOT NULL
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user_filter table

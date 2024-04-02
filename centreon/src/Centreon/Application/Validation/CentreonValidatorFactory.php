@@ -42,6 +42,7 @@ use ReflectionClass;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
 use Pimple\Container;
+use Symfony\Component\Validator\ConstraintValidatorInterface;
 
 class CentreonValidatorFactory implements ConstraintValidatorFactoryInterface
 {
@@ -68,7 +69,7 @@ class CentreonValidatorFactory implements ConstraintValidatorFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getInstance(Constraint $constraint)
+    public function getInstance(Constraint $constraint): ConstraintValidatorInterface
     {
         $className = $constraint->validatedBy();
 

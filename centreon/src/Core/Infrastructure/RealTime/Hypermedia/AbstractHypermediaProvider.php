@@ -151,7 +151,7 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
-     * @param array<string, integer> $parameters
+     * @param array<string, int> $parameters
      *
      * @return string
      */
