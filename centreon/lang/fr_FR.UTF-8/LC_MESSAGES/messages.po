@@ -18896,6 +18896,9 @@ msgstr "Une erreur est survenue lors de la création du fichier '%s'"
 msgid "An error occurred while deleting the file '%s'"
 msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
 
+msgid "Until"
+msgstr "Jusqu'à"
+
 msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
 msgstr "Affiche la distribution des statuts actuels sur les groupes sélectionnés de ressources, sous forme de tableau."
 
