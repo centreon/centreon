@@ -21,23 +21,38 @@ const ContentWithMultipleShapes = (): JSX.Element => {
     </g>
   );
 };
+const ContentWithMultipleShapesWithNegativeTranslations = (): JSX.Element => {
+  return (
+    <g>
+      <g style={{ transform: 'translate(-300px, -150px)' }}>
+        <circle fill="blue" r={50} stroke="black" />
+      </g>
+      <g style={{ transform: 'translate(600px, 500px)' }}>
+        <circle fill="green" r={70} />
+      </g>
+      <g style={{ transform: 'translate(150px, 600px)' }}>
+        <circle fill="red" r={70} />
+      </g>
+    </g>
+  );
+};
 
 interface Props {
   minimapPosition?;
   showMinimap: boolean;
-  useMultipleShapes?: boolean;
+  tenplate?: () => JSX.Element;
 }
 
 const initialize = ({
   showMinimap,
   minimapPosition,
-  useMultipleShapes
+  template = Content
 }: Props): void => {
   cy.mount({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
         <Zoom minimapPosition={minimapPosition} showMinimap={showMinimap}>
-          {useMultipleShapes ? ContentWithMultipleShapes : Content}
+          {template}
         </Zoom>
       </div>
     )
@@ -169,7 +184,7 @@ describe('Zoom', () => {
   });
 
   it('moves the view when the mouse is hover the content with the corresponding button pressed down', () => {
-    initialize({ showMinimap: true });
+    initialize({ showMinimap: true, template:  });
 
     cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
@@ -197,7 +212,22 @@ describe('Zoom', () => {
   });
 
   it('applies a scale down on the minimap when the content is higher than the original height', () => {
-    initialize({ showMinimap: true, useMultipleShapes: true });
+    initialize({ showMinimap: true, template: ContentWithMultipleShapes });
+
+    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('svg').should('have.attr', 'height', '400');
+
+    cy.findByTestId('minimap-interaction')
+      .parent()
+      .find('g')
+      .should('have.attr', 'style')
+      .and('include', 'transform: scale(0.684211) translate(-42.5px, -105px);');
+
+    cy.makeSnapshot();
+  });
+
+  it.only('applies a scale down on the minimap when the content has negative translation values', () => {
+    initialize({ showMinimap: true, template: ContentWithMultipleShapesWithNegativeTranslations });
 
     cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
