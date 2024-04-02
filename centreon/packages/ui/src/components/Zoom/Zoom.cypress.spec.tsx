@@ -184,7 +184,7 @@ describe('Zoom', () => {
   });
 
   it('moves the view when the mouse is hover the content with the corresponding button pressed down', () => {
-    initialize({ showMinimap: true, template:  });
+    initialize({ showMinimap: true });
 
     cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
@@ -221,13 +221,16 @@ describe('Zoom', () => {
       .parent()
       .find('g')
       .should('have.attr', 'style')
-      .and('include', 'transform: scale(0.684211) translate(-42.5px, -105px);');
+      .and('include', 'transform: scale(0.684211) translate(-85px, -105px);');
 
     cy.makeSnapshot();
   });
 
-  it.only('applies a scale down on the minimap when the content has negative translation values', () => {
-    initialize({ showMinimap: true, template: ContentWithMultipleShapesWithNegativeTranslations });
+  it('applies a scale down on the minimap when the content has negative translation values', () => {
+    initialize({
+      showMinimap: true,
+      template: ContentWithMultipleShapesWithNegativeTranslations
+    });
 
     cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
@@ -236,7 +239,7 @@ describe('Zoom', () => {
       .parent()
       .find('g')
       .should('have.attr', 'style')
-      .and('include', 'transform: scale(0.684211) translate(-42.5px, -105px);');
+      .and('include', 'transform: scale(0.448276) translate(345px, 195px);');
 
     cy.makeSnapshot();
   });

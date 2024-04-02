@@ -29,7 +29,7 @@ export interface ChildrenProps<TData> {
 }
 
 export interface TreeProps<TData> {
-  changeTree: (newTree: Node<TData>) => void;
+  changeTree?: (newTree: Node<TData>) => void;
   children: (props: ChildrenProps<TData>) => JSX.Element;
   containerHeight: number;
   containerWidth: number;
@@ -41,7 +41,7 @@ export interface TreeProps<TData> {
     width: number;
   };
   tree: Node<TData>;
-  treeLink: {
+  treeLink?: {
     getStroke?: (props: LinkProps<TData>) => string | undefined;
     getStrokeDasharray?: (
       props: LinkProps<TData>

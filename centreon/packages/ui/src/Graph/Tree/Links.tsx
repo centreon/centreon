@@ -33,25 +33,25 @@ const Links = <TData extends BaseProp>({
         fill="none"
         key={key}
         stroke={
-          treeLink.getStroke?.({
+          treeLink?.getStroke?.({
             source: link.source.data.data,
             target: link.target.data.data
           }) || theme.palette.text.primary
         }
         strokeDasharray={
-          treeLink.getStrokeDasharray?.({
+          treeLink?.getStrokeDasharray?.({
             source: link.source.data.data,
             target: link.target.data.data
           }) || '0'
         }
         strokeOpacity={
-          treeLink.getStrokeOpacity?.({
+          treeLink?.getStrokeOpacity?.({
             source: link.source.data.data,
             target: link.target.data.data
           }) || 1
         }
         strokeWidth={
-          treeLink.getStrokeWidth?.({
+          treeLink?.getStrokeWidth?.({
             source: link.source.data.data,
             target: link.target.data.data
           }) || '2'

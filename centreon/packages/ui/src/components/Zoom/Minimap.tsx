@@ -69,7 +69,6 @@ const Minimap = ({
   const translateX = useMemo(
     () =>
       -diffBetweenContentAndSvg.left /
-      2 /
       zoom.transformMatrix.scaleX /
       minimapScale,
     [diffBetweenContentAndSvg.left]

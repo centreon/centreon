@@ -54,7 +54,7 @@ export const Tree = <TData extends BaseProp>({
 
   const expandCollapseNode = useCallback(
     (targetNode: Node<TData>): void => {
-      changeTree(
+      changeTree?.(
         toggleTreeNodesExpanded({ currentTree: formattedTree, targetNode })
       );
     },

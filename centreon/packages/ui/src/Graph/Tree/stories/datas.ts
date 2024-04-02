@@ -168,7 +168,7 @@ export const complexData: Node<ComplexData> = {
               }
             }
           ],
-          data: { id: 0, name: 'BA 3', status: 'ok' }
+          data: { id: 0, name: 'BA 4', status: 'ok' }
         }
       ],
       data: { count: 2, id: 0, name: 'ok', status: 'ok' }
