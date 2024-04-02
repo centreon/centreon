@@ -346,6 +346,30 @@ sub dailyProcessing {
             ]
         };
     }
+    if (defined($etl->{run}->{etlProperties}->{'centile.week'}) && $etl->{run}->{etlProperties}->{'centile.week'} eq '1') {
+        push @{$etl->{run}->{schedule}->{perfdata}->{stages}->[0]}, {
+            type => 'sql',
+            db => 'centstorage',
+            sql => [
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentileweeklyvalue]',
+                    "ALTER TABLE `mod_bi_metriccentileweeklyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
+            ]
+        };
+    }
+    if (defined($etl->{run}->{etlProperties}->{'centile.month'}) && $etl->{run}->{etlProperties}->{'centile.month'} eq '1') {
+        push @{$etl->{run}->{schedule}->{perfdata}->{stages}->[0]}, {
+            type => 'sql',
+            db => 'centstorage',
+            sql => [
+                [
+                    '[PARTITIONS] Add partition [p' . $partName . '] on table [mod_bi_metriccentilemonthlyvalue]',
+                    "ALTER TABLE `mod_bi_metriccentilemonthlyvalue` ADD PARTITION (PARTITION `p$partName` VALUES LESS THAN(" . $epoch . "))"
+                ]
+            ]
+        };
+    }
 
     # processing agregation by month. If the day is the first day of the month, also processing agregation by month
     processDayAndMonthAgregation($etl, $liveServices, $start, $end);
