@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { RectClipPath } from '@visx/clip-path';
-import { Group } from '@visx/group';
 import { ProvidedZoom } from '@visx/zoom/lib/types';
 
 import ZoomInIcon from '@mui/icons-material/Add';
@@ -35,16 +34,21 @@ const ZoomContent = ({
 }: Props): JSX.Element => {
   const { classes } = useZoomStyles();
   const contentRef = useRef<SVGGElement | null>(null);
+  const minimapSvgRef = useRef<SVGSVGElement | null>(null);
+  const minimapContentRef = useRef<SVGSVGElement | null>(null);
   const [contentClientRect, setContentClientRect] = useState<{
     height: number;
     width: number;
   } | null>(null);
 
   const resizeObserver = new ResizeObserver(() => {
+    const contentBoundingClientRect = (
+      contentRef.current as SVGGElement
+    ).getBoundingClientRect();
+
     setContentClientRect({
-      height: (contentRef.current as SVGGElement).getBoundingClientRect()
-        .height,
-      width: (contentRef.current as SVGGElement).getBoundingClientRect().width
+      height: contentBoundingClientRect.height,
+      width: contentBoundingClientRect.width
     });
   });
 
@@ -60,6 +64,16 @@ const ZoomContent = ({
   }, [contentRef.current]);
 
   const { move, dragEnd, dragStart, isDragging } = useZoom();
+
+  const diffBetweenContentAndSvg = minimapSvgRef.current &&
+    minimapContentRef.current && {
+      left:
+        minimapContentRef.current.getBoundingClientRect().left -
+        minimapSvgRef.current.getBoundingClientRect().left,
+      top:
+        minimapContentRef.current.getBoundingClientRect().top -
+        minimapSvgRef.current.getBoundingClientRect().top
+    };
 
   return (
     <div style={{ position: 'relative' }}>
@@ -101,23 +115,27 @@ const ZoomContent = ({
             className={classes.minimapContainer}
             data-testid="minimap"
             height={height * minimapScale}
+            ref={minimapSvgRef}
             width={width * minimapScale}
           >
             <Minimap
               contentClientRect={contentClientRect}
+              diffBetweenContentAndSvg={
+                diffBetweenContentAndSvg || { left: 0, top: 0 }
+              }
               height={height}
               isDraggingFromContainer={isDragging}
               width={width}
               zoom={zoom}
             >
-              <Group>
+              <g ref={minimapContentRef}>
                 {children({
                   contentClientRect,
                   height,
                   transformMatrix: zoom.transformMatrix,
                   width
                 })}
-              </Group>
+              </g>
             </Minimap>
           </svg>
         )}

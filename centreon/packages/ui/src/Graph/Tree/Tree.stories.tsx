@@ -43,14 +43,12 @@ const TreeWithZoom = <TData,>({
           clear: 'Clear'
         }}
       >
-        {({ width, height, contentClientRect }) => (
+        {({ width, height }) => (
           <Tree<ComplexData>
             {...args}
             changeTree={setTree}
             containerHeight={height}
             containerWidth={width}
-            contentHeight={contentClientRect?.height}
-            contentWidth={contentClientRect?.width}
             tree={currentTree}
           />
         )}

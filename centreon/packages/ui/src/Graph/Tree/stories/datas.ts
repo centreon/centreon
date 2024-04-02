@@ -294,7 +294,7 @@ export const moreComplexData: Node<ComplexData> = {
         { data: { id: 37, name: 'Indicator 37', status: 'ok' } },
         { data: { id: 38, name: 'Indicator 38', status: 'ok' } }
       ],
-      data: { count: 2, id: 0, name: 'ok', status: 'ok' }
+      data: { count: 9, id: 0, name: 'ok', status: 'ok' }
     }
   ],
   data: {

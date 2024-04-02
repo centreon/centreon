@@ -15,7 +15,6 @@ import DescendantNodes from './DescendantNodes';
 export const Tree = <TData extends BaseProp>({
   containerHeight,
   containerWidth,
-  contentHeight,
   tree,
   node,
   treeLink = {},
@@ -76,21 +75,16 @@ export const Tree = <TData extends BaseProp>({
     [node.isDefaultExpanded]
   );
 
-  const isContainerHeightGreaterThanContentHeight =
-    containerHeight > (contentHeight || 0);
-
   const origin = useMemo(
     () => ({
       x: 0,
-      y:
-        (containerHeight / 1.5) *
-        (isContainerHeightGreaterThanContentHeight ? 1 : 1.4)
+      y: containerHeight / 2
     }),
     [containerHeight]
   );
 
   return (
-    <Group left={node.width / 2}>
+    <Group left={node.width}>
       <VisxTree
         left={0}
         nodeSize={[node.width + nodeMargins.y, node.height + nodeMargins.x]}

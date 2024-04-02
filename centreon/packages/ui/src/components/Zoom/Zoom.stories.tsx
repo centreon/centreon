@@ -1,7 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import Zoom, { ZoomProps } from './Zoom';
-import { ChildrenProps } from './models';
 
 const meta: Meta<typeof Zoom> = {
   argTypes: {
@@ -25,32 +24,16 @@ const meta: Meta<typeof Zoom> = {
 export default meta;
 type Story = StoryObj<typeof Zoom>;
 
-const Content = ({ contentClientRect }: ChildrenProps): JSX.Element => {
-  const contentRect = {
-    height: contentClientRect?.height || 1,
-    width: contentClientRect?.width || 1
-  };
-  const isPortrait = contentRect.height > contentRect.width;
-  const sizes = isPortrait ? ['width', 'height'] : ['height', 'width'];
-  const sizeScale = contentRect[sizes[0]] / contentRect[sizes[1]];
-
-  const lengthToUse = isPortrait
-    ? contentRect[sizes[1]] - contentRect[sizes[0]]
-    : contentRect[sizes[0]];
-
+const Content = (): JSX.Element => {
   return (
-    <g
-      style={{
-        transform: `translate(-${isPortrait ? 0 : contentRect.width * (sizeScale / 4)}px, -${lengthToUse * (isPortrait ? sizeScale + 0.08 : sizeScale / 2)}px)`
-      }}
-    >
+    <g style={{ transform: 'translate(-150px, -100px)' }}>
       <g style={{ transform: 'translate(300px, 150px)' }}>
         <circle fill="blue" r={50} stroke="black" />
       </g>
       <g style={{ transform: 'translate(600px, 400px)' }}>
         <circle fill="green" r={70} />
       </g>
-      <g style={{ transform: 'translate(2400px, 2400px)' }}>
+      <g style={{ transform: `translate(2400px, 1400px)` }}>
         <circle fill="red" r={70} />
       </g>
     </g>
@@ -60,6 +43,34 @@ const Content = ({ contentClientRect }: ChildrenProps): JSX.Element => {
 const Template = ({ children, ...args }: ZoomProps): JSX.Element => (
   <div style={{ height: '400px', width: '100%' }}>
     <Zoom {...args}>{children}</Zoom>
+  </div>
+);
+
+const TemplateResponsive = ({
+  redCircleXPosition,
+  redCircleYPosition,
+  ...args
+}: ZoomProps): JSX.Element => (
+  <div style={{ height: '90vh', width: '100%' }}>
+    <Zoom {...args}>
+      {() => (
+        <g>
+          <g style={{ transform: 'translate(500px, 100px)' }}>
+            <circle fill="blue" r={50} stroke="black" />
+          </g>
+          <g style={{ transform: 'translate(600px, 400px)' }}>
+            <circle fill="green" r={70} />
+          </g>
+          <g
+            style={{
+              transform: `translate(${redCircleXPosition || 100}px, ${redCircleYPosition || 100}px)`
+            }}
+          >
+            <circle fill="red" r={70} />
+          </g>
+        </g>
+      )}
+    </Zoom>
   </div>
 );
 
@@ -85,4 +96,20 @@ export const WithMinimapPosition: Story = {
     showMinimap: true
   },
   render: Template
+};
+
+export const Playground: Story = {
+  argTypes: {
+    redCircleXPosition: {
+      control: { max: 2600, min: 400, step: 10, type: 'range' }
+    },
+    redCircleYPosition: {
+      control: { max: 2600, min: 400, step: 10, type: 'range' }
+    }
+  },
+  args: {
+    children: Content,
+    showMinimap: true
+  },
+  render: TemplateResponsive
 };

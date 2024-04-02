@@ -1,4 +1,3 @@
-import { ChildrenProps } from './models';
 import Zoom from './Zoom';
 
 const Content = (): JSX.Element => (
@@ -7,27 +6,9 @@ const Content = (): JSX.Element => (
   </g>
 );
 
-const contentWithMultipleShapes = ({
-  contentClientRect
-}: ChildrenProps): JSX.Element => {
-  const contentRect = {
-    height: contentClientRect?.height || 1,
-    width: contentClientRect?.width || 1
-  };
-  const isPortrait = contentRect.height > contentRect.width;
-  const sizes = isPortrait ? ['width', 'height'] : ['height', 'width'];
-  const sizeScale = contentRect[sizes[0]] / contentRect[sizes[1]];
-
-  const lengthToUse = isPortrait
-    ? contentRect[sizes[1]] - contentRect[sizes[0]]
-    : contentRect[sizes[0]];
-
+const ContentWithMultipleShapes = (): JSX.Element => {
   return (
-    <g
-      style={{
-        transform: `translate(-${isPortrait ? 0 : contentRect.width * (sizeScale / 4)}px, -${lengthToUse * (isPortrait ? sizeScale + 0.08 : sizeScale / 2)}px)`
-      }}
-    >
+    <g>
       <g style={{ transform: 'translate(300px, 150px)' }}>
         <circle fill="blue" r={50} stroke="black" />
       </g>
@@ -56,7 +37,7 @@ const initialize = ({
     Component: (
       <div style={{ height: '400px', width: '100%' }}>
         <Zoom minimapPosition={minimapPosition} showMinimap={showMinimap}>
-          {useMultipleShapes ? contentWithMultipleShapes : Content}
+          {useMultipleShapes ? ContentWithMultipleShapes : Content}
         </Zoom>
       </div>
     )
@@ -224,11 +205,8 @@ describe('Zoom', () => {
     cy.findByTestId('minimap-interaction')
       .parent()
       .find('g')
-      .should(
-        'have.attr',
-        'style',
-        'transform: scale(0.684211) translate(0px, 57px);'
-      );
+      .should('have.attr', 'style')
+      .and('include', 'transform: scale(0.684211) translate(-42.5px, -105px);');
 
     cy.makeSnapshot();
   });

@@ -33,6 +33,8 @@ export interface TreeProps<TData> {
   children: (props: ChildrenProps<TData>) => JSX.Element;
   containerHeight: number;
   containerWidth: number;
+  contentHeight?: number;
+  contentWidth?: number;
   node: {
     height: number;
     isDefaultExpanded?: (data: TData) => boolean;

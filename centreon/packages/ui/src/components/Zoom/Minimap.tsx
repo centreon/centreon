@@ -12,6 +12,10 @@ interface Props extends Omit<UseMinimapProps, 'minimapScale' | 'scale'> {
     height: number;
     width: number;
   };
+  diffBetweenContentAndSvg: {
+    left: number;
+    top: number;
+  };
   isDraggingFromContainer: boolean;
 }
 
@@ -21,7 +25,8 @@ const Minimap = ({
   height,
   width,
   contentClientRect,
-  isDraggingFromContainer
+  isDraggingFromContainer,
+  diffBetweenContentAndSvg
 }: Props): JSX.Element => {
   const { classes } = useZoomStyles();
 
@@ -61,6 +66,22 @@ const Minimap = ({
     2 /
     zoom.transformMatrix.scaleY;
 
+  const translateX = useMemo(
+    () =>
+      -diffBetweenContentAndSvg.left /
+      2 /
+      zoom.transformMatrix.scaleX /
+      minimapScale,
+    [diffBetweenContentAndSvg.left]
+  );
+  const translateY = useMemo(
+    () =>
+      -diffBetweenContentAndSvg.top /
+      zoom.transformMatrix.scaleX /
+      minimapScale,
+    [diffBetweenContentAndSvg.top]
+  );
+
   return (
     <g className={classes.minimap} clipPath="url(#zoom-clip)">
       <rect
@@ -70,8 +91,9 @@ const Minimap = ({
         width={finalWidth}
       />
       <g
+        className={classes.movingZone}
         style={{
-          transform: `scale(${scaleToUse - additionalScale})`
+          transform: `scale(${scaleToUse - additionalScale}) translate(${translateX}px, ${translateY}px)`
         }}
       >
         {children}
