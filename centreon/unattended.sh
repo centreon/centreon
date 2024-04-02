@@ -1201,7 +1201,7 @@ function install_central() {
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
 	secure_dbms_setup
-}				
+}
 #========= end of function install_central()
 
 #========= begin of function install_poller()
