@@ -39,7 +39,7 @@ abstract class AbstractController extends AbstractFOSRestController
 {
     use LoggerTrait;
 
-    protected const ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
+    public const ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
 
     /**
      * @throws AccessDeniedException

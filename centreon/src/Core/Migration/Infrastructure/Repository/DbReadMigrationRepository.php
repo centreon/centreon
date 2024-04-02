@@ -26,6 +26,7 @@ namespace Core\Migration\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\ExecutedMigration;
 use Core\Migration\Domain\Model\NewMigration;
@@ -37,6 +38,10 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     /** @var MigrationInterface[] */
     private $migrations;
 
+    /**
+     * @param DatabaseConnection $db
+     * @param \Traversable<MigrationInterface> $migrations
+     */
     public function __construct(
         DatabaseConnection $db,
         \Traversable $migrations,

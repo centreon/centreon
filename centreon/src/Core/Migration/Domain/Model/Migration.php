@@ -54,7 +54,7 @@ class Migration
         return $this->name;
     }
 
-    public function getModuleName(): ?string
+    public function getModuleName(): string
     {
         return $this->moduleName;
     }

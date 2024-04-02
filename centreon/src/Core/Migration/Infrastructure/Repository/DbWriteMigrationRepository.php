@@ -42,6 +42,11 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     /** @var CentreonUserLog */
     private CentreonUserLog $centreonLog;
 
+    /**
+     * @param DatabaseConnection $db
+     * @param \Traversable<MigrationInterface> $migrations
+     * @param Container $dependencyInjector
+     */
     public function __construct(
         DatabaseConnection $db,
         \Traversable $migrations,
@@ -66,7 +71,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     {
         $migration = $this->getMigrationInstance($newMigration);
 
-        $this->info(sprintf('Run migration %s.', $newMigration->getName()));
+        $this->info(sprintf('Run migration %s %s.', $newMigration->getModuleName(), $newMigration->getName()));
         try {
             $migration->up();
             $this->centreonLog->insertLog(
@@ -78,7 +83,9 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
                     $newMigration->getDescription()
                 )
             );
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
+            $this->error(sprintf('Migration %s %s failed: %s', $newMigration->getModuleName(), $newMigration->getName(), $exception->getMessage()), ['trace' => (string) $exception]);
+
             $this->centreonLog->insertLog(
                 CentreonUserLog::TYPE_UPGRADE,
                 sprintf(
@@ -86,11 +93,11 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
                     $newMigration->getModuleName(),
                     $newMigration->getName(),
                     $newMigration->getDescription(),
-                    $e->getMessage()
+                    $exception->getMessage()
                 )
             );
 
-            throw $e;
+            throw $exception;
         }
 
         $this->storeMigration($newMigration);

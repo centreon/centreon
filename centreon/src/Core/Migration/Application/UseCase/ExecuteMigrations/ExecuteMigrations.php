@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Migration\Application\UseCase\ExecuteMigrations;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
@@ -39,11 +38,9 @@ final class ExecuteMigrations
     use LoggerTrait;
 
     public function __construct(
-        private readonly ContactInterface $user,
         private readonly ReadMigrationRepositoryInterface $readMigrationRepository,
         private readonly ReadVersionRepositoryInterface $readVersionRepository,
         private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
-        private readonly UpdateLockerRepositoryInterface $updateLocker,
         private readonly WriteMigrationRepositoryInterface $writeMigrationRepository,
         private readonly UpdateLockerRepositoryInterface $updateLockerRepository
     ) {
@@ -64,9 +61,9 @@ final class ExecuteMigrations
             $this->updateVersions();
 
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (\Throwable $ex) {
+        } catch (\Throwable $exception) {
             $errorMessage = 'An error occurred while executing migration';
-            $this->error($errorMessage, ['trace' => (string) $ex]);
+            $this->error($errorMessage, ['trace' => (string) $exception]);
             $presenter->setResponseStatus(
                 new ErrorResponse(_($errorMessage))
             );
@@ -81,7 +78,7 @@ final class ExecuteMigrations
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
-        if (! $this->updateLocker->lock()) {
+        if (! $this->updateLockerRepository->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
     }
@@ -92,7 +89,7 @@ final class ExecuteMigrations
     private function unlockUpdate(): void
     {
         $this->info('Unlocking centreon update process...');
-        $this->updateLocker->unlock();
+        $this->updateLockerRepository->unlock();
     }
 
     /**
@@ -125,6 +122,8 @@ final class ExecuteMigrations
         try {
             $installedVersion = $this->readVersionRepository->findCurrentVersion();
         } catch (\Exception $exception) {
+            $this->error('Cannot get centreon-web installed version', ['trace' => (string) $exception]);
+
             throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($exception);
         }
 

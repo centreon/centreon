@@ -37,9 +37,9 @@ interface MigrationInterface
      *
      * @throws \Throwable
      *
-     * @return string|null
+     * @return string
      */
-    public function getModuleName(): ?string;
+    public function getModuleName(): string;
 
     /**
      * Upgrade description.
