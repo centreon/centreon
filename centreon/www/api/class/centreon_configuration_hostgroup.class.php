@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -67,7 +67,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         $queryValues = array();
 
         /* Get ACL if user is not admin */
-        if (!$isAdmin) {
+        if (!$isAdmin && $centreon->user->access->hasAccessToAllHostGroups === false) {
             $acl = new CentreonACL($userId, $isAdmin);
             $aclHostGroups .= 'AND hg.hg_id IN (' . $acl->getHostGroupsString('ID') . ') ';
         }
@@ -139,7 +139,7 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 
         /* Get ACL if user is not admin */
 
-        if (!$isAdmin) {
+        if (!$isAdmin && $centreon->user->access->hasAccessToAllHostGroups === false) {
             $acl = new CentreonACL($userId, $isAdmin);
             $aclHostGroups .= ' AND hg.hg_id IN (' . $acl->getHostGroupsString('ID') . ') ';
             $aclHosts .= ' AND h.host_id IN (' . $acl->getHostsString('ID', $this->pearDBMonitoring) . ') ';
