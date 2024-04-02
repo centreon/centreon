@@ -176,7 +176,7 @@ $template->display('content.tpl');
       stepContent.append('<tr>');
       stepContent.append('<td>Application cache generation</td>');
       stepContent.append(
-        '<td class="install-step-status" name="api.cache"><img style="margin: -4px;" src="../img/misc/ajax-loader.gif" /></td>'
+        '<td class="install-step-status" name="api.cache"><img src="../img/misc/ajax-loader.gif" /></td>'
       );
       stepContent.append('</tr>');
       doProcess(

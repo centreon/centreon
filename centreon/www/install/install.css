@@ -36,8 +36,6 @@ body {
 	font-family: 'open sans', Arial, Verdana, Helvetica, sans-serif;
 	margin: 0px;
 	background-color: rgb(153, 153, 153);
-	/* background-color: rgba(0, 0, 0, 0.12); */
-	/* background-color : #a7a9ac; */
 	color : #333333;
 	height: auto;
 	}
@@ -108,24 +106,13 @@ textarea {
 
 table.shell {
 	padding: 0px;
-	/* border: 1px solid #fff; */
 	height: 300px;
 	margin: 60px auto;
 	width: 650px;
-	/* box-shadow: 0px 0px 0px 1px #818285; */
-
-	/*
-	border-spacing: 0;
-	border-collapse: separate;
-	border-radius: 10px;
-	*/
-
-	/* border: 1px solid black; */
 }
 
 table.shell .install-header {
 	background-color: rgb(255, 255, 255);
-	/* background-color: #dddddd; */
 	height: 80px;
 }
 
@@ -201,6 +188,7 @@ table.shell input.bt_info, input.bt_success {
 
 table.shell input.bt_info:hover, input.bt_success:hover {
 	background-color: rgb(37, 88, 145) !important;
+	color: rgb(255, 255, 255) !important;
 }
 
 table.shell input.bt_info:disabled, input.bt_success:disabled {
@@ -221,6 +209,9 @@ table.stdTable th {
 
 table.stdTable td.install-step-status {
 	font-weight: bold;
+}
+
+table.stdTable td.install-step-status img {
 	margin: -4px 0px;
 }
 
