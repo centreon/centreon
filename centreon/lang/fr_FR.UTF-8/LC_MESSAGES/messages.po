@@ -18897,7 +18897,7 @@ msgid "An error occurred while deleting the file '%s'"
 msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
 
 msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
-msgstr "Affiche la distribution des statuts actuels sur les groupes sélectionnés de ressources, sous forme de tableau."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
 
 msgid "Group monitoring"
 msgstr "Surveillance de groupe"
