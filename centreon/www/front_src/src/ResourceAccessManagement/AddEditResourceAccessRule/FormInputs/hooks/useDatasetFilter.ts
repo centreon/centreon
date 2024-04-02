@@ -323,7 +323,7 @@ const useDatasetFilter = (
         `datasetFilters.${datasetFilterIndex}`,
         value
           ?.map((dataset, i) => {
-            if (!equals(last(value[i]), dataset) && index < i) {
+            if (index < i && !equals(e.target.value, dataset.resourceType)) {
               return undefined;
             }
 
@@ -344,10 +344,7 @@ const useDatasetFilter = (
           if (equals(indexF, datasetFilterIndex)) {
             return selectedDatasetFilters[indexF]
               .map((dataset, i) => {
-                if (
-                  !equals(last(selectedDatasetFilters[indexF]), dataset) &&
-                  index < i
-                ) {
+                if (index < i && !equals(e.target.value, dataset.type)) {
                   return undefined;
                 }
 
