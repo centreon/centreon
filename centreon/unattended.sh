@@ -372,9 +372,9 @@ function set_centreon_repos() {
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=$detected_os_version --mariadb-server-version=$detected_mariadb_version
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version"
 	else
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version=$detected_mariadb_version
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version"
 	fi
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the repository"
