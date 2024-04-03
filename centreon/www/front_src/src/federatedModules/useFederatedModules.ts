@@ -5,6 +5,7 @@ import { useAtom } from 'jotai';
 import { getData, useRequest, useDeepCompare } from '@centreon/ui';
 
 import usePlatformVersions from '../Main/usePlatformVersions';
+import { store } from '../Main/Provider';
 
 import { federatedModulesAtom } from './atoms';
 import { FederatedModule } from './models';
@@ -45,9 +46,10 @@ const useFederatedModules = (): UseFederatedModulesState => {
       federatedModuleConfigs
         .filter(({ preloadScript }) => preloadScript)
         .forEach(({ preloadScript, moduleName }) => {
-          loadScript(
-            `${getFederatedModuleFolder(moduleName)}/${preloadScript}`
-          );
+          loadScript({
+            scriptPath: `${getFederatedModuleFolder(moduleName)}/${preloadScript}`,
+            store
+          });
         });
     });
   }, [modules]);
