@@ -187,8 +187,6 @@ interface ReadServiceGroupRepositoryInterface
      *
      * @param int[] $accessGroupIds
      *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
      * @return bool
      */
     public function hasAccessToAllServiceGroups(array $accessGroupIds): bool;

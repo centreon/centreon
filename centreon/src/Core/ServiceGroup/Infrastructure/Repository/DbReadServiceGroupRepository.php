@@ -32,7 +32,11 @@ use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Exception\InvalidGeoCoordException;
+use Core\Host\Infrastructure\Repository\HostRepositoryTrait;
+use Core\HostCategory\Infrastructure\Repository\HostCategoryRepositoryTrait;
+use Core\HostGroup\Infrastructure\Repository\HostGroupRepositoryTrait;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceCategory\Infrastructure\Repository\ServiceCategoryRepositoryTrait;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroupNamesById;
@@ -51,8 +55,16 @@ use Utility\SqlConcatenator;
  */
 class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements ReadServiceGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait;
+    use SqlMultipleBindTrait,
+        HostRepositoryTrait,
+        HostGroupRepositoryTrait,
+        ServiceCategoryRepositoryTrait,
+        HostCategoryRepositoryTrait,
+        ServiceGroupRepositoryTrait;
 
+    /**
+     * @param DatabaseConnection $db
+     */
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
@@ -207,22 +219,22 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON sgr.servicegroup_sg_id = sg.sg_id
                     LEFT JOIN `:db`.host h
                         ON h.host_id = sgr.host_host_id
-                        {$hostAcl}
+                        AND sgr.host_host_id IN ({$hostAcl})
                     LEFT JOIN `:db`.service_categories_relation scr
                         ON scr.service_service_id = sgr.service_service_id
                     LEFT JOIN `:db`.service_categories sc
                         ON sc.sc_id = scr.sc_id
-                        {$serviceCategoryAcl}
+                        AND scr.sc_id IN ({$serviceCategoryAcl})
                     LEFT JOIN `:db`.hostcategories_relation hcr
                         ON hcr.host_host_id = sgr.host_host_id
                     LEFT JOIN `:db`.hostcategories hc
                         ON hc.hc_id = hcr.hostcategories_hc_id
-                        {$hostCategoryAcl}
+                        AND hcr.hostcategories_hc_id IN ({$hostCategoryAcl})
                     LEFT JOIN `:db`.hostgroup_relation hgr
                         ON hgr.hostgroup_hg_id = sgr.hostgroup_hg_id
                     LEFT JOIN `:db`.hostgroup hg
                         ON hg.hg_id = hgr.hostgroup_hg_id
-                        {$hostGroupAcl}
+                        AND hgr.hostgroup_hg_id IN ({$hostGroupAcl})
                 SQL;
         }
 
@@ -485,318 +497,6 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $serviceGroups;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    public function hasAccessToAllHosts(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT res.all_hosts
-            FROM `:db`.acl_resources res
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id = argr.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    public function hasAccessToAllServiceCategories(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT 1
-            FROM `:db`.acl_resources_sc_relations arscr
-            INNER JOIN `:db`.acl_resources res
-                ON res.acl_res_id = arscr.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id = argr.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    public function hasAccessToAllHostGroups(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT res.all_hostgroups
-            FROM `:db`.acl_resources res
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id = argr.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    public function hasAccessToAllHostCategories(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT 1
-            FROM `:db`.acl_resources_hc_relations arhcr
-            INNER JOIN `:db`.acl_resources res
-                ON res.acl_res_id = arhcr.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON ag.acl_group_id = argr.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @phpstan-param non-empty-array<int> $accessGroupIds
-     *
-     * @return bool
-     */
-    public function hasAccessToAllServiceGroups(array $accessGroupIds): bool
-    {
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-        $request = <<<SQL
-            SELECT res.all_servicegroups
-            FROM `:db`.acl_resources res
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            WHERE ag.acl_group_id IN ({$bindQuery})
-            SQL;
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->execute();
-
-        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return string
-     */
-    private function generateHostAclSubRequest(array $accessGroupIds = []): string
-    {
-        $subRequest = '';
-
-        if (
-            $accessGroupIds !== []
-            && ! $this->hasAccessToAllHosts($accessGroupIds)
-        ) {
-            [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-            $subRequest = <<<SQL
-                AND sgr.host_host_id IN (
-                    SELECT arhr.host_host_id
-                    FROM `:db`.acl_resources_host_relations arhr
-                    INNER JOIN `:db`.acl_resources res
-                        ON res.acl_res_id = arhr.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON argr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON ag.acl_group_id = argr.acl_group_id
-                    WHERE ag.acl_group_id IN ({$bindQuery})
-                )
-                SQL;
-        }
-
-        return $subRequest;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return string
-     */
-    private function generateServiceCategoryAclSubRequest(array $accessGroupIds = []): string
-    {
-        $request = '';
-
-        if (
-            $accessGroupIds !== []
-            && ! $this->hasAccessToAllServiceCategories($accessGroupIds)
-        ) {
-            [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-            $request = <<<SQL
-                    AND scr.sc_id IN (
-                        SELECT arscr.sc_id
-                        FROM `:db`.acl_resources_sc_relations arscr
-                        INNER JOIN `:db`.acl_resources res
-                            ON res.acl_res_id = arscr.acl_res_id
-                        INNER JOIN `:db`.acl_res_group_relations argr
-                            ON argr.acl_res_id = res.acl_res_id
-                        INNER JOIN `:db`.acl_groups ag
-                            ON ag.acl_group_id = argr.acl_group_id
-                        WHERE ag.acl_group_id IN ({$bindQuery})
-                    )
-                SQL;
-        }
-
-        return $request;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return string
-     */
-    private function generateHostCategoryAclSubRequest(array $accessGroupIds = []): string
-    {
-        $request = '';
-
-        if (
-            $accessGroupIds !== []
-            && ! $this->hasAccessToAllHostCategories($accessGroupIds)
-        ) {
-            [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-
-            $request = <<<SQL
-                AND hcr.hostcategories_hc_id IN (
-                    SELECT arhcr.hc_id
-                    FROM `:db`.acl_resources_hc_relations arhcr
-                    INNER JOIN `:db`.acl_resources res
-                        ON res.acl_res_id = arhcr.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON argr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON ag.acl_group_id = argr.acl_group_id
-                    WHERE ag.acl_group_id IN ({$bindQuery})
-                )
-                SQL;
-        }
-
-        return $request;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return string
-     */
-    private function generateHostGroupAclSubRequest(array $accessGroupIds = []): string
-    {
-        $request = '';
-        if (
-            $accessGroupIds !== []
-            && ! $this->hasAccessToAllHostGroups($accessGroupIds)
-        ) {
-            [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
-            $request = <<<SQL
-                AND hgr.hostgroup_hg_id IN (
-                    SELECT arhgr.hg_hg_id
-                    FROM `:db`.acl_resources_hg_relations arhgr
-                    INNER JOIN `:db`.acl_resources res
-                        ON res.acl_res_id = arhgr.acl_res_id
-                    INNER JOIN `:db`.acl_res_group_relations argr
-                        ON argr.acl_res_id = res.acl_res_id
-                    INNER JOIN `:db`.acl_groups ag
-                        ON ag.acl_group_id = argr.acl_group_id
-                    WHERE ag.acl_group_id IN ({$bindQuery})
-                )
-                SQL;
-        }
-
-        return $request;
     }
 
     /**

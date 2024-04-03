@@ -117,13 +117,13 @@ final class FindServiceGroups
 
         if ($this->readServiceGroupRepository->hasAccessToAllServiceGroups($accessGroupIds)) {
             $this->debug(
-                'ACL configuration for user gives access to all hostgroups',
+                'ACL configuration for user gives access to all service groups',
                 ['user' => $this->contact->getName()]
             );
             $serviceGroups = $this->readServiceGroupRepository->findAll($this->requestParameters);
         } else {
             $this->debug(
-                'Using users ACL configured on hostgroups',
+                'Using users ACL configured on service groups',
                 ['user' => $this->contact->getName()]
             );
             $serviceGroups = $this->readServiceGroupRepository->findAllByAccessGroupIds(
