@@ -332,14 +332,12 @@ sub event {
 
         # in progress
         if ($connectors->{ $options{identity} }->{handshake} == 0) {
-		#$self->{connect_loop}->break();
             $connectors->{ $options{identity} }->{handshake} = 1;
             if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
                 $connectors->{ $options{identity} }->{handshake} = -1;
                 
             }
         } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
-		#$self->{connect_loop}->break();
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_get_secret recv [3]");
             my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
                 message => $message
