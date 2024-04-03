@@ -56,9 +56,26 @@ runs:
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
         echo "New releases are: ${NEW_STABLE_TAGS[*]}"
 
-        # TODO: Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
-        # re use the part from check version ??
-        # or use the check-version action after turning this release action into a real workflow ?
+        # Building FINAL_NEW_STABLE_TAGS with the new version tags only
+        # Iterate over elements of NEW_RELEASE_TAGS
+        for new_tag in "${NEW_RELEASE_TAGS[@]}"; do
+            found=false
+            # Iterate over elements of PREVIOUS_STABLE_TAGS
+            for old_tag in "${PREVIOUS_STABLE_TAGS[@]}"; do
+                # Compare elements
+                if [ "$new_tag" == "old_tag" ]; then
+                    found=true
+                    break
+                fi
+            done
+            # If element not found in PREVIOUS_STABLE_TAGS, add it to FINAL_NEW_STABLE_TAGS
+            if ! $found; then
+                FINAL_NEW_STABLE_TAGS+=("$new_tag")
+            fi
+        done
+
+        echo "Tags present in previous releases but not in new releases:"
+        printf '%s\n' "${FINAL_NEW_STABLE_TAGS[@]}"
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
