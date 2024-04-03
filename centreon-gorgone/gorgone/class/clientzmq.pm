@@ -86,6 +86,8 @@ sub new {
     if (defined($connector->{logger}) && $connector->{logger}->is_debug()) {
         $connector->{logger}->writeLogDebug('[core] JWK thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
+    
+    $connector->{connect_loop} = new EV::Loop();
 
     $connectors->{ $options{identity} } = $connector;
     bless $connector, $class;
@@ -109,11 +111,21 @@ sub init {
     $callbacks->{ $self->{identity} } = $options{callback} if (defined($options{callback}));
 }
 
+sub cleanup {
+    my ($self, %options) = @_;
+
+    delete $callbacks->{ $self->{identity} };
+    delete $connectors->{ $self->{identity} };
+    delete $sockets->{ $self->{identity} };
+}
+
 sub close {
     my ($self, %options) = @_;
     
+    $self->{logger}->writeLogDebug('[clientzmq] CLOSE');
+    $sockets->{ $self->{identity} }->close() if (defined($sockets->{ $self->{identity} }));
+    $self->{core_watcher}->stop() if (defined($self->{core_watcher}));
     delete $self->{core_watcher};
-    $sockets->{ $self->{identity} }->close();
 }
 
 sub get_connect_identity {
@@ -128,14 +140,19 @@ sub get_server_pubkey {
     $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
     $self->event(identity => $self->{identity});
 
-    my $w1 = $self->{connect_loop}->timer(
+   my $w1 = $self->{connect_loop}->io(
+            $sockets->{ $self->{identity} }->get_fd(),
+            EV::READ,
+            sub {
+                $self->event(identity => $self->{identity});
+            }
+        );
+    my $w2 = $self->{connect_loop}->timer(
         10,
         0, 
-        sub {
-            $self->{connect_loop}->break();
-        }
+        sub {}
     );
-    $self->{connect_loop}->run();
+    $self->{connect_loop}->run(EV::RUN_ONCE);
 }
 
 sub read_key_protocol {
@@ -278,9 +295,7 @@ sub ping {
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
-        $sockets->{ $self->{identity} }->close();
-        delete $self->{core_watcher};
-
+	$self->close();
         $self->init();
         $status = 1;
     }
@@ -305,25 +320,26 @@ sub event {
 
     $connectors->{ $options{identity} }->{ping_time} = time();
     while ($sockets->{ $options{identity} }->has_pollin()) {
+
         # We have a response. So it's ok :)
         if ($connectors->{ $options{identity} }->{ping_progress} == 1) {
             $connectors->{ $options{identity} }->{ping_progress} = 0;
         }
 
         my ($rv, $message) = gorgone::standard::library::zmq_dealer_read_message(socket => $sockets->{ $options{identity} });
-        last if ($rv);
+	next if ($connectors->{ $options{identity} }->{handshake} == -1);
+        next if ($rv);
 
         # in progress
         if ($connectors->{ $options{identity} }->{handshake} == 0) {
-            $self->{connect_loop}->break();
+		#$self->{connect_loop}->break();
             $connectors->{ $options{identity} }->{handshake} = 1;
             if ($connectors->{ $options{identity} }->check_server_pubkey(message => $message) == 0) {
                 $connectors->{ $options{identity} }->{handshake} = -1;
                 
             }
         } elsif ($connectors->{ $options{identity} }->{handshake} == 1) {
-            $self->{connect_loop}->break();
-
+		#$self->{connect_loop}->break();
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_get_secret recv [3]");
             my ($status, $verbose, $symkey, $hostname) = $connectors->{ $options{identity} }->client_get_secret(
                 message => $message
@@ -332,7 +348,7 @@ sub event {
                 $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - client_get_secret $verbose [3]");
                 $connectors->{ $options{identity} }->{handshake} = -1;
                 $connectors->{ $options{identity} }->{verbose_last_message} = $verbose;
-                return ;
+                next;
             }
             $connectors->{ $options{identity} }->{handshake} = 2;
             if (defined($connectors->{ $options{identity} }->{logger})) {
@@ -348,7 +364,7 @@ sub event {
             if ($rv == -1 || $data !~ /^\[([a-zA-Z0-9:\-_]+?)\]\s+/) {
                 $connectors->{ $options{identity} }->{handshake} = -1;
                 $connectors->{ $options{identity} }->{verbose_last_message} = 'decrypt issue: ' . $data;
-                return ;
+                next;
             }
 
             if ($1 eq 'KEY') {
@@ -389,14 +405,7 @@ sub send_message {
     my ($self, %options) = @_;
 
     if ($self->{handshake} == 0) {
-        $self->{connect_loop} = new EV::Loop();
-        $self->{connect_watcher} = $self->{connect_loop}->io(
-            $sockets->{ $self->{identity} }->get_fd(),
-            EV::READ,
-            sub {
-                $self->event(identity => $self->{identity});
-            }
-        );
+        $self->{logger}->writeLogDebug("[clientzmq] fd value = " . $sockets->{ $self->{identity} }->get_fd());
 
         if (!defined($self->{server_pubkey})) {
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - get_server_pubkey sent [1]");
@@ -424,15 +433,24 @@ sub send_message {
         $sockets->{ $self->{identity} }->send($ciphertext, ZMQ_DONTWAIT);
         $self->event(identity => $self->{identity});
 
-        my $w1 = $self->{connect_loop}->timer(
+        my $w1 = $self->{connect_loop}->io(
+            $sockets->{ $self->{identity} }->get_fd(),
+            EV::READ,
+            sub {
+                $self->event(identity => $self->{identity});
+            }
+        );
+        my $w2 = $self->{connect_loop}->timer(
             10,
             0,
-            sub { $self->{connect_loop}->break(); }
+            sub {}
         );
-        $self->{connect_loop}->run();
+        $self->{connect_loop}->run(EV::RUN_ONCE);
     }
 
-    undef $self->{connect_loop} if (defined($self->{connect_loop}));
+    if (defined($self->{connect_loop})) {
+    	delete $self->{connect_loop};
+    }
 
     if ($self->{handshake} < 2) {
         $self->{handshake} = 0;
