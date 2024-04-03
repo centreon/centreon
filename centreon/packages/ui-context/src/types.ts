@@ -97,3 +97,9 @@ export interface PlatformFeatures {
   featureFlags: FeatureFlags;
   isCloudPlatform: boolean;
 }
+
+export interface AdditionalResource {
+  baseEndpoint: string;
+  label: string;
+  resourceType: string;
+}

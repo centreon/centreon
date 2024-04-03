@@ -11,6 +11,7 @@ export {
   platformFeaturesAtom,
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
+export { additionalResourcesAtom } from './additionalResources';
 
 export type {
   User,
@@ -23,5 +24,6 @@ export type {
   Acl,
   DashboardRolesAndPermissions,
   FeatureFlags,
-  PlatformFeatures
+  PlatformFeatures,
+  AdditionalResource
 } from './types';
