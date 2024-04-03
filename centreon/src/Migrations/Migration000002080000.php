@@ -579,8 +579,8 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-         // Replace Generate in breadcrumb by Export configuration
-         $pearDB->query(
+        // Replace Generate in breadcrumb by Export configuration
+        $pearDB->query(
             <<<'SQL'
                 UPDATE topology
                 SET topology_name = 'Export configuration'

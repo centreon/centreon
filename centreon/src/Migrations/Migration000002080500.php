@@ -36,7 +36,6 @@ class Migration000002080500 extends AbstractCoreMigration implements LegacyMigra
 
     public function __construct(
         private readonly Container $dependencyInjector,
-        private readonly string $storageDbName
     ) {
     }
 
