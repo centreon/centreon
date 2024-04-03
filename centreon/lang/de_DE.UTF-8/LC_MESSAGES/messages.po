@@ -16765,3 +16765,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "Delete selected tokens"
 # msgstr ""
+
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""

@@ -18901,3 +18901,9 @@ msgstr "Jusqu'à"
 
 msgid "Delete selected tokens"
 msgstr "Supprimer les jetons sélectionnés"
+
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
+
+msgid "Group monitoring"
+msgstr "Group monitoring"
