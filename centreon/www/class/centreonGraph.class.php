@@ -515,7 +515,7 @@ class CentreonGraph
                 SELECT 
                     vmetric_id,
                 FROM virtual_metrics
-                WHERE $queryCondition
+                WHERE {$queryCondition}
                 ORDER BY vmetric_name
               SQL;
 
