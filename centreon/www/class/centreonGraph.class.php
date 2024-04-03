@@ -513,11 +513,11 @@ class CentreonGraph
 
             $query = <<<SQL
                 SELECT 
-                    vmetric_id,
+                    vmetric_id
                 FROM virtual_metrics
                 WHERE {$queryCondition}
                 ORDER BY vmetric_name
-              SQL;
+                SQL;
 
             $DBRESULT = $this->DB->prepare($query);
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
