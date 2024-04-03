@@ -16762,3 +16762,8 @@ msgstr "Erweiterter Modus"
 
 # msgid "Until"
 # msgstr ""
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
