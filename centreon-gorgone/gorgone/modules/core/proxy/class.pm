@@ -230,6 +230,7 @@ sub action_proxyaddnode {
         });
 
         $self->{clients}->{ $data->{id} }->{class}->close();
+        $self->{clients}->{ $data->{id} }->{class}->cleanup();
     } else {
         $self->{internal_channels}->{ $data->{id} } = gorgone::standard::library::connect_com(
             context => $self->{zmq_context},
@@ -282,6 +283,7 @@ sub action_proxycloseconnection {
     $self->{logger}->writeLogInfo("[proxy] Close connectionn for $data->{id}");
 
     $self->{clients}->{ $data->{id} }->{class}->close();
+    $self->{clients}->{ $data->{id} }->{class}->cleanup();
     $self->{clients}->{ $data->{id} }->{delete} = 0;
     $self->{clients}->{ $data->{id} }->{class} = undef;
 }
@@ -293,6 +295,7 @@ sub close_connections {
         if (defined($self->{clients}->{$_}->{class}) && $self->{clients}->{$_}->{type} eq 'push_zmq') {
             $self->{logger}->writeLogInfo("[proxy] Close connection for $_");
             $self->{clients}->{$_}->{class}->close();
+            $self->{clients}->{$_}->{class}->cleanup();
         }
     }
 }
@@ -497,7 +500,10 @@ sub periodic_exec {
                 token => $connector->generate_token(),
                 target => ''
             });
-            $connector->{clients}->{$_}->{class}->close() if (defined($connector->{clients}->{$_}->{class}));
+            if (defined($connector->{clients}->{$_}->{class})) {
+	    	$connector->{clients}->{$_}->{class}->close();
+		$connector->{clients}->{$_}->{class}->cleanup();
+	    }
             $connector->{clients}->{$_}->{class} = undef;
             $connector->{clients}->{$_}->{delete} = 0;
             $connector->{clients}->{$_}->{com_read_internal} = 0;

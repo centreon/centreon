@@ -552,4 +552,6 @@ sub close {
     $self->disconnect();
 }
 
+sub cleanup {}
+
 1;
