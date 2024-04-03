@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const swc = require('@swc/core');
 
-export class TransformPreloadScript {
+module.exports = class TransformPreloadScript {
   constructor(federatedComponentConfiguration) {
     this.federatedComponentConfiguration = federatedComponentConfiguration;
   }
@@ -34,4 +34,4 @@ export class TransformPreloadScript {
       }
     });
   }
-}
+};

@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-export class WriteRemoEntryNameToModuleFederation {
+module.exports = class WriteRemoEntryNameToModuleFederation {
   constructor(federatedComponentConfiguration) {
     this.federatedComponentConfiguration = federatedComponentConfiguration;
   }
@@ -24,4 +24,4 @@ export class WriteRemoEntryNameToModuleFederation {
       );
     });
   }
-}
+};

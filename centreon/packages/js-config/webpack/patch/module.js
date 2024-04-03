@@ -1,9 +1,7 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const {
-  WriteRemoEntryNameToModuleFederation
-} = require('../plugins/WriteRemoEntryNameToModuleFederation');
-const { TransformPreloadScript } = require('../plugins/TransformPreloadScript');
+const WriteRemoEntryNameToModuleFederation = require('../plugins/WriteRemoEntryNameToModuleFederation');
+const TransformPreloadScript = require('../plugins/TransformPreloadScript');
 
 module.exports = ({ outputPath, federatedComponentConfiguration }) => ({
   output: {
