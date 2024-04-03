@@ -1,18 +1,14 @@
 const fs = require('fs');
 
 export class WriteRemoEntryNameToModuleFederation {
-  constructor(federatedComponentConfiguration, preloadScriptFileName) {
+  constructor(federatedComponentConfiguration) {
     this.federatedComponentConfiguration = federatedComponentConfiguration;
-    this.preloadScriptFileName = preloadScriptFileName;
   }
 
   apply(compiler) {
-    compiler.hooks.done.tap('WriteRemoEntryNameToModuleFederation', (stats) => {
+    compiler.hooks.done.tap('CentreonModulePlugin', (stats) => {
       const newFederatedComponentConfiguration = {
         ...this.federatedComponentConfiguration,
-        preloadScript: Object.keys(stats.compilation.assets).find((assetName) =>
-          assetName.match(new RegExp(`(^${this.preloadScriptFileName})\\S+.js`))
-        ),
         remoteEntry: Object.keys(stats.compilation.assets).find((assetName) =>
           assetName.match(/(^remoteEntry)\S+.js$/)
         )

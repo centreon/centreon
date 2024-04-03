@@ -13,6 +13,7 @@ export interface FederatedModule {
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;
+  preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
 }

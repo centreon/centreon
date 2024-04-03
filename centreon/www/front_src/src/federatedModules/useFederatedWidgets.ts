@@ -8,13 +8,17 @@ import usePlatformVersions from '../Main/usePlatformVersions';
 
 import { federatedWidgetsAtom, federatedWidgetsPropertiesAtom } from './atoms';
 import { FederatedModule, FederatedWidgetProperties } from './models';
+import { loadScript } from './utils';
+
+const getFederatedWidgetFolder = (moduleName: string): string =>
+  `./widgets/${moduleName}/static`;
 
 export const getFederatedWidget = (moduleName: string): string => {
-  return `./widgets/${moduleName}/static/moduleFederation.json`;
+  return `${getFederatedWidgetFolder(moduleName)}/moduleFederation.json`;
 };
 
 export const getFederatedWidgetProperties = (moduleName: string): string => {
-  return `./widgets/${moduleName}/static/properties.json`;
+  return `${getFederatedWidgetFolder(moduleName)}/properties.json`;
 };
 
 interface UseFederatedModulesState {
@@ -48,7 +52,17 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
       widgets?.map((moduleName) =>
         sendRequest({ endpoint: getFederatedWidget(moduleName) })
       ) || []
-    ).then(setFederatedWidgets);
+    ).then((federatedWidgetConfigs: Array<FederatedModule>): void => {
+      setFederatedWidgets(federatedWidgetConfigs);
+
+      federatedWidgetConfigs
+        .filter(({ preloadScript }) => preloadScript)
+        .forEach(({ preloadScript, moduleName }) => {
+          loadScript(
+            `${getFederatedWidgetFolder(moduleName)}/${preloadScript}`
+          );
+        });
+    });
 
     Promise.all(
       widgets?.map((moduleName) =>

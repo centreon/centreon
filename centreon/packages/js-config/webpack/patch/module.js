@@ -1,18 +1,11 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const {
-  ModuleFederationIgnoreEntries
-} = require('../plugins/ModuleFederationIgnoreEntries');
-const {
   WriteRemoEntryNameToModuleFederation
 } = require('../plugins/WriteRemoEntryNameToModuleFederation');
+const { TransformPreloadScript } = require('../plugins/TransformPreloadScript');
 
-module.exports = ({
-  outputPath,
-  federatedComponentConfiguration,
-  ignoreEntriesToModuleFederation,
-  preloadScriptFileName
-}) => ({
+module.exports = ({ outputPath, federatedComponentConfiguration }) => ({
   output: {
     library: '[chunkhash:8]',
     path: outputPath
@@ -24,10 +17,6 @@ module.exports = ({
       dry: false
     }),
     new WriteRemoEntryNameToModuleFederation(federatedComponentConfiguration),
-    ignoreEntriesToModuleFederation &&
-      new ModuleFederationIgnoreEntries(
-        ignoreEntriesToModuleFederation,
-        preloadScriptFileName
-      )
-  ].filter(Boolean)
+    new TransformPreloadScript(federatedComponentConfiguration)
+  ]
 });

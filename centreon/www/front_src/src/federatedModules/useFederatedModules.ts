@@ -8,9 +8,13 @@ import usePlatformVersions from '../Main/usePlatformVersions';
 
 import { federatedModulesAtom } from './atoms';
 import { FederatedModule } from './models';
+import { loadScript } from './utils';
 
-export const getFederatedModule = (moduleName: string): string =>
-  `./modules/${moduleName}/static/moduleFederation.json`;
+export const getFederatedModuleFolder = (moduleName: string): string =>
+  `./modules/${moduleName}/static`;
+
+export const getFederatedModuleFederationFile = (moduleName: string): string =>
+  `${getFederatedModuleFolder(moduleName)}/moduleFederation.json`;
 
 interface UseFederatedModulesState {
   federatedModules: Array<FederatedModule> | null;
@@ -33,9 +37,19 @@ const useFederatedModules = (): UseFederatedModulesState => {
 
     Promise.all(
       modules?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedModule(moduleName) })
+        sendRequest({ endpoint: getFederatedModuleFederationFile(moduleName) })
       ) || []
-    ).then(setFederatedModules);
+    ).then((federatedModuleConfigs: Array<FederatedModule>): void => {
+      setFederatedModules(federatedModuleConfigs);
+
+      federatedModuleConfigs
+        .filter(({ preloadScript }) => preloadScript)
+        .forEach(({ preloadScript, moduleName }) => {
+          loadScript(
+            `${getFederatedModuleFolder(moduleName)}/${preloadScript}`
+          );
+        });
+    });
   }, [modules]);
 
   useEffect(
