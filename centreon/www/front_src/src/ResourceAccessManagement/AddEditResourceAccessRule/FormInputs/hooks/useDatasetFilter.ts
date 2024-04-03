@@ -209,10 +209,11 @@ const useDatasetFilter = (
       )
     );
 
-    const selectedResourceTypes = pluck(
-      'type',
+    const selectedResourceTypes = isNil(
       selectedDatasetFilters[datasetFilterIndex]
-    );
+    )
+      ? []
+      : pluck('type', selectedDatasetFilters[datasetFilterIndex]);
 
     const remainingResourceTypeOptions = reject(
       (type: { id: ResourceTypeEnum; name: string }) =>
