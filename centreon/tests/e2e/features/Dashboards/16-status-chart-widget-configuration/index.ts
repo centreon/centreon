@@ -7,6 +7,8 @@ import {
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
+import twoStatuschartWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoStatusChartWidgets.json';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -62,84 +64,84 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-metrics-graph.json'
-  // );
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceOk.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceOk.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   });
-  // cy.addHost({
-  //   hostGroup: 'Linux-Servers',
-  //   name: services.serviceCritical.host,
-  //   template: 'generic-host'
-  // })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceOk.name,
-  //     template: services.serviceOk.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: 'service2',
-  //     template: services.serviceWarning.template
-  //   })
-  //   .addService({
-  //     activeCheckEnabled: false,
-  //     host: services.serviceCritical.host,
-  //     maxCheckAttempts: 1,
-  //     name: services.serviceCritical.name,
-  //     template: services.serviceCritical.template
-  //   })
-  //   .applyPollerConfiguration();
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-metrics-graph.json'
+  );
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    });
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
 
-  // cy.loginByTypeOfUser({
-  //   jsonName: 'admin'
-  // });
+  cy.loginByTypeOfUser({
+    jsonName: 'admin'
+  });
 
-  // checkHostsAreMonitored([
-  //   { name: services.serviceOk.host },
-  //   { name: services.serviceCritical.host }
-  // ]);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name },
-  //   { name: services.serviceOk.name }
-  // ]);
-  // cy.submitResults(resultsToSubmit);
-  // checkServicesAreMonitored([
-  //   { name: services.serviceCritical.name, status: 'critical' },
-  //   { name: services.serviceOk.name, status: 'ok' }
-  // ]);
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
 
-  // cy.logoutViaAPI();
+  cy.logoutViaAPI();
   cy.applyAcl();
 });
 
@@ -160,6 +162,18 @@ beforeEach(() => {
     method: 'PATCH',
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: `/centreon/api/latest/configuration/dashboards/*`
+  }).as('getDashboard');
+  cy.intercept({
+    method: 'GET',
+    url: `centreon/api/latest/monitoring/services/status**`
+  }).as('getServiceStatus');
+  cy.intercept({
+    method: 'GET',
+    url: `centreon/api/latest/monitoring/hosts/status**`
+  }).as('getHostStatus');
   cy.intercept({
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
@@ -208,13 +222,13 @@ When(
   'the dashboard administrator user selects the widget type "Status chart"',
   () => {
     cy.getByTestId({ testId: 'Widget type' }).click();
+    cy.contains('Status chart').click();
   }
 );
 
 Then(
   'configuration properties for the status chart widget are displayed',
   () => {
-    cy.getByTestId({ testId: 'up' }).should('be.visible');
     cy.getByTestId({ testId: 'CheckCircleIcon' }).should('exist');
     cy.getByLabel({ label: 'Donut chart' }).should('exist');
     cy.getByLabel({ label: 'Pie chart' }).should('exist');
@@ -237,34 +251,242 @@ When(
 );
 
 Then(
-  'a table representing the statuses of this list of resources are displayed in the widget preview',
+  'a donut chart representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.get('[class$="-status"]')
-      .eq(0)
-      .should('have.attr', 'data-status', 'Down')
-      .should('be.visible');
-    cy.get('[class$="-status"]')
-      .eq(1)
-      .should('have.attr', 'data-status', 'Critical')
-      .should('be.visible');
-    cy.get('[class$="-status"]')
-      .eq(2)
-      .should('have.attr', 'data-status', 'Warning')
-      .should('be.visible');
+    cy.getByTestId({ testId: 'up' }).should('exist');
+    cy.getByTestId({ testId: 'critical' }).should('exist');
+    cy.getByTestId({ testId: 'warning' }).should('exist');
+    cy.getByTestId({ testId: 'unknown' }).should('exist');
+    cy.getByTestId({ testId: 'unknown' }).should('exist');
+    cy.getByTestId({ testId: 'ok' }).should('exist');
+    cy.getByTestId({ testId: 'pending' }).should('exist');
+    cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
+    cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
+    cy.verifyLegendItemStyle(
+      0,
+      [
+        'background: rgb(136, 185, 34)',
+        'background: rgb(255, 102, 102)',
+        'background: rgb(227, 227, 227)',
+        'background: rgb(30, 190, 179)'
+      ],
+      ['100.0%', '0.0%', '0.0%', '0.0%']
+    );
+    cy.verifyLegendItemStyle(
+      1,
+      [
+        'background: rgb(255, 102, 102)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(227, 227, 227)',
+        'background: rgb(136, 185, 34)',
+        'background: rgb(30, 190, 179)'
+      ],
+      ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+    );
   }
 );
 
-When('the user saves the Group monitoring widget', () => {
+When('the user saves the Status chart widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
-Then("the Group monitoring widget is added in the dashboard's layout", () => {
-  cy.get('[class$="-status-link"]')
-    .eq(0)
-    .should('have.attr', 'data-status', 'Down')
-    .should('be.visible');
-  cy.get('[class$="-status-link"]')
-    .eq(1)
-    .should('have.attr', 'data-status', 'Critical')
-    .should('be.visible');
+Then("the Status chart widget is added in the dashboard's layout", () => {
+  cy.getByTestId({ testId: 'up' }).should('exist');
+  cy.getByTestId({ testId: 'critical' }).should('exist');
+  cy.getByTestId({ testId: 'warning' }).should('exist');
+  cy.getByTestId({ testId: 'unknown' }).should('exist');
+  cy.getByTestId({ testId: 'unknown' }).should('exist');
+  cy.getByTestId({ testId: 'ok' }).should('exist');
+  cy.getByTestId({ testId: 'pending' }).should('exist');
+  cy.getByTestId({ testId: 'Legend' }).eq(0).should('exist');
+  cy.getByTestId({ testId: 'Legend' }).eq(1).should('exist');
+  cy.verifyLegendItemStyle(
+    0,
+    [
+      'background: rgb(136, 185, 34)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['100.0%', '0.0%', '0.0%', '0.0%']
+  );
+  cy.verifyLegendItemStyle(
+    1,
+    [
+      'background: rgb(255, 102, 102)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(136, 185, 34)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+  );
 });
+
+Given('a dashboard that includes a configured Status chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).click({ force: true });
+});
+
+When(
+  'the dashboard administrator user selects a particular unit in the displayed unit list',
+  () => {
+    cy.contains('Number').click();
+  }
+);
+
+Then('the unit of the resources already displayed should be updated', () => {
+  cy.verifyLegendItemStyle(
+    1,
+    [
+      'background: rgb(255, 102, 102)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(136, 185, 34)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['1', '1', '3', '3', '2']
+  );
+});
+
+Given('a dashboard featuring two Status chart widgets', () => {
+  cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.wait('@getDashboard');
+  cy.wait('@getServiceStatus');
+  cy.wait('@getHostStatus');
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
+});
+
+When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.getByTestId({ testId: 'DeleteIcon' }).click();
+  cy.getByLabel({
+    label: 'Delete',
+    tag: 'button'
+  }).realClick();
+});
+
+Then('only the contents of the other widget are displayed', () => {
+  cy.verifyLegendItemStyle(
+    1,
+    [
+      'background: rgb(136, 185, 34)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['3', '0', '0', '0']
+  );
+  cy.verifyLegendItemStyle(
+    0,
+    [
+      'background: rgb(255, 102, 102)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(136, 185, 34)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['1', '1', '3', '3', '2']
+  );
+});
+
+Given('a dashboard having a configured Status chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+});
+
+When(
+  'the dashboard administrator user duplicates the Status chart widget',
+  () => {
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  }
+);
+
+Then('a second Status Grid widget is displayed on the dashboard', () => {
+  cy.verifyLegendItemStyle(
+    2,
+    [
+      'background: rgb(136, 185, 34)',
+      'background: rgb(255, 102, 102)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['100.0%', '0.0%', '0.0%', '0.0%']
+  );
+  cy.verifyLegendItemStyle(
+    3,
+    [
+      'background: rgb(255, 102, 102)',
+      'background: rgb(253, 155, 39)',
+      'background: rgb(227, 227, 227)',
+      'background: rgb(136, 185, 34)',
+      'background: rgb(30, 190, 179)'
+    ],
+    ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+  );
+});
+
+Given('a dashboard configuring Status chart widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).click({ force: true });
+});
+
+When(
+  'the dashboard administrator user updates the displayed resource type of the widget',
+  () => {
+    cy.get('input[name="host"].PrivateSwitchBase-input').click();
+  }
+);
+
+Then(
+  'the widget is updated to reflect that change in displayed resource type',
+  () => {
+    cy.getByTestId({ testId: 'up' }).should('not.be.visible');
+    cy.verifyLegendItemStyle(
+      1,
+      [
+        'background: rgb(255, 102, 102)',
+        'background: rgb(253, 155, 39)',
+        'background: rgb(227, 227, 227)',
+        'background: rgb(136, 185, 34)',
+        'background: rgb(30, 190, 179)'
+      ],
+      ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+    );
+  }
+);

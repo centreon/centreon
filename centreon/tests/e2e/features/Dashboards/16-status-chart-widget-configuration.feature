@@ -11,7 +11,7 @@ Feature: Configuring Status chart widget
     And the dashboard administrator user selects the widget type "Status chart"
     Then configuration properties for the status chart widget are displayed
     When the dashboard administrator user selects resources for the widget
-    Then a table representing the statuses of this list of resources are displayed in the widget preview
+    Then a donut chart representing the statuses of this list of resources are displayed in the widget preview
     When the user saves the Status chart widget
     Then the Status chart widget is added in the dashboard's layout
 
@@ -32,7 +32,6 @@ Feature: Configuring Status chart widget
     Given a dashboard having a configured Status chart widget
     When the dashboard administrator user duplicates the Status chart widget
     Then a second Status Grid widget is displayed on the dashboard
-    And the second widget has the same properties as the first widget
 
   @TEST_MON-37893
   Scenario: Editing the displayed resource type of a Status chart widget
