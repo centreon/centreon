@@ -281,7 +281,7 @@ Then(
         'background: rgb(136, 185, 34)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
     );
   }
 );
@@ -319,7 +319,7 @@ Then("the Status chart widget is added in the dashboard's layout", () => {
       'background: rgb(136, 185, 34)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
   );
 });
 
@@ -356,7 +356,7 @@ Then('the unit of the resources already displayed should be updated', () => {
       'background: rgb(136, 185, 34)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '3', '3', '2']
+    ['1', '1', '0', '3', '5']
   );
 });
 
@@ -446,7 +446,7 @@ Then('a second Status Grid widget is displayed on the dashboard', () => {
       'background: rgb(136, 185, 34)',
       'background: rgb(30, 190, 179)'
     ],
-    ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+    ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
   );
 });
 
@@ -486,7 +486,7 @@ Then(
         'background: rgb(136, 185, 34)',
         'background: rgb(30, 190, 179)'
       ],
-      ['10.0%', '10.0%', '30.0%', '30.0%', '20.0%']
+      ['10.0%', '10.0%', '0.0%', '30.0%', '50.0%']
     );
   }
 );
