@@ -249,10 +249,10 @@ const useDatasetFilter = (
     ]);
 
     setSelectedDatasetFiltes(
-      selectedDatasetFilters.map((datasetF, indexF) => {
-        if (equals(indexF, datasetFilterIndex)) {
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
           return [
-            ...selectedDatasetFilters[indexF],
+            ...selectedDatasetFilters[indexFilter],
             {
               ids: [],
               type: ResourceTypeEnum.Empty
@@ -260,7 +260,7 @@ const useDatasetFilter = (
           ];
         }
 
-        return datasetF;
+        return datasets;
       })
     );
   };
@@ -272,9 +272,9 @@ const useDatasetFilter = (
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
     setSelectedDatasetFiltes(
-      selectedDatasetFilters.map((datasetF, indexF) => {
-        if (equals(indexF, datasetFilterIndex)) {
-          return selectedDatasetFilters[indexF].map((dataset, i) => {
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
                 ids: [...dataset.ids, resource.id as number],
@@ -286,7 +286,7 @@ const useDatasetFilter = (
           });
         }
 
-        return datasetF;
+        return datasets;
       })
     );
   };
@@ -299,9 +299,9 @@ const useDatasetFilter = (
       );
       setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
       setSelectedDatasetFiltes(
-        selectedDatasetFilters.map((datasetF, indexF) => {
-          if (equals(indexF, datasetFilterIndex)) {
-            return selectedDatasetFilters[indexF].map((dataset, i) => {
+        selectedDatasetFilters.map((datasets, indexFilter) => {
+          if (equals(indexFilter, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexFilter].map((dataset, i) => {
               if (equals(i, index)) {
                 return {
                   ids: pluck('id', resources) as Array<number>,
@@ -313,7 +313,7 @@ const useDatasetFilter = (
             });
           }
 
-          return datasetF;
+          return datasets;
         })
       );
     };
@@ -341,9 +341,9 @@ const useDatasetFilter = (
       );
 
       setSelectedDatasetFiltes(
-        selectedDatasetFilters.map((datasetF, indexF) => {
-          if (equals(indexF, datasetFilterIndex)) {
-            return selectedDatasetFilters[indexF]
+        selectedDatasetFilters.map((datasets, indexFilter) => {
+          if (equals(indexFilter, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexFilter]
               .map((dataset, i) => {
                 if (index < i && !equals(e.target.value, dataset.type)) {
                   return undefined;
@@ -361,7 +361,7 @@ const useDatasetFilter = (
             }>;
           }
 
-          return datasetF;
+          return datasets;
         })
       );
     };
@@ -373,14 +373,14 @@ const useDatasetFilter = (
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
     setSelectedDatasetFiltes(
-      selectedDatasetFilters.map((datasetF, indexF) => {
-        if (equals(indexF, datasetFilterIndex)) {
-          return selectedDatasetFilters[indexF].filter(
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].filter(
             (_, i) => !equals(i, index)
           );
         }
 
-        return datasetF;
+        return datasets;
       })
     );
   };
@@ -394,9 +394,9 @@ const useDatasetFilter = (
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
     setSelectedDatasetFiltes(
-      selectedDatasetFilters.map((datasetF, indexF) => {
-        if (equals(indexF, datasetFilterIndex)) {
-          return selectedDatasetFilters[indexF].map((dataset, i) => {
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
                 ids: dataset.ids.filter((id) => !equals(id, option.id)),
@@ -408,7 +408,7 @@ const useDatasetFilter = (
           });
         }
 
-        return datasetF;
+        return datasets;
       })
     );
   };
