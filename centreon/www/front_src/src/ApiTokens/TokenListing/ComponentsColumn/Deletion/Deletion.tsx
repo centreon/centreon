@@ -14,12 +14,14 @@ interface Parameters {
 
 interface Props {
   disabled?: boolean;
+  label?: string;
   renderModalConfirmation: (parameters: Parameters) => JSX.Element;
 }
 
 const Deletion = ({
   renderModalConfirmation,
-  disabled = false
+  disabled = false,
+  label = labelDelete
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -37,12 +39,12 @@ const Deletion = ({
   return (
     <>
       <IconButton
-        ariaLabel={t(labelDelete) as string}
-        data-testid={labelDelete}
+        ariaLabel={t(label) as string}
+        data-testid={label}
         disabled={disabled}
         size="large"
         sx={{ marginLeft: 1 }}
-        title={t(labelDelete)}
+        title={t(label)}
         onClick={displayModal}
       >
         <DeleteIcon />

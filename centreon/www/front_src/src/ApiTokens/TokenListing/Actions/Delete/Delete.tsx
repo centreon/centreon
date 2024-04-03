@@ -16,6 +16,7 @@ const Delete = (): JSX.Element => {
   return (
     <Deletion
       disabled={selectedRows.length <= 0}
+      label={labelDeleteSelectedTokens}
       renderModalConfirmation={({ close }) => (
         <ConfirmationDeletionModal
           close={close}
