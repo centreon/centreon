@@ -22,6 +22,8 @@ services:
         resource: '../../../../Migrations/*'
         bind:
             $legacyMigrations: !tagged_iterator 'platform.legacy_migrations'
+            $centreonDbName: '%database_db%'
+            $storageDbName: '%database_dbstg%'
 
     Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
         class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository

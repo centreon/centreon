@@ -36,6 +36,7 @@ class Migration000002080400 extends AbstractCoreMigration implements LegacyMigra
 
     public function __construct(
         private readonly Container $dependencyInjector,
+        private readonly string $storageDbName
     ) {
     }
 
@@ -60,7 +61,6 @@ class Migration000002080400 extends AbstractCoreMigration implements LegacyMigra
      */
     public function up(): void
     {
-        $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
 
@@ -70,7 +70,7 @@ class Migration000002080400 extends AbstractCoreMigration implements LegacyMigra
         $query = "SELECT count(*) AS number
                 FROM INFORMATION_SCHEMA.COLUMNS
                 WHERE table_name = 'hosts'
-                AND table_schema = '" . $conf_centreon['dbcstg'] . "'
+                AND table_schema = '" . $this->storageDbName . "'
                 AND column_name = 'timezone'";
         $res = $pearDBO->query($query);
         $data = $res->fetchRow();
