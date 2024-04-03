@@ -185,7 +185,7 @@ function deleteImg($imageId)
         $dbResult = $pearDB->prepare($query);
         $dbResult->bindParam(':imageId', $imageId, PDO::PARAM_INT);
         $dbResult->execute();
-        while ($imagePath = $dbResult->fetchAll(PDO::FETCH_ASSOC)) {
+        foreach ($dbResult->fetchAll(PDO::FETCH_ASSOC) as $imagePath) {
             $fullpath = $mediadir . basename($imagePath["dir_alias"]) . "/" . basename($imagePath["img_path"]);
             if (is_file($fullpath)) {
                 unlink($fullpath);
@@ -199,14 +199,11 @@ function deleteImg($imageId)
             $deleteRelationStatement = $pearDB->prepare($deleteRelationQuery);
             $deleteRelationStatement->bindParam(':imageId', $imageId, PDO::PARAM_INT);
             $deleteRelationStatement->execute();
-            $deleteRelationStatement->closeCursor();
         }
         $pearDB->commit();
     } catch (PDOException $e) {
         $pearDB->rollBack();
         echo "Error: " . $e->getMessage();
-    } finally {
-        $dbResult->closeCursor();
     }
 }
 
@@ -264,7 +261,7 @@ function moveImg($img_id, $dir_alias)
                 if (!$prepare2->execute()) {
                     return;
                 }
-                $dir_info = $prepare2->fetchAll(PDO::FETCH_ASSOC);
+                $dir_info = $prepare2->fetch();
                 $dir_id = $dir_info["dir_id"];
             }
 
@@ -367,7 +364,7 @@ function deleteDirectory($directoryId)
     $statement = $pearDB->prepare($query);
     $statement->bindParam(':directory_id', $directoryId);
     $statement->execute();
-    while ($img = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+    foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $img) {
         deleteImg($img["img_img_id"]);
     }
     /*
