@@ -17544,3 +17544,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Until"
 # msgstr ""
+
+# msgid "Delete selected tokens"
+# msgstr ""

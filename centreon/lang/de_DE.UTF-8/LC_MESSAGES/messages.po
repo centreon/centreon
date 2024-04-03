@@ -16762,3 +16762,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "Until"
 # msgstr ""
+
+# msgid "Delete selected tokens"
+# msgstr ""
