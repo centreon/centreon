@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Migrations;
 
-require_once __DIR__ . '/../../www/class/centreonMeta.class.php';
-
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
@@ -63,77 +61,142 @@ class Migration000002080100 extends AbstractCoreMigration implements LegacyMigra
     public function up(): void
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
+        $pearDBO = $this->dependencyInjector['realtime_db'];
 
-        $metaObj = new \CentreonMeta($pearDB);
-        $hostId = null;
-        $virtualServices = [];
+        /* Update-2.8.1.php */
 
-        // Check virtual host
-        $queryHost = 'SELECT host_id '
-            . 'FROM host '
-            . 'WHERE host_register = "2" '
-            . 'AND host_name = "_Module_Meta" ';
-        $res = $pearDB->query($queryHost);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-            $hostId = $row['host_id'];
-        } else {
-            $query = 'INSERT INTO host (host_name, host_register) '
-                . 'VALUES ("_Module_Meta", "2") ';
-            $pearDB->query($query);
-            $res = $pearDB->query($queryHost);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-                $hostId = $row['host_id'];
-            }
+        $query = 'SHOW INDEX FROM comments '
+            . 'WHERE column_name = "host_id" '
+            . 'AND Key_name = "host_id" ';
+        $res = $pearDBO->query($query);
+        if (!$res->rowCount()) {
+            $pearDBO->query('ALTER TABLE comments ADD KEY host_id(host_id)');
         }
 
-        // Check existing virtual services
-        $query = 'SELECT service_id, service_description '
-            . 'FROM service '
-            . 'WHERE service_description LIKE "meta_%" '
-            . 'AND service_register = "2" ';
-        $res = $pearDB->query($query);
-        while ($row = $res->fetchRow()) {
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-                $metaId = $matches[1];
-                $virtualServices[$metaId]['service_id'] = $row['service_id'];
-            }
-        }
+        $query = 'ALTER TABLE `comments` '
+            . 'DROP KEY `entry_time`, '
+            . 'ADD UNIQUE KEY `entry_time` (`entry_time`,`host_id`,`service_id`, `instance_id`, `internal_id`) ';
+        $pearDBO->query($query);
 
-        // Check existing relations between virtual services and virtual host
-        $query = 'SELECT s.service_id, s.service_description '
-            . 'FROM service s, host_service_relation hsr '
-            . 'WHERE hsr.host_host_id = :host_id '
-            . 'AND s.service_register = "2" '
-            . 'AND s.service_description LIKE "meta_%" ';
-        $statement = $pearDB->prepare($query);
-        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
-        $statement->execute();
-        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-                $metaId = $matches[1];
-                $virtualServices[$metaId]['relation'] = true;
-            }
-        }
 
-        $query = 'SELECT meta_id, meta_name FROM meta_service';
-        $res = $pearDB->query($query);
-        while ($row = $res->fetchRow()) {
-            if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['service_id'])) {
-                $serviceId = $metaObj->insertVirtualService($row['meta_id'], $row['meta_name']);
-            } else {
-                $serviceId = $virtualServices[$row['meta_id']]['service_id'];
-            }
-            if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['relation'])) {
-                $query = 'INSERT INTO host_service_relation (host_host_id, service_service_id) '
-                    . 'VALUES (:host_id, :service_id) ';
-                $statement = $pearDB->prepare($query);
-                $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
-                $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
-                $statement->execute();
-            }
-        }
+        /* Update-DB-2.8.1.sql */
+
+        // Drop from nagios configuration
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `cfg_nagios`
+                DROP COLUMN precached_object_file
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `cfg_nagios`
+                DROP COLUMN object_cache_file
+                SQL
+        );
+
+        // Create downtime cache table for recurrent downtimes
+        $pearDB->query(
+            <<<'SQL'
+                CREATE TABLE IF NOT EXISTS `downtime_cache` (
+                    `downtime_cache_id` int(11) NOT NULL AUTO_INCREMENT,
+                    PRIMARY KEY (`downtime_cache_id`),
+                    `downtime_id` int(11) NOT NULL,
+                    `host_id` int(11) NOT NULL,
+                    `service_id` int(11),
+                    `start_timestamp` int(11) NOT NULL,
+                    `end_timestamp` int(11) NOT NULL,
+                    `start_hour` varchar(255) NOT NULL,
+                    `end_hour` varchar(255) NOT NULL,
+                    CONSTRAINT `downtime_cache_ibfk_1` FOREIGN KEY (`downtime_id`) REFERENCES `downtime` (`dt_id`) ON DELETE CASCADE,
+                    CONSTRAINT `downtime_cache_ibfk_2` FOREIGN KEY (`host_id`) REFERENCES `host` (`host_id`) ON DELETE CASCADE,
+                    CONSTRAINT `downtime_cache_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `service` (`service_id`) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+                SQL
+        );
+
+        // Add correlation output for Centreon broker
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_module` (`name`, `libname`, `loading_pos`, `is_bundle`, `is_activated`)
+                VALUES ('Correlation', 'correlation.so', 30, 0, 1)
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_type` (`type_name`, `type_shortname`, `cb_module_id`)
+                VALUES ('Correlation', 'correlation', (SELECT `cb_module_id` FROM `cb_module` WHERE `libname` = 'correlation.so'))
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_field` (`fieldname`, `displayname`, `description`, `fieldtype`, `external`)
+                VALUES ('passive', 'Correlation passive', 'The passive mode is for the secondary Centreon Broker.', 'radio', NULL)
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_list` (`cb_list_id`, `cb_field_id`, `default_value`)
+                VALUES (1, (SELECT `cb_field_id` FROM `cb_field` WHERE `displayname` = 'Correlation passive'), 'no')
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`)
+                VALUES (1, (SELECT `cb_type_id` FROM `cb_type` WHERE `type_shortname` = 'correlation'), 1)
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`, `order_display`)
+                VALUES
+                    ((SELECT `cb_type_id` FROM `cb_type` WHERE `type_shortname` = 'correlation'), 29, 1, 1),
+                    ((SELECT `cb_type_id` FROM `cb_type` WHERE `type_shortname` = 'correlation'), (SELECT `cb_field_id` FROM `cb_field` WHERE `displayname` = 'Correlation passive'), 0, 2)
+                SQL
+        );
+
+        // update broker socket path
+        $pearDB->query(
+            <<<'SQL'
+                DELETE FROM `options`
+                WHERE `key` = 'broker_socket_path'
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                UPDATE cfg_centreonbroker
+                SET command_file = CONCAT(retention_path, '/command.sock')
+                WHERE config_name = 'central-broker-master'
+                SQL
+        );
+
+        // Insert Macro for PP
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cfg_resource` (`resource_name`, `resource_line`, `resource_comment`, `resource_activate`)
+                VALUES ('$CENTREONPLUGINS$', '@CENTREONPLUGINS@', 'Centreon Plugin Path', '1')
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `cfg_resource_instance_relations` (`resource_id`, `instance_id` )
+                SELECT r.resource_id, ns.id FROM cfg_resource r, nagios_server ns WHERE r.resource_name = '$CENTREONPLUGINS$'
+                SQL
+        );
+
+        // KB  double topology_page
+        $pearDB->query(
+            <<<'SQL'
+                DELETE FROM `topology`
+                WHERE `topology_page` = 610
+                SQL
+        );
+        $pearDB->query(
+            <<<'SQL'
+                INSERT INTO `topology` (`topology_id` ,`topology_name` ,`topology_parent` ,`topology_page` ,`topology_order` ,`topology_group` ,`topology_url` ,`topology_url_opt` ,`topology_popup` ,`topology_modules` ,`topology_show` ,`topology_style_class` ,`topology_style_id` ,`topology_OnClick`)
+                VALUES (NULL , 'Knowledge Base', '6', '610', '65', '36', NULL, NULL , NULL , '1', '1', NULL , NULL , NULL)
+                SQL
+        );
     }
 
     /**
