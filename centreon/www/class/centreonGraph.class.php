@@ -398,7 +398,7 @@ class CentreonGraph
      */
     private static function quote($elem)
     {
-        return $elem ;
+        return "'" . $elem . "'";
     }
 
     /**
@@ -408,7 +408,7 @@ class CentreonGraph
      */
     private static function vquote($elem)
     {
-        return  substr($elem, 1, strlen($elem) - 1) ;
+        return "'" . substr($elem, 1, strlen($elem) - 1) . "'";
     }
 
 
@@ -514,7 +514,7 @@ class CentreonGraph
             $query = <<<SQL
                 SELECT 
                     vmetric_id,
-                FROM virtual_metrics,
+                FROM virtual_metrics
                 WHERE $queryCondition
                 ORDER BY vmetric_name
               SQL;
