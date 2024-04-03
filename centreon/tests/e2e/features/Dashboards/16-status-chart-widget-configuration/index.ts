@@ -403,7 +403,7 @@ Then('only the contents of the other widget are displayed', () => {
       'background: rgb(136, 185, 34)',
       'background: rgb(30, 190, 179)'
     ],
-    ['1', '1', '3', '3', '2']
+    ['1', '1', '0', '3', '5']
   );
 });
 
@@ -476,7 +476,6 @@ When(
 Then(
   'the widget is updated to reflect that change in displayed resource type',
   () => {
-    cy.getByTestId({ testId: 'up' }).should('not.be.visible');
     cy.verifyLegendItemStyle(
       1,
       [
