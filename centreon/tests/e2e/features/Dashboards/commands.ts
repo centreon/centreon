@@ -1,3 +1,4 @@
+/* eslint-disable newline-before-return */
 /* eslint-disable @typescript-eslint/no-namespace */
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayloadPl from '../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
@@ -79,6 +80,55 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
             .should('contain', metrics.plValues.critical);
         });
     });
+});
+
+Cypress.Commands.add('waitUntilPingExists', () => {
+  cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
+
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
+  }).as('resourceRequest');
+
+  return cy.waitUntil(
+    () => {
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
+      cy.contains('Centreon-Server').realClick();
+      cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
+
+      return cy.wait('@resourceRequest').then((interception) => {
+        if (interception && interception.response) {
+          cy.log('Response Body:', interception.response.body);
+          const responseBody = interception.response.body;
+          if (
+            Array.isArray(responseBody.result) &&
+            responseBody.result.length > 0
+          ) {
+            const pingFound = responseBody.result.some(
+              (result) => result.name === 'Ping'
+            );
+
+            if (pingFound) {
+              cy.contains('Ping').click();
+              return cy.wrap(true);
+            }
+            cy.log('Ping not found in the API response');
+
+            return cy.wrap(false);
+          }
+          cy.log('Response is not an array or is empty');
+          return cy.wrap(false);
+        }
+        cy.log('Interception or response is undefined');
+        return cy.wrap(false);
+      });
+    },
+    {
+      errorMsg: 'Timed out waiting for Ping to exist',
+      interval: 3000,
+      timeout: 60000
+    }
+  );
 });
 
 Cypress.Commands.add(
@@ -228,6 +278,7 @@ declare global {
         accessRightsTestId: string,
         expectedElementCount: number
       ) => Cypress.Chainable;
+      waitUntilPingExists: () => Cypress.Chainable;
     }
   }
 }

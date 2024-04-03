@@ -53,7 +53,6 @@ beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
         random_int(1, 1_000_000),
         uniqid('dashboard_', true),
-        '',
         null,
         null,
         new \DateTimeImmutable(),

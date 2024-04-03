@@ -145,7 +145,7 @@ class DbReadSAMLConfigurationRepository extends AbstractRepositoryDRB implements
      *
      * @param int $providerConfigurationId
      *
-     * @throws \Throwable
+     * @throws Throwable
      *
      * @return ContactGroupRelation[]
      */

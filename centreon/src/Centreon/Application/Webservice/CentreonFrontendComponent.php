@@ -118,7 +118,7 @@ class CentreonFrontendComponent extends Webservice\WebServiceAbstract implements
      *
      * @param \Pimple\Container $di
      */
-    public function setDi(Container $di)
+    public function setDi(Container $di): void
     {
         $this->services = new ServiceLocator($di, [
             ServiceProvider::CENTREON_FRONTEND_COMPONENT_SERVICE,

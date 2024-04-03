@@ -35,6 +35,7 @@
  */
 namespace Centreon\Tests\Application\Validation;
 
+use Centreon\Test\Mock\CentreonUser;
 use PHPUnit\Framework\TestCase;
 use Centreon\Application\Validation\CentreonValidatorTranslator;
 
@@ -44,9 +45,24 @@ use Centreon\Application\Validation\CentreonValidatorTranslator;
  */
 class CentreonValidatorTranslatorTest extends TestCase
 {
-    public function testTrans()
+    public function testTrans(): void
     {
-        $translator = new CentreonValidatorTranslator();
+        $user = new CentreonUser([
+            'contact_id' => '1',
+            'contact_name' => 'John Doe',
+            'contact_alias' => 'johny',
+            'contact_email' => 'john.doe@mail.loc',
+            'contact_lang' => 'en',
+            'contact_passwd' => '123',
+            'contact_autologin_key' => '123',
+            'contact_admin' => '1',
+            'default_page' => '',
+            'contact_location' => '0',
+            'contact_js_effects' => '0',
+            'contact_theme' => 'light',
+            'show_deprecated_pages' => false,
+        ]);
+        $translator = new CentreonValidatorTranslator($user);
 
         $this->assertEquals('test it', $translator->trans('test :it', [':it' => 'it']));
     }

@@ -1,7 +1,7 @@
 # Monolog Bundle configuration
 # https://github.com/symfony/monolog-bundle/blob/master/DependencyInjection/Configuration.php#L25
 monolog:
-    channels: ['centreon']
+    channels: ['centreon', 'deprecation']
     handlers:
         system:
             type: error_log
@@ -12,3 +12,8 @@ monolog:
             type: service
             id: monolog.debug.handler
             channels: ['centreon']
+        deprecation:
+            type: rotating_file
+            path: "%log_path%/%kernel.environment%.deprecations.log"
+            max_files: 2
+            channels: [ deprecation ]

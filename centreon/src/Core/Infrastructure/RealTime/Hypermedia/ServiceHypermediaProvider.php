@@ -203,7 +203,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     }
 
     /**
-     * @param array<string, integer> $parameters
+     * @param array<string, int> $parameters
      *
      * @return string
      */
