@@ -471,13 +471,21 @@ class CentreonGraph
                 $queryCondition = "index_id = :index_id";
             }
 
-            $query = "SELECT host_id, service_id, metric_id, metric_name, unit_name, replace(format(warn,9),',','') warn,
-                replace(format(crit,9),',','') crit
+            $query = <<<SQL
+                SELECT 
+                    host_id, 
+                    service_id, 
+                    metric_id, 
+                    metric_name, 
+                    unit_name, 
+                    replace(format(warn,9),',','') warn,
+                    replace(format(crit,9),',','') crit
                 FROM metrics AS m, index_data AS i
                 WHERE index_id = id
-                AND $queryCondition
-                AND m.hidden = '0'
-                ORDER BY m.metric_name";
+                    AND {$queryCondition}
+                    AND m.hidden = '0'
+                ORDER BY m.metric_name
+                SQL;
 
             $DBRESULT = $this->DBC->prepare($query);
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
@@ -503,10 +511,13 @@ class CentreonGraph
                 $queryCondition = "index_id = :index_id";
             }
 
-            $query = "SELECT vmetric_id
-              FROM virtual_metrics
-              WHERE $queryCondition
-              ORDER BY vmetric_name";
+            $query = <<<SQL
+                SELECT 
+                    vmetric_id,
+                FROM virtual_metrics,
+                WHERE $queryCondition
+                ORDER BY vmetric_name
+              SQL;
 
             $DBRESULT = $this->DB->prepare($query);
             if (isset($this->metricsEnabled) && count($this->metricsEnabled) > 0) {
