@@ -45,6 +45,7 @@ import {
   labelCreateNewToken,
   labelCreationDate,
   labelCreator,
+  labelDelete,
   labelDeleteToken,
   labelDuration,
   labelExpirationDate,
@@ -691,11 +692,7 @@ describe('Api-token', () => {
       dataPath: 'apiTokens/listing/listAfterDelete.json'
     });
 
-    cy.findAllByTestId('DeleteIcon')
-      .eq(0)
-      .parent()
-      .should('be.enabled')
-      .click();
+    cy.findAllByTestId(labelDelete).eq(0).parent().should('be.enabled').click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
@@ -721,11 +718,7 @@ describe('Api-token', () => {
   it('hides the modal when clicking on the Cancel button', () => {
     cy.waitForRequest('@getListTokens');
 
-    cy.findAllByTestId('DeleteIcon')
-      .eq(0)
-      .parent()
-      .should('be.enabled')
-      .click();
+    cy.findAllByTestId(labelDelete).eq(0).parent().should('be.enabled').click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
