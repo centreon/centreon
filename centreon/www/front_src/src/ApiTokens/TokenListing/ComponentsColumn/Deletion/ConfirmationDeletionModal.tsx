@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -10,30 +9,39 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { deleteTokenEndpoint } from '../../../api/endpoints';
+import { Meta } from '../../../api/models';
 import {
   labelCancel,
   labelDelete,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
 import useRefetch from '../../../useRefetch';
-import { selectedRowAtom } from '../../atoms';
 
-import Message from './Message';
 import Title from './Title';
 import { useStyles } from './deletion.styles';
 
-interface Meta {
-  name: string;
-  userId: number;
+interface DataMutation {
+  _meta?: Meta;
+  payload?: Array<{ token_name: string; user_id: number }>;
 }
 
 interface Props {
   close: () => void;
-  open: boolean;
+  dataMutation?: DataMutation;
+  getEndpoint: (data: Meta) => string;
+  labelDeletedSuccessfully?: string;
+  msg?: ReactNode;
+  title?: string;
 }
 
-const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
+const ConfirmationDeletionModal = ({
+  close,
+  getEndpoint,
+  dataMutation,
+  labelDeletedSuccessfully = labelTokenDeletedSuccessfully,
+  title,
+  msg
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
@@ -43,36 +51,35 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
     onSuccess: () => close()
   });
 
-  const selectedRow = useAtomValue(selectedRowAtom);
+  const { _meta, payload } = dataMutation || {};
 
   const success = (): void => {
-    showSuccessMessage(t(labelTokenDeletedSuccessfully));
+    showSuccessMessage(t(labelDeletedSuccessfully));
     setIsRetrievingData(true);
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
-    getEndpoint: ({ name, userId }) =>
-      deleteTokenEndpoint({ tokenName: name, userId }),
+    getEndpoint,
     method: Method.DELETE,
     onSuccess: success
   });
 
   const deleteToken = (): void => {
-    mutateAsync({
-      _meta: { name: selectedRow?.name, userId: selectedRow?.user?.id }
-    });
+    mutateAsync({ _meta, payload });
   };
+
+  const disabled = isMutating || isRefetching;
 
   return (
     <ConfirmDialog
-      cancelDisabled={isMutating || isRefetching}
-      confirmDisabled={isMutating || isRefetching}
+      open
+      cancelDisabled={disabled}
+      confirmDisabled={disabled}
       data-testid="deleteDialog"
       dialogTitleClassName={classes.title}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelTitle={<Title />}
-      open={open}
+      labelTitle={<Title title={title} />}
       restCancelButtonProps={{ variant: 'outlined' }}
       restConfirmButtonProps={{
         classes: { root: classes.confirmButton },
@@ -83,7 +90,7 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
       onCancel={close}
       onConfirm={deleteToken}
     >
-      <Message />
+      {msg}
     </ConfirmDialog>
   );
 };

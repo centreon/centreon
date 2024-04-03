@@ -6,7 +6,7 @@ export interface BuildListEndpoint {
   parameters: ListingParameters;
 }
 
-export interface DeleteTokenEndpoint {
+export interface Meta {
   tokenName: string;
   userId: number;
 }

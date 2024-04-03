@@ -6,20 +6,20 @@ import { useAtomValue } from 'jotai';
 import { Typography } from '@mui/material';
 
 import { labelMsgConfirmationDeletionToken } from '../../../translatedLabels';
-import { selectedRowAtom } from '../../atoms';
+import { clickedRowAtom } from '../../atoms';
 
 import { useStyles } from './deletion.styles';
 
 const Message = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const selectedRow = useAtomValue(selectedRowAtom);
+  const clickedRow = useAtomValue(clickedRowAtom);
 
   return (
     <Typography className={classes.labelMessage}>
       {parse(
         DOMPurify.sanitize(
-          t(labelMsgConfirmationDeletionToken, { tokenName: selectedRow?.name })
+          t(labelMsgConfirmationDeletionToken, { tokenName: clickedRow?.name })
         )
       )}
     </Typography>

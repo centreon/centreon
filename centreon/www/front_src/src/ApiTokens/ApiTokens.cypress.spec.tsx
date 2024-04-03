@@ -34,7 +34,7 @@ import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
-  deleteTokenEndpoint,
+  deleteSingleTokenEndpoint,
   listConfiguredUser,
   listTokensEndpoint
 } from './api/endpoints';
@@ -675,7 +675,7 @@ describe('Api-token', () => {
   it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
-    const deleteToken = deleteTokenEndpoint({
+    const deleteToken = deleteSingleTokenEndpoint({
       tokenName: tokenToDelete,
       userId: 23
     });
