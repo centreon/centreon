@@ -29,7 +29,7 @@ Feature: Configuring Status Chart widget
 
   @TEST_MON-47888
   Scenario: Duplicating a Status Chart widget
-    Given a dashboard having a configured Status chart widget
+    Given a dashboard having a configured Status Chart widget
     When the dashboard administrator user duplicates the Status Chart widget
     Then a second Status Chart widget is displayed on the dashboard
 
