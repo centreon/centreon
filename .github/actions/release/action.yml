@@ -22,6 +22,8 @@ runs:
   steps:
     - name: Checkout sources
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
 
     - name: Get released versions for components
       run: |
@@ -107,7 +109,7 @@ runs:
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             git tag -a "$TAG" -m "$TAG"
-            git push --follow-tags
+            # git push --follow-tags
             echo "::notice::Tagging stable branch with $TAG."
           else
             echo "::error::Release tag $TAG already exists, exiting."
@@ -141,7 +143,7 @@ runs:
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
+          # gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
         done
       shell: bash
       env:
@@ -186,12 +188,12 @@ runs:
             '$ARGS.named' )
           # Send to JIRA API release
           echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
-          curl --fail --request POST \
-            --url 'https://centreon.atlassian.net/rest/api/3/version' \
-            --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
-            --header 'Accept: application/json' \
-            --header 'Content-Type: application/json' \
-            --data "$JIRA_RELEASE_DATA"
+          # curl --fail --request POST \
+          #   --url 'https://centreon.atlassian.net/rest/api/3/version' \
+          #   --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
+          #   --header 'Accept: application/json' \
+          #   --header 'Content-Type: application/json' \
+          #   --data "$JIRA_RELEASE_DATA"
         done
       shell: bash
 
@@ -220,10 +222,10 @@ runs:
 
         # Call jira webhook to trigger the communication workflow
         # and provide versions data for communication
-        curl \
-          "$JIRA_INCOMING_WEBHOOK" \
-          -X POST \
-          -H 'Content-type: application/json' \
-          --data "$RELEASE_JSON"
+        # curl \
+        #   "$JIRA_INCOMING_WEBHOOK" \
+        #   -X POST \
+        #   -H 'Content-type: application/json' \
+        #   --data "$RELEASE_JSON"
 
       shell: bash
