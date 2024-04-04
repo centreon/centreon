@@ -27,7 +27,7 @@ runs:
 
     - name: Get released versions for components
       run: |
-        set -eu
+        set -eux
 
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
