@@ -48,7 +48,7 @@ runs:
 
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
@@ -56,7 +56,7 @@ runs:
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
@@ -64,7 +64,7 @@ runs:
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
@@ -72,7 +72,7 @@ runs:
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
