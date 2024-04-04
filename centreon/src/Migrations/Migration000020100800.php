@@ -112,6 +112,17 @@ class Migration000020100800 extends AbstractCoreMigration implements LegacyMigra
             );
             throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
         }
+
+
+        /* Update-DB-20.10.8.sql */
+
+        // Delete obsolete topologies
+        $pearDB->query(
+            <<<'SQL'
+                DELETE FROM `topology`
+                WHERE `topology_page` IN (6090901, 6090902)
+                SQL
+        );
     }
 
     /**
