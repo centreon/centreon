@@ -11,7 +11,8 @@ import {
   reject,
   pluck,
   includes,
-  isNotNil
+  isNotNil,
+  find
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
@@ -125,10 +126,14 @@ const getServiceQueryParameters = (
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
-  required
+  required,
+  useAdditionalResources
 }: Pick<
   WidgetPropertyProps,
-  'propertyName' | 'restrictedResourceTypes' | 'required'
+  | 'propertyName'
+  | 'restrictedResourceTypes'
+  | 'required'
+  | 'useAdditionalResources'
 >): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -148,8 +153,6 @@ const useResources = ({
   );
   const hasMetricInputType = useAtomValue(hasMetricInputTypeDerivedAtom);
   const additionalResources = useAtomValue(additionalResourcesAtom);
-
-  console.log(additionalResources);
 
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
@@ -213,14 +216,40 @@ const useResources = ({
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
+      const additionalResource = find(
+        ({ resourceType: additionalResourceType }) =>
+          equals(resourceType, additionalResourceType),
+        additionalResources
+      );
+
+      const endpoint = !additionalResource
+        ? `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`
+        : additionalResource?.baseEndpoint;
+
+      const search = !additionalResource?.defaultMonitoringParameter
+        ? parameters.search
+        : {
+            ...parameters.search,
+            lists: [
+              ...(parameters.search?.lists || []),
+              ...Object.entries(
+                additionalResource.defaultMonitoringParameter || {}
+              ).map(([propertyKey, propertyValue]) => ({
+                field: propertyKey,
+                values: [propertyValue]
+              }))
+            ]
+          };
+
       return buildListingEndpoint({
-        baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
+        baseEndpoint: endpoint,
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
           ? getServiceQueryParameters(hasMetricInputType)
           : undefined,
         parameters: {
           ...parameters,
-          limit: 30
+          limit: 30,
+          search
         }
       });
     };
@@ -238,14 +267,26 @@ const useResources = ({
   );
 
   const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const additionalResourceTypeOptions = useAdditionalResources
+      ? additionalResources.map(({ resourceType, label }) => ({
+          id: resourceType,
+          name: label
+        }))
+      : [];
+
     const resourcetypesIds = pluck('resourceType', value || []);
+
+    const allResourceTypeOptions = [
+      ...resourceTypeOptions,
+      ...additionalResourceTypeOptions
+    ];
 
     const newResourceTypeOptions = reject(
       ({ id }) =>
         (!equals(id, resource.resourceType) &&
           includes(id, resourcetypesIds)) ||
         (hasRestrictedTypes && !includes(id, restrictedResourceTypes || [])),
-      resourceTypeOptions
+      allResourceTypeOptions
     );
 
     return newResourceTypeOptions;
