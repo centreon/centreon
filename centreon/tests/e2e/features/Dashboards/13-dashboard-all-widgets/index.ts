@@ -410,6 +410,7 @@ When(
 Then(
   'the dashboard administrator should be redirected to the {string} widget resources',
   (widgetType) => {
+    let statusFound = false;
     switch (widgetType) {
       case 'single metric':
         cy.url().should('include', '/centreon/monitoring/resources?details=');
@@ -433,7 +434,6 @@ Then(
         break;
 
       case 'status grid':
-        let statusFound = false;
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
         cy.get('[class$="chip-statusColumnChip"]')
