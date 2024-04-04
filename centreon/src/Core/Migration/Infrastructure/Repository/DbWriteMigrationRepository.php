@@ -25,34 +25,30 @@ namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use CentreonUserLog;
+use CentreonLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Pimple\Container;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
     use LoggerTrait;
 
-    /** @var CentreonUserLog */
-    private CentreonUserLog $centreonLog;
+    /** @var CentreonLog */
+    private CentreonLog $centreonLog;
 
     /**
      * @param DatabaseConnection $db
      * @param \Traversable<MigrationInterface> $migrations
-     * @param Container $dependencyInjector
      */
     public function __construct(
         DatabaseConnection $db,
         private readonly \Traversable $migrations,
-        Container $dependencyInjector,
     ) {
         $this->db = $db;
 
-        $pearDB = $dependencyInjector['configuration_db'];
-        $this->centreonLog = new CentreonUserLog(-1, $pearDB);
+        $this->centreonLog = new CentreonLog();
     }
 
     /**
@@ -66,7 +62,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         try {
             $migration->up();
             $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_UPGRADE,
+                CentreonLog::TYPE_UPGRADE,
                 sprintf(
                     ' [%s] [%s] %s: Success',
                     $newMigration->getModuleName(),
@@ -78,7 +74,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
             $this->error(sprintf('Migration %s %s failed: %s', $newMigration->getModuleName(), $newMigration->getName(), $exception->getMessage()), ['trace' => (string) $exception]);
 
             $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_UPGRADE,
+                CentreonLog::TYPE_UPGRADE,
                 sprintf(
                     ' [%s] [%s] %s: %s',
                     $newMigration->getModuleName(),
