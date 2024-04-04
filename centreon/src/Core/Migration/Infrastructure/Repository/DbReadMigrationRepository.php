@@ -120,7 +120,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     private function findExecutedMigrations(): array
     {
         $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
-        if (!$result || $result->rowCount() === 0) {
+        if (! $result || $result->rowCount() === 0) {
             $this->notice('Migrations table does not exist yet, considering no migrations has been done.');
 
             return [];
@@ -136,7 +136,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
 
         $statement = $this->db->query($query);
 
-        if (!$statement) {
+        if (! $statement) {
             return [];
         }
 
