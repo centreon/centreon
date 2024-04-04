@@ -199,10 +199,10 @@ describe('Reset password Page', () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         getResetPasswordEndpoint(alias),
-        {
+        JSON.stringify({
           new_password: 'new-password',
           old_password: 'current-password',
-        },
+        }),
         {
           ...cancelTokenRequestParam,
           headers: {

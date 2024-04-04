@@ -385,7 +385,7 @@ describe('Openid configuration form', () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.Openid),
-        {
+        JSON.stringify({
           ...retrievedOpenidConfiguration,
           base_url: 'http://localhost:8081/login',
           groups_mapping: {
@@ -393,7 +393,7 @@ describe('Openid configuration form', () => {
             relations: [{ contact_group_id: 2, group_value: 'groupValue' }],
           },
           redirect_url: null,
-        },
+        }),
         cancelTokenPutParams,
       );
     });

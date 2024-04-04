@@ -140,12 +140,12 @@ describe('Authentication', () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.Local),
-        {
+        JSON.stringify({
           password_security_policy: {
             ...defaultPasswordSecurityPolicyAPI.password_security_policy,
             password_min_length: 45,
           },
-        },
+        }),
         cancelTokenPutParams,
       );
     });
@@ -244,12 +244,12 @@ describe('Authentication', () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.Local),
-        {
+        JSON.stringify({
           password_security_policy: {
             ...retrievedPasswordSecurityPolicyAPI.password_security_policy,
             attempts: 2,
           },
-        },
+        }),
         cancelTokenPutParams,
       );
     });
