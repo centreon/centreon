@@ -241,7 +241,9 @@ describe(SaveMenu, () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         filterEndpoint,
-        omit(['id'], getFilter({ name: 'My new filter', search: 'toto' })),
+        JSON.stringify(
+          omit(['id'], getFilter({ name: 'My new filter', search: 'toto' })),
+        ),
         expect.anything(),
       );
     });
@@ -279,7 +281,7 @@ describe(SaveMenu, () => {
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         `${filterEndpoint}/${context.currentFilter.id}`,
-        omit(['id'], getFilter({ search: newSearch })),
+        JSON.stringify(omit(['id'], getFilter({ search: newSearch }))),
         expect.anything(),
       );
     });
