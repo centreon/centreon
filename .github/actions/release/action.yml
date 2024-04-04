@@ -72,7 +72,7 @@ runs:
           # Iterate over elements of PREVIOUS_STABLE_TAGS
           for old_tag in "${PREVIOUS_STABLE_TAGS[@]}"; do
             # Compare elements
-            if [ "$new_tag" == "old_tag" ]; then
+            if [ "$new_tag" == "$old_tag" ]; then
               found=true
               break
             fi
