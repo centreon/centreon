@@ -1156,15 +1156,13 @@ function install_central() {
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
 	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_PKG="centreon"
 		CENTREON_DBMS_PKG="centreon-mariadb"
 	else
-		CENTREON_PKG="centreon-central"
 		CENTREON_DBMS_PKG="centreon-mysql"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG $CENTREON_PKG
+		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
@@ -1438,9 +1436,9 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 	echo
 	echo "****** IMPORTANT ******"
 	if [ "$wizard_autoplay" == "true" ]; then
-		echo "As you will need passwords for users such as [root,centreon] on your database system and [admin] on your Centreon platform, random passwords are generated"
+		echo "As you will need passwords for users such as [root,centreon] on your $DBMS database system and [admin] on your Centreon platform, random passwords are generated"
 	else
-		echo "As you will need a password for the user [root] on your database system, a random password is generated"
+		echo "As you will need a password for the user [root] on your $DBMS database system, a random password is generated"
 	fi
 	echo "Passwords are currently saved in [$passwords_file]"
 	cat $passwords_file
