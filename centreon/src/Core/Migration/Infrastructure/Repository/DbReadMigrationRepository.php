@@ -58,67 +58,6 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     /**
      * {@inheritDoc}
      */
-    public function findAvailableMigrations(): array
-    {
-        $migrations = [];
-
-        foreach ($this->migrations as $migration) {
-            $shortName = (new \ReflectionClass($migration))->getShortName();
-
-            $migrations[] = new NewMigration(
-                $shortName,
-                $migration->getModuleName(),
-                $migration->getDescription(),
-            );
-        }
-
-        return $migrations;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function findExecutedMigrations(): array
-    {
-        $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
-        if (! $result || $result->rowCount() === 0) {
-            $this->notice('Migrations table does not exist yet, considering no migrations has been done.');
-
-            return [];
-        }
-
-        $query = $this->translateDbName(
-            <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS m.id, m.name, mi.name as module_name, m.executed_at
-                FROM `:db`.migrations m
-                LEFT JOIN modules_informations mi ON mi.id = m.module_id
-                SQL
-        );
-
-        $statement = $this->db->query($query);
-
-        if (! $statement) {
-            return [];
-        }
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        $migrations = [];
-        foreach ($result as $migrationData) {
-            $migrations[] = new ExecutedMigration(
-                $migrationData['name'],
-                $migrationData['module_name'] ?: ExecutedMigration::CORE_MODULE_NAME,
-                $migrationData['id'],
-                (new \DateTime())->setTimestamp($migrationData['executed_at']),
-            );
-        }
-
-        return $migrations;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function findNewMigrations(): array
     {
         $availableMigrations = $this->findAvailableMigrations();
@@ -145,5 +84,74 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
                 return true;
             }
         );
+    }
+
+    /**
+     * Return all the migrations.
+     *
+     * @throws \Throwable
+     *
+     * @return NewMigration[]
+     */
+    private function findAvailableMigrations(): array
+    {
+        $migrations = [];
+
+        foreach ($this->migrations as $migration) {
+            $shortName = (new \ReflectionClass($migration))->getShortName();
+
+            $migrations[] = new NewMigration(
+                $shortName,
+                $migration->getModuleName(),
+                $migration->getDescription(),
+            );
+        }
+
+        return $migrations;
+    }
+
+    /**
+     * Return migrations already executed.
+     *
+     * @throws \Throwable
+     *
+     * @return ExecutedMigration[]
+     */
+    private function findExecutedMigrations(): array
+    {
+        $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
+        if (!$result || $result->rowCount() === 0) {
+            $this->notice('Migrations table does not exist yet, considering no migrations has been done.');
+
+            return [];
+        }
+
+        $query = $this->translateDbName(
+            <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS m.id, m.name, mi.name as module_name, m.executed_at
+                FROM `:db`.migrations m
+                LEFT JOIN modules_informations mi ON mi.id = m.module_id
+                SQL
+        );
+
+        $statement = $this->db->query($query);
+
+        if (!$statement) {
+            return [];
+        }
+
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $migrations = [];
+        foreach ($result as $migrationData) {
+            $migrations[] = new ExecutedMigration(
+                $migrationData['name'],
+                $migrationData['module_name'] ?: ExecutedMigration::CORE_MODULE_NAME,
+                $migrationData['id'],
+                (new \DateTime())->setTimestamp($migrationData['executed_at']),
+            );
+        }
+
+        return $migrations;
     }
 }
