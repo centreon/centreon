@@ -39,9 +39,15 @@ runs:
         MINOR_VERSION_FILE_PATH=".version"
 
         # Get current stable branch name
-        # CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION="24.04"
+        # If MASTER, use root .version
+        # Else use branch name
+        if [[ "${{ inputs.github_ref_name }}" == "master" ]]; then
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+        else
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+        fi
         echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
+
 
         # Get previous and new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
