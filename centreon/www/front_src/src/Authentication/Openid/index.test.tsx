@@ -4,7 +4,6 @@ import { omit } from 'ramda';
 
 import { render, RenderResult, screen, waitFor } from '@centreon/ui';
 
-import { Provider } from '../models';
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
@@ -17,6 +16,7 @@ import {
   labelResetTheForm,
   labelSave,
 } from '../Local/translatedLabels';
+import { Provider } from '../models';
 import { labelActivation } from '../translatedLabels';
 
 import {
@@ -37,13 +37,13 @@ import {
   labelEnableOpenIDConnectAuthentication,
   labelEndSessionEndpoint,
   labelFullnameAttribute,
-  labelRedirectUrl,
   labelIntrospectionTokenEndpoint,
   labelInvalidIPAddress,
   labelInvalidURL,
   labelLoginClaimValue,
   labelMixed,
   labelOpenIDConnectOnly,
+  labelRedirectUrl,
   labelScopes,
   labelTokenEndpoint,
   labelTrustedClientAddresses,
@@ -92,6 +92,7 @@ const retrievedOpenidConfiguration = {
     id: 1,
     name: 'Contact group',
   },
+  contact_group_id: 1,
   contact_template: {
     id: 1,
     name: 'Contant template',
@@ -333,22 +334,22 @@ describe('Openid configuration form', () => {
     });
 
     userEvent.click(screen.getByText(labelSave));
+    const configuration = {
+      ...omit(['contact_group'], retrievedOpenidConfiguration),
+      authorization_rules: [
+        {
+          access_group_id: 1,
+          claim_value: 'Authorization relation',
+        },
+      ],
+      base_url: 'http://localhost:8081/login',
+      redirect_url: null,
+    };
 
     await waitFor(() => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         authenticationProvidersEndpoint(Provider.Openid),
-        {
-          ...omit(['contact_group'], retrievedOpenidConfiguration),
-          authorization_rules: [
-            {
-              access_group_id: 1,
-              claim_value: 'Authorization relation',
-            },
-          ],
-          base_url: 'http://localhost:8081/login',
-          contact_group_id: 1,
-          redirect_url: null,
-        },
+        JSON.stringify(configuration),
         cancelTokenPutParams,
       );
     });

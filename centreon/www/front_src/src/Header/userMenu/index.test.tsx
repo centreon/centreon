@@ -164,7 +164,7 @@ describe('User Menu', () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         logoutEndpoint,
-        {},
+        JSON.stringify({}),
         {
           ...cancelTokenRequestParam,
           headers: {
