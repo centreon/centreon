@@ -81,7 +81,7 @@ runs:
           fi
         done
 
-        echo "Tags present in previous releases but not in new releases:"
+        echo "New tags to be published from new release that were not in previous releases:"
         printf '%s\n' "${NEW_STABLE_TAGS[@]}"
 
         # Make NEW_STABLE_TAGS available for other steps
