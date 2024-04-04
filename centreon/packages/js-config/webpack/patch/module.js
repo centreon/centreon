@@ -1,6 +1,6 @@
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const WriteRemoEntryNameToModuleFederation = require('../plugins/WriteRemoEntryNameToModuleFederation');
+const WriteRemoteEntryNameToModuleFederation = require('../plugins/WriteRemoteEntryNameToModuleFederation');
 const TransformPreloadScript = require('../plugins/TransformPreloadScript');
 
 module.exports = ({ outputPath, federatedComponentConfiguration }) => ({
@@ -14,7 +14,7 @@ module.exports = ({ outputPath, federatedComponentConfiguration }) => ({
       dangerouslyAllowCleanPatternsOutsideProject: true,
       dry: false
     }),
-    new WriteRemoEntryNameToModuleFederation(federatedComponentConfiguration),
+    new WriteRemoteEntryNameToModuleFederation(federatedComponentConfiguration),
     new TransformPreloadScript(federatedComponentConfiguration)
   ]
 });
