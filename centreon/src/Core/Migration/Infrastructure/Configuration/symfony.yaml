@@ -22,8 +22,15 @@ services:
         resource: '../../../../Migrations/*'
         bind:
             $legacyMigrations: !tagged_iterator 'platform.legacy_migrations'
+            $dbHost: '%database_host%'
+            $dbPort: '%database_port%'
+            $dbUser: '%database_user%'
+            $dbPassword: '%database_password%'
             $centreonDbName: '%database_db%'
             $storageDbName: '%database_dbstg%'
+            $centreonVarLib: '%centreon_var_lib%'
+            $centreonCacheDir: '%centreon_cache_dir%'
+            $centreonEtcPath: '%centreon_etc_path%'
 
     Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
         class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository
