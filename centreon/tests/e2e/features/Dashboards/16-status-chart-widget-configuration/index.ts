@@ -219,7 +219,7 @@ When(
 );
 
 When(
-  'the dashboard administrator user selects the widget type "Status chart"',
+  'the dashboard administrator user selects the widget type "Status Chart"',
   () => {
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Status chart').click();
@@ -286,11 +286,11 @@ Then(
   }
 );
 
-When('the user saves the Status chart widget', () => {
+When('the user saves the Status Chart widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click();
 });
 
-Then("the Status chart widget is added in the dashboard's layout", () => {
+Then("the Status Chart widget is added in the dashboard's layout", () => {
   cy.getByTestId({ testId: 'up' }).should('exist');
   cy.getByTestId({ testId: 'critical' }).should('exist');
   cy.getByTestId({ testId: 'warning' }).should('exist');
@@ -323,7 +323,7 @@ Then("the Status chart widget is added in the dashboard's layout", () => {
   );
 });
 
-Given('a dashboard that includes a configured Status chart widget', () => {
+Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -360,7 +360,7 @@ Then('the unit of the resources already displayed should be updated', () => {
   );
 });
 
-Given('a dashboard featuring two Status chart widgets', () => {
+Given('a dashboard featuring two Status Chart widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -407,7 +407,7 @@ Then('only the contents of the other widget are displayed', () => {
   );
 });
 
-Given('a dashboard having a configured Status chart widget', () => {
+Given('a dashboard having a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
   cy.visit('/centreon/home/dashboards');
   cy.wait('@listAllDashboards');
@@ -415,7 +415,7 @@ Given('a dashboard having a configured Status chart widget', () => {
 });
 
 When(
-  'the dashboard administrator user duplicates the Status chart widget',
+  'the dashboard administrator user duplicates the Status Chart widget',
   () => {
     cy.getByLabel({
       label: 'Edit dashboard',
@@ -426,7 +426,7 @@ When(
   }
 );
 
-Then('a second Status Grid widget is displayed on the dashboard', () => {
+Then('a second Status Chart widget is displayed on the dashboard', () => {
   cy.verifyLegendItemStyle(
     2,
     [
@@ -450,21 +450,24 @@ Then('a second Status Grid widget is displayed on the dashboard', () => {
   );
 });
 
-Given('a dashboard configuring Status chart widget', () => {
-  cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByLabel({
-    label: 'Edit widget',
-    tag: 'li'
-  }).click({ force: true });
-});
+Given(
+  'a dashboard administrator user configuring a Status Chart widget',
+  () => {
+    cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
+    cy.visit('/centreon/home/dashboards');
+    cy.wait('@listAllDashboards');
+    cy.contains(dashboards.default.name).click();
+    cy.getByLabel({
+      label: 'Edit dashboard',
+      tag: 'button'
+    }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByLabel({
+      label: 'Edit widget',
+      tag: 'li'
+    }).click({ force: true });
+  }
+);
 
 When(
   'the dashboard administrator user updates the displayed resource type of the widget',
@@ -474,7 +477,7 @@ When(
 );
 
 Then(
-  'the widget is updated to reflect that change in displayed resource type',
+  'the widget is updated to reflect that change of displayed resource type',
   () => {
     cy.verifyLegendItemStyle(
       1,
