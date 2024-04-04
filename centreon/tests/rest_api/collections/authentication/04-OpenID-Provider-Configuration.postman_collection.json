@@ -343,7 +343,7 @@
 									"    pm.expect(responseJson.connection_scopes).to.include(\"openid\", \"offline_access\");\r",
 									"    pm.expect(responseJson.contact_template).to.include({\r",
 									"        \"id\": parseInt(pm.collectionVariables.get(\"ContactTemplateId\")),\r",
-									"        \"name\": \"contact_template_1\"\r",
+									"        \"name\": \"contact_template\"\r",
 									"    });\r",
 									"    pm.expect(responseJson.roles_mapping).to.include({\r",
 									"        \"is_enabled\": false,\r",
@@ -468,7 +468,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve default OpenId Provider Configuration information (successful)",
+					"name": "Retrieve OpenId Provider Configuration information with updated values by PATCH(successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -496,7 +496,7 @@
 									"        \"auto_import\": false,\r",
 									"        \"contact_template\": {\r",
 									"            \"id\": parseInt(pm.collectionVariables.get(\"ContactTemplateId\")),\r",
-									"            \"name\": \"contact_template_1\"\r",
+									"            \"name\": \"contact_template\"\r",
 									"        },\r",
 									"        \"email_bind_attribute\": null,\r",
 									"        \"fullname_bind_attribute\": null,\r",
@@ -1830,7 +1830,7 @@
 									"        \"auto_import\": true,\r",
 									"        \"contact_template\": {\r",
 									"            \"id\": parseInt(pm.collectionVariables.get(\"ContactTemplateId\")),\r",
-									"            \"name\": \"contact_template_1\"\r",
+									"            \"name\": \"contact_template\"\r",
 									"        },\r",
 									"        \"email_bind_attribute\": \"email\",\r",
 									"        \"fullname_bind_attribute\": \"given_name\",\r",
@@ -1961,7 +1961,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve default OpenId Provider Configuration information (successful)",
+					"name": "Retrieve Provider Configuration information with updated values by PATCH by user with reach_api(successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2173,12 +2173,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "ContactTemplateId",
-			"value": ""
 		}
 	]
 }
