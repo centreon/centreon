@@ -100,6 +100,7 @@ export interface PlatformFeatures {
 
 export interface AdditionalResource {
   baseEndpoint: string;
+  defaultMonitoringParameter?: Record<string, boolean | number | string>;
   label: string;
   resourceType: string;
 }
