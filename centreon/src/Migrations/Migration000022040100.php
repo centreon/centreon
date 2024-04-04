@@ -24,9 +24,6 @@ declare(strict_types=1);
 namespace Migrations;
 
 require_once __DIR__  . '/../../www/class/centreonLog.class.php';
-require_once __DIR__ . '/../../www/class/centreonAuth.class.php';
-require_once __DIR__ . '/../../www/install/functions.php';
-
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\LegacyMigrationInterface;
