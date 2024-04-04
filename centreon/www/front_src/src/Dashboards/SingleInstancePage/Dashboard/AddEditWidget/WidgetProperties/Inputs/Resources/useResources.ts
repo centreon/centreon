@@ -16,6 +16,7 @@ import {
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import {
   Widget,
@@ -146,6 +147,9 @@ const useResources = ({
     widgetPropertiesMetaPropertiesDerivedAtom
   );
   const hasMetricInputType = useAtomValue(hasMetricInputTypeDerivedAtom);
+  const additionalResources = useAtomValue(additionalResourcesAtom);
+
+  console.log(additionalResources);
 
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;

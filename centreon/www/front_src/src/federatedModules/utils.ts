@@ -1,6 +1,7 @@
 import { createStore } from 'jotai';
 
 import { centreonBaseURL } from '@centreon/ui';
+import { additionalResourcesAtom } from '@centreon/ui-context';
 
 interface LoadScriptProps {
   scriptPath: string;
@@ -21,5 +22,5 @@ export const loadScript = async ({
     /* webpackIgnore: true */ `${filePath}${timestamp}`
   );
 
-  main({ store });
+  main({ additionalResourcesAtom, store });
 };
