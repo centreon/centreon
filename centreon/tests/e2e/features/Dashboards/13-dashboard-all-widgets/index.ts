@@ -433,6 +433,7 @@ Then(
         break;
 
       case 'status grid':
+        let statusFound = false;
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
         cy.get('[class$="chip-statusColumnChip"]')
@@ -461,7 +462,6 @@ Then(
           'OK',
           'OK'
         ];
-        let statusFound = false;
         cy.get('[class$="chip-statusColumnChip"]')
           .each(($chip) => {
             if (topButtomStatuses.includes($chip.text()) && !statusFound) {
