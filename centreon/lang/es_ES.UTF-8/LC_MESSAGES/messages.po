@@ -17111,5 +17111,5 @@ msgstr "Modo avanzado"
 #  msgid "Condensed"
 #  msgstr ""
 
-#  msgid "Success (OK & Up)"
+#  msgid "Success (OK/Up)"
 #  msgstr ""
