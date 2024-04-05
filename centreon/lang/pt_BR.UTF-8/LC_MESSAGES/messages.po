@@ -17579,5 +17579,5 @@ msgstr ""
 #  msgid "Condensed"
 #  msgstr ""
 
-#  msgid "Success (OK & Up)"
+#  msgid "Success (OK/Up)"
 #  msgstr ""
