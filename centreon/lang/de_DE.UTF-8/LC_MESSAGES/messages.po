@@ -16767,3 +16767,15 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Group monitoring"
 #  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""
