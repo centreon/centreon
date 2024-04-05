@@ -18916,3 +18916,33 @@ msgstr "Standard"
 
 msgid "Condensed"
 msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display paths to resources with this status"
+msgstr "Affiche les chemins vers les ressources qui ont ce status"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Warning"
+msgstr "Alerte"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "Step"
+msgstr "Étape"

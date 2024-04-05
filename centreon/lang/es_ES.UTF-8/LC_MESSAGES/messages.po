@@ -17113,3 +17113,33 @@ msgstr "Modo avanzado"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+
+# msgid "Business Activity Diagram"
+# msgstr ""
+
+# msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+# msgstr ""
+
+# msgid "Display paths to resources with this status"
+# msgstr ""
+
+# msgid "Problem (Critical)"
+# msgstr ""
+
+# msgid "Warning"
+# msgstr ""
+
+# msgid "Success (OK)"
+# msgstr ""
+
+# msgid "Link types"
+# msgstr ""
+
+# msgid "Curve"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Step"
+# msgstr ""
