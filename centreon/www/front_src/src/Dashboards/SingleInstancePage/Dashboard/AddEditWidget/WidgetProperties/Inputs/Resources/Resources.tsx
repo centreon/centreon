@@ -53,7 +53,7 @@ const Resources = ({
     getResourceStatic,
     changeResource,
     singleMetricSelection,
-    singleHostPerMetric
+    singleResourceSelection
   } = useResources({
     propertyName,
     required,
@@ -107,7 +107,7 @@ const Resources = ({
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleMetricSelection && singleHostPerMetric ? (
+              {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{

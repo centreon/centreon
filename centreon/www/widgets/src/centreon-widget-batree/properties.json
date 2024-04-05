@@ -53,11 +53,13 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
+      "required": true,
       "useAdditionalResources": true,
       "restrictedResourceTypes": [
         "business-activity"
       ]
     }
   },
+  "singleResourceSelection": true,
   "moduleName": "centreon-widget-batree"
 }

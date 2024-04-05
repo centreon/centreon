@@ -18674,6 +18674,9 @@ msgstr "Sélectionnez un type de ressource"
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
 
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
+
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
 
@@ -18904,3 +18907,12 @@ msgstr "Affiche la répartition des statuts actuels pour les groupes de ressourc
 
 msgid "Group monitoring"
 msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"

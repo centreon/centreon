@@ -60,8 +60,8 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
-  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
+  singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
 
@@ -162,7 +162,7 @@ const useResources = ({
   ): boolean | undefined => {
     return (
       widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       (equals(resourceType, WidgetResourceType.host) ||
         equals(resourceType, WidgetResourceType.service))
     );
@@ -299,7 +299,7 @@ const useResources = ({
 
     if (
       widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleHostPerMetric
+      widgetProperties?.singleResourceSelection
     ) {
       setFieldValue(`data.${propertyName}`, [
         {
@@ -335,8 +335,8 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
-    singleHostPerMetric: widgetProperties?.singleHostPerMetric,
     singleMetricSelection: widgetProperties?.singleMetricSelection,
+    singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []
   };
 };

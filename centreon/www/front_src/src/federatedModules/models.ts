@@ -89,7 +89,7 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
-  singleHostPerMetric?: boolean;
+  singleResourceSelection?: boolean;
   singleMetricSelection?: boolean;
   title: string;
 }

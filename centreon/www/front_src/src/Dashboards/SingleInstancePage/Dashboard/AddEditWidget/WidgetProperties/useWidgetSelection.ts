@@ -17,7 +17,7 @@ import {
 } from '../../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -39,7 +39,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setsingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
@@ -140,7 +140,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
-    setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
+    setsingleResourceSelection(
+      selectedWidgetProperties.singleResourceSelection
+    );
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({
