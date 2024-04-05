@@ -17558,3 +17558,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Condensed"
 #  msgstr ""
+
+#  msgid "Success (OK & Up)"
+#  msgstr ""

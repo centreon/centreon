@@ -17578,3 +17578,6 @@ msgstr ""
 
 #  msgid "Condensed"
 #  msgstr ""
+
+#  msgid "Success (OK & Up)"
+#  msgstr ""
