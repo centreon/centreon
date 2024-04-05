@@ -30,7 +30,7 @@
       "options": [
         {
           "id": "success",
-          "name": "Success (OK & Up)"
+          "name": "Success (OK/Up)"
         },
         {
           "id": "warning",
