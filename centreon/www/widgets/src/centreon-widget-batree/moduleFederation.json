@@ -1,0 +1,12 @@
+{
+  "federatedComponentsConfiguration": [
+    {
+      "path": "/widgets/batree",
+      "federatedComponents": [
+        "./batree"
+      ]
+    }
+  ],
+  "moduleFederationName": "widgetbatree",
+  "moduleName": "centreon-widget-batree"
+}

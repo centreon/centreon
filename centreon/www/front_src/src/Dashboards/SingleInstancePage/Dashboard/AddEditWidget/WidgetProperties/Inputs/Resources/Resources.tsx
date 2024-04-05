@@ -32,7 +32,8 @@ const Resources = ({
   propertyName,
   singleResourceType,
   restrictedResourceTypes,
-  required
+  required,
+  useAdditionalResources
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -53,7 +54,12 @@ const Resources = ({
     changeResource,
     singleMetricSelection,
     singleHostPerMetric
-  } = useResources({ propertyName, required, restrictedResourceTypes });
+  } = useResources({
+    propertyName,
+    required,
+    restrictedResourceTypes,
+    useAdditionalResources
+  });
 
   const { canEditField } = useCanEditProperties();
 
