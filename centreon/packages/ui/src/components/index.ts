@@ -11,3 +11,4 @@ export * from './ItemComposition';
 export * from './Avatar';
 export * from './CollapsibleItem';
 export * from './Inputs';
+export { default as Zoom } from './Zoom/Zoom';
