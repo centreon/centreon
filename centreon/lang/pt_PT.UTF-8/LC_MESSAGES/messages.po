@@ -17549,3 +17549,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Group monitoring"
 #  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""

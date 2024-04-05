@@ -18904,3 +18904,12 @@ msgstr "Affiche la répartition des statuts actuels pour les groupes de ressourc
 
 msgid "Group monitoring"
 msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"
