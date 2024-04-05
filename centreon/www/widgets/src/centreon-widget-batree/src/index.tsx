@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-relative-packages
+import FederatedComponent from '../../../../front_src/src/components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
 
@@ -8,7 +10,7 @@ const Widget = ({ panelData }: WidgetProps): JSX.Element => {
     return <NoResources />;
   }
 
-  return <div>coucou</div>;
+  return <FederatedComponent path="" />;
 };
 
 export default Widget;
