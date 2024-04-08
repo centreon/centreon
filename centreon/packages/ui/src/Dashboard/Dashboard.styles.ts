@@ -76,7 +76,7 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       border: 'none',
       borderRadius: theme.spacing(1),
       height: '100%',
-      paddingBottom: theme.spacing(2),
+      paddingBottom: theme.spacing(4),
       width: '100%'
     },
     widgetContent: {
@@ -92,17 +92,19 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       '&[data-canMove="true"]': {
         cursor: 'move'
       },
-      padding: theme.spacing(0.5, 2),
+      padding: theme.spacing(2.5, 2.5, 0.5),
       position: 'relative'
     },
     widgetHeaderDraggable: {
       height: '100%',
+      left: 0,
       position: 'absolute',
+      top: 0,
       width: '100%'
     },
     widgetPadding: {
       overflowX: 'auto',
-      padding: hasHeader ? theme.spacing(1, 2, 0) : theme.spacing(1, 2)
+      padding: hasHeader ? theme.spacing(1, 2.5, 3) : theme.spacing(1, 2)
     }
   })
 );

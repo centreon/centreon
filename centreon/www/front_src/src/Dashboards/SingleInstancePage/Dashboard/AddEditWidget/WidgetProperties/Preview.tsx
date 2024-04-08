@@ -63,7 +63,7 @@ const Preview = (): JSX.Element | null => {
       >
         <Typography
           className={cx(classes.previewHeading, classes.previewTitle)}
-          variant="button"
+          variant="h6"
         >
           {values.options?.name}
         </Typography>

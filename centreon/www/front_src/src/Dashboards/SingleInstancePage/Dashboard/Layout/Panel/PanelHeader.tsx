@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
 
-import { CardHeader } from '@mui/material';
+import { CardHeader, Typography } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DvrIcon from '@mui/icons-material/Dvr';
 
@@ -100,7 +100,7 @@ const PanelHeader = ({
         )
       }
       className={classes.panelHeader}
-      title={panel?.options?.name || ''}
+      title={<Typography variant="h6">{panel?.options?.name || ''}</Typography>}
     />
   );
 };
