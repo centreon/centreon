@@ -68,7 +68,11 @@ if (version_compare($current, '2.8.0-beta1') < 0) {
 ** Print upcoming database upgrade steps.
 */
 } else {
-    $contents = _('<p>Currently upgrading... please do not interrupt this process.</p>');
+    $contents = _('
+        <p>
+            Currently upgrading... please do not interrupt this process.
+        </p>
+    ');
     $contents .= "<table cellpadding='0' cellspacing='0' border='0' width='100%' class='StyleDottedHr' align='center'>
                     <thead>
                         <tr>
