@@ -18958,6 +18958,9 @@ msgstr "Tous les groupes de services"
 msgid "Update to %s"
 msgstr "Mise à jour vers %s"
 
+msgid "An error occurred while executing migrations"
+msgstr "Une erreur est survenue lors de l'exécution des migrations"
+
 msgid "An error occurred while retrieving the migrations listing"
 msgstr "Une erreur est survenue lors de la récupération de la liste des migrations"
 

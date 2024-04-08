@@ -21,28 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Core\Migration\Application\Repository;
 
-interface WriteUpdateRepositoryInterface
+use Core\Migration\Domain\Model\NewMigration;
+
+interface ReadMigrationRepositoryInterface
 {
     /**
-     * Run update according to given version.
+     * Return migrations not yet executed.
      *
-     * @param string $version
-     */
-    public function runUpdate(string $version): void;
-
-    /**
-     * Run post update actions.
+     * @throws \Throwable
      *
-     * @param string $currentVersion
+     * @return NewMigration[]
      */
-    public function runPostUpdate(string $currentVersion): void;
-
-    /**
-     * Update version information.
-     *
-     * @param string $version
-     */
-    public function updateVersionInformation(string $version): void;
+    public function findNewMigrations(): array;
 }

@@ -49,7 +49,7 @@ class FindMigrationsPresenter extends AbstractPresenter implements FindMigration
                 array_map(static function ($migrationDto) {
                     return [
                         'name' => $migrationDto->name,
-                        'module_name' => $migrationDto->moduleName ?: 'core',
+                        'module_name' => $migrationDto->moduleName,
                         'description' => $migrationDto->description,
                     ];
                 }, $response->migrations),

@@ -62,7 +62,7 @@ abstract class TestCase extends BaseTestCase
     protected function assertAdminPrivilegeIsRequired(): void
     {
         $this->expectException(AccessDeniedException::class);
-        $this->expectExceptionMessage(AbstractController::ROLE_API_REALTIME_EXCEPTION_MESSAGE);
+        $this->expectExceptionMessage(AbstractController::ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE);
 
         $contact = $this->mockContact(isAdmin: false, expectedRole: Contact::ROLE_HOST_CHECK, hasRole: true);
         $container = $this->mockContainer(

@@ -21,25 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Migration\Infrastructure\Repository;
+namespace Core\Migration\Infrastructure\API\ExecuteMigrations;
 
-abstract class AbstractMigration
+use Centreon\Application\Controller\AbstractController;
+use Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrations;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
+final class ExecuteMigrationsController extends AbstractController
 {
     /**
-     * Define migration priority.
+     * @param ExecuteMigrations $useCase
+     * @param ExecuteMigrationsPresenter $presenter
      *
-     * @throws \Exception
+     * @throws AccessDeniedException
      *
-     * @return int
+     * @return Response
      */
-    public static function getDefaultPriority(): int
+    public function __invoke(ExecuteMigrations $useCase, ExecuteMigrationsPresenter $presenter): Response
     {
-        $className = (new \ReflectionClass(static::class))->getShortName();
+        $this->denyAccessUnlessAdmin();
 
-        if (preg_match('/^Migration(\d+)$/', $className, $matches)) {
-            return -((int) $matches[1]);
-        }
+        $useCase($presenter);
 
-        throw new \Exception(sprintf(_('Bad migration name: %s'), $className));
+        return $presenter->show();
     }
 }

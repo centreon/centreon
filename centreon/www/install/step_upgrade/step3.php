@@ -50,40 +50,16 @@ $title = _('Release notes');
 
 $db = new CentreonDB();
 $res = $db->query("SELECT `value` FROM `informations` WHERE `key` = 'version'");
-$row = $res->fetchRow();
+$row = $res->fetch();
 $current = $row['value'];
 
 $_SESSION['CURRENT_VERSION'] = $current;
-
-/*
-** To find the final version that we should update to, we will look in
-** the www/install/php directory where all PHP update scripts are
-** stored. We will extract the target version from the filename and find
-** the farthest version to the current version.
-*/
-$next = '';
-if ($handle = opendir('../php')) {
-    while (false !== ($file = readdir($handle))) {
-        if (preg_match('/Update-([a-zA-Z0-9\-\.]+)\.php/', $file, $matches)) {
-            if ((version_compare($current, $matches[1]) < 0) &&
-                (empty($next) || (version_compare($next, $matches[1]) < 0))) {
-                $next = $matches[1];
-            }
-        }
-    }
-    closedir($handle);
-}
-
-$majors = preg_match('/^(\d+\.\d+)/', $next, $matches);
-if (!isset($matches[1])) {
-    $matches[1] = "current";
-}
-$releaseNoteLink = "https://documentation.centreon.com/" . $matches[1] . '/en/releases/centreon-core.html';
+$releaseNoteLink = 'https://docs.centreon.com/docs/category/releases/';
 
 $title = _('Release notes');
 
 $contents = '<p><b>' . _('Everything is ready !') . '</b></p>';
-$contents .= '<p>' . _('Your Centreon Platform is about to be upgraded from version ') . $current . _(' to ') . $next . '</p>';
+$contents .= '<p>' . _('Your Centreon Platform is about to be upgraded') . '</p>';
 $contents .= '<p>' . _('For further details on changes, please find the complete changelog on ');
 $contents .= '<a href="' . $releaseNoteLink . '"target="_blank" style="text-decoration:underline;font-size:11px">documentation.centreon.com</a></p>';
 
