@@ -6,7 +6,7 @@ interface MakeStylesProps {
   limitLegendRows?: boolean;
 }
 
-export const legendWidth = 21;
+export const legendWidth = 25;
 const legendItemHeight = 5.25;
 const legendItemHeightCompact = 2;
 
@@ -62,12 +62,6 @@ interface StylesProps {
 
 export const useLegendHeaderStyles = makeStyles<StylesProps>()(
   (theme, { color }) => ({
-    container: {
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
-      width: '100%'
-    },
     disabled: {
       color: theme.palette.text.disabled
     },
@@ -77,12 +71,6 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       height: theme.spacing(1.5),
       minWidth: theme.spacing(1.5),
       width: theme.spacing(1.5)
-    },
-    legendName: {
-      '&[data-mode="compact"]': {
-        maxWidth: theme.spacing(legendWidth * 0.5)
-      },
-      maxWidth: theme.spacing(legendWidth * 0.75)
     },
     markerAndLegendName: {
       alignItems: 'center',
@@ -97,7 +85,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       whiteSpace: 'nowrap'
     },
     text: {
-      fontWeight: theme.typography.fontWeightMedium,
+      fontWeight: theme.typography.fontWeightBold,
       lineHeight: 1
     }
   })

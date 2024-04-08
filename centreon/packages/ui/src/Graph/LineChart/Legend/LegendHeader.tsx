@@ -1,5 +1,3 @@
-import { isEmpty } from 'ramda';
-
 import { Typography } from '@mui/material';
 
 import {
@@ -36,60 +34,47 @@ const LegendHeader = ({
   const metricName = formatMetricName({ legend, name });
 
   const legendName = legend || name;
-  const hasUnit = !isEmpty(unit);
   const unitName = `(${unit})`;
 
-  const getEndText = (): string => {
-    if (value) {
-      return value;
-    }
-
-    return hasUnit ? ` ${unitName}` : '';
-  };
-
   return (
-    <div className={classes.container}>
-      <Tooltip
-        followCursor={false}
-        label={
-          minMaxAvg ? (
-            <div>
-              <Typography>{`${legendName} ${unitName}`}</Typography>
-              <div className={classes.minMaxAvgContainer}>
-                {minMaxAvg.map(({ label, value: subValue }) => (
-                  <LegendContent
-                    data={formatMetricValue({
-                      unit: line.unit,
-                      value: subValue
-                    })}
-                    key={label}
-                    label={label}
-                  />
-                ))}
-              </div>
+    <Tooltip
+      followCursor={false}
+      label={
+        minMaxAvg ? (
+          <div>
+            <Typography>{`${legendName} ${unitName}`}</Typography>
+            <div className={classes.minMaxAvgContainer}>
+              {minMaxAvg.map(({ label, value: subValue }) => (
+                <LegendContent
+                  data={formatMetricValue({
+                    unit: line.unit,
+                    value: subValue
+                  })}
+                  key={label}
+                  label={label}
+                />
+              ))}
             </div>
-          ) : (
-            `${legendName} ${unitName}`
-          )
-        }
-        placement="top"
-      >
-        <div className={classes.markerAndLegendName}>
-          <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
-          <EllipsisTypography
-            className={cx(classes.text, classes.legendName)}
-            data-mode={
-              value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
-            }
-          >
-            {metricName}
-          </EllipsisTypography>
-        </div>
-      </Tooltip>
-      {hasUnit && (
-        <Typography className={classes.text}>{getEndText()}</Typography>
-      )}
-    </div>
+          </div>
+        ) : (
+          `${legendName} ${unitName}`
+        )
+      }
+      placement="top"
+    >
+      <div className={classes.markerAndLegendName}>
+        <div className={cx(classes.icon, { [classes.disabled]: disabled })} />
+        <EllipsisTypography
+          className={classes.text}
+          data-mode={
+            value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
+          }
+          variant="body2"
+        >
+          {metricName}
+        </EllipsisTypography>
+      </div>
+    </Tooltip>
   );
 };
 
