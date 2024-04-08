@@ -48,7 +48,7 @@ Feature: Configuring metrics graph widget
     And an additional Y-axis based on the unit of these additional bars is displayed
     And the thresholds are automatically hidden
 
-  @TEST_MON-23932
+  @TEST_MON-50539
   Scenario: Adding metrics graph widget with more than two metric units
     Given a dashboard with a configured Metrics Graph widget
     When the dashboard administrator selects more than two metric units
