@@ -13,7 +13,7 @@ const useStyles = makeStyles()((theme) => ({
         paddingLeft: theme.spacing(2),
         paddingRight: theme.spacing(2)
       },
-      fontSize: '14px',
+      fontSize: theme.typography.button.fontSize,
       height: 'unset',
       lineHeight: '22px'
     },
@@ -36,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
       color: theme.palette.primary.main
     },
 
-    textWrap: 'noWrap',
+    textWrap: 'nowrap',
     transition: 'unset'
   }
 }));
