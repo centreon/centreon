@@ -53,7 +53,42 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     /**
      * {@inheritDoc}
      */
-    public function findAvailableMigrations(): array
+    public function findNewMigrations(): array
+    {
+        $availableMigrations = $this->findAvailableMigrations();
+
+        $executedMigrations = $this->findExecutedMigrations();
+
+        return array_filter(
+            $availableMigrations,
+            function ($availableMigration) use (&$executedMigrations) {
+                $availableMigrationName = $availableMigration->getName();
+                $availableMigrationModuleName = $availableMigration->getModuleName();
+
+                foreach ($executedMigrations as $executedMigrationKey => $executedMigration) {
+                    if (
+                        $availableMigrationName === $executedMigration->getName()
+                        && $availableMigrationModuleName === $executedMigration->getModuleName()
+                    ) {
+                        unset($executedMigrations[$executedMigrationKey]);
+
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        );
+    }
+
+    /**
+     * Return all the migrations.
+     *
+     * @throws \Throwable
+     *
+     * @return NewMigration[]
+     */
+    private function findAvailableMigrations(): array
     {
         $migrations = [];
 
@@ -69,9 +104,13 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
     }
 
     /**
-     * {@inheritDoc}
+     * Return migrations already executed.
+     *
+     * @throws \Throwable
+     *
+     * @return ExecutedMigration[]
      */
-    public function findExecutedMigrations(): array
+    private function findExecutedMigrations(): array
     {
         $result = $this->db->query($this->translateDbName('SHOW TABLES FROM `:db` LIKE "migrations"'));
         if (! $result || $result->rowCount() === 0) {
@@ -107,36 +146,5 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         }
 
         return $migrations;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function findNewMigrations(): array
-    {
-        $availableMigrations = $this->findAvailableMigrations();
-
-        $executedMigrations = $this->findExecutedMigrations();
-
-        return array_filter(
-            $availableMigrations,
-            function ($availableMigration) use (&$executedMigrations) {
-                $availableMigrationName = $availableMigration->getName();
-                $availableMigrationModuleName = $availableMigration->getModuleName();
-
-                foreach ($executedMigrations as $executedMigrationKey => $executedMigration) {
-                    if (
-                        $availableMigrationName === $executedMigration->getName()
-                        && $availableMigrationModuleName === $executedMigration->getModuleName()
-                    ) {
-                        unset($executedMigrations[$executedMigrationKey]);
-
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        );
     }
 }

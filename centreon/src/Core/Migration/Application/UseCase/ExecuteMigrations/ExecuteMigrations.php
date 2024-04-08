@@ -60,7 +60,7 @@ final class ExecuteMigrations
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $exception) {
-            $errorMessage = 'An error occurred while executing migration';
+            $errorMessage = 'An error occurred while executing migrations';
             $this->error($errorMessage, ['trace' => (string) $exception]);
             $presenter->setResponseStatus(
                 new ErrorResponse(_($errorMessage))

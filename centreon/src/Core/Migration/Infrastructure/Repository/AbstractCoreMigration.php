@@ -28,7 +28,9 @@ use Core\Migration\Domain\Model\Migration;
 abstract class AbstractCoreMigration extends AbstractMigration
 {
     /**
-     * {@inheritDoc}
+     * Module name.
+     *
+     * @return string
      */
     public function getModuleName(): string
     {
