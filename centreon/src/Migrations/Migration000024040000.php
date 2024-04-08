@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000024040000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '24.04.0';
 
     public function __construct(
@@ -64,19 +63,18 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-24.04.0.php */
+        // Update-24.04.0.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 24.04.0: ';
         $errorMessage = '';
 
         // ------------ Widgets database updates ---------------- //
-        $updateWidgetModelsTable = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $updateWidgetModelsTable = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to add column is_internal to table widget_models';
-            if (!$pearDB->isColumnExist('widget_models', 'is_internal')) {
+            if (! $pearDB->isColumnExist('widget_models', 'is_internal')) {
                 $pearDB->query(
                     <<<'SQL'
                         ALTER TABLE `widget_models`
@@ -95,7 +93,7 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $installCoreWidgets = function(): void {
+        $installCoreWidgets = function (): void {
             $moduleService = \Centreon\LegacyContainer::getInstance()[\CentreonModule\ServiceProvider::CENTREON_MODULE];
             $widgets = $moduleService->getList(null, false, null, ['widget']);
             foreach ($widgets['widget'] as $widget) {
@@ -105,7 +103,7 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $setCoreWidgetsToInternal = function(\CentreonDB $pearDB): void {
+        $setCoreWidgetsToInternal = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     UPDATE `widget_models`
@@ -130,8 +128,8 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $dropColumnVersionFromDashboardWidgetsTable = function(\CentreonDB $pearDB): void {
-            if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $dropColumnVersionFromDashboardWidgetsTable = function (\CentreonDB $pearDB): void {
+            if ($pearDB->isColumnExist('dashboard_widgets', 'version')) {
                 $pearDB->query(
                     <<<'SQL'
                             ALTER TABLE dashboard_widgets
@@ -141,12 +139,12 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $insertResourcesTableWidget = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $insertResourcesTableWidget = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
             $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
-            if((bool) $statement->fetchColumn() === false) {
+            if ((bool) $statement->fetchColumn() === false) {
                 $pearDB->query(
-                    <<<SQL
+                    <<<'SQL'
                         INSERT INTO dashboard_widgets (`name`)
                         VALUES ('centreon-widget-resourcestable')
                         SQL
@@ -154,8 +152,8 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $updateTopologyForApiTokens = function(\CentreonDB $pearDB) use (&$errorMessage): void {
-            $errorMessage = "Could not update topology for API tokens";
+        $updateTopologyForApiTokens = function (\CentreonDB $pearDB) use (&$errorMessage): void {
+            $errorMessage = 'Could not update topology for API tokens';
             $pearDB->query(
                     <<<'SQL'
                         UPDATE `topology`
@@ -166,7 +164,7 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
         };
 
         // ------------ Resource Access Management database updates ---------------- //
-        $insertTopologyForResourceAccessManagement = function(\CentreonDB $pearDB) use (&$errorMessage): void {
+        $insertTopologyForResourceAccessManagement = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to insert topology for Resource Access Management';
             $statement = $pearDB->query(
                 <<<'SQL'
@@ -218,19 +216,19 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
         $createDatasetFiltersTable = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to create dataset_filters configuration table';
             $pearDB->query(
-                <<<SQL
-                CREATE TABLE `dataset_filters` (
-                    `id` int(11) NOT NULL AUTO_INCREMENT,
-                    `parent_id` int(11) DEFAULT NULL,
-                    `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
-                    `acl_resource_id` int(11) DEFAULT NULL,
-                    `acl_group_id` int(11) DEFAULT NULL,
-                    `resource_ids` varchar(255) DEFAULT NULL,
-                    PRIMARY KEY (`id`),
-                    CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
-                    CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-                SQL
+                <<<'SQL'
+                    CREATE TABLE `dataset_filters` (
+                        `id` int(11) NOT NULL AUTO_INCREMENT,
+                        `parent_id` int(11) DEFAULT NULL,
+                        `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+                        `acl_resource_id` int(11) DEFAULT NULL,
+                        `acl_group_id` int(11) DEFAULT NULL,
+                        `resource_ids` varchar(255) DEFAULT NULL,
+                        PRIMARY KEY (`id`),
+                        CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
+                        CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                    SQL
             );
         };
 
@@ -238,18 +236,18 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
         {
             $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
             $pearDB->query(
-                <<<SQL
-                    ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
-                SQL
+                <<<'SQL'
+                        ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
+                    SQL
             );
         };
 
-        $insertGroupMonitoringWidget = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $insertGroupMonitoringWidget = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
             $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
-            if((bool) $statement->fetchColumn() === false) {
+            if ((bool) $statement->fetchColumn() === false) {
                 $pearDB->query(
-                    <<<SQL
+                    <<<'SQL'
                         INSERT INTO dashboard_widgets (`name`)
                         VALUES ('centreon-widget-groupmonitoring')
                         SQL
@@ -257,17 +255,17 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $addDefaultValueforTaskTable = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $addDefaultValueforTaskTable = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to alter created_at for task table';
-            $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+            $pearDB->query('ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP');
         };
 
-        $insertStatusChartWidget = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $insertStatusChartWidget = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
             $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
-            if((bool) $statement->fetchColumn() === false) {
+            if ((bool) $statement->fetchColumn() === false) {
                 $pearDB->query(
-                    <<<SQL
+                    <<<'SQL'
                         INSERT INTO dashboard_widgets (`name`)
                         VALUES ('centreon-widget-statuschart')
                         SQL
@@ -275,10 +273,10 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $removeBetaTagFromDashboards = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $removeBetaTagFromDashboards = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to remove the dashboard beta tag';
                 $pearDB->query(
-                    <<<SQL
+                    <<<'SQL'
                         UPDATE topology
                         SET topology_url_opt=NULL
                         WHERE topology_name='Dashboards'
@@ -290,7 +288,7 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
         try {
             $updateWidgetModelsTable($pearDB);
 
-            $errorMessage = "Unable to install core widgets";
+            $errorMessage = 'Unable to install core widgets';
             $installCoreWidgets();
 
             $dropColumnVersionFromDashboardWidgetsTable($pearDB);
@@ -308,7 +306,7 @@ class Migration000024040000 extends AbstractCoreMigration implements LegacyMigra
                 $pearDB->beginTransaction();
             }
 
-            $errorMessage = "Could not set core widgets to internal";
+            $errorMessage = 'Could not set core widgets to internal';
             $setCoreWidgetsToInternal($pearDB);
             $insertResourcesTableWidget($pearDB);
             $insertGroupMonitoringWidget($pearDB);

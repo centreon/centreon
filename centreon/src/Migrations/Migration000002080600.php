@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002080600 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.6';
 
     public function __construct(
@@ -62,8 +61,7 @@ class Migration000002080600 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-DB-2.8.6.sql */
+        // Update-DB-2.8.6.sql
 
         // Use service
         $pearDB->query(

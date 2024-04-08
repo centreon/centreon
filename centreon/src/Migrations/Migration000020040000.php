@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020040000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.04.0';
 
     public function __construct(
@@ -65,8 +64,7 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-CSTG-20.04.0-beta.1.sql */
+        // Update-CSTG-20.04.0-beta.1.sql
 
         $pearDBO->query(
             <<<'SQL'
@@ -126,34 +124,31 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-20.04.0-beta.1.php */
+        // Update-20.04.0-beta.1.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.04.0-beta.1 : ';
         $errorMessage = '';
 
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $pearDB->beginTransaction();
 
-            /*
-            * Move broker xml files to json format
-            */
-            $errorMessage = "Unable to replace broker configuration from xml format to json format";
+            // Move broker xml files to json format
+            $errorMessage = 'Unable to replace broker configuration from xml format to json format';
             $result = $pearDB->query(
-                "SELECT config_id, config_filename
-                FROM cfg_centreonbroker"
+                'SELECT config_id, config_filename
+                FROM cfg_centreonbroker'
             );
 
             $statement = $pearDB->prepare(
-                "UPDATE cfg_centreonbroker
+                'UPDATE cfg_centreonbroker
                 SET config_filename = :value
-                WHERE config_id = :id"
+                WHERE config_id = :id'
             );
 
             $configFilenames = [];
@@ -169,19 +164,17 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
                 $statement->execute();
             }
 
-            /*
-            * Move engine module xml files to json format
-            */
+            // Move engine module xml files to json format
             $errorMessage = "Unable to replace engine's broker modules configuration from xml to json format";
             $result = $pearDB->query(
-                "SELECT bk_mod_id, broker_module
-                FROM cfg_nagios_broker_module"
+                'SELECT bk_mod_id, broker_module
+                FROM cfg_nagios_broker_module'
             );
 
             $statement = $pearDB->prepare(
-                "UPDATE cfg_nagios_broker_module
+                'UPDATE cfg_nagios_broker_module
                 SET broker_module = :value
-                WHERE bk_mod_id = :id"
+                WHERE bk_mod_id = :id'
             );
             while ($row = $result->fetch()) {
                 $fileName = $row['broker_module'];
@@ -194,9 +187,7 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
                 $statement->execute();
             }
 
-            /*
-            * Change broker sql output form
-            */
+            // Change broker sql output form
             // set common error message on failure
             $partialErrorMessage = $errorMessage;
 
@@ -211,7 +202,7 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
             // add new connections_count input
             $errorMessage = $partialErrorMessage . " - While trying to insert in 'cb_field' table new values";
             $pearDB->query(
-                "INSERT INTO `cb_field` (`fieldname`, `displayname`, `description`, `fieldtype`, `external`) 
+                "INSERT INTO `cb_field` (`fieldname`, `displayname`, `description`, `fieldtype`, `external`)
                 VALUES ('connections_count', 'Number of connection to the database', 'Usually cpus/2', 'int', NULL)"
             );
 
@@ -245,40 +236,40 @@ class Migration000020040000 extends AbstractCoreMigration implements LegacyMigra
             );
 
             $pearDB->commit();
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
         /**
-         * Queries which don't need rollback and won't throw an exception
+         * Queries which don't need rollback and won't throw an exception.
          */
         try {
-            /*
-            * replace autologin keys using NULL instead of empty string
-            */
+            // replace autologin keys using NULL instead of empty string
             $pearDB->query("UPDATE `contact` SET `contact_autologin_key` = NULL WHERE `contact_autologin_key` = ''");
         } catch (\Exception $e) {
-            $errorMessage = "Unable to set default contact_autologin_key.";
+            $errorMessage = 'Unable to set default contact_autologin_key.';
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
-        /* Update-DB-20.04.0-beta.1.sql */
+        // Update-DB-20.04.0-beta.1.sql
 
         // Remove broker correlation mechanism
         $pearDB->query(

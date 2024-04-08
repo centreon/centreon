@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023040400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.04.4';
 
     public function __construct(
@@ -64,16 +63,15 @@ class Migration000023040400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.04.4.php */
+        // Update-23.04.4.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.04.4: ';
         $errorMessage = 'Unable to add column topology_url_substitute to topology';
 
-        $addTopologyUrlSubstituteColumn = function(\CentreonDB $pearDB) {
+        $addTopologyUrlSubstituteColumn = function (\CentreonDB $pearDB): void {
             if (! $pearDB->isColumnExist('topology', 'topology_url_substitute')) {
                 $pearDB->query('ALTER TABLE topology ADD topology_url_substitute VARCHAR(255) NULL AFTER topology_url_opt');
             }

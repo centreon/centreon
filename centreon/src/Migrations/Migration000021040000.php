@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021040000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.0';
 
     public function __construct(
@@ -64,12 +63,14 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.0-beta.1.php */
+        // Update-21.04.0-beta.1.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.0-beta.1: ';
+
+        $errorMessage = '';
 
         $criteriasConcordanceArray = [
             'states' => [
@@ -89,29 +90,29 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
                 'CRITICAL' => 'Critical',
                 'UNREACHABLE' => 'Unreachable',
                 'UNKNOWN' => 'Unknown',
-                'PENDING' => 'Pending'
+                'PENDING' => 'Pending',
             ],
         ];
 
         /**
-         * Query without transaction
+         * Query without transaction.
          */
         try {
-            if (!$pearDB->isColumnExist('cfg_centreonbroker', 'log_directory')) {
+            if (! $pearDB->isColumnExist('cfg_centreonbroker', 'log_directory')) {
                 // An update is required
                 $errorMessage = 'Impossible to alter the table cfg_centreonbroker with log_directory';
                 $pearDB->query(
                     'ALTER TABLE `cfg_centreonbroker` ADD COLUMN `log_directory` VARCHAR(255) AFTER `config_write_thread_id`'
                 );
             }
-            if (!$pearDB->isColumnExist('cfg_centreonbroker', 'log_filename')) {
+            if (! $pearDB->isColumnExist('cfg_centreonbroker', 'log_filename')) {
                 // An update is required
                 $errorMessage = 'Impossible to alter the table cfg_centreonbroker with log_filename';
                 $pearDB->query(
                     'ALTER TABLE `cfg_centreonbroker` ADD COLUMN `log_filename` VARCHAR(255) AFTER `log_directory`'
                 );
             }
-            if (!$pearDB->isColumnExist('cfg_centreonbroker', 'log_max_size')) {
+            if (! $pearDB->isColumnExist('cfg_centreonbroker', 'log_max_size')) {
                 // An update is required
                 $errorMessage = 'Impossible to alter the table cfg_centreonbroker with log_max_size';
                 $pearDB->query(
@@ -146,28 +147,29 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
                 $pearDB->query('ALTER TABLE `cfg_nagios` DROP COLUMN `use_aggressive_host_checking`');
             }
 
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
             /**
-             * Retrieve user filters
+             * Retrieve user filters.
              */
             $statement = $pearDB->query(
-                "SELECT `id`, `criterias` FROM `user_filter`"
+                'SELECT `id`, `criterias` FROM `user_filter`'
             );
 
             $translatedFilters = [];
@@ -181,8 +183,8 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
                     // Checking if the filter contains criterias we want to migrate
                     if (array_key_exists($name, $criteriasConcordanceArray) === true) {
                         foreach ($criteria['value'] as $index => $value) {
-                            $decodedCriterias[$criteriaKey]['value'][$index]['name'] =
-                                $criteriasConcordanceArray[$name][$value['id']];
+                            $decodedCriterias[$criteriaKey]['value'][$index]['name']
+                                = $criteriasConcordanceArray[$name][$value['id']];
                         }
                     }
                 }
@@ -191,7 +193,7 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
                     'name' => 'sort',
                     'type' => 'array',
                     'value' => [
-                        'status_severity_code' => "asc"
+                        'status_severity_code' => 'asc',
                     ],
                 ];
 
@@ -199,40 +201,39 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             /**
-             * UPDATE SQL request on the filters
+             * UPDATE SQL request on the filters.
              */
-
             foreach ($translatedFilters as $id => $criterias) {
-                $errorMessage = "Unable to update filter values in user_filter table.";
+                $errorMessage = 'Unable to update filter values in user_filter table.';
                 $statement = $pearDB->prepare(
-                    "UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id"
+                    'UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id'
                 );
                 $statement->bindValue(':id', (int) $id, \PDO::PARAM_INT);
                 $statement->bindValue(':criterias', $criterias, \PDO::PARAM_STR);
                 $statement->execute();
             }
 
-            //queries for broker logs
-            $errorMessage = "Unable to Update cfg_centreonbroker";
+            // queries for broker logs
+            $errorMessage = 'Unable to Update cfg_centreonbroker';
             $pearDB->query(
                 "UPDATE `cfg_centreonbroker` SET `log_directory` = '/var/log/centreon-broker/'"
             );
-            $errorMessage = "Unable to set cb_log";
+            $errorMessage = 'Unable to set cb_log';
             $pearDB->query(
                 "INSERT INTO `cb_log` (`name`)
                 VALUES ('core'), ('config'), ('sql'), ('processing'), ('perfdata'),
                     ('bbdo'), ('tcp'), ('tls'), ('lua'), ('bam')"
             );
-            $errorMessage = "Unable to set cb_log_level";
+            $errorMessage = 'Unable to set cb_log_level';
             $pearDB->query(
                 "INSERT INTO `cb_log_level` (`name`)
                 VALUES ('disabled'), ('critical'), ('error'), ('warning'), ('info'), ('debug'), ('trace')"
             );
             $stmt = $pearDB->query(
-                "SELECT config_id FROM cfg_centreonbroker"
+                'SELECT config_id FROM cfg_centreonbroker'
             );
             $statement = $pearDB->prepare(
-                'INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) 
+                'INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
                 VALUES  (:id_centreonbroker,1,5),
                         (:id_centreonbroker,2,3),
                         (:id_centreonbroker,3,3),
@@ -253,12 +254,13 @@ class Migration000021040000 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

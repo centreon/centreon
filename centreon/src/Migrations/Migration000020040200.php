@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020040200 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.04.2';
 
     public function __construct(
@@ -64,7 +63,7 @@ class Migration000020040200 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-20.04.2.php */
+        // Update-20.04.2.php
 
         $centreonLog = new \CentreonLog();
 
@@ -73,12 +72,10 @@ class Migration000020040200 extends AbstractCoreMigration implements LegacyMigra
         $errorMessage = '';
 
         /**
-         * Queries needing exception management BUT no rollback if failing
+         * Queries needing exception management BUT no rollback if failing.
          */
         try {
-            /*
-            * Get timezones and add "Asia/Yangon" if doesn't exist
-            */
+            // Get timezones and add "Asia/Yangon" if doesn't exist
             $errorMessage = 'Cannot retrieve timezone list';
             $res = $pearDB->query(
                 "SELECT timezone_name FROM timezone
@@ -95,11 +92,12 @@ class Migration000020040200 extends AbstractCoreMigration implements LegacyMigra
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . $e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
+
             throw new \Exception($versionOfTheUpgrade . $errorMessage, $e->getCode(), $e);
         }
     }

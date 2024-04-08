@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021040600 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.6';
 
     public function __construct(
@@ -64,25 +63,27 @@ class Migration000021040600 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.6.php */
+        // Update-21.04.6.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.6:';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
 
-            //Purge all session.
+            // Purge all session.
             $errorMessage = 'Impossible to purge the table session';
-            $pearDB->query("DELETE FROM `session`");
+            $pearDB->query('DELETE FROM `session`');
 
             $errorMessage = 'Impossible to purge the table ws_token';
-            $pearDB->query("DELETE FROM `ws_token`");
+            $pearDB->query('DELETE FROM `ws_token`');
 
             $pearDB->commit();
 
@@ -92,14 +93,14 @@ class Migration000021040600 extends AbstractCoreMigration implements LegacyMigra
             if (($constraint = $constraintStatement->fetch()) && (int) $constraint['count'] === 0) {
                 $errorMessage = 'Impossible to add Delete Cascade constraint on the table session';
                 $pearDB->query(
-                    "ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) " .
-                    "REFERENCES `contact` (`contact_id`) ON DELETE CASCADE"
+                    'ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) '
+                    . 'REFERENCES `contact` (`contact_id`) ON DELETE CASCADE'
                 );
             }
 
             $errorMessage = "Impossible to drop column 'contact_platform_data_sending' from 'contact' table";
             if ($pearDB->isColumnExist('contact', 'contact_platform_data_sending')) {
-                $pearDB->query("ALTER TABLE `contact` DROP COLUMN `contact_platform_data_sending`");
+                $pearDB->query('ALTER TABLE `contact` DROP COLUMN `contact_platform_data_sending`');
             }
         } catch (\Exception $e) {
             if ($pearDB->inTransaction()) {
@@ -107,12 +108,13 @@ class Migration000021040600 extends AbstractCoreMigration implements LegacyMigra
             }
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

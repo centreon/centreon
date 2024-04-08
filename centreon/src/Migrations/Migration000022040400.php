@@ -25,7 +25,6 @@ namespace Migrations;
 
 require_once __DIR__  . '/../../www/class/centreonLog.class.php';
 
-
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
@@ -34,7 +33,6 @@ use Pimple\Container;
 class Migration000022040400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.04.4';
 
     public function __construct(
@@ -65,8 +63,7 @@ class Migration000022040400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-CSTG-22.04.4.sql */
+        // Update-CSTG-22.04.4.sql
 
         $pearDBO->query(
             <<<'SQL'

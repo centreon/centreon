@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002080800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.8';
 
     public function __construct(
@@ -62,11 +61,10 @@ class Migration000002080800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-2.8.8.php */
+        // Update-2.8.8.php
 
         $res = $pearDB->query('SELECT * FROM `options` WHERE `key` = "kb_wiki_url"');
-        if ($res->rowCount() == 0) {
+        if ($res->rowCount() === 0) {
             $query = 'UPDATE `options` SET `key` = "kb_wiki_url" WHERE `key` = "kb_WikiURL"';
             $pearDB->query($query);
         } else {

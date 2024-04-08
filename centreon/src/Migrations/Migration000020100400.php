@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020100400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.10.4';
 
     public function __construct(
@@ -64,15 +63,17 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-20.10.4.php */
+        // Update-20.10.4.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.4 : ';
 
+        $errorMessage = '';
+
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $statement = $pearDB->query(
@@ -80,10 +81,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_hostChild_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_hostChild_relation";
+                $errorMessage = 'Unable to update dependency_hostChild_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_hostChild_relation`
-                    ADD UNIQUE (`dependency_dep_id`, `host_host_id`)"
+                    'ALTER IGNORE TABLE `dependency_hostChild_relation`
+                    ADD UNIQUE (`dependency_dep_id`, `host_host_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -91,10 +92,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_hostParent_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_hostParent_relation";
+                $errorMessage = 'Unable to update dependency_hostParent_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_hostParent_relation`
-                ADD UNIQUE (`dependency_dep_id`, `host_host_id`)"
+                    'ALTER IGNORE TABLE `dependency_hostParent_relation`
+                ADD UNIQUE (`dependency_dep_id`, `host_host_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -102,10 +103,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_hostgroupChild_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_hostgroupChild_relation";
+                $errorMessage = 'Unable to update dependency_hostgroupChild_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_hostgroupChild_relation`
-                ADD UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`)"
+                    'ALTER IGNORE TABLE `dependency_hostgroupChild_relation`
+                ADD UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -113,10 +114,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_hostgroupParent_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_hostgroupParent_relation";
+                $errorMessage = 'Unable to update dependency_hostgroupParent_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_hostgroupParent_relation`
-                ADD UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`)"
+                    'ALTER IGNORE TABLE `dependency_hostgroupParent_relation`
+                ADD UNIQUE (`dependency_dep_id`, `hostgroup_hg_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -124,10 +125,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_metaserviceChild_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_metaserviceChild_relation";
+                $errorMessage = 'Unable to update dependency_metaserviceChild_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_metaserviceChild_relation`
-                ADD UNIQUE (`dependency_dep_id`, `meta_service_meta_id`)"
+                    'ALTER IGNORE TABLE `dependency_metaserviceChild_relation`
+                ADD UNIQUE (`dependency_dep_id`, `meta_service_meta_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -135,10 +136,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_metaserviceParent_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_metaserviceParent_relation";
+                $errorMessage = 'Unable to update dependency_metaserviceParent_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_metaserviceParent_relation`
-                ADD UNIQUE (`dependency_dep_id`, `meta_service_meta_id`)"
+                    'ALTER IGNORE TABLE `dependency_metaserviceParent_relation`
+                ADD UNIQUE (`dependency_dep_id`, `meta_service_meta_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -146,10 +147,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_serviceChild_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_serviceChild_relation";
+                $errorMessage = 'Unable to update dependency_serviceChild_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_serviceChild_relation`
-                ADD UNIQUE (`dependency_dep_id`, `service_service_id`, `host_host_id`)"
+                    'ALTER IGNORE TABLE `dependency_serviceChild_relation`
+                ADD UNIQUE (`dependency_dep_id`, `service_service_id`, `host_host_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -157,10 +158,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_serviceParent_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_serviceParent_relation";
+                $errorMessage = 'Unable to update dependency_serviceParent_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_serviceParent_relation`
-                ADD UNIQUE (`dependency_dep_id`, `service_service_id`, `host_host_id`)"
+                    'ALTER IGNORE TABLE `dependency_serviceParent_relation`
+                ADD UNIQUE (`dependency_dep_id`, `service_service_id`, `host_host_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -168,10 +169,10 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_servicegroupChild_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_servicegroupChild_relation";
+                $errorMessage = 'Unable to update dependency_servicegroupChild_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_servicegroupChild_relation`
-                ADD UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`)"
+                    'ALTER IGNORE TABLE `dependency_servicegroupChild_relation`
+                ADD UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`)'
                 );
             }
             $statement = $pearDB->query(
@@ -179,14 +180,14 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                 WHERE table_name = 'dependency_servicegroupParent_relation' and constraint_type = 'UNIQUE'"
             );
             if ($statement->fetchColumn() === 0) {
-                $errorMessage = "Unable to update dependency_servicegroupParent_relation";
+                $errorMessage = 'Unable to update dependency_servicegroupParent_relation';
                 $pearDB->query(
-                    "ALTER IGNORE TABLE `dependency_servicegroupParent_relation`
-                ADD UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`)"
+                    'ALTER IGNORE TABLE `dependency_servicegroupParent_relation`
+                ADD UNIQUE (`dependency_dep_id`, `servicegroup_sg_id`)'
                 );
             }
-            //engine postpone
-            if (!$pearDB->isColumnExist('cfg_nagios', 'postpone_notification_to_timeperiod')) {
+            // engine postpone
+            if (! $pearDB->isColumnExist('cfg_nagios', 'postpone_notification_to_timeperiod')) {
                 // An update is required
                 $errorMessage = 'Impossible to alter the table cfg_nagios with postpone_notification_to_timeperiod';
                 $pearDB->query(
@@ -194,8 +195,8 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                         `postpone_notification_to_timeperiod` boolean DEFAULT false AFTER `nagios_group`'
                 );
             }
-            //engine heartbeat interval
-            if (!$pearDB->isColumnExist('cfg_nagios', 'instance_heartbeat_interval')) {
+            // engine heartbeat interval
+            if (! $pearDB->isColumnExist('cfg_nagios', 'instance_heartbeat_interval')) {
                 // An update is required
                 $errorMessage = 'Impossible to alter the table cfg_nagios with instance_heartbeat_interval';
                 $pearDB->query(
@@ -203,16 +204,17 @@ class Migration000020100400 extends AbstractCoreMigration implements LegacyMigra
                         `instance_heartbeat_interval` smallint DEFAULT 30 AFTER `date_format`'
                 );
             }
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

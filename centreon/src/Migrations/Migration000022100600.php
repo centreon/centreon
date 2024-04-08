@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022100600 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.10.6';
 
     public function __construct(
@@ -64,12 +63,11 @@ class Migration000022100600 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.10.6.php */
+        // Update-22.10.6.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.10.6: ';
         $errorMessage = '';
         try {
@@ -82,7 +80,7 @@ class Migration000022100600 extends AbstractCoreMigration implements LegacyMigra
             $ldapResult = $query->fetchAll(\PDO::FETCH_ASSOC);
             // insert entry ldap_connection_timeout  with default value
             if (! $ldapResult) {
-                $errorMessage = "Unable to add default LDAP connection timeout";
+                $errorMessage = 'Unable to add default LDAP connection timeout';
                 $pearDB->query(
                     "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
                     (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
@@ -98,12 +96,12 @@ class Migration000022100600 extends AbstractCoreMigration implements LegacyMigra
             $centreonLog->insertLog(
                 4,
                 $versionOfTheUpgrade . $errorMessage
-                . ' - Code : ' . (int)$e->getCode()
+                . ' - Code : ' . (int) $e->getCode()
                 . ' - Error : ' . $e->getMessage()
                 . ' - Trace : ' . $e->getTraceAsString()
             );
 
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

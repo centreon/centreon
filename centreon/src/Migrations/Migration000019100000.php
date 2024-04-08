@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019100000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.10.0';
 
     public function __construct(
@@ -67,8 +66,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
 
         $centreonLog = new \CentreonLog();
 
-
-        /* Update-19.10.0-beta.1.php */
+        // Update-19.10.0-beta.1.php
 
         // update topology of poller wizard to display breadcrumb
         $pearDB->query(
@@ -83,7 +81,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         try {
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
             // Add trap regexp matching
-            if (!$pearDB->isColumnExist('traps', 'traps_mode')) {
+            if (! $pearDB->isColumnExist('traps', 'traps_mode')) {
                 $pearDB->query(
                     "ALTER TABLE `traps` ADD COLUMN `traps_mode` enum('0','1') DEFAULT '0' AFTER `traps_oid`"
                 );
@@ -91,7 +89,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.0-beta.1 Unable to modify regexp matching in the database"
+                'UPGRADE : 19.10.0-beta.1 Unable to modify regexp matching in the database'
             );
 
             throw $e;
@@ -99,8 +97,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->query('SET SESSION innodb_strict_mode=ON');
         }
 
-
-        /* Update-DB-19.10.0-beta.1.sql */
+        // Update-DB-19.10.0-beta.1.sql
 
         // Drop useless ID columns
         $pearDB->query(
@@ -447,47 +444,45 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-19.10.0-beta.1.post.php */
+        // Update-19.10.0-beta.1.post.php
 
         try {
             // Alter existing tables to conform with strict mode.
             $pearDBO->query(
-                "ALTER TABLE `log_action_modification` MODIFY COLUMN `field_value` text NOT NULL"
+                'ALTER TABLE `log_action_modification` MODIFY COLUMN `field_value` text NOT NULL'
             );
             // Add the audit log retention column for the retention options menu
-            if (!$pearDBO->isColumnExist('config', 'audit_log_retention')) {
+            if (! $pearDBO->isColumnExist('config', 'audit_log_retention')) {
                 $pearDBO->query(
-                    "ALTER TABLE `config` ADD COLUMN audit_log_retention int(11) DEFAULT 0"
+                    'ALTER TABLE `config` ADD COLUMN audit_log_retention int(11) DEFAULT 0'
                 );
             }
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : Unable to process 19.10.0-post-beta 1 upgrade"
+                'UPGRADE : Unable to process 19.10.0-post-beta 1 upgrade'
             );
 
             throw $e;
         }
 
-
-        /* Update-19.10.0-beta.3.php */
+        // Update-19.10.0-beta.3.php
 
         /**
-         * LDAP auto or manual synchronization feature
+         * LDAP auto or manual synchronization feature.
          */
         try {
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
 
             // Adding two columns to check last user's LDAP sync timestamp
-            if (!$pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
-                //$pearDB = "centreon"
-                //$pearDBO = "realtime"
+            if (! $pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
+                // $pearDB = "centreon"
+                // $pearDBO = "realtime"
                 $pearDB->query(
-                    "ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0"
+                    'ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0'
                 );
             }
-            if (!$pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
+            if (! $pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
                 $pearDB->query(
                     "ALTER TABLE `contact` ADD COLUMN `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0'"
                 );
@@ -495,9 +490,9 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
 
             // Adding a column to check last specific LDAP sync timestamp
             $needToUpdateValues = false;
-            if (!$pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
+            if (! $pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
                 $pearDB->query(
-                    "ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0"
+                    'ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0'
                 );
                 $needToUpdateValues = true;
             }
@@ -516,20 +511,20 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         if ($needToUpdateValues) {
             try {
                 $stmt = $pearDB->prepare(
-                    "UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime"
+                    'UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime'
                 );
                 $stmt->bindValue(':minusTime', time(), \PDO::PARAM_INT);
                 $stmt->execute();
             } catch (\PDOException $e) {
                 $centreonLog->insertLog(
                     2,
-                    "UPGRADE : 19.10.0-beta.3 Unable to initialize LDAP reference date"
+                    'UPGRADE : 19.10.0-beta.3 Unable to initialize LDAP reference date'
                 );
 
                 throw $e;
             }
 
-            /* Adding to each LDAP configuration two new fields */
+            // Adding to each LDAP configuration two new fields
             try {
                 // field to enable the automatic sync at login
                 $addSyncStateField = $pearDB->prepare(
@@ -545,7 +540,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                 );
 
                 $pearDB->beginTransaction();
-                $stmt = $pearDB->query("SELECT DISTINCT(ar_id) FROM auth_ressource");
+                $stmt = $pearDB->query('SELECT DISTINCT(ar_id) FROM auth_ressource');
                 while ($row = $stmt->fetch()) {
                     $addSyncIntervalField->bindValue(':arId', $row['ar_id'], \PDO::PARAM_INT);
                     $addSyncIntervalField->execute();
@@ -556,11 +551,11 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             } catch (\PDOException $e) {
                 $centreonLog->insertLog(
                     1, // ldap.log
-                    "UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form"
+                    'UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form'
                 );
                 $centreonLog->insertLog(
                     2, // sql-error.log
-                    "UPGRADE : 19.10.0-beta.3 Unable to add LDAP new fields"
+                    'UPGRADE : 19.10.0-beta.3 Unable to add LDAP new fields'
                 );
                 $pearDB->rollBack();
 
@@ -578,10 +573,9 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             WHERE topology_url LIKE "/poller-wizard/%"'
         );
 
-
         try {
             // Add trap regexp matching
-            if (!$pearDB->isColumnExist('traps', 'traps_mode')) {
+            if (! $pearDB->isColumnExist('traps', 'traps_mode')) {
                 $pearDB->query('SET SESSION innodb_strict_mode=OFF');
                 $pearDB->query(
                     "ALTER TABLE `traps` ADD COLUMN `traps_mode` enum('0','1') DEFAULT '0' AFTER `traps_oid`"
@@ -590,7 +584,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.0-beta.3 Unable to modify regexp matching in the database"
+                'UPGRADE : 19.10.0-beta.3 Unable to modify regexp matching in the database'
             );
 
             throw $e;
@@ -598,9 +592,8 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->query('SET SESSION innodb_strict_mode=ON');
         }
 
-
         /**
-         * Add columns to manage engine & broker restart/reload process
+         * Add columns to manage engine & broker restart/reload process.
          */
         try {
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
@@ -629,7 +622,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.0-beta.3 Unable to manage engine & broker restart and reload processes"
+                'UPGRADE : 19.10.0-beta.3 Unable to manage engine & broker restart and reload processes'
             );
 
             throw $e;
@@ -650,7 +643,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         $result = $pearDB->query('SELECT value FROM `options` WHERE `key` = \'broker_correlator_script\'');
         $brokerServiceName = 'cbd';
         if ($row = $result->fetch()) {
-            if (!empty($row['value'])) {
+            if (! empty($row['value'])) {
                 $brokerServiceName = $row['value'];
             }
         }
@@ -660,7 +653,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
 
         while ($row = $result->fetch()) {
             $engineServiceName = 'centengine';
-            if (!empty($row['init_script'])) {
+            if (! empty($row['init_script'])) {
                 $engineServiceName = $row['init_script'];
             }
             $stmt->bindValue(':id', $row['id'], \PDO::PARAM_INT);
@@ -678,16 +671,15 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         $pearDB->query('DELETE FROM `options` WHERE `key` = \'broker_correlator_script\'');
         $pearDB->query('DELETE FROM `options` WHERE `key` = \'monitoring_engine\'');
 
-
         /**
-         * Manage upgrade of widget preferences
+         * Manage upgrade of widget preferences.
          */
 
         // set cache for pollers
         $pollers = [];
         $result = $pearDB->query('SELECT id, name FROM nagios_server');
         while ($row = $result->fetch()) {
-            $pollerName = strtolower($row['name']);
+            $pollerName = mb_strtolower($row['name']);
             $pollers[$pollerName] = $row['id'];
         }
 
@@ -711,10 +703,9 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
 
         // update poller preferences from name to id
         while ($row = $result->fetch()) {
-            $pollerName = strtolower($row['preference_value']);
-            $pollerId = isset($pollers[$pollerName])
-                ? $pollers[$pollerName]
-                : '';
+            $pollerName = mb_strtolower($row['preference_value']);
+            $pollerId = $pollers[$pollerName]
+                ?? '';
 
             $statement->bindValue(':value', $pollerId, \PDO::PARAM_STR);
             $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);
@@ -727,7 +718,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         $severities = [];
         $result = $pearDB->query('SELECT sc_id, sc_name FROM service_categories WHERE level IS NOT NULL');
         while ($row = $result->fetch()) {
-            $severityName = strtolower($row['sc_name']);
+            $severityName = mb_strtolower($row['sc_name']);
             $severities[$severityName] = $row['sc_id'];
         }
 
@@ -754,13 +745,13 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             $severityIds = [];
             $severityNames = explode(',', $row['preference_value']);
             foreach ($severityNames as $severityName) {
-                $severityName = strtolower($severityName);
+                $severityName = mb_strtolower($severityName);
                 if (isset($severities[$severityName])) {
                     $severityIds[] = $severities[$severityName];
                 }
             }
 
-            $severityIds = !empty($severityIds) ? implode(',', $severityIds) : '';
+            $severityIds = ! empty($severityIds) ? implode(',', $severityIds) : '';
 
             $statement->bindValue(':value', $severityIds, \PDO::PARAM_STR);
             $statement->bindValue(':view_id', $row['widget_view_id'], \PDO::PARAM_INT);
@@ -791,14 +782,14 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                                 'config_key' => 'rrd_cached_option',
                                 'config_value' => 'tcp',
                                 'config_group' => $row['config_group'],
-                                'config_group_id' => $row['config_group_id']
+                                'config_group_id' => $row['config_group_id'],
                             ],
                             [
                                 'config_id' => $row['config_id'],
                                 'config_key' => 'rrd_cached',
                                 'config_value' => $port['value'],
                                 'config_group' => $row['config_group'],
-                                'config_group_id' => $row['config_group_id']
+                                'config_group_id' => $row['config_group_id'],
                             ],
                         ];
                         $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
@@ -807,11 +798,11 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                             . ':config_group, :config_group_id)';
                         $statement = $pearDB->prepare($query);
                         foreach ($brokerInfoData as $dataRow) {
-                            $statement->bindValue(":config_id", (int) $dataRow['config_id'], \PDO::PARAM_INT);
-                            $statement->bindValue(":config_key", $dataRow['config_key']);
-                            $statement->bindValue(":config_value", $dataRow['config_value']);
-                            $statement->bindValue(":config_group", $dataRow['config_group']);
-                            $statement->bindValue(":config_group_id", (int) $dataRow['config_group_id'], \PDO::PARAM_INT);
+                            $statement->bindValue(':config_id', (int) $dataRow['config_id'], \PDO::PARAM_INT);
+                            $statement->bindValue(':config_key', $dataRow['config_key']);
+                            $statement->bindValue(':config_value', $dataRow['config_value']);
+                            $statement->bindValue(':config_group', $dataRow['config_group']);
+                            $statement->bindValue(':config_group_id', (int) $dataRow['config_group_id'], \PDO::PARAM_INT);
                             $statement->execute();
                         }
                     } else {
@@ -824,14 +815,14 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                                 'config_key' => 'rrd_cached_option',
                                 'config_value' => 'unix',
                                 'config_group' => $row['config_group'],
-                                'config_group_id' => $row['config_group_id']
+                                'config_group_id' => $row['config_group_id'],
                             ],
                             [
                                 'config_id' => $row['config_id'],
                                 'config_key' => 'rrd_cached',
                                 'config_value' => $path['value'],
                                 'config_group' => $row['config_group'],
-                                'config_group_id' => $row['config_group_id']
+                                'config_group_id' => $row['config_group_id'],
                             ],
                         ];
                         $query = 'INSERT INTO cfg_centreonbroker_info (config_id, config_key, config_value, '
@@ -850,8 +841,8 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                     }
 
                     $statement = $pearDB->prepare(
-                        "DELETE FROM cfg_centreonbroker_info WHERE `config_id` = :config_id"
-                        . " AND config_group_id = :config_group_id"
+                        'DELETE FROM cfg_centreonbroker_info WHERE `config_id` = :config_id'
+                        . ' AND config_group_id = :config_group_id'
                         . " AND config_group = 'output' AND ( config_key = 'port' OR config_key = 'path') "
                     );
                     $statement->bindValue(':config_id', (int) $row['config_id'], \PDO::PARAM_INT);
@@ -866,7 +857,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             } catch (\PDOException $e) {
                 $centreonLog->insertLog(
                     2, // sql-error.log
-                    "UPGRADE : 19.10.0-beta.3 Unable to move rrd global cache option on broker form"
+                    'UPGRADE : 19.10.0-beta.3 Unable to move rrd global cache option on broker form'
                 );
                 $pearDB->rollBack();
 
@@ -874,7 +865,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
             }
         }
 
-        /* Update-DB-19.10.0-beta.3.sql */
+        // Update-DB-19.10.0-beta.3.sql
 
         // Add new field for Remote Server option
         $pearDB->query(
@@ -967,8 +958,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-DB-19.10.0-rc.1.sql */
+        // Update-DB-19.10.0-rc.1.sql
 
         // Create rs_poller_relation for the additional relationship between poller and remote servers
         $pearDB->query(
@@ -989,8 +979,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-CSTG-19.10.0.sql */
+        // Update-CSTG-19.10.0.sql
 
         // Remove useless reporting tables
         $pearDBO->query(
@@ -1018,12 +1007,11 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-19.10.0.php */
+        // Update-19.10.0.php
 
         /**
          * Update session duration value to the max allowed duration set in the php
-         * configuration file 50-centreon.ini
+         * configuration file 50-centreon.ini.
          */
         try {
             $stmt = $pearDB->query(
@@ -1040,7 +1028,7 @@ class Migration000019100000 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.0 Unable to modify session expiration value"
+                'UPGRADE : 19.10.0 Unable to modify session expiration value'
             );
 
             throw $e;

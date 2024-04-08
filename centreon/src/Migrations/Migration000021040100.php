@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021040100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.1';
 
     public function __construct(
@@ -64,30 +63,32 @@ class Migration000021040100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.1.php */
+        // Update-21.04.1.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.1: ';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
             /**
-             * Retrieve user filters
+             * Retrieve user filters.
              */
             $statement = $pearDB->query(
-                "SELECT `id`, `criterias` FROM `user_filter`"
+                'SELECT `id`, `criterias` FROM `user_filter`'
             );
 
             $fixedCriteriaFilters = [];
 
             /**
              * Sort filter criteria was not correctly added during the 21.04.0
-             * upgrade. It should be an array and not an object
+             * upgrade. It should be an array and not an object.
              */
             while ($filter = $statement->fetch()) {
                 $id = $filter['id'];
@@ -96,7 +97,7 @@ class Migration000021040100 extends AbstractCoreMigration implements LegacyMigra
                     if ($criteria['name'] === 'sort') {
                         $decodedCriterias[$criteriaKey]['value'] = [
                             'status_severity_code',
-                            $criteria['value']['status_severity_code']
+                            $criteria['value']['status_severity_code'],
                         ];
                     }
                 }
@@ -105,12 +106,12 @@ class Migration000021040100 extends AbstractCoreMigration implements LegacyMigra
             }
 
             /**
-             * UPDATE SQL request on filters
+             * UPDATE SQL request on filters.
              */
             foreach ($fixedCriteriaFilters as $id => $criterias) {
-                $errorMessage = "Unable to update filter values in user_filter table.";
+                $errorMessage = 'Unable to update filter values in user_filter table.';
                 $statement = $pearDB->prepare(
-                    "UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id"
+                    'UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id'
                 );
                 $statement->bindValue(':id', (int) $id, \PDO::PARAM_INT);
                 $statement->bindValue(':criterias', $criterias, \PDO::PARAM_STR);
@@ -122,12 +123,13 @@ class Migration000021040100 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

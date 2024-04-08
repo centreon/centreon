@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002080400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.4';
 
     public function __construct(
@@ -63,8 +62,7 @@ class Migration000002080400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-2.8.4.php */
+        // Update-2.8.4.php
 
         // Update comments unique key
         $query = "SELECT count(*) AS number
@@ -74,7 +72,7 @@ class Migration000002080400 extends AbstractCoreMigration implements LegacyMigra
                 AND column_name = 'timezone'";
         $res = $pearDBO->query($query);
         $data = $res->fetchRow();
-        if ($data['number'] == 0) {
+        if ($data['number'] === 0) {
             $pearDBO->query('ALTER TABLE services ADD INDEX last_hard_state_change (last_hard_state_change)');
             $pearDBO->query('ALTER TABLE `hosts` ADD COLUMN `timezone` varchar(64) DEFAULT NULL AFTER `statusmap_image`');
         }

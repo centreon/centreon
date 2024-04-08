@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021041100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.11';
 
     public function __construct(
@@ -64,28 +63,31 @@ class Migration000021041100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.11.php */
+        // Update-21.04.11.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.11: ';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
-            $errorMessage  = 'Unable to delete logger entry in cb_tag';
+            $errorMessage = 'Unable to delete logger entry in cb_tag';
             $pearDB->query("DELETE FROM cb_tag WHERE tagname = 'logger'");
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

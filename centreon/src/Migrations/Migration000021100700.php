@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021100700 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.10.7';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000021100700 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-CSTG-21.10.7.sql */
+        // Update-CSTG-21.10.7.sql
 
         $pearDBO->query(
             <<<'SQL'

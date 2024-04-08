@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019040300 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.04.3';
 
     public function __construct(
@@ -64,19 +63,18 @@ class Migration000019040300 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.04.3.php */
+        // Update-19.04.3.php
 
         $centreonLog = new \CentreonLog();
 
         try {
             // Change traps_execution_command from varchar(255) to text
             $pearDB->query(
-                "ALTER TABLE `traps` MODIFY COLUMN `traps_execution_command` text DEFAULT NULL"
+                'ALTER TABLE `traps` MODIFY COLUMN `traps_execution_command` text DEFAULT NULL'
             );
 
-            //Add trap regexp matching
-            if (!$pearDB->isColumnExist('traps', 'traps_mode')) {
+            // Add trap regexp matching
+            if (! $pearDB->isColumnExist('traps', 'traps_mode')) {
                 $pearDB->query(
                     "ALTER TABLE `traps` ADD COLUMN `traps_mode` ENUM('0', '1') DEFAULT '0' AFTER `traps_oid`"
                 );
@@ -89,7 +87,7 @@ class Migration000019040300 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : Unable to process 19.04.3 upgrade"
+                'UPGRADE : Unable to process 19.04.3 upgrade'
             );
 
             throw $e;

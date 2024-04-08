@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023100000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.10.0';
 
     public function __construct(
@@ -65,18 +64,16 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-23.10.0.php */
+        // Update-23.10.0.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.10.0: ';
         $errorMessage = '';
 
-
         // ------------ CREATE TABLE
-        $createTablesForDashboard = function(\CentreonDB $pearDB): void {
+        $createTablesForDashboard = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     CREATE TABLE IF NOT EXISTS `dashboard` (
@@ -176,7 +173,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $createTablesForNotificationConfiguration = function(\CentreonDB $pearDB): void {
+        $createTablesForNotificationConfiguration = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     CREATE TABLE IF NOT EXISTS `notification` (
@@ -270,7 +267,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $alterMetricsTable = function(\CentreonDB $pearDBO): void {
+        $alterMetricsTable = function (\CentreonDB $pearDBO): void {
             $pearDBO->query(
                 <<<'SQL'
                     ALTER TABLE `metrics`
@@ -279,8 +276,8 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $alterTopologyForFeatureFlag = function(\CentreonDB $pearDB): void {
-            if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+        $alterTopologyForFeatureFlag = function (\CentreonDB $pearDB): void {
+            if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
                 $pearDB->query(
                     <<<'SQL'
                         ALTER TABLE `topology`
@@ -292,7 +289,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
         };
 
         $alterSecurityTokenTable = function (\CentreonDB $pearDB): void {
-            if (!$pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
+            if (! $pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
                 $pearDB->query(
                     <<<'SQL'
                         ALTER TABLE `security_authentication_tokens`
@@ -310,14 +307,14 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
         };
 
         // ------------ INSERT / UPDATE / DELETE
-        $removeNagiosPathImg = function(\CentreonDB $pearDB): void {
+        $removeNagiosPathImg = function (\CentreonDB $pearDB): void {
             $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
             if ($selectStatement->rowCount() > 0) {
                 $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
             }
         };
 
-        $enableDisabledServiceTemplates = function(\CentreonDB $pearDB): void {
+        $enableDisabledServiceTemplates = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     UPDATE `service`
@@ -328,7 +325,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $enableDisabledHostTemplates = function(\CentreonDB $pearDB): void {
+        $enableDisabledHostTemplates = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     UPDATE `host`
@@ -339,7 +336,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $updateTopologyForDashboards = function(\CentreonDB $pearDB): void {
+        $updateTopologyForDashboards = function (\CentreonDB $pearDB): void {
             $statement = $pearDB->query(
                 <<<'SQL'
                     SELECT 1 FROM `topology` WHERE `topology_name` = 'Dashboards'
@@ -370,7 +367,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $updateTopologyForApiTokens = function(\CentreonDb $pearDB): void {
+        $updateTopologyForApiTokens = function (\CentreonDB $pearDB): void {
             $statement = $pearDB->query(
                 <<<'SQL'
                     SELECT 1 FROM `topology` WHERE `topology_name` = 'API Tokens'
@@ -390,7 +387,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $populateDahsboardTables = function(\CentreonDb $pearDB): void {
+        $populateDahsboardTables = function (\CentreonDB $pearDB): void {
             if ($pearDB->isColumnExist('dashboard_widgets', 'name')) {
                 $statement = $pearDB->query(
                     <<<'SQL'
@@ -412,7 +409,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $renameLegacyDashboardInTopology = function (\CentreonDB $pearDB) {
+        $renameLegacyDashboardInTopology = function (\CentreonDB $pearDB): void {
             $pearDB->query(
                 <<<'SQL'
                     UPDATE `topology` SET `topology_name` = 'Availability'
@@ -421,13 +418,13 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             );
         };
 
-        $createHostCategoriesIndex = function(\CentreonDb $pearDB): void {
+        $createHostCategoriesIndex = function (\CentreonDB $pearDB): void {
             if (! $pearDB->isIndexExists('hostcategories', 'level_index')) {
                 $pearDB->query('CREATE INDEX `level_index` ON `hostcategories` (`level`)');
             }
         };
 
-        $createAclResourcesHcRelationsConstraint = function(\CentreonDB $pearDB): void {
+        $createAclResourcesHcRelationsConstraint = function (\CentreonDB $pearDB): void {
             if (! $pearDB->isConstraintExists('acl_resources_hc_relations', 'acl_resources_hc_relations_pk')) {
                 $pearDB->query(<<<'SQL'
                     ALTER TABLE `acl_resources_hc_relations`
@@ -468,7 +465,7 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             if (! $pearDB->inTransaction()) {
                 $pearDB->beginTransaction();
             }
-            $errorMessage = "Unable to Delete nagios_path_img from options table";
+            $errorMessage = 'Unable to Delete nagios_path_img from options table';
             $removeNagiosPathImg($pearDB);
 
             $errorMessage = 'Unable to activate deactivated service templates';
@@ -477,10 +474,10 @@ class Migration000023100000 extends AbstractCoreMigration implements LegacyMigra
             $errorMessage = 'Unable to activate deactivated host templates';
             $enableDisabledHostTemplates($pearDB);
 
-            $errorMessage = "Unable to update topology for Dashboard";
+            $errorMessage = 'Unable to update topology for Dashboard';
             $updateTopologyForDashboards($pearDB);
 
-            $errorMessage = "Unable to update topology for API Tokens";
+            $errorMessage = 'Unable to update topology for API Tokens';
             $updateTopologyForApiTokens($pearDB);
 
             $errorMessage = 'Unable to populate dashboard_widgets table';

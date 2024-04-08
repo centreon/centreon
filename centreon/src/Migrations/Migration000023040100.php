@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023040100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.04.1';
 
     public function __construct(
@@ -64,17 +63,16 @@ class Migration000023040100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.04.1.php */
+        // Update-23.04.1.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.04.1: ';
         $errorMessage = '';
 
-        $alterTopologyForFeatureFlag = function(\CentreonDB $pearDB): void {
-            if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+        $alterTopologyForFeatureFlag = function (\CentreonDB $pearDB): void {
+            if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
                 $pearDB->query(
                     <<<'SQL'
                         ALTER TABLE `topology`
@@ -85,22 +83,21 @@ class Migration000023040100 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $removeNagiosPathImg = function(\CentreonDB $pearDB) {
+        $removeNagiosPathImg = function (\CentreonDB $pearDB): void {
             $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
-            if($selectStatement->rowCount() > 0) {
+            if ($selectStatement->rowCount() > 0) {
                 $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
             }
         };
 
-        $alterTopologyForTopologyUrlSubstitue = function(\CentreonDB $pearDB): void {
-            if(!$pearDB->isColumnExist('topology', 'topology_url_substitute')) {
+        $alterTopologyForTopologyUrlSubstitue = function (\CentreonDB $pearDB): void {
+            if (! $pearDB->isColumnExist('topology', 'topology_url_substitute')) {
                 $pearDB->query(
                     <<<'SQL'
-                        ALTER TABLE `topology`
-                        ADD COLUMN `topology_url_substitute` VARCHAR(255) DEFAULT NULL
-                        AFTER `topology_url_opt`
-                    SQL
-
+                            ALTER TABLE `topology`
+                            ADD COLUMN `topology_url_substitute` VARCHAR(255) DEFAULT NULL
+                            AFTER `topology_url_opt`
+                        SQL
                 );
             }
         };

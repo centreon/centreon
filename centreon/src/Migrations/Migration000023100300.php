@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023100300 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.10.3';
 
     public function __construct(
@@ -64,17 +63,16 @@ class Migration000023100300 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.10.3.php */
+        // Update-23.10.3.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.10.3: ';
         $errorMessage = '';
 
-        $dropColumnVersionFromDashboardWidgetsTable = function(\CentreonDB $pearDB): void {
-            if($pearDB->isColumnExist('dashboard_widgets', 'version')) {
+        $dropColumnVersionFromDashboardWidgetsTable = function (\CentreonDB $pearDB): void {
+            if ($pearDB->isColumnExist('dashboard_widgets', 'version')) {
                 $pearDB->query(
                     <<<'SQL'
                             ALTER TABLE dashboard_widgets
@@ -84,7 +82,7 @@ class Migration000023100300 extends AbstractCoreMigration implements LegacyMigra
             }
         };
 
-        $populateDashboardTables = function(\CentreonDb $pearDB): void {
+        $populateDashboardTables = function (\CentreonDB $pearDB): void {
         $statement = $pearDB->query(
             <<<'SQL'
                 SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-statusgrid'

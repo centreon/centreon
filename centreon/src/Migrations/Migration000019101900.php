@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019101900 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.10.19';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000019101900 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.10.19.php */
+        // Update-19.10.19.php
 
         $centreonLog = new \CentreonLog();
 
@@ -111,17 +109,18 @@ class Migration000019101900 extends AbstractCoreMigration implements LegacyMigra
         } catch (\Throwable $ex) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . $ex->getCode() .
-                " - Error : " . $ex->getMessage() .
-                " - Trace : " . $ex->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . $ex->getCode()
+                . ' - Error : ' . $ex->getMessage()
+                . ' - Trace : ' . $ex->getTraceAsString()
             );
+
             throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
         }
         // Contact language with transaction
         try {
             $pearDB->beginTransaction();
-            $errorMessage = "Unable to Update user language";
+            $errorMessage = 'Unable to Update user language';
             $pearDB->query(
                 "UPDATE contact SET contact_lang = CONCAT(contact_lang, '.UTF-8')
                 WHERE contact_lang NOT LIKE '%UTF-8' AND contact_lang <> 'browser' AND contact_lang <> ''"
@@ -131,11 +130,12 @@ class Migration000019101900 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . $ex->getCode() .
-                " - Error : " . $ex->getMessage() .
-                " - Trace : " . $ex->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . $ex->getCode()
+                . ' - Error : ' . $ex->getMessage()
+                . ' - Trace : ' . $ex->getTraceAsString()
             );
+
             throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
         }
     }

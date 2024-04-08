@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000018100300 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '18.10.3';
 
     public function __construct(
@@ -62,8 +61,7 @@ class Migration000018100300 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-DB-18.10.3.sql */
+        // Update-DB-18.10.3.sql
 
         // Remove old progressbar lib
         $pearDB->query(

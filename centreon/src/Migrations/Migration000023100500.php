@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023100500 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.10.5';
 
     public function __construct(
@@ -64,17 +63,16 @@ class Migration000023100500 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.10.5.php */
+        // Update-23.10.5.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.10.5: ';
         $errorMessage = '';
 
         // ------------ INSERT / UPDATE / DELETE
-        $updateTopologyForCloudNotifications = function(\CentreonDB $pearDB): void {
+        $updateTopologyForCloudNotifications = function (\CentreonDB $pearDB): void {
             $statement = $pearDB->query(
                 <<<'SQL'
                     SELECT 1 FROM `topology` WHERE `topology_url` = '/configuration/notifications'

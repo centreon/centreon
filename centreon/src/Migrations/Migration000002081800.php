@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002081800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.18';
 
     public function __construct(
@@ -64,22 +63,20 @@ class Migration000002081800 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
+        // Update-2.8.18.php
 
-        /* Update-2.8.18.php */
-
-        $query = "SELECT count(*) AS number " .
-        "FROM INFORMATION_SCHEMA.STATISTICS " .
-        "WHERE table_schema = '" . $this->storageDbName . "' " .
-        "AND table_name = 'centreon_acl' " .
-        "AND index_name='index1'";
+        $query = 'SELECT count(*) AS number '
+        . 'FROM INFORMATION_SCHEMA.STATISTICS '
+        . "WHERE table_schema = '" . $this->storageDbName . "' "
+        . "AND table_name = 'centreon_acl' "
+        . "AND index_name='index1'";
         $res = $pearDBO->query($query);
         $data = $res->fetchRow();
-        if ($data['number'] == 0) {
+        if ($data['number'] === 0) {
             $pearDBO->query('ALTER TABLE centreon_acl ADD INDEX `index2` (`host_id`,`service_id`,`group_id`)');
         }
 
-
-        /* Update-DB-2.8.18.sql */
+        // Update-DB-2.8.18.sql
 
         // lua custom output for centreon-broker
         $pearDB->query(

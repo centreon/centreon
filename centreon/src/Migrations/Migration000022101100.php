@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022101100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.10.11';
 
     public function __construct(
@@ -64,16 +63,15 @@ class Migration000022101100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-22.10.11.php */
+        // Update-22.10.11.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.10.11: ';
         $errorMessage = '';
 
-        $alterMetricsTable = function(\CentreonDB $pearDBO) {
+        $alterMetricsTable = function (\CentreonDB $pearDBO): void {
             $pearDBO->query(
                 <<<'SQL'
                     ALTER TABLE `metrics`

@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019100300 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.10.3';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000019100300 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.10.3.php */
+        // Update-19.10.3.php
 
         $centreonLog = new \CentreonLog();
 
@@ -79,7 +77,7 @@ class Migration000019100300 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.3 Unable to delete ldap auto-imported users with empty contact_name"
+                'UPGRADE : 19.10.3 Unable to delete ldap auto-imported users with empty contact_name'
             );
 
             throw $e;
@@ -89,15 +87,15 @@ class Migration000019100300 extends AbstractCoreMigration implements LegacyMigra
         try {
             // finding the data of contacts linked to an LDAP
             $stmt = $pearDB->query(
-                "SELECT contact_id, contact_name, contact_ldap_dn FROM contact WHERE ar_id is NOT NULL"
+                'SELECT contact_id, contact_name, contact_ldap_dn FROM contact WHERE ar_id is NOT NULL'
             );
             $updateDB = $pearDB->prepare(
-                "UPDATE contact SET contact_ldap_dn = :newDn WHERE contact_id = :contactId"
+                'UPDATE contact SET contact_ldap_dn = :newDn WHERE contact_id = :contactId'
             );
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 // removing the double slashes if needed and saving the corrected data
-                if (strpos($row['contact_ldap_dn'], "\\\\")) {
-                    $newDn = str_replace("\\\\", "\\", $row['contact_ldap_dn']);
+                if (mb_strpos($row['contact_ldap_dn'], '\\\\')) {
+                    $newDn = str_replace('\\\\', '\\', $row['contact_ldap_dn']);
 
                     $updateDB->bindValue(':newDn', $newDn, \PDO::PARAM_STR);
                     $updateDB->bindValue(':contactId', $row['contact_id'], \PDO::PARAM_INT);
@@ -107,7 +105,7 @@ class Migration000019100300 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.3 Unable to correct the LDAP DN data"
+                'UPGRADE : 19.10.3 Unable to correct the LDAP DN data'
             );
 
             throw $e;

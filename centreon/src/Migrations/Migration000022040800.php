@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022040800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.04.8';
 
     public function __construct(
@@ -64,13 +63,14 @@ class Migration000022040800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.04.8.php */
+        // Update-22.04.8.php
 
         $centreonLog = new \CentreonLog();
 
         // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.04.8: ';
+
+        $errorMessage = '';
 
         /**
          * Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
@@ -78,7 +78,7 @@ class Migration000022040800 extends AbstractCoreMigration implements LegacyMigra
          *
          * @param \CentreonDB $pearDB
          */
-        $decodeIllegalCharactersNagios = function(\CentreonDB $pearDB): void
+        $decodeIllegalCharactersNagios = function (\CentreonDB $pearDB): void
         {
             $configs = $pearDB->query(
                 <<<'SQL'
@@ -121,13 +121,13 @@ class Migration000022040800 extends AbstractCoreMigration implements LegacyMigra
 
         try {
             if ($pearDB->isColumnExist('remote_servers', 'app_key') === 1) {
-                $errorMessage = "Unable to remove app_key column";
-                $pearDB->query("ALTER TABLE `remote_servers` DROP COLUMN `app_key`");
+                $errorMessage = 'Unable to remove app_key column';
+                $pearDB->query('ALTER TABLE `remote_servers` DROP COLUMN `app_key`');
             }
 
             // Transactional queries
             $pearDB->beginTransaction();
-            $errorMessage = "Impossible to delete color picker topology_js entries";
+            $errorMessage = 'Impossible to delete color picker topology_js entries';
             $pearDB->query(
                 "DELETE FROM `topology_JS`
                 WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"

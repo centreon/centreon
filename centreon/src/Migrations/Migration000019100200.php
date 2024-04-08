@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019100200 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.10.2';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000019100200 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.10.2.php */
+        // Update-19.10.2.php
 
         $centreonLog = new \CentreonLog();
 
@@ -77,14 +75,13 @@ class Migration000019100200 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.10.2 Unable to set default contact_autologin_key"
+                'UPGRADE : 19.10.2 Unable to set default contact_autologin_key'
             );
 
             throw $e;
         }
 
-
-        /* Update-DB-19.10.2.sql */
+        // Update-DB-19.10.2.sql
 
         $pearDB->query(
             <<<'SQL'

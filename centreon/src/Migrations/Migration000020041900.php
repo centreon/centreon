@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020041900 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.04.19';
 
     public function __construct(
@@ -64,26 +63,27 @@ class Migration000020041900 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-20.04.19.php */
+        // Update-20.04.19.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.04.19:';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
 
-            //Purge all session.
+            // Purge all session.
             $errorMessage = 'Impossible to purge the table session';
-            $pearDB->query("DELETE FROM `session`");
+            $pearDB->query('DELETE FROM `session`');
 
             $errorMessage = 'Impossible to purge the table ws_token';
-            $pearDB->query("DELETE FROM `ws_token`");
+            $pearDB->query('DELETE FROM `ws_token`');
 
             $constraintStatement = $pearDB->query(
                 "SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_NAME='session_ibfk_1'"
@@ -91,22 +91,27 @@ class Migration000020041900 extends AbstractCoreMigration implements LegacyMigra
             if (($constraint = $constraintStatement->fetch()) && (int) $constraint['count'] === 0) {
                 $errorMessage = 'Impossible to add Delete Cascade constraint on the table session';
                 $pearDB->query(
-                    "ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) " .
-                    "REFERENCES `contact` (`contact_id`) ON DELETE CASCADE"
+                    'ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) '
+                    . 'REFERENCES `contact` (`contact_id`) ON DELETE CASCADE'
                 );
             }
 
-            $pearDB->commit();
+            if ($pearDB->inTransaction()) {
+                $pearDB->commit();
+            }
         } catch (\Exception $e) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

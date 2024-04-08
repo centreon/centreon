@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021101100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.10.11';
 
     public function __construct(
@@ -64,27 +63,27 @@ class Migration000021101100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-        /* Update-21.10.11.php */
+        // Update-21.10.11.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.10.11: ';
         $errorMessage = '';
 
         try {
             $errorMessage = "Impossible to update 'hosts' table";
-            if (! str_contains(strtolower($pearDBO->getColumnType('hosts', 'notification_number')), 'bigint')) {
+            if (! str_contains(mb_strtolower($pearDBO->getColumnType('hosts', 'notification_number')), 'bigint')) {
                 $pearDBO->beginTransaction();
-                $pearDBO->query("UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0");
-                $pearDBO->query("ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+                $pearDBO->query('UPDATE `hosts` SET `notification_number`= 0 WHERE `notification_number`< 0');
+                $pearDBO->query('ALTER TABLE `hosts` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL');
             }
 
             $errorMessage = "Impossible to update 'services' table";
-            if (! str_contains(strtolower($pearDBO->getColumnType('services', 'notification_number')), 'bigint')) {
+            if (! str_contains(mb_strtolower($pearDBO->getColumnType('services', 'notification_number')), 'bigint')) {
                 $pearDBO->beginTransaction();
-                $pearDBO->query("UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0");
-                $pearDBO->query("ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL");
+                $pearDBO->query('UPDATE `services` SET `notification_number`= 0 WHERE `notification_number`< 0');
+                $pearDBO->query('ALTER TABLE `services` MODIFY `notification_number` BIGINT(20) UNSIGNED DEFAULT NULL');
             }
         } catch (\Exception $e) {
             if ($pearDBO->inTransaction()) {
@@ -93,10 +92,10 @@ class Migration000021101100 extends AbstractCoreMigration implements LegacyMigra
 
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
 
             throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);

@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023100800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.10.8';
 
     public function __construct(
@@ -64,22 +63,20 @@ class Migration000023100800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.10.8.php */
+        // Update-23.10.8.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.10.8: ';
         $errorMessage = '';
 
-
-        $insertResourcesTableWidget = function(\CentreonDB $pearDB) use(&$errorMessage): void {
+        $insertResourcesTableWidget = function (\CentreonDB $pearDB) use (&$errorMessage): void {
             $errorMessage = 'Unable to insert centreon-widget-resourcestable in dashboard_widgets';
             $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-resourcestable'");
-            if((bool) $statement->fetchColumn() === false) {
+            if ((bool) $statement->fetchColumn() === false) {
                 $pearDB->query(
-                    <<<SQL
+                    <<<'SQL'
                         INSERT INTO dashboard_widgets (`name`)
                         VALUES ('centreon-widget-resourcestable')
                         SQL

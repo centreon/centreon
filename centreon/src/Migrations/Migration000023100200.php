@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023100200 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.10.2';
 
     public function __construct(
@@ -64,12 +63,11 @@ class Migration000023100200 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.10.2.php */
+        // Update-23.10.2.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.10.2: ';
         $errorMessage = '';
 
@@ -78,18 +76,18 @@ class Migration000023100200 extends AbstractCoreMigration implements LegacyMigra
             $errorMessage = 'Unable to create table: notification_contactgroup_relation';
             $pearDB->query(
                 <<<'SQL'
-                    CREATE TABLE IF NOT EXISTS `notification_contactgroup_relation` (
-                    `notification_id` INT UNSIGNED NOT NULL,
-                    `contactgroup_id` INT NOT NULL,
-                    UNIQUE KEY `notification_contactgroup_relation_unique_index` (`notification_id`,`contactgroup_id`),
-                    CONSTRAINT `notification_contactgroup_relation_notification_id`
-                        FOREIGN KEY (`notification_id`)
-                        REFERENCES `notification` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `notification_contactgroup_relation_contactgroup_id`
-                        FOREIGN KEY (`contactgroup_id`)
-                        REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-                SQL
+                        CREATE TABLE IF NOT EXISTS `notification_contactgroup_relation` (
+                        `notification_id` INT UNSIGNED NOT NULL,
+                        `contactgroup_id` INT NOT NULL,
+                        UNIQUE KEY `notification_contactgroup_relation_unique_index` (`notification_id`,`contactgroup_id`),
+                        CONSTRAINT `notification_contactgroup_relation_notification_id`
+                            FOREIGN KEY (`notification_id`)
+                            REFERENCES `notification` (`id`) ON DELETE CASCADE,
+                        CONSTRAINT `notification_contactgroup_relation_contactgroup_id`
+                            FOREIGN KEY (`contactgroup_id`)
+                            REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                    SQL
             );
         };
 

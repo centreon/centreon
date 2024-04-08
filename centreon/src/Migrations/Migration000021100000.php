@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021100000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.10.0';
 
     public function __construct(
@@ -65,8 +64,7 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-CSTG-21.10.0-beta.1.sql */
+        // Update-CSTG-21.10.0-beta.1.sql
 
         $pearDBO->query(
             <<<'SQL'
@@ -99,28 +97,29 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-21.10.0-beta.1.php */
+        // Update-21.10.0-beta.1.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.10.0-beta.1: ';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
 
-            //Purge all session.
+            // Purge all session.
             $errorMessage = 'Impossible to purge the table session';
-            $pearDB->query("DELETE FROM `session`");
+            $pearDB->query('DELETE FROM `session`');
 
             // Add TLS hostname in config brocker for input/outputs IPV4
             $statement = $pearDB->query("SELECT cb_field_id from cb_field WHERE fieldname = 'tls_hostname'");
             if ($statement->fetchColumn() === false) {
-                $errorMessage  = 'Unable to update cb_field';
+                $errorMessage = 'Unable to update cb_field';
                 $pearDB->query("
                     INSERT INTO `cb_field` (
                         `cb_field_id`, `fieldname`,`displayname`,
@@ -133,12 +132,12 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
                     )
                 ");
 
-                $errorMessage  = 'Unable to update cb_type_field_relation';
+                $errorMessage = 'Unable to update cb_type_field_relation';
                 $fieldId = $pearDB->lastInsertId();
-                $pearDB->query("
+                $pearDB->query('
                     INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`, `order_display`) VALUES
-                    (3, " . $fieldId . ", 0, 5)
-                ");
+                    (3, ' . $fieldId . ', 0, 5)
+                ');
             }
 
             $pearDB->commit();
@@ -149,8 +148,8 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
             if (($constraint = $constraintStatement->fetch()) && (int) $constraint['count'] === 0) {
                 $errorMessage = 'Impossible to add Delete Cascade constraint on the table session';
                 $pearDB->query(
-                    "ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) " .
-                    "REFERENCES `contact` (`contact_id`) ON DELETE CASCADE"
+                    'ALTER TABLE `session` ADD CONSTRAINT `session_ibfk_1` FOREIGN KEY (`user_id`) '
+                    . 'REFERENCES `contact` (`contact_id`) ON DELETE CASCADE'
                 );
             }
         } catch (\Exception $e) {
@@ -159,16 +158,16 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
             }
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
-
-        /* Update-DB-21.10.0-beta.1.sql */
+        // Update-DB-21.10.0-beta.1.sql
 
         $pearDB->query(
             <<<'SQL'
@@ -254,14 +253,13 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
+        // Update-21.10.0-rc.1.php
 
-        /* Update-21.10.0-rc.1.php */
-
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.10.0-rc.1: ';
 
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
@@ -291,11 +289,11 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
             $result = $pearDB->query("SELECT * FROM `options` WHERE options.key LIKE 'openid%'");
             $generalOptions = [];
             while ($row = $result->fetch()) {
-                $generalOptions[$row["key"]] = $row["value"];
+                $generalOptions[$row['key']] = $row['value'];
             }
 
             foreach ($defaultValues as $defaultValueName => $defautValue) {
-                if (!isset($generalOptions[$defaultValueName])) {
+                if (! isset($generalOptions[$defaultValueName])) {
                     $statement = $pearDB->prepare('INSERT INTO `options` (`key`, `value`) VALUES (:option_key, :option_value)');
                     $statement->bindValue(':option_key', $defaultValueName, \PDO::PARAM_STR);
                     $statement->bindValue(':option_value', $defautValue, \PDO::PARAM_STR);
@@ -304,7 +302,7 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             /**
-             * Retrieve user filters
+             * Retrieve user filters.
              */
             $statement = $pearDB->query(
                 "SELECT `id`, `criterias` FROM `user_filter` WHERE `page_name` = 'events-view'"
@@ -314,9 +312,9 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
 
             /**
              * Sort filter criteria was not correctly added during the 21.04.0
-             * upgrade. It should be an array and not an object
+             * upgrade. It should be an array and not an object.
              */
-            $errorMessage = "Cannot parse filter values in user_filter table.";
+            $errorMessage = 'Cannot parse filter values in user_filter table.';
             while ($filter = $statement->fetch()) {
                 $id = $filter['id'];
                 $decodedCriterias = json_decode($filter['criterias'], true);
@@ -326,7 +324,7 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
                         && is_array($criteria['value'])
                         && count($criteria['value']) === 2
                         && $criteria['value'][0] === 'status_severity_code'
-                        && !in_array($criteria['value'][1], ['asc', 'desc'])
+                        && ! in_array($criteria['value'][1], ['asc', 'desc'], true)
                     ) {
                         $decodedCriterias[$criteriaKey]['value'][1] = 'desc';
                     }
@@ -336,12 +334,12 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             /**
-             * UPDATE SQL request on filters
+             * UPDATE SQL request on filters.
              */
-            $errorMessage = "Unable to update filter sort values in user_filter table.";
+            $errorMessage = 'Unable to update filter sort values in user_filter table.';
             foreach ($fixedCriteriaFilters as $id => $criterias) {
                 $statement = $pearDB->prepare(
-                    "UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id"
+                    'UPDATE `user_filter` SET `criterias` = :criterias WHERE `id` = :id'
                 );
                 $statement->bindValue(':id', (int) $id, \PDO::PARAM_INT);
                 $statement->bindValue(':criterias', $criterias, \PDO::PARAM_STR);
@@ -354,13 +352,13 @@ class Migration000021100000 extends AbstractCoreMigration implements LegacyMigra
 
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
 
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

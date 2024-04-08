@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019040000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.04.0';
 
     public function __construct(
@@ -64,22 +63,21 @@ class Migration000019040000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.04.0.php */
+        // Update-19.04.0.php
 
         $centreonLog = new \CentreonLog();
 
         /**
-         * New configuration options for Centreon Engine
+         * New configuration options for Centreon Engine.
          */
         try {
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
-            if (!$pearDB->isColumnExist('cfg_nagios', 'enable_macros_filter')) {
+            if (! $pearDB->isColumnExist('cfg_nagios', 'enable_macros_filter')) {
                 $pearDB->query(
                     "ALTER TABLE `cfg_nagios` ADD COLUMN `enable_macros_filter` ENUM('0', '1') DEFAULT '0'"
                 );
             }
-            if (!$pearDB->isColumnExist('cfg_nagios', 'macros_filter')) {
+            if (! $pearDB->isColumnExist('cfg_nagios', 'macros_filter')) {
                 $pearDB->query(
                     "ALTER TABLE `cfg_nagios` ADD COLUMN `macros_filter` TEXT DEFAULT ('')"
                 );
@@ -87,7 +85,7 @@ class Migration000019040000 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.04.0 Unable to modify centreon engine in the database"
+                'UPGRADE : 19.04.0 Unable to modify centreon engine in the database'
             );
 
             throw $e;
@@ -95,8 +93,7 @@ class Migration000019040000 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->query('SET SESSION innodb_strict_mode=ON');
         }
 
-
-        /* Update-DB-19.04.0.sql */
+        // Update-DB-19.04.0.sql
 
         // updating the side menus
         // removing or renaming unfriendly titles from performance menu

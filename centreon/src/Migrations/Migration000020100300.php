@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020100300 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.10.3';
 
     public function __construct(
@@ -65,8 +64,7 @@ class Migration000020100300 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-CSTG-20.10.3.sql */
+        // Update-CSTG-20.10.3.sql
 
         $pearDBO->query(
             <<<'SQL'
@@ -75,8 +73,7 @@ class Migration000020100300 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-20.10.3.php */
+        // Update-20.10.3.php
 
         // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.3 : ';
@@ -120,18 +117,19 @@ class Migration000020100300 extends AbstractCoreMigration implements LegacyMigra
         } catch (\Throwable $ex) {
             (new \CentreonLog())->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . $ex->getCode() .
-                " - Error : " . $ex->getMessage() .
-                " - Trace : " . $ex->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . $ex->getCode()
+                . ' - Error : ' . $ex->getMessage()
+                . ' - Trace : ' . $ex->getTraceAsString()
             );
+
             throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
         }
 
         // Contact language with transaction
         try {
             $pearDB->beginTransaction();
-            $errorMessage = "Unable to Update user language";
+            $errorMessage = 'Unable to Update user language';
             $pearDB->query(
                 "UPDATE contact SET contact_lang = CONCAT(contact_lang, '.UTF-8')
                 WHERE contact_lang NOT LIKE '%UTF-8' AND contact_lang <> 'browser' AND contact_lang <> ''"
@@ -141,11 +139,12 @@ class Migration000020100300 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->rollBack();
             (new \CentreonLog())->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . $ex->getCode() .
-                " - Error : " . $ex->getMessage() .
-                " - Trace : " . $ex->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . $ex->getCode()
+                . ' - Error : ' . $ex->getMessage()
+                . ' - Trace : ' . $ex->getTraceAsString()
             );
+
             throw new \Exception($versionOfTheUpgrade . $errorMessage, $ex->getCode(), $ex);
         }
     }

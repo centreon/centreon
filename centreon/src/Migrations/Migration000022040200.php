@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022040200 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.04.2';
 
     public function __construct(
@@ -64,12 +63,11 @@ class Migration000022040200 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.04.2.php */
+        // Update-22.04.2.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.04.2: ';
         $errorMessage = '';
 
@@ -87,10 +85,10 @@ class Migration000022040200 extends AbstractCoreMigration implements LegacyMigra
 
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
 
             throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);

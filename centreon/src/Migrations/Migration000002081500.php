@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002081500 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.15';
 
     public function __construct(
@@ -62,37 +61,36 @@ class Migration000002081500 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-2.8.15.php */
+        // Update-2.8.15.php
 
         $res = $pearDB->query(
             "SHOW INDEXES FROM `traps_group` WHERE key_name = 'PRIMARY'"
         );
         if ($res->numRows() <= 0) {
             $pearDB->query(
-                "ALTER TABLE `traps_group_relation` " .
-                "DROP FOREIGN KEY `traps_group_relation_ibfk_2`"
+                'ALTER TABLE `traps_group_relation` '
+                . 'DROP FOREIGN KEY `traps_group_relation_ibfk_2`'
             );
 
             $pearDB->query(
-                "ALTER TABLE `traps_group` " .
-                "  CHANGE COLUMN `traps_group_id` " .
-                "  `traps_group_id` INT NOT NULL AUTO_INCREMENT"
+                'ALTER TABLE `traps_group` '
+                . '  CHANGE COLUMN `traps_group_id` '
+                . '  `traps_group_id` INT NOT NULL AUTO_INCREMENT'
             );
 
             $pearDB->query(
-                "ALTER TABLE `traps_group` ADD PRIMARY KEY (`traps_group_id`)"
+                'ALTER TABLE `traps_group` ADD PRIMARY KEY (`traps_group_id`)'
             );
 
             $pearDB->query(
-                "ALTER TABLE `traps_group` " .
-                "  DROP KEY `traps_group_id`"
+                'ALTER TABLE `traps_group` '
+                . '  DROP KEY `traps_group_id`'
             );
 
             $pearDB->query(
-                "ALTER TABLE `traps_group_relation` " .
-                "ADD CONSTRAINT `traps_group_relation_ibfk_2` " .
-                "FOREIGN KEY (`traps_group_id`) REFERENCES `traps_group` (`traps_group_id`) ON DELETE CASCADE"
+                'ALTER TABLE `traps_group_relation` '
+                . 'ADD CONSTRAINT `traps_group_relation_ibfk_2` '
+                . 'FOREIGN KEY (`traps_group_id`) REFERENCES `traps_group` (`traps_group_id`) ON DELETE CASCADE'
             );
         }
     }

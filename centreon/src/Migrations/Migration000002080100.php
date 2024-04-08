@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002080100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.1';
 
     public function __construct(
@@ -63,13 +62,13 @@ class Migration000002080100 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-        /* Update-2.8.1.php */
+        // Update-2.8.1.php
 
         $query = 'SHOW INDEX FROM comments '
             . 'WHERE column_name = "host_id" '
             . 'AND Key_name = "host_id" ';
         $res = $pearDBO->query($query);
-        if (!$res->rowCount()) {
+        if (! $res->rowCount()) {
             $pearDBO->query('ALTER TABLE comments ADD KEY host_id(host_id)');
         }
 
@@ -78,8 +77,7 @@ class Migration000002080100 extends AbstractCoreMigration implements LegacyMigra
             . 'ADD UNIQUE KEY `entry_time` (`entry_time`,`host_id`,`service_id`, `instance_id`, `internal_id`) ';
         $pearDBO->query($query);
 
-
-        /* Update-DB-2.8.1.sql */
+        // Update-DB-2.8.1.sql
 
         // Drop from nagios configuration
         $pearDB->query(

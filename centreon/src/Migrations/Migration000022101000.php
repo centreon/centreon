@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022101000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.10.10';
 
     public function __construct(
@@ -64,19 +63,18 @@ class Migration000022101000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-
-        /* Update-22.10.10.php */
+        // Update-22.10.10.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.10.10: ';
         $errorMessage = '';
 
-        //Change the type of check_attempt and max_check_attempts columns from table resources
+        // Change the type of check_attempt and max_check_attempts columns from table resources
         $errorMessage = "Couldn't modify resources table";
-        $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED,
-            MODIFY max_check_attempts SMALLINT UNSIGNED";
+        $alterResourceTableStmnt = 'ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED,
+            MODIFY max_check_attempts SMALLINT UNSIGNED';
 
         try {
             $pearDBO->query($alterResourceTableStmnt);

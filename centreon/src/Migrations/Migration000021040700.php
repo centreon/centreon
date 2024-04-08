@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021040700 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.7';
 
     public function __construct(
@@ -64,15 +63,17 @@ class Migration000021040700 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.7.php */
+        // Update-21.04.7.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.7: ';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
@@ -80,7 +81,7 @@ class Migration000021040700 extends AbstractCoreMigration implements LegacyMigra
             // Add TLS hostname in config brocker for input/outputs IPV4
             $statement = $pearDB->query("SELECT cb_field_id from cb_field WHERE fieldname = 'tls_hostname'");
             if ($statement->fetchColumn() === false) {
-                $errorMessage  = 'Unable to update cb_field';
+                $errorMessage = 'Unable to update cb_field';
                 $pearDB->query("
                     INSERT INTO `cb_field` (
                         `cb_field_id`, `fieldname`,`displayname`,
@@ -93,12 +94,12 @@ class Migration000021040700 extends AbstractCoreMigration implements LegacyMigra
                     )
                 ");
 
-                $errorMessage  = 'Unable to update cb_type_field_relation';
+                $errorMessage = 'Unable to update cb_type_field_relation';
                 $fieldId = $pearDB->lastInsertId();
-                $pearDB->query("
+                $pearDB->query('
                     INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`, `order_display`) VALUES
-                    (3, " . $fieldId . ", 0, 5)
-                ");
+                    (3, ' . $fieldId . ', 0, 5)
+                ');
             }
 
             if ($pearDB->inTransaction()) {
@@ -110,12 +111,13 @@ class Migration000021040700 extends AbstractCoreMigration implements LegacyMigra
             }
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

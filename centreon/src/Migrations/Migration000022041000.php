@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022041000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.04.10';
 
     public function __construct(
@@ -64,13 +63,14 @@ class Migration000022041000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.04.10.php */
+        // Update-22.04.10.php
 
         $centreonLog = new \CentreonLog();
 
         // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.04.10: ';
+
+        $errorMessage = '';
 
         try {
             // Transactional queries

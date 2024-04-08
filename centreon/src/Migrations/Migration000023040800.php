@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000023040800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '23.04.8';
 
     public function __construct(
@@ -64,17 +63,16 @@ class Migration000023040800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-23.04.8.php */
+        // Update-23.04.8.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 23.04.8: ';
         $errorMessage = '';
 
-        $alterTopologyForFeatureFlag = function(\CentreonDB $pearDB): void {
-            if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+        $alterTopologyForFeatureFlag = function (\CentreonDB $pearDB): void {
+            if (! $pearDB->isColumnExist('topology', 'topology_feature_flag')) {
                 $pearDB->query(
                     <<<'SQL'
                         ALTER TABLE `topology`

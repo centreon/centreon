@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020100600 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.10.6';
 
     public function __construct(
@@ -64,16 +63,16 @@ class Migration000020100600 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-20.10.6.php */
+        // Update-20.10.6.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.6 : ';
         $errorMessage = '';
 
         try {
-            //engine postpone
+            // engine postpone
             if ($pearDB->isColumnExist('cfg_nagios', 'postpone_notification_to_timeperiod')) {
                 // An update is required
                 $errorMessage = 'Impossible to drop postpone_notification_to_timeperiod from fg_nagios';
@@ -82,8 +81,8 @@ class Migration000020100600 extends AbstractCoreMigration implements LegacyMigra
 
             // Platform_topology refacto
             if (0 === $pearDB->isColumnExist('platform_topology', 'pending')) {
-                //Create the new column
-                $errorMessage = "Unable to add pending column to platform_topology table";
+                // Create the new column
+                $errorMessage = 'Unable to add pending column to platform_topology table';
                 $pearDB->query(
                     "ALTER TABLE `platform_topology` ADD COLUMN `pending` enum('0','1') DEFAULT '1' AFTER `parent_id`"
                 );
@@ -92,20 +91,21 @@ class Migration000020100600 extends AbstractCoreMigration implements LegacyMigra
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $pearDB->beginTransaction();
-            $errorMessage = "Unable to update pending state on platform_topology table";
+            $errorMessage = 'Unable to update pending state on platform_topology table';
             // find registered platforms
             $statement = $pearDB->query(
                 "SELECT id FROM `platform_topology`
@@ -121,19 +121,20 @@ class Migration000020100600 extends AbstractCoreMigration implements LegacyMigra
 
             $pearDB->query(
                 "UPDATE `platform_topology` SET `pending` = '0'
-                WHERE id IN ($registeredPlatforms)"
+                WHERE id IN ({$registeredPlatforms})"
             );
             $pearDB->commit();
         } catch (\Exception $e) {
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002080500 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.5';
 
     public function __construct(
@@ -62,8 +61,7 @@ class Migration000002080500 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-DB-2.8.5.sql */
+        // Update-DB-2.8.5.sql
 
         $pearDB->query(
             <<<'SQL'
@@ -205,8 +203,7 @@ class Migration000002080500 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-2.8.5.post.php */
+        // Update-2.8.5.post.php
 
         // Update comments unique key
         $query = 'SELECT cb.config_id, COUNT(cbi.config_group) AS nb '
@@ -225,8 +222,8 @@ class Migration000002080500 extends AbstractCoreMigration implements LegacyMigra
                 . 'SET daemon = :daemon '
                 . 'WHERE config_id = :config_id ';
             $statement = $pearDB->prepare($query);
-            $statement->bindValue(":daemon", $daemon, \PDO::PARAM_INT);
-            $statement->bindValue(":config_id", (int) $row['config_id'], \PDO::PARAM_INT);
+            $statement->bindValue(':daemon', $daemon, \PDO::PARAM_INT);
+            $statement->bindValue(':config_id', (int) $row['config_id'], \PDO::PARAM_INT);
             $statement->execute();
         }
     }

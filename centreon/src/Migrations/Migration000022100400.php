@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022100400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.10.4';
 
     public function __construct(
@@ -64,12 +63,11 @@ class Migration000022100400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.10.4.php */
+        // Update-22.10.4.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.10.4: ';
         $errorMessage = '';
 
@@ -79,7 +77,7 @@ class Migration000022100400 extends AbstractCoreMigration implements LegacyMigra
          *
          * @param CentreonDB $pearDB
          */
-        $decodeIllegalCharactersNagios = function(\CentreonDB $pearDB): void
+        $decodeIllegalCharactersNagios = function (\CentreonDB $pearDB): void
         {
             $configs = $pearDB->query(
                 <<<'SQL'
@@ -122,18 +120,18 @@ class Migration000022100400 extends AbstractCoreMigration implements LegacyMigra
 
         try {
             if ($pearDB->isColumnExist('cfg_centreonbroker', 'event_queues_total_size') === 0) {
-                $errorMessage = "Impossible to update cfg_centreonbroker table";
+                $errorMessage = 'Impossible to update cfg_centreonbroker table';
                 $pearDB->query(
-                    "ALTER TABLE `cfg_centreonbroker`
+                    'ALTER TABLE `cfg_centreonbroker`
                     ADD COLUMN `event_queues_total_size` INT(11) DEFAULT NULL
-                    AFTER `event_queue_max_size`"
+                    AFTER `event_queue_max_size`'
                 );
             }
 
             // Transactional queries
             $pearDB->beginTransaction();
 
-            $errorMessage = "Impossible to delete color picker topology_js entries";
+            $errorMessage = 'Impossible to delete color picker topology_js entries';
             $pearDB->query(
                 "DELETE FROM `topology_JS`
                 WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"

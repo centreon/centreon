@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000002080000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.0';
 
     public function __construct(
@@ -65,7 +64,7 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
-        /* Update-DB-2.8.0-beta2.sql */
+        // Update-DB-2.8.0-beta2.sql
 
         // Remove failover field from graphite broker output
         $pearDB->query(
@@ -205,8 +204,7 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-CSTG-2.8.0.sql */
+        // Update-CSTG-2.8.0.sql
 
         // Issue #4649 - [logAnalyserBroker] Doesn't work
         $pearDBO->query(
@@ -240,8 +238,7 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-2.8.0.php */
+        // Update-2.8.0.php
 
         $metaObj = new \CentreonMeta($pearDB);
         $hostId = null;
@@ -299,12 +296,12 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
         $query = 'SELECT meta_id, meta_name FROM meta_service';
         $res = $pearDB->query($query);
         while ($row = $res->fetchRow()) {
-            if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['service_id'])) {
+            if (! isset($virtualServices[$row['meta_id']]) || ! isset($virtualServices[$row['meta_id']]['service_id'])) {
                 $serviceId = $metaObj->insertVirtualService($row['meta_id'], $row['meta_name']);
             } else {
                 $serviceId = $virtualServices[$row['meta_id']]['service_id'];
             }
-            if (!isset($virtualServices[$row['meta_id']]) || !isset($virtualServices[$row['meta_id']]['relation'])) {
+            if (! isset($virtualServices[$row['meta_id']]) || ! isset($virtualServices[$row['meta_id']]['relation'])) {
                 $query = 'INSERT INTO host_service_relation (host_host_id, service_service_id) '
                     . 'VALUES (:host_id, :service_id) ';
                 $statement = $pearDB->prepare($query);
@@ -314,8 +311,7 @@ class Migration000002080000 extends AbstractCoreMigration implements LegacyMigra
             }
         }
 
-
-        /* Update-DB-2.8.0.sql */
+        // Update-DB-2.8.0.sql
 
         $pearDB->query(
             <<<'SQL'

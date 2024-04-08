@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020100800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.10.8';
 
     public function __construct(
@@ -64,31 +63,31 @@ class Migration000020100800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-20.10.8.php */
+        // Update-20.10.8.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.8 : ';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $pearDB->beginTransaction();
             /**
-             * Retreive Meta Host Id
+             * Retreive Meta Host Id.
              */
             $statement = $pearDB->query(
                 "SELECT `host_id` FROM `host` WHERE `host_name` = '_Module_Meta'"
             );
 
-            /*
-            * Add missing relation
-            */
+            // Add missing relation
             if ($moduleMeta = $statement->fetch()) {
                 $moduleMetaId = $moduleMeta['host_id'];
-                $errorMessage = "Unable to add relation between Module Meta and default poller.";
+                $errorMessage = 'Unable to add relation between Module Meta and default poller.';
                 $statement = $pearDB->prepare(
                     "INSERT INTO ns_host_relation(`nagios_server_id`, `host_host_id`)
                     VALUES(
@@ -105,16 +104,16 @@ class Migration000020100800 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
-
-        /* Update-DB-20.10.8.sql */
+        // Update-DB-20.10.8.sql
 
         // Delete obsolete topologies
         $pearDB->query(

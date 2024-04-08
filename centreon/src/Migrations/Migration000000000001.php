@@ -24,12 +24,12 @@ declare(strict_types=1);
 namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
+use Core\Migration\Domain\Model\NewMigration;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Migration\Application\Repository\LegacyMigrationInterface;
-use Core\Migration\Domain\Model\NewMigration;
 
 class Migration000000000001 extends AbstractCoreMigration implements MigrationInterface
 {

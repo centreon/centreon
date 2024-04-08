@@ -28,10 +28,9 @@ use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
 use Pimple\Container;
 
-class Migration000002082600 extends AbstractCoreMigration implements LegacyMigrationInterface
+class Migration000002082700 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.27';
 
     public function __construct(
@@ -62,8 +61,7 @@ class Migration000002082600 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-DB-2.8.27.sql */
+        // Update-DB-2.8.27.sql
 
         // Add default illegal characters for centcore external commands
         $pearDB->query(

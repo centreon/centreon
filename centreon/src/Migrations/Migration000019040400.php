@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019040400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.04.4';
 
     public function __construct(
@@ -64,24 +63,23 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.04.4.php */
+        // Update-19.04.4.php
 
         $centreonLog = new \CentreonLog();
 
         /**
-         * LDAP auto or manual synchronization feature
+         * LDAP auto or manual synchronization feature.
          */
         try {
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
 
             // Adding two columns to check last user's LDAP sync timestamp
-            if (!$pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
+            if (! $pearDB->isColumnExist('contact', 'contact_ldap_last_sync')) {
                 $pearDB->query(
-                    "ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0"
+                    'ALTER TABLE `contact` ADD COLUMN `contact_ldap_last_sync` INT(11) NOT NULL DEFAULT 0'
                 );
             }
-            if (!$pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
+            if (! $pearDB->isColumnExist('contact', 'contact_ldap_required_sync')) {
                 $pearDB->query(
                     "ALTER TABLE `contact` ADD COLUMN `contact_ldap_required_sync` enum('0','1') NOT NULL DEFAULT '0'"
                 );
@@ -89,9 +87,9 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
 
             // Adding a column to check last specific LDAP sync timestamp
             $needToUpdateValues = false;
-            if (!$pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
+            if (! $pearDB->isColumnExist('auth_ressource', 'ar_sync_base_date')) {
                 $pearDB->query(
-                    "ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0"
+                    'ALTER TABLE `auth_ressource` ADD COLUMN `ar_sync_base_date` INT(11) DEFAULT 0'
                 );
                 $needToUpdateValues = true;
             }
@@ -110,20 +108,20 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
         if ($needToUpdateValues) {
             try {
                 $stmt = $pearDB->prepare(
-                    "UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime"
+                    'UPDATE `auth_ressource` SET `ar_sync_base_date` = :minusTime'
                 );
                 $stmt->bindValue(':minusTime', time(), \PDO::PARAM_INT);
                 $stmt->execute();
             } catch (\PDOException $e) {
                 $centreonLog->insertLog(
                     2,
-                    "UPGRADE : 19.04.4 Unable to initialize LDAP reference date"
+                    'UPGRADE : 19.04.4 Unable to initialize LDAP reference date'
                 );
 
                 throw $e;
             }
 
-            /* Adding to each LDAP configuration two new fields */
+            // Adding to each LDAP configuration two new fields
             try {
                 // field to enable the automatic sync at login
                 $addSyncStateField = $pearDB->prepare(
@@ -139,7 +137,7 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
                 );
 
                 $pearDB->beginTransaction();
-                $stmt = $pearDB->query("SELECT DISTINCT(ar_id) FROM auth_ressource");
+                $stmt = $pearDB->query('SELECT DISTINCT(ar_id) FROM auth_ressource');
                 while ($row = $stmt->fetch()) {
                     $addSyncIntervalField->bindValue(':arId', $row['ar_id'], \PDO::PARAM_INT);
                     $addSyncIntervalField->execute();
@@ -150,11 +148,11 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
             } catch (\PDOException $e) {
                 $centreonLog->insertLog(
                     1, // ldap.log
-                    "UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form"
+                    'UPGRADE PROCESS : Error - Please open your LDAP configuration and save manually each LDAP form'
                 );
                 $centreonLog->insertLog(
                     2, // sql-error.log
-                    "UPGRADE : 19.04.4 Unable to add LDAP new fields"
+                    'UPGRADE : 19.04.4 Unable to add LDAP new fields'
                 );
                 $pearDB->rollBack();
 
@@ -172,10 +170,9 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
             WHERE topology_url LIKE "/poller-wizard/%"'
         );
 
-
         try {
             // Add trap regexp matching
-            if (!$pearDB->isColumnExist('traps', 'traps_mode')) {
+            if (! $pearDB->isColumnExist('traps', 'traps_mode')) {
                 $pearDB->query('SET SESSION innodb_strict_mode=OFF');
                 $pearDB->query(
                     "ALTER TABLE `traps` ADD COLUMN `traps_mode` enum('0','1') DEFAULT '0' AFTER `traps_oid`"
@@ -184,7 +181,7 @@ class Migration000019040400 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : 19.04.4 Unable to modify regexp matching in the database"
+                'UPGRADE : 19.04.4 Unable to modify regexp matching in the database'
             );
 
             throw $e;

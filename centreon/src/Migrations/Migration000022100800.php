@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000022100800 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '22.10.8';
 
     public function __construct(
@@ -64,12 +63,11 @@ class Migration000022100800 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-22.10.8.php */
+        // Update-22.10.8.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 22.10.8: ';
         $errorMessage = '';
 
@@ -77,11 +75,11 @@ class Migration000022100800 extends AbstractCoreMigration implements LegacyMigra
         {
             $customConfigurationJson = $pearDB->query(
                 <<<'SQL'
-                SELECT custom_configuration
-                    FROM provider_configuration
-                WHERE
-                    name = 'openid'
-                SQL
+                    SELECT custom_configuration
+                        FROM provider_configuration
+                    WHERE
+                        name = 'openid'
+                    SQL
             )->fetchColumn();
 
             $customConfiguration = json_decode($customConfigurationJson, true);
@@ -90,11 +88,11 @@ class Migration000022100800 extends AbstractCoreMigration implements LegacyMigra
                 $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
 
                 $statement = $pearDB->prepare(
-                    <<<SQL
-                    UPDATE provider_configuration
-                        SET custom_configuration = :encodedConfiguration
-                    WHERE name = 'openid'
-                    SQL
+                    <<<'SQL'
+                        UPDATE provider_configuration
+                            SET custom_configuration = :encodedConfiguration
+                        WHERE name = 'openid'
+                        SQL
                 );
                 $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
                 $statement->execute();

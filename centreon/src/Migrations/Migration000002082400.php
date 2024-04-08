@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002082400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.24';
 
     public function __construct(
@@ -63,23 +62,20 @@ class Migration000002082400 extends AbstractCoreMigration implements LegacyMigra
         $pearDB = $this->dependencyInjector['configuration_db'];
         $pearDBO = $this->dependencyInjector['realtime_db'];
 
+        // Update-2.8.24.php
 
-        /* Update-2.8.24.php */
-
-        /*
-         * Create tempory table to delete duplicate entries
-         */
-        $query = 'CREATE TABLE `centreon_acl_new` ( ' .
-            '`group_id` int(11) NOT NULL, ' .
-            '`host_id` int(11) NOT NULL, ' .
-            '`service_id` int(11) DEFAULT NULL, ' .
-            'UNIQUE KEY (`group_id`,`host_id`,`service_id`), ' .
-            'KEY `index1` (`host_id`,`service_id`,`group_id`) ' .
-            ') ENGINE=InnoDB DEFAULT CHARSET=utf8 ';
+        // Create tempory table to delete duplicate entries
+        $query = 'CREATE TABLE `centreon_acl_new` ( '
+            . '`group_id` int(11) NOT NULL, '
+            . '`host_id` int(11) NOT NULL, '
+            . '`service_id` int(11) DEFAULT NULL, '
+            . 'UNIQUE KEY (`group_id`,`host_id`,`service_id`), '
+            . 'KEY `index1` (`host_id`,`service_id`,`group_id`) '
+            . ') ENGINE=InnoDB DEFAULT CHARSET=utf8 ';
         $pearDBO->query($query);
 
         /**
-         * Checking if centAcl.php is running and waiting 2min for it to stop before locking cron_operation table
+         * Checking if centAcl.php is running and waiting 2min for it to stop before locking cron_operation table.
          */
         $query = "SELECT running FROM cron_operation WHERE `name` = 'centAcl.php'";
         $i = 0;
@@ -87,42 +83,42 @@ class Migration000002082400 extends AbstractCoreMigration implements LegacyMigra
             $i++;
             $result = $pearDB->query($query);
             while ($row = $result->fetchRow()) {
-                if ($row['running'] == "1") {
+                if ($row['running'] === '1') {
                     sleep(1);
                 } else {
-                    break(2);
+                    break 2;
                 }
             }
         }
 
         /**
-         * Lock centAcl cron during upgrade
+         * Lock centAcl cron during upgrade.
          */
         $query = "UPDATE cron_operation SET running = '1' WHERE `name` = 'centAcl.php'";
         $pearDB->query($query);
 
         /**
-         * Copy data from old table to new table with duplicate entries deletion
+         * Copy data from old table to new table with duplicate entries deletion.
          */
-        $query = 'INSERT INTO centreon_acl_new (group_id, host_id, service_id) ' .
-            'SELECT group_id, host_id, service_id FROM centreon_acl ' .
-            'GROUP BY group_id, host_id, service_id';
+        $query = 'INSERT INTO centreon_acl_new (group_id, host_id, service_id) '
+            . 'SELECT group_id, host_id, service_id FROM centreon_acl '
+            . 'GROUP BY group_id, host_id, service_id';
         $pearDBO->query($query);
 
         /**
-         * Drop old table with duplicate entries
+         * Drop old table with duplicate entries.
          */
         $query = 'DROP TABLE centreon_acl';
         $pearDBO->query($query);
 
         /**
-         * Rename temporary table to stable table
+         * Rename temporary table to stable table.
          */
         $query = 'ALTER TABLE centreon_acl_new RENAME TO centreon_acl';
         $pearDBO->query($query);
 
         /**
-         * Unlock centAcl cron during upgrade
+         * Unlock centAcl cron during upgrade.
          */
         $query = "UPDATE cron_operation SET running = '0' WHERE `name` = 'centAcl.php'";
         $pearDB->query($query);

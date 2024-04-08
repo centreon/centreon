@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021040500 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.04.5';
 
     public function __construct(
@@ -64,19 +63,21 @@ class Migration000021040500 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.04.5.php */
+        // Update-21.04.5.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.04.5:';
 
+        $errorMessage = '';
+
         /**
-         * Query with transaction
+         * Query with transaction.
          */
         try {
             $errorMessage = 'Impossible to alter the table contact';
-            if (!$pearDB->isColumnExist('contact', 'contact_platform_data_sending')) {
+            if (! $pearDB->isColumnExist('contact', 'contact_platform_data_sending')) {
                 $pearDB->query(
                     "ALTER TABLE `contact` ADD COLUMN `contact_platform_data_sending` ENUM('0', '1', '2')"
                 );
@@ -84,12 +85,13 @@ class Migration000021040500 extends AbstractCoreMigration implements LegacyMigra
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

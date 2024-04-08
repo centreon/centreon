@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000019040100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '19.04.1';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000019040100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-19.04.1.php */
+        // Update-19.04.1.php
 
         $centreonLog = new \CentreonLog();
 
@@ -73,22 +71,22 @@ class Migration000019040100 extends AbstractCoreMigration implements LegacyMigra
             $pearDB->query('SET SESSION innodb_strict_mode=OFF');
 
             // Add HTTPS connexion to Remote Server
-            if (!$pearDB->isColumnExist('remote_servers', 'http_method')) {
+            if (! $pearDB->isColumnExist('remote_servers', 'http_method')) {
                 $pearDB->query(
                     "ALTER TABLE remote_servers ADD COLUMN `http_method` enum('http','https') NOT NULL DEFAULT 'http'"
                 );
             }
-            if (!$pearDB->isColumnExist('remote_servers', 'http_port')) {
+            if (! $pearDB->isColumnExist('remote_servers', 'http_port')) {
                 $pearDB->query(
-                    "ALTER TABLE remote_servers ADD COLUMN `http_port` int(11) NULL DEFAULT NULL"
+                    'ALTER TABLE remote_servers ADD COLUMN `http_port` int(11) NULL DEFAULT NULL'
                 );
             }
-            if (!$pearDB->isColumnExist('remote_servers', 'no_check_certificate')) {
+            if (! $pearDB->isColumnExist('remote_servers', 'no_check_certificate')) {
                 $pearDB->query(
                     "ALTER TABLE remote_servers ADD COLUMN `no_check_certificate` enum('0','1') NOT NULL DEFAULT '0'"
                 );
             }
-            if (!$pearDB->isColumnExist('remote_servers', 'no_proxy')) {
+            if (! $pearDB->isColumnExist('remote_servers', 'no_proxy')) {
                 $pearDB->query(
                     "ALTER TABLE remote_servers ADD COLUMN `no_proxy` enum('0','1') NOT NULL DEFAULT '0'"
                 );
@@ -96,7 +94,7 @@ class Migration000019040100 extends AbstractCoreMigration implements LegacyMigra
         } catch (\PDOException $e) {
             $centreonLog->insertLog(
                 2,
-                "UPGRADE : Unable to process 19.04.1 upgrade"
+                'UPGRADE : Unable to process 19.04.1 upgrade'
             );
 
             throw $e;

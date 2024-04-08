@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020100000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.10.0';
 
     public function __construct(
@@ -64,8 +63,7 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-DB-20.10.0-beta.1.sql */
+        // Update-DB-20.10.0-beta.1.sql
 
         // Create user_filter table
         $pearDB->query(
@@ -156,21 +154,22 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
-
-        /* Update-20.10.0-beta.1.post.php */
+        // Update-20.10.0-beta.1.post.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.1.post : ';
 
+        $errorMessage = '';
+
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $pearDB->beginTransaction();
             /**
-             * register server to 'platform_status' table
+             * register server to 'platform_status' table.
              */
             // Correct 'isCentral' flag value
             $errorMessage = "Unable to get server data from the 'informations' table.";
@@ -179,12 +178,12 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                 WHERE (`key` = 'isRemote' AND `value` = 'no') OR (`key` = 'isCentral' AND `value` = 'no')
             ");
             $row = $result->fetch();
-            if (2 === (int)$row['count']) {
+            if (2 === (int) $row['count']) {
                 $errorMessage = "Unable to modify isCentral flag value in 'informations' table.";
                 $stmt = $pearDB->query("UPDATE `informations` SET `value` = 'yes' WHERE `key` = 'isCentral'");
             }
             /**
-             * activate remote access page in topology menu
+             * activate remote access page in topology menu.
              */
             $showPage = '0';
             $serverType = $pearDB->query("
@@ -212,14 +211,14 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             ");
 
             // migrate resource status menu acl
-            $errorMessage = "Unable to update acl of resource status page.";
+            $errorMessage = 'Unable to update acl of resource status page.';
 
             $resourceStatusQuery = $pearDB->query(
-                "SELECT topology_id, topology_page FROM topology WHERE topology_page IN (2, 200)"
+                'SELECT topology_id, topology_page FROM topology WHERE topology_page IN (2, 200)'
             );
 
             $topologyAclStatement = $pearDB->prepare(
-                "SELECT DISTINCT(tr1.acl_topo_id)
+                'SELECT DISTINCT(tr1.acl_topo_id)
                 FROM acl_topology_relations tr1
                 WHERE tr1.acl_topo_id NOT IN (
                     SELECT tr2.acl_topo_id
@@ -232,10 +231,10 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                     FROM acl_topology_relations tr3, topology t3
                     WHERE tr3.topology_topology_id = t3.topology_id
                     AND t3.topology_page IN (20201, 20202)
-                )"
+                )'
             );
 
-            $topologyInsertStatement = $pearDB->prepare("
+            $topologyInsertStatement = $pearDB->prepare('
                 INSERT INTO `acl_topology_relations` (
                     `topology_topology_id`,
                     `acl_topo_id`,
@@ -245,7 +244,7 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                     :acl_topology_id,
                     1
                 )
-            ");
+            ');
 
             while ($resourceStatusPage = $resourceStatusQuery->fetch()) {
                 $topologyAclStatement->bindValue(':topology_page', (int) $resourceStatusPage['topology_page'], \PDO::PARAM_INT);
@@ -259,7 +258,7 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             $monitoringTopologyStatement = $pearDB->query(
-                "SELECT DISTINCT(tr1.acl_topo_id)
+                'SELECT DISTINCT(tr1.acl_topo_id)
                 FROM acl_topology_relations tr1
                 WHERE tr1.acl_topo_id NOT IN (
                     SELECT tr2.acl_topo_id
@@ -272,11 +271,11 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                     FROM acl_topology_relations tr3, topology t3
                     WHERE tr3.topology_topology_id = t3.topology_id
                     AND t3.topology_page = 200
-                )"
+                )'
             );
 
             $monitoringPageQuery = $pearDB->query(
-                "SELECT topology_id FROM topology WHERE topology_page = 2"
+                'SELECT topology_id FROM topology WHERE topology_page = 2'
             );
             $monitoringPage = $monitoringPageQuery->fetch();
 
@@ -289,35 +288,33 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             $pearDB->commit();
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
+        // Update-20.10.0-beta.2.php
 
-        /* Update-20.10.0-beta.2.php */
-
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2 : ';
 
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $pearDB->beginTransaction();
 
-            /*
-            * Move keycloak configuration to OpenId Connect one
-            */
-            $errorMessage = "Unable to move Keycloak configuration to OpenId Connect";
+            // Move keycloak configuration to OpenId Connect one
+            $errorMessage = 'Unable to move Keycloak configuration to OpenId Connect';
             $result = $pearDB->query(
                 "SELECT * FROM options WHERE options.key IN ('keycloak_enable', 'keycloak_mode', 'keycloak_url',
                 'keycloak_redirect_url', 'keycloak_realm', 'keycloak_client_id', 'keycloak_client_secret',
@@ -330,9 +327,9 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             $keycloakBaseUrl = null;
-            if (!empty($keycloak['keycloak_url']) && !empty($keycloak['keycloak_realm'])) {
-                $keycloakUrl = $keycloak['keycloak_url'] . "/realms/" .
-                    $keycloak['keycloak_realm'] . "/protocol/openid-connect";
+            if (! empty($keycloak['keycloak_url']) && ! empty($keycloak['keycloak_realm'])) {
+                $keycloakUrl = $keycloak['keycloak_url'] . '/realms/'
+                    . $keycloak['keycloak_realm'] . '/protocol/openid-connect';
             }
             $openIdConnect = [
                 'openid_connect_enable' => $keycloak['keycloak_enable'] ?? null,
@@ -345,14 +342,14 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                 'openid_connect_client_id' => $keycloak['keycloak_client_id'] ?? null,
                 'openid_connect_client_secret' => $keycloak['keycloak_client_secret'] ?? null,
                 'openid_connect_trusted_clients' => $keycloak['keycloak_trusted_clients'] ?? null,
-                'openid_connect_blacklist_clients' => $keycloak['keycloak_blacklist_clients'] ?? null
+                'openid_connect_blacklist_clients' => $keycloak['keycloak_blacklist_clients'] ?? null,
             ];
 
             $statement = $pearDB->prepare(
-                "INSERT INTO options (`key`, `value`) VALUES (:key, :value)"
+                'INSERT INTO options (`key`, `value`) VALUES (:key, :value)'
             );
             foreach ($openIdConnect as $key => $value) {
-                if (!is_null($value)) {
+                if (! is_null($value)) {
                     $statement->bindValue(':key', $key, \PDO::PARAM_STR);
                     $statement->bindValue(':value', $value, \PDO::PARAM_STR);
                     $statement->execute();
@@ -366,21 +363,21 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             );
 
             $pearDB->commit();
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
 
-
-        /* Update-DB-20.10.0-beta.2.sql */
+        // Update-DB-20.10.0-beta.2.sql
 
         // Add new column
         $pearDB->query(
@@ -406,22 +403,21 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                 SQL
         );
 
+        // Update-20.10.0-beta.2.post.php
 
-        /* Update-20.10.0-beta.2.post.php */
-
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.10.0-beta.2.post : ';
 
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
             $pearDB->beginTransaction();
             // Remove data inserted in 20.10.0-beta1
-            $pearDB->query("DELETE FROM `platform_topology`");
+            $pearDB->query('DELETE FROM `platform_topology`');
 
             /**
-             * register server to 'platform_status' table
+             * register server to 'platform_status' table.
              */
             // Check if the server is a Remote or a Central
             $type = 'central';
@@ -444,15 +440,15 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             // Insert the server in 'platform_topology' table
             if ($row = $serverQuery->fetch()) {
                 $errorMessage = "Unable to insert server in 'platform_topology' table.";
-                $stmt = $pearDB->prepare("
+                $stmt = $pearDB->prepare('
                     INSERT INTO `platform_topology` (`address`, `name`, `hostname`, `type`, `parent_id`, `server_id`)
                     VALUES (:centralAddress, :name, :hostname, :type, NULL, :id)
-                ");
+                ');
                 $stmt->bindValue(':centralAddress', $_SERVER['SERVER_ADDR'], \PDO::PARAM_STR);
                 $stmt->bindValue(':name', $row['name'], \PDO::PARAM_STR);
                 $stmt->bindValue(':hostname', $hostName, \PDO::PARAM_STR);
                 $stmt->bindValue(':type', $type, \PDO::PARAM_STR);
-                $stmt->bindValue(':id', (int)$row['id'], \PDO::PARAM_INT);
+                $stmt->bindValue(':id', (int) $row['id'], \PDO::PARAM_INT);
                 $stmt->execute();
             }
 
@@ -471,16 +467,16 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                 FROM nagios_server WHERE localhost != '1' ORDER BY `remote_id`"
             );
             while ($row = $childStmt->fetch()) {
-                //check for remote or poller child types
+                // check for remote or poller child types
                 $remoteServerQuery = $pearDB->prepare(
-                    "SELECT ns.id FROM nagios_server ns
-                    INNER JOIN remote_servers rs ON rs.ip = ns.ns_ip_address WHERE ip = :ipAddress"
+                    'SELECT ns.id FROM nagios_server ns
+                    INNER JOIN remote_servers rs ON rs.ip = ns.ns_ip_address WHERE ip = :ipAddress'
                 );
                 $remoteServerQuery->bindValue(':ipAddress', $row['ns_ip_address'], \PDO::PARAM_STR);
                 $remoteServerQuery->execute();
                 $remoteId = $remoteServerQuery->fetchColumn();
-                if (!empty($remoteId)) {
-                    //is remote
+                if (! empty($remoteId)) {
+                    // is remote
                     $serverType = 'remote';
                     $parent = $parentId;
                 } else {
@@ -496,10 +492,10 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
                     }
                 }
 
-                $errorMessage = "Unable to insert " . $serverType . ":" . $row['name'] . " in 'topology' table.";
+                $errorMessage = 'Unable to insert ' . $serverType . ':' . $row['name'] . " in 'topology' table.";
                 $stmt = $pearDB->prepare(
-                    "INSERT INTO `platform_topology` (`address`, `name`, `type`, `parent_id`, `server_id`)
-                    VALUES (:centralAddress, :name, :serverType, :parent, :id)"
+                    'INSERT INTO `platform_topology` (`address`, `name`, `type`, `parent_id`, `server_id`)
+                    VALUES (:centralAddress, :name, :serverType, :parent, :id)'
                 );
                 $stmt->bindValue(':centralAddress', $row['ns_ip_address'], \PDO::PARAM_STR);
                 $stmt->bindValue(':name', $row['name'], \PDO::PARAM_STR);
@@ -510,17 +506,18 @@ class Migration000020100000 extends AbstractCoreMigration implements LegacyMigra
             }
 
             $pearDB->commit();
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $pearDB->rollBack();
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

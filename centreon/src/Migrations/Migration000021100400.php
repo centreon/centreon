@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021100400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.10.4';
 
     public function __construct(
@@ -64,52 +63,21 @@ class Migration000021100400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.10.4.php */
+        // Update-21.10.4.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.10.4: ';
 
-        /**
-         * Query with transaction
-         */
-        try {
-            $pearDB->beginTransaction();
-            $errorMessage = 'Unable to delete logger entry in cb_tag';
-            $pearDB->query("DELETE FROM cb_tag WHERE tagname = 'logger'");
-            $errorMessage = 'Unable to update the description in cb_field';
-            $pearDB->query(
-                "UPDATE cb_field
-                SET `description` = 'Time in seconds to wait between each connection attempt (Default value: 30s).'
-                WHERE `cb_field_id` = 31"
-            );
-
-            $errorMessage = 'Cannot purge host macros';
-            $cache = loadHosts($pearDB);
-            foreach ($cache as $hostId => $value) {
-                cleanDuplicateHostMacros($pearDB, $centreonLog, $cache, (int) $hostId);
-            }
-            $pearDB->commit();
-        } catch (\Exception $e) {
-            if ($pearDB->inTransaction()) {
-                $pearDB->rollBack();
-            }
-            $centreonLog->insertLog(
-                4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
-            );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
-        }
+        $errorMessage = '';
 
         /**
-         * @param \CentreonDb $db
+         * @param \CentreonDB $db
+         *
          * @return array<int, array<string, mixed>>
          */
-        function loadHosts(\CentreonDb $db): array
+        $loadHosts = function (\CentreonDB $db): array
         {
             $stmt = $db->prepare('SELECT host_id, host_name FROM host');
             $stmt->execute();
@@ -134,24 +102,24 @@ class Migration000021100400 extends AbstractCoreMigration implements LegacyMigra
             }
 
             return $cache;
-        }
+        };
 
         /**
-         * @param \CentreonDb $db
+         * @param \CentreonDB $db
          * @param \CentreonLog $centreonLog
          * @param array<int, array<string, mixed>> $cache
          * @param int $srcHostId
          */
-        function cleanDuplicateHostMacros(
-            \CentreonDb $db,
+        $cleanDuplicateHostMacros = function (
+            \CentreonDB $db,
             \CentreonLog $centreonLog,
             array $cache,
             int $srcHostId
         ): void {
             global $versionOfTheUpgrade;
 
-            if (!isset($cache[$srcHostId]['htpl']) || !isset($cache[$srcHostId]['macros'])) {
-                return ;
+            if (! isset($cache[$srcHostId]['htpl']) || ! isset($cache[$srcHostId]['macros'])) {
+                return;
             }
 
             $loop = [];
@@ -175,7 +143,7 @@ class Migration000021100400 extends AbstractCoreMigration implements LegacyMigra
                         if ($cache[$hostId]['macros'][$macroName]['host_macro_value'] === $macro['host_macro_value']) {
                             $centreonLog->insertLog(
                                 4,
-                                $versionOfTheUpgrade . "host " . $cache[$hostId]['host_name'] . " delete macro " . $macroName
+                                $versionOfTheUpgrade . 'host ' . $cache[$hostId]['host_name'] . ' delete macro ' . $macroName
                             );
                             $db->query(
                                 'DELETE FROM on_demand_macro_host WHERE host_macro_id = ' . (int) $macro['host_macro_id']
@@ -191,16 +159,51 @@ class Migration000021100400 extends AbstractCoreMigration implements LegacyMigra
 
             // clean empty macros with no macros inherited
             foreach ($macros as $macroName => $macro) {
-                if (!isset($macro['checked']) && empty($macro['host_macro_value'])) {
+                if (! isset($macro['checked']) && empty($macro['host_macro_value'])) {
                     $centreonLog->insertLog(
                         4,
-                        $versionOfTheUpgrade . "host " . $cache[$srcHostId]['host_name'] . " delete macro " . $macroName
+                        $versionOfTheUpgrade . 'host ' . $cache[$srcHostId]['host_name'] . ' delete macro ' . $macroName
                     );
                     $db->query(
                         'DELETE FROM on_demand_macro_host WHERE host_macro_id = ' . (int) $macro['host_macro_id']
                     );
                 }
             }
+        };
+
+        /**
+         * Query with transaction.
+         */
+        try {
+            $pearDB->beginTransaction();
+            $errorMessage = 'Unable to delete logger entry in cb_tag';
+            $pearDB->query("DELETE FROM cb_tag WHERE tagname = 'logger'");
+            $errorMessage = 'Unable to update the description in cb_field';
+            $pearDB->query(
+                "UPDATE cb_field
+                SET `description` = 'Time in seconds to wait between each connection attempt (Default value: 30s).'
+                WHERE `cb_field_id` = 31"
+            );
+
+            $errorMessage = 'Cannot purge host macros';
+            $cache = $loadHosts($pearDB);
+            foreach ($cache as $hostId => $value) {
+                $cleanDuplicateHostMacros($pearDB, $centreonLog, $cache, (int) $hostId);
+            }
+            $pearDB->commit();
+        } catch (\Exception $e) {
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
+            $centreonLog->insertLog(
+                4,
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
+            );
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

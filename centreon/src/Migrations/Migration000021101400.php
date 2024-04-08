@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000021101400 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '21.10.14';
 
     public function __construct(
@@ -64,53 +63,12 @@ class Migration000021101400 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-        /* Update-21.10.14.php */
+        // Update-21.10.14.php
 
         $centreonLog = new \CentreonLog();
 
         // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 21.10.14: ';
-
-        try {
-            $errorMessage = "Impossible to delete color picker topology_js entries";
-            $pearDB->query(
-                "DELETE FROM `topology_JS`
-                WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
-            );
-
-            // Transactional queries
-            $pearDB->beginTransaction();
-
-            // check if entry ldap_connection_timeout exist
-            $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
-            $ldapResult = $query->fetchAll(\PDO::FETCH_ASSOC);
-            // insert entry ldap_connection_timeout  with default value
-            if (! $ldapResult) {
-                $errorMessage = "Unable to add default ldap connection timeout";
-                $pearDB->query(
-                    "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
-                                (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
-                );
-            }
-            $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
-            decodeIllegalCharactersNagios($pearDB);
-
-            $pearDB->commit();
-        } catch (\Exception $e) {
-            if ($pearDB->inTransaction()) {
-                $pearDB->rollBack();
-            }
-
-            $centreonLog->insertLog(
-                4,
-                $versionOfTheUpgrade . $errorMessage
-                . ' - Code : ' . (int) $e->getCode()
-                . ' - Error : ' . $e->getMessage()
-                . ' - Trace : ' . $e->getTraceAsString()
-            );
-
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-        }
 
         /**
          * Update illegal_object_name_chars + illegal_macro_output_chars fields from cf_nagios table.
@@ -118,7 +76,7 @@ class Migration000021101400 extends AbstractCoreMigration implements LegacyMigra
          *
          * @param \CentreonDB $pearDB
          */
-        function decodeIllegalCharactersNagios(\CentreonDB $pearDB): void
+        $decodeIllegalCharactersNagios = function (\CentreonDB $pearDB): void
         {
             $configs = $pearDB->query(
                 <<<'SQL'
@@ -157,6 +115,47 @@ class Migration000021101400 extends AbstractCoreMigration implements LegacyMigra
                 $statement->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
                 $statement->execute();
             }
+        };
+
+        try {
+            $errorMessage = 'Impossible to delete color picker topology_js entries';
+            $pearDB->query(
+                "DELETE FROM `topology_JS`
+                WHERE `PathName_js` = './include/common/javascript/color_picker_mb.js'"
+            );
+
+            // Transactional queries
+            $pearDB->beginTransaction();
+
+            // check if entry ldap_connection_timeout exist
+            $query = $pearDB->query("SELECT * FROM auth_ressource_info WHERE ari_name = 'ldap_connection_timeout'");
+            $ldapResult = $query->fetchAll(\PDO::FETCH_ASSOC);
+            // insert entry ldap_connection_timeout  with default value
+            if (! $ldapResult) {
+                $errorMessage = 'Unable to add default ldap connection timeout';
+                $pearDB->query(
+                    "INSERT INTO auth_ressource_info (ar_id, ari_name, ari_value)
+                                (SELECT ar_id, 'ldap_connection_timeout', '' FROM auth_ressource)"
+                );
+            }
+            $errorMessage = 'Unable to update illegal characters fields from engine configuration of pollers';
+            $decodeIllegalCharactersNagios($pearDB);
+
+            $pearDB->commit();
+        } catch (\Exception $e) {
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
+
+            $centreonLog->insertLog(
+                4,
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
+            );
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

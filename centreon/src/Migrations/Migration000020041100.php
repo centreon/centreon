@@ -33,7 +33,6 @@ use Pimple\Container;
 class Migration000020041100 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '20.04.11';
 
     public function __construct(
@@ -64,34 +63,36 @@ class Migration000020041100 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-20.04.11.php */
+        // Update-20.04.11.php
 
         $centreonLog = new \CentreonLog();
 
-        //error specific content
+        // error specific content
         $versionOfTheUpgrade = 'UPGRADE - 20.04.11 : ';
 
+        $errorMessage = '';
+
         /**
-         * Queries needing exception management and rollback if failing
+         * Queries needing exception management and rollback if failing.
          */
         try {
-            //engine postpone
+            // engine postpone
             if ($pearDB->isColumnExist('cfg_nagios', 'postpone_notification_to_timeperiod')) {
                 // An update is required
                 $errorMessage = 'Impossible to drop postpone_notification_to_timeperiod from fg_nagios';
                 $pearDB->query('ALTER TABLE `cfg_nagios` DROP COLUMN `postpone_notification_to_timeperiod`');
             }
-            $errorMessage = "";
+            $errorMessage = '';
         } catch (\Exception $e) {
             $centreonLog->insertLog(
                 4,
-                $versionOfTheUpgrade . $errorMessage .
-                " - Code : " . (int)$e->getCode() .
-                " - Error : " . $e->getMessage() .
-                " - Trace : " . $e->getTraceAsString()
+                $versionOfTheUpgrade . $errorMessage
+                . ' - Code : ' . (int) $e->getCode()
+                . ' - Error : ' . $e->getMessage()
+                . ' - Trace : ' . $e->getTraceAsString()
             );
-            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+            throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
         }
     }
 

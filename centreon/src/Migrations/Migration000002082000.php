@@ -31,7 +31,6 @@ use Pimple\Container;
 class Migration000002082000 extends AbstractCoreMigration implements LegacyMigrationInterface
 {
     use LoggerTrait;
-
     private const VERSION = '2.8.20';
 
     public function __construct(
@@ -62,18 +61,16 @@ class Migration000002082000 extends AbstractCoreMigration implements LegacyMigra
     {
         $pearDB = $this->dependencyInjector['configuration_db'];
 
-
-        /* Update-2.8.20.php */
+        // Update-2.8.20.php
 
         // Set default poller with localhost if it is not set
-        $res = $pearDB->query("SELECT `name` FROM `nagios_server` WHERE `is_default` = 1");
+        $res = $pearDB->query('SELECT `name` FROM `nagios_server` WHERE `is_default` = 1');
 
-        if ($res->rowCount() == 0) {
+        if ($res->rowCount() === 0) {
             $res = $pearDB->query("UPDATE `nagios_server` SET `is_default` = 1 WHERE `localhost` = '1'");
         }
 
-
-        /* Update-DB-2.8.20.sql */
+        // Update-DB-2.8.20.sql
 
         $pearDB->query(
             <<<'SQL'
