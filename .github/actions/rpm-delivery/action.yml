@@ -1,5 +1,5 @@
 name: "rpm-delivery"
-description: "Package RPM Centreon"
+description: "Deliver rpm packages"
 inputs:
   module_name:
     description: "The package module name"
@@ -101,7 +101,7 @@ runs:
               elif [ "${{ inputs.stability }}" == "testing" ]; then
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
               else
-                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
             fi
           done

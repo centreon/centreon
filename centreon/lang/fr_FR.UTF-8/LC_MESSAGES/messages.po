@@ -18674,6 +18674,9 @@ msgstr "Sélectionnez un type de ressource"
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
 
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
+
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
 
@@ -18895,3 +18898,21 @@ msgstr "Une erreur est survenue lors de la création du fichier '%s'"
 
 msgid "An error occurred while deleting the file '%s'"
 msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
+
+msgid "Until"
+msgstr "Jusqu'à"
+
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
+
+msgid "Group monitoring"
+msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"

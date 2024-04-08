@@ -46,13 +46,13 @@ interface ReadServiceGroupRepositoryInterface
      * Find All service groups with access groups.
      *
      * @param RequestParametersInterface|null $requestParameters
-     * @param list<AccessGroup> $accessGroups
+     * @param int[] $accessGroupIds
      *
      * @throws \Throwable
      *
      * @return \Traversable<int, ServiceGroup>&\Countable
      */
-    public function findAllByAccessGroups(?RequestParametersInterface $requestParameters, array $accessGroups): \Traversable&\Countable;
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable;
 
     /**
      * Find service groups by their ID.
@@ -179,4 +179,15 @@ interface ReadServiceGroupRepositoryInterface
      * @return ServiceGroupNamesById
      */
     public function findNames(array $serviceGroupIds): ServiceGroupNamesById;
+
+    /**
+     * Determine if accessGroups give access to all serviceGroups
+     * true: all service groups are accessible
+     * false: all service groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @return bool
+     */
+    public function hasAccessToAllServiceGroups(array $accessGroupIds): bool;
 }
