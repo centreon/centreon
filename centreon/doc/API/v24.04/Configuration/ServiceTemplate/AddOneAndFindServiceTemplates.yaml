@@ -11,6 +11,9 @@ get:
     * name
     * alias
     * is_locked
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'
@@ -38,7 +41,11 @@ post:
   tags:
     - Service template
   summary: "Add a service template"
-  description: "Add a service template configuration"
+  description: |
+    Add a service template configuration.
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   requestBody:
     required: true
     content:

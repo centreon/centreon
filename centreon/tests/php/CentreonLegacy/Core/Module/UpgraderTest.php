@@ -92,11 +92,9 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('requireConfiguration')
             ->willReturn($upgradeConfiguration);
         $this->utils->expects($this->any())
-            ->method('executeSqlFile')
-            ->willReturn(true);
+            ->method('executeSqlFile');
         $this->utils->expects($this->any())
-            ->method('executePhpFile')
-            ->willReturn(true);
+            ->method('executePhpFile');
     }
 
     public function tearDown(): void
@@ -119,7 +117,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in'))
+            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -129,11 +127,10 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->willReturn($finder);
         $finder->expects($this->any())
             ->method('in')
-            ->willReturn(
-                array(
-                    new \SplFileInfo('MyModule-1.0.1')
-                )
-            );
+            ->willReturn($finder);
+        $finder->expects($this->any())
+            ->method('getIterator')
+            ->willReturn(new \ArrayIterator([new \SplFileInfo('MyModule-1.0.1')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
         $query = 'UPDATE modules_informations ' .

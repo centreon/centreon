@@ -977,7 +977,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Log Exception in login.log file.
      *
      * @param string $message
-     * @param \Exception $exception
+     * @param Exception $exception
      */
     private function logExceptionInLoginLogFile(string $message, Exception $exception): void
     {

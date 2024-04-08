@@ -124,7 +124,7 @@ Then(
 
     notificationSentCheck({
       contain: false,
-      log: `<<${data.hosts.host1.name}>>`
+      logs: `<<${data.hosts.host1.name}>>`
     });
   }
 );
