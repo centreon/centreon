@@ -89,7 +89,7 @@ class CentreonFrontendComponentTest extends TestCase
         $this->webservice->setDi($container);
     }
 
-    public function testGetComponents()
+    public function testGetComponents(): void
     {
         $this->webservice
             ->method('query')
@@ -100,7 +100,7 @@ class CentreonFrontendComponentTest extends TestCase
         $this->assertEquals($this->getComponentsValues, $this->webservice->getComponents());
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
         $this->assertEquals('centreon_frontend_component', CentreonFrontendComponent::getName());
     }

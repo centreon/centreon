@@ -361,7 +361,7 @@ final class PartialUpdateService
 
     /**
      * @param PartialUpdateServiceRequest $dto
-     * @param service $service
+     * @param Service $service
      *
      * @throws \Throwable
      */

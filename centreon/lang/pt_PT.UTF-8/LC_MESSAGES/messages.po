@@ -17541,3 +17541,23 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "An error occurred while deleting the file '%s'"
 #  msgstr ""
+
+# msgid "Until"
+# msgstr ""
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""

@@ -219,7 +219,7 @@ Then(
   () => {
     cy.contains('Host').should('exist');
     cy.contains('Service').should('exist');
-    cy.contains('Success (OK & Up)').should('exist');
+    cy.contains('Success (OK/Up)').should('exist');
     cy.contains('Warning').should('exist');
     cy.contains('Problem (Down/Critical)').should('exist');
     cy.contains('Undefined (Unreachable/Unknown)').should('exist');

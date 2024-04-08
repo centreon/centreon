@@ -11,7 +11,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1)
   },
   panelContent: {
-    height: `calc(100% - ${theme.spacing(3.5)})`,
+    height: `100%`,
+    overflow: 'auto'
+  },
+  panelContentWithDescription: {
+    height: `calc(100% - ${theme.spacing(2.75)})`,
     overflow: 'auto'
   },
   panelHeader: {

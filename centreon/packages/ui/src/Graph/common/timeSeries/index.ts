@@ -31,7 +31,9 @@ import {
   last,
   cond,
   always,
-  T
+  T,
+  includes,
+  split
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
@@ -204,6 +206,17 @@ const getLineForMetric = ({
   metric_id
 }: LineForMetricProps): Line | undefined =>
   find(propEq(metric_id, 'metric_id'), lines);
+
+interface LinesForMetricsProps {
+  lines: Array<Line>;
+  metricIds: Array<number>;
+}
+
+export const getLinesForMetrics = ({
+  lines,
+  metricIds
+}: LinesForMetricsProps): Array<Line> =>
+  filter(({ metric_id }) => metricIds.includes(metric_id), lines);
 
 interface LinesTimeSeries {
   lines: Array<Line>;
@@ -599,6 +612,23 @@ const getMetricWithLatestData = (
     ...metric,
     data: lastData ? [lastData] : []
   };
+};
+
+interface FormatMetricNameProps {
+  legend: string | null;
+  name: string;
+}
+
+export const formatMetricName = ({
+  legend,
+  name
+}: FormatMetricNameProps): string => {
+  const legendName = legend || name;
+  const metricName = includes('#', legendName)
+    ? split('#')(legendName)[1]
+    : legendName;
+
+  return metricName;
 };
 
 export {

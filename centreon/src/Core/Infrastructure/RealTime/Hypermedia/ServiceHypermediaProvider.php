@@ -74,7 +74,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
      */
     public function createForReporting(array $parameters): ?string
     {
-        if (! $this->canContactAccessPages($this->contact, [Contact::ROLE_REPORTING_DASHBOARD_SERVICES])) {
+        if (! $this->canContactAccessPages($this->contact, [Contact::ROLE_REPORTING_AVAILABILITY_SERVICES])) {
             return null;
         }
 
@@ -203,7 +203,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     }
 
     /**
-     * @param array<string, integer> $parameters
+     * @param array<string, int> $parameters
      *
      * @return string
      */
