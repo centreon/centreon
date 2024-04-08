@@ -26,8 +26,7 @@ namespace Core\Migration\Application\UseCase\FindMigrations;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Migration\Application\Exception\MigrationException;
-use Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface;
-use Core\Migration\Application\Repository\ReadExecutedMigrationRepositoryInterface;
+use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
 
 final class FindMigrations
@@ -35,15 +34,14 @@ final class FindMigrations
     use LoggerTrait;
 
     public function __construct(
-        private readonly ReadAvailableMigrationRepositoryInterface $readAvailableMigrationRepository,
-        private readonly ReadExecutedMigrationRepositoryInterface $readExecutedMigrationRepository,
+        private readonly ReadMigrationRepositoryInterface $readMigrationRepository,
     ) {
     }
 
     public function __invoke(FindMigrationsPresenterInterface $presenter): void
     {
         try {
-            $migrations = $this->findMigrations();
+            $migrations = $this->readMigrationRepository->findNewMigrations();
 
             if (empty($migrations)) {
                 $presenter->presentResponse(new FindMigrationsResponse());
@@ -61,39 +59,6 @@ final class FindMigrations
                 new ErrorResponse(_($errorMessage))
             );
         }
-    }
-
-    /**
-     * @return NewMigration[]
-     */
-    private function findMigrations(): array
-    {
-        $this->info('Search for available migrations');
-        $availableMigrations = $this->readAvailableMigrationRepository->findAll();
-
-        $this->info('Search for executed migrations');
-        $executedMigrations = $this->readExecutedMigrationRepository->findAll();
-
-        return array_filter(
-            $availableMigrations,
-            function ($availableMigration) use (&$executedMigrations) {
-                $availableMigrationName = $availableMigration->getName();
-                $availableMigrationModuleName = $availableMigration->getModuleName();
-
-                foreach ($executedMigrations as $executedMigrationKey => $executedMigration) {
-                    if (
-                        $availableMigrationName === $executedMigration->getName()
-                        && $availableMigrationModuleName === $executedMigration->getModuleName()
-                    ) {
-                        unset($executedMigrations[$executedMigrationKey]);
-
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-        );
     }
 
     /**

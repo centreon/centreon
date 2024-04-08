@@ -18,8 +18,14 @@ services:
     Migrations\:
         resource: '../../../../Migrations/*'
 
-    Core\Migration\Application\Repository\ReadAvailableMigrationRepositoryInterface:
-        class: Core\Migration\Infrastructure\Repository\FsReadAvailableMigrationRepository
+    Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository
+        arguments:
+            $migrations: !tagged_iterator 'platform.migrations'
+        public: true
+
+    Core\Migration\Application\Repository\WriteMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\DbWriteMigrationRepository
         arguments:
             $migrations: !tagged_iterator 'platform.migrations'
         public: true

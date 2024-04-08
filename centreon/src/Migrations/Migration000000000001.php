@@ -21,28 +21,41 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Migrations;
 
-interface WriteUpdateRepositoryInterface
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Migration\Application\Repository\MigrationInterface;
+use Core\Migration\Infrastructure\Repository\AbstractCoreMigration;
+
+class Migration000000000001 extends AbstractCoreMigration implements MigrationInterface
 {
-    /**
-     * Run update according to given version.
-     *
-     * @param string $version
-     */
-    public function runUpdate(string $version): void;
+    use LoggerTrait;
+
+    public function __construct()
+    {
+    }
 
     /**
-     * Run post update actions.
-     *
-     * @param string $currentVersion
+     * {@inheritDoc}
      */
-    public function runPostUpdate(string $currentVersion): void;
+    public function getDescription(): string
+    {
+        return _('Synchronization of migrations');
+    }
 
     /**
-     * Update version information.
-     *
-     * @param string $version
+     * {@inheritDoc}
      */
-    public function updateVersionInformation(string $version): void;
+    public function up(): void
+    {
+        // @todo scan all LegacyMigrationInterface and check current version is above
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function down(): void
+    {
+        // nothing
+    }
 }
