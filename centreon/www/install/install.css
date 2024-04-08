@@ -217,7 +217,7 @@ table.stdTable td.install-step-status img {
 
 table.StyleDottedHr {
 	display: inline-block;
-    height: 50vh;
+    max-height: 50vh;
     overflow-y: auto;
 }
 
@@ -227,7 +227,7 @@ table.StyleDottedHr tr:first-child th:first-child {
 }
 
 table.StyleDottedHr th {
-	min-width: 100px;
+	min-width: 200px;
 }
 
 table.StyleDottedHr tr:first-child th:last-child {

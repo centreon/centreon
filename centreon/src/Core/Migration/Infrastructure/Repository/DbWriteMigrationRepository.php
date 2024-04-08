@@ -95,9 +95,15 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
      */
     public function storeMigration(NewMigration $newMigration): void
     {
-        $this->info(sprintf('Store migration %s in database.', $newMigration->getName()));
+        $this->info(
+            sprintf(
+                'Store migration %s %s in database.',
+                $newMigration->getModuleName(),
+                $newMigration->getName()
+            )
+        );
 
-        $moduleId = $this->getModuleIdFromName($newMigration->getName());
+        $moduleId = $this->getModuleIdFromName($newMigration->getModuleName());
 
         $request = $this->translateDbName(
             <<<'SQL'

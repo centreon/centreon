@@ -145,8 +145,11 @@ $template->display('content.tpl');
      */
     function nextStep(name, moduleName, description) {
         const uniqueName = `${moduleName}-${name}`;
+        const shortModuleName = moduleName
+            .replace(/^(centreon-)/,'')
+            .replace(/(-server)$/,'');
         stepContent.append('<tr>');
-        stepContent.append(`<td><b>[${moduleName}]</b> ${description}</td>`);
+        stepContent.append(`<td><b>[${shortModuleName}]</b> ${description}</td>`);
         stepContent.append(
             `<td class="install-step-status" name="${uniqueName}"><img src="../img/misc/ajax-loader.gif" /></td>`
         );
