@@ -21,28 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Core\Migration\Infrastructure\API\ExecuteMigrations;
 
-interface WriteUpdateRepositoryInterface
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrationsPresenterInterface;
+
+class ExecuteMigrationsPresenter extends AbstractPresenter implements ExecuteMigrationsPresenterInterface
 {
-    /**
-     * Run update according to given version.
-     *
-     * @param string $version
-     */
-    public function runUpdate(string $version): void;
-
-    /**
-     * Run post update actions.
-     *
-     * @param string $currentVersion
-     */
-    public function runPostUpdate(string $currentVersion): void;
-
-    /**
-     * Update version information.
-     *
-     * @param string $version
-     */
-    public function updateVersionInformation(string $version): void;
 }

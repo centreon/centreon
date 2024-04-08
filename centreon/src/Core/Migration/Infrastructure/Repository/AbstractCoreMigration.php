@@ -21,28 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Application\Repository;
+namespace Core\Migration\Infrastructure\Repository;
 
-interface WriteUpdateRepositoryInterface
+use Core\Migration\Domain\Model\Migration;
+
+abstract class AbstractCoreMigration extends AbstractMigration
 {
     /**
-     * Run update according to given version.
+     * Module name.
      *
-     * @param string $version
+     * @return string
      */
-    public function runUpdate(string $version): void;
-
-    /**
-     * Run post update actions.
-     *
-     * @param string $currentVersion
-     */
-    public function runPostUpdate(string $currentVersion): void;
-
-    /**
-     * Update version information.
-     *
-     * @param string $version
-     */
-    public function updateVersionInformation(string $version): void;
+    public function getModuleName(): string
+    {
+        return Migration::CORE_MODULE_NAME;
+    }
 }

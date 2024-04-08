@@ -27,28 +27,26 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class Migration
 {
+    public const CORE_MODULE_NAME = 'core';
     public const MAX_NAME_LENGTH = 255;
 
     /**
      * @param string $name
-     * @param string|null $moduleName
+     * @param string $moduleName
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         protected string $name,
-        protected ?string $moduleName,
+        protected string $moduleName,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
-        $this->name = trim($this->name);
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
-        if ($this->moduleName !== null) {
-            Assertion::notEmptyString($this->moduleName, "{$shortName}::moduleName");
-            Assertion::maxLength($this->moduleName, self::MAX_NAME_LENGTH, "{$shortName}::moduleName");
-        }
+        Assertion::notEmptyString($this->moduleName, "{$shortName}::moduleName");
+        Assertion::maxLength($this->moduleName, self::MAX_NAME_LENGTH, "{$shortName}::moduleName");
     }
 
     public function getName(): string
@@ -56,7 +54,7 @@ class Migration
         return $this->name;
     }
 
-    public function getModuleName(): ?string
+    public function getModuleName(): string
     {
         return $this->moduleName;
     }

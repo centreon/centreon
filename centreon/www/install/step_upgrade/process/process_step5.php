@@ -74,12 +74,11 @@ try {
 
     $updateWriteRepository->runPostUpdate($_SESSION['CURRENT_VERSION']);
 } catch (\Throwable $e) {
-    exitUpgradeProcess(
-        1,
-        $current,
-        '',
-        UpdateVersionsException::errorWhenApplyingPostUpdate($e)->getMessage()
-    );
+    echo json_encode([
+        'result' => 1,
+        'msg' => UpdateVersionsException::errorWhenApplyingPostUpdate($e)->getMessage()
+    ]);
+    exit;
 }
 
 session_destroy();

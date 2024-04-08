@@ -27,7 +27,7 @@ class ExecutedMigration extends Migration
 {
     /**
      * @param string $name
-     * @param string|null $moduleName
+     * @param string $moduleName
      * @param int $id
      * @param \DateTime $executedAt
      *
@@ -35,7 +35,7 @@ class ExecutedMigration extends Migration
      */
     public function __construct(
         string $name,
-        ?string $moduleName,
+        string $moduleName,
         protected int $id,
         protected \DateTime $executedAt,
     ) {

@@ -25,38 +25,40 @@ require_once __DIR__ . '/../../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../steps/functions.php';
 
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
+use Core\Migration\Application\Repository\ReadMigrationRepositoryInterface;
+use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
+use Core\Migration\Domain\Model\NewMigration;
 
-$current = $_POST['current'];
-$next = $_POST['next'];
+$name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
+$moduleName = filter_input(INPUT_POST, 'module_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
+$description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS, ['options' => ['default' => '']]);
 $status = 0;
 
 $kernel = \App\Kernel::createForWeb();
 
 $updateLockerRepository = $kernel->getContainer()->get(UpdateLockerRepositoryInterface::class);
-$updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInterface::class);
+$writeMigrationRepository = $kernel->getContainer()->get(WriteMigrationRepositoryInterface::class);
 
 try {
     if (! $updateLockerRepository->lock()) {
         throw UpdateVersionsException::updateAlreadyInProgress();
     }
 
-    $updateWriteRepository->runUpdate($next);
+    $migration = new NewMigration($name, $moduleName, $description);
+    $writeMigrationRepository->executeMigration($migration);
 
     $updateLockerRepository->unlock();
 } catch (\Throwable $e) {
-    exitUpgradeProcess(1, $current, $next, $e->getMessage());
+    exitUpgradeProcess(1, $migration, $e->getMessage());
 }
 
-$current = $next;
+$kernel = \App\Kernel::createForWeb();
 
-$updateReadRepository = $kernel->getContainer()->get(ReadUpdateRepositoryInterface::class);
-$availableUpdates = $updateReadRepository->findOrderedAvailableUpdates($current);
-$next = empty($availableUpdates) ? '' : array_shift($availableUpdates);
+$readMigrationRepository = $kernel->getContainer()->get(ReadMigrationRepositoryInterface::class);
+$migrations = $readMigrationRepository->findNewMigrations();
+$migration = array_shift($migrations);
 
-$_SESSION['CURRENT_VERSION'] = $current;
 $okMsg = "<span style='color:#88b917;'>OK</span>";
 
-exitUpgradeProcess($status, $current, $next, $okMsg);
+exitUpgradeProcess($status, $migration, $okMsg);
