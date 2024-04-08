@@ -25,43 +25,30 @@ namespace Core\Migration\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use CentreonUserLog;
+use CentreonLog;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
 use Core\Migration\Domain\Model\NewMigration;
-use Pimple\Container;
 
 class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteMigrationRepositoryInterface
 {
     use LoggerTrait;
 
-    /** @var MigrationInterface[] */
-    private $migrations;
-
-    /** @var CentreonUserLog */
-    private CentreonUserLog $centreonLog;
+    /** @var CentreonLog */
+    private CentreonLog $centreonLog;
 
     /**
      * @param DatabaseConnection $db
      * @param \Traversable<MigrationInterface> $migrations
-     * @param Container $dependencyInjector
      */
     public function __construct(
         DatabaseConnection $db,
-        \Traversable $migrations,
-        Container $dependencyInjector,
+        private readonly \Traversable $migrations,
     ) {
         $this->db = $db;
 
-        if (iterator_count($migrations) === 0) {
-            throw new \Exception('Migrations not found');
-        }
-
-        $this->migrations = iterator_to_array($migrations);
-
-        $pearDB = $dependencyInjector['configuration_db'];
-        $this->centreonLog = new CentreonUserLog(-1, $pearDB);
+        $this->centreonLog = new CentreonLog();
     }
 
     /**
@@ -75,7 +62,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         try {
             $migration->up();
             $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_UPGRADE,
+                CentreonLog::TYPE_UPGRADE,
                 sprintf(
                     ' [%s] [%s] %s: Success',
                     $newMigration->getModuleName(),
@@ -87,7 +74,7 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
             $this->error(sprintf('Migration %s %s failed: %s', $newMigration->getModuleName(), $newMigration->getName(), $exception->getMessage()), ['trace' => (string) $exception]);
 
             $this->centreonLog->insertLog(
-                CentreonUserLog::TYPE_UPGRADE,
+                CentreonLog::TYPE_UPGRADE,
                 sprintf(
                     ' [%s] [%s] %s: %s',
                     $newMigration->getModuleName(),
@@ -104,33 +91,9 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
     }
 
     /**
-     * Get migration instance from migration.
-     *
-     * @param NewMigration $newMigration
-     *
-     * @return MigrationInterface
+     * {@inheritDoc}
      */
-    private function getMigrationInstance(NewMigration $newMigration): MigrationInterface
-    {
-        foreach ($this->migrations as $migration) {
-            $shortName = (new \ReflectionClass($migration))->getShortName();
-            if (
-                $migration->getModuleName() === $newMigration->getModuleName()
-                && $shortName === $newMigration->getName()
-            ) {
-                return $migration;
-            }
-        }
-
-        throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
-    }
-
-    /**
-     * Store executed migration in database.
-     *
-     * @param NewMigration $newMigration
-     */
-    private function storeMigration(NewMigration $newMigration): void
+    public function storeMigration(NewMigration $newMigration): void
     {
         $this->info(sprintf('Store migration %s in database.', $newMigration->getName()));
 
@@ -158,6 +121,27 @@ class DbWriteMigrationRepository extends AbstractRepositoryRDB implements WriteM
         $statement->bindValue(':name', $newMigration->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':executed_at', time(), \PDO::PARAM_INT);
         $statement->execute();
+    }
+
+    /**
+     * Get migration instance from migration.
+     *
+     * @param NewMigration $newMigration
+     *
+     * @return MigrationInterface
+     */
+    private function getMigrationInstance(NewMigration $newMigration): MigrationInterface
+    {
+        foreach ($this->migrations as $migration) {
+            if (
+                $migration->getModuleName() === $newMigration->getModuleName()
+                && $migration->getName() === $newMigration->getName()
+            ) {
+                return $migration;
+            }
+        }
+
+        throw new \Exception(sprintf('Migration %s not found', $newMigration->getName()));
     }
 
     /**

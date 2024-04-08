@@ -42,6 +42,15 @@ interface MigrationInterface
     public function getModuleName(): string;
 
     /**
+     * Name.
+     *
+     * @throws \Throwable
+     *
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
      * Upgrade description.
      *
      * @throws \Throwable

@@ -215,15 +215,29 @@ table.stdTable td.install-step-status img {
 	margin: -4px 0px;
 }
 
+table.StyleDottedHr {
+	display: inline-block;
+    height: 50vh;
+    overflow-y: auto;
+}
+
 table.StyleDottedHr tr:first-child th:first-child {
 	border-top-left-radius: 0px;
+	width: 100%;
+}
+
+table.StyleDottedHr th {
+	min-width: 100px;
 }
 
 table.StyleDottedHr tr:first-child th:last-child {
 	border-top-right-radius: 0px;
+	width: max-content;
 }
 
 table.StyleDottedHr th {
+	position: sticky;
+	top: 0;
 	padding: 8px;
 	background-color: rgb(102, 102, 102);
 	color: rgb(255, 255, 255);
@@ -235,8 +249,6 @@ table.StyleDottedHr td {
 	border-bottom: 1px solid #cccccc;
 	padding: 4px 8px;
 }
-
-
 
 .small {
 	font-size: 10px;

@@ -36,4 +36,12 @@ abstract class AbstractCoreMigration extends AbstractMigration
     {
         return Migration::CORE_MODULE_NAME;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getName(): string
+    {
+        return trim((new \ReflectionClass($this))->getShortName());
+    }
 }

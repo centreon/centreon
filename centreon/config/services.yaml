@@ -14,6 +14,7 @@ parameters:
     database_dbstg: "%env(dbcstg)%"
     database_user: "%env(user)%"
     database_password: "%env(password)%"
+    centreon_cache_dir: "%env(_CENTREON_CACHEDIR_)%"
     centreon_var_lib: "%env(_CENTREON_VARLIB_)%"
     validation_path: "%env(_CENTREON_PATH_)%config/packages/validator"
     centreon_path: "%env(_CENTREON_PATH_)%"

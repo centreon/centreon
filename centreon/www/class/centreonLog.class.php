@@ -134,6 +134,12 @@ class CentreonLog
     private $errorType;
     private $path;
 
+    public const TYPE_LOGIN = 1;
+    public const TYPE_SQL = 2;
+    public const TYPE_LDAP = 3;
+    public const TYPE_UPGRADE = 4;
+    public const TYPE_PPM = 5;
+
     /*
      * Constructor
      */
@@ -147,11 +153,11 @@ class CentreonLog
          */
         $this->path = _CENTREON_LOG_;
 
-        $this->errorType[1] = $this->path . "/login.log";
-        $this->errorType[2] = $this->path . "/sql-error.log";
-        $this->errorType[3] = $this->path . "/ldap.log";
-        $this->errorType[4] = $this->path . "/upgrade.log";
-        $this->errorType[5] = $this->path . '/plugin-pack-manager.log';
+        $this->errorType[self::TYPE_LOGIN] = $this->path . "/login.log";
+        $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
+        $this->errorType[self::TYPE_LDAP] = $this->path . "/ldap.log";
+        $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
+        $this->errorType[self::TYPE_PPM] = $this->path . '/plugin-pack-manager.log';
 
         foreach ($customLogs as $key => $value) {
             if (!preg_match('@' . $this->path . '@', $value)) {
