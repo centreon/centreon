@@ -5,16 +5,14 @@ import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import {
   FederatedModule,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
   singleResourceSelectionAtom,

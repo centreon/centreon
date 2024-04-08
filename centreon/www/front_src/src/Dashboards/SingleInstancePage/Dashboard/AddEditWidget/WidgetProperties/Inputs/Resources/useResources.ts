@@ -60,7 +60,6 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
-  singleMetricSelection?: boolean;
   singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
@@ -335,7 +334,6 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
-    singleMetricSelection: widgetProperties?.singleMetricSelection,
     singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []
   };

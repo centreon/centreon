@@ -15,16 +15,14 @@ import i18next from 'i18next';
 
 import {
   DashboardGlobalRole,
+  federatedWidgetsAtom,
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import { DashboardRole } from '../../api/models';
 import {
   dashboardsContactGroupsEndpoint,

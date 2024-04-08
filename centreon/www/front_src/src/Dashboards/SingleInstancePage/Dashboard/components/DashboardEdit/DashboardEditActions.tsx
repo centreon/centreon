@@ -9,6 +9,7 @@ import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import { Button } from '@centreon/ui/components';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { Dashboard, DashboardPanel } from '../../../../api/models';
 import {
@@ -21,7 +22,6 @@ import {
   labelCancel,
   labelSave
 } from '../../translatedLabels';
-import { federatedWidgetsAtom } from '../../../../../federatedModules/atoms';
 import {
   formatPanel,
   getPanels,

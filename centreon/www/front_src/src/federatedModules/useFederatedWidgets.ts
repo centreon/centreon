@@ -3,11 +3,12 @@ import { useCallback, useEffect } from 'react';
 import { useAtom } from 'jotai';
 
 import { getData, useRequest, useDeepCompare } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import usePlatformVersions from '../Main/usePlatformVersions';
 import { store } from '../Main/Provider';
 
-import { federatedWidgetsAtom, federatedWidgetsPropertiesAtom } from './atoms';
+import { federatedWidgetsPropertiesAtom } from './atoms';
 import { FederatedModule, FederatedWidgetProperties } from './models';
 import { loadScript } from './utils';
 

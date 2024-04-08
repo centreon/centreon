@@ -12,6 +12,10 @@ export {
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
 export { additionalResourcesAtom } from './additionalResources';
+export {
+  federatedModulesAtom,
+  federatedWidgetsAtom
+} from './federatedModulesAndWidgetsAtoms';
 
 export type {
   User,

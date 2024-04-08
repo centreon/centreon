@@ -104,3 +104,28 @@ export interface AdditionalResource {
   label: string;
   resourceType: string;
 }
+
+interface FederatedComponentsConfiguration {
+  federatedComponents: Array<string>;
+  panelMinHeight?: number;
+  panelMinWidth?: number;
+  path: string;
+  title?: string;
+}
+
+interface PageComponent {
+  children?: string;
+  component: string;
+  featureFlag?: string;
+  route: string;
+}
+
+export interface FederatedModule {
+  federatedComponentsConfiguration: Array<FederatedComponentsConfiguration>;
+  federatedPages: Array<PageComponent>;
+  moduleFederationName: string;
+  moduleName: string;
+  preloadScript?: string;
+  remoteEntry: string;
+  remoteUrl?: string;
+}
