@@ -4,7 +4,8 @@
     "federatedComponents": [
       "./resourcestable"
     ],
-    "panelMinWidth": 6
+    "panelMinWidth": 6,
+    "panelMinHeight": 4
   }],
   "moduleFederationName": "widgetresourcestable",
   "moduleName": "centreon-widget-resourcestable"
