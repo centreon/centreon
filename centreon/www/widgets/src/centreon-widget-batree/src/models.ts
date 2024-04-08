@@ -1,6 +1,6 @@
 import { CommonWidgetProps, Data, SeverityStatus } from '../../models';
 
-export type Link = 'line' | 'diagonal' | 'step';
+export type Link = 'line' | 'curve' | 'step';
 
 export interface PanelOptions {
   link: Link;
