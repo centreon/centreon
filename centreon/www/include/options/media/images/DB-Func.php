@@ -355,27 +355,26 @@ function deleteDirectory($directoryId)
 {
     global $pearDB;
     $mediadir = "./img/media/";
-
     $directoryId = (int) $directoryId;
-    /*
-     * Purge images of the directory
-     */
-    $query = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directory_id";
-    $statement = $pearDB->prepare($query);
-    $statement->bindParam(':directory_id', $directoryId);
-    $statement->execute();
-    foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $img) {
+
+// Purge images of the directory
+    $query1 = "SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId";
+    $statement1 = $pearDB->prepare($query1);
+    $statement1->bindParam(':directoryId', $directoryId, PDO::PARAM_INT);
+    $statement1->execute();
+    while ($img = $statement1->fetch()) {
         deleteImg($img["img_img_id"]);
     }
-    /*
-     * Delete directory
-     */
-    $query = "SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId";
-    $statement = $pearDB->prepare($query);
-    $statement->bindParam(':directoryId', $directoryId, PDO::PARAM_INT);
-    $statement->execute();
-    $dirAlias = $statement->fetchAll(PDO::FETCH_ASSOC);
-    $statement->closeCursor();
+    $statement1->closeCursor();
+
+// Delete directory
+    $query2 = "SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId";
+    $statement2 = $pearDB->prepare($query2);
+    $statement2->bindParam(':directoryId', $directoryId, PDO::PARAM_INT);
+    $statement2->execute();
+    $dirAlias = $statement2->fetch();
+    $statement2->closeCursor();
+
     $safeDirAlias = basename($dirAlias["dir_alias"]);
     $filenames = scandir($mediadir . $safeDirAlias);
     foreach ($filenames as $fileName) {
@@ -384,12 +383,13 @@ function deleteDirectory($directoryId)
         }
     }
     rmdir($mediadir . $safeDirAlias);
+
     if (!is_dir($mediadir . $safeDirAlias)) {
-        $query = "DELETE FROM view_img_dir WHERE dir_id = :directoryId";
-        $statement = $pearDB->prepare($query);
-        $statement->bindParam(':directoryId', $directoryId);
-        $statement->execute();
-        $statement->closeCursor();
+        $query3 = "DELETE FROM view_img_dir WHERE dir_id = :directoryId";
+        $statement3 = $pearDB->prepare($query3);
+        $statement3->bindParam(':directoryId', $directoryId, PDO::PARAM_INT);
+        $statement3->execute();
+        $statement3->closeCursor();
     }
 }
 
