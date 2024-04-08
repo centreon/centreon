@@ -54,6 +54,7 @@ const PanelHeader = ({
   };
 
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
+
   const closeMoreActions = (): void => setMoreActionsOpen(null);
 
   const panel = useMemo(
