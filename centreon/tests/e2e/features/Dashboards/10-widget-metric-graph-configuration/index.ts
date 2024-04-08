@@ -5,6 +5,7 @@ import {
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import admin from '../../../fixtures/users/admin.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
@@ -70,10 +71,6 @@ beforeEach(() => {
     method: 'GET',
     url: /\/api\/latest\/monitoring\/dashboard\/metrics\/performances\/data\?.*$/
   }).as('performanceData');
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
-  });
 });
 
 afterEach(() => {
@@ -90,6 +87,10 @@ after(() => {
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: false
+    });
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards/library');
     cy.contains(dashboards.default.name).click();
@@ -174,6 +175,10 @@ Then('the information about the selected metric is displayed', () => {
 });
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
@@ -256,6 +261,10 @@ Then(
 );
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
@@ -287,6 +296,10 @@ Then('the second widget has the same properties as the first widget', () => {
 });
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
@@ -322,6 +335,10 @@ Then(
 );
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
@@ -371,3 +388,44 @@ Then('the thresholds are automatically hidden', () => {
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });
+
+Given('a dashboard with a configured Metrics Graph widget', () => {
+  cy.loginByTypeOfUser({
+    jsonName: admin.login,
+    loginViaApi: false
+  });
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@performanceData');
+  cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+
+});
+
+When('the dashboard administrator selects more than two metric units', () => {
+  cy.getByTestId({ testId: 'pl' }).realClick();
+  cy.getByTestId({ testId: 'rtmax' }).realClick();
+});
+
+Then(
+  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  () => {
+    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
+      'exist'
+    );
+    cy.contains(
+      'span',
+      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+    ).should('exist');
+  }
+);
