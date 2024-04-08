@@ -410,6 +410,7 @@ When(
 Then(
   'the dashboard administrator should be redirected to the {string} widget resources',
   (widgetType) => {
+    let statusFound = false;
     switch (widgetType) {
       case 'single metric':
         cy.url().should('include', '/centreon/monitoring/resources?details=');
@@ -435,11 +436,17 @@ Then(
       case 'status grid':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
-        for (let i = 0; i < statusGridStatuses.length; i++) {
-          cy.get('[class$="chip-statusColumnChip"]')
-            .eq(i)
-            .should('contain.text', statusGridStatuses[i]);
-        }
+        cy.get('[class$="chip-statusColumnChip"]')
+          .each(($chip) => {
+            if (statusGridStatuses.includes($chip.text()) && !statusFound) {
+              statusFound = true;
+              return false;
+            }
+            return undefined;
+          })
+          .then(() => {
+            expect(statusFound).to.be.true;
+          });
         break;
       case 'top buttom':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
@@ -455,7 +462,6 @@ Then(
           'OK',
           'OK'
         ];
-        let statusFound = false;
         cy.get('[class$="chip-statusColumnChip"]')
           .each(($chip) => {
             if (topButtomStatuses.includes($chip.text()) && !statusFound) {

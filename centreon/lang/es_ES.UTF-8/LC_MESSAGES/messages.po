@@ -17096,3 +17096,20 @@ msgstr "Modo avanzado"
 
 # msgid "Until"
 # msgstr ""
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""
