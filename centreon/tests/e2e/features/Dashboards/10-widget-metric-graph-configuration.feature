@@ -49,7 +49,7 @@ Feature: Configuring metrics graph widget
     And the thresholds are automatically hidden
 
   @TEST_MON-50539
-  Scenario: Adding metrics graph widget with more than two metric units
+  Scenario: Adding Metrics graph widget with more than two metric units
     Given a dashboard with a configured Metrics Graph widget
     When the dashboard administrator selects more than two metric units
     Then a message should be displayed indicating that the user can only select a maximum of two metric units
