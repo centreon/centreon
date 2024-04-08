@@ -256,8 +256,8 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
         $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
-        $statement->bindValue(':allHostGroups', (int) $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
-        $statement->bindValue(':allServiceGroups', (int) $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
 
         $statement->execute();
 
