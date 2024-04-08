@@ -1169,7 +1169,7 @@ function install_central() {
 		fi
 	else
 		# install core Centreon packages from enabled repo
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $CENTREON_DBMS_PKG $CENTREON_PKG --enablerepo="$CENTREON_REPO"
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
 
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
@@ -1229,7 +1229,7 @@ function install_poller() {
 function update_centreon_packages() {
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		$PKG_MGR upgrade $CENTREON_PKG
+		$PKG_MGR upgrade centreon
 	else
 		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
 		if [ $? -ne 0 ]; then
