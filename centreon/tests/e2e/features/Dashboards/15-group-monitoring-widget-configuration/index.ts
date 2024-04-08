@@ -290,7 +290,6 @@ Given('a dashboard that includes a configured Group monitoring widget', () => {
   }).click({ force: true });
 });
 
-
 When(
   'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
