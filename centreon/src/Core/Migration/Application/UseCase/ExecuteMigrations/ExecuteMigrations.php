@@ -52,8 +52,10 @@ final class ExecuteMigrations
         try {
             $this->lockUpdate();
 
-            while ($migration = array_shift($this->readMigrationRepository->findNewMigrations())) {
+            $migrations = $this->readMigrationRepository->findNewMigrations();
+            while ($migration = array_shift($migrations)) {
                 $this->writeMigrationRepository->executeMigration($migration);
+                $migrations = $this->readMigrationRepository->findNewMigrations();
             }
 
             $this->updateVersions();
