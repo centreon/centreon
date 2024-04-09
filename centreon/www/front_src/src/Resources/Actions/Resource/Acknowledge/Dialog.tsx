@@ -68,6 +68,7 @@ const DialogAcknowledge = ({
   return (
     <Dialog
       confirmDisabled={!canConfirm}
+      data-testid="dialogAcknowledge"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelAcknowledge)}
       labelTitle={t(labelAcknowledge)}
@@ -87,6 +88,7 @@ const DialogAcknowledge = ({
           <TextField
             fullWidth
             multiline
+            dataTestId={labelComment}
             error={errors?.comment}
             label={t(labelComment)}
             rows={3}

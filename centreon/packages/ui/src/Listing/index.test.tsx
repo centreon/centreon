@@ -216,7 +216,7 @@ describe('Listing', () => {
       <Listing
         columnConfiguration={{
           selectedColumnIds: columns.map(prop('id')),
-          sortable: false
+          sortable: true
         }}
         columns={columns}
         rows={rows}

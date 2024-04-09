@@ -35,7 +35,6 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -88,18 +87,8 @@ final class LoginController extends AbstractController
                 );
 
             case $response instanceof LoginResponse:
-                if ($response->redirectIsReact()) {
-                    $cookie = Cookie::create('PHPSESSID', $session->getId());
-
-                    return View::createRedirect(
-                        $this->getBaseUrl() . $response->getRedirectUri(),
-                        headers: ['Set-Cookie' => (string) $cookie]
-                    );
-                }
-
                 return View::createRedirect(
-                    $this->getBaseUrl() . '/login',
-                    headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
+                    $this->getBaseUrl() . $response->getRedirectUri(),
                 );
 
             default:

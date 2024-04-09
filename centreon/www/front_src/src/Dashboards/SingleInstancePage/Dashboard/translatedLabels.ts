@@ -15,12 +15,14 @@ export const labelSelectAWidgetType = 'Select a widget type';
 export const labelSearch = 'Search';
 export const labelNoWidgetFound = 'No widget found';
 export const labelDeleteAWidget = 'Delete widget';
-export const labelDoYouWantToDeleteThisWidget =
-  'Do you want to delete this widget?';
 export const labelWidgetType = 'Widget type';
 export const labelPleaseChooseAWidgetToActivatePreview =
   'Select a widget type to activate the preview.';
 export const labelDeleteWidget = 'Delete widget';
+export const labelTheWidgetWillBeDeletedWithName =
+  'The {{name}} widget will be permanently deleted.';
+export const labelTheWidgetWillBeDeleted =
+  'The widget will be permanently deleted.';
 export const labelTitle = 'Title';
 export const labelDescription = 'Description';
 export const labelWidgetProperties = 'Widget properties';
@@ -53,7 +55,7 @@ export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
   'By turning off this option, all links included in the widget will be opened in the same tab.';
-export const labelRefineFilter = 'Refine filter';
+export const labelAddFilter = 'Add filter';
 export const labelAddMetric = 'Add metric';
 export const labelAvailable = 'available';
 export const labelYourWidgetHasBeenModified =
@@ -74,7 +76,7 @@ export const labelCriticalThreshold = 'Critical threshold';
 export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
-  'Thresholds are automatically hidden if you select 2 metric units.';
+  'Thresholds are automatically hidden as soon as you select 2 metric units.';
 export const labelDisplayType = 'Display type';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
@@ -92,7 +94,10 @@ export const labelYourRightsOnlyAllowToView =
   'Your rights only allow you to view the properties of a widget.';
 export const labelPleaseContactYourAdministrator =
   'Please contact your administrator for more information.';
-export const labelLastHour = 'Last hour (default)';
+export const labelLastHour = 'Last hour';
+export const labelLast3Hours = 'Last 3 hours';
+export const labelLast6Hours = 'Last 6 hours';
+export const labelLast12Hours = 'Last 12 hours';
 export const labelLast24Hours = 'Last 24 hours';
 export const labelLast7Days = 'Last 7 days';
 export const labelLast30Days = 'Last 30 days';
@@ -123,3 +128,4 @@ export const labelUnsavedChanges =
   'If you leave without saving your dashboard, changes will be permanently lost.';
 export const labelIsTheSelectedResource =
   'is the selected metric by default. Refine filters to select another specific resource.';
+export const labelSeeMore = 'See more on the Resources Status page';

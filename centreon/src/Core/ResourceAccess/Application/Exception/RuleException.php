@@ -28,6 +28,16 @@ class RuleException extends \Exception
     public const CODE_CONFLICT = 1;
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileDeleting(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting the resource access rule'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function notAllowed(): self
@@ -67,6 +77,11 @@ class RuleException extends \Exception
         return new self(_('Error while adding a resource access rule'));
     }
 
+    public static function updateRule(): self
+    {
+        return new self(_('Error while updating the resource access rule'));
+    }
+
     /**
      * @param string $propertyName
      * @param int[] $propertyValues
@@ -82,5 +97,10 @@ class RuleException extends \Exception
                 implode(',', $propertyValues)
             )
         );
+    }
+
+    public static function noLinkToContactsOrContactGroups(): self
+    {
+        return new self(_('At least one contact or contactgroup should be linked to the rule'));
     }
 }

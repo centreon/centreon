@@ -51,4 +51,12 @@ class HostNamesById
     public function getName(int $hostId): ?string {
         return isset($this->names[$hostId]) ? $this->names[$hostId]->value : null;
     }
+
+    /**
+     * @return array<int,TrimmedString>
+     */
+    public function getNames(): array
+    {
+        return $this->names;
+    }
 }

@@ -1,11 +1,13 @@
 import { inc } from 'ramda';
+import { Link } from 'react-router-dom';
 
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
 
 import useThresholds from '../../useThresholds';
 import { FormThreshold } from '../../models';
+import { getResourcesUrlForMetricsWidgets } from '../../utils';
 
 import { Resource } from './models';
 import { useTopBottomStyles } from './TopBottom.styles';
@@ -13,6 +15,7 @@ import { useTopBottomStyles } from './TopBottom.styles';
 interface MetricTopProps {
   displayAsRaw: boolean;
   index: number;
+  isFromPreview?: boolean;
   metricTop: Resource;
   showLabels: boolean;
   thresholds: FormThreshold;
@@ -25,7 +28,8 @@ const MetricTop = ({
   unit,
   thresholds,
   displayAsRaw,
-  showLabels
+  showLabels,
+  isFromPreview
 }: MetricTopProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
   const formattedData: LineChartData = {
@@ -60,19 +64,34 @@ const MetricTop = ({
   return (
     <>
       <Typography className={classes.resourceLabel}>
-        <strong>
-          #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-        </strong>
+        <Link
+          className={classes.linkToResourcesStatus}
+          data-testid={`link to ${metricTop?.name}`}
+          target="_blank"
+          to={getResourcesUrlForMetricsWidgets(metricTop)}
+        >
+          <strong>
+            #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
+          </strong>
+        </Link>
       </Typography>
-      <div style={{ height: 50 }}>
-        <SingleBar
-          data={formattedData}
-          displayAsRaw={displayAsRaw}
-          showLabels={showLabels}
-          size="small"
-          thresholds={formattedThresholds}
-        />
-      </div>
+      <Box className={classes.singleBarContainer} style={{ height: 50 }}>
+        <Link
+          className={classes.linkToResourcesStatus}
+          data-testid={`link to ${metricTop?.name}`}
+          target="_blank"
+          to={getResourcesUrlForMetricsWidgets(metricTop)}
+          onClick={(e) => isFromPreview && e.preventDefault()}
+        >
+          <SingleBar
+            data={formattedData}
+            displayAsRaw={displayAsRaw}
+            showLabels={showLabels}
+            size="small"
+            thresholds={formattedThresholds}
+          />
+        </Link>
+      </Box>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 import { Box, CardActionArea, Typography, useTheme } from '@mui/material';
 import DvrIcon from '@mui/icons-material/Dvr';
@@ -8,11 +8,12 @@ import DvrIcon from '@mui/icons-material/Dvr';
 import { EllipsisTypography } from '@centreon/ui';
 
 import { Resource } from '../../models';
+import { getResourcesUrl } from '../../utils';
 
 import { useTileStyles } from './StatusGrid.styles';
 import { ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
-import { getColor, getResourcesUrl } from './utils';
+import { getColor } from './utils';
 
 interface Props {
   data: ResourceData | null;
@@ -39,31 +40,35 @@ const Tile = ({
   const { classes } = useTileStyles();
   const theme = useTheme();
 
-  const navigate = router.useNavigate();
-
-  const goToResourceStatus = (): void => {
-    navigate(
-      getResourcesUrl({
-        resources,
-        states,
-        statuses,
-        type
-      })
-    );
-  };
+  const getLinkToResourceStatus = ({ isForOneResource }): string =>
+    getResourcesUrl({
+      allResources: resources,
+      isForOneResource,
+      resource: data,
+      states,
+      statuses,
+      type
+    });
 
   if (isNil(data)) {
     return (
-      <CardActionArea
-        className={classes.seeMoreContainer}
-        onClick={goToResourceStatus}
+      <Link
+        aria-label={t(labelSeeMore)}
+        className={classes.link}
+        target="_blank"
+        to={getLinkToResourceStatus({ isForOneResource: false })}
       >
-        <DvrIcon
-          color="primary"
-          fontSize={isSmallestSize ? 'medium' : 'large'}
-        />
-        {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
-      </CardActionArea>
+        <CardActionArea
+          className={classes.seeMoreContainer}
+          onClick={() => undefined}
+        >
+          <DvrIcon
+            color="primary"
+            fontSize={isSmallestSize ? 'medium' : 'large'}
+          />
+          {!isSmallestSize && <Typography>{t(labelSeeMore)}</Typography>}
+        </CardActionArea>
+      </Link>
     );
   }
 
@@ -71,36 +76,50 @@ const Tile = ({
 
   if (isSmallestSize && !isNil(data)) {
     return (
-      <Box className={classes.container}>
-        {displayStatusTile ? (
-          <Box
-            className={classes.statusTile}
-            data-mode="compact"
-            sx={{
-              backgroundColor: getColor({ severityCode: data.status, theme })
-            }}
-          />
-        ) : null}
-      </Box>
+      <Link
+        className={classes.link}
+        data-testid={`link to ${data?.name}`}
+        target="_blank"
+        to={getLinkToResourceStatus({ isForOneResource: true })}
+      >
+        <Box className={classes.container}>
+          {displayStatusTile ? (
+            <Box
+              className={classes.statusTile}
+              data-mode="compact"
+              sx={{
+                backgroundColor: getColor({ severityCode: data.status, theme })
+              }}
+            />
+          ) : null}
+        </Box>
+      </Link>
     );
   }
 
   return (
     <Box className={classes.container} data-status={data.statusName}>
-      {displayStatusTile && (
-        <Box
-          className={classes.statusTile}
-          sx={{
-            backgroundColor: getColor({ severityCode: data.status, theme })
-          }}
-        />
-      )}
-      <EllipsisTypography className={classes.resourceName} textAlign="center">
-        {data.name}
-      </EllipsisTypography>
-      <EllipsisTypography textAlign="center" variant="body2">
-        {data.parentName}
-      </EllipsisTypography>
+      <Link
+        className={classes.link}
+        data-testid={`link to ${data?.name}`}
+        target="_blank"
+        to={getLinkToResourceStatus({ isForOneResource: true })}
+      >
+        {displayStatusTile && (
+          <Box
+            className={classes.statusTile}
+            sx={{
+              backgroundColor: getColor({ severityCode: data.status, theme })
+            }}
+          />
+        )}
+        <EllipsisTypography className={classes.resourceName} textAlign="center">
+          {data.name}
+        </EllipsisTypography>
+        <EllipsisTypography textAlign="center" variant="body2">
+          {data.parentName}
+        </EllipsisTypography>
+      </Link>
     </Box>
   );
 };

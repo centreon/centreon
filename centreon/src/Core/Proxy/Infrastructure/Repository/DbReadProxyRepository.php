@@ -45,7 +45,7 @@ class DbReadProxyRepository extends AbstractRepositoryRDB implements ReadProxyRe
     {
         $statement = $this->db->query($this->translateDbName(
             <<<'SQL'
-                SELECT `proxy_url`, `proxy_port`, `proxy_user`, `proxy_password`  FROM `:db`.`options`
+                SELECT * FROM `:db`.`options` WHERE `key` LIKE 'proxy%';
                 SQL
         ));
         /**

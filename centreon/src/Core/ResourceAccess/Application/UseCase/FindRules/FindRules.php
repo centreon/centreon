@@ -31,7 +31,7 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ResourceAccess\Application\Exception\RuleException;
-use Core\ResourceAccess\Application\Repository\ReadRuleRepositoryInterface;
+use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\TinyRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -43,13 +43,13 @@ final class FindRules
 
     /**
      * @param ContactInterface $user
-     * @param ReadRuleRepositoryInterface $repository
+     * @param ReadResourceAccessRepositoryInterface $repository
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      */
     public function __construct(
         private readonly ContactInterface $user,
-        private readonly ReadRuleRepositoryInterface $repository,
+        private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
@@ -125,6 +125,6 @@ final class FindRules
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            || $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
     }
 }

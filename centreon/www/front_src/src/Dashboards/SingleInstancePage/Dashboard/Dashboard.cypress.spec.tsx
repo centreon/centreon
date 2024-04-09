@@ -10,6 +10,8 @@ import widgetInputProperties from 'centreon-widgets/centreon-widget-input/proper
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import { BrowserRouter } from 'react-router-dom';
+import { initReactI18next } from 'react-i18next';
+import i18next from 'i18next';
 
 import {
   DashboardGlobalRole,
@@ -28,17 +30,19 @@ import {
   dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
-  getDashboardAccessRightsEndpoint,
+  dashboardSharesEndpoint,
   getDashboardEndpoint
 } from '../../api/endpoints';
-import { dialogStateAtom } from '../../components/DashboardLibrary/DashboardAccessRights/useDashboardAccessRights';
-import { labelDelete } from '../../translatedLabels';
+import {
+  labelAddAContact,
+  labelDelete,
+  labelSharesSaved
+} from '../../translatedLabels';
 
 import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
   labelDeleteWidget,
-  labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
@@ -150,27 +154,12 @@ const initializeAndMount = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
-  store.set(dialogStateAtom, {
-    dashboard: {
-      createdAt: '',
-      createdBy: {
-        id: 1,
-        name: 'Joe'
-      },
-      description: null,
-      id: 1,
-      name: 'Dashboard 1',
-      ownRole: DashboardRole.editor,
-      updatedAt: '',
-      updatedBy: {
-        id: 1,
-        name: 'Joe'
-      }
-    },
-    isOpen: false,
-    status: 'idle'
-  });
   store.set(refreshIntervalAtom, 15);
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
 
   cy.viewport('macbook-13');
 
@@ -202,39 +191,19 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardAccessRights',
-      method: Method.GET,
-      path: `${getDashboardAccessRightsEndpoint(1)}**`,
-      response: shares
-    });
-  });
-
-  cy.fixture('Dashboards/Dashboard/contacts.json').then((contacts) => {
+  cy.fixture(`Dashboards/contacts.json`).then((response) => {
     cy.interceptAPIRequest({
       alias: 'getContacts',
       method: Method.GET,
-      path: `${dashboardsContactsEndpoint}**`,
-      response: contacts
+      path: `./api/latest${dashboardsContactsEndpoint}?**`,
+      response
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/contactGroups.json').then(
-    (contactgroups) => {
-      cy.interceptAPIRequest({
-        alias: 'getContactGroups',
-        method: Method.GET,
-        path: `${dashboardsContactGroupsEndpoint}**`,
-        response: contactgroups
-      });
-    }
-  );
-
   cy.interceptAPIRequest({
-    alias: 'putDashboardAccessRights',
+    alias: 'putShares',
     method: Method.PUT,
-    path: getDashboardAccessRightsEndpoint(1),
+    path: `./api/latest${dashboardSharesEndpoint(1)}`,
     statusCode: 204
   });
 
@@ -263,8 +232,6 @@ describe('Dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
-      cy.waitForRequest('@getContacts');
-      cy.waitForRequest('@getContactGroups');
 
       cy.contains(labelEditDashboard).should('be.visible');
 
@@ -372,13 +339,13 @@ describe('Dashboard', () => {
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
-          assert.equal(dashboard.layout.length, 2);
-          assert.exists(dashboard.layout[1].data);
+          assert.equal(dashboard.layout.length, 3);
+          assert.exists(dashboard.layout[2].data);
           assert.equal(
-            dashboard.layout[1].options?.text,
+            dashboard.layout[2].options?.text,
             'Text for the new widget'
           );
-          assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
         });
 
       cy.makeSnapshot();
@@ -394,11 +361,28 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
-      cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
+      cy.contains('The Widget text widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.findByLabelText(labelDelete).click();
 
       cy.contains(labelAddAWidget).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('does not display the name of the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findAllByLabelText(labelMoreActions).eq(2).click();
+      cy.contains(labelDeleteWidget).click();
+
+      cy.contains('The widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.makeSnapshot();
     });
@@ -482,19 +466,6 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Dashboard global properties', () => {
-    it('displays the dashboard global properties form when the corresponding button is clicked', () => {
-      initializeAndMount(editorRoles);
-
-      cy.findByLabelText('edit').click();
-
-      cy.contains(labelGlobalRefreshInterval).should('be.visible');
-      cy.contains(labelManualRefreshOnly).should('be.visible');
-
-      cy.findByLabelText(labelInterval).should('have.value', '15');
-    });
-  });
-
   it('displays the title and the description in the panel', () => {
     initializeAndMount(editorRoles);
 
@@ -519,5 +490,29 @@ describe('Dashboard', () => {
 
     cy.contains('Widget text').should('be.visible');
     cy.contains('Generic text').should('be.visible');
+  });
+
+  it('sends a shares update request when the shares are update and the corresponding button is clicked', () => {
+    initializeAndMount(editorRoles);
+
+    cy.findAllByTestId('share').eq(0).click();
+
+    cy.findByLabelText(labelAddAContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains(/^User$/)
+      .parent()
+      .click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@putShares');
+
+    cy.contains(labelSharesSaved).should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

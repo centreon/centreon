@@ -12,13 +12,6 @@ export interface Widget {
   panelConfiguration: PanelConfiguration | null;
 }
 
-export interface ConditionalOptions<T> {
-  is: unknown;
-  otherwise: T;
-  then: T;
-  when: string;
-}
-
 export interface ShowInput {
   contains?: Array<{ key: string; value: unknown }>;
   notContains?: Array<{ key: string; value: unknown }>;
@@ -27,16 +20,20 @@ export interface ShowInput {
 
 export interface WidgetPropertyProps {
   className?: string;
-  defaultValue?: unknown | ConditionalOptions<unknown>;
+  defaultValue?: unknown;
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
+  keepOneOptionSelected?: boolean;
   label: string;
-  options?: Array<SelectEntry> | ConditionalOptions<Array<SelectEntry>>;
+  options?: Array<SelectEntry>;
   propertyName: string;
+  requireResourceType?: boolean;
   required?: boolean;
+  restrictedResourceTypes?: Array<string>;
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
+  singleResourceType?: boolean;
   text?: {
     autoSize?: boolean;
     multiline?: boolean;
@@ -44,6 +41,7 @@ export interface WidgetPropertyProps {
     step?: string;
     type?: string;
   };
+  type: string;
 }
 
 export interface WidgetDataResource {
@@ -68,8 +66,17 @@ export interface Metric extends NamedEntity {
   warningLowThreshold: number | null;
 }
 
+export interface FormMetric extends Metric {
+  excludedMetrics: Array<number>;
+  includeAllMetrics?: boolean;
+}
+
 export interface ServiceMetric extends NamedEntity {
+  id: number;
   metrics: Array<Metric>;
+  name: string;
+  parentName: string;
+  uuid: string;
 }
 
 export enum WidgetResourceType {
