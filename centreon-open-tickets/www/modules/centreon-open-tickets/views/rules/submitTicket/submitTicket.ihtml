@@ -1,13 +1,15 @@
 <form id="Form">
     <div align=center>
-        <select name="rule_select" id="rule_select">
-            {foreach item=rule from=$rules}
-                <option value={$rule.rule_id}>{$rule.alias}</option>
-            {/foreach}
-        </select>
         <div id="form_error" style="color: red"></div>
 
         <div id="OTcontainer">
+            {if ! isset($rule_id)}
+            <select name="rule_select" id="rule_select">
+                {foreach item=rule from=$rules}
+                    <option value={$rule.rule_id}>{$rule.alias}</option>
+                {/foreach}
+            </select>
+            {/if}
             {$formatPopupProvider}
         </div>
         <div id="validForm">
@@ -20,8 +22,12 @@
             <input type='hidden' name='cmd' value='{$cmd}' />
             <input type='hidden' id="continue" name='continue' value='{$continue}' />
             <input type='hidden' name='doSubmitTicket' value='no' />
+            {if isset($submitLabel)}
             <input class="btc bt_info" type='submit' id='submit' value='{$submitLabel}' onClick="return validateFormatPopup();" />
+            {/if}
+            {if isset($submitRule)}
             <input class="btc bt_info" type='button' id='select' value='{$submitRule}' onClick="return selectRule();"/>
+            {/if}
         </div>
         <div id="OTcountdown" style="color: red"></div>
     </div>
