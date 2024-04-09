@@ -3,14 +3,14 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { creationDateAtom, expirationDateAtom } from '../atoms';
-import { Property } from '../models';
 import {
   labelCreationDate,
   labelExpirationDate
 } from '../../../../translatedLabels';
+import { creationDateAtom, expirationDateAtom } from '../atoms';
+import { Property } from '../models';
 
-import DateInput from './DateInput';
+import DateFilter from './DateFilter';
 
 const DateInputWrapper = (): JSX.Element => {
   const { t } = useTranslation();
@@ -29,12 +29,13 @@ const DateInputWrapper = (): JSX.Element => {
 
   return (
     <>
-      <DateInput
+      <DateFilter
         dataDate={dataCreationDate}
         label={t(labelCreationDate)}
         property={Property.last}
       />
-      <DateInput
+
+      <DateFilter
         dataDate={dataExpirationDate}
         label={t(labelExpirationDate)}
         property={Property.in}
