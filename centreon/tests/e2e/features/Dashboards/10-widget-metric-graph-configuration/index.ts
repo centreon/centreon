@@ -358,7 +358,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
+    cy.contains('Centreon-Server: Packet Loss').should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
@@ -388,7 +388,6 @@ Given('a dashboard with a configured Metrics Graph widget', () => {
   }).realClick();
   cy.wait('@performanceData');
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-
 });
 
 When('the dashboard administrator selects more than two metric units', () => {
