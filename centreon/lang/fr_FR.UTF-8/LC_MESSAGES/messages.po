@@ -18916,3 +18916,5 @@ msgstr "Standard"
 
 msgid "Condensed"
 msgstr "Condensé"
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
