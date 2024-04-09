@@ -87,7 +87,7 @@ sub new {
         $connector->{logger}->writeLogDebug('[core] JWK thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
     
-    $connector->{connect_loop} = new EV::Loop();
+    $connector->{connect_loop} = EV::Loop->new();
 
     $connectors->{ $options{identity} } = $connector;
     bless $connector, $class;
