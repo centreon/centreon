@@ -18533,8 +18533,8 @@ msgstr "Tableau des ressources"
 msgid "See more on the Resources Status page"
 msgstr "Voir plus dans la page Statut des ressources"
 
-msgid "Fullscreen (Alt+F)"
-msgstr "Plein écran (Alt+F)"
+msgid "Fullscreen (F)"
+msgstr "Plein écran (F)"
 
 msgid "Invalid page name. Valid page names are: %s"
 msgstr "Nom de page invalide. Les noms de page valident sont: %s"

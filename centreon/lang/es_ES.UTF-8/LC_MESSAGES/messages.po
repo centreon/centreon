@@ -16819,7 +16819,7 @@ msgstr "Modo avanzado"
 # msgid "Resource table"
 # msgstr ""
 
-# msgid "Fullscreen (Alt+F)"
+# msgid "Fullscreen (F)"
 # msgstr ""
 
 #  msgid "Invalid page name. Valid page names are: %s"

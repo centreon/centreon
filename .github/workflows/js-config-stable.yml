@@ -8,11 +8,12 @@ on:
     paths:
       - "centreon/packages/js-config/**"
       - ".github/actions/npm-publish-package-stable/**"
+      - ".github/workflows/js-config-stable.yml"
 
 env:
   directory: "centreon/packages/js-config"
   package: "js-config"
-  base_branch: develop
+  base_branch: dev-23.10.x
 
 jobs:
   publish-new-npm-version:
