@@ -17561,3 +17561,5 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+# msgid "An error occurred during authentication"
+# msgstr ""

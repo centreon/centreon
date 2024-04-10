@@ -17113,3 +17113,5 @@ msgstr "Modo avanzado"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+# msgid "An error occurred during authentication"
+# msgstr ""
