@@ -67,12 +67,6 @@ const ZoomContent = ({
 
   const { move, dragEnd, dragStart, isDragging } = useZoom();
 
-  const wheel = (e: WheelEvent): void => {
-    console.log('heyy');
-    e.preventDefault();
-    e.stopImmediatePropagation();
-  };
-
   const diffBetweenContentAndSvg = minimapSvgRef.current &&
     minimapContentRef.current && {
       left:
