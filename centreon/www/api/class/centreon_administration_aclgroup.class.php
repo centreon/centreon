@@ -19,8 +19,6 @@
  *
  */
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
@@ -53,7 +51,7 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
 
         $query = filter_var($this->arguments['q'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        if (! empty($query)) {
+        if ($query !== '') {
             $filterAclgroup[] = ' (ag.acl_group_name LIKE :aclGroup OR ag.acl_group_alias LIKE :aclGroup) ';
             $queryValues['aclGroup'] = '%' . $query . '%';
         }
@@ -76,13 +74,15 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             FILTER_VALIDATE_BOOL
         );
 
-        if (
-            $limit === false
-            || $page === false
-        ) {
+        if ($limit === false) {
             throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
 
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
+        }
+
+        $range = '';
         if (
             $page !== null
             && $limit !== null
@@ -90,8 +90,6 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             $range = ' LIMIT :offset, :limit';
             $queryValues['offset'] = (int) (($page - 1) * $limit);
             $queryValues['limit'] = $limit;
-        } else {
-            $range = '';
         }
 
         $query = <<<'SQL'
@@ -136,11 +134,11 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         $statement = $this->pearDB->prepare($query);
 
         if (isset($queryValues['aclGroup'])) {
-            $statement->bindParam(':aclGroup', $queryValues['aclGroup'], PDO::PARAM_STR);
+            $statement->bindValue(':aclGroup', $queryValues['aclGroup'], \PDO::PARAM_STR);
         }
         if (isset($queryValues['offset'])) {
-            $statement->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
-            $statement->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
+            $statement->bindValue(':offset', $queryValues['offset'], \PDO::PARAM_INT);
+            $statement->bindValue(':limit', $queryValues['limit'], \PDO::PARAM_INT);
         }
 
         $statement->execute();
