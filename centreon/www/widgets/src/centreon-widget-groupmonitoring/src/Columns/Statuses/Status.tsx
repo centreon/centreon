@@ -3,14 +3,10 @@ import { Link } from 'react-router-dom';
 
 import { Box, Typography, useTheme } from '@mui/material';
 
-import { getStatusColors } from '@centreon/ui';
+import { getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { useStatusesColumnStyles } from '../Columns.styles';
-import {
-  getResourcesUrl,
-  goToUrl,
-  severityStatusBySeverityCode
-} from '../../../../utils';
+import { goToUrl, severityStatusBySeverityCode } from '../../../../utils';
 
 interface Props {
   count: number;
