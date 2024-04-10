@@ -126,6 +126,7 @@ const ZoomContent = ({
                 diffBetweenContentAndSvg || { left: 0, top: 0 }
               }
               height={height}
+              id={id}
               isDraggingFromContainer={isDragging}
               width={width}
               zoom={zoom}
