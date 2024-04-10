@@ -40,6 +40,7 @@ sub new {
     $connector->{internal_socket} = $options{internal_socket};
     $connector->{class_object_centreon} = $options{class_object_centreon};
     $connector->{class_object_centstorage} = $options{class_object_centstorage};
+    $connector->{class_autodiscovery} = $options{class_autodiscovery};
     $connector->{tpapi_clapi} = $options{tpapi_clapi};
     $connector->{mail_subject} = defined($connector->{config}->{mail_subject}) ? $connector->{config}->{mail_subject} : 'Centreon Auto Discovery';
     $connector->{mail_from} = defined($connector->{config}->{mail_from}) ? $connector->{config}->{mail_from} : 'centreon-autodisco';
@@ -49,6 +50,7 @@ sub new {
     $connector->{service_parrallel_commands_poller} = 8;
     $connector->{service_current_commands_poller} = {};
     $connector->{finished} = 0;
+    $connector->{post_execution} = 0;
 
     $connector->{safe_display} = Safe->new();
     $connector->{safe_display}->share('$values');
@@ -115,6 +117,12 @@ sub is_finished {
     my ($self, %options) = @_;
 
     return $self->{finished};
+}
+
+sub is_post_execution {
+    my ($self, %options) = @_;
+
+    return $self->{post_execution};
 }
 
 sub send_email {
@@ -721,13 +729,21 @@ sub discoverylistener {
                 manual => $self->{discovery}->{manual}
             }
         );
-
-        if ($self->{discovery}->{is_manual} == 0) {
-            $self->restart_pollers();
-            $self->send_email();
-        }
     }
 
+    return 0;
+}
+
+sub service_discovery_post_exec {
+    my ($self, %options) = @_;
+
+    $self->{post_execution} = 1;
+
+    if ($self->{discovery}->{is_manual} == 0) {
+        $self->restart_pollers();
+        $self->send_email();
+    }
+    
     return 0;
 }
 
@@ -937,6 +953,12 @@ sub launchdiscovery {
     $self->service_execute_commands(vault_count => $vault_count);
 
     return 0;
+}
+
+sub event {
+    my ($self, %options) = @_;
+
+    $self->{class_autodiscovery}->event();
 }
 
 1;
