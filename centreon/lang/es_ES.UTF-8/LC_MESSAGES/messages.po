@@ -17143,3 +17143,6 @@ msgstr "Modo avanzado"
 
 # msgid "Step"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""

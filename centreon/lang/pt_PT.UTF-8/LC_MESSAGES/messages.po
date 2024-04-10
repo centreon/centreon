@@ -17591,3 +17591,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Step"
 # msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
