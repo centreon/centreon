@@ -2,7 +2,8 @@
 import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { equals, keys } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { FormHelperText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -16,10 +17,16 @@ import {
   labelAddFilter,
   labelSelectResource,
   labelSelectResourceType,
-  labelAllResourcesSelected
+  labelAllResourcesSelected,
+  labelAllHostsSelected,
+  labelAllHostGroupsSelected,
+  labelAllServiceGroupsSelected
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
+import { isAllOfResourceTypeCheckedAtom } from '../../../atom';
+
+import AllOfResourceTypeCheckbox from './AllOfResourceTypeCheckbox';
 
 type Props = {
   areResourcesFilled: (datasets: Array<Dataset>) => boolean;
@@ -34,6 +41,10 @@ const DatasetFilter = ({
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useDatasetFilterStyles();
+
+  const isAllOfResourceTypeChecked = useAtomValue(
+    isAllOfResourceTypeCheckedAtom
+  );
 
   const {
     addResource,
@@ -50,65 +61,101 @@ const DatasetFilter = ({
 
   const deleteButtonHidden = datasetFilter.length <= 1;
 
+  const displayAllOfResourceTypeCheckbox = (
+    resourceType: ResourceTypeEnum
+  ): boolean =>
+    equals(resourceType, ResourceTypeEnum.HostGroup) ||
+    equals(resourceType, ResourceTypeEnum.Host) ||
+    equals(resourceType, ResourceTypeEnum.ServiceGroup);
+
+  const labelsForSelectedResources = {
+    [ResourceTypeEnum.Host]: labelAllHostsSelected,
+    [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
+    [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
+  };
+
+  const getLabelForSelectedResources = (
+    resourceType: ResourceTypeEnum
+  ): string => {
+    if (
+      keys(labelsForSelectedResources).includes(resourceType) &&
+      isAllOfResourceTypeChecked[resourceType]
+    ) {
+      return labelsForSelectedResources[resourceType];
+    }
+
+    if (equals(resourceType, ResourceTypeEnum.All)) {
+      return labelAllResourcesSelected;
+    }
+
+    return labelSelectResource;
+  };
+
   return (
     <div className={classes.resourceComposition}>
       <ItemComposition
         IconAdd={<AddIcon />}
         addbuttonDisabled={
-          !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
+          (!areResourcesFilled(datasetFilter) || lowestResourceTypeReached())
         }
         labelAdd={t(labelAddFilter)}
         onAddItem={addResource}
       >
         {datasetFilter.map((resource, resourceIndex) => (
-          <ItemComposition.Item
+          <div
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={deleteButtonHidden}
             key={`${resourceIndex}${resource.resources[0]}`}
-            labelDelete={t(labelDelete)}
-            onDeleteItem={deleteResource(resourceIndex)}
           >
-            <SelectField
-              aria-label={`${labelSelectResourceType}`}
-              className={classes.resourceType}
-              label={t(labelSelectResourceType) as string}
-              options={getResourceTypeOptions(resourceIndex)}
-              selectedOptionId={resource.resourceType}
-              onChange={changeResourceType(resourceIndex)}
-            />
-            <MultiConnectedAutocompleteField
-              allowUniqOption
-              chipProps={{
-                color: 'primary',
-                onDelete: (_, option): void =>
-                  deleteResourceItem({
-                    index: resourceIndex,
-                    option,
-                    resources: resource.resources
-                  })
-              }}
-              className={classes.resources}
-              dataTestId={labelSelectResource}
-              disabled={
-                !resource.resourceType ||
-                equals(resource.resourceType, ResourceTypeEnum.All)
-              }
-              field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceBaseEndpoint(
-                resourceIndex,
-                resource.resourceType
-              )}
-              label={
-                equals(resource.resourceType, ResourceTypeEnum.All)
-                  ? (t(labelAllResourcesSelected) as string)
-                  : (t(labelSelectResource) as string)
-              }
-              limitTags={5}
-              queryKey={`${resource.resourceType}-${resourceIndex}`}
-              value={resource.resources || []}
-              onChange={changeResources(resourceIndex)}
-            />
-          </ItemComposition.Item>
+            <ItemComposition.Item
+              className={classes.resourceDataset}
+              deleteButtonHidden={deleteButtonHidden}
+              key={`${resourceIndex}${resource.resources[0]}`}
+              labelDelete={t(labelDelete)}
+              onDeleteItem={deleteResource(resourceIndex)}
+            >
+              <SelectField
+                aria-label={`${labelSelectResourceType}`}
+                className={classes.resourceType}
+                label={t(labelSelectResourceType) as string}
+                options={getResourceTypeOptions(resourceIndex)}
+                selectedOptionId={resource.resourceType}
+                onChange={changeResourceType(resourceIndex)}
+              />
+              <MultiConnectedAutocompleteField
+                allowUniqOption
+                chipProps={{
+                  color: 'primary',
+                  onDelete: (_, option): void =>
+                    deleteResourceItem({
+                      index: resourceIndex,
+                      option,
+                      resources: resource.resources
+                    })
+                }}
+                className={classes.resources}
+                dataTestId={labelSelectResource}
+                disabled={
+                  isAllOfResourceTypeChecked[resource.resourceType] ||
+                  !resource.resourceType ||
+                  equals(resource.resourceType, ResourceTypeEnum.All)
+                }
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
+                label={t(getLabelForSelectedResources(resource.resourceType))}
+                limitTags={5}
+                queryKey={`${resource.resourceType}-${resourceIndex}`}
+                value={
+                  isAllOfResourceTypeChecked[resource.resourceType]
+                    ? []
+                    : resource.resources || []
+                }
+                onChange={changeResources(resourceIndex)}
+              />
+            </ItemComposition.Item>
+            {displayAllOfResourceTypeCheckbox(resource.resourceType) && (
+              <AllOfResourceTypeCheckbox resourceType={resource.resourceType} />
+            )}
+          </div>
         ))}
       </ItemComposition>
       {error && <FormHelperText error>{t(error)}</FormHelperText>}

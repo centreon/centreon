@@ -37,6 +37,7 @@ export const duplicatedRuleAtom = atom<DuplicateResourceAccessRuleType>({
 });
 export const isDuplicateDialogOpenAtom = atom<boolean>(false);
 
+<<<<<<< HEAD
 export const selectedDatasetsAtom = atom<
   Array<{ ids: Array<number>; type: ResourceTypeEnum }>
 >([{ ids: [], type: ResourceTypeEnum.Empty }]);
@@ -44,3 +45,14 @@ export const selectedDatasetsAtom = atom<
 export const selectedDatasetFiltersAtom = atom<
   Array<Array<{ ids: Array<number>; type: ResourceTypeEnum }>>
 >([[{ ids: [], type: ResourceTypeEnum.Empty }]]);
+=======
+export const isAllOfResourceTypeCheckedAtom = atom<{
+  host: boolean;
+  hostgroup: boolean;
+  servicegroup: boolean;
+}>({
+  host: false,
+  hostgroup: false,
+  servicegroup: false
+});
+>>>>>>> fb6018d42e (added checkboxes for all hosts, hostgroups, servicegroups)
