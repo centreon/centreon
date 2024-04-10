@@ -16,6 +16,7 @@ interface Props extends Omit<UseMinimapProps, 'minimapScale' | 'scale'> {
     left: number;
     top: number;
   };
+  id?: number | string;
   isDraggingFromContainer: boolean;
 }
 
@@ -26,7 +27,8 @@ const Minimap = ({
   width,
   contentClientRect,
   isDraggingFromContainer,
-  diffBetweenContentAndSvg
+  diffBetweenContentAndSvg,
+  id
 }: Props): JSX.Element => {
   const { classes } = useZoomStyles();
 
@@ -82,7 +84,7 @@ const Minimap = ({
   );
 
   return (
-    <g className={classes.minimap} clipPath="url(#zoom-clip)">
+    <g className={classes.minimap} clipPath={`url(#zoom-clip-${id})`}>
       <rect
         className={classes.minimapBackground}
         height={finalHeight}

@@ -18,6 +18,7 @@ import { ChildrenProps, MinimapPosition, ZoomState } from './models';
 export interface Props {
   children: ({ width, height, transformMatrix }: ChildrenProps) => JSX.Element;
   height: number;
+  id?: number | string;
   minimapPosition: MinimapPosition;
   showMinimap?: boolean;
   width: number;
@@ -30,7 +31,8 @@ const ZoomContent = ({
   height,
   children,
   showMinimap,
-  minimapPosition
+  minimapPosition,
+  id
 }: Props): JSX.Element => {
   const { classes } = useZoomStyles();
   const contentRef = useRef<SVGGElement | null>(null);
@@ -65,6 +67,12 @@ const ZoomContent = ({
 
   const { move, dragEnd, dragStart, isDragging } = useZoom();
 
+  const wheel = (e: WheelEvent): void => {
+    console.log('heyy');
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  };
+
   const diffBetweenContentAndSvg = minimapSvgRef.current &&
     minimapContentRef.current && {
       left:
@@ -92,7 +100,7 @@ const ZoomContent = ({
       >
         <RectClipPath
           height={Math.max(contentClientRect?.height || 0, height)}
-          id="zoom-clip"
+          id={`zoom-clip-${id}`}
           rx={radius}
           width={Math.max(contentClientRect?.width || 0, width)}
         />
