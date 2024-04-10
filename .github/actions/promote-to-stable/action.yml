@@ -140,7 +140,7 @@ runs:
 
         for ARTIFACT_DL in $(dir|grep -E "*.deb"); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          DISTRIB=$(echo $FILE | cut -d '_' -f2 | cut -d '-' -f2)
+          DISTRIB=$(echo $ARTIFACT_DL | cut -d '_' -f2 | cut -d '-' -f2)
           if [[ "${{ inputs.distrib }}" != "$DISTRIB" ]]; then
             echo "[ERROR] - Distrib [$DISTRIB] from package does not match distrib [${{ inputs.distrib }}] from input, abort promotion."
             exit 1
