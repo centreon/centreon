@@ -30,13 +30,20 @@ runs:
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
         CURRENT_STABLE_BRANCH_MAJOR_VERSION=""
+        declare -a TMP_STABLE_TAGS=()
         declare -a NEW_STABLE_TAGS=()
         declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
 
         # Get current stable branch name
-        CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+        # If MASTER, use root .version
+        # Else use branch name
+        if [[ "${{ inputs.github_ref_name }}" == "master" ]]; then
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+        else
+          CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+        fi
         echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
         # Get previous and new version tags for components
@@ -51,14 +58,31 @@ runs:
           # Previous stable tags array
           PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
           # New stable tags array
-          NEW_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
+          TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
-        echo "New releases are: ${NEW_STABLE_TAGS[*]}"
+        echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
 
-        # TODO: Check that NEW_STABLE_TAGS are fully different from PREVIOUS_STABLE_TAGS
-        # re use the part from check version ??
-        # or use the check-version action after turning this release action into a real workflow ?
+        # Building final NEW_STABLE_TAGS with the new version tags only
+        # Iterate over elements of TMP_STABLE_TAGS
+        for new_tag in "${TMP_STABLE_TAGS[@]}"; do
+          found=false
+          # Iterate over elements of PREVIOUS_STABLE_TAGS
+          for old_tag in "${PREVIOUS_STABLE_TAGS[@]}"; do
+            # Compare elements
+            if [ "$new_tag" == "$old_tag" ]; then
+              found=true
+              break
+            fi
+          done
+          # If element not found in PREVIOUS_STABLE_TAGS, add it to NEW_STABLE_TAGS
+          if ! $found; then
+            NEW_STABLE_TAGS+=("$new_tag")
+          fi
+        done
+
+        echo "New tags to be published from new release that were not in previous releases:"
+        printf '%s\n' "${NEW_STABLE_TAGS[@]}"
 
         # Make NEW_STABLE_TAGS available for other steps
         echo "NEW_STABLE_TAGS=${NEW_STABLE_TAGS[*]}" >> "$GITHUB_ENV"
@@ -74,13 +98,13 @@ runs:
         git config --global user.name "Centreon"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_RELEASE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_RELEASE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Create release tags on git for each release components
         echo "Creating release tags."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
@@ -109,13 +133,13 @@ runs:
         fi
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Create GITHUB release for each release components
         echo "Creating GITHUB releases."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "Creating GITHUB release with title $TAG for tag $TAG."
           gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
         done
@@ -132,9 +156,9 @@ runs:
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Create new JIRA versions (old way of doing it)
         # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
@@ -149,7 +173,7 @@ runs:
         JIRA_RELEASE_RELEASED="false"
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
           # Build JSON with release information for JIRA API
           JIRA_RELEASE_DATA=$(jq -nc \
@@ -180,12 +204,12 @@ runs:
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          NEW_RELEASE_TAGS+=("$i")
-        done
+        # for i in ${NEW_STABLE_TAGS[@]}; do
+        #   NEW_RELEASE_TAGS+=("$i")
+        # done
 
         # Build JSON structure with released versions
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
 
