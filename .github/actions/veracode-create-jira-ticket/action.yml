@@ -41,11 +41,6 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        component_name="${{ inputs.module_name }}"
-        if [[ "${{ inputs.module_name }}" == "centreon" ]]; then
-          component_name="centreon-web"
-        fi
-
         DATA=$( cat <<-EOF
         {
           "fields": {
@@ -54,7 +49,6 @@ runs:
             "issuetype": {"id": "10209"},
             "parent": {"id": "83818", "key": "AT-268"},
             "labels": ["Veracode", "Pipeline"],
-            "components":[{"name": "$component_name"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
             "description": {"version": 1,"type": "doc","content": [
