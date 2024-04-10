@@ -832,7 +832,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
 
     if (
         isset($submittedValues['hg_activate']['hg_activate'])
-        && $submittedValues['hg_activate']['hg_activate']
+        && $submittedValues['hg_activate']['hg_activate'] !== null
     ) {
         $request .= ', hg_activate = :isActivated';
         $bindValues[':isActivated'] = [
