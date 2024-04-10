@@ -56,6 +56,7 @@ runs:
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if base branch is master
+        ROOT_REPO_PATH="rpm-standard"
         if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
