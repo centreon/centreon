@@ -30,12 +30,32 @@ interface GetResourcesUrlProps {
 }
 
 export const getDetailsPanelQueriers = ({ resource, type }): object => {
-  const { id, parentId, uuid, type: resourceType } = resource;
+  const { id, parentId, uuid } = resource;
 
-  const resourcesDetailsEndpoint =
-    equals(type, 'host') || equals(resourceType, 'host')
-      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint = cond([
+    [
+      equals('host'),
+      always(`${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`)
+    ],
+    [
+      equals('service'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`
+      )
+    ],
+    [
+      equals('metaservice'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/metaservices/${id}`
+      )
+    ],
+    [
+      equals('anomaly-detection'),
+      always(
+        `${centreonBaseURL}/api/latest/monitoring/resources/anomaly-detection/${id}`
+      )
+    ]
+  ])(type);
 
   const queryParameters = {
     id,
