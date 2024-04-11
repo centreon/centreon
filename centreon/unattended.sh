@@ -268,20 +268,14 @@ function get_os_information() {
 	case "${OS_NAME}" in
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			;;
 		Debian*)
-			detected_os_release="debian-release-${OS_VERSIONID}"
 			case "${OS_VERSIONID}" in
-				11*)
-					detected_mariadb_version="mariadb-10.5"
-					;;
-				12*)
-					detected_mariadb_version="mariadb-10.11"
+				11* || 12*)
+					detected_os_release="debian-release-${OS_VERSIONID}"
 					;;
 				*)
 					log "ERROR" "Unsupported Debian distribution ${OS_VERSIONID} detected"
@@ -290,15 +284,12 @@ function get_os_information() {
 			;;
 		Oracle*)
 			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			;;
 		"Red Hat"*)
 			detected_os_release="redhat-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			;;
 		Rocky*)
 			detected_os_release="rocky-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
@@ -351,7 +342,14 @@ function set_centreon_repos() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
-
+	case $version in
+	"24.04")
+		detected_mariadb_version="10.11"
+	;;
+	*)
+		detected_mariadb_version="10.5"
+	;;
+	esac
 	case "$detected_os_release" in
 	debian-release*)
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=$detected_os_version --mariadb-server-version=$detected_mariadb_version
