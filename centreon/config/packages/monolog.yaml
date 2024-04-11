@@ -7,11 +7,11 @@ when@prod:
       system:
         type: error_log
         level: warning
-        formatter: monolog.error.formater
+        formatter: monolog.formater
         channels: [ '!centreon' ]
       centreon:
         type: service
-        id: monolog.debug.handler
+        id: monolog.handler
         channels: [ 'centreon' ]
 when@dev:
   monolog:
@@ -20,15 +20,15 @@ when@dev:
       system:
         type: error_log
         level: warning
-        formatter: monolog.error.formater
+        formatter: monolog.formater
         channels: [ '!centreon' ]
       centreon:
         type: service
-        id: monolog.debug.handler
+        id: monolog.handler
         channels: [ 'centreon' ]
       deprecation:
         type: rotating_file
         path: "%log_path%/%kernel.environment%.deprecations.log"
         max_files: 2
-        channels: [ deprecation ]
-        file_permission: 662
+        channels: [ 'deprecation' ]
+        file_permission: 0660
