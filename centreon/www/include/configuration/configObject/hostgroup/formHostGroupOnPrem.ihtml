@@ -85,7 +85,6 @@
                 <td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td>
                 <td class="FormRowValue">{$form.geo_coords.html}</td>
             </tr>
-
             <tr class="list_lvl_1">
                 <td class="ListColLvl1_name" colspan="2">
                     <h4>{$form.header.furtherInfos}</h4>

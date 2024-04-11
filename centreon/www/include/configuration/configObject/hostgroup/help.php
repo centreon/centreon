@@ -67,3 +67,4 @@ $help['hg_rrd_retention'] = dgettext(
 );
 $help['hg_comment'] = dgettext("help", "Comments on this host group.");
 $help['hg_activate'] = dgettext("help", "Whether this host group is enabled.");
+$help['resource_access_rules'] = dgettext('help', 'Resource access rule to which the host group should be linked');
