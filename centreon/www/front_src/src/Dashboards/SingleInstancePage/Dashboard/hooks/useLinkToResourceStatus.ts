@@ -1,4 +1,4 @@
-import { equals } from 'ramda';
+import { all, equals, has, pluck } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import {
@@ -12,25 +12,41 @@ import {
   defaultSelectedColumnIdsforViewByHost,
   defaultSelectedColumnIds
 } from '../../../../Resources/Listing/columns';
+import { metricInputKeyDerivedAtom } from '../AddEditWidget/atoms';
 import {
-  metricInputKeyDerivedAtom,
-  resourcesInputKeyDerivedAtom
-} from '../AddEditWidget/atoms';
+  labelBusinessActivity,
+  labelBusinessView,
+  labelResourcesStatus
+} from '../translatedLabels';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
   getLinkToResourceStatusPage: (data, name, options) => string;
+  getPageType: (data) => string | null;
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const metricInputKey = useAtomValue(metricInputKeyDerivedAtom);
-  const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const getLinkToResourceStatusPage = (data, name, options): string => {
-    if (resourcesInputKey && !data?.[resourcesInputKey]) {
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
       return '';
+    }
+
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+
+    if (hasOnlyBA) {
+      return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
     }
 
     if (metricInputKey && !data?.[metricInputKey]) {
@@ -38,8 +54,6 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
       const type =
         options?.resourceType || options?.resourceTypes || options?.displayType;
-
-      const { resources } = data;
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources,
@@ -52,6 +66,34 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
 
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
+  };
+
+  const getPageType = (data): string | null => {
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+      return null;
+    }
+
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+
+    if (hasOnlyBA) {
+      return labelBusinessActivity;
+    }
+
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return labelBusinessView;
+    }
+
+    return labelResourcesStatus;
   };
 
   const changeViewMode = (displayType): void => {
@@ -78,7 +120,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     }
   };
 
-  return { changeViewMode, getLinkToResourceStatusPage };
+  return { changeViewMode, getLinkToResourceStatusPage, getPageType };
 };
 
 export default useLinkToResourceStatus;

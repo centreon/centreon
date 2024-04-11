@@ -22,7 +22,7 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
+      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
   );
 
 const serviceCriteria = {
