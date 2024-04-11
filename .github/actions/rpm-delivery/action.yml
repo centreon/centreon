@@ -81,14 +81,27 @@ runs:
         # Build upload target path based on release_cloud and release_type values
         # if cloud, deliver to testing-<release_type>
         # if non-cloud, delivery to testing as usual
-        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
+        # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
+        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]]; then
+          echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
+
+        # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
+        elif [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "release" ]]; then
+          echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
+          ROOT_REPO_PATHS="rpm-standard-internal"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
+
+        # NON-CLOUD + (HOTFIX OR RELEASE) + REPO STANDARD
         elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
+          echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+
+        # NOT VALID, DO NOT DELIVER
         else
-          echo "Invalid combination of release_type and release_cloud"
+          echo "[ERROR] Invalid combination of release_type and release_cloud"
           exit 1
         fi
 
