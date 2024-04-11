@@ -678,7 +678,7 @@ function secure_dbms_setup() {
 	if [[ $dbms == "MariaDB" ]]; then
 		systemctl restart mariadb
 		log "INFO" "Executing SQL requests for $dbms"
-		mysql -u root <<-EOF
+		mysql -u root --verbose <<-EOF
 			UPDATE mysql.global_priv SET priv=json_set(priv, '$.plugin', 'mysql_native_password', '$.authentication_string', PASSWORD('$db_root_password')) WHERE User='root';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DELETE FROM mysql.global_priv WHERE User='';
@@ -689,7 +689,7 @@ EOF
 	else
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
-		mysql -u root <<-EOF
+		mysql -u root --verbose <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
