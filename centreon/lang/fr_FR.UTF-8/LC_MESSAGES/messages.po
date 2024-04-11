@@ -1934,10 +1934,6 @@ msgstr "Modèle de graphique"
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
 
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
-
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
 #: centreon-web/www/install/smarty_translate.php:402
@@ -18929,9 +18925,6 @@ msgstr "Affiche les chemins vers les ressources qui ont ce status"
 msgid "Problem (Critical)"
 msgstr "Problème (Critique)"
 
-msgid "Warning"
-msgstr "Alerte"
-
 msgid "Success (OK)"
 msgstr "Succès (OK)"
 
@@ -18943,6 +18936,3 @@ msgstr "Courbe"
 
 msgid "Line"
 msgstr "Ligne"
-
-msgid "Step"
-msgstr "Étape"
