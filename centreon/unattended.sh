@@ -274,7 +274,7 @@ function get_os_information() {
 			;;
 		Debian*)
 			case "${OS_VERSIONID}" in
-				11* || 12*)
+				11*|12*)
 					detected_os_release="debian-release-${OS_VERSIONID}"
 					;;
 				*)
