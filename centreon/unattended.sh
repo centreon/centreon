@@ -690,7 +690,7 @@ EOF
 		systemctl restart $mysql_service_name
 		log "INFO" "Executing SQL requests for $dbms"
 		mysql -u root --verbose <<-EOF
-			ALTER USER 'root'@'*' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
+			ALTER USER 'root'@'localhost' IDENTIFIED WITH 'mysql_native_password' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DROP DATABASE IF EXISTS test;
