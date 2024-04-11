@@ -96,7 +96,7 @@ const DatasetFilter = ({
       <ItemComposition
         IconAdd={<AddIcon />}
         addbuttonDisabled={
-          (!areResourcesFilled(datasetFilter) || lowestResourceTypeReached())
+          !areResourcesFilled(datasetFilter) || lowestResourceTypeReached()
         }
         labelAdd={t(labelAddFilter)}
         onAddItem={addResource}
@@ -140,7 +140,10 @@ const DatasetFilter = ({
                   equals(resource.resourceType, ResourceTypeEnum.All)
                 }
                 field={getSearchField(resource.resourceType)}
-                getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
+                getEndpoint={getResourceBaseEndpoint(
+                  resourceIndex,
+                  resource.resourceType
+                )}
                 label={t(getLabelForSelectedResources(resource.resourceType))}
                 limitTags={5}
                 queryKey={`${resource.resourceType}-${resourceIndex}`}
