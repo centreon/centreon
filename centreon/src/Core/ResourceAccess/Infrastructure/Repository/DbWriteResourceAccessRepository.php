@@ -53,6 +53,22 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
 
     /**
      * @inheritDoc
+     */
+    public function updateDatasetAccess(int $datasetId, string $resourceType, bool $fullAccess): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    UPDATE `:db`.acl_resources SET all_{$resourceType} = :access WHERE acl_res_id = :datasetId
+                SQL
+        ));
+
+        $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+        $statement->bindValue(':access', $fullAccess ? '1' : '0', \PDO::PARAM_STR);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
      * Here are the deletions (on cascade or not) that will occur on rule deletion
      *     - Contact relations (ON DELETE CASCADE)
      *     - Contact Group relations (ON DELETE CASCADE)
@@ -239,9 +255,10 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
-        $statement->bindValue(':allHosts', (int) $accessAllHosts, \PDO::PARAM_STR);
-        $statement->bindValue(':allHostGroups', (int) $accessAllHostGroups, \PDO::PARAM_STR);
-        $statement->bindValue(':allServiceGroups', (int) $accessAllServiceGroups, \PDO::PARAM_STR);
+        $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
