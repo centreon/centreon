@@ -42,7 +42,7 @@ final class UpdateRuleRequest
     /** @var array{
      *      array{
      *          type:string,
-     *          resources: non-empty-list<int>,
+     *          resources: list<int>,
      *          ...
      *      }
      *  }|array{} $datasetFilters
