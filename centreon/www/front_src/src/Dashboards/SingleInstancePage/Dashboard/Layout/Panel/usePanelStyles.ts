@@ -24,8 +24,13 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     },
-    height: theme.spacing(2),
-    padding: theme.spacing(0)
+    height: theme.spacing(4.5),
+    padding: theme.spacing(0),
+    paddingTop: theme.spacing(1.5)
+  },
+  panelTitle: {
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold
   }
 }));
 
