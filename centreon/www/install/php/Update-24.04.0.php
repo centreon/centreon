@@ -247,7 +247,16 @@ $updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): 
     $pearDB->query(
         <<<SQL
             UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
-        SQL
+            SQL
+    );
+};
+
+$updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to change resourceIds column type from VARCHAR to TEXT';
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `resource_ids` TEXT DEFAULT NULL
+            SQL
     );
 };
 
@@ -266,6 +275,7 @@ try {
     $alterTypeDefinitionDatasetFilterTable($pearDB);
 
     $addDefaultValueforTaskTable($pearDB);
+    $updateDatasetFilterResourceIdsColumn($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {

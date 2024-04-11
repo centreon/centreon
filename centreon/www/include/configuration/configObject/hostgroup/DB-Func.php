@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -431,16 +431,18 @@ function insertHostGroupInDBForOnPrem(array $submittedValues = []): int
     return ($record["MAX(hg_id)"]);
 }
 
-function insertHostGroup(array $submittedValues): int
+function insertHostGroup(array $submittedValues, bool $isCloudPlatform): int
 {
-    global $isCloudPlatform;
-
     return $isCloudPlatform
         ? insertHostGroupInDBForCloud($submittedValues)
         : insertHostGroupInDBForOnPrem($submittedValues);
 }
 
-function insertHostGroupInDB(array $submittedValues = []): int
+/**
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ */
+function insertHostGroupInDB(bool $isCloudPlatform, array $submittedValues = []): int
 {
     global $centreon, $form;
 
@@ -448,18 +450,18 @@ function insertHostGroupInDB(array $submittedValues = []): int
         $submittedValues = $form->getSubmitValues();
     }
 
-    $hostGroupId = insertHostGroup($submittedValues);
+    $hostGroupId = insertHostGroup($submittedValues, $isCloudPlatform);
     updateHostGroupHosts($hostGroupId, $submittedValues);
-    updateHostgroupAcl($hostGroupId, $submittedValues);
+    updateHostgroupAcl($hostGroupId, $isCloudPlatform, $submittedValues);
     signalConfigurationChange('hostgroup', $hostGroupId);
     $centreon->user->access->updateACL();
 
     return $hostGroupId;
 }
 
-function updateHostGroupAcl(int $hostGroupId, $submittedValues = [])
+function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedValues = [])
 {
-    global $centreon, $pearDB, $isCloudPlatform;
+    global $centreon, $pearDB;
 
     if ($isCloudPlatform) {
         $ruleIds = $submittedValues['resource_access_rules'];
@@ -488,36 +490,59 @@ function updateHostGroupAcl(int $hostGroupId, $submittedValues = [])
                 // calculate the new dataset_name
                 $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
 
-                $datasetId = createNewDataset(datasetName: $newDatasetName);
-                linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
-                linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
-                createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                if ($pearDB->beginTransaction()) {
+                    try {
+                        $datasetId = createNewDataset(datasetName: $newDatasetName);
+                        linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                        linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
+                        createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                        $pearDB->commit();
+                    } catch (\Throwable $exception) {
+                        $pearDB->rollBack();
+                        throw $exception;
+                    }
+                }
             } else {
-                linkHostGroupToDataset(datasetId: $hostGroupDatasetFilters[0]['dataset_id'], hostGroupId: $hostGroupId);
-                // Expend the existing hostgroup dataset_filter
-                $expendedResourceIds = $hostGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $hostGroupId;
+                if ($pearDB->beginTransaction()) {
+                    try {
+                        linkHostGroupToDataset(datasetId: $hostGroupDatasetFilters[0]['dataset_id'], hostGroupId: $hostGroupId);
+                        // Expend the existing hostgroup dataset_filter
+                        $expendedResourceIds = $hostGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $hostGroupId;
 
-                updateDatasetFiltersResourceIds(
-                    datasetFilterId: $hostGroupDatasetFilters[0]['dataset_filter_id'],
-                    resourceIds: $expendedResourceIds
-                );
+                        updateDatasetFiltersResourceIds(
+                            datasetFilterId: $hostGroupDatasetFilters[0]['dataset_filter_id'],
+                            resourceIds: $expendedResourceIds
+                        );
+                        $pearDB->commit();
+                    } catch (\Throwable $exception) {
+                        $pearDB->rollBack();
+                        throw $exception;
+                    }
+                }
             }
         }
     } else {
         if (! $centreon->user->admin) {
             $userResourceAccesses = $centreon->user->access->getResourceGroups();
             if ($userResourceAccesses !== []) {
-                $statement = $pearDB->prepare(<<<SQL
-                    INSERT INTO `acl_resources_hg_relations` (acl_res_id, hg_hg_id)
-                    VALUES (:aclResourceId, :hostGroupId)
-                    SQL
-                );
-                foreach ($userResourceAccesses as $resourceAccessId => $resourceAccessName) {
-                    $statement->bindValue(':aclResourceId', (int) $resourceAccessId, \PDO::PARAM_INT);
-                    $statement->bindValue(':hostGroupId', (int) $hostGroupId, \PDO::PARAM_INT);
-                    $statement->execute();
+                if ($pearDB->beginTransaction()) {
+                    try {
+                        $statement = $pearDB->prepare(<<<SQL
+                            INSERT INTO `acl_resources_hg_relations` (acl_res_id, hg_hg_id)
+                            VALUES (:aclResourceId, :hostGroupId)
+                            SQL
+                        );
+                        foreach ($userResourceAccesses as $resourceAccessId => $resourceAccessName) {
+                            $statement->bindValue(':aclResourceId', (int) $resourceAccessId, \PDO::PARAM_INT);
+                            $statement->bindValue(':hostGroupId', (int) $hostGroupId, \PDO::PARAM_INT);
+                            $statement->execute();
+                        }
+                        unset($userResourceAccesses);
+                    } catch (\Throwable $exception) {
+                        $pearDB->rollBack();
+                        throw $exception;
+                    }
                 }
-                unset($userResourceAccesses);
             }
         }
     }
@@ -686,7 +711,7 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (! empty($submittedValues['hg_name'])) {
+    if (isset($submittedValues['hg_name'])) {
         $request .= ', hg_name = :name';
         $bindValues[':name'] = [
             \PDO::PARAM_STR,
@@ -694,7 +719,7 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
         ];
     }
 
-    if (! empty($submittedValues['hg_alias'])) {
+    if (isset($submittedValues['hg_alias'])) {
         $request .= ', hg_alias = :alias';
         $bindValues[':alias'] = [
             \PDO::PARAM_STR,
@@ -702,7 +727,7 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
         ];
     }
 
-    if (! empty($submittedValues['geo_coords'])) {
+    if (isset($submittedValues['geo_coords'])) {
         $request .= ', geo_coords = :geoCoords';
         $bindValues[':geoCoords'] = [
             \PDO::PARAM_STR,
@@ -750,7 +775,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (! empty($submittedValues['hg_name'])) {
+    if (isset($submittedValues['hg_name'])) {
         $request .= ' hg_name = :name';
         $bindValues[':name'] = [
             \PDO::PARAM_STR,
@@ -758,7 +783,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_alias'])) {
+    if (isset($submittedValues['hg_alias'])) {
         $request .= ', hg_alias = :alias';
         $bindValues[':alias'] = [
             \PDO::PARAM_STR,
@@ -766,7 +791,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_notes'])) {
+    if (isset($submittedValues['hg_notes'])) {
         $request .= ', hg_notes = :notes';
         $bindValues[':notes'] = [
             \PDO::PARAM_STR,
@@ -774,7 +799,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_notes_url'])) {
+    if (isset($submittedValues['hg_notes_url'])) {
         $request .= ', hg_notes_url = :notesUrl';
         $bindValues[':notesUrl'] = [
             \PDO::PARAM_STR,
@@ -782,7 +807,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_action_url'])) {
+    if (isset($submittedValues['hg_action_url'])) {
         $request .= ', hg_action_url = :actionUrl';
         $bindValues[':actionUrl'] = [
             \PDO::PARAM_STR,
@@ -790,31 +815,31 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_icon_image'])) {
+    if (isset($submittedValues['hg_icon_image'])) {
         $request .= ', hg_icon_image = :iconImage';
         $bindValues[':iconImage'] = [
             \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_icon_image'])
+            $submittedValues['hg_icon_image'] ? $pearDB->escape($submittedValues['hg_icon_image']) : null
         ];
     }
 
-    if (! empty($submittedValues['hg_map_icon_image'])) {
+    if (isset($submittedValues['hg_map_icon_image'])) {
         $request .= ', hg_map_icon_image = :mapIconImage';
         $bindValues[':mapIconImage'] = [
             \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_map_icon_image'])
+            $submittedValues['hg_map_icon_image'] ? $pearDB->escape($submittedValues['hg_map_icon_image']) : null
         ];
     }
 
-    if (! empty($submittedValues['hg_rrd_retention'])) {
+    if (isset($submittedValues['hg_rrd_retention'])) {
         $request .= ', hg_rrd_retention = :rrdRetention';
         $bindValues[':rrdRetention'] = [
             \PDO::PARAM_STR,
-            $pearDB->escape($submittedValues['hg_rrd_retention'])
+            $submittedValues['hg_rrd_retention'] ? $pearDB->escape($submittedValues['hg_rrd_retention']): null
         ];
     }
 
-    if (! empty($submittedValues['geo_coords'])) {
+    if (isset($submittedValues['geo_coords'])) {
         $request .= ', geo_coords = :geoCoords';
         $bindValues[':geoCoords'] = [
             \PDO::PARAM_STR,
@@ -822,7 +847,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
         ];
     }
 
-    if (! empty($submittedValues['hg_comment'])) {
+    if (isset($submittedValues['hg_comment'])) {
         $request .= ', hg_comment = :comment';
         $bindValues[':comment'] = [
             \PDO::PARAM_STR,
@@ -866,7 +891,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
     );
 }
 
-function updateHostGroupInDB($hostGroupId = null, $submittedValues = [], $increment = false)
+function updateHostGroupInDB($hostGroupId = null, bool $isCloudPlatform, array $submittedValues = [], $increment = false)
 {
     global $centreon;
 
@@ -876,17 +901,15 @@ function updateHostGroupInDB($hostGroupId = null, $submittedValues = [], $increm
 
     $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId($hostGroupId);
 
-    updateHostGroup($hostGroupId, $submittedValues);
+    updateHostGroup($hostGroupId, $submittedValues, $isCloudPlatform);
     updateHostGroupHosts($hostGroupId, $submittedValues, $increment);
 
     signalConfigurationChange('hostgroup', $hostGroupId, $previousPollerIds);
     $centreon->user->access->updateACL();
 }
 
-function updateHostGroup($hostGroupId = null, array $submittedValues = [])
+function updateHostGroup($hostGroupId = null, array $submittedValues = [], bool $isCloudPlatform)
 {
-    global $isCloudPlatform;
-
     return $isCloudPlatform
         ? updateHostGroupInDBForCloud($hostGroupId, $submittedValues)
         : updateHostGroupInDBForOnPrem($hostGroupId, $submittedValues);
