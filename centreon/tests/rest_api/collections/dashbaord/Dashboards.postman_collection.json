@@ -72,7 +72,7 @@
 			]
 		},
 		{
-			"name": "Sharing dashboard",
+			"name": "Adding Acl",
 			"item": [
 				{
 					"name": "Add new non-admin user",
@@ -773,55 +773,6 @@
 									"key": "object",
 									"value": "centreon_clapi"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update dashboard shares",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The PUT request successfully update dashboard shares with a 204 No Content response\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"followAuthorizationHeader": true,
-						"disableCookies": false,
-						"disableUrlEncoding": true
-					},
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"contacts\": [\r\n    {\r\n      \"id\": {{targetUserId}},\r\n      \"role\": \"viewer\"\r\n    }\r\n  ],\r\n  \"contact_groups\": [\r\n  ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/it-edition-extensions/configuration/dashboards/playlists/{{playlistId}}/shares",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"it-edition-extensions",
-								"configuration",
-								"dashboards",
-								"playlists",
-								"{{playlistId}}",
-								"shares"
 							]
 						}
 					},
