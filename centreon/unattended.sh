@@ -397,8 +397,10 @@ function setup_mysql() {
 		curl -JLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
 		DEBIAN_FRONTEND="noninteractive" $PKG_MGR install -y ./mysql-apt-config_0.8.29-1_all.deb
 		$PKG_MGR -y update
+		$PKG_MGR install -y mysql-server mysql-common
+	else
+		$PKG_MGR install -y mysql-server mysql
 	fi
-	$PKG_MGR install -y mysql-server mysql
 	systemctl enable --now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
 	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
