@@ -158,7 +158,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x | TEST-MON-51683-re-enable-develop-delivery-to-internal-unstable-repositories)
               STABILITY="unstable"
               ENV="development"
               ;;
