@@ -14,6 +14,7 @@ import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
 
 import {
+  additionalResourcesAtom,
   DashboardGlobalRole,
   federatedWidgetsAtom,
   ListingVariant,
@@ -96,6 +97,7 @@ interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
@@ -139,7 +141,8 @@ const initializeAndMount = ({
   canCreateDashboard = true,
   canViewDashboard = true,
   canAdministrateDashboard = true,
-  isBlocked = false
+  isBlocked = false,
+  detailsWithData = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -163,6 +166,13 @@ const initializeAndMount = ({
     user_interface_density: ListingVariant.compact
   });
   store.set(refreshIntervalAtom, 15);
+  store.set(additionalResourcesAtom, [
+    {
+      baseEndpoint: '/ba',
+      label: 'BA',
+      resourceType: 'business-acitvity'
+    }
+  ]);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -171,7 +181,9 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+  cy.fixture(
+    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
+  ).then((dashboardDetails) => {
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
@@ -567,6 +579,36 @@ describe('Dashboard', () => {
           expect(blockNavigation).to.have.been.calledWith();
         });
 
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Dataset', () => {
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(0)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+      cy.makeSnapshot();
+    });
+
+    it('displays header link to Business activity when the widget has only business activities', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Business Activity page')
+        .eq(0)
+        .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
       cy.makeSnapshot();
     });
   });

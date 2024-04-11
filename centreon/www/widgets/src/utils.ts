@@ -220,7 +220,7 @@ export const formatStatusFilter = cond([
   [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
   [equals(SeverityStatus.Pending), always(['pending'])],
   [T, identity]
-]);
+]) as (b: SeverityStatus) => Array<string>;
 
 export const formatStatus = pipe(
   map(formatStatusFilter),

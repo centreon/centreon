@@ -1,10 +1,7 @@
-import { all, equals, has, pluck } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { all, equals, has, isNil, pluck } from 'ramda';
+import { useSetAtom } from 'jotai';
 
-import {
-  getResourcesUrlForMetricsWidgets,
-  getUrlForResourcesOnlyWidgets
-} from '../utils';
+import { getResourcesUrlForMetricsWidgets } from '../utils';
 import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
 import { Visualization } from '../../../../Resources/models';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
@@ -12,10 +9,8 @@ import {
   defaultSelectedColumnIdsforViewByHost,
   defaultSelectedColumnIds
 } from '../../../../Resources/Listing/columns';
-import { metricInputKeyDerivedAtom } from '../AddEditWidget/atoms';
 import {
   labelBusinessActivity,
-  labelBusinessView,
   labelResourcesStatus
 } from '../translatedLabels';
 
@@ -26,7 +21,6 @@ interface UseLinkToResourceStatus {
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
-  const metricInputKey = useAtomValue(metricInputKeyDerivedAtom);
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
@@ -49,26 +43,13 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
       return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
     }
 
-    if (metricInputKey && !data?.[metricInputKey]) {
-      const { statuses, states } = options;
-
-      const type =
-        options?.resourceType || options?.resourceTypes || options?.displayType;
-
-      const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources,
-        states,
-        statuses,
-        type
-      });
-
-      return linkToResourceStatus;
-    }
-
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
   };
 
   const getPageType = (data): string | null => {
+    if (isNil(data)) {
+      return null;
+    }
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
@@ -85,12 +66,6 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
 
     if (hasOnlyBA) {
       return labelBusinessActivity;
-    }
-
-    const hasOnlyBV = all(equals('business-view'), resourceTypes);
-
-    if (hasOnlyBV) {
-      return labelBusinessView;
     }
 
     return labelResourcesStatus;

@@ -131,7 +131,6 @@ export const labelIsTheSelectedResource =
 export const labelSeeMore = 'See more on the {{ page }} page';
 export const labelResourcesStatus = 'Resources Status';
 export const labelBusinessActivity = 'Business Activity';
-export const labelBusinessView = 'Business View';
 export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =

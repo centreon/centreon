@@ -1,0 +1,145 @@
+{
+  "id": 1,
+  "name": "My Dashboard",
+  "description": "my description",
+  "created_at": "",
+  "updated_at": "",
+  "shares": {
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Arnaud",
+        "email": "arnaud@centreon.com",
+        "role": "editor"
+      }
+    ],
+    "contact_groups": [
+      {
+        "id": 1,
+        "name": "Guest",
+        "email": "",
+        "role": "viewer"
+      }
+    ]
+  },
+  "created_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        },
+        "data": {
+          "resources": [
+            {
+              "resourceType": "host",
+              "resources": [
+                {
+                  "id": 1,
+                  "name": "My host"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 3,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        },
+        "data": {
+          "resources": [
+            {
+              "resourceType": "business-activity",
+              "resources": [
+                {
+                  "id": 1,
+                  "name": "BA"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "centreon-widget-text",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "options": {
+          "name": null,
+          "description": {
+            "enabled": true,
+            "content": null
+          }
+        },
+        "data": {
+          "resources": [
+            {
+              "resourceType": "business-view",
+              "resources": [
+                {
+                  "id": 1,
+                  "name": "BV"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "own_role": "viewer",
+  "refresh": {
+    "type": "global",
+    "interval": null
+  }
+}

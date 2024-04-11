@@ -6,7 +6,11 @@ import { Box, Typography, useTheme } from '@mui/material';
 import { getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { useStatusesColumnStyles } from '../Columns.styles';
-import { goToUrl, severityStatusBySeverityCode } from '../../../../utils';
+import {
+  formatStatusFilter,
+  goToUrl,
+  severityStatusBySeverityCode
+} from '../../../../utils';
 
 interface Props {
   count: number;
@@ -44,7 +48,7 @@ const Status = ({
     ],
     isForOneResource: false,
     states: [],
-    statuses: [severityStatusBySeverityCode[severityCode]],
+    statuses: formatStatusFilter(severityStatusBySeverityCode[severityCode]),
     type: resourceType
   });
 
