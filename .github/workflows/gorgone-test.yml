@@ -50,3 +50,6 @@ jobs:
           mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon-storage\`"
           mysql -h mariadb -u root -ppassword 'centreon' < centreon/www/install/createTables.sql
           mysql -h mariadb -u root -ppassword 'centreon-storage' < centreon/www/install/createTablesCentstorage.sql
+
+      - name: Run tests
+        run: robot centreon-gorgone/tests
