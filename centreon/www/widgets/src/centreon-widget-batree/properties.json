@@ -6,6 +6,7 @@
     "pathStatuses": {
       "type": "checkbox",
       "label": "Display paths to resources with this status",
+      "keepOneOptionSelected": true,
       "options": [
         {
           "id": "problem",
@@ -55,6 +56,7 @@
       "defaultValue": [],
       "required": true,
       "useAdditionalResources": true,
+      "singleResourceType": true,
       "restrictedResourceTypes": [
         "business-activity"
       ]
