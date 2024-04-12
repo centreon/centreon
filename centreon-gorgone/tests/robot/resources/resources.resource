@@ -62,14 +62,14 @@ Setup Gorgone Config
     ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
     ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g' /etc/centreon-gorgone/${gorgone_name}/includer.yaml
-    
+
     ${CMD}    Catenate
-    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' 
-    ...    -e 's/@DBNAME@/${DBNAME}/g' 
-    ...    -e 's/@DBNAME@/${DBNAME}/g' 
-    ...    -e 's/@DBHOST@/${DBHOST}/g' 
-    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g' 
-    ...    -e 's/@DBUSER@/${DBUSER}/g' 
+    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g'
+    ...    -e 's/@DBNAME@/${DBNAME}/g'
+    ...    -e 's/@DBNAME@/${DBNAME}/g'
+    ...    -e 's/@DBHOST@/${DBHOST}/g'
+    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g'
+    ...    -e 's/@DBUSER@/${DBUSER}/g'
     ...    -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g'
     ...    /etc/centreon-gorgone/${gorgone_name}/config.d/*.yaml
 
@@ -120,7 +120,7 @@ Setup 2 Gorgone
 
         Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    debug    ${central_name}
         Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    debug    ${poller_name}
-    
+
         Check Poller Is Connected    port=5556    expected_nb=2
         Check Poller Communicate     2
     ELSE
