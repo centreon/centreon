@@ -174,7 +174,7 @@ const initializeAndMount = ({
     {
       baseEndpoint: '/ba',
       label: 'BA',
-      resourceType: 'business-acitvity'
+      resourceType: 'business-activity'
     }
   ]);
 
