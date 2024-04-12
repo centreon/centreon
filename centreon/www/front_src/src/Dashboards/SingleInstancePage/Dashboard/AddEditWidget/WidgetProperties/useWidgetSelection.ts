@@ -37,7 +37,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setsingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
