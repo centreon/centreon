@@ -77,7 +77,7 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetProperties(undefined);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
-      setsingleResourceSelection(undefined);
+      setSingleResourceSelection(undefined);
       setCustomBaseColor(undefined);
     });
 
