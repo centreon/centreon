@@ -39,7 +39,7 @@
     "require": {
         "beberlei/assert": "^3.3",
         "curl/curl" : "^2.3",
-        "dragonmantank/cron-expression": "3.1.0",
+        "dragonmantank/cron-expression": "^3.3",
         "enshrined/svg-sanitize": "^0.15",
         "doctrine/annotations": "^1.0",
         "ext-ctype": "*",
@@ -91,7 +91,9 @@
         "onelogin/php-saml": "^4.1",
         "symfony/uid": "6.4.*",
         "symfony/mime": "6.4.*",
-        "monolog/monolog": "^3.3"
+        "monolog/monolog": "^3.3",
+        "symfony/scheduler": "^6.4",
+        "symfony/messenger": "^6.4"
     },
     "autoload": {
         "psr-4": {
