@@ -47,4 +47,4 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:24.05
