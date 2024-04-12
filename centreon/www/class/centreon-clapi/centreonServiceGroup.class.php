@@ -174,7 +174,7 @@ class CentreonServiceGroup extends CentreonObject
                     $ret = $ret[$field];
 
                     if (!isset($exportedFields[$paramSearch])) {
-                        $resultString .= $ret . $this->delim;
+                        $resultString .= $this->csv_escape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }

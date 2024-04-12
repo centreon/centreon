@@ -338,7 +338,7 @@ class CentreonServiceTemplate extends CentreonObject
                             break;
                     }
                     if (!isset($exportedFields[$paramSearch])) {
-                        $resultString .= $ret . $this->delim;
+                        $resultString .= $this->csv_escape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
@@ -665,9 +665,9 @@ class CentreonServiceTemplate extends CentreonObject
         echo "macro name;macro value;description;is_password\n";
         foreach ($macroList as $macro) {
             $password = !empty($macro['is_password']) ? (int)$macro['is_password'] : 0;
-            echo $this->extractMacroName($macro['svc_macro_name']) . $this->delim
-            . $macro['svc_macro_value'] . $this->delim
-            . $macro['description'] . $this->delim
+            echo $this->csv_escape($this->extractMacroName($macro['svc_macro_name'])) . $this->delim
+            . $this->csv_escape($macro['svc_macro_value']) . $this->delim
+            . $this->csv_escape($macro['description']) . $this->delim
             . $password . "\n";
         }
     }

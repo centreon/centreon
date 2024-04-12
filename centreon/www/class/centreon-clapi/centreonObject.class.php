@@ -349,7 +349,7 @@ abstract class CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $p = $this->object->getParameters($params[0], $params[1]);
-        print $p[$params[1]] . "\n";
+        print $this->csv_escape($p[$params[1]]) . "\n";
     }
 
     /**

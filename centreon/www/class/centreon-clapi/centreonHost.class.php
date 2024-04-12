@@ -667,7 +667,7 @@ class CentreonHost extends CentreonObject
                             break;
                     }
                     if (!isset($exportedFields[$paramSearch])) {
-                        $resultString .= $ret . $this->delim;
+                        $resultString .= $this->csv_escape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
@@ -914,10 +914,10 @@ class CentreonHost extends CentreonObject
             if ($macro["source"] == "fromTpl") {
                 $source = $macro["macroTpl"];
             }
-            echo $macro['host_macro_name'] . $this->delim
-                . $macro['host_macro_value'] . $this->delim
+            echo $this->csv_escape($macro['host_macro_name']) . $this->delim
+                . $this->csv_escape($macro['host_macro_value']) . $this->delim
                 . $macro['is_password'] . $this->delim
-                . $macro['description'] . $this->delim
+                . $this->csv_escape($macro['description']) . $this->delim
                 . $source . "\n";
         }
     }
