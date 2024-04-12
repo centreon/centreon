@@ -16,7 +16,7 @@ import {
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name, options) => string;
+  getLinkToResourceStatusPage: (data, name) => string;
   getPageType: (data) => string | null;
 }
 
@@ -24,7 +24,7 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
-  const getLinkToResourceStatusPage = (data, name, options): string => {
+  const getLinkToResourceStatusPage = (data, name): string => {
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
