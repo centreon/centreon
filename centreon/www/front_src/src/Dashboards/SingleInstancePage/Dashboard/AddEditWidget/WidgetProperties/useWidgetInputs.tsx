@@ -74,7 +74,7 @@ export const useWidgetInputs = (
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setsingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
@@ -135,7 +135,7 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setsingleResourceSelection(selectedWidget.singleResourceSelection);
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])

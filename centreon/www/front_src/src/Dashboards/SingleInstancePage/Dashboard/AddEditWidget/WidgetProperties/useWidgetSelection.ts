@@ -138,7 +138,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
-    setsingleResourceSelection(
+    setSingleResourceSelection(
       selectedWidgetProperties.singleResourceSelection
     );
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
