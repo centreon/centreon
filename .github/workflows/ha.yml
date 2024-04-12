@@ -27,7 +27,7 @@ jobs:
 
   package:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' && }}
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: true
