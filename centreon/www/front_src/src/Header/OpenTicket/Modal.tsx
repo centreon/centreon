@@ -1,12 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { equals } from 'ramda';
 
 import { Button, Modal } from '@centreon/ui/components';
+import { useSnackbar } from '@centreon/ui';
 
 const OpenTicketModal = (): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { showSuccessMessage } = useSnackbar();
+
   const open = (): void => setIsOpen(true);
   const close = (): void => setIsOpen(false);
+
+  const autoClose = (event: MessageEvent): void => {
+    if (
+      !equals(event.data, 'success') ||
+      !equals(event.source?.name, 'open-ticket')
+    ) {
+      return;
+    }
+
+    showSuccessMessage('Ticket created');
+
+    close();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      window.removeEventListener('message', autoClose);
+    }
+
+    window.addEventListener('message', autoClose);
+
+    return () => {
+      window.removeEventListener('message', autoClose);
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -16,8 +46,8 @@ const OpenTicketModal = (): JSX.Element => {
         <Modal.Body>
           <iframe
             frameBorder={0}
-            id="main-content"
-            name="main-content"
+            id="open-ticket"
+            name="open-ticket"
             src="./main.get.php?p=60421&cmd=4&host_id=14&service_id=19"
             style={{ minHeight: '30vh', width: '100%' }}
             title="Main Content"
