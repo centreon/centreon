@@ -663,4 +663,20 @@ abstract class CentreonObject
 
         return self::$instances[$class];
     }
+
+    /**
+     * Escape a value for CSV output
+     *
+     * @param string $text The string to escape
+     * @return string The string sanitized
+     */
+    protected function csv_escape($text)
+    {
+        $escape_required = $text[0] == '"' || strpos($text, $this->delim) !== false || strpos($text, "\n") !== false;
+        if ($escape_required) {
+            $text = '"' . str_replace('"', '""', $text) . '"';
+        }
+        return $text;
+    }
+
 }
