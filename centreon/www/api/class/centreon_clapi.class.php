@@ -33,6 +33,7 @@
  *
  */
 
+require_once __DIR__ . '/../../include/common/common-Func.php';
 require_once dirname(__FILE__) . "/webService.class.php";
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
@@ -173,47 +174,44 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         }
 
 
-        $return = array();
-        $tmpLines = explode("\n", $contents);
-        $lines = array();
-
-        /* Get object attribute name */
-        $headers = explode(';', $tmpLines[0]);
-
-        /* Remove empty lines and Return end line */
-        for ($i = 1; $i < count($tmpLines); $i++) {
-            if (trim($tmpLines[$i]) !== '' && strpos($tmpLines[$i], 'Return code end :') !== 0) {
-                $lines[] = $tmpLines[$i];
+        $delim_in_first_line = preg_match("/^.*;.*(?:\n|$)/", $contents);
+        if ($delim_in_first_line) {
+            $result = parse_csv($contents);
+            if ($result == false) {
+                throw new RestInternalServerErrorException($contents);
             }
-        }
 
-        $return['result'] = array();
-        for ($i = 0; $i < count($lines); $i++) {
-            if (strpos($lines[$i], ';') !== false) {
-                $tmpLine = explode(';', $lines[$i]);
+            $last_record = end($result);
+            if ($last_record && strpos($last_record[0], 'Return code end :') === 0) {
+                array_pop($result);
+            }
 
-                if (count($tmpLine) > count($headers)) {
-                    /* Handle ; in variable (more values than headers) */
-                    $tmpLine[count($headers) - 1] = implode(';', array_slice($tmpLine, count($headers) - 1));
-                    $tmpLine = array_slice($tmpLine, 0, count($headers));
+            $headers_nr = count($result[0]);
+            foreach ($result as &$record) {
+                if (count($record) > $headers_nr) {
+                    $record[$headers_nr - 1] = implode(';', array_slice($record, $headers_nr - 1));
+                    $record = array_slice($record, 0, $headers_nr);
                 }
-
-                foreach ($tmpLine as &$line) {
-                    if (strpos($line, "|") !== false) {
-                        $line = explode("|", $line);
+                foreach ($record as $field_name => &$field_value) {
+                    if (strpos($field_value, '|') !== false) {
+                        $field_value = explode('|', $field_value);
                     }
                 }
-                $return['result'][] = array_combine($headers, $tmpLine);
-            } elseif (strpos($lines[$i], "\t") !== false) {
-                $return['result'][] = array_combine($headers, explode("\t", $lines[$i]));
-            } else {
-                $return['result'][] = $lines[$i];
+            }
+
+            csv_to_associative_array($result);
+
+        } else {
+            $result = array();
+            foreach (explode("\n", $contents) as &$line) {
+                if (trim($line) !== '' && strpos($line, 'Return code end :') !== 0) {
+                    $result[] = $line;
+                }
             }
         }
 
-        if (is_array($return['result'])) {
-            array_walk($return['result'], [$this, 'clearCarriageReturns']);
-        }
+        $return = array();
+        $return['result'] = $result;
 
         return $return;
     }
