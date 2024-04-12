@@ -1,0 +1,7 @@
+{
+    "require": {
+        "symfony/scheduler": "^7.0",
+        "symfony/messenger": "^7.0",
+        "dragonmantank/cron-expression": "^3.3"
+    }
+}
