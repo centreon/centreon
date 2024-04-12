@@ -55,7 +55,7 @@ const useWidgetModal = (): useWidgetModalState => {
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setsingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
