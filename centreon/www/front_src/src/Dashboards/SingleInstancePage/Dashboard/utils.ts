@@ -85,7 +85,7 @@ export const getResourcesUrlForMetricsWidgets = ({
   );
 
   if (!equals(widgetName, 'centreon-widget-singlemetric')) {
-    return `/monitoring/resources?&filter=${encodedFilterParams}&fromTopCounter=true`;
+    return `/monitoring/resources?filter=${encodedFilterParams}&fromTopCounter=true`;
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers(data);
