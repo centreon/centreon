@@ -11,9 +11,7 @@ on:
       - "centreon-ha/**"
   push:
     branches:
-      - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
@@ -29,7 +27,7 @@ jobs:
 
   package:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    if: ${{ needs.get-version.outputs.stability != 'stable' && }}
 
     strategy:
       fail-fast: true
