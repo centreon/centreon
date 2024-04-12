@@ -57,6 +57,7 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.visit('/centreon/home/dashboards/library');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
