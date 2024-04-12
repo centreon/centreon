@@ -16786,7 +16786,7 @@ msgstr "Erweiterter Modus"
 # msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
 # msgstr ""
 
-# msgid "Display paths to resources with this status"
+# msgid "Display the diagram with this status"
 # msgstr ""
 
 # msgid "Problem (Critical)"

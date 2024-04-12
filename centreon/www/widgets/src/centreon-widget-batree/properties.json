@@ -5,7 +5,7 @@
   "options": {
     "pathStatuses": {
       "type": "checkbox",
-      "label": "Display paths to resources with this status",
+      "label": "Display the diagram with this status",
       "keepOneOptionSelected": true,
       "options": [
         {
