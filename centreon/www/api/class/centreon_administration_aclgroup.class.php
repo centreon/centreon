@@ -89,6 +89,11 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             FILTER_VALIDATE_BOOL
         );
 
+        $allServiceGroupsFilter = filter_var(
+            $this->arguments['all_servicegroups_filter'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
         if ($limit === false) {
             throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
@@ -114,14 +119,14 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
                 FROM acl_groups ag
             SQL;
 
-        if ($allHostGroupsFilter && ! $isUserAdmin) {
-            $query .= <<<'SQL'
-                    INNER JOIN acl_res_group_relations argr
-                        ON argr.acl_group_id = ag.acl_group_id
-                    INNER JOIN acl_resources ar
-                        ON ar.acl_res_id = argr.acl_res_id
-                SQL;
-        }
+        $query .= ! $isUserAdmin
+            ? <<<'SQL'
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_group_id = ag.acl_group_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
+            SQL
+            : '';
 
         $whereCondition = '';
 
@@ -141,6 +146,12 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         if ($allHostGroupsFilter && ! $isUserAdmin) {
             $query .= <<<'SQL'
                     HAVING SUM(CASE ar.all_hostgroups WHEN '1' THEN 1 ELSE 0 END) = 0
+                SQL;
+        }
+
+        if ($allServiceGroupsFilter && ! $isUserAdmin) {
+            $query .= <<<'SQL'
+                    HAVING SUM(CASE ar.all_servicegroups WHEN '1' THEN 1 ELSE 0 END) = 0
                 SQL;
         }
 
