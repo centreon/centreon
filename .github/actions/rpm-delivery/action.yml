@@ -84,13 +84,13 @@ runs:
         # if non-cloud, delivery to onprem testing or unstable
 
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
-        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]]; then
+        if [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_type }} == "release" ]]); then
           echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
 
         # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
-        elif [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "release" ]]; then
+        elif [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_type }} != "release" ]]); then
           echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
