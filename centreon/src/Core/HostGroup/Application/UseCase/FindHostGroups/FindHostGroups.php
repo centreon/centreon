@@ -60,7 +60,7 @@ final class FindHostGroups
                 'Find host groups',
                 [
                     'user' => $this->contact->getName(),
-                    'request' => $this->requestParameters->toArray()
+                    'request' => $this->requestParameters->toArray(),
                 ]
             );
             if ($this->contact->isAdmin()) {
