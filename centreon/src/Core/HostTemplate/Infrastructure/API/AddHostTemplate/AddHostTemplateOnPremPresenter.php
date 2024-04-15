@@ -91,6 +91,7 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                             function ($macro) {
                                 return [
                                     'name' => $macro['name'],
+                                    // Note: do not handle vault storage at the moment
                                     'value' => $macro['isPassword'] ? null : $macro['value'],
                                     'is_password' => $macro['isPassword'],
                                     'description' => $this->emptyStringAsNull($macro['description']),
