@@ -88,7 +88,6 @@ export interface LineChartProps {
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
-  loading: boolean;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;

@@ -16779,3 +16779,5 @@ msgstr "Erweiterter Modus"
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+# msgid "An error occurred during authentication"
+# msgstr ""

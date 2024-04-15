@@ -76,11 +76,12 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       border: 'none',
       borderRadius: theme.spacing(1),
       height: '100%',
-      paddingBottom: theme.spacing(2),
       width: '100%'
     },
     widgetContent: {
-      height: '100%'
+      height: hasHeader
+        ? `calc(100% - ${theme.spacing(3.5)} - ${theme.spacing(0.5)})`
+        : `calc(100% - ${theme.spacing(3.5)})`
     },
     widgetHeader: {
       '&:hover': {
@@ -92,17 +93,17 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       '&[data-canMove="true"]': {
         cursor: 'move'
       },
-      padding: theme.spacing(0.5, 2),
+      padding: theme.spacing(0, 1.5),
       position: 'relative'
     },
     widgetHeaderDraggable: {
       height: '100%',
       position: 'absolute',
-      width: '100%'
+      width: '95%'
     },
     widgetPadding: {
       overflowX: 'auto',
-      padding: hasHeader ? theme.spacing(1, 2, 0) : theme.spacing(1, 2)
+      padding: theme.spacing(0.5, 1.5, 1.5)
     }
   })
 );

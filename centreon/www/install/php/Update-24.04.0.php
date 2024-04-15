@@ -174,7 +174,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
         <<<SQL
-        CREATE TABLE `dataset_filters` (
+        CREATE TABLE IF NOT EXISTS `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
             `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
@@ -232,14 +232,32 @@ $insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): voi
 
 $removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to remove the dashboard beta tag';
-        $pearDB->query(
-            <<<SQL
-                UPDATE topology
-                SET topology_url_opt=NULL
-                WHERE topology_name='Dashboards'
-                AND topology_url_opt = 'Beta'
-                SQL
-        );
+    $pearDB->query(
+        <<<SQL
+            UPDATE topology
+            SET topology_url_opt=NULL
+            WHERE topology_name='Dashboards'
+            AND topology_url_opt = 'Beta'
+            SQL
+    );
+};
+
+$updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update topology_url_substitute to NULL for host group configuration page (60102)';
+    $pearDB->query(
+        <<<SQL
+            UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
+            SQL
+    );
+};
+
+$updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to change resourceIds column type from VARCHAR to TEXT';
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `resource_ids` TEXT DEFAULT NULL
+            SQL
+    );
 };
 
 try {
@@ -257,6 +275,7 @@ try {
     $alterTypeDefinitionDatasetFilterTable($pearDB);
 
     $addDefaultValueforTaskTable($pearDB);
+    $updateDatasetFilterResourceIdsColumn($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -274,6 +293,8 @@ try {
     $updateTopologyForApiTokens($pearDB);
 
     $removeBetaTagFromDashboards($pearDB);
+
+    $updateHostGroupsTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
