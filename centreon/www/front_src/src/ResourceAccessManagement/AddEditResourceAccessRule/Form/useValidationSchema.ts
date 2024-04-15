@@ -1,4 +1,4 @@
-import { isEmpty, isNil } from 'ramda';
+import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   array,
