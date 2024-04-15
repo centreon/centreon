@@ -94,7 +94,7 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
         # NON-CLOUD + (HOTFIX OR RELEASE) + REPO STANDARD
-        elif [[ ${{ inputs.release_cloud }} -eq 0 ]];then
+        elif [[ ${{ inputs.release_cloud }} -eq 0 ]]; then
           echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
