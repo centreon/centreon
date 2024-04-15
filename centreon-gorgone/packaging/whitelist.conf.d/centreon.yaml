@@ -1,6 +1,6 @@
 # Configuration brought by Centreon Gorgone package.
 # SHOULD NOT BE EDITED! CREATE YOUR OWN FILE IN WHITELIST.CONF.D DIRECTORY!
-- ^sudo\s+(/bin/)?systemctl\s+(reload|restart)\s+(centengine|centreontrapd|cbd)\s*$
+- ^sudo\s+(/bin/|/usr/bin/)?systemctl\s+(reload|restart)\s+(centengine|centreontrapd|cbd)\s*$
 - ^(sudo\s+)?(/usr/bin/)?service\s+(centengine|centreontrapd|cbd|cbd-sql)\s+(reload|restart)\s*$
 - ^/usr/sbin/centenginestats\s+-c\s+/etc/centreon-engine/+centengine\.cfg\s*$
 - ^cat\s+/var/lib/centreon-engine/[a-zA-Z0-9\-]+-stats\.json\s*$
