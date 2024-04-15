@@ -175,7 +175,6 @@ function deleteImg($imageId)
 
     $mediadir = "./img/media/";
     try {
-        $pearDB->beginTransaction();
         $query = "SELECT dir.dir_alias, img.img_path
               FROM view_img img
               INNER JOIN view_img_dir_relation rel ON img.img_id = rel.img_img_id
@@ -191,7 +190,7 @@ function deleteImg($imageId)
                 unlink($fullpath);
             }
         }
-
+        $pearDB->beginTransaction();
         $deleteStatement = $pearDB->prepare('DELETE FROM view_img WHERE img_id = :imageId');
         $deleteStatement->bindValue(':imageId', $imageId, PDO::PARAM_INT);
         $deleteStatement->execute();
