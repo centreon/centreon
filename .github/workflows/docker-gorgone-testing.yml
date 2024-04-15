@@ -1,4 +1,4 @@
-name: docker-packaging
+name: docker-gorgone-packaging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

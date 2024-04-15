@@ -7,6 +7,9 @@ Test Timeout        120s
 
 *** Test Cases ***
 Start and stop gorgone
-    Start Gorgone    /etc/centreon-gorgone/config.yaml    /var/log/centreon-gorgone/gorgoned.log    info    gorgone1
-    Sleep    10s
-    Stop Gorgone    gorgone1
+    FOR    ${i}    IN RANGE    5
+        Start Gorgone    /etc/centreon-gorgone/config.yaml    /var/log/centreon-gorgone/gorgoned.log    info    gorgone${i}
+        Sleep    5s
+        Stop Gorgone    gorgone${i}
+        sleep    2s
+    END
