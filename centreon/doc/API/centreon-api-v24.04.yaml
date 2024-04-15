@@ -15,10 +15,9 @@ info:
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
-    + Added new filters for the /monitoring/services/categories endpoint
-    + Added new filters for the /monitoring/hosts/categories endpoint
-    + Added new filters to the /monitoring/servicegroups endpoint
-    + Added host_category filter to /monitoring/hostgroups endpoint
+    + Handle new filters for the /configuration/hosts/groups endpoint
+    + Handle new filters for the /configuration/services/groups endpoint
+    +
     +
     # Information
     All dates are in **ISO 8601** format
