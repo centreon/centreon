@@ -209,6 +209,14 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                 hg.hg_comment,
                 hg.hg_activate
             FROM `:db`.`hostgroup` hg
+            INNER JOIN `:db`.acl_resources_hg_relations arhr
+                ON hg.hg_id = arhr.hg_hg_id
+            INNER JOIN `:db`.acl_resources res
+                ON arhr.acl_res_id = res.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON res.acl_res_id = argr.acl_res_id
+            INNER JOIN `:db`.acl_groups ag
+                ON argr.acl_group_id = ag.acl_group_id
             SQL;
 
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
@@ -240,18 +248,6 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                     AND hc.level IS NULL
                 SQL;
         }
-
-        $request .= <<<'SQL'
-
-            INNER JOIN `:db`.acl_resources_hg_relations arhr
-                ON hg.hg_id = arhr.hg_hg_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id
-            SQL;
 
         $request .= $searchRequest ? $searchRequest . ' AND ' : ' WHERE ';
 

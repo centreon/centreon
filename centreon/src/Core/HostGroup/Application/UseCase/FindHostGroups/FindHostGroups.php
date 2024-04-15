@@ -56,17 +56,16 @@ final class FindHostGroups
     public function __invoke(PresenterInterface $presenter): void
     {
         try {
+            $this->info(
+                'Find host groups',
+                [
+                    'user' => $this->contact->getName(),
+                    'request' => $this->requestParameters->toArray()
+                ]
+            );
             if ($this->contact->isAdmin()) {
-                $this->info('Find host groups', ['request' => $this->requestParameters->toArray()]);
                 $presenter->present($this->findHostGroupAsAdmin());
             } elseif ($this->contactCanExecuteThisUseCase()) {
-                $this->info(
-                    'Find host groups',
-                    [
-                        'user_id' => $this->contact->getId(),
-                        'request' => $this->requestParameters->toArray(),
-                    ]
-                );
                 $presenter->present($this->findHostGroupAsContact());
             } else {
                 $this->error(
