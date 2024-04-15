@@ -7,17 +7,24 @@ import { useAllOfResourceTypeCheckboxStyles } from '../styles/AllOfResourceTypeC
 import { useAllOfResourceTypeCheckbox } from '../hooks/useAllOfResourceTypeCheckbox';
 
 interface Props {
+  datasetFilterIndex: number;
+  datasetIndex: number;
   resourceType: ResourceTypeEnum;
 }
 
 const AllOfResourceTypeCheckbox = ({
+  datasetFilterIndex,
+  datasetIndex,
   resourceType
 }: Props): React.JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useAllOfResourceTypeCheckboxStyles();
 
-  const { checkboxLabel, checked, onChange } =
-    useAllOfResourceTypeCheckbox(resourceType);
+  const { checkboxLabel, checked, onChange } = useAllOfResourceTypeCheckbox(
+    datasetFilterIndex,
+    datasetIndex,
+    resourceType
+  );
 
   return (
     <FormControlLabel

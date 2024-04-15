@@ -2,8 +2,7 @@
 import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { equals, keys } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { FormHelperText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,7 +23,6 @@ import {
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
-import { isAllOfResourceTypeCheckedAtom } from '../../../atom';
 
 import AllOfResourceTypeCheckbox from './AllOfResourceTypeCheckbox';
 
@@ -41,10 +39,6 @@ const DatasetFilter = ({
 }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useDatasetFilterStyles();
-
-  const isAllOfResourceTypeChecked = useAtomValue(
-    isAllOfResourceTypeCheckedAtom
-  );
 
   const {
     addResource,
@@ -74,17 +68,12 @@ const DatasetFilter = ({
     [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
   };
 
-  const getLabelForSelectedResources = (
-    resourceType: ResourceTypeEnum
-  ): string => {
-    if (
-      keys(labelsForSelectedResources).includes(resourceType) &&
-      isAllOfResourceTypeChecked[resourceType]
-    ) {
-      return labelsForSelectedResources[resourceType];
+  const getLabelForSelectedResources = (index: number): string => {
+    if (datasetFilter[index]?.allOfResourceType) {
+      return labelsForSelectedResources[datasetFilter[index].resourceType];
     }
 
-    if (equals(resourceType, ResourceTypeEnum.All)) {
+    if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
       return labelAllResourcesSelected;
     }
 
@@ -135,7 +124,7 @@ const DatasetFilter = ({
                 className={classes.resources}
                 dataTestId={labelSelectResource}
                 disabled={
-                  isAllOfResourceTypeChecked[resource.resourceType] ||
+                  datasetFilter[resourceIndex].allOfResourceType ||
                   !resource.resourceType ||
                   equals(resource.resourceType, ResourceTypeEnum.All)
                 }
@@ -144,11 +133,11 @@ const DatasetFilter = ({
                   resourceIndex,
                   resource.resourceType
                 )}
-                label={t(getLabelForSelectedResources(resource.resourceType))}
+                label={t(getLabelForSelectedResources(resourceIndex))}
                 limitTags={5}
                 queryKey={`${resource.resourceType}-${resourceIndex}`}
                 value={
-                  isAllOfResourceTypeChecked[resource.resourceType]
+                  datasetFilter[resourceIndex].allOfResourceType
                     ? []
                     : resource.resources || []
                 }
@@ -156,7 +145,11 @@ const DatasetFilter = ({
               />
             </ItemComposition.Item>
             {displayAllOfResourceTypeCheckbox(resource.resourceType) && (
-              <AllOfResourceTypeCheckbox resourceType={resource.resourceType} />
+              <AllOfResourceTypeCheckbox
+                datasetFilterIndex={datasetFilterIndex}
+                datasetIndex={resourceIndex}
+                resourceType={resource.resourceType}
+              />
             )}
           </div>
         ))}
