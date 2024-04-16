@@ -16,7 +16,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/24.04/el8/centreon-24.04.repo
 dnf config-manager --set-enabled 'centreon*'
 
 #############################

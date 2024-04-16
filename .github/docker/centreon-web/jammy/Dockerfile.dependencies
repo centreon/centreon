@@ -34,8 +34,8 @@ VERSION_CODENAME=\$(
 # echo "deb https://packages.sury.org/php/ \$VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
 # wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 
-echo "deb https://packages.centreon.com/ubuntu-standard-${VERSION}-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-echo "deb https://packages.centreon.com/ubuntu-standard-${VERSION}-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+echo "deb https://packages.centreon.com/ubuntu-standard-24.04-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/ubuntu-standard-24.04-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 echo "deb https://packages.centreon.com/ubuntu-plugins-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-testing.list
 echo "deb https://packages.centreon.com/ubuntu-plugins-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
