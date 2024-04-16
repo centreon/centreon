@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:24.05
 
 ARG VERSION
 
@@ -18,7 +18,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon{,-central,-mariadb,-mysql}_${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon{,-central,-mariadb,-mysql}_24.05*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
