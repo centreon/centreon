@@ -358,7 +358,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
+    cy.contains('Centreon-Server: Packet Loss').should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
@@ -371,3 +371,39 @@ Then('the thresholds are automatically hidden', () => {
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });
+
+Given('a dashboard with a configured Metrics Graph widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@performanceData');
+  cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+});
+
+When('the dashboard administrator selects more than two metric units', () => {
+  cy.getByTestId({ testId: 'pl' }).realClick();
+  cy.getByTestId({ testId: 'rtmax' }).realClick();
+});
+
+Then(
+  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  () => {
+    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
+      'exist'
+    );
+    cy.contains(
+      'span',
+      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+    ).should('exist');
+  }
+);

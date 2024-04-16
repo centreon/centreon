@@ -123,7 +123,7 @@ CREATE TABLE `dataset_filters` (
   `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
   `acl_resource_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` varchar(255) DEFAULT NULL,
+  `resource_ids` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE

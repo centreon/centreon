@@ -40,7 +40,7 @@ final class AddRuleRequest
     /** @var array{
      *      array{
      *          type:string,
-     *          resources: non-empty-list<int>,
+     *          resources: list<int>,
      *          ...
      *      }
      *  }|array{} $datasetFilters
