@@ -191,8 +191,9 @@ function deleteImg($imageId)
             unlink($fullpath);
         }
     }
-    try {
+
         $pearDB->beginTransaction();
+    try {
         $deleteStatement = $pearDB->prepare('DELETE FROM view_img WHERE img_id = :imageId');
         $deleteStatement->bindValue(':imageId', $imageId, PDO::PARAM_INT);
         $deleteStatement->execute();
