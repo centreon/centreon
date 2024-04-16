@@ -19,7 +19,7 @@ import {
   retrievedProvidersConfiguration,
   retrievedTranslations,
   retrievedWeb
-} from './testUtils.test';
+} from './testUtils';
 import Provider from './Provider';
 
 const initialize = ({ page = '/' }): void => {

@@ -33,7 +33,7 @@ import {
   retrievedTranslations,
   retrievedUser,
   retrievedWeb
-} from './testUtils.test';
+} from './testUtils';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
