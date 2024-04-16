@@ -55,7 +55,7 @@ export const useAllOfResourceTypeCheckbox = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, datasetIndex)) {
               return {
-                allOf: event.target.checked,
+                allOfResourceType: event.target.checked,
                 ids: [],
                 type: dataset.type
               };

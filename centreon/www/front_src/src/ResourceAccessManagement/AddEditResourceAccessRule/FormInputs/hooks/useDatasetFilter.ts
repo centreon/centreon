@@ -290,7 +290,7 @@ const useDatasetFilter = (
           return [
             ...selectedDatasetFilters[indexFilter],
             {
-              allOf: false,
+              allOfResourceType: false,
               ids: [],
               type: ResourceTypeEnum.Empty
             }
@@ -314,7 +314,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
-                allOf: false,
+                allOfResourceType: false,
                 ids: [...dataset.ids, resource.id as number],
                 type: dataset.type
               };
@@ -342,7 +342,7 @@ const useDatasetFilter = (
             return selectedDatasetFilters[indexFilter].map((dataset, i) => {
               if (equals(i, index)) {
                 return {
-                  allOf: false,
+                  allOfResourceType: false,
                   ids: pluck('id', resources) as Array<number>,
                   type: dataset.type
                 };
@@ -391,7 +391,7 @@ const useDatasetFilter = (
 
                 if (equals(i, index)) {
                   return {
-                    allOf: false,
+                    allOfResourceType: false,
                     ids: [],
                     type: e.target.value as ResourceTypeEnum
                   };
@@ -400,7 +400,7 @@ const useDatasetFilter = (
                 return dataset;
               })
               .filter((dataset) => dataset) as Array<{
-              allOf: boolean;
+              allOfResourceType: boolean;
               ids: Array<number>;
               type: ResourceTypeEnum;
             }>;
@@ -444,7 +444,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
-                allOf: false,
+                allOfResourceType: false,
                 ids: dataset.ids.filter((id) => !equals(id, option.id)),
                 type: dataset.type
               };
@@ -463,7 +463,7 @@ const useDatasetFilter = (
     index: number
   ): Array<QueryParameter> | undefined => {
     const subSlice = selectedDatasetFilters[datasetFilterIndex].slice(0, index);
-    if (isEmpty(subSlice) || last(subSlice)?.allOf) {
+    if (isEmpty(subSlice) || last(subSlice)?.allOfResourceType) {
       return undefined;
     }
 

@@ -284,6 +284,21 @@ export const allResourcesFormData = {
   name: 'rule#0'
 };
 
+export const editedRuleFormData = {
+  contact_groups: [3, 5],
+  contacts: [1, 4],
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'hostgroup'
+    }
+  ],
+  description: 'First rule',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
 export const findResourceAccessRuleResponse = (): object => ({
   contact_groups: [
     { id: 3, name: 'Guest' },
