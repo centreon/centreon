@@ -93,7 +93,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                      INNER JOIN `:db`.acl_group_contactgroups_relations gcgr
                                ON cg.cg_id = gcgr.cg_cg_id
                 WHERE cg.cg_id = :contactGroupId
-                    AND gcgr.acl_group_id IN ({$accessGroupIdsAsString}
+                    AND gcgr.acl_group_id IN ({$accessGroupIdsAsString})
                 SQL
         ));
         $statement->bindValue(':contactGroupId', $contactGroupId,\PDO::PARAM_INT);
