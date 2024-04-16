@@ -48,15 +48,10 @@ function DsHsrTestExistence($name = null)
     }
 
     $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
-
-    if (!empty($formValues['host_service_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_service_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new \InvalidArgumentException('host_service_id must be a combination of integers');
-        }
-    }
+    
+    list($formValues['host_id'], $formValues['service_id']) = parseHostServiceIdPostParameter(
+        $formValues['host_service_id']
+    );
 
     if (!empty($formValues['host_id']) && !empty($formValues['service_id'])) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
@@ -101,14 +96,9 @@ function NameHsrTestExistence($name = null)
 
     $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
     
-    if (!empty($formValues['host_service_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_service_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new \InvalidArgumentException('host_service_id must be a combination of integers');
-        }
-    }
+    list($formValues['host_id'], $formValues['service_id']) = parseHostServiceIdPostParameter(
+        $formValues['host_service_id']
+    );
 
     if (!empty($formValues['host_id']) && !empty($formValues['service_id'])) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
@@ -249,7 +239,9 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_service_id']);
+    list($formValues['host_id'], $formValues['service_id']) = parseHostServiceIdPostParameter(
+        $formValues['host_service_id']
+    );
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
@@ -274,20 +266,20 @@ function insertComponentTemplate()
 }
 
 /**
- * Parses the host_id parameter from the form and checks the hostId-serviceId format
+ * Parses the host_service_id parameter from the form and checks the hostId-serviceId format
  * and returns the hostId et serviceId when defined.
  *
- * @param string|null $hostIdParameter
+ * @param string|null $hostServiceIdParameter
  * @return array
  */
-function parseHostIdPostParameter(?string $hostIdParameter): array
+function parseHostServiceIdPostParameter(?string $hostServiceIdParameter): array
 {
-    if (!empty($hostIdParameter)) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $hostIdParameter, $matches)) {
+    if (!empty($hostServiceIdParameter)) {
+        if (preg_match('/([0-9]+)-([0-9]+)/', $hostServiceIdParameter, $matches)) {
             $hostId = (int) $matches[1];
             $serviceId = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('host_id must be a combination of integers');
+            throw new \InvalidArgumentException('host_service_id must be a combination of integers');
         }
     } else {
         $hostId = null;
@@ -313,7 +305,9 @@ function updateComponentTemplate($compoId = null)
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    list($formValues['host_id'], $formValues['service_id']) = parseHostIdPostParameter($formValues['host_service_id']);
+    list($formValues['host_id'], $formValues['service_id']) = parseHostServiceIdPostParameter(
+        $formValues['host_service_id']
+    );
 
     // Sets the default values if they have not been sent (used to deselect the checkboxes)
     $checkBoxValueToSet = [
