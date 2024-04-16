@@ -181,6 +181,7 @@ jobs:
             dnf install -y ./centreon-gorgone*${{ matrix.distrib }}* ./centreon-gorgone-centreon-config*${{ matrix.distrib }}*
             # in el8 at least, there is a package for the configuration and a package for the actual code.
             # this is not the case for debian, and for now I don't know why it was made any different between the 2 Os.
+            
           fi
 
       - name: Create databases
