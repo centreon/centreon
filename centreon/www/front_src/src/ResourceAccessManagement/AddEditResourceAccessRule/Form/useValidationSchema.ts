@@ -55,7 +55,7 @@ const useValidationSchema = (): UseValidationSchemaState => {
     array(
       array(
         object({
-          allOfresourceType: boolean(),
+          allOfResourceType: boolean(),
           resourceType: string().matches(
             /(host|service)(group|_category)?|meta_service|all/
           ),
