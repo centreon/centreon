@@ -309,10 +309,7 @@ function testDirectoryIsEmpty($directoryId)
     $statement = $pearDB->prepare('SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId');
     $statement->bindValue(':directoryId', $directoryId, \PDO::PARAM_INT);
     $statement->execute();
-    $empty = true;
-    if ($statement->rowCount() >= 1) {
-        $empty = false;
-    }
+    $empty = ($statement->fetchColumn() > 0) ? false : true;
     $statement->closeCursor();
     return $empty;
 }
