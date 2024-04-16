@@ -462,9 +462,7 @@ function insertServiceGroupInDB(bool $isCloudPlatform = false, array $submittedV
 {
     global $centreon, $form;
 
-    if ($submittedValues === []) {
-        $submittedValues = $form->getSubmitValues();
-    }
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
     $serviceGroupId = insertServiceGroup($submittedValues);
     updateServiceGroupServices($serviceGroupId, $submittedValues);
@@ -510,9 +508,7 @@ function updateServiceGroupInDB(
         return;
     }
 
-    if ($submittedValues === []) {
-        $submittedValues = $form->getSubmitValues();
-    }
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
     $previousPollerIds = getPollersForConfigChangeFlagFromServiceGroupId($serviceGroupId);
 

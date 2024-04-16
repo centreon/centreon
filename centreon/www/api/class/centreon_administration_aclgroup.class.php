@@ -79,8 +79,8 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
             : null;
 
-        $forCloud = filter_var(
-            $this->arguments['for_cloud'] ?? false,
+        $useResourceAccessManagement = filter_var(
+            $this->arguments['use_ram'] ?? false,
             FILTER_VALIDATE_BOOL
         );
 
@@ -131,7 +131,7 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         $whereCondition = '';
 
         // In cloud environment we only want to return ACL defines through Resource Access Management page
-        if ($forCloud === true) {
+        if ($useResourceAccessManagement === true) {
             $whereCondition = ' WHERE ag.cloud_specific = 1';
         }
 
