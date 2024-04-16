@@ -18916,3 +18916,9 @@ msgstr "Standard"
 
 msgid "Condensed"
 msgstr "Condensé"
+
+msgid "The contact group [%s] is not in your access groups"
+msgstr "Le groupe de contact [%s] ne fait pas partie de vos groupes d'accès"
+
+msgid "The user [%s] is not in your access groups"
+msgstr "L'utilisateur [%s] ne fait pas partie de vos groupes d'accès"

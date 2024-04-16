@@ -39,6 +39,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class DeleteContactGroupDashboardShare
 {
@@ -49,6 +51,7 @@ final class DeleteContactGroupDashboardShare
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
@@ -148,6 +151,15 @@ final class DeleteContactGroupDashboardShare
         if (! $this->rights->canDeleteShare($sharingRoles)) {
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
+            );
+        }
+
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
+        if (! $this->readContactGroupRepository->existsInAccessGroups($group->getId(), $accessGroupIds)) {
+            return new ForbiddenResponse(
+                DashboardException::contactGroupIsNotInAccessGroups($group->getId())
             );
         }
 
