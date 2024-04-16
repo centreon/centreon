@@ -201,7 +201,7 @@ class FileDataStoreEngine implements DataStorageEngineInterface
      */
     private function createDirectory(string $path): void
     {
-        if (! mkdir($path)) {
+        if (! mkdir(directory: $path, recursive: true)) {
             throw new \Exception(sprintf('Unable to create a directory \'%s\'', $path));
         }
     }
