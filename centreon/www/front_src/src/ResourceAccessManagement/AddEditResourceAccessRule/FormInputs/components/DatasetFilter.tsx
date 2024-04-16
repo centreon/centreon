@@ -15,11 +15,7 @@ import {
   labelDelete,
   labelAddFilter,
   labelSelectResource,
-  labelSelectResourceType,
-  labelAllResourcesSelected,
-  labelAllHostsSelected,
-  labelAllHostGroupsSelected,
-  labelAllServiceGroupsSelected
+  labelSelectResourceType
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
@@ -44,41 +40,17 @@ const DatasetFilter = ({
     addResource,
     changeResourceType,
     changeResources,
+    deleteButtonHidden,
     deleteResource,
     deleteResourceItem,
+    displayAllOfResourceTypeCheckbox,
     error,
+    getLabelForSelectedResources,
     getResourceBaseEndpoint,
     getResourceTypeOptions,
     getSearchField,
     lowestResourceTypeReached
   } = useDatasetFilter(datasetFilter, datasetFilterIndex);
-
-  const deleteButtonHidden = datasetFilter.length <= 1;
-
-  const displayAllOfResourceTypeCheckbox = (
-    resourceType: ResourceTypeEnum
-  ): boolean =>
-    equals(resourceType, ResourceTypeEnum.HostGroup) ||
-    equals(resourceType, ResourceTypeEnum.Host) ||
-    equals(resourceType, ResourceTypeEnum.ServiceGroup);
-
-  const labelsForSelectedResources = {
-    [ResourceTypeEnum.Host]: labelAllHostsSelected,
-    [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
-    [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
-  };
-
-  const getLabelForSelectedResources = (index: number): string => {
-    if (datasetFilter[index]?.allOfResourceType) {
-      return labelsForSelectedResources[datasetFilter[index].resourceType];
-    }
-
-    if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
-      return labelAllResourcesSelected;
-    }
-
-    return labelSelectResource;
-  };
 
   return (
     <div className={classes.resourceComposition}>

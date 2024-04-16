@@ -254,6 +254,21 @@ export const formData = {
   name: 'rule#1'
 };
 
+export const formDataWithAllHostGroups = {
+  contact_groups: [5],
+  contacts: [4],
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'hostgroup'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
 export const allResourcesFormData = {
   contact_groups: [5],
   contacts: [4],

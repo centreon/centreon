@@ -26,12 +26,17 @@ import {
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllHostGroupsSelected,
+  labelAllHostsSelected,
   labelAllResources,
+  labelAllResourcesSelected,
+  labelAllServiceGroupsSelected,
   labelHost,
   labelHostCategory,
   labelHostGroup,
   labelMetaService,
   labelPleaseSelectAResource,
+  labelSelectResource,
   labelService,
   labelServiceCategory,
   labelServiceGroup
@@ -48,9 +53,12 @@ type UseDatasetFilterState = {
   changeResources: (
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
+  deleteButtonHidden: boolean;
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
+  displayAllOfResourceTypeCheckbox: (resourceType: ResourceTypeEnum) => boolean;
   error: string | null;
+  getLabelForSelectedResources: (index: number) => string;
   getResourceBaseEndpoint: (
     index: number,
     resourceType: ResourceTypeEnum
@@ -167,6 +175,12 @@ const searchParametersBySelectedResourceType = {
   }
 };
 
+const labelsForSelectedResources = {
+  [ResourceTypeEnum.Host]: labelAllHostsSelected,
+  [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
+  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
+};
+
 const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
@@ -238,6 +252,27 @@ const useDatasetFilter = (
 
   const errorToDisplay =
     isTouched && isEmpty(datasetFilter) ? labelPleaseSelectAResource : null;
+
+  const deleteButtonHidden = datasetFilter.length <= 1;
+
+  const displayAllOfResourceTypeCheckbox = (
+    resourceType: ResourceTypeEnum
+  ): boolean =>
+    equals(resourceType, ResourceTypeEnum.HostGroup) ||
+    equals(resourceType, ResourceTypeEnum.Host) ||
+    equals(resourceType, ResourceTypeEnum.ServiceGroup);
+
+  const getLabelForSelectedResources = (index: number): string => {
+    if (datasetFilter[index]?.allOfResourceType) {
+      return labelsForSelectedResources[datasetFilter[index].resourceType];
+    }
+
+    if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
+      return labelAllResourcesSelected;
+    }
+
+    return labelSelectResource;
+  };
 
   const addResource = (): void => {
     setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
@@ -473,9 +508,12 @@ const useDatasetFilter = (
     changeResource,
     changeResourceType,
     changeResources,
+    deleteButtonHidden,
     deleteResource,
     deleteResourceItem,
+    displayAllOfResourceTypeCheckbox,
     error: errorToDisplay,
+    getLabelForSelectedResources,
     getResourceBaseEndpoint,
     getResourceTypeOptions,
     getSearchField,
