@@ -570,7 +570,6 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-#            "VERSION=${{ needs.get-version.outputs.major_version }}"
             "VERSION"="24.04"
           pull: true
           load: true
@@ -583,7 +582,6 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-#            "VERSION=${{ needs.get-version.outputs.major_version }}"
             "VERSION"="24.04"
           pull: false
           push: true
