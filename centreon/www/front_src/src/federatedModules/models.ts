@@ -17,7 +17,7 @@ export interface FederatedModule {
   remoteUrl?: string;
 }
 
-interface PageComponent {
+export interface PageComponent {
   children?: string;
   component: string;
   featureFlag?: string;
