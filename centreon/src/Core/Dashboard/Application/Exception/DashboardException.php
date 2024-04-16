@@ -230,26 +230,6 @@ class DashboardException extends \Exception
     }
 
     /**
-     * @param int $contactId
-     *
-     * @return self
-     */
-    public static function userIsNotInAccessGroups(int $contactId): self
-    {
-        return new self(sprintf(_('The user [%d] is not in your access groups'), $contactId));
-    }
-
-    /**
-     * @param int $contactGroupId
-     *
-     * @return self
-     */
-    public static function contactGroupIsNotInAccessGroups(int $contactGroupId): self
-    {
-        return new self(sprintf(_('The contact group [%d] is not in your access groups'), $contactGroupId));
-    }
-
-    /**
      * @param int[] $contactGroupIds
      *
      * @return self

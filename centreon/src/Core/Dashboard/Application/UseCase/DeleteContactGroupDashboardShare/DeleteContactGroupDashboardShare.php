@@ -158,9 +158,7 @@ final class DeleteContactGroupDashboardShare
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
 
         if (! $this->readContactGroupRepository->existsInAccessGroups($group->getId(), $accessGroupIds)) {
-            return new ForbiddenResponse(
-                DashboardException::contactGroupIsNotInAccessGroups($group->getId())
-            );
+            return new NotFoundResponse('Contact Group');
         }
 
         if (! $this->writeDashboardShareRepository->deleteContactGroupShare($group->getId(), $dashboard->getId())) {
