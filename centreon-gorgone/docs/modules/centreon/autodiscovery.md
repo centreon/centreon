@@ -6,10 +6,13 @@ This module aims to extend Centreon Autodiscovery server functionalities.
 
 ## Configuration
 
-| Directive       | Description                                                            | Default value |
-| :-------------- | :--------------------------------------------------------------------- | :------------ |
-| global\_timeout | Time in seconds before a discovery command is considered timed out     | `300`         |
-| check\_interval | Time in seconds defining frequency at which results will be search for | `15`          |
+| Directive                            | Description                                                                                       | Default value |
+| :----------------------------------- | :------------------------------------------------------------------------------------------------ | :------------ |
+| global\_timeout                      | Time in seconds before a discovery command is considered timed out                                | `300`         |
+| check\_interval                      | Time in seconds defining frequency at which results will be search for                            | `15`          |
+| service\_parrallel\_commands\_poller | Number of commands run simultaneously on each Poller                                              | `8`           |
+| service\_check\_interval             | Time in seconds defining frequency at which results will be search for (for services discoveries) | `15`          |
+| service\_timeout                     | Time in seconds before a service discovery command is considered timed out                        | `90`          |
 
 #### Example
 
@@ -19,6 +22,9 @@ package: "gorgone::modules::centreon::autodiscovery::hooks"
 enable: true
 global_timeout: 60
 check_interval: 10
+service_parrallel_commands_poller: 15
+service_check_interval: 5
+service_timeout: 60
 ```
 
 ## Events
