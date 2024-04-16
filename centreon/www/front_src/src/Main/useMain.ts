@@ -24,7 +24,7 @@ export const router = {
   useNavigate
 };
 
-const useMain = (): void => {
+const useMain = (hasReachedAPublicPage: boolean): void => {
   const { sendRequest: getPlatformInstallationStatus } =
     useRequest<PlatformInstallationStatus>({
       decoder: platformInstallationStatusDecoder,
@@ -65,6 +65,13 @@ const useMain = (): void => {
 
   useEffect(() => {
     displayAuthenticationError();
+
+    if (hasReachedAPublicPage) {
+      setAreUserParametersLoaded(false);
+      getPlatformVersions();
+
+      return;
+    }
 
     getPlatformInstallationStatus({
       endpoint: platformInstallationStatusEndpoint
