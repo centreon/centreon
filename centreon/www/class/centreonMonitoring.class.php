@@ -105,8 +105,8 @@ class CentreonMonitoring
                 . "AND centreon_acl.group_id IN (" .  $obj->access->getAccessGroupsString() . ") ";
         }
         $DBRESULT = $objXMLBG->DBC->prepare($rq);
-        $DBRESULT->bindParam(':status', $status);
-        $DBRESULT->bindParam(':host_name', $host_name);
+        $DBRESULT->bindValue(':status', $status);
+        $DBRESULT->bindValue(':host_name', $host_name);
         $DBRESULT->execute();
 
         $cpt = 0;
@@ -183,11 +183,11 @@ class CentreonMonitoring
         $DBRESULT = $objXMLBG->DBC->prepare($rq);
 
         if (!$objXMLBG->is_admin) {
-            $DBRESULT->bindParam(':grouplist', $grouplistStr);
+            $DBRESULT->bindValue(':grouplist', $grouplistStr);
         }
-        $DBRESULT->bindParam(':hostList', $hostList);
+        $DBRESULT->bindValue(':hostList', $hostList);
         if ($instance !== -1) {
-            $DBRESULT->bindParam(':instance', $instance);
+            $DBRESULT->bindValue(':instance', $instance);
         }
         $DBRESULT->execute();
         $tab = [];
