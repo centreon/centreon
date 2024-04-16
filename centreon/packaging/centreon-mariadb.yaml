@@ -32,7 +32,7 @@ contents:
     dst: "/etc/systemd/system/mariadb.service.d/centreon.conf"
     type: config|noreplace
     file_info:
-      mode: 0600
+      mode: 0644
 
 overrides:
   rpm:

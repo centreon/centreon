@@ -93,12 +93,12 @@ contents:
   - src: "../config/systemd/gorgoned.rpm.service"
     dst: "/etc/systemd/system/gorgoned.service"
     file_info:
-      mode: 0755
+      mode: 0644
     packager: rpm
   - src: "../config/systemd/gorgoned.deb.service"
     dst: "/lib/systemd/system/gorgoned.service"
     file_info:
-      mode: 0755
+      mode: 0644
     packager: deb
 
   - src: "../config/systemd/gorgoned-sysconfig"
