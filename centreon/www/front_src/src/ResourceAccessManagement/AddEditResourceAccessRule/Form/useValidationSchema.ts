@@ -4,6 +4,7 @@ import {
   array,
   ArraySchema,
   AnySchema,
+  boolean,
   object,
   ObjectSchema,
   ObjectShape,
@@ -54,21 +55,26 @@ const useValidationSchema = (): UseValidationSchemaState => {
     array(
       array(
         object({
+          allOfresourceType: boolean(),
           resourceType: string().matches(
             /(host|service)(group|_category)?|meta_service|all/
           ),
-          resources: array().when('resourceType', ([resourceType], schema) => {
-            const allowedTypesForEmptyResources = [
-              'all',
-              'host',
-              'hostgroup',
-              'servicegroup'
-            ];
+          resources: array().when(
+            'resourceType',
+            ([allOfResourceType, resourceType], schema) => {
+              const allowedTypesForEmptyResources = [
+                'all',
+                'host',
+                'hostgroup',
+                'servicegroup'
+              ];
 
-            return allowedTypesForEmptyResources.includes(resourceType)
-              ? schema.min(0)
-              : schema.min(1);
-          })
+              return allowedTypesForEmptyResources.includes(resourceType) &&
+                allOfResourceType
+                ? schema.min(0)
+                : schema.min(1);
+            }
+          )
         })
       ).min(1)
     ).min(1);

@@ -146,6 +146,7 @@ const DatasetFilter = ({
             </ItemComposition.Item>
             {displayAllOfResourceTypeCheckbox(resource.resourceType) && (
               <AllOfResourceTypeCheckbox
+                datasetFilter={datasetFilter}
                 datasetFilterIndex={datasetFilterIndex}
                 datasetIndex={resourceIndex}
                 resourceType={resource.resourceType}

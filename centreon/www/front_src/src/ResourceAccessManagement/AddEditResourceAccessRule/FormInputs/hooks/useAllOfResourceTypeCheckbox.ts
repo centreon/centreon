@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
 
-import { ResourceAccessRule, ResourceTypeEnum } from '../../../models';
+import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import { selectedDatasetFiltersAtom } from '../../../atom';
 import {
   labelAllHostGroups,
@@ -25,6 +25,7 @@ const allOfResourceTypeLabels = {
 };
 
 export const useAllOfResourceTypeCheckbox = (
+  datasetFilter: Array<Dataset>,
   datasetFilterIndex: number,
   datasetIndex: number,
   resourceType: ResourceTypeEnum
@@ -71,7 +72,7 @@ export const useAllOfResourceTypeCheckbox = (
 
   return {
     checkboxLabel,
-    checked: selectedDatasetFilters[datasetFilterIndex][datasetIndex].allOf,
+    checked: datasetFilter[datasetIndex].allOfResourceType,
     onChange
   };
 };

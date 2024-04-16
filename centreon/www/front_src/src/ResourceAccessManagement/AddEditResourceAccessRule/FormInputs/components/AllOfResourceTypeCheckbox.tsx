@@ -2,17 +2,19 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Checkbox } from '@mui/material';
 
-import { ResourceTypeEnum } from '../../../models';
+import { Dataset, ResourceTypeEnum } from '../../../models';
 import { useAllOfResourceTypeCheckboxStyles } from '../styles/AllOfResourceTypeCheckbox.styles';
 import { useAllOfResourceTypeCheckbox } from '../hooks/useAllOfResourceTypeCheckbox';
 
 interface Props {
+  datasetFilter: Array<Dataset>;
   datasetFilterIndex: number;
   datasetIndex: number;
   resourceType: ResourceTypeEnum;
 }
 
 const AllOfResourceTypeCheckbox = ({
+  datasetFilter,
   datasetFilterIndex,
   datasetIndex,
   resourceType
@@ -21,6 +23,7 @@ const AllOfResourceTypeCheckbox = ({
   const { classes } = useAllOfResourceTypeCheckboxStyles();
 
   const { checkboxLabel, checked, onChange } = useAllOfResourceTypeCheckbox(
+    datasetFilter,
     datasetFilterIndex,
     datasetIndex,
     resourceType
