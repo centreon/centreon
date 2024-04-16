@@ -20,7 +20,7 @@ const FederatedPage = ({ route, childrenComponent }: Props): JSX.Element => {
 
   const filteredFederatedModules = reject(
     (federatedModule) => equals(type(federatedModule), 'String'),
-    federatedModules
+    federatedModules || []
   );
 
   const module = filteredFederatedModules?.find(({ federatedPages }) =>

@@ -7,7 +7,7 @@ import { routes } from './routes';
 export const usePageResolver = ():
   | [string, LazyExoticComponent<() => JSX.Element>]
   | undefined => {
-  const { pathname } = useLocation();
+  const { pathname } = usePageResolver.useLocation();
 
   const formattedPathname = pathname.replace('/public', '');
 
@@ -23,3 +23,5 @@ export const usePageResolver = ():
 
   return matchedRoute;
 };
+
+usePageResolver.useLocation = useLocation;

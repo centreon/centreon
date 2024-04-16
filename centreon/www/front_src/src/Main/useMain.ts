@@ -32,8 +32,12 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
     });
   const { showErrorMessage } = useSnackbar();
 
-  const { getBrowserLocale, getInternalTranslation, i18next } =
-    useInitializeTranslation();
+  const {
+    getBrowserLocale,
+    getInternalTranslation,
+    getExternalTranslation,
+    i18next
+  } = useInitializeTranslation();
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
     areUserParametersLoadedAtom
@@ -69,6 +73,7 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
     if (hasReachedAPublicPage) {
       setAreUserParametersLoaded(false);
       getPlatformVersions();
+      getExternalTranslation();
 
       return;
     }

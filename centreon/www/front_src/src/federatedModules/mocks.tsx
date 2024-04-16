@@ -21,3 +21,5 @@ export const retrievedFederatedModule: FederatedModule = {
   moduleName: 'centreon-bam-server',
   remoteEntry: 'remoteEntry.js'
 };
+
+export const TestChildren = (): JSX.Element => <div>children component</div>;
