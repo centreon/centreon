@@ -85,7 +85,7 @@ sub get_audit_user_id {
 
     my ($status, $contacts) = $options{class_object_centreon}->custom_execute(
         request => 'SELECT contact_id FROM contact WHERE contact_alias = ?',
-        bind_values => [$options{clapi_user}],
+        bind_values => [$options{user}],
         mode => 2
     );
     if ($status == -1) {

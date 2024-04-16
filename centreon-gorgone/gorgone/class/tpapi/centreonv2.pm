@@ -59,6 +59,16 @@ sub error {
     return $self->{error};
 }
 
+sub get_username {
+    my ($self, %options) = @_;
+
+    if ($self->{is_error} == 1) {
+        return undef;
+    }
+
+    return $self->{username};
+}
+
 sub set_configuration {
     my ($self, %options) = @_;
 
@@ -197,7 +207,8 @@ sub request {
         critical_status => ''
     );
 
-    my $decoded = $self->json_decode(content => $content);
+    my $decoded = undef;
+    $decoded = $self->json_decode(content => $content) if (defined($content) && $content ne "");
 
     # code 403 means forbidden (token not good maybe)
     if ($self->{http}->get_code() == 403) {
@@ -216,8 +227,6 @@ sub request {
         $self->{error} =  "request error [code: '" . $self->{http}->get_code() . "'] [message: '" . $message . "']";
         return 1;
     }
-
-    return 1 if (!defined($decoded));
 
     return (0, $decoded);
 }
@@ -238,7 +247,7 @@ sub get_monitoring_hosts {
     if (defined($options{search})) {
         $get_param = ['search=' . $options{search}];
     }
-    
+
     return $self->request(
         method => 'GET',
         endpoint => $endpoint,
@@ -253,7 +262,7 @@ sub get_platform_versions {
     return $self->request(
         method => 'GET',
         endpoint => '/platform/versions'
-    );    
+    );
 }
 
 sub get_scheduling_jobs {
@@ -269,6 +278,23 @@ sub get_scheduling_jobs {
         method => 'GET',
         endpoint => $endpoint,
         get_param => $get_param
+    );
+}
+
+sub monitoring_server_generate_reload {
+    my ($self, %options) = @_;
+
+    if (!defined($options{monitoring_server_id})) {
+        $self->{is_error} = 1;
+        $self->{error} = 'monitoring_server_id option missing';
+        return 1;
+    }
+
+    # {protocol}://{server}:{port}/centreon/api/{version}/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload
+    my $endpoint = '/configuration/monitoring-servers/' . $options{monitoring_server_id} . '/generate-and-reload';
+    return $self->request(
+        method => 'GET',
+        endpoint => $endpoint
     );
 }
 

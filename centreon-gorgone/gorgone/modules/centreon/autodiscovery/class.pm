@@ -27,7 +27,6 @@ use warnings;
 use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::modules::centreon::autodiscovery::services::discovery;
-use gorgone::class::tpapi::clapi;
 use gorgone::class::tpapi::centreonv2;
 use gorgone::class::sqlquery;
 use gorgone::class::frame;
@@ -69,7 +68,6 @@ sub new {
         $options{config}->{global_timeout} =~ /(\d+)/) ? $1 : 300;
     $connector->{check_interval} = (defined($options{config}->{check_interval}) &&
         $options{config}->{check_interval} =~ /(\d+)/) ? $1 : 15;
-    $connector->{tpapi_clapi_name} = defined($options{config}->{tpapi_clapi}) && $options{config}->{tpapi_clapi} ne '' ? $options{config}->{tpapi_clapi} : 'clapi';
     $connector->{tpapi_centreonv2_name} = defined($options{config}->{tpapi_centreonv2}) && $options{config}->{tpapi_centreonv2} ne '' ? 
         $options{config}->{tpapi_centreonv2} : 'centreonv2';
 
@@ -1056,7 +1054,7 @@ sub action_launchservicediscovery {
     my $svc_discovery = gorgone::modules::centreon::autodiscovery::services::discovery->new(
         module_id => $self->{module_id},
         logger => $self->{logger},
-        tpapi_clapi => $self->{tpapi_clapi},
+        tpapi_centreonv2 => $self->{tpapi_centreonv2},
         internal_socket => $self->{internal_socket},
         config => $self->{config},
         config_core => $self->{config_core},
@@ -1144,10 +1142,6 @@ sub periodic_exec {
 sub run {
     my ($self, %options) = @_;
 
-    $self->{tpapi_clapi} = gorgone::class::tpapi::clapi->new();
-    $self->{tpapi_clapi}->set_configuration(
-        config => $self->{tpapi}->get_configuration(name => $self->{tpapi_clapi_name})
-    );
     $self->{tpapi_centreonv2} = gorgone::class::tpapi::centreonv2->new();
     my ($status) = $self->{tpapi_centreonv2}->set_configuration(
         config => $self->{tpapi}->get_configuration(name => $self->{tpapi_centreonv2_name}),
