@@ -108,7 +108,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
         $request = <<<'SQL'
-            SELECT DISTINCT
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
@@ -195,7 +195,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
         $request = <<<'SQL'
-            SELECT DISTINCT
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
                 hg.hg_id,
                 hg.hg_name,
                 hg.hg_alias,
