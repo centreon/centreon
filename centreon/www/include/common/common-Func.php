@@ -2115,7 +2115,7 @@ function csv_to_associative_array(&$records)
  * @param bool $ignore_empty_lines (default true)
  * @return bool|array False if there was a problem, otherwise the records
  */
-function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
+function parse_csv(&$text, $delim = ';', $ignore_empty_lines = true)
 {
     $records = array();
     $record = array();
@@ -2126,17 +2126,23 @@ function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
     $prev_char_is_dq = false;
     $inside_dq = 0; // 0: to determine, 1: no, 2: yes
 
+    $CR = "\r";
+    $LF = "\n";
+
     $enders_field = array(
         $delim => $delim,
-        "\n" => "\n",
+        $CR => $CR,
+        $LF => $LF,
         '' => '',
     );
     $enders_record = array(
-        "\n" => "\n",
+        $CR => $CR,
+        $LF => $LF,
         '' => '',
     );
 
-    $text_len = strlen($text) + ($text[-1] == "\n" ? 0 : 1);
+    $last_char_ends_record = array_key_exists($text[-1], $enders_record);
+    $text_len = strlen($text) + ($last_char_ends_record ? 0 : 1);
     while ($pos_cur < $text_len) {
         $c = $text[$pos_cur] ?? '';
 
@@ -2147,7 +2153,7 @@ function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
                     $pos_field_start = $pos_cur + 1;
                     break;
                 } else
-                     $inside_dq = 1;
+                    $inside_dq = 1;
                 // fall through
 
             case 1:
@@ -2157,12 +2163,20 @@ function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
                     if ($is_end_rec && $pos_field_start == $pos_cur && $ignore_empty_lines && !$record) {
                     } else
                         $record[] = substr($text, $pos_field_start, $pos_cur - $pos_field_start);
+
                     $pos_field_start = $pos_cur + 1;
 
-                    if ($is_end_rec && $record) {
-                        $records[$rec_nr] = $record;
-                        $record = array();
-                        $rec_nr++;
+                    if ($is_end_rec) {
+                        if ($c == $CR) {
+                            $pos_field_start++;
+                            $pos_cur++;
+                        }
+
+                        if ($record) {
+                            $records[$rec_nr] = $record;
+                            $record = array();
+                            $rec_nr++;
+                        }
                     }
                 }
                 break;
@@ -2177,12 +2191,20 @@ function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
                         if ($is_end_rec && $pos_field_start == $pos_cur && $ignore_empty_lines && !$record) {
                         } else
                             $record[] = str_replace('""', '"', substr($text, $pos_field_start, $pos_cur - $pos_field_start - 1));
+
                         $pos_field_start = $pos_cur + 1;
 
-                        if ($is_end_rec && $record) {
-                            $records[$rec_nr] = $record;
-                            $record = array();
-                            $rec_nr++;
+                        if ($is_end_rec) {
+                            if ($c == $CR) {
+                                $pos_field_start++;
+                                $pos_cur++;
+                            }
+
+                            if ($record) {
+                                $records[$rec_nr] = $record;
+                                $record = array();
+                                $rec_nr++;
+                            }
                         }
                         $inside_dq = 0;
                     } else {
@@ -2200,6 +2222,9 @@ function parse_csv(&$text, $delim=';', $ignore_empty_lines=true)
 
         $pos_cur++;
     }
+
+    if ($inside_dq == 2) // truncated input
+        return false;
 
     return $records;
 }
