@@ -39,4 +39,9 @@ class MetricException extends \Exception
     {
         return new self (_('Invalid metric format'));
     }
+
+    public static function downloadNotAllowed(): self
+    {
+        return new self (_('Downloading the performance metrics is not allowed'));
+    }
 }

@@ -17645,6 +17645,9 @@ msgstr ""
 # msgid "All contact groups selected"
 # msgstr ""
 
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
 # msgid "Business view"
 # msgstr ""
 
