@@ -1,0 +1,23 @@
+gorgone:
+  gorgonecore:
+    id: 1
+    privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+    pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+  modules:
+    - name: proxy
+      package: "gorgone::modules::core::proxy::hooks"
+      enable: true
+
+    - name: nodes
+      package: "gorgone::modules::centreon::nodes::hooks"
+      enable: true
+centreon:
+  database:
+    db_configuration:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"
+    db_realtime:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"
