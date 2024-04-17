@@ -33,7 +33,10 @@ import {
   labelAllHostGroupsSelected
 } from '../../translatedLabels';
 
-import { editedRuleFormData, findResourceAccessRuleResponse } from './testUtils';
+import {
+  editedRuleFormData,
+  findResourceAccessRuleResponse
+} from './testUtils';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
