@@ -17,7 +17,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-if [[ ${{RELEASE_CLOUD}} == 1 ]]; then
+if [[ ${RELEASE_CLOUD} -eq 1 ]]; then
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/24.05/el8/centreon-24.05.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
