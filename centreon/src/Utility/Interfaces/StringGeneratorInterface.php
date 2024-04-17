@@ -21,12 +21,12 @@
 
 namespace Utility\Interfaces;
 
-interface ULIDGeneratorInterface
+interface StringGeneratorInterface
 {
     /**
-     * Generate a ULID on Base58 format.
+     * Generate a string compatible for a URL Query Parameter usage.
      *
      * @return string
      */
-    public function generateBase58ULID(): string;
+    public function generateForQueryParameter(): string;
 }
