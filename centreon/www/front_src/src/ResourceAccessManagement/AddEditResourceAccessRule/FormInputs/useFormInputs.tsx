@@ -23,6 +23,7 @@ import {
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ResourceSelection from './components/ResourceSelection';
+import ContactsSelector from './components/ContactsSelector';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -164,16 +165,15 @@ const useFormInputs = (): UseFormInputsState => {
                         type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactsEndpoint
+                        custom: {
+                          Component: () => <ContactsSelector />
                         },
                         dataTestId: t(labelContacts),
                         disableSortedOptions: true,
                         fieldName: 'contacts',
                         label: t(labelContacts),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       },
                       {
                         connectedAutocomplete: {

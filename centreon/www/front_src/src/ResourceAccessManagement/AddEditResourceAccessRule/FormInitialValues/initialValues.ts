@@ -9,6 +9,8 @@ import {
 } from '../../models';
 
 export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
+  allContactGroups: false,
+  allContacts: false,
   contactGroups: [],
   contacts: [],
   datasetFilters: [
@@ -71,6 +73,8 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
+  allContactGroups: isEmpty(contactGroups),
+  allContacts: isEmpty(contacts),
   contactGroups,
   contacts,
   datasetFilters: formatDatasetFilters(datasetFilters),
