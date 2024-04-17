@@ -22,10 +22,14 @@
 namespace Utility;
 
 use Symfony\Component\Uid\Ulid;
+use Utility\Interfaces\ULIDGeneratorInterface;
 
-class ULIDGenerator
+class ULIDGenerator implements ULIDGeneratorInterface
 {
-    public static function generateBase58ULID()
+    /**
+     * @inheritDoc
+     */
+    public function generateBase58ULID(): string
     {
         return (new Ulid())->toBase58();
     }
