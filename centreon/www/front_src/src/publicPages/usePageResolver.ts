@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { fromPairs, replace } from 'ramda';
 
 import { routes } from './routes';
+import { ComponentProps, Parameters } from './models';
 
 const getURLMatchRegExp = (url: string): RegExp => {
   const regexp = replace(/\[(\w+|\w+(-|_)\w+)\]/g, '(\\w+)', url);
@@ -12,12 +13,8 @@ const getURLMatchRegExp = (url: string): RegExp => {
 };
 
 interface UsePageResolverState {
-  matchedRoute?: [string, LazyExoticComponent<ComponentType>];
-  parameters: {
-    [x: string]: unknown;
-    [x: number]: unknown;
-    [x: symbol]: unknown;
-  };
+  matchedRoute?: [string, LazyExoticComponent<ComponentType<ComponentProps>>];
+  parameters: Parameters;
 }
 
 export const usePageResolver = (): UsePageResolverState => {

@@ -13,12 +13,12 @@ import {
 import { usePageResolver } from './usePageResolver';
 
 const PublicPagesManager = (): JSX.Element => {
-  const route = usePageResolver();
+  const { matchedRoute, parameters } = usePageResolver();
 
-  if (!route) {
+  if (!matchedRoute) {
     return <NotFoundPage />;
   }
-  const Component = route[1];
+  const Component = matchedRoute[1];
 
   return (
     <ErrorBoundary
@@ -30,7 +30,7 @@ const PublicPagesManager = (): JSX.Element => {
       }
     >
       <Suspense fallback={<MainLoaderWithoutTranslation />}>
-        <Component />
+        <Component routeParameters={parameters} />
       </Suspense>
     </ErrorBoundary>
   );

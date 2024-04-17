@@ -14,7 +14,11 @@ interface Props {
   route: string;
 }
 
-const FederatedPage = ({ route, childrenComponent }: Props): JSX.Element => {
+const FederatedPage = ({
+  route,
+  childrenComponent,
+  ...rest
+}: Props): JSX.Element => {
   const federatedModules = useAtomValue(federatedModulesAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -41,7 +45,8 @@ const FederatedPage = ({ route, childrenComponent }: Props): JSX.Element => {
   ) as PageComponent;
 
   const additionalProps = {
-    isOnPublicPage
+    isOnPublicPage,
+    ...rest
   };
 
   return ChildrenComponent ? (
