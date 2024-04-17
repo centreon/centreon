@@ -29,6 +29,8 @@ namespace Centreon\Domain\PlatformInformation\Exception;
  */
 class PlatformInformationException extends \Exception
 {
+    public const CODE_FORBIDDEN = 1;
+
     /**
      * @return PlatformInformationException
      */
@@ -36,4 +38,10 @@ class PlatformInformationException extends \Exception
     {
         return new self(_("Central platform's API data is not consistent. Please check the 'Remote Access' form."));
     }
+
+    public static function noRights(): self
+    {
+        return new self(_("You do not have sufficent rights for this action."), self::CODE_FORBIDDEN );
+    }
+
 }

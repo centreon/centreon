@@ -30,6 +30,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Exception\ValidationFailedException;
@@ -49,17 +50,15 @@ class CheckController extends AbstractController
     public const SERIALIZER_GROUPS_SERVICE = ['check_service'];
     public const SERIALIZER_GROUPS_HOST_ADD = ['check_host', 'check_host_add'];
 
-    /** @var CheckServiceInterface */
-    private CheckServiceInterface $checkService;
-
     /**
      * CheckController constructor.
      *
      * @param CheckServiceInterface $checkService
      */
-    public function __construct(CheckServiceInterface $checkService)
-    {
-        $this->checkService = $checkService;
+    public function __construct(
+        private CheckServiceInterface $checkService,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+    ) {
     }
 
     /**
@@ -394,6 +393,18 @@ class CheckController extends AbstractController
          * @var Contact $user
          */
         $user = $this->getUser();
+
+        if (false === $user->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($user);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
 
         $payload = $this->validateAndRetrieveDataSent($request, self::CHECK_RESOURCES_PAYLOAD_VALIDATION_FILE);
         $check = $this->createCheckFromPayload($payload);

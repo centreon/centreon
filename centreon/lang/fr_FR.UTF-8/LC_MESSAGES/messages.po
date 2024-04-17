@@ -18939,3 +18939,21 @@ msgstr "Ligne"
 
 msgid "Step"
 msgstr "Étape"
+
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+msgid "All service groups"
+msgstr "Tous les groupes de services"

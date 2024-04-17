@@ -31,7 +31,7 @@ use Monolog\Logger;
  *
  * @package Centreon\Domain\Log
  */
-class DebugFileHandler extends StreamHandler
+class ErrorFileHandler extends StreamHandler
 {
     /**
      * @param FormatterInterface $formatter Monolog formatter

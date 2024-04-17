@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { ReactElement } from 'react';
 
-import { equals, flatten, isEmpty } from 'ramda';
+import { equals, flatten, isEmpty, last } from 'ramda';
 
 import { Divider } from '@mui/material';
 
@@ -19,10 +19,9 @@ const DatasetFilters = (): ReactElement => {
     useDatasetFilters();
 
   const areResourcesFilled = (datasets: Array<Dataset>): boolean =>
-    datasets?.every(
-      ({ resourceType, resources }) =>
-        !isEmpty(resourceType) && !isEmpty(resources)
-    );
+    (!isEmpty(last(datasets)?.resourceType) &&
+      !isEmpty(last(datasets)?.resources)) ||
+    (last(datasets)?.allOfResourceType as boolean);
 
   return (
     <div>
@@ -54,7 +53,8 @@ const DatasetFilters = (): ReactElement => {
           !isEmpty(
             flatten(datasetFilters).filter(
               (dataset) =>
-                isEmpty(dataset.resourceType) || isEmpty(dataset.resources)
+                !dataset.allOfResourceType &&
+                (isEmpty(dataset.resourceType) || isEmpty(dataset.resources))
             )
           )
         }

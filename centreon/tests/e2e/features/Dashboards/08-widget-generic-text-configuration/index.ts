@@ -57,6 +57,7 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.logoutViaAPI();
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
