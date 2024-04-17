@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Contact\Application\UseCase\FindContactTemplates;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 
 class FindContactTemplates
@@ -33,8 +36,9 @@ class FindContactTemplates
 
     /**
      * @param ReadContactTemplateRepositoryInterface $repository
+     * @param ContactInterface $user
      */
-    public function __construct(private ReadContactTemplateRepositoryInterface $repository)
+    public function __construct(private ReadContactTemplateRepositoryInterface $repository,private ContactInterface $user)
     {
     }
 
@@ -44,7 +48,21 @@ class FindContactTemplates
     public function __invoke(FindContactTemplatesPresenterInterface $presenter): void
     {
         try {
-            $contactTemplates = $this->repository->findAll();
+            if (
+                ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ)
+                && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ_WRITE)
+            ) {
+                $this->error('User doesn\'t have sufficient right to see contact templates', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse('You are not allowed to access contact templates')
+                );
+                return;
+            }
+            if ($this->user->isAdmin()) {
+                $contactTemplates = $this->repository->findAll();
+            }
         } catch (\Throwable $ex) {
             $this->error('An error occured in data storage while getting contact templates', [
                 'trace' => $ex->getTraceAsString(),
