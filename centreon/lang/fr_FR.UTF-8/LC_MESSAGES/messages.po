@@ -18936,3 +18936,6 @@ msgstr "Courbe"
 
 msgid "Line"
 msgstr "Ligne"
+
+msgid "Step"
+msgstr "Étape"
