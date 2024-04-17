@@ -16781,3 +16781,21 @@ msgstr "Erweiterter Modus"
 #  msgstr ""
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "All hosts selected"
+# msgstr ""
+
+# msgid "All host groups selected"
+# msgstr ""
+
+# msgid "All service groups selected"
+# msgstr ""
+
+# msgid "All hosts"
+# msgstr ""
+
+# msgid "All host groups"
+# msgstr ""
+
+# msgid "All service groups"
+# msgstr ""

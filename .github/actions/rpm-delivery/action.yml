@@ -79,16 +79,18 @@ runs:
         done
 
         # Build upload target path based on release_cloud and release_type values
-        # if cloud, deliver to testing-<release_type>
-        # if non-cloud, delivery to testing as usual
+        # if cloud + hotfix or cloud + release, deliver to internal testing-<release_type>
+        # if cloud + develop, delivery to internal unstable
+        # if non-cloud, delivery to onprem testing or unstable
+
         # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
-        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]]; then
+        if [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_type }} == "release" ]]); then
           echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/RPMS/${{ inputs.module_name }}/"
 
         # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
-        elif [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} != "release" ]]; then
+        elif [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_type }} != "release" ]]); then
           echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
@@ -100,6 +102,7 @@ runs:
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
 
         # NOT VALID, DO NOT DELIVER
+
         else
           echo "[ERROR] Invalid combination of release_type and release_cloud"
           exit 1

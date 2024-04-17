@@ -35,6 +35,17 @@
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="members"> {$form.sg_hServices.label}</td><td class="FormRowValue">{$form.sg_hServices.html}</td></tr>
 		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="hg_members"> {$form.sg_hgServices.label}</td><td class="FormRowValue">{$form.sg_hgServices.html}</td></tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="st_members"> {$form.sg_tServices.label}</td><td class="FormRowValue">{$form.sg_tServices.html}</td></tr> 
+        {if isset($form.resource_access_rules)}
+            <tr class="list_lvl_1">
+                <td class="ListColLvl1_name" colspan="2">
+                    <h4>{$resourceAccess}</h4>
+                </td>
+            </tr>
+            <tr class="list_one">
+                <td class="FormRowField"><img class="helpTooltip" name="resource_access_rules"> {$form.resource_access_rules.label}</td>
+                <td class="FormRowField">{$form.resource_access_rules.html}</td>
+            </tr>
+        {/if}
 	 	<tr class="list_lvl_1">
           <td class="ListColLvl1_name" colspan="2">
             <h4>{$form.header.furtherInfos}</h4>

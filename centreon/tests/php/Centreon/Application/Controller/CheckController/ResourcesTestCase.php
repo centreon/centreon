@@ -27,6 +27,7 @@ use Centreon\Application\Controller\CheckController;
 use Centreon\Domain\Check\Check;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Entity\EntityValidator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\Exception\ValidationFailedException;
 
@@ -68,7 +69,10 @@ abstract class ResourcesTestCase extends TestCase
         $service = $this->mockService();
         $service->method($expectedServiceMethodName)->with($this->equalTo($check));
 
-        $sut = new CheckController($service);
+        $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $readAccessGroupRepository->method('hasAccessToResources')->willReturn(true);
+
+        $sut = new CheckController($service, $readAccessGroupRepository);
         $sut->setContainer($container);
         $checks = [$check];
 
@@ -96,7 +100,10 @@ abstract class ResourcesTestCase extends TestCase
             $this->mockTokenStorage($this->mockToken($contact))
         );
 
-        $sut = new CheckController($this->mockService());
+        $readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+        $readAccessGroupRepository->method('hasAccessToResources')->willReturn(true);
+
+        $sut = new CheckController($this->mockService(), $readAccessGroupRepository);
         $sut->setContainer($container);
         $methodUnderTest = static::METHOD_UNDER_TEST;
 
