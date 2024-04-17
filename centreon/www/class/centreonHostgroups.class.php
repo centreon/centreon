@@ -342,7 +342,9 @@ class CentreonHostgroups
         }
 
         // get list of authorized hostgroups
-        if (!$centreon->user->access->admin && $centreon->user->access->hasAccessToAllHostGroups === false) {
+        if (! $centreon->user->access->admin
+            && $centreon->user->access->hasAccessToAllHostGroups === false
+        ) {
             $hgAcl = $centreon->user->access->getHostGroupAclConf(
                 null,
                 'broker',
@@ -385,9 +387,9 @@ class CentreonHostgroups
             // hide unauthorized hostgroups
             $hide = false;
             if (
-                !$centreon->user->access->admin
+                ! $centreon->user->access->admin
                 && $centreon->user->access->hasAccessToAllHostGroups === false
-                && !in_array($row['hg_id'], $hgAcl)
+                && ! in_array($row['hg_id'], $hgAcl)
             ) {
                 $hide = true;
             }
