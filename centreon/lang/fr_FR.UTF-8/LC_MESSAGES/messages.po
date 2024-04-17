@@ -18937,9 +18937,6 @@ msgstr "Courbe"
 msgid "Line"
 msgstr "Ligne"
 
-msgid "Step"
-msgstr "Étape"
-
 msgid "All hosts selected"
 msgstr "Tous les hôtes sont sélectionnés"
 
