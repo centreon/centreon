@@ -178,7 +178,7 @@ jobs:
           esac
 
           case "$BRANCHNAME" in
-            develop | dev-[2-9][0-9].[0-9][0-9].x)
+            develop | dev-[2-9][0-9].[0-9][0-9].x|MON-52724-prepare-24-04-0-onprem-and-24-05-0-cloud)
               STABILITY="unstable"
               ENV="development"
               ;;
