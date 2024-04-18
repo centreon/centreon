@@ -11,11 +11,13 @@ import {
   reject,
   pluck,
   includes,
-  isNotNil
+  isNotNil,
+  find
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
+import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import {
   Widget,
@@ -58,8 +60,7 @@ interface UseResourcesState {
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
   getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
-  singleHostPerMetric?: boolean;
-  singleMetricSelection?: boolean;
+  singleResourceSelection?: boolean;
   value: Array<WidgetDataResource>;
 }
 
@@ -124,10 +125,14 @@ const getServiceQueryParameters = (
 const useResources = ({
   propertyName,
   restrictedResourceTypes,
-  required
+  required,
+  useAdditionalResources
 }: Pick<
   WidgetPropertyProps,
-  'propertyName' | 'restrictedResourceTypes' | 'required'
+  | 'propertyName'
+  | 'restrictedResourceTypes'
+  | 'required'
+  | 'useAdditionalResources'
 >): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -146,6 +151,7 @@ const useResources = ({
     widgetPropertiesMetaPropertiesDerivedAtom
   );
   const hasMetricInputType = useAtomValue(hasMetricInputTypeDerivedAtom);
+  const additionalResources = useAtomValue(additionalResourcesAtom);
 
   const errorToDisplay =
     isTouched && required && isEmpty(value) ? labelPleaseSelectAResource : null;
@@ -155,7 +161,7 @@ const useResources = ({
   ): boolean | undefined => {
     return (
       widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       (equals(resourceType, WidgetResourceType.host) ||
         equals(resourceType, WidgetResourceType.service))
     );
@@ -209,14 +215,40 @@ const useResources = ({
   const getResourceResourceBaseEndpoint =
     (resourceType: string) =>
     (parameters): string => {
+      const additionalResource = find(
+        ({ resourceType: additionalResourceType }) =>
+          equals(resourceType, additionalResourceType),
+        additionalResources
+      );
+
+      const endpoint = !additionalResource
+        ? `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`
+        : additionalResource?.baseEndpoint;
+
+      const search = !additionalResource?.defaultMonitoringParameter
+        ? parameters.search
+        : {
+            ...parameters.search,
+            lists: [
+              ...(parameters.search?.lists || []),
+              ...Object.entries(
+                additionalResource.defaultMonitoringParameter || {}
+              ).map(([propertyKey, propertyValue]) => ({
+                field: propertyKey,
+                values: [propertyValue]
+              }))
+            ]
+          };
+
       return buildListingEndpoint({
-        baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
+        baseEndpoint: endpoint,
         customQueryParameters: equals(resourceType, WidgetResourceType.service)
           ? getServiceQueryParameters(hasMetricInputType)
           : undefined,
         parameters: {
           ...parameters,
-          limit: 30
+          limit: 30,
+          search
         }
       });
     };
@@ -234,14 +266,26 @@ const useResources = ({
   );
 
   const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+    const additionalResourceTypeOptions = useAdditionalResources
+      ? additionalResources.map(({ resourceType, label }) => ({
+          id: resourceType,
+          name: label
+        }))
+      : [];
+
     const resourcetypesIds = pluck('resourceType', value || []);
+
+    const allResourceTypeOptions = [
+      ...resourceTypeOptions,
+      ...additionalResourceTypeOptions
+    ];
 
     const newResourceTypeOptions = reject(
       ({ id }) =>
         (!equals(id, resource.resourceType) &&
           includes(id, resourcetypesIds)) ||
         (hasRestrictedTypes && !includes(id, restrictedResourceTypes || [])),
-      resourceTypeOptions
+      allResourceTypeOptions
     );
 
     return newResourceTypeOptions;
@@ -254,7 +298,7 @@ const useResources = ({
 
     if (
       widgetProperties?.singleMetricSelection &&
-      widgetProperties?.singleHostPerMetric
+      widgetProperties?.singleResourceSelection
     ) {
       setFieldValue(`data.${propertyName}`, [
         {
@@ -290,8 +334,7 @@ const useResources = ({
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
-    singleHostPerMetric: widgetProperties?.singleHostPerMetric,
-    singleMetricSelection: widgetProperties?.singleMetricSelection,
+    singleResourceSelection: widgetProperties?.singleResourceSelection,
     value: value || []
   };
 };

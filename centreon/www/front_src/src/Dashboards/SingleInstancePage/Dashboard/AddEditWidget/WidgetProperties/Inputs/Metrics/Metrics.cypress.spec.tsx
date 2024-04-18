@@ -131,8 +131,8 @@ describe('Metrics', () => {
     initializeComponent({});
     store.set(widgetPropertiesAtom, {
       ...widgetDataProperties,
-      singleHostPerMetric: true,
-      singleMetricSelection: true
+      singleMetricSelection: true,
+      singleResourceSelection: true
     });
     cy.waitForRequest('@getServiceMetrics');
 
@@ -148,8 +148,8 @@ describe('Metrics', () => {
       initializeComponent({});
       store.set(widgetPropertiesAtom, {
         ...widgetDataProperties,
-        singleHostPerMetric: true,
-        singleMetricSelection: true
+        singleMetricSelection: true,
+        singleResourceSelection: true
       });
     });
 
@@ -223,8 +223,8 @@ describe('Metrics', () => {
     beforeEach(() => {
       store.set(widgetPropertiesAtom, {
         ...widgetDataProperties,
-        singleHostPerMetric: false,
-        singleMetricSelection: true
+        singleMetricSelection: true,
+        singleResourceSelection: false
       });
       initializeComponent({});
     });
@@ -274,8 +274,8 @@ describe('Metrics', () => {
     beforeEach(() => {
       store.set(widgetPropertiesAtom, {
         ...widgetDataProperties,
-        singleHostPerMetric: false,
-        singleMetricSelection: false
+        singleMetricSelection: false,
+        singleResourceSelection: false
       });
 
       initializeComponent({});

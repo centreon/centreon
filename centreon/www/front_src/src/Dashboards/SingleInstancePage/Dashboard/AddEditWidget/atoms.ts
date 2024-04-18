@@ -16,7 +16,7 @@ export const widgetPropertiesAtom = atom<FederatedWidgetProperties | undefined>(
 
 export const singleMetricSelectionAtom = atom<boolean | undefined>(undefined);
 
-export const singleHostPerMetricAtom = atom<boolean | undefined>(undefined);
+export const singleResourceSelectionAtom = atom<boolean | undefined>(undefined);
 
 export const customBaseColorAtom = atom<boolean | undefined>(undefined);
 
@@ -79,7 +79,7 @@ export const resourcesInputKeyDerivedAtom = atom<string | undefined>((get) => {
 
 export const widgetPropertiesMetaPropertiesDerivedAtom = atom<Pick<
   FederatedWidgetProperties,
-  'singleHostPerMetric' | 'customBaseColor' | 'singleMetricSelection'
+  'singleResourceSelection' | 'customBaseColor' | 'singleMetricSelection'
 > | null>((get) => {
   const widgetProperties = get(widgetPropertiesAtom);
 
@@ -89,7 +89,7 @@ export const widgetPropertiesMetaPropertiesDerivedAtom = atom<Pick<
 
   return {
     customBaseColor: widgetProperties.customBaseColor,
-    singleHostPerMetric: widgetProperties.singleHostPerMetric,
-    singleMetricSelection: widgetProperties.singleMetricSelection
+    singleMetricSelection: widgetProperties.singleMetricSelection,
+    singleResourceSelection: widgetProperties.singleResourceSelection
   };
 });
