@@ -20,7 +20,8 @@
 									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
 									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -29,6 +30,7 @@
 								"exec": [
 									"pm.test(\"A dashboard with name \" + pm.collectionVariables.get(\"dashboardName\") + \" and description \" + pm.collectionVariables.get(\"dashboardDescription\") + \" has successfully been created.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
+									"    console.log('toto')\r",
 									"});\r",
 									"\r",
 									"const responseJson = pm.response.json();\r",
@@ -40,7 +42,8 @@
 									"pm.collectionVariables.set(\"dashboardID\", responseJson.id);\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -72,715 +75,6 @@
 			]
 		},
 		{
-			"name": "Adding Acl",
-			"item": [
-				{
-					"name": "Add new non-admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Non-admin user added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"testUserName\", \"User-Test-7006\");\r",
-									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
-									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
-									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get contact",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Parse the JSON response\r",
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"// Search for the object with the name \"User-Test-7006\" in the \"result\" array\r",
-									"const targetUser = responseJson.result.find(user => user.name === \"User-Test-7006\");\r",
-									"\r",
-									"// Check if the object was found\r",
-									"if (targetUser) {\r",
-									"    // Retrieve the ID and store it in a global variable\r",
-									"    pm.globals.set(\"targetUserId\", targetUser.id);\r",
-									"    console.log(\"ID for User-Test-7006:\", pm.globals.get(\"targetUserId\"));\r",
-									"} else {\r",
-									"    // If no match is found, handle it accordingly (e.g., display an error message)\r",
-									"    console.error(\"User with name User-Test-7006 not found in the response.\");\r",
-									"}\r",
-									"\r",
-									"// Add a test to check if the object was found\r",
-									"pm.test(\"User with name User-Test-7006 is found in the response\", function () {\r",
-									"    pm.expect(targetUser).to.not.be.undefined;\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contact\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new contact group",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-7007\");\r",
-									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reach front end",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-7007\");\r",
-									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "   {\n        \"action\":\"SETPARAM\",\n        \"object\":\"CONTACT\",\n        \"values\":\"testUser;contact_oreon;1\"\n    }"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get contact group",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"const targetGroup = responseJson.result.find(group => group.name === \"CG-Test-API-7007\");\r",
-									"\r",
-									"if (targetGroup) {\r",
-									"    pm.globals.set(\"targetGroupId\", targetGroup.id);\r",
-									"    console.log(\"ID for CG-Test-API-7007:\", pm.globals.get(\"targetGroupId\"));\r",
-									"} else {\r",
-									"    console.error(\"Group with name CG-Test-API-7007 not found in the response.\");\r",
-									"}\r",
-									"\r",
-									"pm.test(\"A list of contact groups has been fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response has a 'result' object\", function () {\r",
-									"    pm.expect(responseJson).to.have.property('result');\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Result object has the expected properties\", function () {\r",
-									"    pm.expect(responseJson.result).to.be.an('array').that.is.not.empty;\r",
-									"    pm.expect(responseJson.result[0]).to.have.property('id');\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"cg\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Adding acl group",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"action\": \"ADD\",\n    \"object\": \"ACLGROUP\",\n    \"values\": \"name-administrator-ACLGROUP;alias-administrator-ACLGROUP\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Adding acl menu",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"action\": \"ADD\",\n    \"object\": \"ACLMENU\",\n    \"values\": \"name-administrator-ACLMENU;alias-administrator-ACLMENU\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Adding acl group to acl menu",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "    {\n        \"action\": \"ADDMENU\",\n        \"object\": \"ACLGROUP\",\n        \"values\": \"name-administrator-ACLGROUP;name-administrator-ACLMENU\"\n    }"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Grant RW acl menu",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"action\": \"GRANTRW\",\n    \"object\": \"ACLMENU\",\n    \"values\": \"name-administrator-ACLMENU;0;Home;Dashboards;Creator\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Adding contact to contact group",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"New contact group added successfully - Status code is 200 OK\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"action\": \"SETCONTACT\",\n    \"object\": \"ACLGROUP\",\n    \"values\": \"name-administrator-ACLGROUP;testUser\"\n}"
-						},
-						"url": {
-							"raw": "{{protocol}}://{{server}}:{{port}}/centreon/api/index.php?action=action&object=centreon_clapi",
-							"protocol": "{{protocol}}",
-							"host": [
-								"{{server}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"centreon",
-								"api",
-								"index.php"
-							],
-							"query": [
-								{
-									"key": "action",
-									"value": "action"
-								},
-								{
-									"key": "object",
-									"value": "centreon_clapi"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Dashboard widgets",
 			"item": [
 				{
@@ -792,7 +86,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -803,7 +98,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -812,7 +108,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"panels\":[\r\n       {\r\n          \"id\":null,\r\n          \"layout\":{\r\n             \"height\":3,\r\n             \"min_height\":3,\r\n             \"min_width\":3,\r\n             \"width\":12,\r\n             \"x\":0,\r\n             \"y\":0\r\n          },\r\n          \"name\":\"centreon-widget-statusgrid\",\r\n          \"widget_settings\":{\r\n             \"data\":{\r\n                \"resources\":[\r\n                   {\r\n                      \"resourceType\":\"host-group\",\r\n                      \"resources\":[\r\n                         {\r\n                            \"id\":53,\r\n                            \"name\":\"Linux-Servers\"\r\n                         }\r\n                      ]\r\n                   }\r\n                ]\r\n             },\r\n             \"options\":{\r\n                \"resourceType\":\"host\",\r\n                \"statuses\":[\r\n                   \"up\",\r\n                   \"down\"\r\n                ],\r\n                \"states\":[\r\n                ],\r\n                \"sortBy\":\"status_severity_code\",\r\n                \"tiles\":100,\r\n                \"refreshInterval\":\"default\",\r\n                \"description\":{\r\n                   \"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Descirption for status grid\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                   \"enabled\":true\r\n                },\r\n                \"name\":\"Title For status grid\",\r\n                \"openLinksInNewTab\":true\r\n             }\r\n          },\r\n          \"widget_type\":\"/widgets/statusgrid\"\r\n       }\r\n    ]\r\n }",
+							"raw": "{\r\n    \"panels\":[\r\n       {\r\n          \"id\":null,\r\n          \"layout\":{\r\n             \"height\":3,\r\n             \"min_height\":3,\r\n             \"min_width\":3,\r\n             \"width\":12,\r\n             \"x\":0,\r\n             \"y\":0\r\n          },\r\n          \"name\":\"centreon-widget-statusgrid\",\r\n          \"widget_settings\":{\r\n             \"data\":{\r\n                \"resources\":[\r\n                   {\r\n                      \"resourceType\":\"host-group\",\r\n                      \"resources\":[\r\n                         {\r\n                            \"id\":53,\r\n                            \"name\":\"Linux-Servers\"\r\n                         }\r\n                      ]\r\n                   }\r\n                ]\r\n             },\r\n             \"options\":{\r\n                \"resourceType\":\"host\",\r\n                \"statuses\":[\r\n                   \"up\",\r\n                   \"down\"\r\n                ],\r\n                \"states\":[\r\n                ],\r\n                \"sortBy\":\"status_severity_code\",\r\n                \"tiles\":100,\r\n                \"refreshInterval\":\"default\",\r\n                \"description\":{\r\n                   \"content\":\"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Description for status grid\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                   \"enabled\":true\r\n                },\r\n                \"name\":\"Title For status grid\",\r\n                \"openLinksInNewTab\":true\r\n             }\r\n          },\r\n          \"widget_type\":\"/widgets/statusgrid\"\r\n       }\r\n    ]\r\n }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -840,10 +136,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -878,7 +174,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -918,10 +215,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -932,7 +229,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -969,10 +267,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1010,7 +308,8 @@
 									"    pm.response.to.have.jsonBody(\"panels[0].widget_settings.data.metrics[0].name\", \"pl\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1050,10 +349,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1064,7 +363,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1101,10 +401,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1140,7 +440,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1180,10 +481,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1194,7 +495,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1260,17 +562,18 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1310,10 +613,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1324,7 +627,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1361,10 +665,10 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"dashboardName\", \"Dashboard-Test-API-1002\");\r",
-									"pm.collectionVariables.set(\"dashboardDescription\", \"Dashboard Description for API Test 1002\")"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1400,7 +704,404 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding resource table widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a resource table widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"panels\": [\r\n        {\r\n            \"id\": null,\r\n            \"layout\": {\r\n                \"height\": 3,\r\n                \"min_height\": 3,\r\n                \"min_width\": 6,\r\n                \"width\": 6,\r\n                \"x\": 0,\r\n                \"y\": 0\r\n            },\r\n            \"name\": \"centreon-widget-resourcestable\",\r\n            \"widget_settings\": {\r\n                \"data\": {\r\n                    \"resources\": [\r\n                        {\r\n                            \"resourceType\": \"host-group\",\r\n                            \"resources\": [\r\n                                {\r\n                                    \"id\": 53,\r\n                                    \"name\": \"Linux-Servers\"\r\n                                }\r\n                            ]\r\n                        }\r\n                    ]\r\n                },\r\n                \"options\": {\r\n                    \"displayType\": \"all\",\r\n                    \"statuses\": [],\r\n                    \"states\": [\r\n                        \"unhandled_problems\"\r\n                    ],\r\n                    \"refreshInterval\": \"default\",\r\n                    \"description\": {\r\n                        \"content\": \"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":1,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Description\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1},{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\" for resource table widget\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                        \"enabled\": true\r\n                    },\r\n                    \"name\": \"Resource table widget\",\r\n                    \"openLinksInNewTab\": true\r\n                }\r\n            },\r\n            \"widget_type\": \"/widgets/resourcestable\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with resource table  widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-resourcestable\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding group monitoring  widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a group monitoring widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"panels\": [\r\n        {\r\n            \"id\": null,\r\n            \"layout\": {\r\n                \"height\": 3,\r\n                \"min_height\": 3,\r\n                \"min_width\": 6,\r\n                \"width\": 6,\r\n                \"x\": 0,\r\n                \"y\": 0\r\n            },\r\n            \"name\": \"centreon-widget-groupmonitoring\",\r\n            \"widget_settings\": {\r\n                \"data\": {\r\n                    \"resources\": [\r\n                        {\r\n                            \"resourceType\": \"host-group\",\r\n                            \"resources\": [\r\n                                {\r\n                                    \"id\": 53,\r\n                                    \"name\": \"Linux-Servers\"\r\n                                }\r\n                            ]\r\n                        }\r\n                    ]\r\n                },\r\n                \"options\": {\r\n                    \"resourceTypes\": [\r\n                        \"host\",\r\n                        \"service\"\r\n                    ],\r\n                    \"statuses\": [\r\n                        \"1\",\r\n                        \"2\"\r\n                    ],\r\n                    \"refreshInterval\": \"default\",\r\n                    \"description\": {\r\n                        \"content\": \"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Description for group monitoring widget\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                        \"enabled\": true\r\n                    },\r\n                    \"name\": \"Group Monitoring widget\",\r\n                    \"openLinksInNewTab\": true,\r\n                    \"limit\": 10,\r\n                    \"page\": 0\r\n                }\r\n            },\r\n            \"widget_type\": \"/widgets/groupmonitoring\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with group monitoring  widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-groupmonitoring\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adding status chart widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The PATCH request successfully adds a status chart widget with a 204 No Content response\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"panels\": [\r\n        {\r\n            \"id\": null,\r\n            \"layout\": {\r\n                \"height\": 5,\r\n                \"min_height\": 5,\r\n                \"min_width\": 6,\r\n                \"width\": 6,\r\n                \"x\": 0,\r\n                \"y\": 0\r\n            },\r\n            \"name\": \"centreon-widget-statuschart\",\r\n            \"widget_settings\": {\r\n                \"data\": {\r\n                    \"resources\": [\r\n                        {\r\n                            \"resourceType\": \"host-group\",\r\n                            \"resources\": [\r\n                                {\r\n                                    \"id\": 53,\r\n                                    \"name\": \"Linux-Servers\"\r\n                                }\r\n                            ]\r\n                        }\r\n                    ]\r\n                },\r\n                \"options\": {\r\n                    \"displayType\": \"donut\",\r\n                    \"resourceTypes\": [\r\n                        \"host\",\r\n                        \"service\"\r\n                    ],\r\n                    \"unit\": \"percentage\",\r\n                    \"displayValues\": true,\r\n                    \"displayLegend\": true,\r\n                    \"refreshInterval\": \"default\",\r\n                    \"description\": {\r\n                        \"content\": \"{\\\"root\\\":{\\\"children\\\":[{\\\"children\\\":[{\\\"detail\\\":0,\\\"format\\\":1,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\"Description\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1},{\\\"detail\\\":0,\\\"format\\\":0,\\\"mode\\\":\\\"normal\\\",\\\"style\\\":\\\"\\\",\\\"text\\\":\\\" for status chart\\\",\\\"type\\\":\\\"text\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"paragraph\\\",\\\"version\\\":1}],\\\"direction\\\":\\\"ltr\\\",\\\"format\\\":\\\"\\\",\\\"indent\\\":0,\\\"type\\\":\\\"root\\\",\\\"version\\\":1}}\",\r\n                        \"enabled\": true\r\n                    },\r\n                    \"name\": \"Status chart\",\r\n                    \"openLinksInNewTab\": true\r\n                }\r\n            },\r\n            \"widget_type\": \"/widgets/statuschart\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/dashboards/{{dashboardID}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"dashboards",
+								"{{dashboardID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Getting dashboard with status chart  widget",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dashboard successfully retrieved - Response status is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected structure\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"id\");\r",
+									"    pm.response.to.have.jsonBody(\"name\");\r",
+									"    pm.response.to.have.jsonBody(\"description\");\r",
+									"    pm.response.to.have.jsonBody(\"created_by\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_by\");\r",
+									"    pm.response.to.have.jsonBody(\"created_at\");\r",
+									"    pm.response.to.have.jsonBody(\"updated_at\");\r",
+									"    pm.response.to.have.jsonBody(\"panels\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\");\r",
+									"    pm.response.to.have.jsonBody(\"refresh\");\r",
+									"    pm.response.to.have.jsonBody(\"shares\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has the expected values\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"name\", \"Dashboard-Test-API-1002\");\r",
+									"    pm.response.to.have.jsonBody(\"own_role\", \"editor\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response panels are as expected\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"panels[0].name\", \"centreon-widget-statuschart\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
