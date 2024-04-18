@@ -1578,12 +1578,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContact.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroups.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroup.yaml'
   /configuration/dashboards/contacts:

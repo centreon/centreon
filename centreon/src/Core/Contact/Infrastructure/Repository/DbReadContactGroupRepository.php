@@ -74,6 +74,37 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         return (bool) $statement->fetchColumn();
     }
 
+    public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool
+    {
+        $bind = [];
+        foreach ($accessGroupIds as $key => $accessGroupId) {
+            $bind[':access_group_' . $key] = $accessGroupId;
+        }
+        if ([] === $bind) {
+            return false;
+        }
+
+        $accessGroupIdsAsString = implode(',', array_keys($bind));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.contactgroup cg
+                     INNER JOIN `:db`.acl_group_contactgroups_relations gcgr
+                               ON cg.cg_id = gcgr.cg_cg_id
+                WHERE cg.cg_id = :contactGroupId
+                    AND gcgr.acl_group_id IN ({$accessGroupIdsAsString})
+                SQL
+        ));
+        $statement->bindValue(':contactGroupId', $contactGroupId,\PDO::PARAM_INT);
+        foreach ($bind as $token => $accessGroupId) {
+            $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
     /**
      * @inheritDoc
      */
