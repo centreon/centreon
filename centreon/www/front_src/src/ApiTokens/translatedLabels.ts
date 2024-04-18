@@ -24,6 +24,8 @@ export const labelSecurityToken =
 export const labelCreator = 'Creator';
 export const labelMsgConfirmationDeletionToken =
   'You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?';
+export const labelMsgConfirmationDeletionTokens =
+  'This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?';
 export const labelDeleteToken = 'Delete token';
 export const labelTokenDeletedSuccessfully = 'Token deleted successfully';
 export const labelActiveToken = 'Active tokens';

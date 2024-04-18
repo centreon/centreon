@@ -17553,3 +17553,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Group monitoring"
 #  msgstr ""
+
+# msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
+# msgstr ""

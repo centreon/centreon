@@ -18907,3 +18907,6 @@ msgstr "Affiche la répartition des statuts actuels pour les groupes de ressourc
 
 msgid "Group monitoring"
 msgstr "Group monitoring"
+
+msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
+msgstr "Cette action est irréversible. Si vous les supprimez, toutes les requêtes effectuées avec ces jeton seront rejetées. Voulez-vous supprimer ces jetons?"

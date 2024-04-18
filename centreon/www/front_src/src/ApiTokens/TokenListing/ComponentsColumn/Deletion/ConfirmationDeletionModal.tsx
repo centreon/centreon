@@ -2,12 +2,7 @@ import { ReactNode, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import {
-  ConfirmDialog,
-  Method,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { ConfirmDialog, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { Meta } from '../../../api/models';
 import {
@@ -19,16 +14,11 @@ import useRefetch from '../../../useRefetch';
 
 import Title from './Title';
 import { useStyles } from './deletion.styles';
-
-interface DataMutation {
-  _meta?: Meta;
-  payload?: Array<{ token_name: string; user_id: number }>;
-}
+import { DataApi } from './models';
 
 interface Props {
   close: () => void;
-  dataMutation?: DataMutation;
-  getEndpoint: (data: Meta) => string;
+  dataApi: DataApi;
   labelDeletedSuccessfully?: string;
   msg?: ReactNode;
   title?: string;
@@ -36,8 +26,7 @@ interface Props {
 
 const ConfirmationDeletionModal = ({
   close,
-  getEndpoint,
-  dataMutation,
+  dataApi,
   labelDeletedSuccessfully = labelTokenDeletedSuccessfully,
   title,
   msg
@@ -45,22 +34,25 @@ const ConfirmationDeletionModal = ({
   const { classes } = useStyles();
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
-  const [isRetrievingData, setIsRetrievingData] = useState(false);
+  const [isDataRetrieved, setIDataRetrieved] = useState(false);
   const { isRefetching } = useRefetch({
-    key: isRetrievingData,
+    key: isDataRetrieved,
     onSuccess: () => close()
   });
+  const { getEndpoint, dataMutation, method, decoder } = dataApi;
 
   const { _meta, payload } = dataMutation || {};
 
   const success = (): void => {
     showSuccessMessage(t(labelDeletedSuccessfully));
-    setIsRetrievingData(true);
+    setIDataRetrieved(true);
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
+    baseEndpoint: 'http://localhost:3000/centreon/api/latest',
+    decoder,
     getEndpoint,
-    method: Method.DELETE,
+    method,
     onSuccess: success
   });
 

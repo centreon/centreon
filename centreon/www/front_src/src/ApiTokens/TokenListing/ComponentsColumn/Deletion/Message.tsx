@@ -1,29 +1,17 @@
-import DOMPurify from 'dompurify';
-import parse from 'html-react-parser';
-import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
+import { ReactNode } from 'react';
 
 import { Typography } from '@mui/material';
 
-import { labelMsgConfirmationDeletionToken } from '../../../translatedLabels';
-import { clickedRowAtom } from '../../atoms';
-
 import { useStyles } from './deletion.styles';
 
-const Message = (): JSX.Element => {
-  const { classes } = useStyles();
-  const { t } = useTranslation();
-  const clickedRow = useAtomValue(clickedRowAtom);
+interface Props {
+  body: ReactNode;
+}
 
-  return (
-    <Typography className={classes.labelMessage}>
-      {parse(
-        DOMPurify.sanitize(
-          t(labelMsgConfirmationDeletionToken, { tokenName: clickedRow?.name })
-        )
-      )}
-    </Typography>
-  );
+const Message = ({ body }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
+  return <Typography className={classes.labelMessage}>{body}</Typography>;
 };
 
 export default Message;

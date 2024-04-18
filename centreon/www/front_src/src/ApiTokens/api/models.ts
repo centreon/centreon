@@ -10,3 +10,9 @@ export interface Meta {
   tokenName: string;
   userId: number;
 }
+
+export interface DeletedToken {
+  message: string | null;
+  self: string;
+  status: number;
+}
