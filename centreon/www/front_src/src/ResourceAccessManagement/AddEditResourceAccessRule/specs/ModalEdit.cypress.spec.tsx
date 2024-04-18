@@ -28,10 +28,15 @@ import {
   labelAllResourcesSelected,
   labelSelectResource,
   labelAddFilter,
-  labelAddNewDataset
+  labelAddNewDataset,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected
 } from '../../translatedLabels';
 
-import { findResourceAccessRuleResponse } from './testUtils';
+import {
+  editedRuleFormData,
+  findResourceAccessRuleResponse
+} from './testUtils';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
@@ -202,6 +207,32 @@ describe('Edit modal', () => {
     cy.findByLabelText(labelSave).click();
 
     cy.waitForRequest('@editResourceAccessRuleRequest');
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when a configured resources are changed to All host groups in datasets', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(editedRuleFormData);
+    });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
 

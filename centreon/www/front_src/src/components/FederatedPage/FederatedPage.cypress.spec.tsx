@@ -2,7 +2,7 @@ import { createStore, Provider } from 'jotai';
 // eslint-disable-next-line import/no-unresolved
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 
-import { federatedModulesAtom } from '../../federatedModules/atoms';
+import { federatedModulesAtom } from '@centreon/ui-context';
 
 import FederatedPage from './FederatedPage';
 

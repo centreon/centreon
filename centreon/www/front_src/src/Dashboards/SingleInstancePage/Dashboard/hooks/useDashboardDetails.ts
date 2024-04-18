@@ -5,6 +5,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import {
   dashboardsEndpoint,
@@ -16,7 +17,6 @@ import {
   publicDashboardDecoder
 } from '../../../api/decoders';
 import { FederatedModule } from '../../../../federatedModules/models';
-import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 import { useDashboardUserPermissions } from '../../../components/DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
 import { Panel, PanelConfiguration } from '../models';
 import {

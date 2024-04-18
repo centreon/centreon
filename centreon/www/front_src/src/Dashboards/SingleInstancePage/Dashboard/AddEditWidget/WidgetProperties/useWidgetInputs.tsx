@@ -13,7 +13,7 @@ import {
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -74,7 +74,7 @@ export const useWidgetInputs = (
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
@@ -135,7 +135,7 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])

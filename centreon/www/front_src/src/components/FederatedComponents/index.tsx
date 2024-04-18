@@ -13,11 +13,11 @@ import {
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
-
 import {
   federatedModulesAtom,
   federatedWidgetsAtom
-} from '../../federatedModules/atoms';
+} from '@centreon/ui-context';
+
 import { Remote } from '../../federatedModules/Load';
 import {
   FederatedComponentsConfiguration,

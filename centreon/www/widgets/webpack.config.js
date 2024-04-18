@@ -12,7 +12,9 @@ module.exports = ({ widgetName }) => {
   const baseOutputPath = path.resolve(`${__dirname}/src/${widgetName}/static`);
   const module = frontendModulePatch({
     assetPublicPath: `./src/${widgetName}/static/`,
-    federatedComponentConfiguration: require(`./src/${widgetName}/moduleFederation.json`),
+    federatedComponentConfiguration: require(
+      `./src/${widgetName}/moduleFederation.json`
+    ),
     outputPath: baseOutputPath
   });
 

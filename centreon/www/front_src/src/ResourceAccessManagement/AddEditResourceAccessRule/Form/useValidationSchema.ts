@@ -1,9 +1,10 @@
-import { isEmpty } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import {
   array,
   ArraySchema,
   AnySchema,
+  boolean,
   object,
   ObjectSchema,
   ObjectShape,
@@ -54,14 +55,26 @@ const useValidationSchema = (): UseValidationSchemaState => {
     array(
       array(
         object({
+          allOfResourceType: boolean(),
           resourceType: string().matches(
             /(host|service)(group|_category)?|meta_service|all/
           ),
-          resources: array().when(['resourceType'], {
-            is: 'all',
-            otherwise: () => array().min(1),
-            then: () => array().min(0)
-          })
+          resources: array().when(
+            ['allOfResourceType', 'resourceType'],
+            ([allOfResourceType, resourceType], schema) => {
+              const typesForAllOf = ['host', 'hostgroup', 'servicegroup'];
+
+              if (equals('all', resourceType)) {
+                return schema.min(0);
+              }
+
+              if (typesForAllOf.includes(resourceType) && allOfResourceType) {
+                return schema.min(0);
+              }
+
+              return schema.min(1);
+            }
+          )
         })
       ).min(1)
     ).min(1);

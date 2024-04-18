@@ -79,13 +79,18 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
             ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
             : null;
 
-        $forCloud = filter_var(
-            $this->arguments['for_cloud'] ?? false,
+        $useResourceAccessManagement = filter_var(
+            $this->arguments['use_ram'] ?? false,
             FILTER_VALIDATE_BOOL
         );
 
         $allHostGroupsFilter = filter_var(
             $this->arguments['all_hostgroups_filter'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
+        $allServiceGroupsFilter = filter_var(
+            $this->arguments['all_servicegroups_filter'] ?? false,
             FILTER_VALIDATE_BOOL
         );
 
@@ -114,19 +119,19 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
                 FROM acl_groups ag
             SQL;
 
-        if ($allHostGroupsFilter && ! $isUserAdmin) {
-            $query .= <<<'SQL'
-                    INNER JOIN acl_res_group_relations argr
-                        ON argr.acl_group_id = ag.acl_group_id
-                    INNER JOIN acl_resources ar
-                        ON ar.acl_res_id = argr.acl_res_id
-                SQL;
-        }
+        $query .= ! $isUserAdmin
+            ? <<<'SQL'
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_group_id = ag.acl_group_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
+            SQL
+            : '';
 
         $whereCondition = '';
 
         // In cloud environment we only want to return ACL defines through Resource Access Management page
-        if ($forCloud === true) {
+        if ($useResourceAccessManagement === true) {
             $whereCondition = ' WHERE ag.cloud_specific = 1';
         }
 
@@ -141,6 +146,12 @@ class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
         if ($allHostGroupsFilter && ! $isUserAdmin) {
             $query .= <<<'SQL'
                     HAVING SUM(CASE ar.all_hostgroups WHEN '1' THEN 1 ELSE 0 END) = 0
+                SQL;
+        }
+
+        if ($allServiceGroupsFilter && ! $isUserAdmin) {
+            $query .= <<<'SQL'
+                    HAVING SUM(CASE ar.all_servicegroups WHEN '1' THEN 1 ELSE 0 END) = 0
                 SQL;
         }
 

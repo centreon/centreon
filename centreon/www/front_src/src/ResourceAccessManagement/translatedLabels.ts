@@ -70,3 +70,9 @@ export const labelEnterNameForDuplicatedRule =
   'Please enter a name for the duplicated resource access rule';
 export const labelAllResources = 'All resources';
 export const labelAllResourcesSelected = 'All resources selected';
+export const labelAllHostsSelected = 'All hosts selected';
+export const labelAllHostGroupsSelected = 'All host groups selected';
+export const labelAllServiceGroupsSelected = 'All service groups selected';
+export const labelAllHosts = 'All hosts';
+export const labelAllHostGroups = 'All host groups';
+export const labelAllServiceGroups = 'All service groups';

@@ -446,9 +446,7 @@ function insertHostGroupInDB(bool $isCloudPlatform, array $submittedValues = [])
 {
     global $centreon, $form;
 
-    if ($submittedValues === []) {
-        $submittedValues = $form->getSubmitValues();
-    }
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
     $hostGroupId = insertHostGroup($submittedValues, $isCloudPlatform);
     updateHostGroupHosts($hostGroupId, $submittedValues);
@@ -771,9 +769,7 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
 
     $bindValues = [];
 
-    if ($submittedValues === []) {
-        $submittedValues = $form->getSubmitValues();
-    }
+    $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
     if (isset($submittedValues['hg_name'])) {
         $request .= ' hg_name = :name';
