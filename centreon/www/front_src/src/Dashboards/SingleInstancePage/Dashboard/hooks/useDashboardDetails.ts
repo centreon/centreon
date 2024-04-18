@@ -8,7 +8,7 @@ import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 
 import {
   dashboardsEndpoint,
-  publicDashboardEndpoint
+  getPublicDashboardEndpoint
 } from '../../../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../../../api/models';
 import {
@@ -95,7 +95,7 @@ const useDashboardDetails = ({
   const decoder = isOnPublicPage ? publicDashboardDecoder : dashboardDecoder;
   const endpoint =
     isOnPublicPage && playlistHash
-      ? publicDashboardEndpoint({ dashboardId, playlistID: playlistHash })
+      ? getPublicDashboardEndpoint({ dashboardId, playlistID: playlistHash })
       : `${dashboardsEndpoint}/${dashboardId}`;
 
   const { data: dashboard } = useFetchQuery({
@@ -103,7 +103,7 @@ const useDashboardDetails = ({
     getEndpoint: () => endpoint,
     getQueryKey: () => [resource.dashboard, dashboardId],
     queryOptions: {
-      enabled: !!dashboardId
+      enabled: !!(playlistHash || dashboardId)
     }
   });
 

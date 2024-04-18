@@ -12,8 +12,12 @@ import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generi
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { getDashboardEndpoint } from '../../api/endpoints';
+import {
+  getDashboardEndpoint,
+  getPublicDashboardEndpoint
+} from '../../api/endpoints';
 
 import DashboardLayout from './DashboardLayout';
 import { labelEditDashboard } from './translatedLabels';
@@ -50,8 +54,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   return store;
 };
 
-const initialize = (): void => {
+const initialize = (isPublic = false): void => {
   const store = initializeWidgets();
+
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
     cy.interceptAPIRequest({
@@ -63,6 +69,13 @@ const initialize = (): void => {
         own_role: 'viewer'
       }
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicDashboardDetails',
+      method: Method.GET,
+      path: `./api/latest${getPublicDashboardEndpoint({ dashboardId: '1', playlistID: 'hash' })}`,
+      response: dashboardDetails
+    });
   });
 
   cy.mount({
@@ -70,7 +83,10 @@ const initialize = (): void => {
       <BrowserRouter>
         <TestQueryProvider>
           <Provider store={store}>
-            <DashboardLayout displayedDashboardId={1} />
+            <DashboardLayout
+              displayedDashboardId={1}
+              playlistHash={isPublic ? 'hash' : undefined}
+            />
           </Provider>
         </TestQueryProvider>
       </BrowserRouter>
@@ -79,11 +95,9 @@ const initialize = (): void => {
 };
 
 describe('DashboardLayout', () => {
-  beforeEach(() => {
-    initialize();
-  });
-
   it('displays the dashboard from a standalone component', () => {
+    initialize();
+
     cy.waitForRequest('@getDashboardDetails');
 
     cy.contains(labelEditDashboard).should('not.exist');
@@ -92,5 +106,10 @@ describe('DashboardLayout', () => {
     cy.contains('Generic text').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('sends a request to the public API when the dashboard is displayed in a public page', () => {
+    initialize(true);
+    cy.waitForRequest('@getPublicDashboardDetails');
   });
 });
