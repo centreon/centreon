@@ -15,15 +15,11 @@ import {
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
-import {
-  findContactGroupsEndpoint,
-  findContactsEndpoint
-} from '../api/endpoints';
 
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ResourceSelection from './components/ResourceSelection';
-import ContactsSelector from './components/ContactsSelector';
+import MultiConnectedAutocomplete from './components/MultiConnectedAutocomplete';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -166,7 +162,9 @@ const useFormInputs = (): UseFormInputsState => {
                       },
                       {
                         custom: {
-                          Component: () => <ContactsSelector />
+                          Component: () => (
+                            <MultiConnectedAutocomplete type="contacts" />
+                          )
                         },
                         dataTestId: t(labelContacts),
                         disableSortedOptions: true,
@@ -176,16 +174,17 @@ const useFormInputs = (): UseFormInputsState => {
                         type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactGroupsEndpoint
+                        custom: {
+                          Component: () => (
+                            <MultiConnectedAutocomplete type="contactGroups" />
+                          )
                         },
                         dataTestId: t(labelContactGroups),
                         disableSortedOptions: true,
                         fieldName: 'contactGroups',
                         label: t(labelContactGroups),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       }
                     ]
                   },

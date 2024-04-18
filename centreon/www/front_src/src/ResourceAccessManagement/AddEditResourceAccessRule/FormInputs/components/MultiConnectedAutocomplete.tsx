@@ -4,26 +4,28 @@ import { Checkbox, FormControlLabel } from '@mui/material';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
 
-import {
-  labelAllContacts,
-  labelAllContactsSelected,
-  labelContacts
-} from '../../../translatedLabels';
-import { useContactsSelectorStyles } from '../styles/ContactsSelector.styles';
-import useContactsSelector from '../hooks/useContactsSelector';
+import useMultiConnectedAutocomplete from '../hooks/useMultiConnectedAutocomplete';
+import { useMultiSelectedAutocompleteStyles } from '../styles/MultiSelectedAutocomplete.styles';
 
-const ContactsSelector = (): React.JSX.Element => {
+interface Props {
+  type: string;
+}
+
+const MultiConnectedAutocomplete = ({ type }: Props): React.JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useContactsSelectorStyles();
+  const { classes } = useMultiSelectedAutocompleteStyles();
 
   const {
     checked,
-    contacts,
-    deleteContactItem,
+    deleteItem,
     getEndpoint,
+    label,
+    labelAll,
+    labelAllSelected,
     onCheckboxChange,
-    onMultiselectChange
-  } = useContactsSelector();
+    onMultiselectChange,
+    value
+  } = useMultiConnectedAutocomplete(type);
 
   return (
     <div className={classes.container}>
@@ -31,16 +33,16 @@ const ContactsSelector = (): React.JSX.Element => {
         allowUniqOption
         chipProps={{
           color: 'primary',
-          onDelete: (_, option): void => deleteContactItem({ contacts, option })
+          onDelete: (_, option): void => deleteItem({ option, value })
         }}
         className={classes.selector}
-        dataTestId={labelContacts}
+        dataTestId={label}
         disabled={checked}
-        field="name"
+        field="alias"
         getEndpoint={getEndpoint}
-        label={checked ? t(labelAllContactsSelected) : t(labelContacts)}
+        label={checked ? t(labelAllSelected) : t(label)}
         limitTags={5}
-        value={contacts}
+        value={value}
         onChange={onMultiselectChange()}
       />
       <FormControlLabel
@@ -53,10 +55,10 @@ const ContactsSelector = (): React.JSX.Element => {
             onChange={onCheckboxChange}
           />
         }
-        label={t(labelAllContacts)}
+        label={t(labelAll)}
       />
     </div>
   );
 };
 
-export default ContactsSelector;
+export default MultiConnectedAutocomplete;

@@ -56,6 +56,8 @@ export type DatasetFilter = {
 };
 
 export type GetResourceAccessRule = ResourceAccessRuleType & {
+  allContactGroups: boolean;
+  allContacts: boolean;
   contactGroups: Array<NamedEntity>;
   contacts: Array<NamedEntity>;
   datasetFilters: Array<DatasetFilter>;

@@ -78,3 +78,5 @@ export const labelAllHostGroups = 'All host groups';
 export const labelAllServiceGroups = 'All service groups';
 export const labelAllContacts = 'All contacts';
 export const labelAllContactsSelected = 'All contacts selected';
+export const labelAllContactGroups = 'All contact groups';
+export const labelAllContactGroupsSelected = 'All contact groups selected';
