@@ -10,7 +10,8 @@ export const useMultiSelectedAutocompleteStyles = makeStyles()((theme) => ({
     justifyContent: 'space-evenly'
   },
   label: {
-    marginLeft: theme.spacing(-0.25)
+    marginLeft: theme.spacing(-0.25),
+    marginTop: theme.spacing(0.5)
   },
   selector: {
     width: '100%'
