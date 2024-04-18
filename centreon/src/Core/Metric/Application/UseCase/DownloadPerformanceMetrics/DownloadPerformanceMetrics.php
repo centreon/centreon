@@ -54,9 +54,9 @@ final class DownloadPerformanceMetrics
         readonly private ReadIndexDataRepositoryInterface $indexDataRepository,
         readonly private ReadMetricRepositoryInterface $metricRepository,
         readonly private ReadPerformanceDataRepositoryInterface $performanceDataRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ReadServiceRepositoryInterface $readServiceRepository,
-        private readonly ContactInterface $user,
+        readonly private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        readonly private ReadServiceRepositoryInterface $readServiceRepository,
+        readonly private ContactInterface $user,
     ) {
     }
 
