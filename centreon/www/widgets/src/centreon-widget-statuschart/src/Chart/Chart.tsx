@@ -29,7 +29,10 @@ const Chart = ({
   resources,
   getLinkToResourceStatusPage,
   isHorizontalBar,
-  isSingleChart
+  isSingleChart,
+  id,
+  playlistHash,
+  dashboardId
 }: ChartType): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
@@ -39,6 +42,9 @@ const Chart = ({
     equals(displayType, DisplayType.Donut);
 
   const { data, isLoading } = useLoadResources({
+    dashboardId,
+    id,
+    playlistHash,
     refreshCount,
     refreshIntervalToUse,
     resourceType,

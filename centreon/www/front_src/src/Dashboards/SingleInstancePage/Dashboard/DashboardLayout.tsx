@@ -30,8 +30,10 @@ const DashboardLayout = ({
     <PanelsLayout
       isStatic
       canEdit={false}
+      dashboardId={displayedDashboardId}
       displayMoreActions={false}
       panels={dashboard.layout}
+      playlistHash={playlistHash}
     />
   );
 };

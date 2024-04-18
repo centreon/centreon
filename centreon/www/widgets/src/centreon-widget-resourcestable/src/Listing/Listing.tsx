@@ -4,14 +4,19 @@ import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
-import { Resource, SortOrder } from '../../../models';
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { PanelOptions } from '../models';
 
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
 import { defaultSelectedColumnIds } from './Columns';
 import { DisplayType } from './models';
 
-interface ListingProps {
+interface ListingProps
+  extends Pick<
+    CommonWidgetProps<PanelOptions>,
+    'dashboardId' | 'id' | 'playlistHash'
+  > {
   changeViewMode?: (displayType) => void;
   displayType: DisplayType;
   isFromPreview?: boolean;
@@ -40,7 +45,10 @@ const Listing = ({
   sortField,
   sortOrder,
   changeViewMode,
-  isFromPreview
+  isFromPreview,
+  playlistHash,
+  dashboardId,
+  id
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -60,6 +68,9 @@ const Listing = ({
     displayType,
     isFromPreview,
     limit,
+    dashboardId,
+    playlistHash,
+    id,
     refreshCount,
     refreshIntervalToUse,
     resources,

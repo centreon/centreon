@@ -275,3 +275,37 @@ export const severityStatusBySeverityCode = {
   [SeverityCode.None]: SeverityStatus.Undefined,
   [SeverityCode.Pending]: SeverityStatus.Pending
 };
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId
+}: GetPublicWidgetEndpointProps): string =>
+  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint
+}: GetPublicWidgetEndpointProps & {
+  defaultEndpoint: string;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
+};

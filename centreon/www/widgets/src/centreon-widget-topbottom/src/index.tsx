@@ -22,14 +22,20 @@ const Widget = ({
   panelData,
   panelOptions,
   refreshCount,
-  isFromPreview
+  isFromPreview,
+  id,
+  dashboardId,
+  playlistHash
 }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
       <TopBottom
+        dashboardId={dashboardId}
         globalRefreshInterval={globalRefreshInterval}
+        id={id}
         isFromPreview={isFromPreview}
         metrics={panelData.metrics}
+        playlistHash={playlistHash}
         refreshCount={refreshCount}
         refreshInterval={panelOptions.refreshInterval}
         refreshIntervalCustom={panelOptions.refreshIntervalCustom}
