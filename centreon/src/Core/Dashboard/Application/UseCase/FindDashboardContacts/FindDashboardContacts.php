@@ -68,7 +68,7 @@ final class FindDashboardContacts
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->contact->isAdmin()
+                $users = $this->rights->hasAdminRole()
                     ? $this->findContactAsAdmin()
                     : $this->findContactsAsNonAdmin();
                 $presenter->presentResponse($this->createResponse($users));
