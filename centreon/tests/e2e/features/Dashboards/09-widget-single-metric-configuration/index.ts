@@ -251,10 +251,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.get('[class*="MuiTypography-h5"]')
-      .invoke('show')
-      .eq(3)
-      .should('contain', metrics.customValues.warning);
+    cy.contains(metrics.customValues.warning).should('be.visible');
   }
 );
 
@@ -274,10 +271,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.get('[class*="MuiTypography-h5"]')
-      .invoke('show')
-      .eq(4)
-      .should('contain', metrics.customValues.critical);
+    cy.contains(metrics.customValues.critical).should('be.visible');
   }
 );
 

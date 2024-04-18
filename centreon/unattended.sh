@@ -285,40 +285,34 @@ function get_os_information() {
 	case "${OS_NAME}" in
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			mysql_service_name="mysqld"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
 			mysql_service_name="mysqld"
 			;;
 		Debian*)
-			detected_os_release="debian-release-${OS_VERSIONID}"
-			mysql_service_name="mysql"
 			case "${OS_VERSIONID}" in
-				11*)
-					detected_mariadb_version="mariadb-10.5"
-					;;
-				12*)
-					detected_mariadb_version="mariadb-10.11"
+				11*|12*)
+					detected_os_release="debian-release-${OS_VERSIONID}"
+					mysql_service_name="mysql"
 					;;
 				*)
-					log "ERROR" "Unsupported Debian distribution ${OS_VERSIONID} detected"
+					error_and_exit "Unsupported Debian distribution ${OS_VERSIONID} detected"
 					;;
 			esac
 			;;
 		Oracle*)
 			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			mysql_service_name="mysqld"
 			;;
 		"Red Hat"*)
 			detected_os_release="redhat-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			mysql_service_name="mysqld"
 			;;
 		Rocky*)
 			detected_os_release="rocky-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			mysql_service_name="mysqld"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
@@ -371,15 +365,25 @@ function set_centreon_repos() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
+
+	case $version in
+	"24.04")
+		detected_mariadb_version="10.11"
+	;;
+	*)
+		detected_mariadb_version="10.5"
+	;;
+	esac
+
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version"
 	else
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="$detected_mariadb_version"
 	fi
 	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install the repository"
+		error_and_exit "Could not install the $dbms repository"
 	else
-		log "INFO" "Successfully installed MariaDB repository"
+		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
@@ -400,6 +404,11 @@ function setup_mysql() {
 		$PKG_MGR install -y mysql-server mysql-common
 	else
 		$PKG_MGR install -y mysql-server mysql
+	fi
+	if [ $? -ne 0 ]; then
+		error_and_exit "Could not install the $dbms repository"
+	else
+		log "INFO" "Successfully installed the $dbms repository"
 	fi
 	systemctl enable --now $mysql_service_name
 	echo "default-authentication-plugin=mysql_native_password" >> /etc/my.cnf.d/mysql-server.cnf
@@ -832,7 +841,7 @@ function setup_before_installation() {
 # - php command
 # - request body
 function install_wizard_post() {
-	log "INFO" " wizard install step ${2} response ->  $(curl -v -s -w "%{http_code}" "http://${central_ip}/centreon/install/steps/process/${2}" \
+	log "INFO" " wizard install step ${2} response ->  $(curl -s -o /dev/null -w "%{http_code}" "http://${central_ip}/centreon/install/steps/process/${2}" \
 		-H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 		-H "Cookie: ${1}" --data "${3}")"
 }
@@ -1334,7 +1343,7 @@ if [ "$operation" == "install" ]; then
 			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
 		else
 			test_password_policy
-   		    echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
+   		echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
 		fi
 		# Set from ENV or Administrator first name
 		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}

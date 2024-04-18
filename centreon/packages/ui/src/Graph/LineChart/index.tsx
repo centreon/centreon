@@ -30,7 +30,6 @@ interface Props extends Partial<LineChartProps> {
   legend: LegendModel;
   limitLegend?: false | number;
   loading: boolean;
-  marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
   thresholdUnit?: string;
@@ -54,7 +53,6 @@ const WrapperLineChart = ({
   legend,
   header,
   curve = Curve.curveLinear,
-  marginBottom = 0,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -65,7 +63,7 @@ const WrapperLineChart = ({
   if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
-        displayTitleSkeleton={header?.displayTitle ?? true}
+        displayTitleSkeleton={header?.displayTitle ?? false}
         graphHeight={height || 200}
       />
     );
@@ -78,7 +76,7 @@ const WrapperLineChart = ({
   return (
     <div
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
-      style={{ height: '100%', overflowY: 'hidden', width: '100%' }}
+      style={{ height: '100%', overflow: 'hidden', width: '100%' }}
     >
       <ParentSize>
         {({
@@ -98,8 +96,6 @@ const WrapperLineChart = ({
               height={height || responsiveHeight}
               legend={legend}
               limitLegend={limitLegend}
-              loading={loading}
-              marginBottom={marginBottom}
               shapeLines={shapeLines}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}

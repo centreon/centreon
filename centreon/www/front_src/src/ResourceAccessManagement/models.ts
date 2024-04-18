@@ -36,6 +36,7 @@ export type ResourceAccessRuleType = {
 };
 
 export type Dataset = {
+  allOfResourceType: boolean;
   resourceType: ResourceTypeEnum;
   resources: Array<NamedEntity>;
 };

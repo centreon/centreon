@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 
 import { Box, Typography, useTheme } from '@mui/material';
 
-import { getStatusColors } from '@centreon/ui';
+import { getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { useStatusesColumnStyles } from '../Columns.styles';
 import {
-  getResourcesUrl,
+  formatStatusFilter,
   goToUrl,
   severityStatusBySeverityCode
 } from '../../../../utils';
@@ -48,7 +48,7 @@ const Status = ({
     ],
     isForOneResource: false,
     states: [],
-    statuses: [severityStatusBySeverityCode[severityCode]],
+    statuses: formatStatusFilter(severityStatusBySeverityCode[severityCode]),
     type: resourceType
   });
 

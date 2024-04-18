@@ -70,7 +70,6 @@ interface CommonData {
 
 interface TimeShiftZonesData extends InteractedZone {
   graphInterval: GraphInterval;
-  loading: boolean;
 }
 
 interface Props {
@@ -234,7 +233,7 @@ const InteractionWithGraph = ({
           value: timeValue?.[metric_id]
         }),
         linesData
-      ).filter(({ value }) => value)
+      ).filter(({ value }) => !isNil(value))
     });
   };
 

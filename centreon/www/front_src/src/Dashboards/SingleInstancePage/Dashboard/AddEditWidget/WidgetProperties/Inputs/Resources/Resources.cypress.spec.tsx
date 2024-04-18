@@ -39,8 +39,8 @@ interface InitializeProps {
   isEditing?: boolean;
   properties?: FederatedWidgetProperties;
   restrictedResourceTypes?: Array<string>;
-  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
+  singleResourceSelection?: boolean;
   singleResourceType?: boolean;
 }
 
@@ -49,7 +49,7 @@ const initialize = ({
   hasEditPermission = true,
   singleResourceType = false,
   restrictedResourceTypes = [],
-  singleHostPerMetric = false,
+  singleResourceSelection = false,
   singleMetricSelection = false,
   emptyData = false,
   properties = widgetDataProperties
@@ -57,8 +57,8 @@ const initialize = ({
   const store = createStore();
   store.set(widgetPropertiesAtom, {
     ...properties,
-    singleHostPerMetric,
-    singleMetricSelection
+    singleMetricSelection,
+    singleResourceSelection
   });
   store.set(isEditingAtom, isEditing);
   store.set(hasEditPermissionAtom, hasEditPermission);
@@ -115,8 +115,8 @@ describe('Resources', () => {
     };
     initialize({
       properties: widgetPropertiesWithoutMetrics,
-      singleHostPerMetric: true,
-      singleMetricSelection: true
+      singleMetricSelection: true,
+      singleResourceSelection: true
     });
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
@@ -126,7 +126,7 @@ describe('Resources', () => {
   });
 
   it('displays host and service type when the corresponding atom is set to true', () => {
-    initialize({ singleHostPerMetric: true, singleMetricSelection: true });
+    initialize({ singleMetricSelection: true, singleResourceSelection: true });
 
     cy.findAllByTestId(labelResourceType).eq(0).should('have.value', 'host');
     cy.findAllByTestId(labelResourceType).eq(1).should('have.value', 'service');
@@ -210,7 +210,7 @@ describe('Resources', () => {
   });
 
   it('deletes a resource when the corresponding is clicked and corresponding prop are set', () => {
-    initialize({ singleHostPerMetric: true, singleMetricSelection: true });
+    initialize({ singleMetricSelection: true, singleResourceSelection: true });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
     cy.contains(/^Host$/).click();
