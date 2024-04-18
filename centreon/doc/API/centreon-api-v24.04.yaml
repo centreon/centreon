@@ -14,6 +14,8 @@ info:
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
+    + Handle new filters for the /configuration/hosts/groups endpoint
+    + Handle new filters for the /configuration/services/groups endpoint
     +
     +
     # Information
@@ -824,6 +826,14 @@ paths:
         * name
         * alias
         * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+        * servicecategory.id
+        * servicecategory.name
       responses:
         "200":
           description: "OK"
@@ -1568,12 +1578,8 @@ paths:
     $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
     $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContacts.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContact.yaml'
-  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroups.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
     $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroup.yaml'
   /configuration/dashboards/contacts:

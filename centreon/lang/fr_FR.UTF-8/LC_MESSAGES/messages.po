@@ -1934,10 +1934,6 @@ msgstr "Modèle de graphique"
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
 
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
-
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
 #: centreon-web/www/install/smarty_translate.php:402
@@ -18674,6 +18670,9 @@ msgstr "Sélectionnez un type de ressource"
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
 
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
+
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
 
@@ -18907,6 +18906,58 @@ msgstr "Affiche la répartition des statuts actuels pour les groupes de ressourc
 
 msgid "Group monitoring"
 msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display the diagram with this status"
+msgstr "Afficher le diagramme avec ce statut"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+msgid "All service groups"
+msgstr "Tous les groupes de services"
+
 
 msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
 msgstr "Cette action est irréversible. Si vous les supprimez, toutes les requêtes effectuées avec ces jeton seront rejetées. Voulez-vous supprimer ces jetons?"

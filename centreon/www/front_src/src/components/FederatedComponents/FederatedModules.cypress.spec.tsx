@@ -7,7 +7,8 @@ import { Provider, createStore } from 'jotai';
 
 import { Button } from '@mui/material';
 
-import { federatedWidgetsAtom } from '../../federatedModules/atoms';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
 import { Remote } from '../../federatedModules/Load';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
 import { labelCannotLoadModule } from '../../federatedModules/translatedLabels';

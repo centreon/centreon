@@ -37,6 +37,9 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -194,6 +197,27 @@ final class AddRule
 
     /**
      * @param int $ruleId
+     * @param string $datasetName
+     * @param DatasetFilter $datasetFilter
+     */
+    private function createFullAccessDatasetFilter(int $ruleId, string $datasetName, DatasetFilter $datasetFilter): void
+    {
+        $datasetId = $this->writeRepository->addDataset(
+            name: $datasetName,
+            accessAllHosts: true,
+            accessAllHostGroups: true,
+            accessAllServiceGroups: true
+        );
+
+        // And link it to the rule
+        $this->writeRepository->linkDatasetToRule($ruleId, $datasetId);
+
+        // dedicated table used in order to keep filters hierarchy for GET matters
+        $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
+    }
+
+    /**
+     * @param int $ruleId
      * @param NewRule $rule
      *
      * @throws \InvalidArgumentException
@@ -206,30 +230,27 @@ final class AddRule
             // create formatted name for dataset
             $datasetName = 'dataset_for_rule_' . $ruleId . '_' . $index;
 
-            // Create new dataset in the database ...
             if ($datasetFilter->getType() === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
-                $datasetId = $this->writeRepository->addDataset(
-                    name: $datasetName,
-                    accessAllHosts: true,
-                    accessAllHostGroups: true,
-                    accessAllServiceGroups: true
+                $this->createFullAccessDatasetFilter(
+                    ruleId: $ruleId,
+                    datasetName: $datasetName,
+                    datasetFilter: $datasetFilter
                 );
             } else {
+                // create dataset
                 $datasetId = $this->writeRepository->addDataset(
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
                     accessAllServiceGroups: false
                 );
-            }
 
-            // And link it to the rule
-            $this->writeRepository->linkDatasetToRule($ruleId, $datasetId);
+                // And link it to the rule
+                $this->writeRepository->linkDatasetToRule(ruleId: $ruleId, datasetId: $datasetId);
 
-            // dedicated table used in order to keep filters hierarchy for GET matters
-            $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
+                // dedicated table used in order to keep filters hierarchy for GET matters
+                $this->saveDatasetFiltersHierarchy(ruleId: $ruleId, datasetId: $datasetId, filter: $datasetFilter);
 
-            if ($datasetFilter->getType() !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
@@ -239,32 +260,106 @@ final class AddRule
                 /* Specific behaviour when the last level of filtering is of type
                  * *Category|*Group and that the parent of this filter is also of the same type.
                  * Then we need to save both types as those are on the same hierarchy level.
+                 *
+                 * Important also to mention a specific behaviour
+                 * When the type matches hostgroup / servicegroup or host and that no
+                 * resource IDs were provided it means 'all_type'. The specific behaviour describe
+                 * above also applies.
                  */
-                if (
-                    DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
-                    && $parentApplicableFilter !== null
-                    && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
-                ) {
-                    // link parent resources to the dataset
-                    $this->writeRepository->linkResourcesToDataset(
-                        $ruleId,
-                        $datasetId,
-                        $parentApplicableFilter->getType(),
-                        $parentApplicableFilter->getResourceIds()
-                    );
+                if ($parentApplicableFilter !== null) {
+                    if ($this->shouldBothFiltersBeSaved($parentApplicableFilter, $applicableFilter)) {
+                        if ($this->shouldUpdateDatasetAccesses($parentApplicableFilter)) {
+                            $this->updateDatasetAccesses(
+                                datasetId: $datasetId,
+                                resourceType: $parentApplicableFilter->getType()
+                            );
+                        } else {
+                            $this->writeRepository->linkResourcesToDataset(
+                                ruleId: $ruleId,
+                                datasetId: $datasetId,
+                                resourceType: $parentApplicableFilter->getType(),
+                                resourceIds: $parentApplicableFilter->getResourceIds()
+                            );
+                        }
+                    }
                 }
 
-                // link resources to the dataset
-                $this->writeRepository->linkResourcesToDataset(
-                    $ruleId,
-                    $datasetId,
-                    $applicableFilter->getType(),
-                    $applicableFilter->getResourceIds()
-                );
+                if ($this->shouldUpdateDatasetAccesses($applicableFilter)) {
+                    $this->updateDatasetAccesses(
+                        datasetId: $datasetId,
+                        resourceType: $applicableFilter->getType()
+                    );
+                } else {
+                    $this->writeRepository->linkResourcesToDataset(
+                        ruleId: $ruleId,
+                        datasetId: $datasetId,
+                        resourceType: $applicableFilter->getType(),
+                        resourceIds: $applicableFilter->getResourceIds()
+                    );
+                }
             }
 
             $index++;
         }
+    }
+
+    /**
+     * @param DatasetFilter $datasetFilter
+     *
+     * @return bool
+     */
+    private function shouldUpdateDatasetAccesses(DatasetFilter $datasetFilter): bool
+    {
+        return $datasetFilter->getResourceIds() === []
+            && in_array(
+                $datasetFilter->getType(),
+                [
+                    HostGroupFilterType::TYPE_NAME,
+                    ServiceGroupFilterType::TYPE_NAME,
+                    HostFilterType::TYPE_NAME,
+                ], true
+            );
+    }
+
+    /**
+     * @param int $datasetId
+     * @param string $resourceType
+     */
+    private function updateDatasetAccesses(int $datasetId, string $resourceType): void
+    {
+        switch ($resourceType) {
+            case HostGroupFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'hostgroups',
+                    fullAccess: true
+                );
+                break;
+            case ServiceGroupFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'servicegroups',
+                    fullAccess: true
+                );
+                break;
+            case HostFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'hosts',
+                    fullAccess: true
+                );
+                break;
+        }
+    }
+
+    /**
+     * @param DatasetFilter $parent
+     * @param DatasetFilter $child
+     */
+    private function shouldBothFiltersBeSaved(DatasetFilter $parent, DatasetFilter $child): bool
+    {
+        return DatasetFilter::isGroupOrCategoryFilter($child)
+            && DatasetFilter::isGroupOrCategoryFilter($parent);
     }
 
     /**
@@ -328,11 +423,14 @@ final class AddRule
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
-             *     - resources provided are valid (exist)
+             *     - resources provided are valid (exist) if not in case of all, all_servicegroups, all_hostgroups, all_hosts
+             *     identified by the fact that $data['resources'] is empty for those types
              *     - the datasetfilter type provided is valid (validated by entity)
              *     - that the dataset filter hierarchy is valid (validated by entity).
              */
-            $this->validator->assertIdsAreValid($data['type'], $data['resources']);
+            if ($data['resources'] !== []) {
+                $this->validator->assertIdsAreValid($data['type'], $data['resources']);
+            }
 
             // first iteration we want to create the root filter
             if ($datasetFilter === null) {

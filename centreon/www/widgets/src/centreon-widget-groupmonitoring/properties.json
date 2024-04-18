@@ -16,35 +16,42 @@
           "name": "Service"
         }
       ],
-      "defaultValue": ["host","service"],
+      "defaultValue": [
+        "host",
+        "service"
+      ],
       "keepOneOptionSelected": true
     },
     "statuses": {
       "type": "checkbox",
       "label": "Display resources with this status",
       "options": [
-          {
-            "id": "5",
-            "name": "Success (OK & Up)"
-          },
-          {
-            "id": "2",
-            "name": "Warning"
-          },
-          {
-            "id": "1",
-            "name": "Problem (Down/Critical)"
-          },
-          {
-            "id": "6",
-            "name": "Undefined (Unreachable/Unknown)"
-          },
-          {
-            "id": "4",
-            "name": "Pending"
-          }
-        ],
-      "defaultValue": ["2","1"]
+        {
+          "id": "1",
+          "name": "Problem (Down/Critical)"
+        },
+        {
+          "id": "2",
+          "name": "Warning"
+        },
+        {
+          "id": "4",
+          "name": "Pending"
+        },
+        {
+          "id": "5",
+          "name": "Success (OK/Up)"
+
+        },
+        {
+          "id": "6",
+          "name": "Undefined (Unreachable/Unknown)"
+        }
+      ],
+      "defaultValue": [
+        "2",
+        "1"
+      ]
     },
     "refreshInterval": {
       "type": "refresh-interval",
@@ -56,10 +63,13 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : false,
+      "required": false,
       "requireResourceType": true,
       "singleResourceType": true,
-      "restrictedResourceTypes": ["host-group", "service-group"]
+      "restrictedResourceTypes": [
+        "host-group",
+        "service-group"
+      ]
     }
   },
   "moduleName": "centreon-widget-groupmonitoring"
