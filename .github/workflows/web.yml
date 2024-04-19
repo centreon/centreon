@@ -716,8 +716,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
-    # if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && ( needs.get-version.outputs.stability == 'testing' || github.event_name == 'schedule' ) }}
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability == 'canary' }}
     strategy:
       fail-fast: false
       matrix:
