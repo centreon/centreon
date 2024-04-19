@@ -3,11 +3,14 @@ import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
 
-import { Method } from '@centreon/ui';
+import { Method, useSnackbar } from '@centreon/ui';
 
 import { clickedRowAtom } from '../atoms';
 import { deleteSingleTokenEndpoint } from '../../api/endpoints';
-import { labelMsgConfirmationDeletionToken } from '../../translatedLabels';
+import {
+  labelMsgConfirmationDeletionToken,
+  labelTokenDeletedSuccessfully
+} from '../../translatedLabels';
 
 import Deletion from './Deletion';
 import ConfirmationDeletionModal from './Deletion/ConfirmationDeletionModal';
@@ -15,7 +18,10 @@ import Message from './Deletion/Message';
 
 const ActionsColumn = (): JSX.Element => {
   const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
+
   const clickedRow = useAtomValue(clickedRowAtom);
+
   const meta = !clickedRow
     ? undefined
     : {
@@ -23,10 +29,15 @@ const ActionsColumn = (): JSX.Element => {
         userId: clickedRow.user?.id
       };
 
+  const onSuccess = (): void => {
+    showSuccessMessage(t(labelTokenDeletedSuccessfully));
+  };
+
   const dataApi = {
     dataMutation: { _meta: meta },
     getEndpoint: deleteSingleTokenEndpoint,
-    method: Method.DELETE
+    method: Method.DELETE,
+    onSuccess
   };
 
   const body = parse(

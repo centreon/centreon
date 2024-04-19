@@ -2,14 +2,10 @@ import { ReactNode, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
-import { ConfirmDialog, useMutationQuery, useSnackbar } from '@centreon/ui';
+import { ConfirmDialog, useMutationQuery } from '@centreon/ui';
 
 import { Meta } from '../../../api/models';
-import {
-  labelCancel,
-  labelDelete,
-  labelTokenDeletedSuccessfully
-} from '../../../translatedLabels';
+import { labelCancel, labelDelete } from '../../../translatedLabels';
 import useRefetch from '../../../useRefetch';
 
 import Title from './Title';
@@ -19,7 +15,6 @@ import { DataApi } from './models';
 interface Props {
   close: () => void;
   dataApi: DataApi;
-  labelDeletedSuccessfully?: string;
   msg?: ReactNode;
   title?: string;
 }
@@ -27,24 +22,24 @@ interface Props {
 const ConfirmationDeletionModal = ({
   close,
   dataApi,
-  labelDeletedSuccessfully = labelTokenDeletedSuccessfully,
   title,
   msg
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
+
   const [isDataRetrieved, setIDataRetrieved] = useState(false);
+
   const { isRefetching } = useRefetch({
     key: isDataRetrieved,
     onSuccess: () => close()
   });
-  const { getEndpoint, dataMutation, method, decoder } = dataApi;
+  const { getEndpoint, dataMutation, method, decoder, onSuccess } = dataApi;
 
   const { _meta, payload } = dataMutation || {};
 
-  const success = (): void => {
-    showSuccessMessage(t(labelDeletedSuccessfully));
+  const success = (data): void => {
+    onSuccess?.(data);
     setIDataRetrieved(true);
   };
 

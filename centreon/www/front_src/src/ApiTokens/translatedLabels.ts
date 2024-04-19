@@ -36,3 +36,5 @@ export const labelExpirationDate = 'Expiration date';
 export const labelClear = 'Clear';
 export const labelUntil = 'Until';
 export const labelDeleteSelectedTokens = 'Delete selected tokens';
+export const labelFailedToDeleteSelectedToken =
+  'Failed to delete the selected token';

@@ -5,7 +5,7 @@ import { buildListingDecoder } from '@centreon/ui';
 import { PersonalInformation, Token } from '../TokenListing/models';
 import { CreatedToken } from '../TokenCreation/models';
 
-import { DeletedToken } from './models';
+import { DeletedToken, DeletedTokens } from './models';
 
 const personalInformationDecoder = (
   decoderName = 'personalInformation'
@@ -41,7 +41,7 @@ export const listTokensDecoder = buildListingDecoder<Token>({
   listingDecoderName: 'listTokens'
 });
 
-const deletedTokens = JsonDecoder.object<DeletedToken>(
+const deletedTokenDecoder = JsonDecoder.object<DeletedToken>(
   {
     message: JsonDecoder.nullable(JsonDecoder.string),
     self: JsonDecoder.string,
@@ -50,8 +50,13 @@ const deletedTokens = JsonDecoder.object<DeletedToken>(
   'deletedToken'
 );
 
-export const deletedTokensDecoder = JsonDecoder.array<DeletedToken>(
-  deletedTokens,
+export const deletedTokensDecoder = JsonDecoder.object<DeletedTokens>(
+  {
+    results: JsonDecoder.array<DeletedToken>(
+      deletedTokenDecoder,
+      'deletedTokensResult'
+    )
+  },
   'DeletedTokens'
 );
 export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(

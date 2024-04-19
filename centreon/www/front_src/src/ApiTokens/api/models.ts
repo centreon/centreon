@@ -16,3 +16,7 @@ export interface DeletedToken {
   self: string;
   status: number;
 }
+
+export interface DeletedTokens {
+  results: Array<DeletedToken>;
+}

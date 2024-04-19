@@ -17,4 +17,5 @@ export interface DataApi {
   decoder?: JsonDecoder.Decoder<object>;
   getEndpoint: (data: Meta) => string;
   method: Method;
+  onSuccess?: (data) => void;
 }
