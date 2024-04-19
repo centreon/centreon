@@ -420,6 +420,7 @@ describe('Listing row actions: Duplicate button', () => {
     );
     cy.findByLabelText(labelNotificationName).should('be.visible');
     cy.findByText(labelDuplicate).should('be.disabled');
+
     cy.findByText(labelDiscard).click();
 
     cy.makeSnapshot();
