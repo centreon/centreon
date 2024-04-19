@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useMultiSelectedAutocompleteStyles = makeStyles()((theme) => ({
+export const useSelectorStyles = makeStyles()((theme) => ({
   checkbox: {
     padding: theme.spacing(0.5)
   },

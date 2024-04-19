@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
   array,
   ArraySchema,
-  AnySchema,
   boolean,
   object,
   ObjectSchema,
@@ -16,11 +15,7 @@ import {
   editedResourceAccessRuleIdAtom,
   resourceAccessRulesNamesAtom
 } from '../../atom';
-import {
-  labelChooseAtLeastOneContactOrContactGroup,
-  labelNameAlreadyExists,
-  labelRequired
-} from '../../translatedLabels';
+import { labelNameAlreadyExists, labelRequired } from '../../translatedLabels';
 
 interface UseValidationSchemaState {
   validationSchema: ObjectSchema<ObjectShape>;
@@ -38,18 +33,6 @@ const useValidationSchema = (): UseValidationSchemaState => {
   const validateName = string()
     .required(t(labelRequired) as string)
     .notOneOf(names, t(labelNameAlreadyExists) as string);
-
-  const contactsSchema = (dependency: string): ArraySchema<AnySchema> =>
-    array().when(dependency, ([value]) => {
-      if (isEmpty(value)) {
-        return array().min(
-          1,
-          t(labelChooseAtLeastOneContactOrContactGroup) as string
-        );
-      }
-
-      return array();
-    });
 
   const datasetFiltersSchema = (): ArraySchema<ArraySchema<ObjectSchema>> =>
     array(
@@ -81,8 +64,36 @@ const useValidationSchema = (): UseValidationSchemaState => {
 
   const validationSchema = object().shape(
     {
-      contactGroups: contactsSchema('contacts'),
-      contacts: contactsSchema('contactGroups'),
+      allContactrGroups: boolean(),
+      allContacts: boolean(),
+      contactGroups: array().when(
+        ['allContactGroups', 'allContacts', 'contacts'],
+        ([allContactGroups, allContacts, contacts], schema) => {
+          if (isEmpty(contacts) && (!allContacts || !allContactGroups)) {
+            return schema.min(1);
+          }
+
+          if (!isEmpty(contacts)) {
+            return schema;
+          }
+
+          return schema.min(0);
+        }
+      ),
+      contacts: array().when(
+        ['allContactGroups', 'allContacts', 'contactGroups'],
+        ([allContactGroups, allContacts, contactGroups], schema) => {
+          if (isEmpty(contactGroups) && (!allContactGroups || allContacts)) {
+            return schema.min(1);
+          }
+
+          if (!isEmpty(contactGroups)) {
+            return schema;
+          }
+
+          return schema.min(0);
+        }
+      ),
       datasetFilters: datasetFiltersSchema(),
       name: validateName
     },

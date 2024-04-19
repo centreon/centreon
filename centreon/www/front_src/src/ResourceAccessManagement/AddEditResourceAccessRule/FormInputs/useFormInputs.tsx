@@ -19,7 +19,8 @@ import {
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ResourceSelection from './components/ResourceSelection';
-import MultiConnectedAutocomplete from './components/MultiConnectedAutocomplete';
+import ContactsSelector from './components/ContactsSelector';
+import ContactGroupsSelector from './components/ContactGroupsSelector';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -162,9 +163,7 @@ const useFormInputs = (): UseFormInputsState => {
                       },
                       {
                         custom: {
-                          Component: () => (
-                            <MultiConnectedAutocomplete type="contacts" />
-                          )
+                          Component: () => <ContactsSelector />
                         },
                         dataTestId: t(labelContacts),
                         disableSortedOptions: true,
@@ -175,9 +174,7 @@ const useFormInputs = (): UseFormInputsState => {
                       },
                       {
                         custom: {
-                          Component: () => (
-                            <MultiConnectedAutocomplete type="contactGroups" />
-                          )
+                          Component: () => <ContactGroupsSelector />
                         },
                         dataTestId: t(labelContactGroups),
                         disableSortedOptions: true,
