@@ -70,7 +70,7 @@ jobs:
 
   associate-test-cases:
     runs-on: ubuntu-22.04
-    if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
+    # if: ${{ inputs.os == 'alma9' && contains(fromJson('["testing", "unstable"]'), inputs.stability) && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.is_nightly == 'true')) }}
     outputs:
       test_execution_id: ${{ steps.get-test-ids.outputs.test_execution_id }}
       test_plan_id: ${{ steps.get-test-ids.outputs.test_plan_id }}
