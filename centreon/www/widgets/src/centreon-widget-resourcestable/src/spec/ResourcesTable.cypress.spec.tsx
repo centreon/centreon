@@ -152,7 +152,7 @@ describe('View by all', () => {
       requestAlias: 'getResources'
     });
 
-    cy.contains(30);
+    cy.contains(30).should('exist');
 
     cy.makeSnapshot();
   });
@@ -164,7 +164,7 @@ describe('View by all', () => {
     });
 
     columnsForViewByAll.forEach((element) => {
-      cy.contains(element);
+      cy.contains(element).should('exist');
     });
 
     cy.makeSnapshot();
@@ -344,12 +344,16 @@ describe('View by service', () => {
   it('executes a listing request with limit from widget properties', () => {
     cy.contains(20);
 
+    verifyListingRows();
+
     cy.makeSnapshot();
   });
   it('displays listing with columns from widget properties', () => {
     columnsForViewByService.forEach((element) => {
       cy.contains(element);
     });
+
+    verifyListingRows();
 
     cy.makeSnapshot();
   });
@@ -374,7 +378,7 @@ describe('View by host', () => {
     cy.makeSnapshot();
   });
   it('executes a listing request with limit from widget properties', () => {
-    cy.contains(30);
+    verifyListingRows();
 
     cy.makeSnapshot();
   });
@@ -383,6 +387,8 @@ describe('View by host', () => {
     columnsForViewByHost.forEach((element) => {
       cy.contains(element);
     });
+
+    verifyListingRows();
 
     cy.makeSnapshot();
   });
