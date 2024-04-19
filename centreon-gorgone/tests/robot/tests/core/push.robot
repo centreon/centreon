@@ -2,14 +2,19 @@
 Documentation       Start and stop gorgone
 
 Resource            ${CURDIR}${/}..${/}..${/}resources${/}import.resource
+Test Timeout        220s
+Test Teardown    Stop Gorgone    @{process_list}
 
-Test Timeout        120s
+*** Variables ***
+@{process_list}    gorgone_central    gorgone_poller_2
 
 *** Test Cases ***
-Start and stop gorgone
-    FOR    ${i}    IN RANGE    1
-        Start Gorgone    /etc/centreon-gorgone/config.yaml    /var/log/centreon-gorgone/gorgoned.log    info    gorgone${i}
-        Sleep    5s
-        Stop Gorgone    gorgone${i}
-        sleep    2s
-    END
+test Evan
+    Setup 2 Gorgone    communication_mode=push
+
+    Log To Console    removing gorgone config here.
+    Remove Gorgone Config    gorgone_central   sql_file=${ROOT_CONFIG}push_db_1_poller.sql
+    Remove Gorgone Config    gorgone_poller_2
+    Log To Console    End of tests.
+
+    # do something
