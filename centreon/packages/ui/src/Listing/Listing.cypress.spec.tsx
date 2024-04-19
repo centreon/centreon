@@ -188,7 +188,6 @@ describe('Listing', () => {
         const subItems = generateSubItems(index);
 
         cy.findByLabelText(`Expand ${index}`).click();
-
         cy.findByLabelText(`Collapse ${index}`).should('exist');
 
         subItems.forEach(({ name, description }) => {
