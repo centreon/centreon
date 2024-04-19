@@ -12,16 +12,14 @@ import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generi
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { getDashboardEndpoint } from '../../api/endpoints';
 
 import DashboardLayout from './DashboardLayout';
 import { labelEditDashboard } from './translatedLabels';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from 'www/front_src/src/federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [

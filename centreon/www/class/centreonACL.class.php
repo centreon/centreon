@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2005-2014 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -65,6 +65,7 @@ class CentreonACL
     private $metaServices = array();
     private $metaServiceStr = "";
     private $tempTableArray = array();
+    public $hasAccessToAllHostGroups = false;
 
     /**
      * Constructor
@@ -89,9 +90,10 @@ class CentreonACL
             $this->admin = $isAdmin;
         }
 
-        if (!$this->admin) {
+        if (! $this->admin) {
             $this->setAccessGroups();
             $this->setResourceGroups();
+            $this->hasAccessToAllHostGroups = $this->hasAccessToAllHostGroups();
             $this->setHostGroups();
             $this->setPollers();
             $this->setServiceGroups();
@@ -130,6 +132,7 @@ class CentreonACL
         $this->setTopology();
         $this->getACLStr();
         $this->setActions();
+        $this->hasAccessToAllHostGroups = false;
     }
 
     /**
@@ -201,6 +204,60 @@ class CentreonACL
     }
 
     /**
+     * @param array<int|string, int|string> $list
+     * @param string $prefix
+     *
+     * @return array{0: array<string, mixed>, 1: string}
+     */
+    private function createMultipleBindQuery(array $list, string $prefix): array
+    {
+        $bindValues = [];
+        foreach ($list as $index => $id) {
+            $bindValues[$prefix . $index] = $id;
+        }
+
+        return [$bindValues, implode(', ', array_keys($bindValues))];
+    }
+
+    /**
+     * Check is all_hostgroups is activated at least of one ACL Group which this user is linked
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(): bool
+    {
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            list: explode(',', $this->getAccessGroupsString()),
+            prefix: ':access_group_id_'
+        );
+
+        $request = <<<SQL
+            SELECT res.all_hostgroups
+            FROM acl_resources res
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
+            INNER JOIN acl_groups ag
+                ON ag.acl_group_id = argr.acl_group_id
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            SQL;
+
+        $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Resource groups Setter
      */
     private function setResourceGroups()
@@ -223,19 +280,42 @@ class CentreonACL
      */
     private function setHostGroups()
     {
-        $query = "SELECT hg.hg_id, hg.hg_name, hg.hg_alias, arhr.acl_res_id "
-            . "FROM hostgroup hg, acl_resources_hg_relations arhr "
-            . "WHERE hg.hg_id = arhr.hg_hg_id "
-            . "AND hg.hg_activate = '1' "
-            . "AND arhr.acl_res_id IN (" . $this->getResourceGroupsString() . ") "
-            . "ORDER BY hg.hg_name ASC ";
-        $DBRESULT = \CentreonDBInstance::getConfInstance()->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
-            $this->hostGroups[$row['hg_id']] = $row['hg_name'];
-            $this->hostGroupsAlias[$row['hg_id']] = $row['hg_alias'];
-            $this->hostGroupsFilter[$row['acl_res_id']][$row['hg_id']] = $row['hg_id'];
+        $aclSubRequest = '';
+        if ($this->hasAccessToAllHostGroups === false) {
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+                list: explode(',', $this->getAccessGroupsString()),
+                prefix: ':access_group_id_'
+            );
+
+            $aclSubRequest .= ' AND arhr.acl_res_id IN (' . $bindQuery . ')';
         }
-        $DBRESULT->closeCursor();
+
+        $request = <<<SQL
+            SELECT
+                hg.hg_id,
+                hg.hg_name,
+                hg.hg_alias
+            FROM hostgroup hg
+            INNER JOIN acl_resources_hg_relations arhr
+                ON hg.hg_id = arhr.hg_hg_id
+            WHERE hg.hg_activate = '1'
+            $aclSubRequest
+            ORDER BY hg.hg_name ASC
+        SQL;
+
+        $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $this->hostGroups[$record['hg_id']] = $record['hg_name'];
+            $this->hostGroupsAlias[$record['hg_id']] = $record['hg_alias'];
+            $this->hostGroupsFilter[$record['acl_res_id']][$record['hg_id']] = $record['hg_id'];
+        }
     }
 
     /**
@@ -2354,7 +2434,7 @@ class CentreonACL
         if ($search != "") {
             $searchCondition = "AND hg_name LIKE '%" . CentreonDB::escape($search) . "%' ";
         }
-        if ($this->admin) {
+        if ($this->admin || $this->hasAccessToAllHostGroups === true) {
             $empty_exists = "";
             if ($hg_empty) {
                 $empty_exists = 'AND EXISTS (SELECT * FROM hostgroup_relation WHERE

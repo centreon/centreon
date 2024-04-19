@@ -63,7 +63,7 @@ describe('Zoom', () => {
   it('displays the minimap when the prop is set', () => {
     initialize({ showMinimap: true });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -72,7 +72,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('zoom in').click();
     cy.findByTestId('zoom-content')
@@ -86,7 +86,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('zoom out').click();
 
@@ -101,7 +101,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('zoom-content').realMouseWheel({ deltaY: 20 });
 
@@ -116,7 +116,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('zoom-content').realMouseWheel({ deltaY: -20 });
 
@@ -131,7 +131,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: true });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('zoom-content').realMouseWheel({ deltaY: -20 });
 
@@ -150,7 +150,7 @@ describe('Zoom', () => {
     initialize({ showMinimap: false });
 
     cy.get('g[transform="matrix(1, 0, 0, 1, 0, 0)"]');
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('not.exist');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -158,7 +158,7 @@ describe('Zoom', () => {
   it('zooms in when the minimap is scrolled up', () => {
     initialize({ showMinimap: true });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('minimap-interaction').realMouseWheel({ deltaY: -20 });
 
@@ -172,7 +172,7 @@ describe('Zoom', () => {
   it('zooms out when the minimap is scrolled down', () => {
     initialize({ showMinimap: true });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
 
     cy.findByTestId('minimap-interaction').realMouseWheel({ deltaY: 20 });
 
@@ -186,7 +186,7 @@ describe('Zoom', () => {
   it('moves the view when the mouse is hover the content with the corresponding button pressed down', () => {
     initialize({ showMinimap: true });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
 
     cy.findByTestId('zoom-container')
@@ -205,7 +205,7 @@ describe('Zoom', () => {
   it('displays the minimap in the bottom right when the prop to the corresponding value', () => {
     initialize({ minimapPosition: 'bottom-right', showMinimap: true });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
 
     cy.makeSnapshot();
@@ -214,7 +214,7 @@ describe('Zoom', () => {
   it('applies a scale down on the minimap when the content is higher than the original height', () => {
     initialize({ showMinimap: true, template: ContentWithMultipleShapes });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
 
     cy.findByTestId('minimap-interaction')
@@ -232,7 +232,7 @@ describe('Zoom', () => {
       template: ContentWithMultipleShapesWithNegativeTranslations
     });
 
-    cy.get('g[clip-path="url(#zoom-clip)"]').should('be.visible');
+    cy.get('g[clip-path="url(#zoom-clip-0)"]').should('be.visible');
     cy.get('svg').should('have.attr', 'height', '400');
 
     cy.findByTestId('minimap-interaction')

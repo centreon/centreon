@@ -28,7 +28,7 @@ const PanelsLayout = ({
   setRefreshCount,
   displayMoreActions = true
 }: Props): JSX.Element => {
-  const { getLinkToResourceStatusPage, changeViewMode } =
+  const { getLinkToResourceStatusPage, changeViewMode, getPageType } =
     useLinkToResourceStatus();
 
   return (
@@ -53,9 +53,10 @@ const PanelsLayout = ({
                   id={i}
                   linkToResourceStatus={
                     data?.resources
-                      ? getLinkToResourceStatusPage(data, name, options)
+                      ? getLinkToResourceStatusPage(data, name)
                       : undefined
                   }
+                  pageType={getPageType(data)}
                   setRefreshCount={setRefreshCount}
                 />
               ) : undefined

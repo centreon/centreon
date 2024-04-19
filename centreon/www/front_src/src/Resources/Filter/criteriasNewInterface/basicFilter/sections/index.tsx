@@ -5,14 +5,13 @@ import { Divider } from '@mui/material';
 
 import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
 import { selectedVisualizationAtom } from '../../../../Actions/actionsAtoms';
+import { Visualization } from '../../../../models';
 
 import { useStyles } from './sections.style';
 import MemoizedInputGroup from './MemoizedInputGroup';
 import MemoizedSelectInput from './MemoizedSelectInput';
 import MemoizedStatus from './MemoizedStatus';
 import Section from './Section';
-
-import { Visualization } from 'www/front_src/src/Resources/models';
 
 const SectionWrapper = ({
   basicData,
