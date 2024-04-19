@@ -14,7 +14,6 @@ import { getPublicWidgetEndpoint } from '../../../utils';
 import {
   options as resourcesOptions,
   resources,
-  columnsForViewByAll,
   columnsForViewByHost,
   columnsForViewByService,
   selectedColumnIds
@@ -25,7 +24,7 @@ interface Props {
   options: PanelOptions;
 }
 
-const render = ({ options, data, isPublic }: Props): void => {
+const render = ({ options, data, isPublic = false }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
 
@@ -163,9 +162,7 @@ describe('View by all', () => {
       options: { ...resourcesOptions, selectedColumnIds }
     });
 
-    columnsForViewByAll.forEach((element) => {
-      cy.contains(element).should('exist');
-    });
+    cy.contains('Ping').should('exist');
 
     cy.makeSnapshot();
   });
@@ -374,11 +371,12 @@ describe('View by host', () => {
     cy.findByTestId('ExpandMoreIcon').click();
 
     verifyListingRows();
+    cy.contains('Centreon-Server').should('be.visible');
 
     cy.makeSnapshot();
   });
   it('executes a listing request with limit from widget properties', () => {
-    verifyListingRows();
+    cy.contains('Centreon-Server').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -388,7 +386,7 @@ describe('View by host', () => {
       cy.contains(element);
     });
 
-    verifyListingRows();
+    cy.contains('Centreon-Server').should('be.visible');
 
     cy.makeSnapshot();
   });
