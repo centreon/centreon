@@ -17231,7 +17231,13 @@ msgstr ""
 # msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 # msgstr ""
 
-# msgid "Delete token"
+# msgid "deleted successfully"
+# msgstr ""
+
+# msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
+# msgstr ""
+
+# msgid "Delete selected tokens"
 # msgstr ""
 
 # msgid "Failed to copy link"
@@ -17564,9 +17570,6 @@ msgstr ""
 # msgid "Until"
 # msgstr ""
 
-# msgid "Delete selected tokens"
-# msgstr ""
-
 #  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
 #  msgstr ""
 
@@ -17634,8 +17637,4 @@ msgstr ""
 # msgstr ""
 
 # msgid "All service groups"
-# msgstr ""
-
-
-# msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
 # msgstr ""
