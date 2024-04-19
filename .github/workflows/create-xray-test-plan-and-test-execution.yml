@@ -100,6 +100,13 @@ jobs:
             # Execute the GraphQL query and parse the results
             response=$(curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate_xray_token.outputs.xray_token }}" --data "$graphql_query" "https://xray.cloud.getxray.app/api/v2/graphql")
 
+            # Check if the response contains results
+            if [ -z "$response" ]; then
+              echo "No test plans found in the response."
+              has_more=false
+              break
+            fi
+
             test_plans=$(echo "$response" | jq -c '.data.getTestPlans.results[].jira')
 
             # Determine if there are more test plans
