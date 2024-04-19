@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import pluralize from 'pluralize';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +6,7 @@ import { Method, useSnackbar } from '@centreon/ui';
 
 import { deletedTokensDecoder } from '../../../api/decoder';
 import { deleteMultipleTokensEndpoint } from '../../../api/endpoints';
+import { DeletedToken, DeletedTokens } from '../../../api/models';
 import {
   labelDeleteSelectedTokens,
   labelFailedToDeleteSelectedToken,
@@ -16,11 +17,10 @@ import Deletion from '../../ComponentsColumn/Deletion';
 import ConfirmationDeletionModal from '../../ComponentsColumn/Deletion/ConfirmationDeletionModal';
 import Message from '../../ComponentsColumn/Deletion/Message';
 import { selectedRowsAtom } from '../../atoms';
-import { DeletedToken, DeletedTokens } from '../../../api/models';
 
 const Delete = (): JSX.Element => {
   const { t } = useTranslation();
-  const selectedRows = useAtomValue(selectedRowsAtom);
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
   const { showSuccessMessage, showWarningMessage } = useSnackbar();
 
   const payload = {
@@ -37,6 +37,8 @@ const Delete = (): JSX.Element => {
     data.self.split('/')[2];
 
   const onSuccess = (data: DeletedTokens): void => {
+    setSelectedRows([]);
+
     const isFailureExist = data.results.some((result) =>
       isFailureStatusCode(result)
     );
@@ -48,14 +50,14 @@ const Delete = (): JSX.Element => {
 
     const failedDeletedSelectedTokensNames = data.results
       .map((result) =>
-        isFailureStatusCode(result) ? null : extractTokenName(result)
+        isFailureStatusCode(result) ? extractTokenName(result) : null
       )
       .filter((result) => result);
 
     failedDeletedSelectedTokensNames.forEach(
       (failedDeletedSelectedTokenName) => {
         showWarningMessage(
-          `${labelFailedToDeleteSelectedToken}:${failedDeletedSelectedTokenName}`
+          `${labelFailedToDeleteSelectedToken}: ${failedDeletedSelectedTokenName}`
         );
       }
     );

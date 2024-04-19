@@ -44,7 +44,6 @@ const ConfirmationDeletionModal = ({
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
-    baseEndpoint: 'http://localhost:3000/centreon/api/latest',
     decoder,
     getEndpoint,
     method,

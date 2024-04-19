@@ -39,4 +39,4 @@ export const deleteSingleTokenEndpoint = ({
 }: Meta): string => `${baseTokenEndpoint}/${tokenName}/users/${userId}`;
 
 export const deleteMultipleTokensEndpoint = (): string =>
-  `/administration/tokens/_delete`;
+  `${baseTokenEndpoint}/_delete`;

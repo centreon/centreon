@@ -29,7 +29,6 @@ export const useTokenListing = ({ enabled }: Props): UseTokenListing => {
   };
 
   const { data, isLoading, isError, refetch, isRefetching } = useFetchQuery({
-    baseEndpoint: 'http://localhost:3000/centreon/api/latest/',
     decoder: listTokensDecoder,
     getEndpoint,
     getQueryKey: () => ['listTokens', currentFilter],
