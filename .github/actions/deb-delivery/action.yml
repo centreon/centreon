@@ -55,16 +55,10 @@ runs:
           exit 1
         fi
 
-        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
-          ROOT_REPO_PATH="installers"
-          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
-          exit 0
-        fi
-
         if [[ "${{ inputs.distrib }}" == "jammy" ]]; then
-          REPO_PREFIX="ubuntu"
+          ROOT_REPO_PATH="ubuntu-standard-${{ inputs.version }}-${{ inputs.stability }}"
         else
-          REPO_PREFIX="apt"
+          ROOT_REPO_PATH="apt-standard-${{ inputs.version }}-${{ inputs.stability }}"
         fi
 
         for FILE in $FILES; do
@@ -76,6 +70,6 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          jf rt upload "$FILE" "${REPO_PREFIX}-standard-${{ inputs.version }}-${{ inputs.stability }}/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
+          jf rt upload "$FILE" "$ROOT_REPO_PATH/pool/${{ inputs.module_name }}/" --deb "${{ inputs.distrib }}/main/$ARCH"
         done
       shell: bash
