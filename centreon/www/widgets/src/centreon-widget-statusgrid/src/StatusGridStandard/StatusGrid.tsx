@@ -33,7 +33,7 @@ const StatusGrid = ({
   panelData,
   panelOptions,
   refreshCount,
-  id,
+  id: widgetId,
   dashboardId,
   playlistHash
 }: Omit<StatusGridProps, 'store'>): JSX.Element => {
@@ -73,7 +73,7 @@ const StatusGrid = ({
         }),
         isOnPublicPage,
         playlistHash,
-        widgetId: id
+        widgetId
       }),
     getQueryKey: () => [
       'statusgrid',

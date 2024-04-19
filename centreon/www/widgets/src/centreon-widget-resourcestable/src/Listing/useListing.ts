@@ -68,9 +68,9 @@ const useListing = ({
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = useLoadResources({
+    dashboardId,
     displayType,
     id,
-    dashboardId,
     limit,
     page,
     playlistHash,

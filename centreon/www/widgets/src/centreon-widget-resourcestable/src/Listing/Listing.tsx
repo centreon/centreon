@@ -65,12 +65,12 @@ const Listing = ({
     goToResourceStatusPage
   } = useListing({
     changeViewMode,
+    dashboardId,
     displayType,
+    id,
     isFromPreview,
     limit,
-    dashboardId,
     playlistHash,
-    id,
     refreshCount,
     refreshIntervalToUse,
     resources,

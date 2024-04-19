@@ -199,6 +199,8 @@ describe('Graph Widget', () => {
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
 
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
     cy.findByTestId('warning-line-65').should('not.exist');
     cy.findByTestId('warning-line-70').should('not.exist');
     cy.findByTestId('critical-line-85').should('not.exist');
