@@ -55,8 +55,9 @@ import {
   labelSearch,
   labelSecurityToken,
   labelTokenCreated,
-  labelTokenDeletedSuccessfully,
-  labelUser
+  labelDeletedSuccessfully,
+  labelUser,
+  labelToken
 } from './translatedLabels';
 
 dayjs.extend(utcPlugin);
@@ -708,7 +709,7 @@ describe('Api-token', () => {
         expect(calls).to.have.length(1);
       });
     });
-    cy.contains(labelTokenDeletedSuccessfully);
+    cy.contains(`${labelToken}${labelDeletedSuccessfully}`);
     cy.waitForRequest('@getListTokensAfterDeletion');
     cy.findAllByTestId('deleteDialog').should('not.exist');
     cy.contains(tokenToDelete).should('not.exist');

@@ -27,7 +27,7 @@ export const labelMsgConfirmationDeletionToken =
 export const labelMsgConfirmationDeletionTokens =
   'This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?';
 export const labelDeleteToken = 'Delete token';
-export const labelTokenDeletedSuccessfully = 'Token deleted successfully';
+export const labelDeletedSuccessfully = 'deleted successfully';
 export const labelActiveToken = 'Active tokens';
 export const labelRevokedToken = 'Disabled tokens';
 export const labelStatus = 'Status';

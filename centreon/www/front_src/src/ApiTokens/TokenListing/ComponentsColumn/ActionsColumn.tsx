@@ -9,7 +9,8 @@ import { clickedRowAtom } from '../atoms';
 import { deleteSingleTokenEndpoint } from '../../api/endpoints';
 import {
   labelMsgConfirmationDeletionToken,
-  labelTokenDeletedSuccessfully
+  labelDeletedSuccessfully,
+  labelToken
 } from '../../translatedLabels';
 
 import Deletion from './Deletion';
@@ -30,7 +31,7 @@ const ActionsColumn = (): JSX.Element => {
       };
 
   const onSuccess = (): void => {
-    showSuccessMessage(t(labelTokenDeletedSuccessfully));
+    showSuccessMessage(t(`${labelToken} ${labelDeletedSuccessfully}`));
   };
 
   const dataApi = {

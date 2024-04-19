@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
-import pluralize from 'pluralize';
 import { useTranslation } from 'react-i18next';
+import pluralize from 'pluralize';
 
 import { Method, useSnackbar } from '@centreon/ui';
 
@@ -11,7 +11,8 @@ import {
   labelDeleteSelectedTokens,
   labelFailedToDeleteSelectedToken,
   labelMsgConfirmationDeletionTokens,
-  labelTokenDeletedSuccessfully
+  labelDeletedSuccessfully,
+  labelToken
 } from '../../../translatedLabels';
 import Deletion from '../../ComponentsColumn/Deletion';
 import ConfirmationDeletionModal from '../../ComponentsColumn/Deletion/ConfirmationDeletionModal';
@@ -43,7 +44,9 @@ const Delete = (): JSX.Element => {
       isFailureStatusCode(result)
     );
     if (!isFailureExist) {
-      showSuccessMessage(pluralize(t(labelTokenDeletedSuccessfully)));
+      showSuccessMessage(
+        `${pluralize(t(labelToken))} ${t(labelDeletedSuccessfully)}`
+      );
 
       return;
     }
