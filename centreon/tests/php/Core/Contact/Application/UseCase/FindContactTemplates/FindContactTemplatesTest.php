@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Contact\Application\UseCase\FindContactTemplates;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 use Core\Contact\Application\UseCase\FindContactTemplates\FindContactTemplates;
@@ -33,10 +36,22 @@ use Core\Contact\Domain\Model\ContactTemplate;
 beforeEach(function () {
     $this->repository = $this->createMock(ReadContactTemplateRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->user = $this->createMock(ContactInterface::class);
 });
 
 it('should present an ErrorResponse while an exception occured', function () {
-    $useCase = new FindContactTemplates($this->repository);
+    $useCase = new FindContactTemplates($this->repository,$this->user);
+
+    $this->user
+        ->expects($this->any())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->repository
         ->expects($this->once())
         ->method('findAll')
@@ -51,8 +66,40 @@ it('should present an ErrorResponse while an exception occured', function () {
     );
 });
 
+it('should present an ForbiddenResponse if the user doesnt have the read menu access to contact template', function () {
+    $useCase = new FindContactTemplates($this->repository,$this->user);
+
+    $this->user
+        ->expects($this->any())
+        ->method('hasTopologyRole')
+        ->withConsecutive(
+            [Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ],
+            [Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ_WRITE]
+        )
+        ->willReturn(false);
+
+    $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
+    $useCase($presenter);
+
+    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+    expect($presenter->getResponseStatus()?->getMessage())->toBe(
+        'You are not allowed to access contact templates'
+    );
+});
+
 it('should present a FindContactTemplatesResponse when no error occured', function () {
-    $useCase = new FindContactTemplates($this->repository);
+    $useCase = new FindContactTemplates($this->repository,$this->user);
+
+    $this->user
+        ->expects($this->any())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $contactTemplate = new ContactTemplate(1, 'contact_template');
     $this->repository
         ->expects($this->once())
