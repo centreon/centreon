@@ -117,3 +117,29 @@ it('should present a FindContactTemplatesResponse when no error occured', functi
         ]
     );
 });
+
+it('should present an ForbiddenResponse if the user not an admin', function () {
+    $useCase = new FindContactTemplates($this->repository,$this->user);
+
+    $this->user
+        ->expects($this->any())
+        ->method('hasTopologyRole')
+        ->withConsecutive(
+            [Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ],
+            [Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ_WRITE]
+        )
+        ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $presenter = new FindContactTemplatesPresenterStub($this->presenterFormatter);
+    $useCase($presenter);
+
+    expect($presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+    expect($presenter->getResponseStatus()?->getMessage())->toBe(
+        'Only admins are allowed to access contact templates'
+    );
+});
