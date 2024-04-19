@@ -155,7 +155,7 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_USER: user
+          MYSQL_USER: centreon
           MYSQL_PASSWORD: password
           MYSQL_ROOT_PASSWORD: password
 
@@ -189,7 +189,7 @@ jobs:
           mysql -h mariadb -u root -ppassword 'centreon-storage' < centreon/www/install/createTablesCentstorage.sql
 
       - name: Run tests
-        run: robot centreon-gorgone/tests
+        run: robot -v 'DBHOST:mariadb' -v 'DBNAME:centreon' -v 'DBUSER:centreon' centreon-gorgone/tests
 
   deliver-sources:
     runs-on: [self-hosted, common]
