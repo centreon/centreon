@@ -40,5 +40,4 @@ centreon:
     db_realtime:
       dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
       username: "@DBUSER@"
-<<<<<<< HEAD
       password: "@DBPASSWORD@"
