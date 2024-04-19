@@ -158,7 +158,7 @@ const initializeEmptyComponent = (): void => {
 };
 
 describe('Public widget', () => {
-  it('sends a request to the public API when the widget is displayed in a public page and the standard view is enabled', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
     initializeComponent({ isPublic: true });
 
     cy.waitForRequest('@getPublicWidget');
