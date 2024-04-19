@@ -166,7 +166,7 @@ const StatusGrid = ({
     <HeatMap<ResourceData | null>
       displayTooltipCondition={(resourceData) => !isNil(resourceData)}
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
-      tooltipContent={Tooltip(resourceType)}
+      tooltipContent={isOnPublicPage ? undefined : Tooltip(resourceType)}
     >
       {({ isSmallestSize, data: resourceData }) => (
         <Tile
