@@ -49,6 +49,7 @@ runs:
             "issuetype": {"id": "10209"},
             "parent": {"id": "83818", "key": "AT-268"},
             "labels": ["Veracode", "Pipeline"],
+            "components":[{"name": "${{ inputs.module_name }}"}],
             "customfield_10902": {"id": "10524", "value": "DevSecOps"},
             "customfield_10005": 1.0,
             "description": {"version": 1,"type": "doc","content": [
