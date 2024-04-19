@@ -159,12 +159,12 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         $queryValues = [];
 
         // Get ACL if user is not admin
-        if (
-            ! $isAdmin
-                && $centreon->user->access->hasAccessToAllHostGroups === false
-        ) {
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
-            $filters[] = ' hg.hg_id IN (' . $acl->getHostGroupsString() . ') ';
+            if ($centreon->user->access->hasAccessToAllHostGroups === false) {
+                $filters[] = ' hg.hg_id IN (' . $acl->getHostGroupsString() . ') ';
+            }
+
             $filters[] = ' h.host_id IN (' . $acl->getHostsString($this->pearDBMonitoring) . ') ';
         }
 

@@ -66,6 +66,7 @@ class CentreonACL
     private $metaServiceStr = "";
     private $tempTableArray = array();
     public $hasAccessToAllHostGroups = false;
+    public $hasAccessToAllServiceGroups = false;
 
     /**
      * Constructor
@@ -94,6 +95,7 @@ class CentreonACL
             $this->setAccessGroups();
             $this->setResourceGroups();
             $this->hasAccessToAllHostGroups = $this->hasAccessToAllHostGroups();
+            $this->hasAccessToAllServiceGroups = $this->hasAccessToAllServiceGroups();
             $this->setHostGroups();
             $this->setPollers();
             $this->setServiceGroups();
@@ -258,6 +260,44 @@ class CentreonACL
     }
 
     /**
+     * Check is all_servicegroups is activated at least of one ACL Group which this user is linked
+     * @return bool
+     */
+    private function hasAccessToAllServiceGroups(): bool
+    {
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            list: explode(',', $this->getAccessGroupsString()),
+            prefix: ':access_group_id_'
+        );
+
+        $request = <<<SQL
+            SELECT res.all_servicegroups
+            FROM acl_resources res
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = res.acl_res_id
+            INNER JOIN acl_groups ag
+                ON ag.acl_group_id = argr.acl_group_id
+            WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+            SQL;
+
+        $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Resource groups Setter
      */
     private function setResourceGroups()
@@ -353,19 +393,43 @@ class CentreonACL
      */
     private function setServiceGroups()
     {
-        $query = "SELECT sg.sg_id, sg.sg_name, sg.sg_alias, arsr.acl_res_id "
-            . "FROM servicegroup sg, acl_resources_sg_relations arsr "
-            . "WHERE sg.sg_id = arsr.sg_id "
-            . "AND sg.sg_activate = '1' "
-            . "AND arsr.acl_res_id IN (" . $this->getResourceGroupsString() . ") "
-            . "ORDER BY sg.sg_name ASC";
-        $DBRESULT = \CentreonDBInstance::getConfInstance()->query($query);
-        while ($row = $DBRESULT->fetchRow()) {
-            $this->serviceGroups[$row['sg_id']] = $row['sg_name'];
-            $this->serviceGroupsAlias[$row['sg_id']] = $row['sg_alias'];
-            $this->serviceGroupsFilter[$row['acl_res_id']][$row['sg_id']] = $row['sg_id'];
+        $aclSubRequest = '';
+
+        if ($this->hasAccessToAllServiceGroups === false) {
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+                list: explode(',', $this->getAccessGroupsString()),
+                prefix: ':access_group_id_'
+            );
+
+            $aclSubRequest .= ' AND arsr.acl_res_id IN (' . $bindQuery . ')';
         }
-        $DBRESULT->closeCursor();
+
+        $request = <<<SQL
+            SELECT
+                sg.sg_id,
+                sg.sg_name,
+                sg.sg_alias
+            FROM servicegroup sg
+            INNER JOIN acl_resources_sg_relations arsr
+                ON sg.sg_id = arsr.sg_id
+            WHERE sg.sg_activate = '1'
+            $aclSubRequest
+            ORDER BY sg.sg_name ASC
+        SQL;
+
+        $statement = \CentreonDBInstance::getConfInstance()->prepare($request);
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $this->serviceGroups[$record['sg_id']] = $record['sg_name'];
+            $this->serviceGroupsAlias[$record['sg_id']] = $record['sg_alias'];
+            $this->serviceGroupsFilter[$record['acl_res_id']][$record['sg_id']] = $record['sg_id'];
+        }
     }
 
     /**
