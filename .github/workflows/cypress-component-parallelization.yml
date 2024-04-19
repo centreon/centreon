@@ -91,6 +91,7 @@ jobs:
       - name: Merge coverage reports
         run: |
           ls -a .nyc_output
+          cat .nyc_output/About.cypress.spec.tsx-out.json
           pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
         shell: bash
