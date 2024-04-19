@@ -91,8 +91,8 @@ jobs:
           test_plan_id=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_id_'${{ inputs.os }})
           echo "The Test Execution ID : $test_execution_id"
           echo "The Test Plan ID : $test_plan_id"
-          echo "test_plan_id=$test_plan_id" >> $GITHUB_OUTPUT
-          echo "test_execution_id=$test_execution_id" >> $GITHUB_OUTPUT
+          echo "test_plan_id=100694" >> $GITHUB_OUTPUT
+          echo "test_execution_id=108904" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Generate Xray Token
