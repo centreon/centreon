@@ -38,8 +38,10 @@ class FindContactTemplates
      * @param ReadContactTemplateRepositoryInterface $repository
      * @param ContactInterface $user
      */
-    public function __construct(private ReadContactTemplateRepositoryInterface $repository,private ContactInterface $user)
-    {
+    public function __construct(
+        private ReadContactTemplateRepositoryInterface $repository,
+        private ContactInterface $user,
+    ) {
     }
 
     /**
@@ -52,16 +54,21 @@ class FindContactTemplates
                 ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ)
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ_WRITE)
             ) {
+
                 $this->error('User doesn\'t have sufficient right to see contact templates', [
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
                     new ForbiddenResponse('You are not allowed to access contact templates')
                 );
+
                 return;
             }
             if ($this->user->isAdmin()) {
                 $contactTemplates = $this->repository->findAll();
+                $presenter->present(new FindContactTemplatesResponse($contactTemplates));
+            } else {
+                $presenter->setResponseStatus(new ForbiddenResponse('Only admins are allowed to access contact templates'));
             }
         } catch (\Throwable $ex) {
             $this->error('An error occured in data storage while getting contact templates', [
@@ -73,7 +80,5 @@ class FindContactTemplates
 
             return;
         }
-
-        $presenter->present(new FindContactTemplatesResponse($contactTemplates));
     }
 }
