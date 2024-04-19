@@ -54,7 +54,9 @@ final class FindRulePresenter extends AbstractPresenter implements FindRulePrese
                 'description' => $response->description,
                 'is_enabled' => $response->isEnabled,
                 'contacts' => $response->contacts,
+                'is_applied_for_all_contacts' => $response->applyToAllContacts,
                 'contact_groups' => $response->contactGroups,
+                'is_applied_for_all_contact_groups' => $response->applyToAllContactGroups,
                 'dataset_filters' => $response->datasetFilters,
             ]);
         }
