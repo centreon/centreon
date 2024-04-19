@@ -62,7 +62,7 @@ const StatusChart = ({
 
         return (
           <Chart
-            dashboard={dashboardId}
+            dashboardId={dashboardId}
             displayLegend={displayLegend}
             displayType={displayType}
             displayValues={displayValues}

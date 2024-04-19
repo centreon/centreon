@@ -1,13 +1,15 @@
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
-import { Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { SortOrder } from '../../../models';
 import { Data, PanelOptions } from '../models';
-import ResourcesTable from '..';
+import ResourcesTable from '../ResourcesTable';
 import { resourcesEndpoint, viewByHostEndpoint } from '../api/endpoints';
 import { DisplayType } from '../Listing/models';
+import { getPublicWidgetEndpoint } from '../../../utils';
 
 import {
   options as resourcesOptions,
@@ -23,26 +25,33 @@ interface Props {
   options: PanelOptions;
 }
 
-const store = createStore();
+const render = ({ options, data, isPublic }: Props): void => {
+  const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
-const render = ({ options, data }: Props): void => {
   cy.viewport('macbook-11');
 
   cy.mount({
     Component: (
       <BrowserRouter>
-        <div style={{ height: '100vh', width: '100%' }}>
-          <ResourcesTable
-            globalRefreshInterval={{
-              interval: 30,
-              type: 'manual'
-            }}
-            panelData={data}
-            panelOptions={options}
-            refreshCount={0}
-            store={store}
-          />
-        </div>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <div style={{ height: '100vh', width: '100%' }}>
+              <ResourcesTable
+                dashboardId={1}
+                globalRefreshInterval={{
+                  interval: 30,
+                  type: 'manual'
+                }}
+                id="1"
+                panelData={data}
+                panelOptions={options}
+                playlistHash="hash"
+                refreshCount={0}
+              />
+            </div>
+          </Provider>
+        </TestQueryProvider>
       </BrowserRouter>
     )
   });
@@ -54,6 +63,17 @@ const resourcesRequests = (): void => {
       alias: 'getResources',
       method: Method.GET,
       path: `./api/latest${resourcesEndpoint}?page=1**`,
+      response: data
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
       response: data
     });
   });
@@ -94,6 +114,20 @@ const verifyListingRows = (): void => {
   cy.contains('Memory').should('be.visible');
   cy.contains('Ping').should('be.visible');
 };
+
+describe('Public widget', () => {
+  beforeEach(resourcesRequests);
+
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    render({
+      data: { resources },
+      isPublic: true,
+      options: resourcesOptions
+    });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
 
 describe('View by all', () => {
   beforeEach(resourcesRequests);

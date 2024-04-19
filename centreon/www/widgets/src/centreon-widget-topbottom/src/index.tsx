@@ -16,34 +16,37 @@ interface Props extends CommonWidgetProps<object> {
   };
 }
 
-const Widget = ({
-  store,
+export const TopBottomWrapper = ({
+  dashboardId,
   globalRefreshInterval,
+  id,
+  isFromPreview,
   panelData,
   panelOptions,
-  refreshCount,
-  isFromPreview,
-  id,
-  dashboardId,
-  playlistHash
-}: Props): JSX.Element => {
+  playlistHash,
+  refreshCount
+}: Omit<Props, 'store'>): JSX.Element => (
+  <TopBottom
+    dashboardId={dashboardId}
+    globalRefreshInterval={globalRefreshInterval}
+    id={id}
+    isFromPreview={isFromPreview}
+    metrics={panelData.metrics}
+    playlistHash={playlistHash}
+    refreshCount={refreshCount}
+    refreshInterval={panelOptions.refreshInterval}
+    refreshIntervalCustom={panelOptions.refreshIntervalCustom}
+    resources={panelData.resources}
+    threshold={panelOptions.threshold}
+    topBottomSettings={panelOptions.topBottomSettings}
+    valueFormat={panelOptions.valueFormat}
+  />
+);
+
+const Widget = ({ store, ...props }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
-      <TopBottom
-        dashboardId={dashboardId}
-        globalRefreshInterval={globalRefreshInterval}
-        id={id}
-        isFromPreview={isFromPreview}
-        metrics={panelData.metrics}
-        playlistHash={playlistHash}
-        refreshCount={refreshCount}
-        refreshInterval={panelOptions.refreshInterval}
-        refreshIntervalCustom={panelOptions.refreshIntervalCustom}
-        resources={panelData.resources}
-        threshold={panelOptions.threshold}
-        topBottomSettings={panelOptions.topBottomSettings}
-        valueFormat={panelOptions.valueFormat}
-      />
+      <TopBottomWrapper {...props} />
     </Module>
   );
 };
