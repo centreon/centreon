@@ -255,7 +255,6 @@ jobs:
         with:
           name: "Veracode Pipeline-Scan Results"
 
-
   policy-scan:
     needs: [build]
     name: Run a sandbox scan
