@@ -99,6 +99,7 @@ jobs:
         run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
 
+      - name: List coverage directory
         run: | 
           pwd
           ls -lR 
