@@ -93,20 +93,12 @@ jobs:
           ls -lR .nyc_output
           pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
+          cat .nyc_output/out.json
         shell: bash
-
-      - name: ls -lR before generating code coverage 
-        run: ls -lR 
 
       - name: Generate lcov coverage report
         run: pnpx nyc report --reporter=lcov --reporter html
         shell: bash
-
-      - name: current repo
-        run: pwd
-
-      - name: ls -lR 
-        run: ls -lR 
 
       - name: ls -lR coverage/
         run: ls -lR coverage/
