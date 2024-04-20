@@ -68,8 +68,7 @@ module.exports = merge(
   getBaseConfiguration(
     isServeMode
       ? devRefreshJscTransformConfiguration
-      : devJscTransformConfiguration,
-    true
+      : devJscTransformConfiguration
   ),
   getDevConfiguration(),
   {
