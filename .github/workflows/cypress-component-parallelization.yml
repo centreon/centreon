@@ -90,10 +90,13 @@ jobs:
 
       - name: Merge coverage reports
         run: |
+          ls -lR .nyc_output
           pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
-          cat .nyc_output/out.json
         shell: bash
+
+      - name: ls -lR before generating code coverage 
+        run: ls -lR 
 
       - name: Generate lcov coverage report
         run: pnpx nyc report --reporter=lcov --reporter html
