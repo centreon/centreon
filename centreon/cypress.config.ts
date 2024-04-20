@@ -1,6 +1,6 @@
 const defineCypressConfig = require('@centreon/js-config/cypress/component/configuration');
 
-const webpackConfig = require('./webpack.config.cypress');
+const webpackConfig = require('./webpack.config.dev');
 
 module.exports = defineCypressConfig({
   excludeSpecPattern: './www/modules',
