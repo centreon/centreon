@@ -95,10 +95,10 @@ jobs:
           cat .nyc_output/out.json
         shell: bash
 
-        - name: current dir
-          run: |
-            pwd
-            ls -l
+      - name: current dir
+        run: |
+          pwd
+          ls -l
 
       - name: Generate lcov coverage report
         run: pnpx nyc report --reporter=lcov --reporter html
