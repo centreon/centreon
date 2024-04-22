@@ -62,7 +62,7 @@ export type GetResourceAccessRule = ResourceAccessRuleType & {
   };
   contacts: {
     all: boolean;
-    values: Array<NamedEntity>
+    values: Array<NamedEntity>;
   };
   datasetFilters: Array<DatasetFilter>;
 };

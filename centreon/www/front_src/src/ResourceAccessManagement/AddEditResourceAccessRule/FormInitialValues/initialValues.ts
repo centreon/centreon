@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { equals, isEmpty, map, prop } from 'ramda';
+import { equals, isEmpty, prop } from 'ramda';
 
 import {
   Dataset,
