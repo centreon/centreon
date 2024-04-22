@@ -464,7 +464,7 @@ final class UpdateRule
     {
         /**
          * Do not do uneccessary database calls if nothing has changed
-         * ir if all contact groups are linked to this rule.
+         * if all contact groups are linked to this rule.
          */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(
@@ -499,7 +499,7 @@ final class UpdateRule
     {
         /**
          * Do not do uneccessary database calls if nothing has changed
-         * ir if all contacts are linked to this rule.
+         * if all contacts are linked to this rule.
          */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(

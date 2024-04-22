@@ -628,7 +628,7 @@ function linkContactsToAccessGroup(int $accessGroupId, array $contactIds): void
     $bindValues = [];
     $subValues = [];
     foreach ($contactIds as $index => $contactId) {
-        $bindValues["contact_id_{$index}"] = $contactId;
+        $bindValues[":contact_id_{$index}"] = $contactId;
         $subValues[] = "(:contact_id_{$index}, :accessGroupId)";
     }
 
@@ -663,7 +663,7 @@ function linkContactGroupsToAccessGroup(int $accessGroupId, array $contactGroupI
     $bindValues = [];
     $subValues = [];
     foreach ($contactGroupIds as $index => $contactGroupId) {
-        $bindValues["contact_group_id_{$index}"] = $contactGroupId;
+        $bindValues[":contact_group_id_{$index}"] = $contactGroupId;
         $subValues[] = "(:contact_group_id_{$index}, :accessGroupId)";
     }
 
