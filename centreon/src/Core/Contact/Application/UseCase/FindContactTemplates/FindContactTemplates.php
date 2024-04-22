@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Exception\ContactTemplateException;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 
 class FindContactTemplates
@@ -39,8 +40,8 @@ class FindContactTemplates
      * @param ContactInterface $user
      */
     public function __construct(
-        private ReadContactTemplateRepositoryInterface $repository,
-        private ContactInterface $user,
+        readonly private ReadContactTemplateRepositoryInterface $repository,
+        readonly private ContactInterface $user,
     ) {
     }
 
@@ -50,33 +51,30 @@ class FindContactTemplates
     public function __invoke(FindContactTemplatesPresenterInterface $presenter): void
     {
         try {
+            $this->info('Find contact templates', ['user_id' => $this->user->getId()]);
             if (
-                ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ)
-                && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_TEMPLATES_READ_WRITE)
+                ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ)
+                && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ_WRITE)
             ) {
 
-                $this->error('User doesn\'t have sufficient rights to see contact templates', [
+                $this->error('User doesn\'t have sufficient right to list contact templates', [
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse('You are not allowed to access contact templates')
+                    new ForbiddenResponse(ContactTemplateException::listingNotAllowed())
                 );
 
                 return;
             }
-            if ($this->user->isAdmin()) {
-                $contactTemplates = $this->repository->findAll();
-                $presenter->present(new FindContactTemplatesResponse($contactTemplates));
-            } else {
-                $presenter->setResponseStatus(new ForbiddenResponse('Only admins are allowed to access contact templates'));
-            }
+
+            $presenter->present(new FindContactTemplatesResponse($this->repository->findAll()));
         } catch (\Throwable $ex) {
-            $this->error('An error occured in data storage while getting contact templates', [
+            $this->error('Error while searching for contact templates', [
                 'trace' => $ex->getTraceAsString(),
             ]);
-            $presenter->setResponseStatus(new ErrorResponse(
-                'Impossible to get contact templates from data storage'
-            ));
+            $presenter->setResponseStatus(
+                new ErrorResponse(ContactTemplateException::errorWhileSearchingForContactTemplate())
+            );
 
             return;
         }
