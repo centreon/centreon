@@ -762,7 +762,7 @@ describe('Api-token', () => {
       snackBarMsg,
       alias
     }) => {
-      it.only(`deletes multiple tokens when clicking on the Delete button, case: ${description}`, () => {
+      it(`deletes multiple tokens when clicking on the Delete button, case: ${description}`, () => {
         cy.waitForRequest('@getListTokens');
 
         const deleteMultipleTokens = deleteMultipleTokensEndpoint();
