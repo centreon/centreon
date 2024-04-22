@@ -66,8 +66,7 @@ class DashboardRights
 
     public function canAccess(): bool
     {
-        return $this->hasViewerRole()
-            || $this->isCloudAuthorized;
+        return $this->hasViewerRole() || $this->isCloudAuthorized;
     }
 
     public function canDelete(DashboardSharingRoles $roles): bool
@@ -102,8 +101,7 @@ class DashboardRights
 
     public function hasAdminRole(): bool
     {
-        return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
-            || $this->isCloudAuthorized;
+        return $this->contact->hasTopologyRole(self::ROLE_ADMIN) || $this->isCloudAuthorized;
     }
 
     public function hasCreatorRole(): bool
@@ -124,7 +122,7 @@ class DashboardRights
     public function getGlobalRole(): ?DashboardGlobalRole
     {
         return match (true) {
-            $this->hasAdminRole(), $this->isCloudAuthorized => DashboardGlobalRole::Administrator,
+            $this->hasAdminRole() => DashboardGlobalRole::Administrator,
             $this->hasCreatorRole() => DashboardGlobalRole::Creator,
             $this->hasViewerRole() => DashboardGlobalRole::Viewer,
             default => null,
