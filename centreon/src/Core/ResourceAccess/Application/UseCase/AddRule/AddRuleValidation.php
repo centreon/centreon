@@ -121,14 +121,22 @@ class AddRuleValidation
     /**
      * @param int[] $contactIds
      * @param int[] $contactGroupIds
+     * @param bool $applyToAllContacts
+     * @param bool $applyToAllContactGroups
      *
      * @throws RuleException
      */
-    public function assertContactsAndContactGroupsAreNotEmpty(array $contactIds, array $contactGroupIds): void
-    {
+    public function assertContactsAndContactGroupsAreNotEmpty(
+        array $contactIds,
+        array $contactGroupIds,
+        bool $applyToAllContacts,
+        bool $applyToAllContactGroups
+    ): void {
         if (
             [] === $contactIds
             && [] === $contactGroupIds
+            && $applyToAllContacts === false
+            && $applyToAllContactGroups === false
         ) {
             throw RuleException::noLinkToContactsOrContactGroups();
         }
