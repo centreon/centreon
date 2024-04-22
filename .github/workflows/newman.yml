@@ -182,15 +182,14 @@ jobs:
 
           echo "Response from Add Tests to Test Plan:"
           echo "$response_addTestsToTestPlan"
-
           get_test_plan_issue_ids() {
             start=0
             issue=()
-            summaries=()  # Initialisation du tableau pour les résumés
+            summaries=()
 
             while true; do
                 xray_graphql_getTestPlan='{
-                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } jira(fields: [\"summary\",\"key\"]) } } } }",
+                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { total results { issueId testType { name } jira(fields: [\"summary\",\"key\"]) } } } }",
                     "variables": {
                         "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
                         "start": '$start'
@@ -207,7 +206,9 @@ jobs:
                 echo "Current Issue IDs: ${current_issue_ids[@]}"
 
                 # Check if there are more results
-                if [ ${#current_issue_ids[@]} -eq 0 ]; then
+                total_results=$(echo "$response" | jq -r '.data.getTestPlan.tests.total')
+                retrieved_results="${#issue[@]}"
+                if [ "$retrieved_results" -ge "$total_results" ]; then
                     echo "No more results. Exiting loop."
                     break
                 fi
