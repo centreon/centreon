@@ -188,6 +188,66 @@ try {
     }
 
     /**
+     * Check if some ACL groups have global options selected for
+     * contacts or contact groups
+     */
+    $request = <<<SQL
+        SELECT
+            acl_group_id,
+            all_contacts,
+            all_contact_groups
+        FROM acl_groups
+        WHERE acl_group_activate = '1'
+            AND (all_contacts != 0 OR all_contact_groups != 0)
+    SQL;
+
+    $statement = $pearDB->query($request);
+
+    while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        $accessGroupId = $record['acl_group_id'];
+        if ($record['all_contacts']) {
+            // Find all contacts that are not already linked to the access group
+            $contactIds = getContactsNotLinkedToAclGroup($accessGroupId);
+
+            $pearDB->beginTransaction();
+            try {
+                linkContactsToAccessGroup(
+                    accessGroupId: $accessGroupId,
+                    contactIds: $contactIds
+                );
+                $pearDB->commit();
+            } catch (\Throwable $exception) {
+                $pearDB->rollBack();
+                $centreonLog->insertLog(
+                    2,
+                    "CentACL CRON: failed to add new contacts to access group " . $accessGroupId
+                );
+            }
+        }
+
+        if ($record['all_contact_groups']) {
+            // Find all contact groups that are not already linked to the access group
+            $contactGroupIds = getContactGroupsNotLinkedToAclGroup($accessGroupId);
+
+            $pearDB->beginTransaction();
+            try {
+                linkContactGroupsToAccessGroup(
+                    accessGroupId: $accessGroupId,
+                    contactGroupIds: $contactGroupIds
+                );
+                $pearDB->commit();
+            } catch (\Throwable $exception) {
+                $pearDB->rollBack();
+                $centreonLog->insertLog(
+                    2,
+                    "CentACL CRON: failed to add new contact groups to access group " . $accessGroupId
+                );
+            }
+
+        }
+    }
+
+    /**
      * Check if some ACL have global options selected for
      * all the resources
      */

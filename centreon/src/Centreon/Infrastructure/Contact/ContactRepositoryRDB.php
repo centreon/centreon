@@ -567,6 +567,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
+            case 'create_edit_poller_cfg':
+                $contact->addRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG);
+                break;
+            case 'delete_poller_cfg':
+                $contact->addRole(Contact::ROLE_DELETE_POLLER_CFG);
                 break;
         }
     }
