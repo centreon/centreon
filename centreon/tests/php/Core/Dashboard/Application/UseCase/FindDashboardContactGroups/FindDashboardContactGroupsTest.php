@@ -73,8 +73,8 @@ it(
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
 
-        $this->contact->expects($this->once())
-            ->method('isAdmin')
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
             ->willReturn(false);
 
         $this->readDashboardShareRepository

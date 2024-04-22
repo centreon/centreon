@@ -469,6 +469,10 @@ services:
         class: Utility\UUIDGenerator
         public: true
 
+    Utility\Interfaces\StringGeneratorInterface:
+        class: Utility\ULIDGenerator
+        public: true
+
     Centreon\Domain\Repository\ImagesRepository:
         class: Centreon\Domain\Repository\ImagesRepository
         public: true
