@@ -126,9 +126,14 @@ jobs:
 
           # Parsing and processing test IDs
           test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
-          test_issue_ids=("${test_issue_ids[@]/#/"\"}")
-          test_issue_ids=("${test_issue_ids[@]/%/"\""}")
 
+          formatted_test_issue_ids_str="["
+          for issue_id in "${test_issue_ids[@]}"; do
+            formatted_test_issue_ids_str+="\"$issue_id\","
+          done
+          formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}"
+          formatted_test_issue_ids_str+="]"
+          echo "$formatted_test_issue_ids_str"
 
           # Display the retrieved test issue IDs
           echo "Test Issue IDs: ${test_issue_ids[@]}"
@@ -138,7 +143,7 @@ jobs:
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-              "testIssueIds": '${test_issue_ids[@]}'
+              "testIssueIds": '"$formatted_test_issue_ids_str"'
             }
           }'
 
