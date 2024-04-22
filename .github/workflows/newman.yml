@@ -218,6 +218,7 @@ jobs:
               start=$((start + 100))
             done
           }
+
           get_test_plan_issue_ids
           issue_ids=("${issue[@]}")
 
