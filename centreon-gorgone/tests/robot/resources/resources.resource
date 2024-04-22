@@ -38,7 +38,7 @@ Stop Gorgone And Remove Gorgone Config
     FOR    ${process}    IN    @{process_alias}
         ${result}    Terminate Process    ${process}
         BuiltIn.Run Keyword And Continue On Failure    Should Be True    ${result.rc} == -15 or ${result.rc} == 0    Engine badly stopped alias = ${process_alias} - code returned ${result.rc}.
-        ${result}    Run    rm -rf /etc/centreon-gorgone/${process}
+        #${result}    Run    rm -rf /etc/centreon-gorgone/${process}
     END
 
 Gorgone Execute Sql
@@ -70,6 +70,8 @@ Check Poller Is Connected
     FOR    ${i}    IN RANGE    40
         Sleep    4
         ${nb_socket_connexion}    Run    ss -tnp | grep ':${port}' | grep ESTAB | wc -l
+        ${log}    Run     ss -tnlp
+        Log To Console    ss is : \n${log}
         IF    ${expected_nb} == ${nb_socket_connexion}
           BREAK
         END
