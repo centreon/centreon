@@ -117,6 +117,8 @@ Setup Two Gorgone Instances
     IF    '${communication_mode}' == 'push_zmq'
         Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
         Setup Gorgone Config    ${poller_name}    ${push_poller_config}
+        Create Directory    /var/log/centreon-gorgone/${central_name}/
+        Create Directory    /var/log/centreon-gorgone/${poller_name}/
 
         Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    debug    ${central_name}
         Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    debug    ${poller_name}
