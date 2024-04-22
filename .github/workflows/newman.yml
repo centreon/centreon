@@ -186,10 +186,11 @@ jobs:
           get_test_plan_issue_ids() {
             start=0
             issue=()
+            summaries=()  # Initialisation du tableau pour les résumés
 
             while true; do
                 xray_graphql_getTestPlan='{
-                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId jira(fields: [\"summary\",\"key\"]) } } } }",
+                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } jira(fields: [\"summary\",\"key\"]) } } } }",
                     "variables": {
                         "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
                         "start": '$start'
@@ -214,18 +215,18 @@ jobs:
                 # Concatenate the current batch of results to the overall issue_ids array
                 issue=("${issue[@]}" "${current_issue_ids[@]}")
 
+                # Extract summaries from the current batch and append to the summaries array
+                current_summaries=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].jira.summary'))
+                summaries=("${summaries[@]}" "${current_summaries[@]}")
+
                 # Increment the start value for the next iteration
                 start=$((start + 100))
-             done
-
-            # Extract summaries from the response
-            summaries=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[].jira.summary'))
+            done
 
             # Display results
             echo "Result Issue IDs: ${issue[@]}"
             echo "Summaries: ${summaries[@]}"
           }
-
           get_test_plan_issue_ids
 
           collections=($(find ./collections -type f -name "*.postman_collection.json"))
