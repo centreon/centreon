@@ -10,7 +10,7 @@ gorgone:
     external_com_type: tcp
     external_com_path: "*:5556"
     authorized_clients:
-      - key: dAYlvNgki--qKAqdTvizu-_YH25B5WY_uXQtvVSgcrI
+      - key:@KEYTHUMBPRINT@
 
     privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
     pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"

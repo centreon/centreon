@@ -30,14 +30,15 @@ Start Gorgone
     ...    ${SEVERITY}
     ...    alias=${ALIAS}
 
-Stop Gorgone
-    [Arguments]    @{process_alias}
+Stop Gorgone And Remove Gorgone Config
+    [Arguments]    @{process_alias}    ${sql_file}=
+    Gorgone Execute Sql    ${sql_file}
+    # remove configuration in db if needed.
 
     FOR    ${process}    IN    @{process_alias}
-
         ${result}    Terminate Process    ${process}
         BuiltIn.Run Keyword And Continue On Failure    Should Be True    ${result.rc} == -15 or ${result.rc} == 0    Engine badly stopped alias = ${process_alias} - code returned ${result.rc}.
-
+        ${result}    Run    rm -rf /etc/centreon-gorgone/${process}
     END
 
 Gorgone Execute Sql
@@ -45,6 +46,7 @@ Gorgone Execute Sql
     ${length}    Get Length    ${sql_file}
     IF    ${length} > 0
         Connect To Database    pymysql    ${DBNAME}    ${DBUSER}    ${DBPASSWORD}    ${DBHOST}    ${DBPORT}
+        Log To Console    Executing sql file ${sql_file}
         Execute SQL Script    ${sql_file}
     END
 
@@ -57,51 +59,50 @@ Setup Gorgone Config
     FOR    ${file}    IN    @{file_list}
         Copy File    ${file}    /etc/centreon-gorgone/${id}/config.d/
     END
+    ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
     ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${id}/g' /etc/centreon-gorgone/${id}/includer.yaml
-    ${result2}    Run    sed -i -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBHOST@/${DBHOST}/g' -e 's/@DBPASSWORD@/${DBPASSWORD}/g' -e 's/@DBUSER@/${DBUSER}/g' -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${id}/g' /etc/centreon-gorgone/${id}/config.d/*.yaml
-
-Remove Gorgone Config
-    [Arguments]        ${id}    ${sql_file}=
-    Gorgone Execute Sql    ${sql_file}
-    ${result}    Run    rm -rf /etc/centreon-gorgone/${id}
+    ${result2}    Run    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBHOST@/${DBHOST}/g' -e 's/@DBPASSWORD@/${DBPASSWORD}/g' -e 's/@DBUSER@/${DBUSER}/g' -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${id}/g' /etc/centreon-gorgone/${id}/config.d/*.yaml
 
 Check Poller Is Connected
     [Arguments]    ${port}=    ${expected_nb}=
+    Log To Console    checking TCP connection is established...
     FOR    ${i}    IN RANGE    40
-        Sleep    2
+        Sleep    4
         ${nb_socket_connexion}    Run    ss -tnp | grep ':${port}' | grep ESTAB | wc -l
-        Log To Console    i is : ${i}
         IF    ${expected_nb} == ${nb_socket_connexion}
           BREAK
         END
     END
-    Log To Console    i is : ${i}
+    Log To Console    TCP connection establishing after ${i} attempt
     Should Be True    ${i} < 39    Gorgone did not establish tcp connection in 80 seconds.
+    Log To Console    TCP connection established after ${i} attempt (4 seconds each)
 
 Check Poller Communicate
     [Arguments]    ${poller_id}
     ${response}     Set Variable    ${EMPTY}
+    Log To Console    checking Gorgone see poller in rest api response...
     FOR    ${i}    IN RANGE    10
-        Sleep    2
+        Sleep    5
         ${response}=    GET  http://127.0.0.1:8085/api/internal/constatus
         Log    ${response.json()}
-        IF    ${response.json()}[data][${poller_id}][last_ping_sent] > 5
+        IF    ${response.json()}[data][${poller_id}][ping_failed] > 0 or ${response.json()}[data][${poller_id}][ping_ok] > 0
             BREAK
         END
     END
-    Should Be True    ${i} < 9
+    Should Be True    ${i} < 9    timeout waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
+    
 
 Setup 2 Gorgone
-    [Arguments]    ${communication_mode}=push
+    [Arguments]    ${communication_mode}=push    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
     IF    '${communication_mode}' == 'push'
-        Setup Gorgone Config    gorgone_central    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
-        Setup Gorgone Config    gorgone_poller_2    ${push_poller_config}
+        Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
+        Setup Gorgone Config    ${poller_name}    ${push_poller_config}
     
-        Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    /etc/centreon-gorgone/gorgone_central/gorgoned.log    debug    gorgone_central
-        Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    /etc/centreon-gorgone/gorgone_poller_2/gorgoned.log    debug    gorgone_poller_2
+        Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    /var/log/centreon-gorgone/${central_name}/gorgoned.log    debug    ${central_name}
+        Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    /var/log/centreon-gorgone/${poller_name}/gorgoned.log    debug    ${poller_name}
     
         Check Poller Is Connected    port=5556    expected_nb=2
         Check Poller Communicate     2
