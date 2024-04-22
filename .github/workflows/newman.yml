@@ -106,34 +106,60 @@ jobs:
       - name: Associate Test Cases with Test plan
         id: xray-newman
         run: |
-          xray_graphql_getTests='{
-            "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: $limit, start: $start) { total results { issueId } } }",
-            "variables": {
-              "jql": "reporter = '\''devsecops service-account'\'' AND project = MON AND type = '\''Test'\'' AND testType = '\''API'\''",
-              "limit": 100,
-              "start": 0
-            }
-          }'
+          get_test_ids() {
+            start=0
+            test_issue_ids=()
 
-          response=$(curl -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
-            --data "$xray_graphql_getTests" \
-            "https://xray.cloud.getxray.app/api/v2/graphql")
+            while true; do
+                xray_graphql_getTests='{
+                    "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: 100, start: $start) { total results { issueId } } }",
+                    "variables": {
+                        "jql": "reporter = '\''devsecops service-account'\'' AND project = MON AND type = '\''Test'\'' AND testType = '\''API'\''",
+                        "start": '$start'
+                    }
+                }'
 
-          echo "Response from getTests:"
-          echo "$response"
+                response=$(curl -X POST \
+                    -H "Content-Type: application/json" \
+                    -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+                    --data "$xray_graphql_getTests" \
+                    "https://xray.cloud.getxray.app/api/v2/graphql")
 
-          # Parsing and processing test IDs
-          test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
+                echo "Response from getTests:"
+                echo "$response"
 
-          formatted_test_issue_ids_str="["
+                # Parsing and processing test IDs
+                current_test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
+
+                echo "Current Test Issue IDs: ${current_test_issue_ids[@]}"
+
+                # Check if there are no more test issues
+                if [ ${#current_test_issue_ids[@]} -eq 0 ]; then
+                    echo "No more test issues. Exiting loop."
+                    break
+                fi
+
+                # Concatenate the current batch of results to the overall test_issue_ids array
+                test_issue_ids+=("${current_test_issue_ids[@]}")
+
+                # Increment the start value for the next iteration
+                start=$((start + 100))
+            done
+
+            # Display all retrieved test issue IDs
+            echo "All Test Issue IDs: ${test_issue_ids[@]}"
+          }
+
+          # Appel de la fonction pour récupérer les IDs des tests
+          get_test_ids
+
+          formatted_getTest_issue_ids_str="["
           for issue_id in "${test_issue_ids[@]}"; do
-            formatted_test_issue_ids_str+="\"$issue_id\","
+          formatted_getTest_issue_ids_str+="\"$issue_id\","
           done
-          formatted_test_issue_ids_str="${formatted_test_issue_ids_str%,}"
-          formatted_test_issue_ids_str+="]"
-          echo "$formatted_test_issue_ids_str"
+          formatted_getTest_issue_ids_str="${formatted_getTest_issue_ids_str%,}"
+          formatted_getTest_issue_ids_str+="]"
+          echo "$formatted_getTest_issue_ids_str"
 
           # Display the retrieved test issue IDs
           echo "Test Issue IDs: ${test_issue_ids[@]}"
