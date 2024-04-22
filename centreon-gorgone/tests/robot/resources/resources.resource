@@ -97,9 +97,17 @@ Check Poller Communicate
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
     
+Generate Gorgone Keys
+
+
 
 Setup 2 Gorgone
     [Arguments]    ${communication_mode}=push    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
+
+    ${result}    Run    perl /usr/local/bin/gorgone_key_generation.pl
+    # generate key if there is none.
+    # gorgone can generate it's own key, but as we need the thumbprint in the configuration we need to generate them before launching gorgone.
+    # this script only create key if the files don't exists, and silently finish if the files already exists.
     IF    '${communication_mode}' == 'push'
         Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
         Setup Gorgone Config    ${poller_name}    ${push_poller_config}
