@@ -34,6 +34,15 @@ const useValidationSchema = (): UseValidationSchemaState => {
     .required(t(labelRequired) as string)
     .notOneOf(names, t(labelNameAlreadyExists) as string);
 
+  const contactsSchema = (dependency: string): ArraySchema<AnySchema> =>
+    array().when(dependency, ([value]) => {
+      if (isEmpty(value)) {
+        return array().min(1);
+      }
+
+      return array();
+    });
+
   const datasetFiltersSchema = (): ArraySchema<ArraySchema<ObjectSchema>> =>
     array(
       array(
@@ -69,29 +78,37 @@ const useValidationSchema = (): UseValidationSchemaState => {
       contactGroups: array().when(
         ['allContactGroups', 'allContacts', 'contacts'],
         ([allContactGroups, allContacts, contacts], schema) => {
-          if (isEmpty(contacts) && (!allContacts || !allContactGroups)) {
-            return schema.min(1);
+          if (isEmpty(contacts) && allContacts) {
+            return schema.min(0);
+          }
+
+          if (isEmpty(contacts) && allContactGroups) {
+            return schema.min(0);
           }
 
           if (!isEmpty(contacts)) {
-            return schema;
+            return schema.min(0);
           }
 
-          return schema.min(0);
+          return schema.min(1);
         }
       ),
       contacts: array().when(
         ['allContactGroups', 'allContacts', 'contactGroups'],
         ([allContactGroups, allContacts, contactGroups], schema) => {
-          if (isEmpty(contactGroups) && (!allContactGroups || allContacts)) {
-            return schema.min(1);
+          if (isEmpty(contactGroups) && allContactGroups) {
+            return schema.min(0);
+          }
+
+          if (isEmpty(contactGroups) && allContacts) {
+            return schema.min(0);
           }
 
           if (!isEmpty(contactGroups)) {
-            return schema;
+            return schema.min(0);
           }
 
-          return schema.min(0);
+          return schema.min(1);
         }
       ),
       datasetFilters: datasetFiltersSchema(),

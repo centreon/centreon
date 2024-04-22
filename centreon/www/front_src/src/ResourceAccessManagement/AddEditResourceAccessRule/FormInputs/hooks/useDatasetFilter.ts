@@ -192,8 +192,6 @@ const useDatasetFilter = (
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<ResourceAccessRule>();
 
-  console.log(values);
-
   const value = useMemo<Array<Dataset> | undefined>(
     () =>
       path<Array<Dataset> | undefined>(

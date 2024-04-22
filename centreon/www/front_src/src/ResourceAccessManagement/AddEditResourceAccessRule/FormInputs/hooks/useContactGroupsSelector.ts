@@ -1,35 +1,50 @@
 import { ChangeEvent } from 'react';
 
 import { useFormikContext } from 'formik';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { propEq, reject } from 'ramda';
+
+import { buildListingEndpoint } from '@centreon/ui';
 
 import { NamedEntity, ResourceAccessRule } from '../../../models';
 import { allContactGroupsSelectedAtom } from '../../../atom';
+import { findContactGroupsEndpoint } from '../../api/endpoints';
 
 interface UseContactGroupssSelectorState {
   checked: boolean;
   contactGroups: Array<NamedEntity>;
   deleteContactGroupsItem: ({ contactGroups, option }) => void;
+  getEndpoint: () => (parameters) => string;
   onCheckboxChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onMultiSelectChange: () => (_, contactGroups: Array<NamedEntity>) => void;
 }
 
 const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
-  const { values, setFieldValue } = useFormikContext<ResourceAccessRule>();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<ResourceAccessRule>();
 
-  const [allContactGroupsSelected, setAllContactGroupsSelected] = useAtom(
-    allContactGroupsSelectedAtom
-  );
+  const setAllContactGroupsSelected = useSetAtom(allContactGroupsSelectedAtom);
 
   const deleteContactGroupsItem = ({ contactGroups, option }): void => {
     const newContactGroups = reject(propEq(option.id, 'id'), contactGroups);
-    setFieldValue('contacts', newContactGroups);
+    setFieldValue('contactGroups', newContactGroups);
   };
+
+  const getEndpoint =
+    () =>
+    (parameters): string => {
+      return buildListingEndpoint({
+        baseEndpoint: findContactGroupsEndpoint,
+        customQueryParameters: undefined,
+        parameters
+      });
+    };
 
   const onCheckboxChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue('contactGroups', []);
     setFieldValue('allContactGroups', event.target.checked);
+    setFieldTouched('contactGroups', true, true);
+    setFieldTouched('allContactGroups', true, false);
     setAllContactGroupsSelected(event.target.checked);
   };
 
@@ -38,9 +53,10 @@ const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
   };
 
   return {
-    checked: allContactGroupsSelected,
+    checked: values.allContactGroups,
     contactGroups: values.contactGroups,
     deleteContactGroupsItem,
+    getEndpoint,
     onCheckboxChange,
     onMultiSelectChange
   };

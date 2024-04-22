@@ -10,7 +10,6 @@ import {
   labelContactGroups
 } from '../../../translatedLabels';
 import { useSelectorStyles } from '../styles/Selector.styles';
-import { findContactGroupsEndpoint } from '../../api/endpoints';
 import useContactGroupsSelector from '../hooks/useContactGroupsSelector';
 
 const ContactGroupsSelector = (): React.JSX.Element => {
@@ -21,6 +20,7 @@ const ContactGroupsSelector = (): React.JSX.Element => {
     contactGroups,
     checked,
     deleteContactGroupsItem,
+    getEndpoint,
     onCheckboxChange,
     onMultiSelectChange
   } = useContactGroupsSelector();
@@ -37,8 +37,8 @@ const ContactGroupsSelector = (): React.JSX.Element => {
         className={classes.selector}
         dataTestId={labelContactGroups}
         disabled={checked}
-        field="alias"
-        getEndpoint={() => findContactGroupsEndpoint}
+        field="name"
+        getEndpoint={getEndpoint()}
         label={
           checked ? t(labelAllContactGroupsSelected) : t(labelContactGroups)
         }

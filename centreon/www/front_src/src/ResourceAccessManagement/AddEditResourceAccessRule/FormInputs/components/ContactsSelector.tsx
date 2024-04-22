@@ -11,7 +11,6 @@ import {
 } from '../../../translatedLabels';
 import { useSelectorStyles } from '../styles/Selector.styles';
 import useContactsSelector from '../hooks/useContactsSelector';
-import { findContactsEndpoint } from '../../api/endpoints';
 
 const ContactsSelector = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -21,6 +20,7 @@ const ContactsSelector = (): React.JSX.Element => {
     contacts,
     checked,
     deleteContactsItem,
+    getEndpoint,
     onCheckboxChange,
     onMultiSelectChange
   } = useContactsSelector();
@@ -37,8 +37,8 @@ const ContactsSelector = (): React.JSX.Element => {
         className={classes.selector}
         dataTestId={labelContacts}
         disabled={checked}
-        field="alias"
-        getEndpoint={() => findContactsEndpoint}
+        field="name"
+        getEndpoint={getEndpoint()}
         label={checked ? t(labelAllContactsSelected) : t(labelContacts)}
         limitTags={5}
         value={contacts}
