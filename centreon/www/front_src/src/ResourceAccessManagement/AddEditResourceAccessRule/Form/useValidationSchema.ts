@@ -34,15 +34,6 @@ const useValidationSchema = (): UseValidationSchemaState => {
     .required(t(labelRequired) as string)
     .notOneOf(names, t(labelNameAlreadyExists) as string);
 
-  const contactsSchema = (dependency: string): ArraySchema<AnySchema> =>
-    array().when(dependency, ([value]) => {
-      if (isEmpty(value)) {
-        return array().min(1);
-      }
-
-      return array();
-    });
-
   const datasetFiltersSchema = (): ArraySchema<ArraySchema<ObjectSchema>> =>
     array(
       array(
