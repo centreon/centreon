@@ -135,7 +135,7 @@ jobs:
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-              "testIssueIds": '"[${test_issue_ids[@]}]"'
+              "testIssueIds": ['$(IFS=,; echo "${test_issue_ids[*]}")']
             }
           }'
 
@@ -155,7 +155,7 @@ jobs:
 
             while true; do
                 xray_graphql_getTestPlan='{
-                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } jira(fields: [\"assignee\", \"reporter\",\"summary\",\"key\"]) } } } }",
+                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } jira(fields: [\"summary\",\"key\"]) } } } }",
                     "variables": {
                         "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
                         "start": '$start'
