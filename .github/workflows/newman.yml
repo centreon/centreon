@@ -182,9 +182,11 @@ jobs:
 
           echo "Response from Add Tests to Test Plan:"
           echo "$response_addTestsToTestPlan"
+
           get_test_plan_issue_ids() {
             start=0
             issue=()
+            api_issue_ids=()
 
             while true; do
                 xray_graphql_getTestPlan='{
@@ -207,6 +209,10 @@ jobs:
                 # Concatenate the current batch of results to the overall issue_ids array
                 issue=("${issue[@]}" "${current_issue_ids[@]}")
 
+                # Parsing and processing test IDs for API tests and adding them to api_issue_ids
+                current_api_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
+                api_issue_ids=("${api_issue_ids[@]}" "${current_api_issue_ids[@]}")
+
                 # Increment the start value for the next iteration
                 start=$((start + 100))
 
@@ -217,11 +223,8 @@ jobs:
                 fi
             done
 
-            # Parsing and processing test IDs for API tests after the loop
-            api_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-            echo "API Issue IDs: ${api_issue_ids[@]}"
-
             # Display results
+            echo "API Issue IDs: ${api_issue_ids[@]}"
             echo "Result Issue IDs: ${issue[@]}"
           }
 
