@@ -195,6 +195,17 @@ jobs:
       - name: Run tests
         run: robot -v 'DBHOST:mariadb' -v 'DBNAME:centreon' -v 'DBUSER:centreon' centreon-gorgone/tests
 
+      - if: ${{ true }}
+        name: Upload package artifacts
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: packages-${{ inputs.distrib }}
+          path: |
+            ./log.html
+            /var/log/centreon-gorgone/*/*
+            /etc/centreon-gorgone/*
+          retention-days: 1
+
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
