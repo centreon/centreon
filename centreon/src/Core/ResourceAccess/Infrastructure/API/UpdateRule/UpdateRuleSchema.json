@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Add resource access rule",
+    "title": "Update resource access rule",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -49,15 +49,31 @@
             "type": "boolean"
         },
         "contacts": {
-            "type": "array",
-            "items": {
-                "type": "integer"
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "all": {
+                    "type": "boolean"
+                }
             }
         },
-        "contact_groups": {
-            "type": "array",
-            "items": {
-                "type": "integer"
+       "contact_groups": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "all": {
+                    "type": "boolean"
+                }
             }
         },
         "dataset_filters": {
