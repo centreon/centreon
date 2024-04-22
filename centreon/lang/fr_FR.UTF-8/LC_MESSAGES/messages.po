@@ -1775,7 +1775,7 @@ msgstr "Auteur"
 
 #: centreon-web/www/install/smarty_translate.php:327
 msgid "Expiration date"
-msgstr "Date de fin de licence"
+msgstr "Date d'expiration"
 
 #: centreon-web/www/install/smarty_translate.php:330
 #: centreon-web/www/include/options/oreon/modules/formModule.php:57
@@ -1933,10 +1933,6 @@ msgstr "Modèle de graphique"
 #: centreon-web/www/install/smarty_translate.php:381
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
-
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
 
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
@@ -3852,10 +3848,6 @@ msgstr ""
 "Vous pouvez visualiser la liste complète à partir de du projet Centreonsur "
 "Github"
 
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:87
-msgid "Last 3 hours"
-msgstr "Les 3 dernières heures"
-
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:88
 msgid "Today"
 msgstr "Aujourd'hui"
@@ -3876,10 +3868,6 @@ msgstr "La dernière semaine"
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:92
 msgid "Last month"
 msgstr "Le dernier mois"
-
-#: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:93
-msgid "Last 6 months"
-msgstr "Les 6 derniers mois"
 
 #: centreon-web/www/include/Administration/corePerformance/nagiosStats.php:94
 msgid "Last year"
@@ -7106,24 +7094,6 @@ msgstr "Liste des métriques connues"
 msgid "Choose the source to graph"
 msgstr "Choisissez la source à grapher"
 
-#: centreon-web/www/include/views/graphs/graphs.php:173
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:102
-#: centreon-web/www/include/eventLogs/viewLog.php:168
-msgid "Last 3 Hours"
-msgstr "Les 3 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:174
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:103
-#: centreon-web/www/include/eventLogs/viewLog.php:169
-msgid "Last 6 Hours"
-msgstr "Les 6 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:175
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
-#: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 hours"
-msgstr "Les 12 dernières heures"
-
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
@@ -7173,12 +7143,6 @@ msgstr "Les 2 précédents mois"
 #: centreon-web/www/include/eventLogs/viewLog.php:180
 msgid "Last 4 Months"
 msgstr "Les 4 précédents mois"
-
-#: centreon-web/www/include/views/graphs/graphs.php:188
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:115
-#: centreon-web/www/include/eventLogs/viewLog.php:181
-msgid "Last 6 Months"
-msgstr "Les 6 précédents mois"
 
 #: centreon-web/www/include/views/graphs/graphs.php:189
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:116
@@ -8824,7 +8788,7 @@ msgstr "Macros"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:726
 msgid "Debug Level"
-msgstr "Niveau de débogage"
+msgstr "Niveau de debug"
 
 #: centreon-web/www/include/configuration/configNagios/formNagios.php:766
 msgid "Broker need options to be loaded"
@@ -18173,8 +18137,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18222,23 +18201,35 @@ msgstr "Format de la valeur"
 msgid "Time period"
 msgstr "Période temporelle"
 
-msgid "Last hour (default)"
-msgstr "Dernière heure (par défaut)"
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 3 hours"
+msgstr "Les 3 dernières heures"
+
+msgid "Last 6 hours"
+msgstr "Les 6 dernières heures"
+
+msgid "Last 12 hours"
+msgstr "Les 12 dernières heures"
 
 msgid "Last 24 hours"
-msgstr "Dernières 24 heures"
+msgstr "Les 24 dernières heures"
 
 msgid "Last 7 days"
-msgstr "7 derniers jours"
+msgstr "Les 7 derniers jours"
 
 msgid "Last 30 days"
-msgstr "30 derniers jours"
+msgstr "Les 30 derniers jours"
 
 msgid "Last 3 months"
-msgstr "3 derniers mois"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 6 months"
+msgstr "Les 6 derniers mois"
 
 msgid "Last 12 months"
-msgstr "12 derniers mois"
+msgstr "Les 12 derniers mois"
 
 msgid "Customize"
 msgstr "Personnaliser"
@@ -18297,6 +18288,105 @@ msgstr "Erreur lors de la récupération des groupes de contacts"
 msgid "If you leave without saving your dashboard, changes will be permanently lost."
 msgstr "Si vous quittez sans enregistrer votre tableau de bord, les modifications seront définitivement perdues."
 
+msgid "You are not allowed to add media"
+msgstr "Vous n'êtes pas autorisé à ajouter des médias"
+
+msgid "Error while adding a media"
+msgstr "Erreur lors de l'ajout d'un média"
+
+msgid "File extension not authorized"
+msgstr "Extension de fichier non autorisée"
+
+msgid "Media already exists"
+msgstr "Le média existe déjà"
+
+msgid "You are not allowed to access graph templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de graphique"
+
+msgid "Error while searching for graph templates"
+msgstr "Erreur lors de la recherche de modèles de graphique"
+
+msgid "You are not allowed to access connectors"
+msgstr "Vous n'êtes pas autorisé à accéder aux connecteurs"
+
+msgid "Error while searching for connectors"
+msgstr "Erreur lors de la recherche de connecteurs"
+
+msgid "Error while updating a host"
+msgstr "Erreur lors de la mise à jour d'un hôte"
+
+msgid "You are not allowed to edit a host"
+msgstr "Vous n'êtes pas autorisé à éditer un hôte"
+
+msgid "The token cannot be empty"
+msgstr "Le jeton ne peut pas être vide"
+
+msgid "This operation requires an admin user"
+msgstr "Cette opération requiert un utilisateur admin"
+
+msgid "Resource access rules"
+msgstr "Règles d'accès aux ressources"
+
+msgid "Resource Access Management"
+msgstr "Gestion de l'accès aux ressources"
+
+msgid "Refine filter"
+msgstr "Affiner le filtre"
+
+msgid "Refine your filter on a single metric by adding more resources."
+msgstr "Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
+
+msgid "Unselect all"
+msgstr "Tout désélectionner"
+
+msgid "Display up to"
+msgstr "Afficher jusqu'à"
+
+msgid "tiles"
+msgstr "tuiles"
+
+msgid "You must fill in more resources."
+msgstr "Vous devez indiquer plus de ressources."
+
+msgid "All services on this host are working fine."
+msgstr "Tous les services de cet hôtes fonctionnent correctement."
+
+msgid "All metrics on this service are working fine."
+msgstr "Toutes les métriques de ce service fonctionnent correctement."
+
+msgid "Metric name"
+msgstr "Nom de la métrique"
+
+msgid "Status grid"
+msgstr "Grille de statut"
+
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
+
+msgid "Display with this resource type"
+msgstr "Afficher avec ce type de ressource"
+
+msgid "Display resources with this status"
+msgstr "Afficher les ressources avec ce statut"
+
+msgid "For a host, the status displayed in the tile is the worst among its own status and the statuses of its services."
+msgstr "Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre statut et les statuts de ses services."
+
+msgid "For a service, the service status is displayed."
+msgstr "Pour un service, le statut du service est affiché."
+
+msgid "Display resources with this state"
+msgstr "Afficher les ressources avec cet état"
+
+msgid "Sort by"
+msgstr "Trier par"
+
+msgid "See more on the Resources Status page"
+msgstr "Voir plus dans la page Statut des ressources"
+
+msgid "You are not allowed to log in"
+msgstr "Vous n'êtes pas autorisé à vous connecter"
+
 msgid "The order in which dashboards are displayed must be unique."
 msgstr "L'ordre de diffusion des tableaux de bord doit être unique."
 
@@ -18320,8 +18410,6 @@ msgstr " Accès non autorisé"
 
 msgid "The following dashboard is not shared with you: [%d]."
 msgstr "Le tableau de bord suivant ne vous est pas partagé : [%d]."
-msgid "Refine filter"
-msgstr "Affiner le filtre"
 
 msgid "Huge"
 msgstr "Très grande"
@@ -18334,6 +18422,24 @@ msgstr "Normale"
 
 msgid "Small"
 msgstr "Petite"
+
+msgid "You are not allowed to edit a service"
+msgstr "Vous n'êtes pas autorisé à éditer un service"
+
+msgid "Error while updating a service"
+msgstr "Erreur lors de la mise à jour d'un service"
+
+msgid "Error while searching for media"
+msgstr "Erreur lors de la recherche de médias"
+
+msgid "You are not allowed to list media"
+msgstr "Vous n'êtes pas autorisé à lister les médias"
+
+msgid "API token"
+msgstr "Jeton d'API"
+
+msgid "Create new token"
+msgstr "Créer un nouveau jeton"
 
 msgid "Error while updating playlist shares"
 msgstr "Erreur lors de la mise à jour des partages de la liste de diffusion"
@@ -18365,8 +18471,11 @@ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 msgid "Error while deleting a playlist"
 msgstr "Erreur lors de la suppression d'une liste de diffusion"
 
-msgid "You are not allowed to log in"
-msgstr "Vous n'êtes pas autorisé à vous connecter"
+msgid "Error while listing the playlist shares"
+msgstr "Erreur lors du listing des partages de la liste de diffusion"
+
+msgid "The following playlist is not shared with you: [%d]"
+msgstr "La liste de diffusion suivante n'est pas partagée avec vous : [%d]"
 
 msgid "Add at least 1 contact"
 msgstr "Ajoutez au moins 1 contact"
@@ -18452,6 +18561,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18485,6 +18600,12 @@ msgstr "La sauvegarde des partages a échoué"
 msgid "Shares saved"
 msgstr "Partages sauvegardés"
 
+msgid "Show more filters"
+msgstr "Afficher plus de filtres"
+
+msgid "Show fewer filters"
+msgstr "Afficher moins de filtres"
+
 msgid "Select a dataset to display the preview."
 msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
 
@@ -18506,17 +18627,51 @@ msgstr "Supprimer un utilisateur"
 msgid "User deleted"
 msgstr "Utilisateur supprimé"
 
-msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
+msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
-msgid "Show more filters"
-msgstr "Afficher plus de filtres"
 
-msgid "Show fewer filters"
-msgstr "Afficher moins de filtres"
+msgid "Your comment has been saved."
+msgstr "Votre commentaire a été enregistré."
+
+msgid "Create a new resource access rule"
+msgstr "Créer une nouvelle règle d'accès aux ressources"
+
+msgid "Edit resource access rule"
+msgstr "Modifier la règle d'accès aux ressources"
+
+msgid "Rule properties"
+msgstr "Propriétés de la règle"
+
+msgid "Resource selection"
+msgstr "Sélection des ressources"
+
+msgid "Contacts/Contact groups"
+msgstr "Contacts/Groupes de contacts"
+
+msgid "The resource access rule was successfully created"
+msgstr "La règle d'accès aux ressources a été créée avec succès"
+
+msgid "The resource access rule was successfully updated"
+msgstr "La règle d'accès aux ressources a été modifiée avec succès"
+
+msgid "Add new dataset"
+msgstr "Ajouter un nouveau jeu de données"
+
+msgid "Choose at least one contact or contact group"
+msgstr "Choisissez au moins un contact ou groupe de contacts"
+
+msgid "Metaservice"
+msgstr "Métaservice"
+
+msgid "Select resource type"
+msgstr "Sélectionnez un type de ressource"
 
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
+
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
 
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
@@ -18530,17 +18685,275 @@ msgstr "Ajouter des colonnes"
 msgid "Resource table"
 msgstr "Tableau des ressources"
 
-msgid "See more on the Resources Status page"
-msgstr "Voir plus dans la page Statut des ressources"
+msgid "Displays a detailed view of the current status for selected resources as a chart."
+msgstr "Affiche une vue détaillée du statut actuel des ressources sélectionnées sous la forme d'un graphique."
+
+msgid "Status chart"
+msgstr "Graphique de statut"
+
+msgid "Show value on chart"
+msgstr "Afficher la valeur sur le graphique"
+
+msgid "Number"
+msgstr "Numérique"
+
+msgid "Show legend"
+msgstr "Afficher la légende"
+
+msgid "Percentage"
+msgstr "Pourcentage"
+
+msgid "Display resources with this type"
+msgstr "Afficher les ressources avec ce type"
+
+msgid  "Horizontal bar chart"
+msgstr "Diagramme à barres horizontales"
+
+msgid  "Vertical bar chart"
+msgstr "Diagramme à barres verticales"
+
+msgid  "Pie chart"
+msgstr "Camembert"
+
+msgid  "Donut chart"
+msgstr "Donut"
+
+msgid "Status:"
+msgstr "Statut :"
+
+msgid "No {{resourcesType}} found with this status"
+msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
+
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
+
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid "down"
+msgstr "indisponible"
+
+msgid "pending"
+msgstr "en attente"
+
+msgid "warning"
+msgstr "alerte"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "up"
+msgstr "disponible"
+
+msgid "unreachable"
+msgstr "injoignable"
 
 msgid "Fullscreen (F)"
 msgstr "Plein écran (F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "The {{name}} widget will be permanently deleted."
+msgstr "Le widget {{name}} sera définitivement supprimé."
+
+msgid "The widget will be permanently deleted."
+msgstr "Le widget sera définitivement supprimé."
+
+msgid "The {{name}} dashboard will be permanently deleted."
+msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
 
 msgid "Invalid page name. Valid page names are: %s"
 msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Error while retrieving the number of hosts by status"
+msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
+
+msgid "It will be permanently deleted and users will no longer have this permission"
+msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+msgid "Failed to delete resource access rule"
+msgstr "Échec de la suppression de la règle d'accès aux ressources"
+
+msgid "The resource access rule was successfully deleted"
+msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+
+msgid "Error while retrieving the number of services by status"
+msgstr "Erreur lors de la récupération du nombre de services par statut"
+
+msgid "Error while adding a broker output"
+msgstr "Erreur lors de l'ajout d'une sortie Centreon Broker"
+
+msgid "You are not allowed to edit a broker configuration"
+msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
+
+msgid "Broker configuration #%d not found"
+msgstr "Configuration Broker #%d introuvable"
+
+msgid "Missing output parameter: %s"
+msgstr "Paramètre de sortie manquant: %s"
+
+msgid "Parameter '%s' (%s) is invalid"
+msgstr "Le paramètre '%s' (%s) est invalide"
+
+msgid "Parameter '%s' of type %s is invalid"
+msgstr "Le paramètre '%s' de type %s est invalide"
+
+msgid "Output #%d not found for broker configuration #%d"
+msgstr "Sortie #%d introuvable pour la configuration Broker #%d"
+
+msgid "Display resources with this unit"
+msgstr "Afficher les ressources avec cette unité"
+
+msgid "Rules are used to allow users to access resources."
+msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
+
+msgid "They will be permanently deleted and users will no longer have these permissions."
+msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
+
+msgid "Delete rules"
+msgstr "Supprimer les règles"
+
+msgid "Delete multiple resource access rules"
+msgstr "Supprimer plusieurs règles d'accès aux ressources"
+
+msgid "Failed to delete the selected resource access rules"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
+
+msgid "The selected resource access rules have been deleted successfully"
+msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to duplicate the resource access rule"
+msgstr "Échec de la duplication de la règle d'accès aux ressources"
+
+msgid "The resource access rule has been successfully duplicated"
+msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
+
+msgid "Resource access rule name"
+msgstr "Nom de la règle d'accès aux ressources"
+
+msgid "Please enter a name for the resource access rule to duplicate"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"
+
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"
+
+msgid "Error while updating a broker output"
+msgstr "Erreur lors de la mise à jour d'une sortie Centreon Broker"
+
+msgid "Action not permitted for output of type '%s'"
+msgstr "Action non autorisée pour une sortie de type '%s'"
+
+msgid "Content is not a valid JSON string"
+msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
+
+msgid "An error occurred while creating the file '%s'"
+msgstr "Une erreur est survenue lors de la création du fichier '%s'"
+
+msgid "An error occurred while deleting the file '%s'"
+msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
+
+msgid "Until"
+msgstr "Jusqu'à"
+
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
+
+msgid "Group monitoring"
+msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display the diagram with this status"
+msgstr "Afficher le diagramme avec ce statut"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+msgid "All service groups"
+msgstr "Tous les groupes de services"
 
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
