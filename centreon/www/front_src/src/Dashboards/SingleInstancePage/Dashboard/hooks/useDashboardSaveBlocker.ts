@@ -4,8 +4,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
 
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
-import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 import { DashboardPanel } from '../../../api/models';
 
 import useDashboardDirty from './useDashboardDirty';

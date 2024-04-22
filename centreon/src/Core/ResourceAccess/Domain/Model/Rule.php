@@ -39,6 +39,8 @@ class Rule extends NewRule
      * @param int[] $linkedContactGroups
      * @param DatasetFilter[] $datasets
      * @param bool $isEnabled
+     * @param bool $applyToAllContacts
+     * @param bool $applyToAllContactGroups
      *
      * @throws AssertionFailedException
      */
@@ -46,7 +48,9 @@ class Rule extends NewRule
         private readonly int $id,
         string $name,
         ?string $description = null,
+        bool $applyToAllContacts = false,
         array $linkedContacts = [],
+        bool $applyToAllContactGroups = false,
         array $linkedContactGroups = [],
         array $datasets = [],
         bool $isEnabled = true
@@ -58,7 +62,9 @@ class Rule extends NewRule
         parent::__construct(
             name: $name,
             description: $description,
+            applyToAllContacts: $applyToAllContacts,
             linkedContactIds: $linkedContacts,
+            applyToAllContactGroups: $applyToAllContactGroups,
             linkedContactGroupIds: $linkedContactGroups,
             datasetFilters: $datasets,
             isEnabled: $isEnabled
@@ -116,6 +122,22 @@ class Rule extends NewRule
     public function setLinkedContactGroups(array $contactGroups): void
     {
         $this->linkedContactGroupIds = $contactGroups;
+    }
+
+    /**
+     * @param bool $applyToAllContacts
+     */
+    public function setApplyToAllContacts(bool $applyToAllContacts): void
+    {
+        $this->applyToAllContacts = $applyToAllContacts;
+    }
+
+    /**
+     * @param bool $applyToAllContactGroups
+     */
+    public function setApplyToAllContactGroups(bool $applyToAllContactGroups): void
+    {
+        $this->applyToAllContactGroups = $applyToAllContactGroups;
     }
 
     /**

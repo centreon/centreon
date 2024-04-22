@@ -32,7 +32,8 @@ const Resources = ({
   propertyName,
   singleResourceType,
   restrictedResourceTypes,
-  required
+  required,
+  useAdditionalResources
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
@@ -51,9 +52,13 @@ const Resources = ({
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleMetricSelection,
-    singleHostPerMetric
-  } = useResources({ propertyName, required, restrictedResourceTypes });
+    singleResourceSelection
+  } = useResources({
+    propertyName,
+    required,
+    restrictedResourceTypes,
+    useAdditionalResources
+  });
 
   const { canEditField } = useCanEditProperties();
 
@@ -101,7 +106,7 @@ const Resources = ({
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleMetricSelection && singleHostPerMetric ? (
+              {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{

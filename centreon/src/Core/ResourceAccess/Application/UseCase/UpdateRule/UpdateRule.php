@@ -39,6 +39,9 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
+use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -134,10 +137,14 @@ final class UpdateRule
             $this->dataStorageEngine->startTransaction();
             $this->updateBasicInformation($rule, $request);
 
+            // At least one ID must be provided for contact or contactgroup
             $this->validator->assertContactsAndContactGroupsAreNotEmpty(
                 $request->contactIds,
-                $request->contactGroupIds
+                $request->contactGroupIds,
+                $request->applyToAllContacts,
+                $request->applyToAllContactGroups
             );
+
             $this->updateLinkedContacts($rule, $request);
             $this->updateLinkedContactGroups($rule, $request);
             $this->updateResourceLinks($request);
@@ -173,11 +180,14 @@ final class UpdateRule
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
-             *     - resources provided are valid (exist)
+             *     - resources provided are valid (exist) if not in case of all, all_servicegroups, all_hostgroups, all_hosts
+             *     identified by the fact that $data['resources'] is empty for those types
              *     - the datasetfilter type provided is valid (validated by entity)
              *     - that the dataset filter hierarchy is valid (validated by entity).
              */
-            $this->validator->assertResourceIdsAreValid($data['type'], $data['resources']);
+            if ($data['resources'] !== []) {
+                $this->validator->assertIdsAreValid($data['type'], $data['resources']);
+            }
 
             // first iteration we want to create the root filter
             if ($datasetFilter === null) {
@@ -217,7 +227,7 @@ final class UpdateRule
             }
         };
 
-        foreach ($request->datasetFilters as $dataset)  {
+        foreach ($request->datasetFilters as $dataset) {
             $datasetFilter = null;
             $validateAndBuildDatasetFilter($dataset, $datasetFilter);
 
@@ -291,30 +301,27 @@ final class UpdateRule
             // create formatted name for dataset
             $datasetName = 'dataset_for_rule_' . $updateRequest->id . '_' . $index;
 
-            // Create new dataset in the database ...
             if ($datasetFilter->getType() === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
-                $datasetId = $this->writeRepository->addDataset(
-                    name: $datasetName,
-                    accessAllHosts: true,
-                    accessAllHostGroups: true,
-                    accessAllServiceGroups: true
+                $this->createFullAccessDatasetFilter(
+                    ruleId: $updateRequest->id,
+                    datasetName: $datasetName,
+                    datasetFilter: $datasetFilter
                 );
             } else {
+                // create dataset
                 $datasetId = $this->writeRepository->addDataset(
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
                     accessAllServiceGroups: false
                 );
-            }
 
-            // And link it to the rule
-            $this->writeRepository->linkDatasetToRule($updateRequest->id, $datasetId);
+                // And link it to the rule
+                $this->writeRepository->linkDatasetToRule(ruleId: $updateRequest->id, datasetId: $datasetId);
 
-            // dedicated table used in order to keep filters hierarchy for GET matters
-            $this->saveDatasetFiltersHierarchy($updateRequest->id, $datasetId, $datasetFilter);
+                // dedicated table used in order to keep filters hierarchy for GET matters
+                $this->saveDatasetFiltersHierarchy(ruleId: $updateRequest->id, datasetId: $datasetId, filter: $datasetFilter);
 
-            if ($datasetFilter->getType() !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
@@ -324,32 +331,127 @@ final class UpdateRule
                 /* Specific behaviour when the last level of filtering is of type
                  * *Category|*Group and that the parent of this filter is also of the same type.
                  * Then we need to save both types as those are on the same hierarchy level.
+                 *
+                 * Important also to mention a specific behaviour
+                 * When the type matches hostgroup / servicegroup or host and that no
+                 * resource IDs were provided it means 'all_type'. The specific behaviour describe
+                 * above also applies.
                  */
-                if (
-                    DatasetFilter::isGroupOrCategoryFilter($applicableFilter)
-                    && $parentApplicableFilter !== null
-                    && DatasetFilter::isGroupOrCategoryFilter($parentApplicableFilter)
-                ) {
-                    // link parent resources to the dataset
-                    $this->writeRepository->linkResourcesToDataset(
-                        $updateRequest->id,
-                        $datasetId,
-                        $parentApplicableFilter->getType(),
-                        $parentApplicableFilter->getResourceIds()
-                    );
+                if ($parentApplicableFilter !== null) {
+                    if ($this->shouldBothFiltersBeSaved($parentApplicableFilter, $applicableFilter)) {
+                        if ($this->shouldUpdateDatasetAccesses($parentApplicableFilter)) {
+                            $this->updateDatasetAccesses(
+                                datasetId: $datasetId,
+                                resourceType: $parentApplicableFilter->getType()
+                            );
+                        } else {
+                            $this->writeRepository->linkResourcesToDataset(
+                                ruleId: $updateRequest->id,
+                                datasetId: $datasetId,
+                                resourceType: $parentApplicableFilter->getType(),
+                                resourceIds: $parentApplicableFilter->getResourceIds()
+                            );
+                        }
+                    }
                 }
 
-                // link resources to the dataset
-                $this->writeRepository->linkResourcesToDataset(
-                    $updateRequest->id,
-                    $datasetId,
-                    $applicableFilter->getType(),
-                    $applicableFilter->getResourceIds()
-                );
+                if ($this->shouldUpdateDatasetAccesses($applicableFilter)) {
+                    $this->updateDatasetAccesses(
+                        datasetId: $datasetId,
+                        resourceType: $applicableFilter->getType()
+                    );
+                } else {
+                    $this->writeRepository->linkResourcesToDataset(
+                        ruleId: $updateRequest->id,
+                        datasetId: $datasetId,
+                        resourceType: $applicableFilter->getType(),
+                        resourceIds: $applicableFilter->getResourceIds()
+                    );
+                }
             }
 
             $index++;
         }
+    }
+
+    /**
+     * @param DatasetFilter $parent
+     * @param DatasetFilter $child
+     */
+    private function shouldBothFiltersBeSaved(DatasetFilter $parent, DatasetFilter $child): bool
+    {
+        return DatasetFilter::isGroupOrCategoryFilter($child)
+            && DatasetFilter::isGroupOrCategoryFilter($parent);
+    }
+
+    /**
+     * @param int $datasetId
+     * @param string $resourceType
+     */
+    private function updateDatasetAccesses(int $datasetId, string $resourceType): void
+    {
+        switch ($resourceType) {
+            case HostGroupFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'hostgroups',
+                    fullAccess: true
+                );
+                break;
+            case ServiceGroupFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'servicegroups',
+                    fullAccess: true
+                );
+                break;
+            case HostFilterType::TYPE_NAME:
+                $this->writeRepository->updateDatasetAccess(
+                    datasetId: $datasetId,
+                    resourceType: 'hosts',
+                    fullAccess: true
+                );
+                break;
+        }
+    }
+
+    /**
+     * @param DatasetFilter $datasetFilter
+     *
+     * @return bool
+     */
+    private function shouldUpdateDatasetAccesses(DatasetFilter $datasetFilter): bool
+    {
+        return $datasetFilter->getResourceIds() === []
+            && in_array(
+                $datasetFilter->getType(),
+                [
+                    HostGroupFilterType::TYPE_NAME,
+                    ServiceGroupFilterType::TYPE_NAME,
+                    HostFilterType::TYPE_NAME,
+                ], true
+            );
+    }
+
+    /**
+     * @param int $ruleId
+     * @param string $datasetName
+     * @param DatasetFilter $datasetFilter
+     */
+    private function createFullAccessDatasetFilter(int $ruleId, string $datasetName, DatasetFilter $datasetFilter): void
+    {
+        $datasetId = $this->writeRepository->addDataset(
+            name: $datasetName,
+            accessAllHosts: true,
+            accessAllHostGroups: true,
+            accessAllServiceGroups: true
+        );
+
+        // And link it to the rule
+        $this->writeRepository->linkDatasetToRule($ruleId, $datasetId);
+
+        // dedicated table used in order to keep filters hierarchy for GET matters
+        $this->saveDatasetFiltersHierarchy($ruleId, $datasetId, $datasetFilter);
     }
 
     /**
@@ -360,12 +462,16 @@ final class UpdateRule
      */
     private function updateLinkedContactGroups(Rule $rule, UpdateRuleRequest $updateRequest): void
     {
-        // Do not do uneccessary database calls if nothing has changed
+        /**
+         * Do not do uneccessary database calls if nothing has changed
+         * if all contact groups are linked to this rule.
+         */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactGroupIds(),
                 $updateRequest->contactGroupIds
             )
+            && ! $updateRequest->applyToAllContactGroups
         ) {
             $this->validator->assertContactGroupIdsAreValid($updateRequest->contactGroupIds);
 
@@ -391,12 +497,16 @@ final class UpdateRule
      */
     private function updateLinkedContacts(Rule $rule, UpdateRuleRequest $updateRequest): void
     {
-        // Do not do uneccessary database calls if nothing has changed
+        /**
+         * Do not do uneccessary database calls if nothing has changed
+         * if all contacts are linked to this rule.
+         */
         if (
             $this->shouldUpdateContactOrContactGroupRelations(
                 $rule->getLinkedContactIds(),
                 $updateRequest->contactIds
             )
+            && ! $updateRequest->applyToAllContacts
         ) {
             $this->validator->assertContactIdsAreValid($updateRequest->contactIds);
 
@@ -432,6 +542,8 @@ final class UpdateRule
 
             $rule->setIsEnabled($updateRequest->isEnabled);
             $rule->setDescription($updateRequest->description);
+            $rule->setApplyToAllContacts($updateRequest->applyToAllContacts);
+            $rule->setApplyToAllContactGroups($updateRequest->applyToAllContactGroups);
 
             $this->debug(
                 'Updating basic resource access rule information',
@@ -440,6 +552,8 @@ final class UpdateRule
                     'name' => $rule->getName(),
                     'description' => $rule->getDescription() ?? '',
                     'is_enabled' => $rule->isEnabled(),
+                    'all_contacts' => $rule->doesApplyToAllContacts(),
+                    'all_contact_groups' => $rule->doesApplyToAllContactGroups(),
                 ]
             );
             $this->writeRepository->update($rule);
@@ -471,7 +585,9 @@ final class UpdateRule
         return
             $current->getName() !== NewRule::formatName($updateRequest->name)
                 || $current->getDescription() !== $updateRequest->description
-                || $current->isEnabled() !== $updateRequest->isEnabled;
+                || $current->isEnabled() !== $updateRequest->isEnabled
+                || $current->doesApplyToAllContactGroups() !== $updateRequest->applyToAllContactGroups
+                || $current->doesApplyToAllContacts() !== $updateRequest->applyToAllContacts;
     }
 
     /**

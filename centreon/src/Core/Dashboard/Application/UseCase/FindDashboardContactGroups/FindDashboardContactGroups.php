@@ -51,7 +51,7 @@ final class FindDashboardContactGroups
         try {
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->contact->isAdmin()
+                $users = $this->rights->hasAdminRole()
                     ? $this->findContactGroupsAsAdmin()
                     : $this->findContactGroupsAsContact();
 

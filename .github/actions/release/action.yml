@@ -44,6 +44,11 @@ runs:
 
         # Get previous and new version tags for components
         for component in ${COMPONENTS_OSS[@]}; do
+          if [[ $component == "centreon-web" ]]; then
+            COMPONENT_DIR="centreon"
+          else
+            COMPONENT_DIR=$component
+          fi
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # Previous stable tags array
@@ -149,7 +154,7 @@ runs:
 
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
-        for TAG in ${NEW_RELEASE_TAGS[@]}; do
+        for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -n $TAG ]; then
             echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
             # Build JSON with release information for JIRA API

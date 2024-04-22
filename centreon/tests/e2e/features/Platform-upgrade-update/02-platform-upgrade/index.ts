@@ -157,7 +157,7 @@ EOF`,
                         echo "deb https://packages.centreon.com/apt-plugins-stable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
                         echo "deb https://packages.centreon.com/apt-plugins-testing/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
                         echo "deb https://packages.centreon.com/apt-plugins-unstable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                        wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
                       name: 'web'

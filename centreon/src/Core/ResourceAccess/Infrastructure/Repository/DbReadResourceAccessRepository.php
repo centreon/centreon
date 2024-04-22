@@ -38,7 +38,9 @@ use Core\ResourceAccess\Domain\Model\TinyRule;
  *     id: int,
  *     name: string,
  *     description: string|null,
- *     is_enabled: int
+ *     is_enabled: int,
+ *     all_contacts: int,
+ *     all_contact_groups: int,
  * }
  * @phpstan-type _DatasetFilter array{
  *     dataset_name: string,
@@ -322,7 +324,9 @@ final class DbReadResourceAccessRepository extends AbstractRepositoryRDB impleme
                         acl_groups.acl_group_id AS `id`,
                         acl_group_name AS `name`,
                         cloud_description AS `description`,
-                        acl_group_activate AS `is_enabled`
+                        acl_group_activate AS `is_enabled`,
+                        all_contacts,
+                        all_contact_groups
                     FROM `:db`.acl_groups
                     WHERE acl_groups.acl_group_id = :ruleId
                         AND cloud_specific = 1

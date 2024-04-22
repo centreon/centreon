@@ -1,7 +1,0 @@
-AddContactGroupDashboardShare:
-  methods: POST
-  path: /configuration/dashboards/{dashboardId}/access_rights/contactgroups
-  requirements:
-    dashboardId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\AddContactGroupDashboardShare\AddContactGroupDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"
