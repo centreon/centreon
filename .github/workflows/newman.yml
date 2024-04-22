@@ -151,7 +151,6 @@ jobs:
             echo "All Test Issue IDs: ${test_issue_ids[@]}"
           }
 
-          # Appel de la fonction pour récupérer les IDs des tests
           get_test_ids
 
           formatted_getTest_issue_ids_str="["
@@ -170,7 +169,7 @@ jobs:
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-              "testIssueIds": '"$formatted_test_issue_ids_str"'
+              "testIssueIds": '"$formatted_getTest_issue_ids_str"'
             }
           }'
 
