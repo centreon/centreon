@@ -112,7 +112,7 @@ jobs:
 
             while true; do
                 xray_graphql_getTests='{
-                    "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: 100, start: $start) { total results { issueId } } }",
+                    "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: $limit, start: $start) { total results { issueId } } }",
                     "variables": {
                         "jql": "reporter = '\''devsecops service-account'\'' AND project = MON AND type = '\''Test'\'' AND testType = '\''API'\''",
                         "limit": 100,
