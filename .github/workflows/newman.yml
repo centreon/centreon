@@ -182,41 +182,47 @@ jobs:
 
           echo "Response from Add Tests to Test Plan:"
           echo "$response_addTestsToTestPlan"
-
           get_test_plan_issue_ids() {
             start=0
             issue=()
 
             while true; do
-              xray_graphql_getTestPlan='{
-                "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
-                "variables": {
-                  "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-                  "start": '$start'
-                }
-              }'
+                xray_graphql_getTestPlan='{
+                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
+                    "variables": {
+                        "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
+                        "start": '$start'
+                    }
+                }'
 
-              response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+                response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-              echo "Response from Get Test Plan:"
-              echo "$response"
+                echo "Response from Get Test Plan:"
+                echo "$response"
 
-              # Parsing and processing test IDs
-              current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-              echo "Current Issue IDs: ${current_issue_ids[@]}"
+                # Check if there are more results
+                if [ -z "$response" ]; then
+                    echo "No more results. Exiting loop."
+                    break
+                fi
 
-              # Check if there are more results
-              if [ ${#current_issue_ids[@]} -eq 0 ]; then
-                echo "No more results. Exiting loop."
-                break
-              fi
+                # Parsing and processing test IDs
+                current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId'))
+                echo "Current Issue IDs: ${current_issue_ids[@]}"
 
-              # Concatenate the current batch of results to the overall issue_ids array
-              issue=("${issue[@]}" "${current_issue_ids[@]}")
+                # Concatenate the current batch of results to the overall issue_ids array
+                issue=("${issue[@]}" "${current_issue_ids[@]}")
 
-              # Increment the start value for the next iteration
-              start=$((start + 100))
+                # Increment the start value for the next iteration
+                start=$((start + 100))
             done
+
+            # Parsing and processing test IDs for API tests after the loop
+            api_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
+            echo "API Issue IDs: ${api_issue_ids[@]}"
+
+            # Display results
+            echo "Result Issue IDs: ${issue[@]}"
           }
 
           get_test_plan_issue_ids
