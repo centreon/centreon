@@ -15,8 +15,7 @@ import {
 
 const initialize = ({
   initialValues = simpleAccessRights,
-  loading = false,
-  link = 'link'
+  loading = false
 }): unknown => {
   const cancel = cy.stub();
   const save = cy.stub();
@@ -47,7 +46,6 @@ const initialize = ({
               }}
               initialValues={initialValues}
               labels={labels}
-              link={link}
               loading={loading}
               roles={roles}
               submit={save}
@@ -74,17 +72,8 @@ describe('Access rights', () => {
     cy.findByLabelText('Add a contact').should('be.visible');
     cy.findByTestId('add_role').should('be.disabled');
     cy.findByTestId('add').should('be.disabled');
-    cy.findByLabelText('Copy link').should('be.visible');
     cy.findByLabelText('Cancel').should('be.visible');
     cy.findByLabelText('Save').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays the access rights without link', () => {
-    initialize({ link: null });
-
-    cy.findByLabelText('Copy link').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -97,7 +86,7 @@ describe('Access rights', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the access rights with an empty list', () => {
+  it('displays the access rights list', () => {
     initialize({});
 
     simpleAccessRights.forEach(({ name, email, isContactGroup, role }) => {

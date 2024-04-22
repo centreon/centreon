@@ -16,7 +16,6 @@ interface Props {
   initialValues: Array<AccessRightInitialValues>;
   isSubmitting?: boolean;
   labels: Labels;
-  link?: string;
   loading?: boolean;
   roles: Array<SelectEntry>;
   submit: (values: Array<AccessRightInitialValues>) => Promise<void>;
@@ -28,7 +27,6 @@ export const AccessRights = ({
   endpoints,
   submit,
   cancel,
-  link,
   loading,
   labels,
   isSubmitting
@@ -46,7 +44,6 @@ export const AccessRights = ({
         clear={clear}
         isSubmitting={isSubmitting}
         labels={labels.actions}
-        link={link}
         submit={submit}
       />
     </div>
