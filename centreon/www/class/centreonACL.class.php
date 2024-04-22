@@ -135,6 +135,7 @@ class CentreonACL
         $this->getACLStr();
         $this->setActions();
         $this->hasAccessToAllHostGroups = false;
+        $this->hasAccessToAllServiceGroups = false;
     }
 
     /**

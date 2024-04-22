@@ -260,6 +260,30 @@ $updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$err
     );
 };
 
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
+        );
+    }
+};
+
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
+        );
+    }
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -276,6 +300,8 @@ try {
 
     $addDefaultValueforTaskTable($pearDB);
     $updateDatasetFilterResourceIdsColumn($pearDB);
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
