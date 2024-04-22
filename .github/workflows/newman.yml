@@ -125,7 +125,7 @@ jobs:
           echo "$response"
 
           # Parsing and processing test IDs
-          test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
+          formatted_test_issue_ids=$(jq -n --argjson ids "${test_issue_ids[@]}" '$ids')
 
           # Display the retrieved test issue IDs
           echo "Test Issue IDs: ${test_issue_ids[@]}"
@@ -135,8 +135,7 @@ jobs:
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-              "testIssueIds": '"$test_issue_ids"'
-            }
+              "testIssueIds": '"$formatted_test_issue_ids"'            }
           }'
 
           # Execute the mutation to add tests to the test plan
