@@ -135,7 +135,7 @@ jobs:
             "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
             "variables": {
               "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-              "testIssueIds": ["${test_issue_ids[@]}"]
+              "testIssueIds": '"[${test_issue_ids[@]}]"'
             }
           }'
 
