@@ -200,12 +200,6 @@ jobs:
                 echo "Response from Get Test Plan:"
                 echo "$response"
 
-                # Check if there are more results
-                if [ -z "$response" ]; then
-                    echo "No more results. Exiting loop."
-                    break
-                fi
-
                 # Parsing and processing test IDs
                 current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId'))
                 echo "Current Issue IDs: ${current_issue_ids[@]}"
@@ -215,6 +209,12 @@ jobs:
 
                 # Increment the start value for the next iteration
                 start=$((start + 100))
+
+                # Check if there are more results
+                if [ -z "$response" ] || [ ${#current_issue_ids[@]} -eq 0 ]; then
+                    echo "No more results. Exiting loop."
+                    break
+                fi
             done
 
             # Parsing and processing test IDs for API tests after the loop
