@@ -716,7 +716,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   create-xray-test-plan-and-test-execution:
-    needs: [get-version, dockerize]
+    needs: [get-version]
     if: ${{ (needs.get-version.outputs.stability == 'canary') }}
     strategy:
       fail-fast: false
