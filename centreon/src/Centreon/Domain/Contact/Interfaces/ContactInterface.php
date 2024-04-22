@@ -234,4 +234,6 @@ interface ContactInterface
      * @return string|null
      */
     public function getUserInterfaceDensity(): ?string;
+
+    public function hasCloudAccessGroups(): bool;
 }

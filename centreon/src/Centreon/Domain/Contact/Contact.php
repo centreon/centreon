@@ -24,6 +24,7 @@ namespace Centreon\Domain\Contact;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class Contact implements UserInterface, ContactInterface
@@ -31,6 +32,9 @@ class Contact implements UserInterface, ContactInterface
     // global api roles
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_REALTIME = 'ROLE_API_REALTIME';
+
+    private const CLOUD_AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
+
 
     // user action roles
     public const ROLE_HOST_CHECK = 'ROLE_HOST_CHECK';
@@ -233,6 +237,11 @@ class Contact implements UserInterface, ContactInterface
 
     /** @var string|null */
     private $userInterfaceDensity;
+
+    /**
+     * @var AccessGroup[]
+     */
+    private array $accessGroups = [];
 
     /**
      * @param int $timezoneId
@@ -781,5 +790,25 @@ class Contact implements UserInterface, ContactInterface
     public function getUserInterfaceDensity(): ?string
     {
         return $this->userInterfaceDensity;
+    }
+
+    /**
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return $this
+     */
+    public function setAccessGroups(array $accessGroups): self
+    {
+        $this->accessGroups = $accessGroups;
+
+        return $this;
+    }
+
+    public function hasCloudAccessGroups(): bool
+    {
+        return ! empty(array_intersect(
+            array_map(fn (AccessGroup $accessGroup): string => $accessGroup->getName(), $this->accessGroups),
+            self::CLOUD_AUTHORIZED_ACL_GROUPS
+        ));
     }
 }

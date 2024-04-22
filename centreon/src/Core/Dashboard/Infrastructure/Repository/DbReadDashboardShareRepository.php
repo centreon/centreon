@@ -477,7 +477,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $query .= <<<'SQL'
                 (ag.acl_group_name = :aclGroup AND c.contact_oreon = '1')
                 OR
-                
+
                 SQL;
         }
             $query .= <<<'SQL'

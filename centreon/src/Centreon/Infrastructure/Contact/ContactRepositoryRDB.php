@@ -26,6 +26,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the contacts.
@@ -34,6 +35,8 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
+    private const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
+
     /**
      * @var DatabaseConnection
      */
@@ -43,7 +46,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      * ContactRepositoryRDB constructor.
      * @param DatabaseConnection $pdo
      */
-    public function __construct(DatabaseConnection $pdo)
+    public function __construct(DatabaseConnection $pdo, private readonly bool $isCloudPlatform)
     {
         $this->db = $pdo;
     }
@@ -500,6 +503,9 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 
         $this->addActionRules($contactObj);
         $this->addTopologyRules($contactObj);
+        if ($this->isCloudPlatform) {
+            $this->addCloudAdminAccess($contactObj);
+        }
 
         return $contactObj;
     }
@@ -574,6 +580,48 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $contact->addRole(Contact::ROLE_DELETE_POLLER_CFG);
                 break;
         }
+    }
+
+    /**
+     * @param Contact $contact
+     */
+    private function addCloudAdminAccess(Contact $contact): void
+    {
+        $bindValues = [];
+        foreach (self::AUTHORIZED_ACL_GROUPS as $key => $authorizedAclGroup) {
+            $bindValues[':acl_group' . $key] = $authorizedAclGroup;
+        }
+
+        if ([] === $bindValues) {
+            return;
+        }
+
+        $authorizedAclGroupsAsString = implode(',', array_keys($bindValues));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT acl_group_id, acl_group_name, acl_group_alias from `:db`.acl_groups acl_groups ag
+                INNER JOIN `:db`.acl_group_contacts_relation agcr
+                         ON ag.acl_group_id = agcr.acl_group_id
+                WHERE ag.acl_group_name IN ({$authorizedAclGroupsAsString})
+                AND agcr.contact_contact_id = :contactId
+                SQL
+        ));
+
+        foreach ($bindValues as $token => $authorizedAclGroup) {
+            $statement->bindValue($token, $authorizedAclGroup, \PDO::PARAM_STR);
+        }
+        $statement->bindValue(':contactId', $contact->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+        $accessGroups = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $accessGroups[] = new AccessGroup(
+                id: $result['acl_group_id'],
+                name: $result['acl_group_name'],
+                alias: $result['acl_group_alias']);
+        }
+        $contact->setAccessGroups($accessGroups);
     }
 
     /**
