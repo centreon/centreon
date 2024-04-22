@@ -143,6 +143,11 @@ contents:
     file_info:
       mode: 0750
 
+  - src: "../contrib/gorgone_key_generation.pl"
+    dst: "/usr/local/bin/"
+    file_info:
+      mode: 0750
+
 scripts:
   preinstall: ./scripts/centreon-gorgone-preinstall.sh
   postinstall: ./scripts/centreon-gorgone-postinstall.sh
