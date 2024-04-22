@@ -49,6 +49,7 @@ final class FindDashboardContacts
      * @param ReadDashboardShareRepositoryInterface $readDashboardShareRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadContactRepositoryInterface $readContactRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
@@ -56,7 +57,8 @@ final class FindDashboardContacts
         private readonly ContactInterface $contact,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ReadContactRepositoryInterface $readContactRepository
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -118,12 +120,11 @@ final class FindDashboardContacts
     private function findContactAsAdmin(): array
     {
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
-            $this->requestParameters
+            $this->requestParameters,
+            $this->isCloudPlatform
         );
         $total = $this->requestParameters->getTotal();
-        $admins = $this->readContactRepository->findAdminWithRequestParameters(
-            $this->requestParameters
-        );
+        $admins = $this->readContactRepository->findAdminWithRequestParameters($this->requestParameters);
         $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
         $adminContactRoles = [];
         foreach ($admins as $admin) {

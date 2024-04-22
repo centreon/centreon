@@ -28,6 +28,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DashboardRights
 {
@@ -35,72 +37,94 @@ class DashboardRights
     private const ROLE_CREATOR = Contact::ROLE_HOME_DASHBOARD_CREATOR;
     private const ROLE_ADMIN = Contact::ROLE_HOME_DASHBOARD_ADMIN;
 
-    public function __construct(private readonly ContactInterface $contact)
-    {
+    public const AUTHORIZED_ACL_GROUP = 'customer_admin_acl';
+
+    private bool $isCloudAuthorized = false;
+
+    public function __construct(
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
+    ) {
+        if ($this->isCloudPlatform) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupNames = array_map(
+                static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+                $accessGroups
+            );
+
+            if (in_array(self::AUTHORIZED_ACL_GROUP, $accessGroupNames)) {
+                $this->isCloudAuthorized = true;
+            }
+        }
     }
 
     public function canCreate(): bool
     {
-        return $this->hasAdminRole() || $this->hasCreatorRole();
+        return $this->hasAdminRole() || $this->hasCreatorRole() || $this->isCloudAuthorized;
     }
 
     public function canAccess(): bool
     {
-        return $this->hasViewerRole();
+        return $this->hasViewerRole()
+            || $this->isCloudAuthorized;
     }
 
     public function canDelete(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function canUpdate(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function canCreateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function canDeleteShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function canUpdateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function canAccessShare(DashboardSharingRoles $roles): bool
     {
-        return null !== $roles->getTheMostPermissiveRole();
+        return null !== $roles->getTheMostPermissiveRole() || $this->isCloudAuthorized;
     }
 
     public function hasAdminRole(): bool
     {
-        return $this->contact->hasTopologyRole(self::ROLE_ADMIN);
+        return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
+            || $this->isCloudAuthorized;
     }
 
     public function hasCreatorRole(): bool
     {
         return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
-            || $this->contact->hasTopologyRole(self::ROLE_CREATOR);
+            || $this->contact->hasTopologyRole(self::ROLE_CREATOR)
+            || $this->isCloudAuthorized;
     }
 
     public function hasViewerRole(): bool
     {
         return $this->contact->hasTopologyRole(self::ROLE_ADMIN)
             || $this->contact->hasTopologyRole(self::ROLE_CREATOR)
-            || $this->contact->hasTopologyRole(self::ROLE_VIEWER);
+            || $this->contact->hasTopologyRole(self::ROLE_VIEWER)
+            || $this->isCloudAuthorized;
     }
 
     public function getGlobalRole(): ?DashboardGlobalRole
     {
         return match (true) {
-            $this->hasAdminRole() => DashboardGlobalRole::Administrator,
+            $this->hasAdminRole(), $this->isCloudAuthorized => DashboardGlobalRole::Administrator,
             $this->hasCreatorRole() => DashboardGlobalRole::Creator,
             $this->hasViewerRole() => DashboardGlobalRole::Viewer,
             default => null,
