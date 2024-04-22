@@ -225,14 +225,10 @@ jobs:
 
             # Display results
             echo "API Issue IDs: ${api_issue_ids[@]}"
-            echo "Result Issue IDs: ${issue[@]}"
           }
 
           get_test_plan_issue_ids
-          issue_ids=("${issue[@]}")
-
-          # Display results
-          echo "Result Issue IDs: ${issue_ids[@]}"
+          issue_ids=("${api_issue_ids[@]}")
 
           summaries=()
 
