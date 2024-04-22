@@ -177,6 +177,7 @@ jobs:
         run: |
           if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             apt install -y ./centreon-gorgone*${{ matrix.distrib }}*
+            apt info ./centreon-gorgone*
           else
             dnf install -y ./centreon-gorgone*${{ matrix.distrib }}* ./centreon-gorgone-centreon-config*${{ matrix.distrib }}*
             # in el8 at least, there is a package for the configuration and a package for the actual code.
