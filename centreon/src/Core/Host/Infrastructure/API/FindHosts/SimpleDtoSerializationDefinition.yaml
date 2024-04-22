@@ -1,0 +1,5 @@
+Core\Host\Application\UseCase\FindHosts\SimpleDto:
+  id:
+    groups: ['on_prem', 'cloud']
+  name:
+    groups: ['on_prem', 'cloud']

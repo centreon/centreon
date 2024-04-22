@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 /**
  * @method array getSupportedTypes(?string $format)
  */
-class FindHostsNormalizer implements NormalizerInterface
+class FindHostsResponseNormalizer implements NormalizerInterface
 {
 
     public function __construct(private readonly ObjectNormalizer $normalizer)

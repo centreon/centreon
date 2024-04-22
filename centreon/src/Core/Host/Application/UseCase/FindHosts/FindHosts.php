@@ -142,24 +142,28 @@ final class FindHosts
                 $host->getRetryCheckInterval(),
                 $host->isActivated(),
             );
+
             if ($host->getSeverity() !== null) {
                 $dto->severity = new SimpleDto(
                     $host->getSeverity()->getId(),
                     $host->getSeverity()->getName() ?? '',
                 );
             }
+
             if ($host->getNotificationTimePeriod() !== null) {
                 $dto->notificationTimeperiod = new SimpleDto(
                     $host->getNotificationTimePeriod()->getId(),
                     $host->getNotificationTimePeriod()->getName() ?? '',
                 );
             }
+
             if ($host->getCheckTimePeriod() !== null) {
                 $dto->checkTimeperiod = new SimpleDto(
                     $host->getCheckTimePeriod()->getId(),
                     $host->getCheckTimePeriod()->getName() ?? '',
                 );
             }
+
             $hostTemplates = $this->hostTemplateRepository->findByIds(...$host->getTemplateIds());
 
             foreach ($hostTemplates as $template) {

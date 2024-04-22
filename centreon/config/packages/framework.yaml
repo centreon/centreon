@@ -15,3 +15,9 @@ framework:
         cookie_secure: auto
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
+
+    serializer:
+        name_converter: 'serializer.name_converter.camel_case_to_snake_case'
+        mapping:
+            paths:
+                - ''

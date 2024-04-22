@@ -1,0 +1,33 @@
+Core\Host\Application\UseCase\FindHosts\HostDto:
+  attributes:
+    id:
+      groups: ['on_prem', 'cloud']
+    name:
+      groups: ['on_prem', 'cloud']
+    alias:
+      groups: ['on_prem', 'cloud']
+    ipAddress:
+      groups: ['on_prem', 'cloud']
+      serialized_name: address
+    poller:
+      groups: ['on_prem', 'cloud']
+      serialized_name: monitoringServer
+    normalCheckInterval:
+      groups: ['on_prem', 'cloud']
+    retryCheckInterval:
+      groups: ['on_prem', 'cloud']
+    isActivated:
+      groups: ['on_prem', 'cloud']
+    templateParents:
+      groups: ['on_prem', 'cloud']
+      serialized_name: templates
+    notificationTimeperiod:
+      groups: ['on_prem']
+    checkTimeperiod:
+      groups: ['on_prem', 'cloud']
+    severity:
+      groups: ['on_prem', 'cloud']
+    categories:
+      groups: ['on_prem', 'cloud']
+    groups:
+      groups: ['on_prem', 'cloud']
