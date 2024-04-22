@@ -90,6 +90,7 @@ Check Poller Communicate
             BREAK
         END
     END
+    Log To Console    json response : ${response.json()}
     Should Be True    ${i} < 9    timeout waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
