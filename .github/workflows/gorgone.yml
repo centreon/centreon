@@ -175,7 +175,6 @@ jobs:
         run: |
           if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
             apt install -y ./centreon-gorgone*${{ matrix.distrib }}*
-            apt info ./centreon-gorgone*
           else
             dnf install -y ./centreon-gorgone*${{ matrix.distrib }}* ./centreon-gorgone-centreon-config*${{ matrix.distrib }}*
             # in el8 at least, there is a package for the configuration and a package for the actual code.
@@ -199,7 +198,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: gorgone-debug-${{ inputs.distrib }}
+          name: gorgone-debug-${{ matrix.distrib }}
           path: |
             ./log.html
             /var/log/centreon-gorgone/*/*
