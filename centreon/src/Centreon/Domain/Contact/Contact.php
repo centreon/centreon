@@ -33,7 +33,7 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_REALTIME = 'ROLE_API_REALTIME';
 
-    private const CLOUD_AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
+    public const CLOUD_AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
 
     // user action roles
@@ -241,7 +241,7 @@ class Contact implements UserInterface, ContactInterface
     /**
      * @var AccessGroup[]
      */
-    private array $accessGroups = [];
+    private $accessGroups = [];
 
     /**
      * @param int $timezoneId

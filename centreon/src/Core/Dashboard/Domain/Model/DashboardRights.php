@@ -36,6 +36,7 @@ class DashboardRights
     private const ROLE_ADMIN = Contact::ROLE_HOME_DASHBOARD_ADMIN;
 
     public function __construct(private readonly ContactInterface $contact) {
+        $id = spl_object_id($this->contact);
     }
 
     public function canCreate(): bool

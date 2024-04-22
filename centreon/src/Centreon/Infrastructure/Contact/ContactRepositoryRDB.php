@@ -588,7 +588,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     private function addCloudAdminAccess(Contact $contact): void
     {
         $bindValues = [];
-        foreach (self::AUTHORIZED_ACL_GROUPS as $key => $authorizedAclGroup) {
+        foreach (Contact::CLOUD_AUTHORIZED_ACL_GROUPS as $key => $authorizedAclGroup) {
             $bindValues[':acl_group' . $key] = $authorizedAclGroup;
         }
 
@@ -600,8 +600,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT acl_group_id, acl_group_name, acl_group_alias from `:db`.acl_groups acl_groups ag
-                INNER JOIN `:db`.acl_group_contacts_relation agcr
+                SELECT ag.acl_group_id, ag.acl_group_name, ag.acl_group_alias FROM `:db`.acl_groups ag
+                INNER JOIN `:db`.acl_group_contacts_relations agcr
                          ON ag.acl_group_id = agcr.acl_group_id
                 WHERE ag.acl_group_name IN ({$authorizedAclGroupsAsString})
                 AND agcr.contact_contact_id = :contactId
@@ -621,6 +621,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 name: $result['acl_group_name'],
                 alias: $result['acl_group_alias']);
         }
+        $id = spl_object_id($contact);
         $contact->setAccessGroups($accessGroups);
     }
 

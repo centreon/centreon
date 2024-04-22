@@ -27,7 +27,9 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
 
     Centreon\:
-        resource: '../../src/Centreon/*'
+        resource:
+            -  '../../src/Centreon/*'
+            -  '../../src/Centreon/'
         exclude: '../../src/Centreon/Tests'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
@@ -107,7 +109,7 @@ services:
         public: true
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
-        class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        alias: 'Centreon\Infrastructure\Contact\ContactRepositoryRDB'
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider

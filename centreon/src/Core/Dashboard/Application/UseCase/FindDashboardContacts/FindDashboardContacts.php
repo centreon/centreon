@@ -68,6 +68,7 @@ final class FindDashboardContacts
     public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
     {
         try {
+            $id = spl_object_id($this->contact);
             if ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
                 $users = $this->rights->hasAdminRole()
