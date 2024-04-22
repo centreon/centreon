@@ -64,7 +64,7 @@ const useValidationSchema = (): UseValidationSchemaState => {
 
   const validationSchema = object().shape(
     {
-      allContactrGroups: boolean(),
+      allContactGroups: boolean(),
       allContacts: boolean(),
       contactGroups: array().when(
         ['allContactGroups', 'allContacts', 'contacts'],

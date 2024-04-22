@@ -43,7 +43,7 @@ const useContactGroupsSelector = (): UseContactGroupssSelectorState => {
   const onCheckboxChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue('contactGroups', []);
     setFieldValue('allContactGroups', event.target.checked);
-    setFieldTouched('contactGroups', true, true);
+    setFieldTouched('contactGroups', true, false);
     setFieldTouched('allContactGroups', true, false);
     setAllContactGroupsSelected(event.target.checked);
   };

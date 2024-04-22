@@ -52,10 +52,20 @@ const contacts = JsonDecoder.object<NamedEntity>(
 export const resourceAccessRuleDecoder =
   JsonDecoder.object<GetResourceAccessRule>(
     {
-      allContactGroups: JsonDecoder.boolean,
-      allContacts: JsonDecoder.boolean,
-      contactGroups: JsonDecoder.array(contactGroups, 'Contact groups'),
-      contacts: JsonDecoder.array(contacts, 'Contacts'),
+      contactGroups: JsonDecoder.object(
+        {
+          all: JsonDecoder.boolean,
+          values: JsonDecoder.array(contactGroups, 'Contact group values')
+        },
+        'Contact groups'
+      ),
+      contacts: JsonDecoder.object(
+        {
+          all: JsonDecoder.boolean,
+          values: JsonDecoder.array(contacts, 'Contact values')
+        },
+        'Contacts'
+      ),
       datasetFilters: JsonDecoder.array(datasetFilter, 'Datasets filters'),
       description: JsonDecoder.string,
       id: JsonDecoder.number,
@@ -64,8 +74,6 @@ export const resourceAccessRuleDecoder =
     },
     'Resource access rule',
     {
-      allContactGroups: 'all_contact_groups',
-      allContacts: 'all_contacts',
       contactGroups: 'contact_groups',
       datasetFilters: 'dataset_filters',
       isActivated: 'is_enabled'

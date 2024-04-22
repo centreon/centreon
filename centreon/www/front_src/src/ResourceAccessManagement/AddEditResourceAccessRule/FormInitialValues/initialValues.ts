@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { equals, isEmpty, prop } from 'ramda';
+import { equals, isEmpty, map, prop } from 'ramda';
 
 import {
   Dataset,
@@ -66,8 +66,6 @@ const formatDatasetFilters = (
   datasetFilters.map((datasetFilter) => formatDatasetFilter(datasetFilter));
 
 export const getInitialValues = ({
-  allContactGroups,
-  allContacts,
   contactGroups,
   contacts,
   datasetFilters,
@@ -75,10 +73,10 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
-  allContactGroups,
-  allContacts,
-  contactGroups,
-  contacts,
+  allContactGroups: contactGroups.all,
+  allContacts: contacts.all,
+  contactGroups: contactGroups.values,
+  contacts: contacts.values,
   datasetFilters: formatDatasetFilters(datasetFilters),
   description,
   isActivated,
