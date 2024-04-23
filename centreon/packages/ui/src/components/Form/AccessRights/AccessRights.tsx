@@ -12,7 +12,7 @@ import { useAccessRightsChange } from './useAccessRightsChange';
 import { useAccessRightsInitValues } from './useAccessRightsInitValues';
 
 interface Props {
-  cancel: ({ dirty, values }) => void;
+  cancel?: ({ dirty, values }) => void;
   endpoints: Endpoints;
   initialValues: Array<AccessRightInitialValues>;
   isSubmitting?: boolean;

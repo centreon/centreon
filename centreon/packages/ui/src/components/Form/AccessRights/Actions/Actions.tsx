@@ -9,7 +9,7 @@ import { useActions } from './useActions';
 import { useActionsStyles } from './Actions.styles';
 
 interface Props {
-  cancel: ({ dirty, values }) => void;
+  cancel?: ({ dirty, values }) => void;
   clear: () => void;
   isSubmitting?: boolean;
   labels: Labels['actions'];
@@ -38,13 +38,15 @@ const Actions = ({
 
   return (
     <div className={classes.cancelAndSave}>
-      <Button
-        aria-label={t(labels.cancel)}
-        variant="secondary"
-        onClick={onCancel}
-      >
-        {t(labels.cancel)}
-      </Button>
+      {cancel && (
+        <Button
+          aria-label={t(labels.cancel)}
+          variant="secondary"
+          onClick={onCancel}
+        >
+          {t(labels.cancel)}
+        </Button>
+      )}
       <Button
         aria-label={t(labels.save)}
         disabled={isSubmitting || !dirty}
