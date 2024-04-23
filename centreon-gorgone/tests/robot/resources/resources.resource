@@ -1,11 +1,10 @@
 *** Settings ***
-Documentation       Centreon Gorgone for Robot Framework
+Documentation       Centreon Gorgone library for Robot Framework
 
 Library            Process
 Library            RequestsLibrary
 
 *** Variables ***
-${PERCENT}                  %
 ${ROOT_CONFIG}              ${CURDIR}${/}..${/}config${/}
 ${pull_central_config}      ${ROOT_CONFIG}pull_central_config.yaml
 ${pull_poller_config}       ${ROOT_CONFIG}pull_poller_config.yaml
@@ -16,6 +15,7 @@ ${DBPORT}                   3306
 ${DBNAME}                   centreon_gorgone_test
 ${DBUSER}                   centreon
 ${DBPASSWORD}               password
+
 *** Keywords ***
 Start Gorgone
     [Arguments]    ${CONFIG_FILE}    ${SEVERITY}    ${ALIAS}
@@ -31,6 +31,7 @@ Start Gorgone
     ...    alias=${ALIAS}
 
 Stop Gorgone And Remove Gorgone Config
+    [Documentation]    This keyword stop the gorgone process and remove the configuration in the database. file configuration are not modified as we want them in case something failed to analyse the problem
     [Arguments]    @{process_alias}    ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
     # remove configuration in db if needed.
@@ -50,18 +51,29 @@ Gorgone Execute Sql
     END
 
 Setup Gorgone Config
-    [Arguments]        ${gorgone_id}    @{file_list}    ${sql_file}=
+    [Arguments]        ${gorgone_name}    @{file_list}    ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
-    Create Directory    /var/log/centreon-gorgone/${gorgone_id}/
-    Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${gorgone_id}/includer.yaml
+    Create Directory    /var/log/centreon-gorgone/${gorgone_name}/
+    Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${gorgone_name}/includer.yaml
 
     FOR    ${file}    IN    @{file_list}
-        Copy File    ${file}    /etc/centreon-gorgone/${gorgone_id}/config.d/
+        Copy File    ${file}    /etc/centreon-gorgone/${gorgone_name}/config.d/
     END
     ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
-    ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_id}/g' /etc/centreon-gorgone/${gorgone_id}/includer.yaml
-    ${result2}    Run    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBHOST@/${DBHOST}/g' -e 's/@DBPASSWORD@/${DBPASSWORD}/g' -e 's/@DBUSER@/${DBUSER}/g' -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_id}/g' /etc/centreon-gorgone/${gorgone_id}/config.d/*.yaml
+    ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g' /etc/centreon-gorgone/${gorgone_name}/includer.yaml
+    
+    ${CMD}    Catenate
+    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' 
+    ...    -e 's/@DBNAME@/${DBNAME}/g' 
+    ...    -e 's/@DBNAME@/${DBNAME}/g' 
+    ...    -e 's/@DBHOST@/${DBHOST}/g' 
+    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g' 
+    ...    -e 's/@DBUSER@/${DBUSER}/g' 
+    ...    -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g'
+    ...    /etc/centreon-gorgone/${gorgone_name}/config.d/*.yaml
+
+    ${result2}    Run    ${CMD}
 
 Check Poller Is Connected
     [Arguments]    ${port}=    ${expected_nb}=
@@ -74,10 +86,11 @@ Check Poller Is Connected
         END
     END
     Log To Console    TCP connection establishing after ${i} attempt
-    Should Be True    ${i} < 39    Gorgone did not establish tcp connection in 80 seconds.
+    Should Be True    ${i} < 39    Gorgone did not establish tcp connection in 160 seconds.
     Log To Console    TCP connection established after ${i} attempt (4 seconds each)
 
 Check Poller Communicate
+    [Documentation]    Ask the central Gorgone rest api if it have communicated with the poller using a given ID.
     [Arguments]    ${poller_id}
     ${response}     Set Variable    ${EMPTY}
     Log To Console    checking Gorgone see poller in rest api response...
@@ -95,13 +108,13 @@ Check Poller Communicate
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
 
 Setup 2 Gorgone
-    [Arguments]    ${communication_mode}=push    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
+    [Arguments]    ${communication_mode}=push_zmq    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
 
     ${result}    Run    perl /usr/local/bin/gorgone_key_generation.pl
     # generate key if there is none.
     # gorgone can generate it's own key, but as we need the thumbprint in the configuration we need to generate them before launching gorgone.
     # this script only create key if the files don't exists, and silently finish if the files already exists.
-    IF    '${communication_mode}' == 'push'
+    IF    '${communication_mode}' == 'push_zmq'
         Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
         Setup Gorgone Config    ${poller_name}    ${push_poller_config}
 
