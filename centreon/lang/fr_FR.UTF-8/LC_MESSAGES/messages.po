@@ -18965,4 +18965,4 @@ msgid "All contact groups"
 msgstr "Tous les groupes de contacts"
 
 msgid "All contact groups selected"
-msgstr "Tous les groups de contacts sont sélectionnés"
+msgstr "Tous les groupes de contacts sont sélectionnés"
