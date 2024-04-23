@@ -18962,7 +18962,7 @@ msgid "All contacts selected"
 msgstr "Tous les contacts sont sélectionnés"
 
 msgid "All contact groups"
-msgstr "Tous les groups de contacts"
+msgstr "Tous les groupes de contacts"
 
 msgid "All contact groups selected"
 msgstr "Tous les groups de contacts sont sélectionnés"
