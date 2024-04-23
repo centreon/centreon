@@ -292,7 +292,6 @@ export const getPublicWidgetEndpoint = ({
 }: GetPublicWidgetEndpointProps): string =>
   `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
 
-
 export const getWidgetEndpoint = ({
   playlistHash,
   dashboardId,
