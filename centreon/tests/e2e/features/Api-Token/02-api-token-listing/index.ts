@@ -88,7 +88,7 @@ Then(
             // User and Creator
             if (cellIndex >= 2) {
               cy.get('.MuiTableCell-body')
-                .eq(cellIndex + 2)
+                .eq(cellIndex + 3)
                 .should('contain.text', cell);
 
               return;
