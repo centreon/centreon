@@ -1,21 +1,9 @@
 import { useAtomValue } from 'jotai';
-import { equals, omit } from 'ramda';
+import { equals } from 'ramda';
 
 import { initialValuesAtom, valuesAtom } from '../atoms';
-import { AccessRight, AccessRightInitialValues, Labels } from '../models';
-
-const formatValue = (accessRight: AccessRight): AccessRightInitialValues => {
-  return omit(['isAdded', 'isUpdated', 'isRemoved'], accessRight);
-};
-
-const formatValueForSubmition = (
-  accessRight: AccessRight
-): AccessRightInitialValues => {
-  return {
-    ...formatValue(accessRight),
-    id: Number((accessRight.id as string).split('_')[1])
-  };
-};
+import { AccessRightInitialValues, Labels } from '../models';
+import { formatValue, formatValueForSubmition } from '../utils';
 
 interface Props {
   clear: () => void;

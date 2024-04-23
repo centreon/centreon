@@ -19,6 +19,7 @@ const initialize = ({
 }): unknown => {
   const cancel = cy.stub();
   const save = cy.stub();
+  const change = cy.stub();
 
   cy.interceptAPIRequest({
     alias: 'getContacts',
@@ -49,6 +50,7 @@ const initialize = ({
               loading={loading}
               roles={roles}
               submit={save}
+              onChange={change}
             />
           </Provider>
         </TestQueryProvider>
@@ -58,6 +60,7 @@ const initialize = ({
 
   return {
     cancel,
+    change,
     save
   };
 };
@@ -358,5 +361,27 @@ describe('Access rights', () => {
     cy.findByTestId('add_role').should('have.value', 'viewer');
 
     cy.makeSnapshot();
+  });
+
+  it('calls the change function when the corresponding prop is set and the form is updated', () => {
+    const { change } = initialize({});
+
+    cy.contains(labels.add.contact).click();
+    cy.findByLabelText(labels.add.autocompleteContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains('Entity 10').click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains('Entity 10').should('be.visible');
+
+    cy.findByTestId('role-Entity 10').should('have.value', 'viewer');
+    cy.contains(labels.list.added)
+      .should('be.visible')
+      .then(() => {
+        expect(change).to.have.callCount(2);
+      });
   });
 });
