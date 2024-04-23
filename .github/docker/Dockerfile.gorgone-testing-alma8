@@ -11,5 +11,4 @@ dnf install -y python3.11 python3.11-pip
 pip3.11 install robotframework robotframework-examples
 
 dnf clean all
-
 EOF
