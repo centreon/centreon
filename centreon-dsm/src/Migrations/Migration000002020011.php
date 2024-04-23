@@ -86,7 +86,6 @@ class Migration000002020011 extends AbstractDsmMigration implements LegacyMigrat
                 `macros` text,
                 `output` text,
                 PRIMARY KEY (`cache_id`),
-                KEY `cache_mult_idx` (`host_id`,`id`,`cache_id`),
                 KEY `pool_prefix` (`pool_prefix`)
                 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8
                 SQL
