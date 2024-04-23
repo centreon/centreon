@@ -90,14 +90,18 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
      */
     private function findAvailableMigrations(): array
     {
+        $installedModuleNames = $this->findInstalledModuleNames();
+
         $migrations = [];
 
         foreach ($this->migrations as $migration) {
-            $migrations[] = new NewMigration(
-                $migration->getName(),
-                $migration->getModuleName(),
-                $migration->getDescription(),
-            );
+            if (in_array($migration->getModuleName(), $installedModuleNames)) {
+                $migrations[] = new NewMigration(
+                    $migration->getName(),
+                    $migration->getModuleName(),
+                    $migration->getDescription(),
+                );
+            }
         }
 
         return $migrations;
@@ -123,7 +127,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
             <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS m.id, m.name, mi.name as module_name, m.executed_at
                 FROM `:db`.migrations m
-                LEFT JOIN modules_informations mi ON mi.id = m.module_id
+                LEFT JOIN `:db`.modules_informations mi ON mi.id = m.module_id
                 SQL
         );
 
@@ -146,5 +150,35 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         }
 
         return $migrations;
+    }
+
+    /**
+     * Find installed module names.
+     *
+     * @return string[]
+     */
+    private function findInstalledModuleNames(): array
+    {
+        $query = $this->translateDbName(
+            <<<'SQL'
+                SELECT name
+                FROM `:db`.modules_informations
+                SQL
+        );
+
+        $statement = $this->db->query($query);
+
+        if (! $statement) {
+            return [];
+        }
+
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $moduleNames = [NewMigration::CORE_MODULE_NAME];
+        foreach ($result as $moduleData) {
+            $moduleNames[] = $moduleData['name'];
+        }
+
+        return $moduleNames;
     }
 }
