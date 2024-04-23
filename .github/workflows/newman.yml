@@ -114,7 +114,7 @@ jobs:
                 xray_graphql_getTests='{
                     "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: $limit, start: $start) { total results { issueId } } }",
                     "variables": {
-                        "jql": "reporter = '\"'712020:093f82f0-b0f1-4498-8369-fbe72fb50bcb'\"' AND project = MON AND type = '\"'Test'\"' AND testType = '\"'API'\"'",
+                        "jql": "reporter = \"712020:093f82f0-b0f1-4498-8369-fbe72fb50bcb\" AND project = MON AND type = \"Test\" AND testType = \"API\"",
                         "limit": 100,
                         "start": '$start'
                     }
