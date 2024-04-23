@@ -23,7 +23,6 @@ namespace Tests\Centreon\Application\Controller\Monitoring;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use PHPUnit\Framework\MockObject\MockObject;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Service;
 use Centreon\Application\Controller\Monitoring\TimelineController;
@@ -163,7 +162,7 @@ class TimelineControllerTest extends TestCase
             ->willReturn(true);
         $timelineController->setContainer($this->container);
 
-        $view = $timelineController->getHostTimeline(1, $this->contact, $this->requestParameters);
+        $view = $timelineController->getHostTimeline(1, $this->requestParameters);
 
         $context = (new Context())
             ->setGroups(TimelineController::SERIALIZER_GROUPS_MAIN)
@@ -198,7 +197,7 @@ class TimelineControllerTest extends TestCase
         $timelineController = new TimelineController($this->monitoringService, $this->timelineService, $this->contact);
         $timelineController->setContainer($this->container);
 
-        $view = $timelineController->getServiceTimeline(1, 1, $this->contact, $this->requestParameters);
+        $view = $timelineController->getServiceTimeline(1, 1, $this->requestParameters);
 
         $context = (new Context())
             ->setGroups(TimelineController::SERIALIZER_GROUPS_MAIN)
@@ -239,7 +238,7 @@ class TimelineControllerTest extends TestCase
             ->willReturn(true);
         ob_start();
         $controller->setContainer($this->container);
-        $response = $controller->downloadServiceTimeline(1, 1, $this->contact, $this->requestParameters);
+        $response = $controller->downloadServiceTimeline(1, 1, $this->requestParameters);
         $response->sendContent();
         echo($response->getContent());
         $actualContent = ob_get_contents();

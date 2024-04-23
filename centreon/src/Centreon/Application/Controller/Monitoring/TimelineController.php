@@ -130,7 +130,7 @@ class TimelineController extends AbstractController
 
         return $this->view(
             [
-                'result' => $this->getTimelinesByHostIdAndServiceId($user, $hostId, $serviceId),
+                'result' => $this->getTimelinesByHostIdAndServiceId($this->user, $hostId, $serviceId),
                 'meta' => $requestParameters->toArray()
             ]
         )->setContext($context);
@@ -183,7 +183,7 @@ class TimelineController extends AbstractController
         }
         $this->addDownloadParametersInRequestParameters($requestParameters);
         $timeLines = $this->formatTimeLinesForDownload(
-            $this->getTimelinesByHostIdAndServiceId($user, $hostId, $serviceId)
+            $this->getTimelinesByHostIdAndServiceId($this->user, $hostId, $serviceId)
         );
 
         return $this->streamTimeLines($timeLines);
