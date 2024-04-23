@@ -18568,7 +18568,7 @@ msgid "Delete token"
 msgstr "Supprimer le jeton"
 
 msgid "deleted successfully"
-msgstr "supprimé avec succè"
+msgstr "supprimé avec succès"
 
 msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
 msgstr "Cette action est irréversible. Si vous supprimez ces jetons, toutes les requêtes effectuées avec seront rejetées. Voulez-vous supprimer ces jetons?"
