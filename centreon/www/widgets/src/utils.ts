@@ -279,7 +279,7 @@ export const severityStatusBySeverityCode = {
 
 interface GetPublicWidgetEndpointProps {
   dashboardId: number | string;
-  extraQueryParameters: string;
+  extraQueryParameters?: string;
   playlistHash?: string;
   widgetId: string;
 }
@@ -288,7 +288,7 @@ export const getPublicWidgetEndpoint = ({
   playlistHash,
   dashboardId,
   widgetId,
-  extraQueryParameters
+  extraQueryParameters = ''
 }: GetPublicWidgetEndpointProps): string =>
   `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
 
@@ -299,7 +299,7 @@ export const getWidgetEndpoint = ({
   isOnPublicPage,
   defaultEndpoint,
   extraQueryParameters
-}: GetPublicWidgetEndpointProps & {
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
   defaultEndpoint: string;
   extraQueryParameters?: Record<string, string | number>;
   isOnPublicPage: boolean;
