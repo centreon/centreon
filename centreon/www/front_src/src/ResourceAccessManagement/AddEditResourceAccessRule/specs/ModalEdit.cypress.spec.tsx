@@ -242,7 +242,7 @@ describe('Edit modal', () => {
     cy.makeSnapshot();
   });
 
-  it('sends a request to edit a Resource Access Rule when a configured contacts and cotnact groups are changed to all', () => {
+  it('sends a request to edit a Resource Access Rule when configured contacts and contact groups are changed to all', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
 
     cy.waitForRequest('@findResourceAccessRuleRequest');
