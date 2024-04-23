@@ -30,7 +30,9 @@ import {
   labelSave,
   labelSelectResource,
   labelSelectResourceType,
-  labelAllResourcesSelected
+  labelAllResourcesSelected,
+  labelAllHostGroups,
+  labelAllHostGroupsSelected
 } from '../../translatedLabels';
 import { ModalMode } from '../../models';
 
@@ -45,7 +47,8 @@ import {
   findServiceCategoriesResponse,
   findServiceGroupsResponse,
   findServicesResponse,
-  formData
+  formData,
+  formDataWithAllHostGroups
 } from './testUtils';
 
 const store = createStore();
@@ -378,6 +381,43 @@ describe('Create modal', () => {
     cy.findByLabelText(labelSave).click();
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(allResourcesFormData);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when all host groups are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllHostGroups);
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');

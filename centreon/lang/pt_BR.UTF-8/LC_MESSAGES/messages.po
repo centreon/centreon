@@ -17581,5 +17581,54 @@ msgstr ""
 
 #  msgid "Success (OK/Up)"
 #  msgstr ""
+
+# msgid "Business Activity Diagram"
+# msgstr ""
+
+# msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+# msgstr ""
+
+# msgid "Display the diagram with this status"
+# msgstr ""
+
+# msgid "Problem (Critical)"
+# msgstr ""
+
+# msgid "Warning"
+# msgstr ""
+
+# msgid "Success (OK)"
+# msgstr ""
+
+# msgid "Link types"
+# msgstr ""
+
+# msgid "Curve"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Step"
+# msgstr ""
+
 # msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "All hosts selected"
+# msgstr ""
+
+# msgid "All host groups selected"
+# msgstr ""
+
+# msgid "All service groups selected"
+# msgstr ""
+
+# msgid "All hosts"
+# msgstr ""
+
+# msgid "All host groups"
+# msgstr ""
+
+# msgid "All service groups"
 # msgstr ""

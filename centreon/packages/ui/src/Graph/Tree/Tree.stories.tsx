@@ -82,6 +82,21 @@ export const WithDefaultExpandFilter: Story = {
   render: StandaloneTreeTemplate
 };
 
+export const WithStepLink: Story = {
+  args: {
+    children: SimpleContent,
+    node: {
+      height: 90,
+      width: 90
+    },
+    tree: simpleData,
+    treeLink: {
+      type: 'step'
+    }
+  },
+  render: StandaloneTreeTemplate
+};
+
 export const WithCustomLinks: Story = {
   args: {
     children: SimpleContent,
@@ -95,7 +110,8 @@ export const WithCustomLinks: Story = {
       getStrokeDasharray: ({ target }) =>
         target.status === 'ok' ? '5,5' : '0',
       getStrokeOpacity: ({ target }) => (target.status === 'ok' ? 0.8 : 1),
-      getStrokeWidth: ({ target }) => (target.status === 'ok' ? 1 : 2)
+      getStrokeWidth: ({ target }) => (target.status === 'ok' ? 1 : 2),
+      type: 'line'
     }
   },
   render: StandaloneTreeTemplate

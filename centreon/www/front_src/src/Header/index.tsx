@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
 
+import { useFullscreen } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
 import FederatedComponent from '../components/FederatedComponents';
@@ -13,8 +14,6 @@ import Poller from './Poller';
 import HostStatusCounter from './Resources/Host';
 import ServiceStatusCounter from './Resources/Service';
 import UserMenu from './UserMenu';
-
-import { useFullscreen } from 'packages/ui/src';
 
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);

@@ -231,13 +231,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const metricWithSeveralResources = useMemo(
     () =>
-      widgetProperties?.singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       value?.some(
         ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
       ) &&
       getFirstUsedResourceForMetric(value[0].name),
     useDeepCompare([
-      widgetProperties?.singleHostPerMetric,
+      widgetProperties?.singleResourceSelection,
       value,
       getNumberOfResourcesRelatedToTheMetric,
       getFirstUsedResourceForMetric

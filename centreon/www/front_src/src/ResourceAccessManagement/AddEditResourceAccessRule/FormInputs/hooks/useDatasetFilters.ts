@@ -29,6 +29,7 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
       ...(datasetFilters || []),
       [
         {
+          allOfResourceType: false,
           resourceType: '',
           resources: []
         }
@@ -38,6 +39,7 @@ const useDatasetFilters = (): UseDatasetFiltersState => {
       ...selectedDatasetFilters,
       [
         {
+          allOf: false,
           ids: [],
           type: ResourceTypeEnum.Empty
         }

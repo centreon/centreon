@@ -26,12 +26,17 @@ import {
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllHostGroupsSelected,
+  labelAllHostsSelected,
   labelAllResources,
+  labelAllResourcesSelected,
+  labelAllServiceGroupsSelected,
   labelHost,
   labelHostCategory,
   labelHostGroup,
   labelMetaService,
   labelPleaseSelectAResource,
+  labelSelectResource,
   labelService,
   labelServiceCategory,
   labelServiceGroup
@@ -48,9 +53,12 @@ type UseDatasetFilterState = {
   changeResources: (
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
+  deleteButtonHidden: boolean;
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
+  displayAllOfResourceTypeCheckbox: (resourceType: ResourceTypeEnum) => boolean;
   error: string | null;
+  getLabelForSelectedResources: (index: number) => string;
   getResourceBaseEndpoint: (
     index: number,
     resourceType: ResourceTypeEnum
@@ -167,6 +175,12 @@ const searchParametersBySelectedResourceType = {
   }
 };
 
+const labelsForSelectedResources = {
+  [ResourceTypeEnum.Host]: labelAllHostsSelected,
+  [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
+  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
+};
+
 const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
@@ -239,10 +253,32 @@ const useDatasetFilter = (
   const errorToDisplay =
     isTouched && isEmpty(datasetFilter) ? labelPleaseSelectAResource : null;
 
+  const deleteButtonHidden = datasetFilter.length <= 1;
+
+  const displayAllOfResourceTypeCheckbox = (
+    resourceType: ResourceTypeEnum
+  ): boolean =>
+    equals(resourceType, ResourceTypeEnum.HostGroup) ||
+    equals(resourceType, ResourceTypeEnum.Host) ||
+    equals(resourceType, ResourceTypeEnum.ServiceGroup);
+
+  const getLabelForSelectedResources = (index: number): string => {
+    if (datasetFilter[index]?.allOfResourceType) {
+      return labelsForSelectedResources[datasetFilter[index].resourceType];
+    }
+
+    if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
+      return labelAllResourcesSelected;
+    }
+
+    return labelSelectResource;
+  };
+
   const addResource = (): void => {
     setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
       ...(datasetFilter || []),
       {
+        allOfResourceType: false,
         resourceType: ResourceTypeEnum.Empty,
         resources: []
       }
@@ -254,6 +290,7 @@ const useDatasetFilter = (
           return [
             ...selectedDatasetFilters[indexFilter],
             {
+              allOfResourceType: false,
               ids: [],
               type: ResourceTypeEnum.Empty
             }
@@ -277,6 +314,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 ids: [...dataset.ids, resource.id as number],
                 type: dataset.type
               };
@@ -304,6 +342,7 @@ const useDatasetFilter = (
             return selectedDatasetFilters[indexFilter].map((dataset, i) => {
               if (equals(i, index)) {
                 return {
+                  allOfResourceType: false,
                   ids: pluck('id', resources) as Array<number>,
                   type: dataset.type
                 };
@@ -330,6 +369,7 @@ const useDatasetFilter = (
 
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 resourceType: e.target.value,
                 resources: []
               };
@@ -350,12 +390,17 @@ const useDatasetFilter = (
                 }
 
                 if (equals(i, index)) {
-                  return { ids: [], type: e.target.value as ResourceTypeEnum };
+                  return {
+                    allOfResourceType: false,
+                    ids: [],
+                    type: e.target.value as ResourceTypeEnum
+                  };
                 }
 
                 return dataset;
               })
               .filter((dataset) => dataset) as Array<{
+              allOfResourceType: boolean;
               ids: Array<number>;
               type: ResourceTypeEnum;
             }>;
@@ -399,6 +444,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 ids: dataset.ids.filter((id) => !equals(id, option.id)),
                 type: dataset.type
               };
@@ -417,7 +463,7 @@ const useDatasetFilter = (
     index: number
   ): Array<QueryParameter> | undefined => {
     const subSlice = selectedDatasetFilters[datasetFilterIndex].slice(0, index);
-    if (isEmpty(subSlice)) {
+    if (isEmpty(subSlice) || last(subSlice)?.allOfResourceType) {
       return undefined;
     }
 
@@ -462,9 +508,12 @@ const useDatasetFilter = (
     changeResource,
     changeResourceType,
     changeResources,
+    deleteButtonHidden,
     deleteResource,
     deleteResourceItem,
+    displayAllOfResourceTypeCheckbox,
     error: errorToDisplay,
+    getLabelForSelectedResources,
     getResourceBaseEndpoint,
     getResourceTypeOptions,
     getSearchField,

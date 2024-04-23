@@ -7,6 +7,7 @@ import { MinimapPosition } from './models';
 
 export interface ZoomProps {
   children: JSX.Element | (({ width, height }) => JSX.Element);
+  id?: number | string;
   minimapPosition?: MinimapPosition;
   scaleMax?: number;
   scaleMin?: number;
@@ -27,7 +28,8 @@ const Zoom = ({
   scaleMin = 0.5,
   scaleMax = 4,
   showMinimap = false,
-  minimapPosition = 'top-left'
+  minimapPosition = 'top-left',
+  id = 0
 }: ZoomProps): JSX.Element => {
   return (
     <ParentSize>
@@ -44,6 +46,7 @@ const Zoom = ({
           {(zoom) => (
             <ZoomContent
               height={height}
+              id={id}
               minimapPosition={minimapPosition}
               showMinimap={showMinimap}
               width={width}
