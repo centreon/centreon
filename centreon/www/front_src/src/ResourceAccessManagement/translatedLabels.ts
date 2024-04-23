@@ -76,3 +76,6 @@ export const labelAllServiceGroupsSelected = 'All service groups selected';
 export const labelAllHosts = 'All hosts';
 export const labelAllHostGroups = 'All host groups';
 export const labelAllServiceGroups = 'All service groups';
+export const labelBusinessView = 'Business view';
+export const labelAllBusinessViews = 'All business views';
+export const labelAllBusinessViewsSelected = 'All business views selected';
