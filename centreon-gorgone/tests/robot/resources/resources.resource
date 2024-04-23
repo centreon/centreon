@@ -18,14 +18,14 @@ ${DBUSER}                   centreon
 ${DBPASSWORD}               password
 *** Keywords ***
 Start Gorgone
-    [Arguments]    ${CONFIG_FILE}    ${LOG_FILE}    ${SEVERITY}    ${ALIAS}
+    [Arguments]    ${CONFIG_FILE}    ${SEVERITY}    ${ALIAS}
     ${process}    Start Process
     ...    /usr/bin/perl
     ...    /usr/bin/gorgoned
     ...    --config
     ...    ${CONFIG_FILE}
     ...    --logfile
-    ...    ${LOG_FILE}
+    ...    /var/log/centreon-gorgone/${ALIAS}/gorgoned.log
     ...    --severity
     ...    ${SEVERITY}
     ...    alias=${ALIAS}
@@ -38,7 +38,6 @@ Stop Gorgone And Remove Gorgone Config
     FOR    ${process}    IN    @{process_alias}
         ${result}    Terminate Process    ${process}
         BuiltIn.Run Keyword And Continue On Failure    Should Be True    ${result.rc} == -15 or ${result.rc} == 0    Engine badly stopped alias = ${process_alias} - code returned ${result.rc}.
-        #${result}    Run    rm -rf /etc/centreon-gorgone/${process}
     END
 
 Gorgone Execute Sql
@@ -51,18 +50,18 @@ Gorgone Execute Sql
     END
 
 Setup Gorgone Config
-    [Arguments]        ${id}    @{file_list}    ${sql_file}=
+    [Arguments]        ${gorgone_id}    @{file_list}    ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
-
-    Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${id}/includer.yaml
+    Create Directory    /var/log/centreon-gorgone/${gorgone_id}/
+    Copy File    ${CURDIR}${/}..${/}config${/}includer.yaml    /etc/centreon-gorgone/${gorgone_id}/includer.yaml
 
     FOR    ${file}    IN    @{file_list}
-        Copy File    ${file}    /etc/centreon-gorgone/${id}/config.d/
+        Copy File    ${file}    /etc/centreon-gorgone/${gorgone_id}/config.d/
     END
     ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
-    ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${id}/g' /etc/centreon-gorgone/${id}/includer.yaml
-    ${result2}    Run    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBHOST@/${DBHOST}/g' -e 's/@DBPASSWORD@/${DBPASSWORD}/g' -e 's/@DBUSER@/${DBUSER}/g' -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${id}/g' /etc/centreon-gorgone/${id}/config.d/*.yaml
+    ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_id}/g' /etc/centreon-gorgone/${gorgone_id}/includer.yaml
+    ${result2}    Run    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBNAME@/${DBNAME}/g' -e 's/@DBHOST@/${DBHOST}/g' -e 's/@DBPASSWORD@/${DBPASSWORD}/g' -e 's/@DBUSER@/${DBUSER}/g' -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_id}/g' /etc/centreon-gorgone/${gorgone_id}/config.d/*.yaml
 
 Check Poller Is Connected
     [Arguments]    ${port}=    ${expected_nb}=
@@ -70,8 +69,6 @@ Check Poller Is Connected
     FOR    ${i}    IN RANGE    40
         Sleep    4
         ${nb_socket_connexion}    Run    ss -tnp | grep ':${port}' | grep ESTAB | wc -l
-        ${log}    Run     ss -tnlp
-        Log To Console    ss is : \n${log}
         IF    ${expected_nb} == ${nb_socket_connexion}
           BREAK
         END
@@ -96,10 +93,6 @@ Check Poller Communicate
     Should Be True    ${i} < 9    timeout waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
-    
-Generate Gorgone Keys
-
-
 
 Setup 2 Gorgone
     [Arguments]    ${communication_mode}=push    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
@@ -111,11 +104,9 @@ Setup 2 Gorgone
     IF    '${communication_mode}' == 'push'
         Setup Gorgone Config    ${central_name}    ${push_central_config}    sql_file=${ROOT_CONFIG}push_db_1_poller.sql
         Setup Gorgone Config    ${poller_name}    ${push_poller_config}
-        Create Directory    /var/log/centreon-gorgone/${central_name}/
-        Create Directory    /var/log/centreon-gorgone/${poller_name}/
 
-        Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    /var/log/centreon-gorgone/${central_name}/gorgoned.log    debug    ${central_name}
-        Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    /var/log/centreon-gorgone/${poller_name}/gorgoned.log    debug    ${poller_name}
+        Start Gorgone    /etc/centreon-gorgone/gorgone_central/includer.yaml    debug    ${central_name}
+        Start Gorgone    /etc/centreon-gorgone/gorgone_poller_2/includer.yaml    debug    ${poller_name}
     
         Check Poller Is Connected    port=5556    expected_nb=2
         Check Poller Communicate     2
