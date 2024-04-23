@@ -95,7 +95,7 @@ class DbReadMigrationRepository extends AbstractRepositoryRDB implements ReadMig
         $migrations = [];
 
         foreach ($this->migrations as $migration) {
-            if (in_array($migration->getModuleName(), $installedModuleNames)) {
+            if (in_array($migration->getModuleName(), $installedModuleNames, true)) {
                 $migrations[] = new NewMigration(
                     $migration->getName(),
                     $migration->getModuleName(),
