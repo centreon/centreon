@@ -18571,7 +18571,7 @@ msgid "deleted successfully"
 msgstr "supprimé avec succè"
 
 msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
-msgstr "Cette action est irréversible. Si vous les supprimez, toutes les requêtes effectuées avec ces jeton seront rejetées. Voulez-vous supprimer ces jetons?"
+msgstr "Cette action est irréversible. Si vous supprimez ces jetons, toutes les requêtes effectuées avec seront rejetées. Voulez-vous supprimer ces jetons?"
 
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
