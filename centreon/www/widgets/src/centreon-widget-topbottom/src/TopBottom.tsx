@@ -3,6 +3,7 @@ import { equals } from 'ramda';
 import { LoadingSkeleton } from '@centreon/ui';
 
 import {
+  CommonWidgetProps,
   FormThreshold,
   GlobalRefreshInterval,
   Metric,
@@ -16,7 +17,11 @@ import useTopBottom from './useTopBottom';
 import MetricTop from './MetricTop';
 import { useTopBottomStyles } from './TopBottom.styles';
 
-interface TopBottomProps {
+interface TopBottomProps
+  extends Pick<
+    CommonWidgetProps<object>,
+    'playlistHash' | 'dashboardId' | 'id'
+  > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
   metrics: Array<Metric>;
@@ -39,15 +44,21 @@ const TopBottom = ({
   valueFormat,
   threshold,
   refreshCount,
-  isFromPreview
+  isFromPreview,
+  id,
+  dashboardId,
+  playlistHash
 }: TopBottomProps): JSX.Element => {
   const { classes } = useTopBottomStyles();
 
   const areResourcesOk = areResourcesFullfilled(resources);
 
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
+    dashboardId,
     globalRefreshInterval,
+    id,
     metrics,
+    playlistHash,
     refreshCount,
     refreshInterval,
     refreshIntervalCustom,

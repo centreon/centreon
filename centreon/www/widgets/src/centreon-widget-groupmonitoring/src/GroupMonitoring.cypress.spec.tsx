@@ -2,8 +2,10 @@ import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Data } from '../../models';
+import { getPublicWidgetEndpoint } from '../../utils';
 
 import GroupMonitoring from './GroupMonitoring';
 import { getEndpoint } from './api/endpoints';
@@ -43,15 +45,18 @@ const onlyServiceType = ['service'];
 const initialize = ({
   panelData = getPanelDataGroups({}),
   panelOptions,
-  isFromPreview
+  isFromPreview,
+  isPublic = false
 }: {
   isFromPreview?: boolean;
+  isPublic?: boolean;
   panelData?: Pick<Data, 'resources'>;
   panelOptions: Omit<PanelOptions, 'refreshInterval'>;
 }): { setPanelOptions } => {
   const setPanelOptions = cy.stub();
 
   const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.fixture('Widgets/GroupMonitoring/serviceGroups.json').then((response) => {
     cy.interceptAPIRequest({
@@ -69,6 +74,17 @@ const initialize = ({
       path: `./api/latest${getEndpoint('host-group')}**`,
       response
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
+      response
+    });
   });
 
   cy.mount({
@@ -78,16 +94,19 @@ const initialize = ({
           <BrowserRouter>
             <Provider store={store}>
               <GroupMonitoring
+                dashboardId={1}
                 globalRefreshInterval={{
                   interval: 15,
                   type: 'manual'
                 }}
+                id="1"
                 isFromPreview={isFromPreview}
                 panelData={panelData}
                 panelOptions={{
                   ...panelOptions,
                   refreshInterval: 'default'
                 }}
+                playlistHash="hash"
                 refreshCount={0}
                 setPanelOptions={setPanelOptions}
               />
@@ -102,6 +121,20 @@ const initialize = ({
     setPanelOptions
   };
 };
+
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    initialize({
+      isPublic: true,
+      panelOptions: {
+        resourceTypes: allResourceTypes,
+        statuses: defaultStatuses
+      }
+    });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
 
 describe('Group Monitoring', () => {
   it('displays the group monitoring widget with default options and the host group resource type is selected', () => {
