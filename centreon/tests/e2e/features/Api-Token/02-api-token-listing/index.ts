@@ -115,7 +115,7 @@ Then('the Creation Date field has the current day as value', () => {
     .parent()
     .parent()
     .within(() => {
-      cy.get('.MuiTableCell-body').eq(2).should('contain.text', creationDate);
+      cy.get('.MuiTableCell-body').eq(3).should('contain.text', creationDate);
     });
 });
 
@@ -138,7 +138,7 @@ Then(
       .parent()
       .within(() => {
         cy.get('.MuiTableCell-body')
-          .eq(3)
+          .eq(4)
           .should('contain.text', parsedExpirationDate);
       });
   }
