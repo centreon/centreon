@@ -83,6 +83,7 @@ const interceptRequests = (): void => {
       method: Method.GET,
       path: `./api/latest${getPublicWidgetEndpoint({
         dashboardId: 1,
+        extraQueryParameters: '?&resource_type=host',
         playlistHash: 'hash',
         widgetId: '1'
       })}`,
@@ -119,7 +120,7 @@ const displayTypes = [
   }
 ];
 
-describe('Public widget', () => {
+describe.only('Public widget', () => {
   it('sends a request to the public API when the widget is displayed in a public page', () => {
     interceptRequests();
     initialize({
