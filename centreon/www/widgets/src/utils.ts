@@ -305,9 +305,12 @@ export const getWidgetEndpoint = ({
   isOnPublicPage: boolean;
 }): string => {
   if (isOnPublicPage && playlistHash) {
-    const extraqueryParametersStringified = toPairs(
-      extraQueryParameters
-    ).reduce((acc, [key, value]) => `${acc}&${key as string}=${value}`, '?');
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) => `${acc}&${key as string}=${value}`,
+          '?'
+        )
+      : '';
 
     return getPublicWidgetEndpoint({
       dashboardId,
