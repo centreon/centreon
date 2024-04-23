@@ -97,11 +97,11 @@ export const Remote = ({
         fallback={isFederatedComponent ? <MenuSkeleton /> : <PageSkeleton />}
       >
         {children ? (
-          <Component {...props} store={store}>
+          <Component store={store} {...props}>
             {children}
           </Component>
         ) : (
-          <Component {...props} store={store} />
+          <Component store={store} {...props} />
         )}
       </Suspense>
     </ErrorBoundary>

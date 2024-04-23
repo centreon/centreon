@@ -1934,10 +1934,6 @@ msgstr "Modèle de graphique"
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
 
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
-
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
 #: centreon-web/www/install/smarty_translate.php:402
@@ -18916,6 +18912,30 @@ msgstr "Standard"
 
 msgid "Condensed"
 msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display the diagram with this status"
+msgstr "Afficher le diagramme avec ce statut"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
 
 msgid "All hosts selected"
 msgstr "Tous les hôtes sont sélectionnés"

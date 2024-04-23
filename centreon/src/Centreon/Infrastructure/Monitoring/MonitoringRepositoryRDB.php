@@ -118,7 +118,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'host_group.id' => 'hg.hostgroup_id',
             'host.is_acknowledged' => 'h.acknowledged',
             'host.downtime' => 'h.scheduled_downtime_depth',
-            'host.criticality' => 'cv.value'
+            'host.criticality' => 'cv.value',
         ]);
 
         $accessGroupFilter = '';
