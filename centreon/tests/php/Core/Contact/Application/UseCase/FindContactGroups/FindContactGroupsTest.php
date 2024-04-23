@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,23 +24,25 @@ declare(strict_types=1);
 namespace Tests\Core\Contact\Application\UseCase\FindContactGroups;
 
 use Centreon\Domain\Contact\Contact;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroups;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroups;
 use Core\Contact\Application\UseCase\FindContactGroups\FindContactGroupsResponse;
 use Core\Contact\Domain\Model\ContactGroup;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->repository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 });
 
-it('should present an ErrorResponse while an exception occured', function () {
-    $useCase = new FindContactGroups($this->repository, $this->user);
+it('should present an ErrorResponse while an exception occured', function (): void {
+    $useCase = new FindContactGroups($this->accessGroupRepository, $this->repository, $this->user, false);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -60,8 +62,8 @@ it('should present an ErrorResponse while an exception occured', function () {
     );
 });
 
-it('should present an ForbiddenResponse if the user doesnt have the read menu access to contact group', function () {
-    $useCase = new FindContactGroups($this->repository, $this->user);
+it('should present an ForbiddenResponse if the user doesnt have the read menu access to contact group', function (): void {
+    $useCase = new FindContactGroups($this->accessGroupRepository, $this->repository, $this->user, false);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -85,9 +87,8 @@ it('should present an ForbiddenResponse if the user doesnt have the read menu ac
     );
 });
 
-
-it('should call the method findAll if the user is admin', function () {
-    $useCase = new FindContactGroups($this->repository, $this->user);
+it('should call the method findAll if the user is admin', function (): void {
+    $useCase = new FindContactGroups($this->accessGroupRepository, $this->repository, $this->user, false);
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
@@ -101,10 +102,10 @@ it('should call the method findAll if the user is admin', function () {
     $useCase($presenter);
 });
 
-it('should call the method FindAllByUserId if the user is not admin', function () {
-    $useCase = new FindContactGroups($this->repository, $this->user);
+it('should call the method FindAllByUserId if the user is not admin', function (): void {
+    $useCase = new FindContactGroups($this->accessGroupRepository, $this->repository, $this->user, false);
     $this->user
-        ->expects($this->once())
+        ->expects($this->any())
         ->method('getId')
         ->willReturn(1);
 
@@ -128,8 +129,8 @@ it('should call the method FindAllByUserId if the user is not admin', function (
     $useCase($presenter);
 });
 
-it('should present a FindContactGroupsResponse when no error occured', function () {
-    $useCase = new FindContactGroups($this->repository, $this->user);
+it('should present a FindContactGroupsResponse when no error occured', function (): void {
+    $useCase = new FindContactGroups($this->accessGroupRepository, $this->repository, $this->user, false);
 
     $contactGroup = new ContactGroup(1, 'contact_group');
     $this->repository
@@ -148,7 +149,7 @@ it('should present a FindContactGroupsResponse when no error occured', function 
     expect($presenter->response->contactGroups[0])->toBe(
         [
             'id' => 1,
-            'name' => 'contact_group'
+            'name' => 'contact_group',
         ]
     );
 });

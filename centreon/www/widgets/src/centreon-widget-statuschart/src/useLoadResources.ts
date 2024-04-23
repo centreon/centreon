@@ -47,6 +47,7 @@ const useLoadResources = ({
           resources,
           type: resourceType
         }),
+        extraQueryParameters: { resource_type: resourceType as string },
         isOnPublicPage,
         playlistHash,
         widgetId: id

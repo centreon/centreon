@@ -9,7 +9,8 @@ import {
   identity,
   includes,
   pipe,
-  map
+  map,
+  toPairs
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -278,6 +279,7 @@ export const severityStatusBySeverityCode = {
 
 interface GetPublicWidgetEndpointProps {
   dashboardId: number | string;
+  extraQueryParameters?: string;
   playlistHash?: string;
   widgetId: string;
 }
@@ -285,23 +287,35 @@ interface GetPublicWidgetEndpointProps {
 export const getPublicWidgetEndpoint = ({
   playlistHash,
   dashboardId,
-  widgetId
+  widgetId,
+  extraQueryParameters = ''
 }: GetPublicWidgetEndpointProps): string =>
-  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}`;
+  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
 
 export const getWidgetEndpoint = ({
   playlistHash,
   dashboardId,
   widgetId,
   isOnPublicPage,
-  defaultEndpoint
-}: GetPublicWidgetEndpointProps & {
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
   defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number>;
   isOnPublicPage: boolean;
 }): string => {
   if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) => `${acc}&${key as string}=${value}`,
+          '?'
+        )
+      : '';
+
     return getPublicWidgetEndpoint({
       dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
       playlistHash,
       widgetId
     });
