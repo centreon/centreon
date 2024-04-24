@@ -45,6 +45,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class DeleteContactGroupDashboardShare
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
@@ -53,7 +54,8 @@ final class DeleteContactGroupDashboardShare
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -63,7 +65,7 @@ final class DeleteContactGroupDashboardShare
         DeleteContactGroupDashboardSharePresenterInterface $presenter
     ): void {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
                     $this->info(
                         'Delete a contact group share for dashboard',
@@ -166,5 +168,25 @@ final class DeleteContactGroupDashboardShare
         }
 
         return new NoContentResponse();
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }
