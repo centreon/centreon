@@ -17612,3 +17612,15 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "All service groups"
 # msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""

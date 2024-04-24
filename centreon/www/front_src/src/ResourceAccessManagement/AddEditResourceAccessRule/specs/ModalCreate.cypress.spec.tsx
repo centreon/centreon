@@ -36,7 +36,9 @@ import {
   labelAllHostGroupsSelected,
   labelBusinessView,
   labelAllBusinessViews,
-  labelAllBusinessViewsSelected
+  labelAllBusinessViewsSelected,
+  labelAllContacts,
+  labelAllContactGroups
 } from '../../translatedLabels';
 import { ModalMode } from '../../models';
 
@@ -56,7 +58,10 @@ import {
   formDataWithAllBusinessViews,
   formDataWithAllHostGroups,
   formDataWithBusinessViews,
-  platformVersions
+  platformVersions,
+  formDataWithAllContactGroups,
+  formDataWithAllContacts,
+  formDataWithAllHostGroups
 } from './testUtils';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
@@ -228,10 +233,8 @@ describe('Create modal', () => {
     cy.findByLabelText(labelAddNewDataset).should('be.disabled');
 
     cy.findByLabelText(labelContacts).should('have.value', '');
-    cy.findByLabelText(labelContacts).should('have.attr', 'required');
 
     cy.findByLabelText(labelContactGroups).should('have.value', '');
-    cy.findByLabelText(labelContactGroups).should('have.attr', 'required');
 
     cy.makeSnapshot();
   });
@@ -487,6 +490,35 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
+  it('sends a request to add a new Resource Access Rule when all contacts are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContacts).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllContacts);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('sends a request to create a new Resource Access Rule when all business views are selected', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
     cy.findByLabelText(labelName).type('rule#1');
@@ -513,6 +545,37 @@ describe('Create modal', () => {
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(
         formDataWithAllBusinessViews
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to add a new Resource Access Rule when all contact groups are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText('Host group').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findHostGroupsEndpoint');
+    cy.findByText('Linux-Servers').click();
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        formDataWithAllContactGroups
       );
     });
 

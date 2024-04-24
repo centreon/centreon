@@ -16,6 +16,7 @@ import Grid from './Grid';
 const ReactGridLayout = WidthProvider(GridLayout);
 
 interface DashboardLayoutProps<T> {
+  additionalMemoProps?: Array<unknown>;
   changeLayout?: (newLayout: Array<Layout>) => void;
   children: Array<JSX.Element>;
   displayGrid?: boolean;
@@ -28,7 +29,8 @@ const DashboardLayout = <T extends Layout>({
   changeLayout,
   displayGrid,
   layout,
-  isStatic = false
+  isStatic = false,
+  additionalMemoProps = []
 }: DashboardLayoutProps<T>): JSX.Element => {
   const { classes } = useDashboardLayoutStyles(isStatic);
 
@@ -72,7 +74,7 @@ const DashboardLayout = <T extends Layout>({
         </ParentSize>
       </ResponsiveHeight>
     ),
-    memoProps: [columns, layout, displayGrid, isStatic]
+    memoProps: [columns, layout, displayGrid, isStatic, ...additionalMemoProps]
   });
 };
 

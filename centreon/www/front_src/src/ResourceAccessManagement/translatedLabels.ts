@@ -79,3 +79,7 @@ export const labelAllServiceGroups = 'All service groups';
 export const labelBusinessView = 'Business view';
 export const labelAllBusinessViews = 'All business views';
 export const labelAllBusinessViewsSelected = 'All business views selected';
+export const labelAllContacts = 'All contacts';
+export const labelAllContactsSelected = 'All contacts selected';
+export const labelAllContactGroups = 'All contact groups';
+export const labelAllContactGroupsSelected = 'All contact groups selected';
