@@ -18971,7 +18971,7 @@ msgid "Business view"
 msgstr "Vue métier"
 
 msgid "All business views"
-msgstr "Toutes les vues métiers"
+msgstr "Toutes les vues métier"
 
 msgid "All business views selected"
 msgstr "Toutes les vues métiers sont sélectionnées"
