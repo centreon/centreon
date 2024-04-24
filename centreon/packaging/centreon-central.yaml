@@ -17,6 +17,7 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+
 overrides:
   rpm:
     depends:
