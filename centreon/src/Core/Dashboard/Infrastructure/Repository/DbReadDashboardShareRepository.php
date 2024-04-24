@@ -442,10 +442,10 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         ]);
 
         $query = <<<'SQL'
-            SELECT SQL_CALC_FOUND_ROWS 
+            SELECT SQL_CALC_FOUND_ROWS
                 GROUP_CONCAT(topology.topology_name) as topologies,
-                c.contact_name, 
-                c.contact_id, 
+                c.contact_name,
+                c.contact_id,
                 c.contact_email,
                 ag.acl_group_name
                 FROM `:db`.contact c
@@ -477,16 +477,16 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $query .= <<<'SQL'
                 (ag.acl_group_name = :aclGroup AND c.contact_oreon = '1')
                 OR
-                
+
                 SQL;
         }
         $query .= <<<'SQL'
-                parent.topology_name = 'Dashboards'
-                AND topology.topology_name IN ('Viewer','Administrator','Creator')
-                AND acltr.access_right IS NOT NULL
-                    AND c.contact_oreon = '1')
-                GROUP BY c.contact_id
-                SQL;
+            parent.topology_name = 'Dashboards'
+            AND topology.topology_name IN ('Viewer','Administrator','Creator')
+            AND acltr.access_right IS NOT NULL
+                AND c.contact_oreon = '1')
+            GROUP BY c.contact_id
+            SQL;
 
         $query .= $sqlTranslator->translatePaginationToSql();
 
