@@ -480,7 +480,7 @@ export const formDataWithBusinessViews = {
     {
       dataset_filter: null,
       resources: [1, 2],
-      type: 'business-view'
+      type: 'business_view'
     }
   ],
   description: 'rule#1: Lorem ipsum...',
@@ -501,7 +501,7 @@ export const formDataWithAllBusinessViews = {
     {
       dataset_filter: null,
       resources: [],
-      type: 'business-view'
+      type: 'business_view'
     }
   ],
   description: 'rule#1: Lorem ipsum...',
@@ -522,7 +522,7 @@ export const editedRuleFormDataiWithBusinessViews = {
     {
       dataset_filter: null,
       resources: [1, 2],
-      type: 'business-view'
+      type: 'business_view'
     }
   ],
   description: 'First rule',
@@ -543,7 +543,7 @@ export const editedRuleFormDataiWithAllBusinessViews = {
     {
       dataset_filter: null,
       resources: [],
-      type: 'business-view'
+      type: 'business_view'
     }
   ],
   description: 'First rule',

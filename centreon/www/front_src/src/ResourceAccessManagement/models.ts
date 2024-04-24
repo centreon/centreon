@@ -5,7 +5,7 @@ export enum ModalMode {
 
 export enum ResourceTypeEnum {
   All = 'all',
-  BusinessView = 'business-view',
+  BusinessView = 'business_view',
   Empty = '',
   Host = 'host',
   HostCategory = 'host_category',
