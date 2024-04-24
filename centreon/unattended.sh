@@ -1461,4 +1461,3 @@ if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 fi
 
 exit 0
-
