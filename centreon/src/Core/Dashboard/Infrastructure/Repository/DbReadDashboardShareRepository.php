@@ -924,7 +924,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      *      contact_email: string,
      *      contact_admin?: string,
      *      topologies?: string,
-     *      acl_group_name: string|null
+     *      acl_group_name?: string|null
      *  } $contactRole
      *
      * @throws \UnexpectedValueException
@@ -933,7 +933,10 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      */
     private function createDashboardContactRole(array $contactRole): DashboardContactRole
     {
-        if ($contactRole['acl_group_name'] === DashboardRights::AUTHORIZED_ACL_GROUP) {
+        if (
+            array_key_exists('acl_group_name', $contactRole)
+            && $contactRole['acl_group_name'] === DashboardRights::AUTHORIZED_ACL_GROUP
+        ) {
             $roles = [DashboardGlobalRole::Administrator];
         } else {
             $topologies = array_key_exists('topologies', $contactRole)
