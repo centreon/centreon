@@ -43,6 +43,7 @@ use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new AddDashboardPresenterStub();
@@ -55,6 +56,8 @@ beforeEach(function (): void {
         $this->contact = $this->createMock(ContactInterface::class),
         $this->writeDashboardPanelRepository = $this->createMock(WriteDashboardPanelRepositoryInterface::class),
         $this->readDashboardPanelRepository = $this->createMock(ReadDashboardPanelRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->testedAddDashboardRequest = new AddDashboardRequest();
