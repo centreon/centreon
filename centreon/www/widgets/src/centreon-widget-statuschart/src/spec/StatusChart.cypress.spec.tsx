@@ -120,7 +120,7 @@ const displayTypes = [
   }
 ];
 
-describe.only('Public widget', () => {
+describe('Public widget', () => {
   it('sends a request to the public API when the widget is displayed in a public page', () => {
     interceptRequests();
     initialize({

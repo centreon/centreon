@@ -15,11 +15,11 @@ import {
 
 const initialize = ({
   initialValues = simpleAccessRights,
-  loading = false,
-  link = 'link'
+  loading = false
 }): unknown => {
   const cancel = cy.stub();
   const save = cy.stub();
+  const change = cy.stub();
 
   cy.interceptAPIRequest({
     alias: 'getContacts',
@@ -47,10 +47,10 @@ const initialize = ({
               }}
               initialValues={initialValues}
               labels={labels}
-              link={link}
               loading={loading}
               roles={roles}
               submit={save}
+              onChange={change}
             />
           </Provider>
         </TestQueryProvider>
@@ -60,6 +60,7 @@ const initialize = ({
 
   return {
     cancel,
+    change,
     save
   };
 };
@@ -74,17 +75,8 @@ describe('Access rights', () => {
     cy.findByLabelText('Add a contact').should('be.visible');
     cy.findByTestId('add_role').should('be.disabled');
     cy.findByTestId('add').should('be.disabled');
-    cy.findByLabelText('Copy link').should('be.visible');
     cy.findByLabelText('Cancel').should('be.visible');
     cy.findByLabelText('Save').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('displays the access rights without link', () => {
-    initialize({ link: null });
-
-    cy.findByLabelText('Copy link').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -97,7 +89,7 @@ describe('Access rights', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the access rights with an empty list', () => {
+  it('displays the access rights list', () => {
     initialize({});
 
     simpleAccessRights.forEach(({ name, email, isContactGroup, role }) => {
@@ -369,5 +361,27 @@ describe('Access rights', () => {
     cy.findByTestId('add_role').should('have.value', 'viewer');
 
     cy.makeSnapshot();
+  });
+
+  it('calls the change function when the corresponding prop is set and the form is updated', () => {
+    const { change } = initialize({});
+
+    cy.contains(labels.add.contact).click();
+    cy.findByLabelText(labels.add.autocompleteContact).click();
+
+    cy.waitForRequest('@getContacts');
+
+    cy.contains('Entity 10').click();
+
+    cy.findByTestId('add').click();
+
+    cy.contains('Entity 10').should('be.visible');
+
+    cy.findByTestId('role-Entity 10').should('have.value', 'viewer');
+    cy.contains(labels.list.added)
+      .should('be.visible')
+      .then(() => {
+        expect(change).to.have.callCount(2);
+      });
   });
 });
