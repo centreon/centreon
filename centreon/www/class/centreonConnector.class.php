@@ -254,15 +254,8 @@ class CentreonConnector
      */
     public function update(int $connectorId, array $connector = array()): self
     {
-        if (! is_array($connector)) {
-            throw new InvalidArgumentException('Data is not an array');
-        }
         if ($connector === []) {
             return $this;
-        }
-
-        if (! is_numeric($connectorId)) {
-            throw new InvalidArgumentException('Id is not integer');
         }
 
         try {
