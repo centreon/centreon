@@ -54,17 +54,13 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
-    public function updateDatasetAccess(int $datasetId, string $resourceType, bool $fullAccess): void
+    public function updateDatasetAccess(int $ruleId, int $datasetId, string $resourceType, bool $fullAccess): void
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                    UPDATE `:db`.acl_resources SET all_{$resourceType} = :access WHERE acl_res_id = :datasetId
-                SQL
-        ));
-
-        $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
-        $statement->bindValue(':access', $fullAccess ? '1' : '0', \PDO::PARAM_STR);
-        $statement->execute();
+        foreach ($this->repositoryProviders as $repositoryProvider) {
+            if ($repositoryProvider->isValidFor($resourceType) === true) {
+                $repositoryProvider->updateDatasetAccess(ruleId: $ruleId, datasetId: $datasetId, fullAccess: $fullAccess);
+            }
+        }
     }
 
     /**
