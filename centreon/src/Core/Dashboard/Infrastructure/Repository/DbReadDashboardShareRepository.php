@@ -499,6 +499,13 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
         }
+        if ($isCloudPlatform) {
+            $statement->bindValue(
+                ':aclGroup',
+                DashboardRights::AUTHORIZED_ACL_GROUP,
+                \PDO::PARAM_STR
+            );
+        }
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
@@ -565,13 +572,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         foreach ($bind as $token => $contactId) {
             $statement->bindValue($token, $contactId, \PDO::PARAM_INT);
         }
-        if ($isCloudPlatform) {
-            $statement->bindValue(
-                ':aclGroup',
-                DashboardRights::AUTHORIZED_ACL_GROUP,
-                \PDO::PARAM_STR
-            );
-        }
+
         $statement->execute();
 
         $dashboardContactRoles = [];
