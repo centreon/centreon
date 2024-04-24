@@ -468,8 +468,14 @@ export const findBusinessViewsResponse = {
 };
 
 export const formDataWithBusinessViews = {
-  contact_groups: [5],
-  contacts: [4],
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -483,8 +489,14 @@ export const formDataWithBusinessViews = {
 };
 
 export const formDataWithAllBusinessViews = {
-  contact_groups: [5],
-  contacts: [4],
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -498,8 +510,14 @@ export const formDataWithAllBusinessViews = {
 };
 
 export const editedRuleFormDataiWithBusinessViews = {
-  contact_groups: [3, 5],
-  contacts: [1, 4],
+  contact_groups: {
+    all: false,
+    ids: [3, 5]
+  },
+  contacts: {
+    all: false,
+    ids: [1, 4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -513,8 +531,14 @@ export const editedRuleFormDataiWithBusinessViews = {
 };
 
 export const editedRuleFormDataiWithAllBusinessViews = {
-  contact_groups: [3, 5],
-  contacts: [1, 4],
+  contact_groups: {
+    all: false,
+    ids: [3, 5]
+  },
+  contacts: {
+    all: false,
+    ids: [1, 4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,

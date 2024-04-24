@@ -56,7 +56,6 @@ import {
   findServicesResponse,
   formData,
   formDataWithAllBusinessViews,
-  formDataWithAllHostGroups,
   formDataWithBusinessViews,
   platformVersions,
   formDataWithAllContactGroups,

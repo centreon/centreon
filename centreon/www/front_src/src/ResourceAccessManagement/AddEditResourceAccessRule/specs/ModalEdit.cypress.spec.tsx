@@ -47,8 +47,7 @@ import {
   findBusinessViewsResponse,
   findResourceAccessRuleResponse,
   platformVersions,
-  editedRuleFormDataWithAllContactsAndContactGroups,
-  findResourceAccessRuleResponse
+  editedRuleFormDataWithAllContactsAndContactGroups
 } from './testUtils';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
