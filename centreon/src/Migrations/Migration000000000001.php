@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Migrations;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
 use Core\Migration\Application\Repository\LegacyMigrationInterface;
 use Core\Migration\Application\Repository\MigrationInterface;
 use Core\Migration\Application\Repository\WriteMigrationRepositoryInterface;
@@ -38,11 +39,13 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
     /**
      * @param ReadVersionRepositoryInterface $readVersionRepository
      * @param WriteMigrationRepositoryInterface $writeMigrationRepository
+     * @param PlatformRepositoryInterface $platformRepository
      * @param \Traversable<LegacyMigrationInterface> $legacyMigrations
      */
     public function __construct(
         private readonly ReadVersionRepositoryInterface $readVersionRepository,
         private readonly WriteMigrationRepositoryInterface $writeMigrationRepository,
+        private readonly PlatformRepositoryInterface $platformRepository,
         private readonly \Traversable $legacyMigrations,
     ) {
         if (iterator_count($legacyMigrations) === 0) {
@@ -63,15 +66,19 @@ class Migration000000000001 extends AbstractCoreMigration implements MigrationIn
      */
     public function up(): void
     {
-        $currentVersion = $this->readVersionRepository->findCurrentVersion();
-        if ($currentVersion === null) {
+        $moduleVersions = $this->platformRepository->getModulesVersion();
+
+        $currentCoreVersion = $this->readVersionRepository->findCurrentVersion();
+        if ($currentCoreVersion === null) {
             throw new \Exception('Cannot retrieve Centreon web version');
         }
 
+        $moduleVersions[$this->getModuleName()] = $currentCoreVersion;
+
         foreach ($this->legacyMigrations as $legacyMigration) {
             if (
-                $legacyMigration->getModuleName() === $this->getModuleName()
-                && version_compare($currentVersion, $legacyMigration->getVersion(), '>=')
+                array_key_exists($legacyMigration->getModuleName(), $moduleVersions)
+                && version_compare($moduleVersions[$legacyMigration->getModuleName()], $legacyMigration->getVersion(), '>=')
             ) {
                 $migration = new NewMigration(
                     $legacyMigration->getName(),
