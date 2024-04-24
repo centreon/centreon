@@ -444,7 +444,7 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
-  it('displays the business view resource type when BAM module is instaled', () => {
+  it('displays the business view resource type when the BAM module is installed', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
     store.set(platformVersionsAtom, platformVersions);
     cy.findByLabelText(labelSelectResourceType).click();
