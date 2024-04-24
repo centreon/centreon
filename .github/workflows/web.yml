@@ -464,11 +464,10 @@ jobs:
         run: |
           MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
 
+          LIB_ARCH="lib64"
           if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-            LIB_ARCH="lib64"
             APACHE_USER="apache"
           else
-            LIB_ARCH="lib"
             APACHE_USER="www-data"
           fi
           sed -i -e "s#@LIB_ARCH@#$LIB_ARCH#g" $MACRO_REPLACEMENT_FILE
