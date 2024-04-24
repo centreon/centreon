@@ -47,7 +47,6 @@ final class FindPerformanceMetrics
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository
      * @param DashboardRights $rights
-     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param bool $isCloudPlatform
      */
     public function __construct(
@@ -56,7 +55,6 @@ final class FindPerformanceMetrics
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
         private readonly DashboardRights $rights,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly bool $isCloudPlatform
     ) {
     }
@@ -146,7 +144,7 @@ final class FindPerformanceMetrics
 
         $userAccessGroupNames = array_map(
             static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->readAccessGroupRepository->findByContact($this->user)
+            $this->accessGroupRepository->findByContact($this->user)
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))

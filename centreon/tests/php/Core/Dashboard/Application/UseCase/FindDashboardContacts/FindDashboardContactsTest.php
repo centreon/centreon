@@ -47,6 +47,7 @@ beforeEach(function (): void {
         $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 });
 
@@ -78,7 +79,7 @@ it(
     'should present a FindDashboardContactsResponse if the contact is allowed',
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(true);
-        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+
         $this->readDashboardShareRepository->expects($this->once())->method(
             'findContactsWithAccessRightByRequestParameters'
         )->willReturn([]);
