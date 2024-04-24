@@ -25,6 +25,8 @@ const adaptDatasetFilter = (datasetFilter: DatasetFilter): ODatasetFilter => {
 };
 
 export const adaptRule = ({
+  allContactGroups,
+  allContacts,
   contactGroups,
   contacts,
   datasetFilters,
@@ -32,6 +34,8 @@ export const adaptRule = ({
   isActivated,
   name
 }): object => ({
+  all_contact_groups: allContactGroups,
+  all_contacts: allContacts,
   contact_groups: pluck('id', contactGroups),
   contacts: pluck('id', contacts),
   dataset_filters: datasetFilters.map((datasetFilter: DatasetFilter) =>

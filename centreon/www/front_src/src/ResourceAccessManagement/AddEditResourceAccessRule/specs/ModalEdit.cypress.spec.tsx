@@ -30,11 +30,14 @@ import {
   labelAddFilter,
   labelAddNewDataset,
   labelAllHostGroups,
-  labelAllHostGroupsSelected
+  labelAllHostGroupsSelected,
+  labelAllContacts,
+  labelAllContactGroups
 } from '../../translatedLabels';
 
 import {
   editedRuleFormData,
+  editedRuleFormDataWithAllContactsAndContactGroups,
   findResourceAccessRuleResponse
 } from './testUtils';
 
@@ -232,6 +235,37 @@ describe('Edit modal', () => {
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(editedRuleFormData);
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to edit a Resource Access Rule when configured contacts and contact groups are changed to all', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+
+    cy.findByLabelText(labelAllHostGroups).click();
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.visible');
+    cy.findByLabelText(labelAllHostGroupsSelected).should('be.disabled');
+
+    cy.findByLabelText(labelAllContacts).click();
+    cy.findByLabelText(labelAllContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataWithAllContactsAndContactGroups
+      );
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
