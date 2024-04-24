@@ -15,6 +15,15 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
+  - src: "../config/"
+    dst: "/usr/share/centreon/config"
+
+  - src: "../src/CentreonOpenTickets"
+    dst: "/usr/share/centreon/src/CentreonOpenTickets"
+
+  - src: "../src/Migrations"
+    dst: "/usr/share/centreon/src/Migrations"
+
   - src: "../www/modules/centreon-open-tickets"
     dst: "/usr/share/centreon/www/modules/centreon-open-tickets"
     file_info:

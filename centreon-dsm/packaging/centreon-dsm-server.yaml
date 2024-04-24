@@ -22,6 +22,15 @@ contents:
       group: centreon
       mode: 0775
 
+  - src: "../config/"
+    dst: "/usr/share/centreon/config"
+
+  - src: "../src/CentreonDsm"
+    dst: "/usr/share/centreon/src/CentreonDsm"
+
+  - src: "../src/Migrations"
+    dst: "/usr/share/centreon/src/Migrations"
+
   - src: "../README"
     dst: "/usr/share/centreon/www/modules/centreon-dsm/README"
     file_info:

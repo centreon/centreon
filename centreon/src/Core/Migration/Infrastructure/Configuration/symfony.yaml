@@ -1,0 +1,45 @@
+parameters:
+    max_filesize: 2M
+    max_file: 20
+    post_max: 8M
+services:
+    _defaults:
+        public: false
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, controller...
+
+    _instanceof:
+        Core\Migration\Application\Repository\MigrationInterface:
+            tags: ['platform.migrations']
+
+        Core\Migration\Application\Repository\LegacyMigrationInterface:
+            tags: ['platform.legacy_migrations']
+
+    Core\Migration\:
+        resource: '../../../../Core/Migration/*'
+
+    Migrations\:
+        resource: '../../../../Migrations/*'
+        bind:
+            $legacyMigrations: !tagged_iterator 'platform.legacy_migrations'
+            $dbHost: '%database_host%'
+            $dbPort: '%database_port%'
+            $dbUser: '%database_user%'
+            $dbPassword: '%database_password%'
+            $centreonDbName: '%database_db%'
+            $storageDbName: '%database_dbstg%'
+            $centreonVarLib: '%centreon_var_lib%'
+            $centreonCacheDir: '%centreon_cache_dir%'
+            $centreonEtcPath: '%centreon_etc_path%'
+
+    Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository
+        arguments:
+            $migrations: !tagged_iterator 'platform.migrations'
+        public: true
+
+    Core\Migration\Application\Repository\WriteMigrationRepositoryInterface:
+        class: Core\Migration\Infrastructure\Repository\DbWriteMigrationRepository
+        arguments:
+            $migrations: !tagged_iterator 'platform.migrations'
+        public: true

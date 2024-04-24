@@ -28,6 +28,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class Contact implements UserInterface, ContactInterface
 {
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+
     // global api roles
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_REALTIME = 'ROLE_API_REALTIME';
@@ -361,6 +363,7 @@ class Contact implements UserInterface, ContactInterface
     {
         $this->isAdmin = $isAdmin;
         if ($this->isAdmin) {
+            $this->addRole(self::ROLE_ADMIN);
             $this->addRole(self::ROLE_API_REALTIME);
             $this->addRole(self::ROLE_API_CONFIGURATION);
         }

@@ -87,7 +87,7 @@ if ($stat === false) {
                                 software user experience. You will be able to opt-out at any time about CEIP program
                                 through administration menu.
                                     Refer to
-                                    <a target="_blank" style="text-decoration: underline" 
+                                    <a target="_blank" style="text-decoration: underline"
                                     href="http://ceip.centreon.com/">ceip.centreon.com</a>
                                     for further details.
                                 </p>

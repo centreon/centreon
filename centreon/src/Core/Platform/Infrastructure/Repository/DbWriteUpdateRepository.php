@@ -78,6 +78,20 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
+     * @inheritDoc
+     */
+    public function updateVersionInformation(string $version): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                "UPDATE `:db`.`informations` SET `value` = :version WHERE `key` = 'version'"
+            )
+        );
+        $statement->bindValue(':version', $version, \PDO::PARAM_STR);
+        $statement->execute();
+    }
+
+    /**
      * Backup installation directory.
      *
      * @param string $currentVersion
@@ -173,22 +187,6 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
         if (is_readable($upgradeFilePath)) {
             include_once $upgradeFilePath;
         }
-    }
-
-    /**
-     * Update version information.
-     *
-     * @param string $version
-     */
-    private function updateVersionInformation(string $version): void
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                "UPDATE `:db`.`informations` SET `value` = :version WHERE `key` = 'version'"
-            )
-        );
-        $statement->bindValue(':version', $version, \PDO::PARAM_STR);
-        $statement->execute();
     }
 
     /**

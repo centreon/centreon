@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Centreon\Application\Controller;
 
 use JsonSchema\Validator;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
 use JsonSchema\Constraints\Constraint;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,10 +39,19 @@ abstract class AbstractController extends AbstractFOSRestController
 {
     use LoggerTrait;
 
-    public const ROLE_API_REALTIME = 'ROLE_API_REALTIME';
-    public const ROLE_API_REALTIME_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
-    public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
-    public const ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
+    public const ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
+
+    /**
+     * @throws AccessDeniedException
+     */
+    public function denyAccessUnlessAdmin(): void
+    {
+        parent::denyAccessUnlessGranted(
+            Contact::ROLE_ADMIN,
+            null,
+            static::ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE
+        );
+    }
 
     /**
      * @throws AccessDeniedException
@@ -49,9 +59,9 @@ abstract class AbstractController extends AbstractFOSRestController
     public function denyAccessUnlessGrantedForApiConfiguration(): void
     {
         parent::denyAccessUnlessGranted(
-            static::ROLE_API_CONFIGURATION,
+            Contact::ROLE_API_CONFIGURATION,
             null,
-            static::ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE
+            static::ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE
         );
     }
 
@@ -61,9 +71,9 @@ abstract class AbstractController extends AbstractFOSRestController
     public function denyAccessUnlessGrantedForApiRealtime(): void
     {
         parent::denyAccessUnlessGranted(
-            static::ROLE_API_REALTIME,
+            Contact::ROLE_API_REALTIME,
             null,
-            static::ROLE_API_REALTIME_EXCEPTION_MESSAGE
+            static::ROLE_UNAUTHORIZED_EXCEPTION_MESSAGE
         );
     }
 
