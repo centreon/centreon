@@ -70,6 +70,15 @@ export type Dashboard = NamedEntity & {
   };
 };
 
+export type PublicDashboard = NamedEntity & {
+  description: string | null;
+  panels?: Array<DashboardPanel>;
+  refresh: {
+    type: 'global' | 'manual';
+    interval: number | null;
+  };
+};
+
 export interface FormattedShare {
   id: number | string;
   role: DashboardRole;

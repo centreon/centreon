@@ -15,14 +15,12 @@ import {
   labelRuleProperies,
   labelStatus
 } from '../../translatedLabels';
-import {
-  findContactGroupsEndpoint,
-  findContactsEndpoint
-} from '../api/endpoints';
 
 import { useFormInputStyles } from './FormInputs.styles';
 import ActivateSwitch from './components/ActivateSwitch';
 import ResourceSelection from './components/ResourceSelection';
+import ContactsSelector from './components/ContactsSelector';
+import ContactGroupsSelector from './components/ContactGroupsSelector';
 
 interface UseFormInputsState {
   groups: Array<Group>;
@@ -164,28 +162,26 @@ const useFormInputs = (): UseFormInputsState => {
                         type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactsEndpoint
+                        custom: {
+                          Component: () => <ContactsSelector />
                         },
                         dataTestId: t(labelContacts),
                         disableSortedOptions: true,
                         fieldName: 'contacts',
                         label: t(labelContacts),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       },
                       {
-                        connectedAutocomplete: {
-                          additionalConditionParameters: [],
-                          endpoint: findContactGroupsEndpoint
+                        custom: {
+                          Component: () => <ContactGroupsSelector />
                         },
                         dataTestId: t(labelContactGroups),
                         disableSortedOptions: true,
                         fieldName: 'contactGroups',
                         label: t(labelContactGroups),
                         required: true,
-                        type: InputType.MultiConnectedAutocomplete
+                        type: InputType.Custom
                       }
                     ]
                   },

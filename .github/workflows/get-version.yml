@@ -120,6 +120,11 @@ jobs:
           case "$BRANCHNAME" in
             master)
               echo "release=1" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            [2-9][0-9].[0-9][0-9].x)
+              echo "release=1" >> $GITHUB_OUTPUT
               echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
