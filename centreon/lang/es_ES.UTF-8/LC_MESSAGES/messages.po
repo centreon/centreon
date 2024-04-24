@@ -16768,7 +16768,10 @@ msgstr "Modo avanzado"
 # msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
 # msgstr ""
 
-# msgid "Delete token"
+# msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
+# msgstr ""
+
+# msgid "deleted successfully"
 # msgstr ""
 
 # msgid "Failed to copy link"
@@ -17096,6 +17099,10 @@ msgstr "Modo avanzado"
 
 # msgid "Until"
 # msgstr ""
+
+# msgid "Delete selected tokens"
+# msgstr ""
+
 #  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
 #  msgstr ""
 
