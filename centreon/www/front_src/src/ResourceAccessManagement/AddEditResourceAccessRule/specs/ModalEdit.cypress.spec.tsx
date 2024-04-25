@@ -11,7 +11,10 @@ import {
 } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
 import { ModalMode } from '../../models';
-import { resourceAccessRuleEndpoint } from '../api/endpoints';
+import {
+  findBusinessViewsEndpoint,
+  resourceAccessRuleEndpoint
+} from '../api/endpoints';
 import {
   labelContactsAndContactGroups,
   labelDescription,
@@ -31,15 +34,23 @@ import {
   labelAddNewDataset,
   labelAllHostGroups,
   labelAllHostGroupsSelected,
+  labelBusinessView,
+  labelAllBusinessViews,
   labelAllContacts,
   labelAllContactGroups
 } from '../../translatedLabels';
 
 import {
   editedRuleFormData,
-  editedRuleFormDataWithAllContactsAndContactGroups,
-  findResourceAccessRuleResponse
+  editedRuleFormDataiWithAllBusinessViews,
+  editedRuleFormDataiWithBusinessViews,
+  findBusinessViewsResponse,
+  findResourceAccessRuleResponse,
+  platformVersions,
+  editedRuleFormDataWithAllContactsAndContactGroups
 } from './testUtils';
+
+import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
@@ -76,6 +87,13 @@ const initialize = (): void => {
     method: Method.PUT,
     path: resourceAccessRuleEndpoint({ id: 1 }),
     response: { status: 'ok' }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'findBusinessViewsEndpoint',
+    method: Method.GET,
+    path: `${findBusinessViewsEndpoint}**`,
+    response: findBusinessViewsResponse
   });
 
   cy.mount({
@@ -235,6 +253,65 @@ describe('Edit modal', () => {
 
     cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(editedRuleFormData);
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('send a request to edit a Resource Access Rule when business views are added to configuration', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+    store.set(platformVersionsAtom, platformVersions);
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findBusinessViewsEndpoint');
+    cy.findByText('BV1').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.findByText('BV2').click();
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataiWithBusinessViews
+      );
+    });
+
+    cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('send a request to edit a Resource Access Rule when all business views are added to configuration', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+    store.set(platformVersionsAtom, platformVersions);
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+
+    cy.findByLabelText(labelName).clear().type('rule#1');
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+    cy.findByText(labelAllBusinessViews).click();
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@editResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        editedRuleFormDataiWithAllBusinessViews
+      );
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');

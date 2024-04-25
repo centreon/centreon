@@ -17631,3 +17631,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "All contact groups selected"
 # msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""

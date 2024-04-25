@@ -29,7 +29,6 @@ use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
-use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
@@ -41,7 +40,6 @@ class ShareDashboardValidator
 {
     public function __construct(
         private readonly ContactInterface $user,
-        private readonly DashboardRights $rights,
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $contactRepository,
@@ -51,10 +49,11 @@ class ShareDashboardValidator
 
     /**
      * @param int $dashboardId
+     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateDashboard(int $dashboardId): void
+    public function validateDashboard(int $dashboardId, bool $isAdmin = true): void
     {
         // Validate Dashboard Exists
         if ($this->readDashboardRepository->existsOne($dashboardId) === false) {
@@ -63,7 +62,7 @@ class ShareDashboardValidator
 
         // Validate Dashboard is shared as editor to the user.
         if (
-            ! $this->rights->hasAdminRole()
+            ! $isAdmin
             && ! $this->readDashboardShareRepository->existsAsEditor($dashboardId, $this->user)
         ) {
             throw DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId);
@@ -82,11 +81,15 @@ class ShareDashboardValidator
      *
      * @param array<array{id: int, role: string}> $contacts
      * @param int[] $contactIdsInUserAccessGroups
+     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateContacts(array $contacts, array $contactIdsInUserAccessGroups): void
-    {
+    public function validateContacts(
+        array $contacts,
+        array $contactIdsInUserAccessGroups = [],
+        bool $isAdmin = true
+    ): void {
         $contactIds = array_map(static fn (array $contact): int => $contact['id'], $contacts);
         $this->validateContactsExist($contactIds);
         $this->validateContactsAreUnique($contactIds);
@@ -119,7 +122,7 @@ class ShareDashboardValidator
         $this->validateContactsHaveSufficientRightForSharingRole($contactsByIdAndRole, $dashboardContactRoles);
 
         // If the current user is not admin, the shared contacts should be member of his access groups.
-        if (! $this->rights->hasAdminRole()) {
+        if (! $isAdmin) {
             $this->validateContactsAreInTheSameAccessGroupThanCurrentUser($contactIds, $contactIdsInUserAccessGroups);
         }
 
@@ -136,11 +139,15 @@ class ShareDashboardValidator
      *
      * @param array<array{id: int, role: string}> $contactGroups
      * @param int[] $userContactGroupIds
+     * @param bool $isAdmin
      *
      * @throws DashboardException|\Throwable
      */
-    public function validateContactGroups(array $contactGroups, array $userContactGroupIds): void
-    {
+    public function validateContactGroups(
+        array $contactGroups,
+        array $userContactGroupIds = [],
+        bool $isAdmin = true
+    ): void {
         // Validate contact groups exists
         $contactGroupIds = array_map(static fn (array $contactGroup): int => $contactGroup['id'], $contactGroups);
         $this->validateContactGroupsExist($contactGroupIds);
@@ -150,7 +157,7 @@ class ShareDashboardValidator
             ->findContactGroupsWithAccessRightByContactGroupIds($contactGroupIds);
         $this->validateContactGroupsHaveDashboardACLs($dashboardContactGroupRoles, $contactGroupIds);
         $this->validateContactGroupsHaveSufficientRightForSharingRole($contactGroups, $dashboardContactGroupRoles);
-        if (! $this->rights->hasAdminRole()) {
+        if (! $isAdmin) {
             $this->validateContactGroupsAreInCurrentUserContactGroups($contactGroupIds, $userContactGroupIds);
         }
     }
@@ -287,8 +294,10 @@ class ShareDashboardValidator
      *
      * @throws DashboardException
      */
-    private function validateContactsAreInTheSameAccessGroupThanCurrentUser(array $requestContactIds, array $contactIdsInUserAccessGroups): void
-    {
+    private function validateContactsAreInTheSameAccessGroupThanCurrentUser(
+        array $requestContactIds,
+        array $contactIdsInUserAccessGroups
+    ): void {
         $contactDifference = new BasicDifference($requestContactIds, $contactIdsInUserAccessGroups);
         if ([] !== $contactDifference->getRemoved()) {
             throw DashboardException::userAreNotInAccessGroups($contactDifference->getRemoved());
@@ -301,8 +310,10 @@ class ShareDashboardValidator
      *
      * @throws DashboardException
      */
-    private function validateContactGroupsAreInCurrentUserContactGroups(array $contactGroupIds, array $userContactGroupIds): void
-    {
+    private function validateContactGroupsAreInCurrentUserContactGroups(
+        array $contactGroupIds,
+        array $userContactGroupIds
+    ): void {
         $contactGroupIdsDifference = new BasicDifference($contactGroupIds, $userContactGroupIds);
         if ([] !== $contactGroupIdsDifference->getRemoved()) {
             throw DashboardException::contactGroupIsNotInUserContactGroups(

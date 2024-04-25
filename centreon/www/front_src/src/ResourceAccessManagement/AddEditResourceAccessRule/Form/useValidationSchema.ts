@@ -82,12 +82,17 @@ const useValidationSchema = (): UseValidationSchemaState => {
         object({
           allOfResourceType: boolean(),
           resourceType: string().matches(
-            /(host|service)(group|_category)?|meta_service|all/
+            /(host|service)(group|_category)?|meta_service|business_view|all/
           ),
           resources: array().when(
             ['allOfResourceType', 'resourceType'],
             ([allOfResourceType, resourceType], schema) => {
-              const typesForAllOf = ['host', 'hostgroup', 'servicegroup'];
+              const typesForAllOf = [
+                'business_view',
+                'host',
+                'hostgroup',
+                'servicegroup'
+              ];
 
               if (equals('all', resourceType)) {
                 return schema.min(0);
