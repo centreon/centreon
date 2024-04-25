@@ -55,6 +55,9 @@ class PlatformController extends AbstractController
      */
     public function getVersions(): Response
     {
+        dd($this->getParameter('versions'));
+        dd($this->getParameter('version.core'));
+
         $webVersion = $this->informationService->getWebVersion();
         $modulesVersion = $this->informationService->getModulesVersion();
         $widgetsVersion = $this->informationService->getWidgetsVersion($webVersion);

@@ -37,7 +37,11 @@ final class ExecuteMigrations
 {
     use LoggerTrait;
 
+    /**
+     * @param string[] $availableVersions
+     */
     public function __construct(
+        private readonly array $availableVersions,
         private readonly ReadMigrationRepositoryInterface $readMigrationRepository,
         private readonly ReadVersionRepositoryInterface $readVersionRepository,
         private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
@@ -55,10 +59,13 @@ final class ExecuteMigrations
             $migrations = $this->readMigrationRepository->findNewMigrations();
             while ($migration = array_shift($migrations)) {
                 $this->writeMigrationRepository->executeMigration($migration);
-                $migrations = $this->readMigrationRepository->findNewMigrations();
-            }
 
-            $this->updateVersions();
+                $migrations = $this->readMigrationRepository->findNewMigrations();
+
+                if (! $this->doesMigrationsExistForModule($migrations, $migration->getModuleName())) {
+                    $this->updateModuleVersion($migration->getModuleName());
+                }
+            }
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $exception) {
@@ -148,5 +155,32 @@ final class ExecuteMigrations
         // @todo get version from environment file
 
         return '24.04.0';
+    }
+
+    private function doesMigrationsExistForModule(array $migrations, $moduleName): bool
+    {
+        foreach ($migrations as $migration) {
+            if ($migration->getModuleName() === $moduleName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function updateModuleVersion(string $moduleName): void
+    {
+        if (array_key_exists($moduleName, $this->$availableVersions)) {
+            $this->info(
+                sprintf('Updating %s version number to %s', $moduleName, $this->$availableVersions[$moduleName])
+            );
+
+            $this->writeMigrationRepository->updateModuleVersion(
+                $migration->getModuleName(),
+                $this->$availableVersions[$moduleName]
+            );
+        } else {
+            $this->warning(sprintf('Cannot find version number of %s', $moduleName));
+        }
     }
 }

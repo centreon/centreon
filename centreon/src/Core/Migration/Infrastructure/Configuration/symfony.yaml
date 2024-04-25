@@ -33,6 +33,10 @@ services:
             $centreonEtcPath: '%centreon_etc_path%'
 
     Core\Migration\Application\Repository\ReadMigrationRepositoryInterface:
+        arguments:
+            $availableVersions: '%versions%'
+
+    Core\Migration\Application\UseCase\ExecuteMigrations\ExecuteMigrations:
         class: Core\Migration\Infrastructure\Repository\DbReadMigrationRepository
         arguments:
             $migrations: !tagged_iterator 'platform.migrations'
