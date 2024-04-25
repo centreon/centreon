@@ -1,8 +1,7 @@
 import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { FormikValues, useFormikContext } from 'formik';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
 import { Typography } from '@mui/material';
 
@@ -12,7 +11,7 @@ import {
   labelCreateResourceAccessRule,
   labelEditResourceAccessRule
 } from '../translatedLabels';
-import { isCloseModalConfirmationDialogOpenAtom } from '../atom';
+import { isCloseModalConfirmationDialogOpenAtom, isDirtyAtom } from '../atom';
 
 import useResourceAccessRuleModal from './useResourceAccessRuleModal';
 import useModalStyles from './Modal.styles';
@@ -23,17 +22,18 @@ const AddEditResourceAccessRuleModal = (): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useModalStyles();
 
-  const setIsDialogOpen = useSetAtom(isCloseModalConfirmationDialogOpenAtom);
-  const { dirty } = useFormikContext<FormikValues>();
-
   const { closeModal, isModalOpen, mode } = useResourceAccessRuleModal();
+  const [isDirty, setIsDirty] = useAtom(isDirtyAtom);
+  const setIsDialogOpen = useSetAtom(isCloseModalConfirmationDialogOpenAtom);
 
-  const askBeforeCloseModal = (): void => {
-    if (dirty) {
+  const askBeforeClose = (): void => {
+    if (isDirty) {
       setIsDialogOpen(true);
 
       return;
     }
+
+    setIsDirty(false);
     closeModal();
   };
 
@@ -54,7 +54,7 @@ const AddEditResourceAccessRuleModal = (): ReactElement => {
 
   return (
     <>
-      <Modal open={isModalOpen} size="xlarge" onClose={askBeforeCloseModal}>
+      <Modal open={isModalOpen} size="xlarge" onClose={askBeforeClose}>
         <Modal.Header>
           <Typography className={classes.modalTitle}>
             {labels.modalTitle[mode]}

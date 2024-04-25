@@ -8,10 +8,10 @@ import {
   labelYourFormHasUnsavedChanges
 } from '../translatedLabels';
 import {
-  editedResourceAccessRuleIdAtom,
   isCloseModalConfirmationDialogOpenAtom,
   modalStateAtom
 } from '../atom';
+import { ModalMode } from '../models';
 
 const CloseModalConfirmationDialog = (): React.JSX.Element => {
   const { t } = useTranslation();
@@ -19,15 +19,13 @@ const CloseModalConfirmationDialog = (): React.JSX.Element => {
   const [isDialogOpen, setIsDialogOpen] = useAtom(
     isCloseModalConfirmationDialogOpenAtom
   );
-  const [modalState, setModalState] = useAtom(modalStateAtom);
-  const setEditedRuleId = useSetAtom(editedResourceAccessRuleIdAtom);
+  const setModalState = useSetAtom(modalStateAtom);
 
   const onCancel = (): void => setIsDialogOpen(false);
 
   const onConfirm = (): void => {
     setIsDialogOpen(false);
-    setModalState({ ...modalState, isOpen: false });
-    setEditedRuleId(null);
+    setModalState({ isOpen: false, mode: ModalMode.Create });
   };
 
   return (
