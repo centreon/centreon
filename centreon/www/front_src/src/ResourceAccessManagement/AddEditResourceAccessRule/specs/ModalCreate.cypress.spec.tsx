@@ -7,6 +7,7 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { modalStateAtom } from '../../atom';
 import { AddEditResourceAccessRuleModal } from '..';
 import {
+  findBusinessViewsEndpoint,
   findContactGroupsEndpoint,
   findContactsEndpoint,
   findHostCategoriesEndpoint,
@@ -33,6 +34,9 @@ import {
   labelAllResourcesSelected,
   labelAllHostGroups,
   labelAllHostGroupsSelected,
+  labelBusinessView,
+  labelAllBusinessViews,
+  labelAllBusinessViewsSelected,
   labelAllContacts,
   labelAllContactGroups
 } from '../../translatedLabels';
@@ -40,6 +44,7 @@ import { ModalMode } from '../../models';
 
 import {
   allResourcesFormData,
+  findBusinessViewsResponse,
   findContactGroupsResponse,
   findContactsResponse,
   findHostCategoriesResponse,
@@ -50,10 +55,15 @@ import {
   findServiceGroupsResponse,
   findServicesResponse,
   formData,
+  formDataWithAllBusinessViews,
+  formDataWithBusinessViews,
+  platformVersions,
   formDataWithAllContactGroups,
   formDataWithAllContacts,
   formDataWithAllHostGroups
 } from './testUtils';
+
+import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
@@ -141,6 +151,13 @@ const initialize = (): void => {
     method: Method.GET,
     path: `${findContactGroupsEndpoint}**`,
     response: findContactGroupsResponse
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'findBusinessViewsEndpoint',
+    method: Method.GET,
+    path: `${findBusinessViewsEndpoint}**`,
+    response: findBusinessViewsResponse
   });
 
   cy.viewport('macbook-13');
@@ -427,6 +444,51 @@ describe('Create modal', () => {
     cy.makeSnapshot();
   });
 
+  it('displays the business view resource type when the BAM module is installed', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    store.set(platformVersionsAtom, platformVersions);
+    cy.findByLabelText(labelSelectResourceType).click();
+
+    cy.findByText(labelBusinessView).should('be.visible').click();
+    cy.findByText(labelAllBusinessViews).should('be.visible');
+    cy.findByText(labelAddFilter).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to create a new Resource Access Rule when business views are selected', () => {
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.waitForRequest('@findBusinessViewsEndpoint');
+    cy.findByText('BV1').click();
+    cy.findAllByTestId(labelSelectResource).last().click();
+    cy.findByText('BV2').click();
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(formDataWithBusinessViews);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
   it('sends a request to add a new Resource Access Rule when all contacts are selected', () => {
     store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -449,6 +511,40 @@ describe('Create modal', () => {
 
     cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
       expect(JSON.parse(request.body)).to.deep.equal(formDataWithAllContacts);
+    });
+
+    cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request to create a new Resource Access Rule when all business views are selected', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    cy.findByLabelText(labelName).type('rule#1');
+    cy.findByLabelText(labelDescription).type('rule#1: Lorem ipsum...');
+
+    cy.findAllByLabelText(labelSelectResourceType).last().click();
+    cy.findByText(labelBusinessView).click();
+    cy.findByText(labelAllBusinessViews).click();
+
+    cy.findByLabelText(labelAllBusinessViewsSelected).should('be.visible');
+    cy.findByLabelText(labelAllBusinessViewsSelected).should('be.disabled');
+
+    cy.findByTestId(labelContacts).click();
+    cy.waitForRequest('@findContactsEndpoint');
+    cy.findByText('centreon-gorgone').click();
+    cy.findByTestId(labelContacts).click();
+
+    cy.findByTestId(labelContactGroups).click();
+    cy.waitForRequest('@findContactGroupsEndpoint');
+    cy.findByText('Supervisors').click();
+    cy.findByTestId(labelContactGroups).click();
+
+    cy.findByLabelText(labelSave).click();
+    cy.waitForRequest('@addResourceAccessRuleRequest').then(({ request }) => {
+      expect(JSON.parse(request.body)).to.deep.equal(
+        formDataWithAllBusinessViews
+      );
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
