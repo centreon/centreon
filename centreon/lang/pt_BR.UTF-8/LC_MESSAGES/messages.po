@@ -17653,9 +17653,3 @@ msgstr ""
 
 # msgid "All business views selected"
 # msgstr ""
-
-# msgid "Do you want to quit the form without saving the changes?"
-# msgstr ""
-
-# msgid "Your form has unsaved changes"
-# msgstr ""
