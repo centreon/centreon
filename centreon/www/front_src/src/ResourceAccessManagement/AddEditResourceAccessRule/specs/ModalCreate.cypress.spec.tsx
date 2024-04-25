@@ -38,7 +38,10 @@ import {
   labelAllBusinessViews,
   labelAllBusinessViewsSelected,
   labelAllContacts,
-  labelAllContactGroups
+  labelAllContactGroups,
+  labelExit,
+  labelYourFormHasUnsavedChanges,
+  labelDoYouWantToQuitWithoutSaving
 } from '../../translatedLabels';
 import { ModalMode } from '../../models';
 
@@ -579,6 +582,46 @@ describe('Create modal', () => {
     });
 
     cy.findByText(labelResourceAccessRuleAddedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation dialog when the form is filled and the Exit button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.findByLabelText(labelExit).click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confirmation dialog when the form is filled and the Close button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.findByLabelText('close').click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('dispalys a confirmation dialog when the form is filled and a click occurs outside the modal', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Create });
+    fillFormRequiredFields();
+
+    cy.clickOutside();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
 
     cy.makeSnapshot();
   });

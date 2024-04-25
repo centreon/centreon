@@ -37,7 +37,9 @@ import {
   labelBusinessView,
   labelAllBusinessViews,
   labelAllContacts,
-  labelAllContactGroups
+  labelAllContactGroups,
+  labelYourFormHasUnsavedChanges,
+  labelDoYouWantToQuitWithoutSaving
 } from '../../translatedLabels';
 
 import {
@@ -346,6 +348,58 @@ describe('Edit modal', () => {
     });
 
     cy.findByText(labelResourceAccessRuleEditedSuccess).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a confirmation dialog when the form is edited and the Exit button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findByLabelText(labelExit).click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confirmation dialog when the form is edited and the Close button is clicked', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.findByLabelText('close').click();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
+
+    cy.makeSnapshot();
+
+    cy.findByText('Cancel').click();
+  });
+
+  it('displays a confiramtion dialog when the form is edited and a click occurs outside the modal', () => {
+    store.set(modalStateAtom, { isOpen: true, mode: ModalMode.Edit });
+
+    cy.waitForRequest('@findResourceAccessRuleRequest');
+
+    cy.findAllByTestId('DeleteOutlineIcon').last().click();
+
+    cy.findAllByTestId('Delete').last().click();
+    cy.clickOutside();
+
+    cy.findByText(labelYourFormHasUnsavedChanges).should('be.visible');
+    cy.findByText(labelDoYouWantToQuitWithoutSaving).should('be.visible');
 
     cy.makeSnapshot();
   });
