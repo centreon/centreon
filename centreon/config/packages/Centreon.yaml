@@ -11,6 +11,9 @@ jms_serializer:
                 namespace_prefix: "Core\\"
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
+    #env(CORE_VERSION_FILE): '%kernel.project_dir%/config/versions/.core'
+    #version.core: '%env(trim:file:resolve:CORE_VERSION_FILE)%'
+    #version.core: "%env(version_core)%"
     log_file: '%log_path%/centreon-web.log'
     env(DEBUG_LEVEL): !php/const Monolog\Logger::WARNING
     curl.timeout: 60
