@@ -83,3 +83,6 @@ export const labelAllContacts = 'All contacts';
 export const labelAllContactsSelected = 'All contacts selected';
 export const labelAllContactGroups = 'All contact groups';
 export const labelAllContactGroupsSelected = 'All contact groups selected';
+export const labelDoYouWantToQuitWithoutSaving =
+  'Do you want to quit the form without saving the changes?';
+export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';

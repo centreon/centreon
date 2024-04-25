@@ -53,3 +53,5 @@ export const selectedDatasetFiltersAtom = atom<
 
 export const allContactsSelectedAtom = atom<boolean>(false);
 export const allContactGroupsSelectedAtom = atom<boolean>(false);
+
+export const isCloseModalConfirmationDialogOpenAtom = atom<boolean>(false);
