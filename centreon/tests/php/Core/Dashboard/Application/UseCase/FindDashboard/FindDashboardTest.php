@@ -51,6 +51,7 @@ beforeEach(function (): void {
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->testedDashboard = new Dashboard(

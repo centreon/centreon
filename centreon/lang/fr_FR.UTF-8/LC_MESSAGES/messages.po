@@ -18954,3 +18954,15 @@ msgstr "Tous les groupes d'hôtes"
 
 msgid "All service groups"
 msgstr "Tous les groupes de services"
+
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
