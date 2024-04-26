@@ -40,7 +40,7 @@ beforeEach(function () {
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse while an exception occured', function () {
+it('should present an ErrorResponse when an exception occurred', function () {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user

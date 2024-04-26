@@ -57,7 +57,7 @@ class FindContactTemplates
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ_WRITE)
             ) {
 
-                $this->error('User doesn\'t have sufficient right to list contact templates', [
+                $this->error('User doesn\'t have sufficient rights to list contact templates', [
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(

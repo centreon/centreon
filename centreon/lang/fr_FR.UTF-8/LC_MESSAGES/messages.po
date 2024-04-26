@@ -16838,7 +16838,7 @@ msgid "Can't resolve username from login claim using configured regular expressi
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
 msgid "Error while searching for contact templates"
-msgstr "Erreur lors de la recherche des modèles de contact"
+msgstr "Erreur lors de la recherche de modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
