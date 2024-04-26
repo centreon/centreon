@@ -2,20 +2,16 @@
 Cypress.Commands.add("executePostRequestMultipleTimes", () => {
   // eslint-disable-next-line no-plusplus
   for (let i = 1; i <= 15; i++) {
-    const name = `Test ${i}`;
+    const name = `Rule${i}`;
     const payload = {
-      contact_groups: [3],
-      contacts: [4],
+      contact_groups: { all: false, ids: [] },
+      contacts: { all: false, ids: [17] },
       dataset_filters: [
-        {
-          dataset_filter: null,
-          resources: [14],
-          type: "host",
-        },
+        { dataset_filter: null, resources: [14], type: "host" },
       ],
       description: "",
       is_enabled: true,
-      name,
+      name: name,
     };
     cy.request({
       body: payload,
