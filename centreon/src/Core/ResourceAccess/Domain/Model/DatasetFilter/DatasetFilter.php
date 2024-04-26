@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostCategoryFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
@@ -59,7 +58,7 @@ class DatasetFilter
 
         // if it can be empty it does not mean that it is empty.
         // So we need to check if not empty that we do receive an array of ints.
-        if ($this->canResourceIdsBeEmpty($type)) {
+        if ($this->validator->canResourceIdsBeEmpty($type)) {
             if ($resourceIds !== []) {
                 Assertion::arrayOfTypeOrNull('int', $this->resourceIds, "{$shortName}::resourceIds");
             }
@@ -158,27 +157,6 @@ class DatasetFilter
             ],
             true
         );
-    }
-
-    /**
-     * This method indicates for a given type if the resourceIds array can be empty.
-     * If it is empty is means 'ALL' (of the given resource type).
-     *
-     * @param string $type
-     *
-     * @return bool
-     */
-    public static function canResourceIdsBeEmpty(string $type): bool
-    {
-        return $type === DatasetFilterValidator::ALL_RESOURCES_FILTER
-            || in_array(
-                $type,
-                [
-                    HostGroupFilterType::TYPE_NAME,
-                    HostFilterType::TYPE_NAME,
-                    ServiceGroupFilterType::TYPE_NAME,
-                ], true
-            );
     }
 
     /**
