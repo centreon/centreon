@@ -9,7 +9,7 @@ const getWidgets = () => {
     .filter((value) => value.isDirectory())
     .map(({ name }) => name)
     .filter((name) =>
-      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : true
+      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : name.match(/^centreon-widget/)
     );
 };
 
