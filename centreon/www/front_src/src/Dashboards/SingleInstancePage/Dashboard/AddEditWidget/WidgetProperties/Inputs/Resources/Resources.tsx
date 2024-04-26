@@ -65,7 +65,7 @@ const Resources = ({
   const deleteButtonHidden =
     !canEditField ||
     (value.length <= 1 && (required || isNil(required))) ||
-    (singleResourceType && equals(value.length, 1));
+    equals(value.length, 1);
 
   return (
     <div className={classes.resourcesContainer}>
