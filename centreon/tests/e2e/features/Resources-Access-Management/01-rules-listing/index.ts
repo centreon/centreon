@@ -3,7 +3,7 @@ import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 import { enableResourcesAccessManagementFeature } from "../common";
 
 beforeEach(() => {
-    cy.startContainers();
+  cy.startContainers();
   cy.intercept({
     method: "GET",
     url: "/centreon/api/internal.php?object=centreon_topology&action=navigationList",
@@ -65,7 +65,6 @@ When("I click on the next page button", () => {
     label: "Next page",
     tag: "button",
   }).click();
-
 });
 
 Then("I should see the next 5 rules displayed", () => {
@@ -78,13 +77,30 @@ When("I click on the previous page button", () => {
     label: "Previous page",
     tag: "button",
   }).click();
-
 });
 
 Then("I should see the previous first 10 rules displayed", () => {
-
   cy.get('[class$="-intersectionRow"]').should("have.length", 10);
   cy.get('[class$="-root-cell"]').should("be.visible");
+});
+
+When(
+  "I enter a search query in the search field for a rule or description",
+  () => {
+    cy.getByTestId({ tag: "input", testId: "Search" }).type("Rule2");
+  }
+);
+
+Then("I should see only the rules that match the search query", () => {
+  cy.waitUntil(
+    () => {
+      return cy.get('[class$="-intersectionRow"]').then(($divs) => {
+        return $divs.length === 1;
+      });
+    },
+    { interval: 1000, timeout: 10000 }
+  );
+  cy.get('[class$="-text-rowNotHovered"]').contains("Rule2");
 });
 
 afterEach(() => {

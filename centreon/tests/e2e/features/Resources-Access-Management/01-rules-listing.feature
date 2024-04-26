@@ -19,7 +19,7 @@ Feature: Pagination and Search Functionality in Resource Access Management
     When I click on the previous page button
     Then I should see the previous first 10 rules displayed
 
-  # Scenario: Search functionality
-  #   When I navigate to the Resource Access Management page
-  #   And I enter a search query in the search field for a rule or description
-  #   Then I should see only the rules that match the search query
+  Scenario: Search functionality
+    When I navigate to the Resource Access Management page
+    And I enter a search query in the search field for a rule or description
+    Then I should see only the rules that match the search query
