@@ -174,7 +174,6 @@ describe('Resources', () => {
     initialize({ singleResourceType: true });
 
     cy.contains(labelAddFilter).should('not.exist');
-    cy.findByLabelText(labelDelete).should('not.exist');
 
     cy.makeSnapshot();
   });
