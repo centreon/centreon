@@ -44,7 +44,6 @@ beforeEach(function() {
     $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class);
     $this->validator = new ShareDashboardValidator(
         $this->contact,
-        $this->rights,
         $this->readDashboardRepository,
         $this->readDashboardShareRepository,
         $this->readContactRepository,
@@ -66,18 +65,13 @@ it('should throw a Dashboard Exception when the dashboard is not shared has edit
         ->method('existsOne')
         ->willReturn(true);
 
-    $this->rights
-        ->expects($this->once())
-        ->method('hasAdminRole')
-        ->willReturn(false);
-
     $this->readDashboardShareRepository
         ->expects($this->once())
         ->method('existsAsEditor')
         ->willReturn(false);
 
 
-    $this->validator->validateDashboard(1);
+    $this->validator->validateDashboard(1, false);
 })->throws(DashboardException::dashboardAccessRightsNotAllowedForWriting(1)->getMessage());
 
 it('should throw a Dashboard Exception when the contacts does not exists', function() {
@@ -102,7 +96,6 @@ it('should throw a Dashboard Exception when the contacts does not exists', funct
                'role' => 'editor'
            ],
        ],
-       []
    );
 })->throws(DashboardException::theContactsDoNotExist([2,3])->getMessage());
 
@@ -123,7 +116,6 @@ it('should throw a Dashboard Exception when the contacts are duplicated', functi
                 'role' => 'editor'
             ],
         ],
-        []
     );
 })->throws(DashboardException::contactForShareShouldBeUnique()->getMessage());
 
@@ -156,7 +148,6 @@ it('should throw a Dashboard Exception when the request contacts does not have D
                 'role' => 'editor'
             ],
         ],
-        []
     );
 })->throws(DashboardException::theContactsDoesNotHaveDashboardAccessRights([2])->getMessage());
 
@@ -207,11 +198,6 @@ it('should throw a Dashboard Exception when the request contacts are not members
             )
         ]);
 
-    $this->rights
-        ->expects($this->once())
-        ->method('hasAdminRole')
-        ->willReturn(false);
-
     $this->validator->validateContacts(
         [
             [
@@ -219,7 +205,8 @@ it('should throw a Dashboard Exception when the request contacts are not members
                 'role' => 'editor'
             ],
         ],
-        []
+        [],
+        false
     );
 })->throws(DashboardException::userAreNotInAccessGroups([1])->getMessage());
 
@@ -321,11 +308,6 @@ it('should throw a Dashboard Exception when the contact groups are not members o
             )
         ]);
 
-    $this->rights
-        ->expects($this->once())
-        ->method('hasAdminRole')
-        ->willReturn(false);
-
     $this->validator->validateContactGroups(
         [
             [
@@ -333,7 +315,8 @@ it('should throw a Dashboard Exception when the contact groups are not members o
                 'role' => 'editor'
             ],
         ],
-        []
+        [],
+        false
     );
 })->throws(DashboardException::contactGroupIsNotInUserContactGroups([1]
 )->getMessage());

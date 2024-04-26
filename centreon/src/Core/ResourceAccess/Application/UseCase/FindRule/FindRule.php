@@ -55,6 +55,7 @@ final class FindRule
      * @param ReadContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param \Traversable<DatasetProviderInterface> $repositoryProviders
+     * @param DatasetFilterValidator $datasetFilterValidator
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -62,6 +63,7 @@ final class FindRule
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly DatasetFilterValidator $datasetFilterValidator,
         \Traversable $repositoryProviders
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
@@ -146,7 +148,7 @@ final class FindRule
 
             if (
                 $datasetFilter->getResourceIds() === []
-                && DatasetFilter::canResourceIdsBeEmpty($data['type'])
+                && $this->datasetFilterValidator->canResourceIdsBeEmpty($data['type'])
             ) {
                 $data['resources'] = [];
 

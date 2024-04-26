@@ -87,4 +87,20 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteDatase
 
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    UPDATE `:db`.acl_resources SET all_hosts = :access WHERE acl_res_id = :datasetId
+                SQL
+        ));
+
+        $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+        $statement->bindValue(':access', $fullAccess ? '1' : '0', \PDO::PARAM_STR);
+        $statement->execute();
+    }
 }

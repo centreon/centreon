@@ -45,6 +45,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class ShareDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly DashboardRights $rights,
@@ -54,24 +55,20 @@ final class ShareDashboard
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly ContactInterface $user,
-        private readonly DataStorageEngineInterface $dataStorageEngine
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
     public function __invoke(ShareDashboardRequest $request, ShareDashboardPresenterInterface $presenter): void
     {
         try {
-            if (! $this->rights->canCreate()) {
-                $this->error("User doesn't have sufficient rights to add shares on dashboards");
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
-            }
-
-            $this->validator->validateDashboard($request->dashboardId);
-            if (! $this->rights->hasAdminRole()) {
+            $isUserAdmin = $this->isUserAdmin();
+            if ($isUserAdmin) {
+                $this->validator->validateDashboard($request->dashboardId);
+                $this->validator->validateContacts($request->contacts);
+                $this->validator->validateContactGroups($request->contactGroups);
+            } elseif ($this->rights->canCreate()) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupIds = array_map(
                     static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
@@ -82,12 +79,34 @@ final class ShareDashboard
                 );
 
                 $userContactGroups = $this->readContactGroupRepository->findAllByUserId($this->user->getId());
-                $userContactGroupIds = array_map(static fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $userContactGroups);
+                $userContactGroupIds = array_map(
+                    static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                    $userContactGroups
+                );
+
+                $this->validator->validateDashboard(
+                    dashboardId: $request->dashboardId,
+                    isAdmin: false
+                );
+                $this->validator->validateContacts(
+                    contacts: $request->contacts,
+                    contactIdsInUserAccessGroups: $contactIdsInUserAccessGroups,
+                    isAdmin: false
+                );
+                $this->validator->validateContactGroups(
+                    contactGroups: $request->contactGroups,
+                    userContactGroupIds: $userContactGroupIds,
+                    isAdmin: false
+                );
+            } else {
+                $this->error("User doesn't have sufficient rights to add shares on dashboards");
+                $presenter->presentResponse(
+                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
+                );
+
+                return;
             }
-            $this->validator->validateContacts(
-                $request->contacts,
-                $contactIdsInUserAccessGroups ?? []
-            );
+
             $contactRoles = [];
             foreach ($request->contacts as $contact) {
                 $contactRoles[] = new TinyRole(
@@ -95,7 +114,7 @@ final class ShareDashboard
                     DashboardSharingRoleConverter::fromString($contact['role'])
                 );
             }
-            $this->validator->validateContactGroups($request->contactGroups, $userContactGroupIds ?? []);
+
             $contactGroupRoles = [];
             foreach ($request->contactGroups as $contactGroup) {
                 $contactGroupRoles[] = new TinyRole(
@@ -103,20 +122,19 @@ final class ShareDashboard
                     DashboardSharingRoleConverter::fromString($contactGroup['role'])
                 );
             }
-            if ($this->rights->hasAdminRole()) {
-                $this->updateDashboardSharesAsAdmin($request->dashboardId, $contactRoles, $contactGroupRoles);
-                $presenter->presentResponse(new NoContentResponse());
 
-                return;
+            if ($isUserAdmin) {
+                $this->updateDashboardSharesAsAdmin($request->dashboardId, $contactRoles, $contactGroupRoles);
+            } else {
+                $this->updateDashboardSharesAsNonAdmin(
+                    $request->dashboardId,
+                    $contactRoles,
+                    $contactGroupRoles,
+                    $userContactGroupIds,
+                    $contactIdsInUserAccessGroups
+                );
             }
 
-            $this->updateDashboardSharesAsNonAdmin(
-                $request->dashboardId,
-                $contactRoles,
-                $contactGroupRoles,
-                $userContactGroupIds,
-                $contactIdsInUserAccessGroups
-            );
             $presenter->presentResponse(new NoContentResponse());
         } catch (DashboardException $ex) {
             $this->error($ex->getMessage(), ['trace' => (string) $ex]);
@@ -198,5 +216,25 @@ final class ShareDashboard
 
             throw $ex;
         }
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }
