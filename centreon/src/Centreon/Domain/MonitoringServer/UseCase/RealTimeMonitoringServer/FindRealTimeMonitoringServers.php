@@ -62,7 +62,7 @@ class FindRealTimeMonitoringServers
         $this->info('Find all realtime monitoring servers information.');
 
         if (! $this->contact->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            $this->error('User doesn\'t have sufficient right to see realtime monitoring servers', [
+            $this->error('User doesn\'t have sufficient rights to see realtime monitoring servers', [
                     'user_id' => $this->contact->getId(),
                 ]);
             throw new AccessDeniedException();

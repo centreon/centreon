@@ -76,7 +76,7 @@ class TimelineController extends AbstractController
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            $this->error('User doesn\'t have sufficient right to see the host timeline', [
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
                     'user_id' => $this->user->getId(),
                 ]);
             throw $this->createAccessDeniedException();
@@ -115,7 +115,7 @@ class TimelineController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            $this->error('User doesn\'t have sufficient right to see the service timeline', [
+            $this->error('User doesn\'t have sufficient rights to see the service timeline', [
                     'user_id' => $this->user->getId(),
                 ]);
             throw $this->createAccessDeniedException();
@@ -150,7 +150,7 @@ class TimelineController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            $this->error('User doesn\'t have sufficient right to see the host timeline', [
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
                     'user_id' => $this->user->getId(),
                 ]);
             throw $this->createAccessDeniedException();
@@ -176,7 +176,7 @@ class TimelineController extends AbstractController
     ): StreamedResponse {
         $this->denyAccessUnlessGrantedForApiRealtime();
         if (! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
-            $this->error('User doesn\'t have sufficient right to see the host timeline', [
+            $this->error('User doesn\'t have sufficient rights to see the host timeline', [
                     'user_id' => $this->user->getId(),
                 ]);
             throw $this->createAccessDeniedException();
