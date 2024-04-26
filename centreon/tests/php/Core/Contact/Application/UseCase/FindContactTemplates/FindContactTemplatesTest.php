@@ -39,7 +39,7 @@ beforeEach(function () {
     $this->user = $this->createMock(ContactInterface::class);
 });
 
-it('should present an ErrorResponse while an exception occured', function () {
+it('should present an ErrorResponse when an exception occured', function () {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user
@@ -66,7 +66,7 @@ it('should present an ErrorResponse while an exception occured', function () {
     );
 });
 
-it('should present an ForbiddenResponse if the user doesnt have the read menu access to contact template', function () {
+it('should present a ForbiddenResponse if the user does not have the read menu access to contact templates', function () {
     $useCase = new FindContactTemplates($this->repository,$this->user);
 
     $this->user
