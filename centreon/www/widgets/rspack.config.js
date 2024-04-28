@@ -3,10 +3,10 @@
 const path = require('path');
 
 const { merge } = require('webpack-merge');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const rspack = require('@rspack/core');
 
-const frontendBase = require('@centreon/js-config/webpack/base');
-const frontendModulePatch = require('@centreon/js-config/webpack/patch/module');
+const frontendBase = require('@centreon/js-config/rspack/base');
+const frontendModulePatch = require('@centreon/js-config/rspack/patch/module');
 
 module.exports = ({ widgetName }) => {
   const baseOutputPath = path.resolve(`${__dirname}/src/${widgetName}/static`);
@@ -35,7 +35,7 @@ module.exports = ({ widgetName }) => {
         [`./src/${widgetName}/src/index`]: `./src/${widgetName}/src/index.tsx`
       },
       plugins: [
-        new CopyWebpackPlugin({
+        new rspack.CopyRspackPlugin({
           patterns: [
             {
               from: `./src/${widgetName}/properties.json`,
