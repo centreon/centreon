@@ -41,15 +41,7 @@ module.exports = {
       {
         exclude: excludeNodeModulesExceptCentreonUi,
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: '[name].[hash:8].[ext]'
-            }
-          }
-        ]
+        type: 'asset/inline'
       },
       {
         generator: {
