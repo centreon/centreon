@@ -124,7 +124,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@lexical/html": "^0.12.6",
-    "@module-federation/utilities": "3.0.2",
+    "@module-federation/utilities": "^3.0.15",
     "@mui/icons-material": "^5.15.4",
     "@mui/lab": "5.0.0-alpha.160",
     "@mui/material": "^5.15.11",
