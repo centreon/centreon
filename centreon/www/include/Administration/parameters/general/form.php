@@ -66,14 +66,15 @@ while ($opt = $dbResult->fetch()) {
         $gopt[$opt["key"]] = myDecode($opt["value"]);
     }
 }
-$gopt['proxy_password'] = CentreonAuth::PWS_OCCULTATION;
 
 /*
  * Style
  */
-$attrsText = array("size" => "40");
-$attrsText2 = array("size" => "5");
+$attrsText = ['size' => '40'];
+$attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
+
+$autocompleteOff = ['autocomplete' => 'new-password'];
 
 /*
  * Form begin
@@ -193,8 +194,8 @@ $form->addElement(
     array("class" => "btc bt_success", "onClick" => "javascript:checkProxyConf()")
 );
 $form->addElement('text', 'proxy_port', _("Proxy port"), $attrsText2);
-$form->addElement('text', 'proxy_user', _("Proxy user"), $attrsText);
-$form->addElement('password', 'proxy_password', _("Proxy password"), $attrsText);
+$form->addElement('text', 'proxy_user', _("Proxy user"), array_merge($attrsText, $autocompleteOff));
+$form->addElement('password', 'proxy_password', _("Proxy password"), array_merge($attrsText, $autocompleteOff));
 
 /**
  * Charts options
