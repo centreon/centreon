@@ -1,4 +1,3 @@
-import 'ulog';
 import { useEffect } from 'react';
 
 import {
@@ -7,7 +6,6 @@ import {
   UseMutationResult
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
 import { includes, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
@@ -52,7 +50,7 @@ export type UseMutationQueryProps<T, TMeta> = {
   'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
 
-const log = anylogger('API Request');
+const { error: log } = console;
 
 export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,
@@ -127,7 +125,7 @@ const useMutationQuery = <T extends object, TMeta>({
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
-      log.error(data.message);
+      log(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
         httpCodesBypassErrorSnackbar

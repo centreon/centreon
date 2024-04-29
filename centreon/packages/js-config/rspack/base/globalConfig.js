@@ -1,4 +1,4 @@
-const isDev = process.env.NODE_ENV !== 'development';
+const isDev = process.env.NODE_ENV !== 'production';
 
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)\.pnpm(\\|\/)(?!(@centreon|file\+packages\+ui-context))/;

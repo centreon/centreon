@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
 
-import 'ulog';
 import {
   QueryKey,
   QueryObserverBaseResult,
@@ -9,7 +8,6 @@ import {
   UseQueryOptions
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
 import { has, includes, isNil, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
@@ -48,7 +46,7 @@ export interface PrefetchEndpointParams {
   page: number;
 }
 
-const log = anylogger('API Request');
+const { error: log } = console;
 
 const useFetchQuery = <T extends object>({
   getEndpoint,
@@ -87,7 +85,7 @@ const useFetchQuery = <T extends object>({
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
-      log.error(data.message);
+      log(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
         httpCodesBypassErrorSnackbar
