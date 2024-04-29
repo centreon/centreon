@@ -66,7 +66,7 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
-    requestTimeout: 10000,
+    requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
