@@ -74,7 +74,7 @@ $attrsText = ['size' => '40'];
 $attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
 
-$autocompleteOff = ['autocomplete' => 'new-password'];
+$autocompleteOff = ['autocomplete' => 'one-time-code'];
 
 /*
  * Form begin

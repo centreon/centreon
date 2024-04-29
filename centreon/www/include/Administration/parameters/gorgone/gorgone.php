@@ -47,7 +47,7 @@ $attrsText = ['size' => '40'];
 $attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
 
-$autocompleteOff = ['autocomplete' => 'one-time-code'];
+$autocompleteOff = ['autocomplete' => 'new-password'];
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);

@@ -51,7 +51,7 @@ $DBRESULT->closeCursor();
 
 $attrsAdvSelect = null;
 
-$autocompleteOff = ['autocomplete' => 'one-time-code'];
+$autocompleteOff = ['autocomplete' => 'new-password'];
 
 /*
  * Form begin
