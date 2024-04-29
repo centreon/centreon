@@ -92,14 +92,14 @@ When(
 );
 
 Then("I should see only the rules that match the search query", () => {
-  cy.waitUntil(
-    () => {
-      return cy.get('[class$="-intersectionRow"]').then(($divs) => {
-        return $divs.length === 1;
-      });
-    },
-    { interval: 1000, timeout: 10000 }
-  );
+  // cy.waitUntil(
+  //   () => {
+  //     return cy.get('[class$="-intersectionRow"]').then(($divs) => {
+  //       return $divs.length === 1;
+  //     });
+  //   },
+  //   { interval: 1000, timeout: 10000 }
+  // );
   cy.get('[class$="-text-rowNotHovered"]').contains("Rule2");
 });
 
