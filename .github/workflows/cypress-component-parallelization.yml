@@ -117,14 +117,14 @@ jobs:
           path: coverage/lcov-report
           retention-days: 1
 
-      - name: Publish code coverage to PR
-        uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
-          delete-old-comments: true
-          filter-changed-files: true
+      # - name: Publish code coverage to PR
+      #   uses: romeovs/lcov-reporter-action@4cf015aa4afa87b78238301f1e3dc140ea0e1ec6
+      #   if: ${{ github.event_name == 'pull_request' }}
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
+      #     delete-old-comments: true
+      #     filter-changed-files: true
 
       - name: Check Code coverage
         uses: ./.github/actions/code-coverage-gate-keeper
