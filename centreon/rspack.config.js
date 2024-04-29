@@ -37,7 +37,7 @@ module.exports = (enableCoverage = false) =>
         }),
         new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),
-          publicPath: isDevelopmentMode ? publicPath : '',
+          publicPath: isDevelopmentMode ? publicPath : './static/',
           template: './www/front_src/public/index.html'
         }),
         new rspack.IgnorePlugin({
