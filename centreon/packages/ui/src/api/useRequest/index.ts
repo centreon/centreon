@@ -6,8 +6,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import useCancelTokenSource from '../useCancelTokenSource';
 import useSnackbar from '../../Snackbar/useSnackbar';
-
-const { error: log } = console;
+import { errorLog, warnLog } from '../logger';
 
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;
@@ -39,7 +38,7 @@ const useRequest = <TResult>({
   }, []);
 
   const showRequestErrorMessage = (error): void => {
-    log(error);
+    errorLog(error);
 
     const message = or(
       pathOr(undefined, ['response', 'data', 'message'], error),
@@ -66,7 +65,7 @@ const useRequest = <TResult>({
       .catch((error) => {
         setSending(false);
         if (axios.isCancel(error)) {
-          log(error);
+          warnLog(error);
 
           throw error;
         }

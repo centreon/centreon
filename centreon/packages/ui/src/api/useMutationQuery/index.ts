@@ -11,6 +11,7 @@ import { includes, omit } from 'ramda';
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { errorLog } from '../logger';
 
 export enum Method {
   DELETE = 'DELETE',
@@ -49,8 +50,6 @@ export type UseMutationQueryProps<T, TMeta> = {
   UseMutationOptions<{ _meta?: TMeta; payload: T }>,
   'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
-
-const { error: log } = console;
 
 export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,
@@ -125,7 +124,7 @@ const useMutationQuery = <T extends object, TMeta>({
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
     if (data?.isError) {
-      log(data.message);
+      errorLog(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
         httpCodesBypassErrorSnackbar
