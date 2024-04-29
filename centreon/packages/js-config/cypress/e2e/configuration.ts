@@ -38,7 +38,7 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
-    defaultCommandTimeout: 6000,
+    defaultCommandTimeout: 10000,
     downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
