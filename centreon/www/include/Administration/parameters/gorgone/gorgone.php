@@ -43,7 +43,6 @@ while ($opt = $DBRESULT->fetchRow()) {
 }
 $DBRESULT->closeCursor();
 
-// $attrsText = array("size" => "40");
 $attrsText = ['size' => '40'];
 $attrsText2 = ['size' => '5'];
 $attrsAdvSelect = null;
