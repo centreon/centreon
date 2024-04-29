@@ -38,7 +38,7 @@ const useRequest = <TResult>({
   }, []);
 
   const showRequestErrorMessage = (error): void => {
-    errorLog(error);
+    errorLog(error.message);
 
     const message = or(
       pathOr(undefined, ['response', 'data', 'message'], error),
