@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -63,7 +63,9 @@ const Resources = ({
   const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden =
-    !canEditField || (value.length <= 1 && (required || isNil(required)));
+    !canEditField ||
+    (value.length <= 1 && (required || isNil(required))) ||
+    equals(value.length, 1);
 
   return (
     <div className={classes.resourcesContainer}>
