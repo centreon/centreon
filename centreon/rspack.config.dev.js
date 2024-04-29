@@ -65,7 +65,6 @@ module.exports = merge(getBaseConfiguration(), getDevConfiguration(), {
     ...devServer,
     headers: { 'Access-Control-Allow-Origin': '*' },
     host: '0.0.0.0',
-
     static: modules.map(({ name, getDirectoryPath }) => ({
       directory: path.resolve(getDirectoryPath(name)),
       publicPath,

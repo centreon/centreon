@@ -36,7 +36,9 @@ module.exports = (enableCoverage = false) =>
           template: './www/front_src/public/index.html'
         }),
         new rspack.IgnorePlugin({
-          resourceRegExp: /.(js.map|chunk.css|chunk.js)/
+          resourceRegExp: enableCoverage
+            ? /.(js.map|chunk.css|chunk.js)/
+            : /www\/widgets/
         })
       ],
       resolve: {
