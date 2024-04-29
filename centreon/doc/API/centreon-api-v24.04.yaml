@@ -16,7 +16,7 @@ info:
     + Added metrics by service listing endpoint to service resource type
     + Handle new filters for the /configuration/hosts/groups endpoint
     + Handle new filters for the /configuration/services/groups endpoint
-    +
+    + Handle new filters for the /monitoring/hosts endpoint
     +
     # Information
     All dates are in **ISO 8601** format
@@ -1944,6 +1944,9 @@ paths:
         * poller.id
         * service.display_name
         * host_group.id
+        * host_group.name
+        * host_category.id
+        * host_category.name
         * host.is_acknowledged
         * host.downtime
         * host.criticality

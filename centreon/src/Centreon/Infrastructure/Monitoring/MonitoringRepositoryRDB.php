@@ -115,7 +115,10 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             'host.state' => 'h.state',
             'poller.id' => 'h.instance_id',
             'service.display_name' => 'srv.display_name',
-            'host_group.id' => 'hg.hostgroup_id',
+            'host_group.id' => 'hhg.hostgroup_id',
+            'host_group.name' => 'hg.name',
+            'host_category.id' => 'hc.hc_id',
+            'host_category.name' => 'hc.hc_name',
             'host.is_acknowledged' => 'h.acknowledged',
             'host.downtime' => 'h.scheduled_downtime_depth',
             'host.criticality' => 'cv.value',
@@ -239,8 +242,14 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             LEFT JOIN `:dbstg`.`services` srv
                 ON srv.host_id = h.host_id
                 AND srv.enabled = '1'
-            LEFT JOIN `:dbstg`.`hosts_hostgroups` hg
-                ON hg.host_id = h.host_id
+            LEFT JOIN `:dbstg`.`hosts_hostgroups` hhg
+                ON hhg.host_id = h.host_id
+            LEFT JOIN `:dbstg`.`hostgroups` hg
+                ON hhg.hostgroup_id = hg.hostgroup_id
+            LEFT JOIN `:db`.`hostcategories_relation` hcr
+                ON hcr.host_host_id = h.host_id
+            LEFT JOIN `:db`.`hostcategories` hc
+                ON hcr.hostcategories_hc_id = hc.hc_id
             LEFT JOIN `:dbstg`.`customvariables` cv
                 ON cv.host_id = h.host_id
                 AND (cv.service_id = 0 OR cv.service_id IS NULL)
