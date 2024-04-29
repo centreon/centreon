@@ -616,7 +616,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length == 0 && pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\") || ((responseJson.result.length == 0) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -688,7 +688,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length == 0 && pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\") || ((responseJson.result.length == 0) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -1393,18 +1393,20 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The comment has not been added.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
+									"pm.test(\"The comment has not been added, because the user does not have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1903,18 +1905,20 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The comment has not been added.\", function () {\r",
-									"    pm.response.to.have.status(401);\r",
+									"pm.test(\"The comment has not been added, because the user does not have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2471,7 +2475,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2485,7 +2490,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 1) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if (((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -2508,7 +2513,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2552,7 +2558,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2566,7 +2573,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 1) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if (((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -2592,7 +2599,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
