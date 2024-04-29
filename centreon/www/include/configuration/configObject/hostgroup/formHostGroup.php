@@ -41,10 +41,7 @@ if (! isset($centreon)) {
 const BASE_ROUTE = './include/common/webServices/rest/internal.php';
 
 if (! $centreon->user->admin) {
-    if (
-        $hostGroupId
-        && ! str_contains($hgString, "'" . $hostGroupId . "'")
-    ) {
+    if ($hostGroupId && ! in_array($hostGroupId, $hostGroupIds, true)) {
         $msg = new CentreonMsg();
         $msg->setImage('./img/icons/warning.png');
         $msg->setTextStyle('bold');
