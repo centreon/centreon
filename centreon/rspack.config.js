@@ -4,6 +4,10 @@ const rspack = require('@rspack/core');
 const { merge } = require('webpack-merge');
 
 const getBaseConfiguration = require('./packages/js-config/rspack/base');
+const {
+  publicPath,
+  isDevelopmentMode
+} = require('./packages/js-config/rspack/patch/devServer');
 
 module.exports = (enableCoverage = false) =>
   merge(
@@ -33,6 +37,7 @@ module.exports = (enableCoverage = false) =>
         }),
         new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),
+          publicPath: isDevelopmentMode ? publicPath : '',
           template: './www/front_src/public/index.html'
         }),
         new rspack.IgnorePlugin({
