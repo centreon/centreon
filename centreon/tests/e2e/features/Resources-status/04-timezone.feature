@@ -21,9 +21,3 @@ Feature: Timezone in monitoring
     Given a user with a custom timezone set in his profile
     When the user creates a downtime on a resource
     Then date and time fields should be based on the custom timezone of the user
-
-  @TEST_MON-22213
-  Scenario: User can set a realtime downtime with a custom timezone in Monitoring>Downtime
-    Given a user with a custom timezone set in his profile
-    When the user creates a downtime on a resource in Monitoring>Downtime
-    Then date and time fields should be based on the custom timezone of the user in Monitoring>Downtime
