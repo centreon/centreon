@@ -34,6 +34,9 @@ module.exports = ({ widgetName }) => {
       entry: {
         [`./src/${widgetName}/src/index`]: `./src/${widgetName}/src/index.tsx`
       },
+      optimization: {
+        splitChunks: false
+      },
       plugins: [
         new rspack.CopyRspackPlugin({
           patterns: [
