@@ -309,7 +309,7 @@ When(
       .eq(3)
       .find('.react-resizable-handle-se')
       .trigger('mousedown', { button: 0, force: true })
-      .trigger('dragstart')
+      .trigger('dragstart', { force: true })
       .trigger('mousemove', { clientX: 486, force: true })
       .wait('@resourceRequest');
 
@@ -319,7 +319,7 @@ When(
       .eq(4)
       .find('.react-resizable-handle-se')
       .trigger('mousedown', { button: 0, force: true })
-      .trigger('dragstart')
+      .trigger('dragstart', { force: true })
       .trigger('mousemove', { clientX: 486, force: true });
 
     cy.get('.react-grid-item').eq(4).realClick();
@@ -329,7 +329,7 @@ When(
       .find('[data-testid*="_move_panel"]')
       .then((element) => {
         cy.wrap(element)
-          .trigger('dragstart')
+          .trigger('dragstart', { force: true })
           .trigger('mousedown', { button: 0, force: true })
           .trigger('mousemove', { clientX: 836, clientY: 840, force: true });
       });
