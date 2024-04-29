@@ -79,7 +79,7 @@ runs:
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
