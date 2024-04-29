@@ -7,6 +7,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Badge, ClickAwayListener } from '@mui/material';
 import type { SvgIcon } from '@mui/material';
 
+import useCloseOnLegacyPage from './useCloseOnLegacyPage';
+
 const useStyles = makeStyles()((theme) => ({
   button: {
     '& > svg': {
@@ -113,8 +115,9 @@ const TopCounterLayout = ({
 }: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
-
   const subMenuId = title.replace(/[^A-Za-z]/, '-');
+
+  useCloseOnLegacyPage({ setToggled });
 
   useEffect(() => {
     const closeMenu = (): void => setToggled(false);
