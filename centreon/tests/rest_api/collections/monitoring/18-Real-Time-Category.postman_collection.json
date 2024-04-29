@@ -1,350 +1,12 @@
 {
 	"info": {
 		"_postman_id": "839939d8-f7c3-466c-a599-f24f6b460568",
-		"name": "18 - NEED FIXES - Real Time Category",
+		"name": "18_Real_Time_Category",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-839939d8-f7c3-466c-a599-f24f6b460568?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-839939d8-f7c3-466c-a599-f24f6b460568?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
-		{
-			"name": "Delete existing hosts",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Show available host for deletion",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
-									"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Deletion of all hosts",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"let hostsCreated = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"\r",
-									"let currentHost = hostsCreated.shift();\r",
-									"pm.collectionVariables.set(\"currentHost\", currentHost);\r",
-									"pm.collectionVariables.set(\"hostsCreated\", hostsCreated);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Host \" + pm.collectionVariables.get(\"currentHost\") + \" has successfully been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
-									"\r",
-									"console.log(host.length);\r",
-									"if (host.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
-									"} else {\r",
-									"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts/{{currentHost}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts",
-								"{{currentHost}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check if there are any host left to delete",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"A list of host has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"\r",
-									"    let hostsCreated = [];\r",
-									"    for(let count = 0; count < responseJson.result.length; count++){\r",
-									"        hostsCreated.push(responseJson.result[count].id);\r",
-									"    }\r",
-									"\r",
-									"    pm.collectionVariables.set(\"hostsCreated\", hostsCreated);\r",
-									"    pm.collectionVariables.set(\"HostTotal\", responseJson.meta.total);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"const host = pm.collectionVariables.get(\"hostsCreated\");\r",
-									"const HostTotal = pm.collectionVariables.get(\"HostTotal\");\r",
-									"\r",
-									"console.log(host.length);\r",
-									"if (host.length > 0) {\r",
-									"    postman.setNextRequest(\"Deletion of all hosts\");\r",
-									"} else if (HostTotal > 0) {\r",
-									"    postman.setNextRequest(\"Check if there are any host left to delete\");\r",
-									"}\r",
-									"else {\r",
-									"    pm.collectionVariables.unset(\"currentHost\");\r",
-									"    pm.collectionVariables.unset(\"hostsCreated\");\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/hosts",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"hosts"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout from admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-									"    pm.environment.unset(\"token\");\r",
-									"    pm.environment.unset(\"currentUserName\");\r",
-									"    pm.environment.unset(\"currentUserID\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-AUTH-TOKEN",
-									"type": "string"
-								},
-								{
-									"key": "in",
-									"value": "header",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"logout"
-							],
-							"variable": [
-								{
-									"key": "protocol",
-									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)"
-								},
-								{
-									"key": "server",
-									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server"
-								},
-								{
-									"key": "port",
-									"value": "{{port}}",
-									"description": "Port used by HTTP server"
-								},
-								{
-									"key": "version",
-									"value": "{{version}}",
-									"description": "Version of the API"
-								}
-							]
-						},
-						"description": "Entry point to delete an existing authentication token."
-					},
-					"response": []
-				}
-			]
-		},
 		{
 			"name": "1801 - Real Time Category By admin",
 			"item": [
@@ -619,7 +281,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host Category (successful)",
+					"name": "Add a first host Category (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -679,7 +341,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new host Category disabled (successful)",
+					"name": "Add a second host Category (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -689,7 +351,8 @@
 									"pm.collectionVariables.set(\"HostCategory2Alias\", \"I'm a host Category!\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -707,13 +370,14 @@
 									"        \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"HostCategory2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostCategory2Alias\"),\r",
-									"        \"is_activated\": false,\r",
+									"        \"is_activated\": true,\r",
 									"        \"comment\":\"I look like a category\"\r",
 									"    });\r",
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -722,7 +386,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{HostCategory2Name}}\",\r\n    \"alias\":\"{{HostCategory2Alias}}\",\r\n    \"is_activated\": false,\r\n    \"comment\":\"I look like a category\"\r\n}"
+							"raw": "{\r\n    \"name\":\"{{HostCategory2Name}}\",\r\n    \"alias\":\"{{HostCategory2Alias}}\",\r\n    \"is_activated\": true,\r\n    \"comment\":\"I look like a category\"\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -739,7 +403,69 @@
 					"response": []
 				},
 				{
-					"name": "Add a new service Category (successful)",
+					"name": "Add a third host Category disabled (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostCategory3Name\", \"Test_H_Category_3\");\r",
+									"pm.collectionVariables.set(\"HostCategory3Alias\", \"I'm a host Category!\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host Category has been successfully created, with name '\" + pm.collectionVariables.get(\"HostCategory3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"HostCategory3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new host Category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"HostCategory3Id\", response.id);\r",
+									"    \r",
+									"    pm.expect(response).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"HostCategory3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"HostCategory3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"HostCategory3Alias\"),\r",
+									"        \"is_activated\": false,\r",
+									"        \"comment\":\"I look like a category\"\r",
+									"    });\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"{{HostCategory3Name}}\",\r\n    \"alias\":\"{{HostCategory3Alias}}\",\r\n    \"is_activated\": false,\r\n    \"comment\":\"I look like a category\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a first service Category (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -857,6 +583,67 @@
 					"response": []
 				},
 				{
+					"name": "Add a third service Category (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory3Name\", \"Test_S_Category_3\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory3Alias\", \"I'm a service Category!\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service Category has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory3Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory3Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service Category\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory3Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory3Alias\"),\r",
+									"        \"is_activated\": true\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"{{ServiceCategory3Name}}\",\r\n    \"alias\":\"{{ServiceCategory3Alias}}\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a host",
 					"event": [
 						{
@@ -866,7 +653,8 @@
 									"pm.collectionVariables.set(\"Host1Name\", \"host_1\");\r",
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -924,6 +712,10 @@
 									"            {\r",
 									"                \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"                \"name\": pm.collectionVariables.get(\"HostCategory1Name\"),\r",
+									"            },\r",
+									"            {\r",
+									"                \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"HostCategory2Name\"),\r",
 									"            }\r",
 									"        ],\r",
 									"        \"groups\": [],\r",
@@ -941,7 +733,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -950,7 +743,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"categories\": [ {{HostCategory1Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"categories\": [ {{HostCategory1Id}}, {{HostCategory2Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -975,7 +768,8 @@
 									"pm.collectionVariables.set(\"Service1Name\", \"service_001\");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1035,6 +829,10 @@
 									"            {\r",
 									"                \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"                \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\"),\r",
+									"            },\r",
+									"            {\r",
+									"                \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
+									"                \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\"),\r",
 									"            }\r",
 									"        ],\r",
 									"        \"groups\": []\r",
@@ -1042,7 +840,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1051,7 +850,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Service1Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"service_categories\": [ {{ServiceCategory1Id}} ],\r\n    \"max_check_attempts\": 1\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service1Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"service_categories\": [ {{ServiceCategory1Id}},  {{ServiceCategory3Id}}],\r\n    \"max_check_attempts\": 1\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -1125,7 +924,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1153,16 +953,22 @@
 									"    pm.test(\"Host categories have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
 									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"HostCategory2Name\")\r",
+									"        });\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1199,7 +1005,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1227,16 +1034,22 @@
 									"    pm.test(\"Service categories have been successfully retrieved\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0]).to.include({\r",
 									"            \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"            \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\")\r",
 									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\")\r",
+									"        });\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1678,6 +1491,57 @@
 					"response": []
 				},
 				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Logout from admin user (successful)",
 					"event": [
 						{
@@ -2093,6 +1957,625 @@
 					"response": []
 				},
 				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check the host categories retrieved by user non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length === 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the host categories retrieved by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Host categories have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostCategory1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"HostCategory1Name\")\r",
+									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"HostCategory2Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"HostCategory2Name\")\r",
+									"        });\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check the service categories retrieved by user non-admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length === 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Check the service categories retrieved by user non-admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"Service categories have been successfully retrieved\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"\r",
+									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"        pm.expect(responseJson.result[0]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\")\r",
+									"        });\r",
+									"\r",
+									"        pm.expect(responseJson.result[1]).to.include({\r",
+									"            \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\")\r",
+									"        });\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1805 - Real Time Category by user-non-admin with filter on categories",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a host category filter (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host category filter has been successfully added to the ACL Resources.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addfilter_hostcategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{HostCategory1Name}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a service category filter (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service category filter has been successfully added to the ACL Resources.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addfilter_servicecategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{ServiceCategory3Name}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Logout from admin user (successful)",
 					"event": [
 						{
@@ -2297,7 +2780,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2324,13 +2808,14 @@
 									"        pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
-									"            \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\")\r",
+									"            \"id\": pm.collectionVariables.get(\"ServiceCategory3Id\"),\r",
+									"            \"name\": pm.collectionVariables.get(\"ServiceCategory3Name\")\r",
 									"        });\r",
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2476,10 +2961,6 @@
 	],
 	"variable": [
 		{
-			"key": "HostTotal",
-			"value": ""
-		},
-		{
 			"key": "Command1Name",
 			"value": ""
 		},
@@ -2536,6 +3017,18 @@
 			"value": ""
 		},
 		{
+			"key": "HostCategory3Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory3Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory3Id",
+			"value": ""
+		},
+		{
 			"key": "ServiceCategory1Name",
 			"value": ""
 		},
@@ -2560,6 +3053,18 @@
 			"value": ""
 		},
 		{
+			"key": "ServiceCategory3Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory3Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory3Id",
+			"value": ""
+		},
+		{
 			"key": "Host1Name",
 			"value": ""
 		},
@@ -2580,10 +3085,6 @@
 			"value": ""
 		},
 		{
-			"key": "api_login_user_non_admin",
-			"value": ""
-		},
-		{
 			"key": "expectedHttpStatus",
 			"value": ""
 		},
@@ -2593,6 +3094,10 @@
 		},
 		{
 			"key": "sleepBetweenTries",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_non_admin",
 			"value": ""
 		}
 	]

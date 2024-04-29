@@ -1,10 +1,10 @@
 {
 	"info": {
 		"_postman_id": "ff51eb75-3109-4d36-b1fb-aff3c592251d",
-		"name": "23 - NEED FIXES - Comment",
+		"name": "23_Comment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -601,7 +601,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -615,7 +616,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if ((responseJson.result.length == 0 && pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -633,7 +634,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -671,7 +673,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -685,7 +688,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && responseJson.result.length == 0) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
+									"if ((responseJson.result.length == 0 && pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -703,7 +706,8 @@
 									"    });\r",
 									"}"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2739,6 +2743,76 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "Host1Name",
+			"value": ""
+		},
+		{
+			"key": "Host1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host1Id",
+			"value": ""
+		},
+		{
+			"key": "Service1Name",
+			"value": ""
+		},
+		{
+			"key": "Service1Id",
+			"value": ""
+		},
+		{
+			"key": "expectedHttpStatus",
+			"value": ""
+		},
+		{
+			"key": "maxNumberOfTries",
+			"value": ""
+		},
+		{
+			"key": "sleepBetweenTries",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_non_admin",
+			"value": ""
 		}
 	]
 }

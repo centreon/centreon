@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "aaa349fc-15d8-4ee9-8339-3665430e8a77",
-		"name": "17 - NEED FIXES - Real Time Severity",
+		"name": "17_Real_Time_Severity",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-aaa349fc-15d8-4ee9-8339-3665430e8a77?action=share&source=collection_link&creator=16182525"

@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "7db37a35-c0bd-42d9-81e8-267a6a9693f7",
-		"name": "07 - NEED FIXES - Acknowledgement",
+		"name": "07_Acknowledgement",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
