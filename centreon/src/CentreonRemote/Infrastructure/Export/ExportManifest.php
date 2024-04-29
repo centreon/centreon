@@ -33,7 +33,7 @@ class ExportManifest
     public const ERR_CODE_MANIFEST_WRONG_FORMAT = 1002;
     public const ERR_CODE_INCOMPATIBLE_VERSIONS = 1005;
 
-    /** @var \CentreonRemote\Infrastructure\Export\ExportCommitment */
+    /** @var ExportCommitment */
     private $commitment;
 
     /** @var string */

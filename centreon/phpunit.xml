@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" colors="true" bootstrap="tests/php/bootstrap.php" failOnRisky="true" failOnWarning="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" backupGlobals="false" colors="true" bootstrap="tests/php/bootstrap.php" failOnRisky="true" failOnWarning="true">
   <coverage>
-    <include>
-      <directory>./src/</directory>
-    </include>
-    <exclude>
-      <directory>./src/*/Tests</directory>
-      <directory>./src/*/Domain/Entity</directory>
-      <directory>./src/*/Domain/Resources</directory>
-      <directory>./src/*/Infrastructure/Entity</directory>
-    </exclude>
     <report>
       <html outputDirectory="./coverage-report" lowUpperBound="50" highLowerBound="80"/>
     </report>
@@ -47,4 +38,15 @@
     </exclude>
   </groups>
   <logging/>
+  <source>
+    <include>
+      <directory>./src/</directory>
+    </include>
+    <exclude>
+      <directory>./src/*/Tests</directory>
+      <directory>./src/*/Domain/Entity</directory>
+      <directory>./src/*/Domain/Resources</directory>
+      <directory>./src/*/Infrastructure/Entity</directory>
+    </exclude>
+  </source>
 </phpunit>

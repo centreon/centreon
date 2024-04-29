@@ -9,10 +9,11 @@ import {
   identity,
   includes,
   pipe,
-  map
+  map,
+  toPairs
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
 import { Resource, SeverityStatus } from './models';
 
@@ -22,7 +23,7 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
+      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
   );
 
 const serviceCriteria = {
@@ -219,8 +220,8 @@ export const formatStatusFilter = cond([
   [equals(SeverityStatus.Problem), always(['down', 'critical'])],
   [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
   [equals(SeverityStatus.Pending), always(['pending'])],
-  [T, always([])]
-]);
+  [T, identity]
+]) as (b: SeverityStatus) => Array<string>;
 
 export const formatStatus = pipe(
   map(formatStatusFilter),
@@ -230,4 +231,95 @@ export const formatStatus = pipe(
 
 export const goToUrl = (url) => (): void => {
   window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
+
+const isTypeHost = equals('host');
+
+interface GetStatusNameByStatusSeverityandResourceTypeProps {
+  resourceType: string;
+  status: SeverityStatus;
+}
+
+export const getStatusNameByStatusSeverityandResourceType = ({
+  resourceType,
+  status
+}: GetStatusNameByStatusSeverityandResourceTypeProps): string =>
+  cond([
+    [
+      equals(SeverityStatus.Success),
+      always(isTypeHost(resourceType) ? 'up' : 'ok')
+    ],
+    [equals(SeverityStatus.Warning), always('warning')],
+    [
+      equals(SeverityStatus.Problem),
+      always(isTypeHost(resourceType) ? 'down' : 'critical')
+    ],
+    [
+      equals(SeverityStatus.Undefined),
+      always(isTypeHost(resourceType) ? 'unreachable' : 'unknown')
+    ],
+    [equals(SeverityStatus.Pending), always('pending')]
+  ])(status);
+
+export const severityCodeBySeverityStatus = {
+  [SeverityStatus.Problem]: SeverityCode.High,
+  [SeverityStatus.Warning]: SeverityCode.Medium,
+  [SeverityStatus.Success]: SeverityCode.OK,
+  [SeverityStatus.Undefined]: SeverityCode.None,
+  [SeverityStatus.Pending]: SeverityCode.Pending
+};
+
+export const severityStatusBySeverityCode = {
+  [SeverityCode.High]: SeverityStatus.Problem,
+  [SeverityCode.Medium]: SeverityStatus.Warning,
+  [SeverityCode.OK]: SeverityStatus.Success,
+  [SeverityCode.None]: SeverityStatus.Undefined,
+  [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
 };

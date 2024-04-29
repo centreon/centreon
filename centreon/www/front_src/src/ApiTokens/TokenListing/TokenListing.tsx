@@ -1,9 +1,10 @@
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import pluralize from 'pluralize';
 
 import Divider from '@mui/material/Divider';
 
-import { MemoizedListing as Listing } from '@centreon/ui';
+import { MemoizedListing as Listing, useResizeObserver } from '@centreon/ui';
 
 import TokenCreationButton from '../TokenCreation';
 import { labelApiToken } from '../translatedLabels';
@@ -16,10 +17,18 @@ import { selectedRowAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
 
-const TokenListing = (): JSX.Element | null => {
+interface Props {
+  id: string;
+}
+
+const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const setSelectRow = useSetAtom(selectedRowAtom);
+
+  const { width } = useResizeObserver<HTMLElement>({
+    ref: document.getElementById(id)
+  });
 
   const {
     dataListing,
@@ -40,7 +49,7 @@ const TokenListing = (): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
-      <Title msg={t(labelApiToken)} />
+      <Title msg={pluralize(t(labelApiToken))} />
       <Divider className={classes.divider} />
       <Listing
         innerScrollDisabled
@@ -50,15 +59,17 @@ const TokenListing = (): JSX.Element | null => {
             refresh={
               <Refresh isLoading={dataListing?.isLoading} onRefresh={refetch} />
             }
+            width={width}
           />
         }
-        actionsBarMemoProps={[dataListing?.isLoading]}
+        actionsBarMemoProps={[dataListing?.isLoading, width]}
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
         currentPage={(dataListing?.page || 1) - 1}
         getId={({ name, user }) => `${name}-${user.id}`}
         limit={dataListing?.limit}
         loading={dataListing?.isLoading}
+        memoProps={[width]}
         rows={dataListing?.rows}
         sortField={sortedField}
         sortOrder={sortOrder}

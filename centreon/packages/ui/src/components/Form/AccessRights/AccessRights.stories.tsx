@@ -47,7 +47,6 @@ export const Default: Story = {
     },
     initialValues: defaultAccessRights,
     labels,
-    link: 'link',
     roles,
     submit: () => undefined
   },
@@ -63,7 +62,6 @@ export const AccessRightsWithStates: Story = {
     },
     initialValues: accessRightsWithStates,
     labels,
-    link: 'link',
     roles,
     submit: () => undefined
   },
@@ -78,22 +76,6 @@ export const withEmptyState: Story = {
       contactGroup: '/contactGroup'
     },
     initialValues: emptyAccessRights,
-    labels,
-    link: 'link',
-    roles,
-    submit: () => undefined
-  },
-  render: Template
-};
-
-export const withoutLink: Story = {
-  args: {
-    cancel: () => undefined,
-    endpoints: {
-      contact: '/contact',
-      contactGroup: '/contactGroup'
-    },
-    initialValues: defaultAccessRights,
     labels,
     roles,
     submit: () => undefined
@@ -110,7 +92,6 @@ export const loading: Story = {
     },
     initialValues: emptyAccessRights,
     labels,
-    link: 'link',
     loading: true,
     roles,
     submit: () => undefined

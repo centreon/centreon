@@ -7,6 +7,7 @@ import {
   waitFor,
   screen
 } from '@centreon/ui/test/testRenderer';
+import { federatedModulesAtom } from '@centreon/ui-context';
 
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
 import navigationAtom from '../../Navigation/navigationAtoms';
@@ -15,7 +16,6 @@ import {
   retrievedNavigationWithAnEmptySet
 } from '../../Navigation/mocks';
 import { retrievedFederatedModule } from '../../federatedModules/mocks';
-import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 
 import ReactRouter from '.';

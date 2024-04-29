@@ -55,7 +55,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     /**
      * Register Centreon Remote services.
      *
-     * @param \Pimple\Container $pimple
+     * @param Container $pimple
      */
     public function register(Container $pimple): void
     {
@@ -71,7 +71,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ->add(Webservice\CentreonConfigurationRemote::class)
             ->add(Webservice\CentreonConfigurationTopology::class)
             ->add(Webservice\CentreonTaskService::class)
-            ->add(WebService\CentreonAclWebservice::class);
+            ->add(Webservice\CentreonAclWebservice::class);
 
         $pimple[\Centreon\ServiceProvider::CENTREON_CLAPI]->add(Clapi\CentreonRemoteServer::class);
         $pimple[\Centreon\ServiceProvider::CENTREON_CLAPI]->add(Clapi\CentreonWorker::class);

@@ -1,14 +1,12 @@
-import { useSetAtom } from 'jotai';
 import { includes, isNotNil } from 'ramda';
 
 import { MemoizedListing } from '@centreon/ui';
 
 import NoResources from '../../NoResources';
 
-import { WidgetProps } from './models';
+import { FormattedGroup, WidgetProps } from './models';
 import { useGroupMonitoring } from './useGroupMonitoring';
 import { useColumns } from './Columns/useColumns';
-import { statusesAtom } from './atoms';
 
 const GroupMonitoring = ({
   panelData,
@@ -16,10 +14,11 @@ const GroupMonitoring = ({
   panelOptions,
   refreshCount,
   isFromPreview,
-  setPanelOptions
+  setPanelOptions,
+  id,
+  dashboardId,
+  playlistHash
 }: Omit<WidgetProps, 'store'>): JSX.Element => {
-  const setStatuses = useSetAtom(statusesAtom);
-
   const {
     hasResourceTypeDefined,
     changeLimit,
@@ -34,10 +33,13 @@ const GroupMonitoring = ({
     groupType,
     groupTypeName
   } = useGroupMonitoring({
+    dashboardId,
     globalRefreshInterval,
+    id,
     isFromPreview,
     panelData,
     panelOptions,
+    playlistHash,
     refreshCount,
     setPanelOptions
   });
@@ -47,8 +49,6 @@ const GroupMonitoring = ({
     groupTypeName,
     isFromPreview
   });
-
-  setStatuses(panelOptions.statuses || []);
 
   if (!hasResourceTypeDefined) {
     return <NoResources />;
@@ -61,7 +61,7 @@ const GroupMonitoring = ({
   ].filter(isNotNil);
 
   return (
-    <MemoizedListing
+    <MemoizedListing<FormattedGroup>
       isResponsive
       columnConfiguration={{
         selectedColumnIds: columnsToDisplay,
@@ -71,7 +71,6 @@ const GroupMonitoring = ({
       currentPage={page}
       limit={limit}
       loading={isLoading}
-      memoProps={[panelOptions.statuses]}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}

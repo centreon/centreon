@@ -174,7 +174,7 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     $errorMessage = 'Unable to create dataset_filters configuration table';
     $pearDB->query(
         <<<SQL
-        CREATE TABLE `dataset_filters` (
+        CREATE TABLE IF NOT EXISTS `dataset_filters` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) DEFAULT NULL,
             `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
@@ -185,6 +185,16 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
             CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
             CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        SQL
+    );
+};
+
+$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
+    $pearDB->query(
+        <<<SQL
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
         SQL
     );
 };
@@ -202,6 +212,78 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
     }
 };
 
+$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to alter created_at for task table';
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+};
+
+$insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-statuschart')
+                SQL
+        );
+    }
+};
+
+$removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to remove the dashboard beta tag';
+    $pearDB->query(
+        <<<SQL
+            UPDATE topology
+            SET topology_url_opt=NULL
+            WHERE topology_name='Dashboards'
+            AND topology_url_opt = 'Beta'
+            SQL
+    );
+};
+
+$updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update topology_url_substitute to NULL for host group configuration page (60102)';
+    $pearDB->query(
+        <<<SQL
+            UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
+            SQL
+    );
+};
+
+$updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to change resourceIds column type from VARCHAR to TEXT';
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `resource_ids` TEXT DEFAULT NULL
+            SQL
+    );
+};
+
+$addAllContactsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contacts to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contacts')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contacts` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
+        );
+    }
+};
+
+$addAllContactGroupsColumnToAclGroups = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to add the colum all_contact_groups to the table acl_groups';
+    if(! $pearDB->isColumnExist(table: 'acl_groups', column: 'all_contact_groups')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `acl_groups` ADD COLUMN `all_contact_groups` TINYINT(1) DEFAULT 0 NOT NULL
+            SQL
+        );
+    }
+};
+
 try {
     $updateWidgetModelsTable($pearDB);
 
@@ -214,6 +296,12 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+    $alterTypeDefinitionDatasetFilterTable($pearDB);
+
+    $addDefaultValueforTaskTable($pearDB);
+    $updateDatasetFilterResourceIdsColumn($pearDB);
+    $addAllContactsColumnToAclGroups($pearDB);
+    $addAllContactGroupsColumnToAclGroups($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -224,10 +312,15 @@ try {
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
     $insertGroupMonitoringWidget($pearDB);
+    $insertStatusChartWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 
     $updateTopologyForApiTokens($pearDB);
+
+    $removeBetaTagFromDashboards($pearDB);
+
+    $updateHostGroupsTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

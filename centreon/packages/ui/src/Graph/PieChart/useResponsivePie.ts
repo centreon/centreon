@@ -1,4 +1,4 @@
-import { equals, isEmpty, pluck, reject } from 'ramda';
+import { equals, pluck, reject } from 'ramda';
 
 import { LegendScale } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
@@ -16,7 +16,6 @@ interface ResponsivePieProps {
 }
 
 interface ResponsivePieState {
-  areAllValuesNull: boolean;
   half: number;
   innerRadius: number;
   isContainsExactlyOneNonZeroValue: boolean;
@@ -41,12 +40,11 @@ export const useResponsivePie = ({
   const horizontalGap = widthOfLegend > 0 ? 16 : 0;
   const verticalGap = heightOfTitle > 0 ? 8 : 0;
 
-  const svgWrapperWidth = width - widthOfLegend - horizontalGap;
-
   const svgContainerSize = Math.min(
     height - heightOfTitle - verticalGap,
     width - widthOfLegend - horizontalGap
   );
+  const svgWrapperWidth = svgContainerSize;
 
   const outerRadius = Math.min(32, svgContainerSize / 6);
 
@@ -70,10 +68,7 @@ export const useResponsivePie = ({
     1
   );
 
-  const areAllValuesNull = isEmpty(reject((value) => equals(value, 0), values));
-
   return {
-    areAllValuesNull,
     half,
     innerRadius,
     isContainsExactlyOneNonZeroValue,

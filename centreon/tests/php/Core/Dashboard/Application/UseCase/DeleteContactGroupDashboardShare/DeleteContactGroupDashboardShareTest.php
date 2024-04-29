@@ -40,6 +40,7 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactGroupDashboardSharePresenterStub();
@@ -48,14 +49,15 @@ beforeEach(closure: function (): void {
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardShareRepository = $this->createMock(WriteDashboardShareRepositoryInterface::class),
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->testedDashboard = new Dashboard(
         random_int(1, 1_000_000),
         uniqid('dashboard_', true),
-        '',
         null,
         null,
         new \DateTimeImmutable(),
@@ -168,6 +170,8 @@ it(
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canDeleteShare')->willReturn(true);
+        $this->readContactGroupRepository->expects($this->once())->method('existsInAccessGroups')
+            ->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->readContactGroupRepository->expects($this->once())->method('find')

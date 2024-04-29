@@ -3,7 +3,8 @@
     "path": "/widgets/resourcestable",
     "federatedComponents": [
       "./resourcestable"
-    ]
+    ],
+    "panelMinWidth": 6
   }],
   "moduleFederationName": "widgetresourcestable",
   "moduleName": "centreon-widget-resourcestable"

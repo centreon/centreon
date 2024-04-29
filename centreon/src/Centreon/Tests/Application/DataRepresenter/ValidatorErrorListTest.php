@@ -42,7 +42,7 @@ use Centreon\Application\DataRepresenter\ValidatorErrorList;
 
 class ValidatorErrorListTest extends TestCase
 {
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $field = 'input-field';
         $msg1 = 'error N1';

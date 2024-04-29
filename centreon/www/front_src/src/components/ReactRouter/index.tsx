@@ -7,13 +7,15 @@ import { animated, useTransition } from '@react-spring/web';
 
 import { styled } from '@mui/material';
 
-import { featureFlagsDerivedAtom } from '@centreon/ui-context';
+import {
+  featureFlagsDerivedAtom,
+  federatedModulesAtom
+} from '@centreon/ui-context';
 import { PageSkeleton, useMemoComponent } from '@centreon/ui';
 
 import internalPagesRoutes from '../../reactRoutes';
 import BreadcrumbTrail from '../../BreadcrumbTrail';
 import useNavigation from '../../Navigation/useNavigation';
-import { federatedModulesAtom } from '../../federatedModules/atoms';
 import { FederatedModule } from '../../federatedModules/models';
 import { Remote } from '../../federatedModules/Load';
 import routeMap from '../../reactRoutes/routeMap';

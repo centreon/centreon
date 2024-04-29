@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 
 import { Box, Typography, useTheme } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { useStatusesColumnStyles } from '../Columns.styles';
-import { getResourcesUrl, goToUrl } from '../../../../utils';
-import { SeverityStatus } from '../../../../models';
+import {
+  formatStatusFilter,
+  goToUrl,
+  severityStatusBySeverityCode
+} from '../../../../utils';
 
 interface Props {
   count: number;
@@ -18,14 +21,6 @@ interface Props {
   resourceType: string;
   severityCode: number;
 }
-
-const severityStatus = {
-  [SeverityCode.High]: SeverityStatus.Problem,
-  [SeverityCode.Medium]: SeverityStatus.Warning,
-  [SeverityCode.OK]: SeverityStatus.Success,
-  [SeverityCode.None]: SeverityStatus.Undefined,
-  [SeverityCode.Pending]: SeverityStatus.Pending
-};
 
 const Status = ({
   severityCode,
@@ -53,7 +48,7 @@ const Status = ({
     ],
     isForOneResource: false,
     states: [],
-    statuses: [severityStatus[severityCode]],
+    statuses: formatStatusFilter(severityStatusBySeverityCode[severityCode]),
     type: resourceType
   });
 

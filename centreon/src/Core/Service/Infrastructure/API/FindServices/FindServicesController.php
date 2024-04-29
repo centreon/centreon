@@ -25,7 +25,6 @@ namespace Core\Service\Infrastructure\API\FindServices;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Service\Application\UseCase\FindServices\FindServices;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -36,7 +35,6 @@ final class FindServicesController extends AbstractController
      * @param FindServicesOnPremPresenter $onPremPresenter
      * @param FindServicesSaasPresenter $saasPresenter
      * @param bool $isCloudPlatform
-     * @param Request $request
      *
      * @throws AccessDeniedException
      *
@@ -47,7 +45,6 @@ final class FindServicesController extends AbstractController
         FindServicesOnPremPresenter $onPremPresenter,
         FindServicesSaasPresenter $saasPresenter,
         bool $isCloudPlatform,
-        Request $request,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

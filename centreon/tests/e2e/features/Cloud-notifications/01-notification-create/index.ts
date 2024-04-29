@@ -8,9 +8,11 @@ import {
   enableNotificationFeature,
   notificationSentCheck,
   setBrokerNotificationsOutput,
-  waitUntilLogFileChange
+  waitUntilLogFileChange,
+  initializeDataFiles
 } from '../common';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
 let globalResourceType = '';
 let globalContactSettings = '';
@@ -36,6 +38,9 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/users?page=1*'
   }).as('getUsers');
+
+  globalResourceType = '';
+  globalContactSettings = '';
 });
 
 afterEach(() => {
@@ -50,10 +55,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given(
   'a {string} with hosts and {string}',
   (resourceType: string, contactSettings: string) => {
@@ -61,7 +62,7 @@ Given(
     globalContactSettings = contactSettings;
 
     switch (contactSettings) {
-      case 'a single contact':
+      case 'one contact':
         cy.addContact({
           email: data.contacts.contact1.email,
           name: data.contacts.contact1.name,
@@ -142,11 +143,10 @@ Given(
 
 When('the user defines a name for the rule', () => {
   cy.contains('Add').click();
-  cy.get('#Notificationname')
-    .click()
-    .type(
-      `Notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  const notificationName = globalResourceType
+    ? `Notification for ${globalResourceType} and ${globalContactSettings}`
+    : `Notification for 1000 services`;
+  cy.get('#Notificationname').type(notificationName);
 });
 
 When(
@@ -177,7 +177,7 @@ When(
 
 When('the user selects the {string}', (contactSettings: string) => {
   switch (contactSettings) {
-    case 'a single contact':
+    case 'one contact':
       cy.get('#Searchcontacts').click();
       cy.wait('@getUsers');
       cy.contains(data.contacts.contact1.name).click();
@@ -194,21 +194,17 @@ When('the user selects the {string}', (contactSettings: string) => {
 });
 
 When('the user defines a mail subject', () => {
-  cy.getByLabel({ label: 'Subject' })
-    .click()
-    .clear()
-    .type(
-      `Subject notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  const subject = globalResourceType
+    ? `{selectAll}{backspace}Subject notification for ${globalResourceType} and ${globalContactSettings}`
+    : `{selectAll}{backspace}Subject notification for 1000 services`;
+  cy.getByLabel({ label: 'Subject' }).type(subject);
 });
 
 When('the user defines a mail body', () => {
-  cy.getByLabel({ label: 'EmailBody' })
-    .click()
-    .clear()
-    .type(
-      `Body notification for ${globalResourceType} and ${globalContactSettings}`
-    );
+  const body = globalResourceType
+    ? `{selectAll}{backspace}Body notification for ${globalResourceType} and ${globalContactSettings}`
+    : `{selectAll}{backspace}Body notification for 1000 services`;
+  cy.getByLabel({ label: 'EmailBody' }).type(body);
 });
 
 When('the user clicks on the "Save" button to confirm', () => {
@@ -222,9 +218,13 @@ Then(
       'have.text',
       'The notification was successfully added'
     );
-    cy.contains(
-      `Notification for ${globalResourceType} and ${globalContactSettings}`
-    ).should('exist');
+
+    cy.wait('@getNotifications');
+
+    const notificationName = globalResourceType
+      ? `Notification for ${globalResourceType} and ${globalContactSettings}`
+      : `Notification for 1000 services`;
+    cy.contains(notificationName).should('exist');
   }
 );
 
@@ -292,7 +292,12 @@ When('the hard state has been reached', () => {
       ]);
       break;
     default:
-      throw new Error(`${globalResourceType} not managed`);
+      const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
+        name: `service_${i + 1}`,
+        status: 'ok',
+        statusType: 'hard'
+      }));
+      checkServicesAreMonitored(servicesToBeChecked);
   }
 });
 
@@ -304,22 +309,184 @@ Then(
   'an email is sent to the configured {string} with the configured format',
   (contactSettings) => {
     switch (contactSettings) {
-      case 'a single contact':
-        notificationSentCheck({ log: `<<${data.hosts.host2.name}>>` });
+      case 'one contact':
+        if (globalResourceType) {
+          notificationSentCheck({ logs: `<<${data.hosts.host2.name}>>` });
+        } else {
+          const logsToCheck = Array.from(
+            { length: 1000 },
+            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
+          );
+          notificationSentCheck({ logs: logsToCheck });
+        }
         notificationSentCheck({
-          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
+          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"}]`
         });
         break;
       case 'two contacts':
+        if (globalResourceType) {
+          notificationSentCheck({
+            logs: `<<${data.hosts.host1.name}/${data.services.service1.name}`
+          });
+        } else {
+          const logsToCheck = Array.from(
+            { length: 1000 },
+            (_, i) => `<<${data.hosts.host1.name}/service_${i + 1}`
+          );
+          notificationSentCheck({ logs: logsToCheck });
+        }
         notificationSentCheck({
-          log: `<<${data.hosts.host1.name}/${data.services.service1.name}`
-        });
-        notificationSentCheck({
-          log: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
+          logs: `[{"email_address":"${data.contacts.contact1.email}","full_name":"${data.contacts.contact1.name}"},{"email_address":"${data.contacts.contact2.email}","full_name":"${data.contacts.contact2.name}"}]`
         });
         break;
       default:
         throw new Error(`${contactSettings} not managed`);
     }
+  }
+);
+
+Given(
+  'a minimum of 1000 services linked to a host group and {string}',
+  (contactSettings) => {
+    switch (contactSettings) {
+      case 'one contact':
+        cy.addContact({
+          email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
+          password: data.contacts.contact1.password
+        });
+        break;
+      case 'two contacts':
+        cy.addContact({
+          email: data.contacts.contact1.email,
+          name: data.contacts.contact1.name,
+          password: data.contacts.contact1.password
+        });
+        cy.addContact({
+          email: data.contacts.contact2.email,
+          name: data.contacts.contact2.name,
+          password: data.contacts.contact2.password
+        });
+        break;
+      default:
+        throw new Error(`${contactSettings} not managed`);
+    }
+
+    cy.addHostGroup({
+      name: data.hostGroups.hostGroup1.name
+    });
+
+    cy.addHost({
+      activeCheckEnabled: false,
+      checkCommand: 'check_centreon_cpu',
+      hostGroup: data.hostGroups.hostGroup1.name,
+      name: data.hosts.host1.name,
+      template: 'generic-host'
+    }).applyPollerConfiguration();
+
+    checkHostsAreMonitored([
+      {
+        name: data.hosts.host1.name
+      }
+    ]);
+
+    initializeDataFiles();
+
+    cy.copyToContainer({
+      destination:
+        '/bitnami/mariadb/data/centreon_storage/centreon_storage_services.txt',
+      source: './fixtures/notifications/centreon_storage_services.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query_centreon_storage_service = `LOAD DATA INFILE 'centreon_storage_services.txt' 
+    INTO TABLE services
+    FIELDS TERMINATED BY '\t' 
+    LINES TERMINATED BY '\n'
+    (host_id, description, service_id, acknowledged, acknowledgement_type, action_url, active_checks, check_attempt, check_command, check_freshness, check_interval, check_period, check_type, checked, default_active_checks, default_event_handler_enabled, default_flap_detection, default_notify, default_passive_checks, display_name, enabled, event_handler, event_handler_enabled, execution_time, first_notification_delay, flap_detection, flap_detection_on_critical, flap_detection_on_ok, flap_detection_on_unknown, flap_detection_on_warning, flapping, freshness_threshold, high_flap_threshold, icon_image, icon_image_alt, last_hard_state, last_update, latency, low_flap_threshold, max_check_attempts, next_check, no_more_notifications, notification_interval, notification_number, notification_period, notify, notify_on_critical, notify_on_downtime, notify_on_flapping, notify_on_recovery, notify_on_unknown, notify_on_warning, obsess_over_service, output, passive_checks, percent_state_change, perfdata, retain_nonstatus_information, retain_status_information, retry_interval, scheduled_downtime_depth, should_be_scheduled, stalk_on_critical, stalk_on_ok, stalk_on_unknown, stalk_on_warning, state, state_type, volatile);    
+    `;
+    cy.requestOnDatabase({
+      database: 'centreon_storage',
+      query: query_centreon_storage_service
+    });
+
+    cy.copyToContainer({
+      destination: '/bitnami/mariadb/data/centreon/centreon_services.txt',
+      source: './fixtures/notifications/centreon_services.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query_centreon_service = `LOAD DATA INFILE 'centreon_services.txt'
+    INTO TABLE service
+    FIELDS TERMINATED BY '\t'
+    LINES TERMINATED BY '\n'
+    (service_id, service_template_model_stm_id, service_description, service_is_volatile, service_max_check_attempts, service_active_checks_enabled, service_passive_checks_enabled, service_parallelize_check, service_obsess_over_service, service_check_freshness, service_event_handler_enabled, service_flap_detection_enabled, service_process_perf_data, service_retain_status_information, service_retain_nonstatus_information, service_notifications_enabled, contact_additive_inheritance, cg_additive_inheritance, service_inherit_contacts_from_host, service_use_only_contacts_from_host, service_locked, service_register, service_activate)`;
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: query_centreon_service
+    });
+
+    cy.copyToContainer({
+      destination: '/bitnami/mariadb/data/centreon/host_service_relation.txt',
+      source: './fixtures/notifications/host_service_relation.txt',
+      name: 'db',
+      type: CopyToContainerContentType.File
+    });
+
+    const query_host_service_relation = `LOAD DATA INFILE 'host_service_relation.txt'
+    INTO TABLE host_service_relation
+    FIELDS TERMINATED BY '\t'
+    LINES TERMINATED BY '\n'
+    (host_host_id,service_service_id)`;
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: query_host_service_relation
+    });
+
+    cy.applyPollerConfiguration();
+
+    const servicesToBeChecked = Array.from({ length: 1000 }, (_, i) => ({
+      name: `service_${i + 1}`
+    }));
+
+    checkServicesAreMonitored(servicesToBeChecked);
+  }
+);
+
+When(
+  'the user selects a host group with its linked services and with associated events on which to notify',
+  () => {
+    cy.get('#Searchhostgroups').click();
+    cy.contains(data.hostGroups.hostGroup1.name).click();
+    cy.get('#Searchhostgroups').blur();
+    cy.contains('Include services for these hosts').click();
+    cy.get('[data-testid="Extra events services"] >').each(($el) => {
+      cy.wrap($el).click();
+    });
+  }
+);
+
+When(
+  'changes occur in the configured statuses for the selected host group',
+  () => {
+    const query = `UPDATE services SET output = 'submit_status', state = 2 WHERE description LIKE 'service_%'`;
+    cy.requestOnDatabase({
+      database: 'centreon_storage',
+      query
+    });
+
+    cy.applyPollerConfiguration();
+
+    cy.fixture('notifications/payload-check.json').then((payloadCheck) => {
+      cy.request({
+        method: 'POST',
+        url: '/centreon/api/latest/monitoring/resources/check',
+        body: payloadCheck
+      }).then((response) => {
+        expect(response.status).to.eq(204);
+      });
+    });
   }
 );

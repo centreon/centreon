@@ -398,7 +398,7 @@ it(
 
         $this->validator
             ->expects($this->once())
-            ->method('assertResourceIdsAreValid')
+            ->method('assertIdsAreValid')
             ->with(
                 $this->request->datasetFilters[0]['type'],
                 $this->request->datasetFilters[0]['resources']
