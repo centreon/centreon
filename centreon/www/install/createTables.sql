@@ -123,7 +123,7 @@ CREATE TABLE `dataset_filters` (
   `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
   `acl_resource_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` varchar(255) DEFAULT NULL,
+  `resource_ids` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
@@ -583,7 +583,7 @@ CREATE TABLE `cfg_nagios` (
   `cfg_file` varchar(255) NOT NULL DEFAULT 'centengine.cfg',
   `log_pid` enum('0','1') DEFAULT '1',
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
-  `macros_filter` TEXT DEFAULT '',
+  `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
@@ -2322,7 +2322,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `status` VARCHAR(40) NOT NULL,
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
-  `created_at` TIMESTAMP NOT NULL
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user_filter table

@@ -426,7 +426,9 @@ class CentreonDB extends \PDO
          */
         if ($res = $this->query("SELECT VERSION() AS mysql_version")) {
             $row = $res->fetch();
-            $info['version'] = $row['mysql_version'];
+            $versionInformation = explode('-', $row['mysql_version']);
+            $info["version"] = $versionInformation[0];
+            $info["engine"] = $versionInformation[1] ?? 'MySQL';
             if ($dbResult = $this->query("SHOW TABLE STATUS FROM `" . $this->dsn['database'] . "`")) {
                 while ($data = $dbResult->fetch()) {
                     $info['dbsize'] += $data['Data_length'] + $data['Index_length'];
@@ -440,13 +442,9 @@ class CentreonDB extends \PDO
                 if ($key != "rows" && $key != "version" && $key != "engine") {
                     $info[$key] = round($value / $unitMultiple, 2);
                 }
-                if ($key == "version") {
-                    $tab = explode('-', $value);
-                    $info["version"] = $tab[0];
-                    $info["engine"] = $tab[1];
-                }
             }
         }
+
         return $info;
     }
 

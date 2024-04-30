@@ -2,6 +2,7 @@
 import { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { FormHelperText } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -9,12 +10,13 @@ import AddIcon from '@mui/icons-material/Add';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
 
-import { Dataset } from '../../../models';
+import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
   labelDelete,
   labelAddFilter,
   labelSelectResource,
-  labelSelectResourceType
+  labelSelectResourceType,
+  labelAllResourcesSelected
 } from '../../../translatedLabels';
 import useDatasetFilter from '../hooks/useDatasetFilter';
 import { useDatasetFilterStyles } from '../styles/DatasetFilter.styles';
@@ -87,10 +89,20 @@ const DatasetFilter = ({
               }}
               className={classes.resources}
               dataTestId={labelSelectResource}
-              disabled={!resource.resourceType}
+              disabled={
+                !resource.resourceType ||
+                equals(resource.resourceType, ResourceTypeEnum.All)
+              }
               field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceBaseEndpoint(resource.resourceType)}
-              label={t(labelSelectResource) as string}
+              getEndpoint={getResourceBaseEndpoint(
+                resourceIndex,
+                resource.resourceType
+              )}
+              label={
+                equals(resource.resourceType, ResourceTypeEnum.All)
+                  ? (t(labelAllResourcesSelected) as string)
+                  : (t(labelSelectResource) as string)
+              }
               limitTags={5}
               queryKey={`${resource.resourceType}-${resourceIndex}`}
               value={resource.resources || []}

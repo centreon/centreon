@@ -106,7 +106,8 @@ const MorePanelActions = ({
     {
       Icon: DeleteIcon,
       label: t(labelDeleteWidget),
-      onClick: openDeleteModal
+      onClick: openDeleteModal,
+      variant: 'error'
     }
   ];
 

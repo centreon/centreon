@@ -226,7 +226,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in'))
+            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -236,11 +236,10 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn($finder);
         $finder->expects($this->any())
             ->method('in')
-            ->willReturn(
-                array(
-                    new \SplFileInfo('my-widget')
-                )
-            );
+            ->willReturn($finder);
+        $finder->expects($this->any())
+            ->method('getIterator')
+            ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
         $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')
@@ -310,7 +309,7 @@ class InformationTest extends \PHPUnit\Framework\TestCase
 
         $finder = $this->getMockBuilder('\Symfony\Component\Finder\Finder')
             ->disableOriginalConstructor()
-            ->onlyMethods(array('directories', 'depth', 'in'))
+            ->onlyMethods(array('directories', 'depth', 'in', 'getIterator'))
             ->getMock();
         $finder->expects($this->any())
             ->method('directories')
@@ -320,11 +319,10 @@ class InformationTest extends \PHPUnit\Framework\TestCase
             ->willReturn($finder);
         $finder->expects($this->any())
             ->method('in')
-            ->willReturn(
-                array(
-                    new \SplFileInfo('my-widget')
-                )
-            );
+            ->willReturn($finder);
+        $finder->expects($this->any())
+            ->method('getIterator')
+            ->willReturn(new \ArrayIterator([new \SplFileInfo('my-widget')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
         $filesystem = $this->getMockBuilder('\Symfony\Component\Filesystem\Filesystem')

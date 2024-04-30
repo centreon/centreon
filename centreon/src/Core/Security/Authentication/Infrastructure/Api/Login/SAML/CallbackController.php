@@ -29,7 +29,7 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\Login\{ErrorAclConditionsResponse, Login, LoginRequest, LoginResponse, PasswordExpiredResponse, ThirdPartyLoginForm};
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CallbackController extends AbstractController
 {
@@ -39,18 +39,18 @@ final class CallbackController extends AbstractController
      * @param Request $request
      * @param Login $useCase
      * @param CallbackPresenter $presenter
-     * @param SessionInterface $session
+     * @param RequestStack $requestStack
      * @param ThirdPartyLoginForm $thirdPartyLoginForm
      *
-     * @return View|null
+     * @return View
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         CallbackPresenter $presenter,
-        SessionInterface $session,
+        RequestStack $requestStack,
         ThirdPartyLoginForm $thirdPartyLoginForm,
-    ): null|View {
+    ): View {
         $samlLoginRequest = LoginRequest::createForSAML((string) $request->getClientIp());
 
         $useCase($samlLoginRequest, $presenter);
@@ -81,7 +81,7 @@ final class CallbackController extends AbstractController
                 if ($response->redirectIsReact()) {
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
-                        headers: ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                        headers: ['Set-Cookie' => 'PHPSESSID=' . $requestStack->getSession()->getId()]
                     );
                 }
 

@@ -106,7 +106,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAll(?RequestParametersInterface $requestParameters = null): \Traversable&\Countable
     {
-        $concatenator = $this->getFindHostGroupConcatenator();
+        $concatenator = $this->getFindHostGroupConcatenator($requestParameters);
 
         return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
     }
@@ -128,7 +128,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             return $this->findAll($requestParameters);
         }
 
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator($requestParameters, $accessGroupIds);
 
         return new \ArrayIterator($this->retrieveHostGroups($concatenator, $requestParameters));
     }
@@ -158,7 +158,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->findOne($hostGroupId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->retrieveHostgroup($concatenator, $hostGroupId);
     }
@@ -187,7 +187,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->existsOne($hostGroupId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->existsHostGroup($concatenator, $hostGroupId);
     }
@@ -216,7 +216,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->exist($hostGroupIds);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->existHostGroups($concatenator, $hostGroupIds);
     }
@@ -263,7 +263,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
             return $this->findByHost($hostId);
         }
-        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+        $concatenator = $this->getFindHostGroupConcatenator(null, $accessGroupIds);
 
         return $this->retrieveHostGroupsByHost($concatenator, $hostId);
     }
@@ -314,16 +314,19 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
     }
 
     /**
+     * @param ?RequestParametersInterface $requestParameters
      * @param list<int> $accessGroupIds
      *
      * @return SqlConcatenator
      */
-    private function getFindHostGroupConcatenator(array $accessGroupIds = []): SqlConcatenator
-    {
+    private function getFindHostGroupConcatenator(
+        ?RequestParametersInterface $requestParameters = null,
+        array $accessGroupIds = []
+    ): SqlConcatenator {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT
+                    SELECT DISTINCT
                         hg.hg_id,
                         hg.hg_name,
                         hg.hg_alias,
@@ -350,7 +353,24 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                     SQL
             );
 
+        $hostCategoryAcls = '';
         if ([] !== $accessGroupIds) {
+            if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
+                $hostCategoryAcls = <<<'SQL'
+                    AND hcr.hostcategories_hc_id IN (
+                        SELECT arhcr.hc_id
+                        FROM `:db`.acl_resources_hc_relations arhcr
+                        INNER JOIN `:db`.acl_resources res
+                            ON res.acl_res_id = arhcr.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations argr
+                            ON argr.acl_res_id = res.acl_res_id
+                        INNER JOIN `:db`.acl_groups ag
+                            ON ag.acl_group_id = argr.acl_group_id
+                        WHERE ag.acl_group_id IN (:ids)
+                    )
+                    SQL;
+            }
+
             $concatenator
                 ->appendJoins(
                     <<<'SQL'
@@ -370,6 +390,22 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
                         SQL
                 )
                 ->storeBindValueMultiple(':ids', $accessGroupIds, \PDO::PARAM_INT);
+        }
+
+        $search = $requestParameters?->getSearchAsString();
+        if ($search !== null && \str_contains($search, 'hostcategory')) {
+            $concatenator->appendJoins(
+                <<<SQL
+                    LEFT JOIN `:db`.hostgroup_relation hgr
+                        ON hgr.hostgroup_hg_id = hg.hg_id
+                    LEFT JOIN `:db`.hostcategories_relation hcr
+                        ON hcr.host_host_id = hgr.host_host_id
+                        {$hostCategoryAcls}
+                    LEFT JOIN `:db`.hostcategories hc
+                        ON hc.hc_id = hcr.hostcategories_hc_id
+                        AND hc.level IS NULL
+                    SQL
+            );
         }
 
         return $concatenator;
@@ -411,6 +447,8 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             'alias' => 'hg.hg_alias',
             'name' => 'hg.hg_name',
             'is_activated' => 'hg.hg_activate',
+            'hostcategory.id' => 'hc.hc_id',
+            'hostcategory.name' => 'hc.hc_name',
         ]);
         $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
 
@@ -648,5 +686,44 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             (string) $result['hg_comment'],
             (bool) $result['hg_activate'],
         );
+    }
+
+    /**
+     * Determines if host categories are filtered for given access group ids
+     * true: accessible host categories are filtered (only specified are accessible)
+     * false: accessible host categories are NOT filtered (all are accessible).
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
+    {
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.acl_resources_hc_relations arhcr
+                INNER JOIN `:db`.acl_resources res
+                    ON res.acl_res_id = arhcr.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE ag.acl_group_id IN ({$bindParamsAsString})
+                SQL
+        ));
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }

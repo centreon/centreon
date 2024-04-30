@@ -8,8 +8,8 @@ import { useFetchQuery } from '@centreon/ui';
 import { listTokensDecoder } from '../api/decoder';
 import { buildListEndpoint, listTokensEndpoint } from '../api/endpoints';
 
-import { currentFilterAtom } from './Actions/Search/Filter/atoms';
-import { Fields, SortOrder } from './Actions/Search/Filter/models';
+import { currentFilterAtom } from './Actions/Filter/atoms';
+import { Fields, SortOrder } from './Actions/Filter/models';
 import { DataListing, SortParams, UseTokenListing } from './models';
 
 interface Props {

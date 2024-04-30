@@ -288,7 +288,7 @@ jobs:
           runner: ubuntu-22.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@83af392bf5f031813d25e6fe4cd626cdba9a2df6 # v2.2.0
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -459,16 +459,11 @@ jobs:
       - name: Replace macros in source code
         run: |
           MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
-
           if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-            LIB_ARCH="lib64"
             APACHE_USER="apache"
           else
-            LIB_ARCH="lib"
             APACHE_USER="www-data"
           fi
-          sed -i -e "s#@LIB_ARCH@#$LIB_ARCH#g" $MACRO_REPLACEMENT_FILE
-          echo "s#@LIB_ARCH@#$LIB_ARCH#g" >> $MACRO_REPLACEMENT_FILE
           echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
 
           find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE

@@ -113,7 +113,7 @@ if (count($aMacroDescription) > 0) {
  * Resource Macro
  */
 $resource = array();
-$query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_line`";
+$query = "SELECT DISTINCT `resource_name`, `resource_comment` FROM `cfg_resource` ORDER BY `resource_name`";
 $DBRESULT = $pearDB->query($query);
 while ($row = $DBRESULT->fetchRow()) {
     $resource[$row["resource_name"]] = $row["resource_name"];

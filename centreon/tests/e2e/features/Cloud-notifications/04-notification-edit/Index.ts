@@ -1,4 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import {
   createNotification,
   editNotification,
@@ -8,7 +13,6 @@ import {
   waitUntilLogFileChange
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 const contactAfterEdit = 'Guest';
@@ -19,11 +23,11 @@ let notificationWithServices = true;
 let notificationEnabled = true;
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
-    name: 'central-cloud-notifications-output',
-    configName: 'central-broker-master'
+    configName: 'central-broker-master',
+    name: 'central-cloud-notifications-output'
   });
 
   cy.intercept({
@@ -96,10 +100,6 @@ Given('a Notification Rule is already created', () => {
   createNotification(notificationBody);
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 When('the user selects the edit action on a Notification Rule', () => {
   cy.contains(notificationBody.name).click();
 });
@@ -154,28 +154,30 @@ Then(
   () => {
     if (!notificationEnabled) {
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}>>`,
-        contain: false
+        contain: false,
+        logs: `<<${data.hosts.host1.name}>>`
       });
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-        contain: false
+        contain: false,
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
+
       return;
     }
 
-    notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
+    notificationSentCheck({ logs: `<<${data.hosts.host1.name}>>` });
 
     if (!notificationWithServices) {
       notificationSentCheck({
-        log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-        contain: false
+        contain: false,
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
       });
+
       return;
     }
 
     notificationSentCheck({
-      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
     });
   }
 );
@@ -190,24 +192,29 @@ When('the user changes the contact configuration', () => {
 When(
   'the user selects the {string} action on a Notification Rule line',
   (action) => {
-    cy.get('input.MuiSwitch-input').then(($checkbox) => {
-      switch (action) {
-        case 'enable':
-          // Firstly Deactivate the Notification
-          editNotificationBody.is_activated = false;
-          editNotification(editNotificationBody);
-          cy.reload();
-          cy.wait('@getNotifications');
-          // Reactivate the notification
-          cy.get('input.MuiSwitch-input').click().should('be.checked');
-          notificationEnabled = true;
-          break;
-        case 'disable':
-          cy.wrap($checkbox).click().should('not.be.checked');
-          notificationEnabled = false;
-          break;
-      }
-    });
+    cy.get('input.MuiSwitch-input').as('enableCheckbox');
+
+    switch (action) {
+      case 'enable':
+        // Firstly Deactivate the Notification
+        editNotificationBody.is_activated = false;
+        editNotification(editNotificationBody);
+        cy.reload();
+        cy.wait('@getNotifications');
+        // Reactivate the notification
+        cy.get('@enableCheckbox').click();
+        cy.get('@enableCheckbox').should('be.checked');
+        // cy.get('input.MuiSwitch-input').click().should('be.checked');
+        notificationEnabled = true;
+        break;
+      case 'disable':
+        cy.get('@enableCheckbox').click();
+        cy.get('@enableCheckbox').should('not.be.checked');
+        notificationEnabled = false;
+        break;
+      default:
+        throw new Error(`${action} not managed`);
+    }
   }
 );
 
@@ -215,56 +222,62 @@ Then(
   'the notifications for status changes are sent only to the updated contact',
   () => {
     notificationSentCheck({
-      log: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]',
-      contain: false
+      contain: false,
+      logs: '[{"email_address":"admin@centreon.com","full_name":"admin admin"}]'
     });
     notificationSentCheck({
-      log: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
+      logs: '[{"email_address":"guest@localhost","full_name":"Guest"}]'
     });
   }
 );
 
 Then('{string} notification is sent for this rule once', (prefix) => {
-  if (!notificationEnabled) {
-    notificationSentCheck({
-      log: `<<${data.hosts.host1.name}>>`,
-      contain: false
-    });
-    notificationSentCheck({
-      log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`,
-      contain: false
-    });
-    return;
+  switch (prefix) {
+    case 'no more':
+      notificationSentCheck({
+        contain: false,
+        logs: `<<${data.hosts.host1.name}>>`
+      });
+      notificationSentCheck({
+        contain: false,
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      });
+      break;
+    case 'one':
+      notificationSentCheck({ logs: `<<${data.hosts.host1.name}>>` });
+      notificationSentCheck({
+        logs: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
+      });
+      break;
+    default:
+      throw new Error(`${prefix} not managed`);
   }
-
-  notificationSentCheck({ log: `<<${data.hosts.host1.name}>>` });
-  notificationSentCheck({
-    log: `<<${data.hosts.host1.name}/${data.services.service1.name}>>`
-  });
 });
 
 When('the user {string} the Notification Rule', (action) => {
-  cy.get('input.MuiSwitch-input')
-    .eq(1)
-    .then(($checkbox) => {
-      switch (action) {
-        case 'enable':
-          // Firstly Deactivate the Notification
-          editNotificationBody.is_activated = false;
-          editNotification(editNotificationBody);
-          cy.reload();
-          cy.wait('@getNavigationList');
-          cy.wait('@getNotifications');
-          // Reactivate the notification
-          cy.contains(notificationBody.name).click();
-          cy.wait('@getNotification');
-          cy.get('input.MuiSwitch-input').eq(1).click().should('be.checked');
-          notificationEnabled = true;
-          break;
-        case 'disable':
-          cy.wrap($checkbox).click().should('not.be.checked');
-          notificationEnabled = false;
-          break;
-      }
-    });
+  cy.get('input.MuiSwitch-input').eq(1).as('enableCheckbox');
+
+  switch (action) {
+    case 'enable':
+      // Firstly Deactivate the Notification
+      editNotificationBody.is_activated = false;
+      editNotification(editNotificationBody);
+      cy.reload();
+      cy.wait('@getNavigationList');
+      cy.wait('@getNotifications');
+      // Reactivate the notification
+      cy.contains(notificationBody.name).click();
+      cy.wait('@getNotification');
+      cy.get('@enableCheckbox').click();
+      cy.get('@enableCheckbox').should('be.checked');
+      notificationEnabled = true;
+      break;
+    case 'disable':
+      cy.get('@enableCheckbox').click();
+      cy.get('@enableCheckbox').should('not.be.checked');
+      notificationEnabled = false;
+      break;
+    default:
+      throw new Error(`${action} not managed`);
+  }
 });

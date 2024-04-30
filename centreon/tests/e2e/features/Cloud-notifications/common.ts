@@ -1,4 +1,18 @@
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
+
 import notificationBody from '../../fixtures/notifications/notification-creation.json';
+import {
+  getStatusNumberFromString,
+  getStatusTypeNumberFromString
+} from 'e2e/commons';
+
+const cloudNotificationLogFile =
+  '/var/log/centreon-broker/centreon-cloud-notifications.log';
+
+Given('the user is on the Notification Rules page', () => {
+  cy.visit('/centreon/configuration/notifications');
+  cy.wait('@getNotifications');
+});
 
 const enableNotificationFeature = (): Cypress.Chainable => {
   return cy.execInContainer({
@@ -12,21 +26,21 @@ const createNotification = (
 ): Cypress.Chainable => {
   return cy
     .request({
+      body,
       method: 'POST',
-      url: 'centreon/api/latest/configuration/notifications',
-      body: body
+      url: 'centreon/api/latest/configuration/notifications'
     })
     .then((response) => {
-      cy.wrap(response);
+      expect(response.status).to.eq(201);
     });
 };
 
 const editNotification = (body: typeof notificationBody): Cypress.Chainable => {
   return cy
     .request({
+      body,
       method: 'PUT',
-      url: 'centreon/api/latest/configuration/notifications/1',
-      body: body
+      url: 'centreon/api/latest/configuration/notifications/1'
     })
     .then((response) => {
       cy.wrap(response);
@@ -34,8 +48,8 @@ const editNotification = (body: typeof notificationBody): Cypress.Chainable => {
 };
 
 interface Broker {
-  name: string;
   configName: string;
+  name: string;
 }
 
 const setBrokerNotificationsOutput = ({
@@ -53,7 +67,7 @@ const setBrokerNotificationsOutput = ({
   ];
   modifyLuaFileCommands.forEach((command) => {
     cy.execInContainer({
-      command: command,
+      command,
       name: 'web'
     });
   });
@@ -74,13 +88,16 @@ const setBrokerNotificationsOutput = ({
     object: 'CENTBROKERCFG',
     values: `${configName}`
   };
+
   return cy
     .executeActionViaClapi({
       bodyContent: getBrokerIOIdByNameBody
     })
     .then((response) => {
       const listBrokersIO = response.body.result;
-      const brokerIO = listBrokersIO.find((brokerIO) => brokerIO.name == name);
+      const brokerIO = listBrokersIO.find(
+        (currentBrokerIO) => currentBrokerIO.name === name
+      );
       if (brokerIO) {
         brokerIOID = brokerIO.id;
 
@@ -109,65 +126,262 @@ const setBrokerNotificationsOutput = ({
     });
 };
 
+interface ExecInContainerResult {
+  exitCode: number;
+  output: string;
+}
+
 const notificationSentCheck = ({
-  log,
-  contain = true
+  contain = true,
+  logs
 }: {
-  log: string;
   contain?: boolean;
+  logs: string | string[];
 }): Cypress.Chainable => {
+  cy.log(`checking logs`);
+
   return cy
-    .execInContainer({
-      command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log | grep "${log}" || true`,
-      name: 'web'
-    })
-    .then((result) => {
-      contain
-        ? expect(result.output).to.contain(log)
-        : expect(result.output).to.not.contain(log);
+    .waitUntil(
+      () => {
+        return cy
+          .execInContainer({
+            command: `tail -n 4 ${cloudNotificationLogFile} 2> /dev/null`,
+            name: 'web'
+          })
+          .then((result) => {
+            cy.log(result.output);
+
+            return cy.wrap(result.output.includes('INFO: Response code: 304'));
+          });
+      },
+      { interval: 20000, timeout: 300000 }
+    )
+    .then(() => {
+      const command =
+        typeof logs === 'string' || logs instanceof String
+          ? `grep "${logs}" ${cloudNotificationLogFile}`
+          : logs
+              .map((log) => `grep "${log}" ${cloudNotificationLogFile}`)
+              .join(' && ');
+
+      cy.task<ExecInContainerResult>(
+        'execInContainer',
+        { command, name: 'web' },
+        { timeout: 600000 }
+      ).then((result) => {
+        if (contain) {
+          expect(result.exitCode).to.eq(0);
+        } else {
+          expect(result.exitCode).not.to.eq(0);
+        }
+      });
     });
 };
 
 const waitUntilLogFileChange = (): Cypress.Chainable => {
-  let initialContent;
+  let initialLineCount = null;
 
-  return cy
-    .execInContainer({
-      command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-      name: 'web'
-    })
-    .then((result) => {
-      if (result.output === undefined) {
-        throw new Error('No initial output found in log file');
-      }
+  return cy.waitUntil(
+    () => {
+      return cy
+        .execInContainer({
+          command: `cat ${cloudNotificationLogFile} 2> /dev/null | wc -l || echo 0`,
+          name: 'web'
+        })
+        .then((result) => {
+          const match = result.output.trim().match(/(\d+)$/);
 
-      initialContent = result.output.trim();
+          if (match === null) {
+            cy.log(`Cannot get line count of ${cloudNotificationLogFile}`);
 
-      return cy.waitUntil(
-        () => {
-          return cy
-            .execInContainer({
-              command: `cat /var/log/centreon-broker/centreon-cloud-notifications.log`,
-              name: 'web'
-            })
-            .then((result) => {
-              if (result.output === undefined) {
-                throw new Error('No current output found in log file');
-              }
+            return false;
+          }
 
-              const currentContent = result.output.trim();
-              return cy.wrap(currentContent !== initialContent);
-            });
-        },
-        { timeout: 40000, interval: 5000 }
-      );
-    });
+          const currentLineCount = match[1];
+          cy.log(
+            `Current line count of ${cloudNotificationLogFile}: ${currentLineCount}`
+          );
+
+          if (initialLineCount === null) {
+            initialLineCount = currentLineCount;
+
+            return false;
+          }
+
+          return cy.wrap(initialLineCount !== currentLineCount);
+        });
+    },
+    { interval: 5000, timeout: 40000 }
+  );
+};
+
+let servicesFoundStepCount = 0;
+
+const stepWaitingTime = 250;
+const pollingCheckTimeout = 60000;
+const maxSteps = pollingCheckTimeout / stepWaitingTime;
+
+interface MonitoredService {
+  acknowledged?: boolean | null;
+  inDowntime?: boolean | null;
+  output?: string;
+  status?: string;
+  statusType?: string;
+}
+
+const initializeDataFiles = () => {
+  let values = '';
+  let centreonStorageServicesValues = '';
+  let centreonServicesValues = '';
+  let hostServiceRelationValues = '';
+  let resources: { id: number; parent: { id: number }; type: string }[] = [];
+
+  // The first service will got an id of 28
+  for (let i = 28; i < 1028; i++) {
+    // Generate values for centreon_storage_services.txt
+    values = [
+      15, // host_id
+      `service_${i - 27}`, // description
+      i, // service_id
+      0, // acknowledged
+      0, // acknowledgement_type
+      '', // action_url
+      0, // active_checks
+      1, // check_attempt
+      'check_centreon_ping!3!200,20%!400,50%', // check_command
+      0, // check_freshness
+      5, // check_interval
+      '24x7', // check_period
+      0, // check_type
+      0, // checked
+      0, // default_active_checks
+      1, // default_event_handler_enabled
+      1, // default_flap_detection
+      0, // default_notify
+      1, // default_passive_checks
+      `service_${i - 27}`, // display_name
+      1, // enabled
+      '', // event_handler
+      1, // event_handler_enabled
+      0, // execution_time
+      0, // first_notification_delay
+      1, // flap_detection
+      1, // flap_detection_on_critical
+      1, // flap_detection_on_ok
+      1, // flap_detection_on_unknown
+      1, // flap_detection_on_warning
+      0, // flapping
+      0, // freshness_threshold
+      0, // high_flap_threshold
+      '', // icon_image
+      '', // icon_image_alt
+      0, // last_hard_state
+      1710846876, // last_update
+      0, // latency
+      0, // low_flap_threshold
+      1, // max_check_attempts
+      0, // next_check
+      0, // no_more_notifications
+      0, // notification_interval
+      0, // notification_number
+      '24x7', // notification_period
+      0, // notify
+      1, // notify_on_critical
+      0, // notify_on_downtime
+      0, // notify_on_flapping
+      1, // notify_on_recovery
+      0, // notify_on_unknown
+      1, // notify_on_warning
+      1, // obsess_over_service
+      '', // output
+      1, // passive_checks
+      0, // percent_state_change
+      '', // perfdata
+      1, // retain_nonstatus_information
+      1, // retain_status_information
+      1, // retry_interval
+      0, // scheduled_downtime_depth
+      0, // should_be_scheduled
+      0, // stalk_on_critical
+      0, // stalk_on_ok
+      0, // stalk_on_unknown
+      0, // stalk_on_warning
+      0, // state
+      1, // state_type
+      0 // volatile
+    ].join('\t');
+    centreonStorageServicesValues += values + '\n';
+
+    // Generate values for centreon_services.txt
+    values = [
+      i, // service_id
+      3, // service_template_model_stm_id
+      `service_${i - 27}`, // service_description
+      2, // service_is_volatile
+      1, // service_max_check_attempts
+      0, // service_active_checks_enabled
+      1, // service_passive_checks_enabled
+      2, // service_parallelize_check
+      2, // service_obsess_over_service
+      2, // service_check_freshness
+      2, // service_event_handler_enabled
+      2, // service_flap_detection_enabled
+      2, // service_process_perf_data
+      2, // service_retain_status_information
+      2, // service_retain_nonstatus_information
+      2, // service_notifications_enabled
+      0, // contact_additive_inheritance
+      0, // cg_additive_inheritance
+      1, // service_inherit_contacts_from_host
+      0, // service_use_only_contacts_from_host
+      0, // service_locked
+      1, // service_register
+      1 // service_activate
+    ].join('\t');
+    centreonServicesValues += values + '\n';
+
+    // Generate values for host_service_relation.txt
+    values = `15\t${i}\n`;
+    hostServiceRelationValues += values;
+
+    // Generate payload-check.json
+    resources.push({ id: i, parent: { id: 15 }, type: 'service' });
+  }
+
+  cy.writeFile(
+    './fixtures/notifications/centreon_storage_services.txt',
+    centreonStorageServicesValues
+  );
+  cy.log('Values generated and stored in centreon_storage_services.txt.');
+
+  cy.writeFile(
+    './fixtures/notifications/centreon_services.txt',
+    centreonServicesValues
+  );
+  cy.log('Values generated and stored in centreon_services.txt.');
+
+  cy.writeFile(
+    './fixtures/notifications/host_service_relation.txt',
+    hostServiceRelationValues
+  );
+  cy.log('Values generated and stored in host_service_relation.txt.');
+
+  const data = {
+    check: { is_forced: true },
+    resources
+  };
+  cy.writeFile(
+    './fixtures/notifications/payload-check.json',
+    JSON.stringify(data, null, 2)
+  );
+  cy.log('JSON file generated successfully.');
 };
 
 export {
   createNotification,
   editNotification,
   enableNotificationFeature,
+  initializeDataFiles,
   notificationSentCheck,
   setBrokerNotificationsOutput,
   waitUntilLogFileChange

@@ -106,6 +106,7 @@ class AddRuleValidation
     public function assertIdsAreValid(string $type, array $ids): void
     {
         $validIds = [];
+
         foreach ($this->repositoryProviders as $repository) {
             if ($repository->isValidFor($type) === true) {
                 $validIds = $repository->areResourcesValid($ids);

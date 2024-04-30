@@ -18,7 +18,7 @@ RUN bash -e <<EOF
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb /tmp/debs-centreon/centreon-database_${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon{,-central,-mariadb,-mysql}_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 mv /tmp/entrypoint/container.sh /usr/share/centreon/container.sh
@@ -61,6 +61,8 @@ rm -f /tmp/mydumper_*
 mkdir -p /usr/local/src/sql/databases
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon -B centreon
 mydumper -h localhost -P 3306 -u root -G -o /usr/local/src/sql/databases/centreon_storage -B centreon_storage
+sed -i -e 's/NO_AUTO_CREATE_USER//g' -e "s#text DEFAULT ''#text DEFAULT ('')#" /usr/local/src/sql/databases/centreon/*
+sed -i -e 's/NO_AUTO_CREATE_USER//g' /usr/local/src/sql/databases/centreon_storage/*
 
 systemctl stop gorgoned
 systemctl stop centengine

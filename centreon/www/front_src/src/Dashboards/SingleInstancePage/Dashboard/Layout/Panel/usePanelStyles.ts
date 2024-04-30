@@ -11,7 +11,11 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1)
   },
   panelContent: {
-    height: `calc(100% - ${theme.spacing(3.5)})`,
+    height: `100%`,
+    overflow: 'auto'
+  },
+  panelContentWithDescription: {
+    height: `calc(100% - ${theme.spacing(2.75)})`,
     overflow: 'auto'
   },
   panelHeader: {
@@ -20,8 +24,13 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     },
-    height: theme.spacing(2),
-    padding: theme.spacing(0)
+    height: theme.spacing(4.5),
+    padding: theme.spacing(0),
+    paddingTop: theme.spacing(1.5)
+  },
+  panelTitle: {
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold
   }
 }));
 

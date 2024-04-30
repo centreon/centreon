@@ -51,7 +51,7 @@ class EntityTest extends TestCase
         $this->assertEquals([$data], $result);
     }
 
-    public function testJsonSerializeWithObject()
+    public function testJsonSerializeWithObject(): void
     {
         $value = [
             'prop1' => true,

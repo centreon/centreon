@@ -1,9 +1,9 @@
-import { ReactElement, useMemo, useCallback } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
 
 import { DataTable } from '@centreon/ui/components';
 
@@ -19,10 +19,11 @@ import { DashboardLayout } from '../../../models';
 import { DashboardListing } from '../DashboardListing';
 import { viewModeAtom, searchAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
-import { dashboardToDeleteAtom, isSharesOpenAtom } from '../../../atoms';
+import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 import { useStyles } from './DashboardsOverview.styles';
+import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 
 const DashboardsOverview = (): ReactElement => {
   const { classes } = useStyles();
@@ -32,18 +33,11 @@ const DashboardsOverview = (): ReactElement => {
   const search = useAtomValue(searchAtom);
 
   const { isEmptyList, dashboards, data, isLoading } = useDashboardsOverview();
-  const { createDashboard, editDashboard } = useDashboardConfig();
+  const { createDashboard } = useDashboardConfig();
   const { hasEditPermission, canCreateOrManageDashboards } =
     useDashboardUserPermissions();
 
   const navigate = useNavigate();
-
-  const setIsSharesOpenAtom = useSetAtom(isSharesOpenAtom);
-  const setDashboardToDelete = useSetAtom(dashboardToDeleteAtom);
-
-  const openDeleteModal = (dashboard) => (): void => {
-    setDashboardToDelete(dashboard);
-  };
 
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
     navigate(
@@ -53,34 +47,30 @@ const DashboardsOverview = (): ReactElement => {
       })
     );
 
-  const labels = useMemo(
-    () => ({
-      actions: {
-        create: t(labelCreateADashboard)
-      },
-      emptyState: {
-        actions: {
-          create: t(labelCreateADashboard)
-        },
-        title: t(labelWelcomeToDashboardInterface)
-      }
-    }),
-    []
+  const isCardsView = useMemo(
+    () => equals(viewMode, ViewMode.Cards),
+    [viewMode]
   );
 
-  const editAccessRights = useCallback(
-    (dashboard) => () => setIsSharesOpenAtom(dashboard),
-    []
-  );
+  const emptyStateLabels = {
+    actions: {
+      create: t(labelCreateADashboard)
+    },
+    title: t(labelWelcomeToDashboardInterface)
+  };
 
-  if (isEmptyList && !search) {
+  if (isCardsView && isLoading && isNil(data)) {
+    return <DashboardsOverviewSkeleton />;
+  }
+
+  if (isEmptyList && !search && !isLoading) {
     return (
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
           aria-label="create"
           canCreate={canCreateOrManageDashboards}
           data-testid="create-dashboard"
-          labels={labels.emptyState}
+          labels={emptyStateLabels}
           onCreate={createDashboard}
         />
       </DataTable>
@@ -92,14 +82,12 @@ const DashboardsOverview = (): ReactElement => {
       {dashboards.map((dashboard) => (
         <DataTable.Item
           hasCardAction
+          Actions={<DashboardCardActions dashboard={dashboard} />}
           description={dashboard.description ?? undefined}
           hasActions={hasEditPermission(dashboard)}
           key={dashboard.id}
           title={dashboard.name}
           onClick={navigateToDashboard(dashboard)}
-          onDelete={openDeleteModal(dashboard)}
-          onEdit={editDashboard(dashboard)}
-          onEditAccessRights={editAccessRights(dashboard)}
         />
       ))}
     </DataTable>
@@ -110,7 +98,7 @@ const DashboardsOverview = (): ReactElement => {
       <DashboardListing
         customListingComponent={GridTable}
         data={data}
-        displayCustomListing={equals(viewMode, ViewMode.Cards)}
+        displayCustomListing={isCardsView}
         loading={isLoading}
         openConfig={createDashboard}
       />

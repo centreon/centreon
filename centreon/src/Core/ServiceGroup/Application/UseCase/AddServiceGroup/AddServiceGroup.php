@@ -189,7 +189,7 @@ final class AddServiceGroup
      * @param AddServiceGroupRequest $request
      *
      * @throws \Core\Domain\Exception\InvalidGeoCoordException
-     * @throws \Assert\AssertionFailedException
+     * @throws AssertionFailedException
      *
      * @return NewServiceGroup
      */

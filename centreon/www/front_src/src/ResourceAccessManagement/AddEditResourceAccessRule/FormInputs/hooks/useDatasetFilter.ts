@@ -1,12 +1,14 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { FormikValues, useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
+import { useFormikContext } from 'formik';
 import {
   T,
   always,
   cond,
   equals,
   flatten,
+  includes,
   isEmpty,
   isNil,
   last,
@@ -16,10 +18,15 @@ import {
   reject
 } from 'ramda';
 
-import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
-
-import { Dataset, ResourceTypeEnum } from '../../../models';
 import {
+  QueryParameter,
+  SelectEntry,
+  buildListingEndpoint
+} from '@centreon/ui';
+
+import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
+import {
+  labelAllResources,
   labelHost,
   labelHostCategory,
   labelHostGroup,
@@ -30,6 +37,7 @@ import {
   labelServiceGroup
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
+import { selectedDatasetFiltersAtom } from '../../../atom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -44,6 +52,7 @@ type UseDatasetFilterState = {
   deleteResourceItem: ({ index, option, resources }) => void;
   error: string | null;
   getResourceBaseEndpoint: (
+    index: number,
     resourceType: ResourceTypeEnum
   ) => (parameters) => string;
   getResourceTypeOptions: (index: number) => Array<SelectEntry>;
@@ -52,6 +61,11 @@ type UseDatasetFilterState = {
 };
 
 const resourceTypeOptions = [
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.All,
+    name: labelAllResources
+  },
   {
     availableResourceTypeOptions: [
       { id: ResourceTypeEnum.ServiceGroup, name: labelServiceGroup },
@@ -121,19 +135,48 @@ export const resourceTypeBaseEndpoints = {
   [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups'
 };
 
-const resourceQueryParameters = [
-  {
-    name: 'limit',
-    value: 30
+const searchParametersBySelectedResourceType = {
+  [ResourceTypeEnum.HostGroup]: {
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id'
+  },
+  [ResourceTypeEnum.HostCategory]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id'
+  },
+  [ResourceTypeEnum.Host]: {
+    [ResourceTypeEnum.HostGroup]: 'group.id',
+    [ResourceTypeEnum.HostCategory]: 'category.id'
+  },
+  [ResourceTypeEnum.ServiceGroup]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
+  },
+  [ResourceTypeEnum.ServiceCategory]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceGroup]: 'group.id'
+  },
+  [ResourceTypeEnum.Service]: {
+    [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
+    [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
+    [ResourceTypeEnum.Host]: 'host.id',
+    [ResourceTypeEnum.ServiceGroup]: 'group.id',
+    [ResourceTypeEnum.ServiceCategory]: 'category.id'
   }
-];
+};
 
 const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
 ): UseDatasetFilterState => {
+  const [selectedDatasetFilters, setSelectedDatasetFiltes] = useAtom(
+    selectedDatasetFiltersAtom
+  );
+
   const { values, setFieldValue, setFieldTouched, touched } =
-    useFormikContext<FormikValues>();
+    useFormikContext<ResourceAccessRule>();
 
   const value = useMemo<Array<Dataset> | undefined>(
     () =>
@@ -166,9 +209,22 @@ const useDatasetFilter = (
       )
     );
 
-    return isEmpty(filteredResourceTypeOptions)
+    const selectedResourceTypes = isNil(
+      selectedDatasetFilters[datasetFilterIndex]
+    )
+      ? []
+      : pluck('type', selectedDatasetFilters[datasetFilterIndex]);
+
+    const remainingResourceTypeOptions = reject(
+      (type: { id: ResourceTypeEnum; name: string }) =>
+        !equals(type.id, value[index].resourceType) &&
+        includes(type.id, selectedResourceTypes),
+      filteredResourceTypeOptions
+    );
+
+    return isEmpty(remainingResourceTypeOptions)
       ? resourceTypeOptions
-      : filteredResourceTypeOptions;
+      : remainingResourceTypeOptions;
   };
 
   const isTouched = useMemo<boolean | undefined>(
@@ -187,10 +243,26 @@ const useDatasetFilter = (
     setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
       ...(datasetFilter || []),
       {
-        resourceType: '',
+        resourceType: ResourceTypeEnum.Empty,
         resources: []
       }
     ]);
+
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return [
+            ...selectedDatasetFilters[indexFilter],
+            {
+              ids: [],
+              type: ResourceTypeEnum.Empty
+            }
+          ];
+        }
+
+        return datasets;
+      })
+    );
   };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
@@ -199,6 +271,24 @@ const useDatasetFilter = (
       resource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].map((dataset, i) => {
+            if (equals(i, index)) {
+              return {
+                ids: [...dataset.ids, resource.id as number],
+                type: dataset.type
+              };
+            }
+
+            return dataset;
+          });
+        }
+
+        return datasets;
+      })
+    );
   };
 
   const changeResources =
@@ -208,17 +298,71 @@ const useDatasetFilter = (
         resources
       );
       setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+      setSelectedDatasetFiltes(
+        selectedDatasetFilters.map((datasets, indexFilter) => {
+          if (equals(indexFilter, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexFilter].map((dataset, i) => {
+              if (equals(i, index)) {
+                return {
+                  ids: pluck('id', resources) as Array<number>,
+                  type: dataset.type
+                };
+              }
+
+              return dataset;
+            });
+          }
+
+          return datasets;
+        })
+      );
     };
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
       setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resourceType`,
-        e.target.value
+        `datasetFilters.${datasetFilterIndex}`,
+        value
+          ?.map((dataset, i) => {
+            if (index < i && !equals(e.target.value, dataset.resourceType)) {
+              return undefined;
+            }
+
+            if (equals(i, index)) {
+              return {
+                resourceType: e.target.value,
+                resources: []
+              };
+            }
+
+            return dataset;
+          })
+          .filter((dataset) => dataset)
       );
-      setFieldValue(
-        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
-        []
+
+      setSelectedDatasetFiltes(
+        selectedDatasetFilters.map((datasets, indexFilter) => {
+          if (equals(indexFilter, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexFilter]
+              .map((dataset, i) => {
+                if (index < i && !equals(e.target.value, dataset.type)) {
+                  return undefined;
+                }
+
+                if (equals(i, index)) {
+                  return { ids: [], type: e.target.value as ResourceTypeEnum };
+                }
+
+                return dataset;
+              })
+              .filter((dataset) => dataset) as Array<{
+              ids: Array<number>;
+              type: ResourceTypeEnum;
+            }>;
+          }
+
+          return datasets;
+        })
       );
     };
 
@@ -228,6 +372,17 @@ const useDatasetFilter = (
       (datasetFilter || []).filter((_, i) => !equals(i, index))
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].filter(
+            (_, i) => !equals(i, index)
+          );
+        }
+
+        return datasets;
+      })
+    );
   };
 
   const deleteResourceItem = ({ index, option, resources }): void => {
@@ -238,16 +393,57 @@ const useDatasetFilter = (
       newResource
     );
     setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+    setSelectedDatasetFiltes(
+      selectedDatasetFilters.map((datasets, indexFilter) => {
+        if (equals(indexFilter, datasetFilterIndex)) {
+          return selectedDatasetFilters[indexFilter].map((dataset, i) => {
+            if (equals(i, index)) {
+              return {
+                ids: dataset.ids.filter((id) => !equals(id, option.id)),
+                type: dataset.type
+              };
+            }
+
+            return dataset;
+          });
+        }
+
+        return datasets;
+      })
+    );
+  };
+
+  const buildSearchParameters = (
+    index: number
+  ): Array<QueryParameter> | undefined => {
+    const subSlice = selectedDatasetFilters[datasetFilterIndex].slice(0, index);
+    if (isEmpty(subSlice)) {
+      return undefined;
+    }
+
+    const searchParameter =
+      searchParametersBySelectedResourceType[
+        selectedDatasetFilters[datasetFilterIndex][index].type
+      ][last(subSlice)?.type];
+
+    return [
+      {
+        name: 'search',
+        value: {
+          [searchParameter]: {
+            $in: selectedDatasetFilters[datasetFilterIndex][index - 1].ids
+          }
+        }
+      }
+    ];
   };
 
   const getResourceBaseEndpoint =
-    (resourceType: ResourceTypeEnum) =>
+    (index: number, resourceType: ResourceTypeEnum) =>
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
-        customQueryParameters: equals(resourceType, ResourceTypeEnum.Service)
-          ? resourceQueryParameters
-          : undefined,
+        customQueryParameters: buildSearchParameters(index),
         parameters: {
           ...parameters,
           limit: 30

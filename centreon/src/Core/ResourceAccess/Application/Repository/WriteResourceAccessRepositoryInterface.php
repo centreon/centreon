@@ -65,10 +65,25 @@ interface WriteResourceAccessRepositoryInterface
 
     /**
      * @param string $name
+     * @param bool $accessAllHosts
+     * @param bool $accessAllHostGroups
+     * @param bool $accessAllServiceGroups
      *
      * @return int
      */
-    public function addDataset(string $name): int;
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts,
+        bool $accessAllHostGroups,
+        bool $accessAllServiceGroups
+    ): int;
+
+    /**
+     * @param int $datasetId
+     * @param string $resourceType (possible values: hostgroups, servicegroups, hosts)
+     * @param bool $fullAccess
+     */
+    public function updateDatasetAccess(int $datasetId, string $resourceType, bool $fullAccess): void;
 
     /**
      * @param int $ruleId

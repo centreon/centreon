@@ -54,9 +54,29 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
+    public function updateDatasetAccess(int $datasetId, string $resourceType, bool $fullAccess): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    UPDATE `:db`.acl_resources SET all_{$resourceType} = :access WHERE acl_res_id = :datasetId
+                SQL
+        ));
+
+        $statement->bindValue(':datasetId', $datasetId, \PDO::PARAM_INT);
+        $statement->bindValue(':access', $fullAccess ? '1' : '0', \PDO::PARAM_STR);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     * Here are the deletions (on cascade or not) that will occur on rule deletion
+     *     - Contact relations (ON DELETE CASCADE)
+     *     - Contact Group relations (ON DELETE CASCADE)
+     *     - Datasets relations + datasets (NEED MANUAL DELETION)
+     *     - DatasetFilters (ON DELETE CASCADE).
+     */
     public function deleteRuleAndDatasets(int $ruleId): void
     {
-
         $datasetIds = $this->findDatasetIdsByRuleId($ruleId);
         $alreadyInTransaction = $this->db->inTransaction();
 
@@ -219,16 +239,26 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
     /**
      * @inheritDoc
      */
-    public function addDataset(string $name): int
-    {
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts = false,
+        bool $accessAllHostGroups = false,
+        bool $accessAllServiceGroups = false,
+    ): int {
         $request = $this->translateDbName(
             <<<'SQL'
-                    INSERT INTO `:db`.acl_resources (acl_res_name, acl_res_activate, changed, cloud_specific) VALUES (:name, '1', 1, 1)
+                INSERT INTO `:db`.acl_resources
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
                 SQL
         );
 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+        $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+
         $statement->execute();
 
         return (int) $this->db->lastInsertId();

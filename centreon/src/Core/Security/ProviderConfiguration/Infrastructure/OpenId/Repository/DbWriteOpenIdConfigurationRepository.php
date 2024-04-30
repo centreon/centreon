@@ -32,12 +32,11 @@ use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 /**
- * @phpstan-import-type _EndpointArray from Endpoint
+ * @phpstan-import-type _EndpointArray from \Core\Security\ProviderConfiguration\Domain\Model\Endpoint
  */
 class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
 {
@@ -56,39 +55,61 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
      */
     public function updateConfiguration(Configuration $configuration): void
     {
-        $this->info('Updating OpenID Provider in DBMS');
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                "UPDATE `:db`.`provider_configuration` SET
-                `custom_configuration` = :customConfiguration, `is_active` = :isActive, `is_forced` = :isForced
-                WHERE `name`='openid'"
-            )
-        );
+        $isAlreadyInTransaction = $this->db->inTransaction();
 
-        $statement->bindValue(
-            ':customConfiguration',
-            json_encode($this->buildCustomConfigurationFromOpenIdConfiguration($configuration))
-        );
+        try {
+            if (! $isAlreadyInTransaction) {
+                $this->db->beginTransaction();
+                $this->debug('Start transaction');
+            }
 
-        $statement->bindValue(':isActive', $configuration->isActive() ? '1' : '0');
-        $statement->bindValue(':isForced', $configuration->isForced() ? '1' : '0');
-        $statement->execute();
+            $this->info('Updating OpenID Provider in DBMS');
+            $statement = $this->db->prepare(
+                $this->translateDbName(
+                    "UPDATE `:db`.`provider_configuration` SET
+                    `custom_configuration` = :customConfiguration, `is_active` = :isActive, `is_forced` = :isForced
+                    WHERE `name`='openid'"
+                )
+            );
 
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $configuration->getCustomConfiguration();
-        $authorizationRules = $customConfiguration->getACLConditions()->getRelations();
+            $statement->bindValue(
+                ':customConfiguration',
+                json_encode($this->buildCustomConfigurationFromOpenIdConfiguration($configuration))
+            );
 
-        $this->info('Removing existing authorization rules');
-        $this->deleteAuthorizationRules();
-        $this->info('Inserting new authorization rules');
-        $this->insertAuthorizationRules($authorizationRules);
+            $statement->bindValue(':isActive', $configuration->isActive() ? '1' : '0');
+            $statement->bindValue(':isForced', $configuration->isForced() ? '1' : '0');
+            $statement->execute();
 
-        $contactGroupRelations = $customConfiguration->getGroupsMapping()->getContactGroupRelations();
+            /** @var CustomConfiguration $customConfiguration */
+            $customConfiguration = $configuration->getCustomConfiguration();
+            $authorizationRules = $customConfiguration->getACLConditions()->getRelations();
 
-        $this->info('Removing existing group mappings');
-        $this->deleteContactGroupRelations();
-        $this->info('Inserting new group mappings');
-        $this->insertContactGroupRelations($contactGroupRelations);
+            $this->info('Removing existing authorization rules');
+            $this->deleteAuthorizationRules();
+            $this->info('Inserting new authorization rules');
+            $this->insertAuthorizationRules($authorizationRules);
+
+            $contactGroupRelations = $customConfiguration->getGroupsMapping()->getContactGroupRelations();
+
+            $this->info('Removing existing group mappings');
+            $this->deleteContactGroupRelations();
+            $this->info('Inserting new group mappings');
+            $this->insertContactGroupRelations($contactGroupRelations);
+
+            if (! $isAlreadyInTransaction) {
+                $this->db->commit();
+                $this->debug('Commit transaction');
+            }
+        } catch (\Throwable $ex) {
+            $this->debug('update openId configuration error');
+            if (! $isAlreadyInTransaction) {
+                $this->debug('Roll back transaction');
+                $this->db->rollBack();
+
+                throw $ex;
+            }
+        }
     }
 
     /**
@@ -98,6 +119,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     {
         $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var array{id:int} $result */
             $providerConfigurationId = (int) $result['id'];
             $deleteStatement = $this->db->prepare(
                 'DELETE FROM security_provider_access_group_relation
@@ -115,6 +137,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     {
         $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var array{id:int} $result */
             $providerConfigurationId = (int) $result['id'];
             $insertStatement = $this->db->prepare(
                 'INSERT INTO security_provider_access_group_relation
@@ -192,6 +215,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     {
         $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var array{id:int} $result */
             $providerConfigurationId = (int) $result['id'];
             $deleteStatement = $this->db->prepare(
                 'DELETE FROM security_provider_contact_group_relation
@@ -211,6 +235,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     {
         $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var array{id:int} $result */
             $providerConfigurationId = (int) $result['id'];
             $insertStatement = $this->db->prepare(
                 'INSERT INTO security_provider_contact_group_relation

@@ -189,6 +189,16 @@ $createDatasetFiltersTable = function (CentreonDB $pearDB) use (&$errorMessage):
     );
 };
 
+$alterTypeDefinitionDatasetFilterTable = function (CentreonDB $pearDB) use (&$errorMessage): void
+{
+    $errorMessage = 'Unable to change `type` from enum to varchar in dataset_filters table';
+    $pearDB->query(
+        <<<SQL
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `type` VARCHAR(255) DEFAULT NULL
+        SQL
+    );
+};
+
 $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to insert centreon-widget-groupmonitoring in dashboard_widgets';
     $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-groupmonitoring'");
@@ -200,6 +210,54 @@ $insertGroupMonitoringWidget = function(CentreonDB $pearDB) use(&$errorMessage):
                 SQL
         );
     }
+};
+
+$addDefaultValueforTaskTable = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to alter created_at for task table';
+    $pearDB->query("ALTER TABLE task MODIFY COLUMN `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP");
+};
+
+$insertStatusChartWidget = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to insert centreon-widget-statuschart in dashboard_widgets';
+    $statement = $pearDB->query("SELECT 1 from dashboard_widgets WHERE name = 'centreon-widget-statuschart'");
+    if((bool) $statement->fetchColumn() === false) {
+        $pearDB->query(
+            <<<SQL
+                INSERT INTO dashboard_widgets (`name`)
+                VALUES ('centreon-widget-statuschart')
+                SQL
+        );
+    }
+};
+
+$removeBetaTagFromDashboards = function(CentreonDB $pearDB) use(&$errorMessage): void {
+    $errorMessage = 'Unable to remove the dashboard beta tag';
+    $pearDB->query(
+        <<<SQL
+            UPDATE topology
+            SET topology_url_opt=NULL
+            WHERE topology_name='Dashboards'
+            AND topology_url_opt = 'Beta'
+            SQL
+    );
+};
+
+$updateHostGroupsTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to update topology_url_substitute to NULL for host group configuration page (60102)';
+    $pearDB->query(
+        <<<SQL
+            UPDATE `topology` SET `topology_url_substitute` = NULL WHERE `topology_page` = 60102
+            SQL
+    );
+};
+
+$updateDatasetFilterResourceIdsColumn = function (CentreonDB $pearDB) use (&$errorMessage): void {
+    $errorMessage = 'Unable to change resourceIds column type from VARCHAR to TEXT';
+    $pearDB->query(
+        <<<'SQL'
+            ALTER TABLE `dataset_filters` MODIFY COLUMN `resource_ids` TEXT DEFAULT NULL
+            SQL
+    );
 };
 
 try {
@@ -214,6 +272,10 @@ try {
     $addCloudDescriptionToAclGroups($pearDB);
     $addCloudSpecificToAclResources($pearDB);
     $createDatasetFiltersTable($pearDB);
+    $alterTypeDefinitionDatasetFilterTable($pearDB);
+
+    $addDefaultValueforTaskTable($pearDB);
+    $updateDatasetFilterResourceIdsColumn($pearDB);
 
     // Tansactional queries
     if (! $pearDB->inTransaction()) {
@@ -224,10 +286,15 @@ try {
     $setCoreWidgetsToInternal($pearDB);
     $insertResourcesTableWidget($pearDB);
     $insertGroupMonitoringWidget($pearDB);
+    $insertStatusChartWidget($pearDB);
 
     $insertTopologyForResourceAccessManagement($pearDB);
 
     $updateTopologyForApiTokens($pearDB);
+
+    $removeBetaTagFromDashboards($pearDB);
+
+    $updateHostGroupsTopology($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

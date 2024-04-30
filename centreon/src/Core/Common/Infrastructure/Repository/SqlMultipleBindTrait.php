@@ -31,7 +31,7 @@ trait SqlMultipleBindTrait
      *
      * @return array{0: array<string, mixed>, 1: string}
      */
-    protected function createMultipleBindQuery(array $list, string $prefix ): array
+    protected function createMultipleBindQuery(array $list, string $prefix): array
     {
         $bindValues = [];
         foreach ($list as $index => $id) {

@@ -81,14 +81,18 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
             contentClassName={cx(isGenericTextPanel && classes.description)}
             editable={false}
             editorState={
-              panelOptionsAndData.options?.description?.enabled
-                ? panelOptionsAndData.options?.description?.content || undefined
-                : undefined
+              panelOptionsAndData.options?.description?.content || undefined
             }
           />
         )}
         {!isGenericText(panelConfigurations.path) && (
-          <div className={classes.panelContent}>
+          <div
+            className={cx(
+              displayDescription
+                ? classes.panelContentWithDescription
+                : classes.panelContent
+            )}
+          >
             <FederatedComponent
               isFederatedWidget
               canEdit={canEditField}

@@ -67,7 +67,7 @@ class Step4 extends AbstractStep
         return $parameters;
     }
 
-    public function setBrokerConfiguration($parameters)
+    public function setBrokerConfiguration($parameters): void
     {
         $configurationFile = __DIR__ . '/../../../../../www/install/tmp/broker.json';
         file_put_contents($configurationFile, json_encode($parameters));

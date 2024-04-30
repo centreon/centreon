@@ -4,6 +4,7 @@ export enum ModalMode {
 }
 
 export enum ResourceTypeEnum {
+  All = 'all',
   Empty = '',
   Host = 'host',
   HostCategory = 'host_category',
@@ -63,3 +64,19 @@ export type NamedEntity = {
   id: number;
   name: string;
 };
+
+export enum DeleteType {
+  MultipleItems,
+  SingleItem
+}
+
+export interface DeleteResourceAccessRuleType {
+  deleteType: DeleteType;
+  id: number | Array<number> | null;
+  name?: string;
+}
+
+export interface DuplicateResourceAccessRuleType {
+  id: number | null;
+  rule?: ResourceAccessRule;
+}

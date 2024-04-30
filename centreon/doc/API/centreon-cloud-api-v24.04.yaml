@@ -44,9 +44,49 @@ servers:
         default: v24.04
         description: "Version of the API"
 tags:
+  - name: Host
+  - name: Host group
+  - name: Host template
+  - name: Notification
   - name: Resource Access Management
+  - name: Service
+  - name: Service template
 paths:
   /administration/resource-access/rules:
-    $ref: "./latest/Cloud/ResourceAccessManagement/AddAndFindRules.yaml"
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/AddAndFindRules.yaml"
   /administration/resource-access/rules/{rule_id}:
-    $ref: "./latest/Cloud/ResourceAccessManagement/FindUpdateAndDeleteRule.yaml"
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/FindUpdatesAndDeleteRule.yaml"
+  /administration/resource-access/rules/_delete:
+    $ref: "./latest/Cloud/Administration/ResourceAccessManagement/DeleteRules.yaml"
+  /configuration/hosts:
+    $ref: './latest/Cloud/Configuration/Host/AddAndFindHosts.yaml'
+  /configuration/hosts/{host_id}:
+    $ref: './latest/Cloud/Configuration/Host/PartialUpdateHost.yaml'
+  /configuration/hosts/groups:
+    $ref: './latest/Cloud/Configuration/HostGroups/AddAndFindHostGroups.yaml'
+  /configuration/hosts/groups/{hostgroup_id}:
+    $ref: './latest/Cloud/Configuration/HostGroups/FindAndUpdateHostGroup.yaml'
+  /configuration/hosts/templates:
+    $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
+  /configuration/hosts/templates/{host_template_id}:
+    $ref: './latest/Cloud/Configuration/HostTemplate/PartialUpdateHostTemplate.yaml'
+  /configuration/services:
+    $ref: "./latest/Cloud/Configuration/Service/AddAndFindServices.yaml"
+  /configuration/services/{service_id}:
+    $ref: "./latest/Cloud/Configuration/Service/PartialUpdateService.yaml"
+  /configuration/services/templates:
+    $ref: "./latest/Cloud/Configuration/ServiceTemplate/AddAndFindServiceTemplates.yaml"
+  /configuration/services/templates/{service_template_id}:
+    $ref: "./latest/Cloud/Configuration/ServiceTemplate/PartialUpdateServiceTemplate.yaml"
+  /configuration/notifications:
+    $ref: "./latest/Cloud/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./latest/Cloud/Configuration/Notification/DeleteNotifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./latest/Cloud/Configuration/Notification/Notification.yaml"
+  /configuration/notifications/resources:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/notifications/{notification_id}/rules:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableRule.yaml"
+  /configuration/notifications/contact_groups:
+    $ref: "./latest/Cloud/Configuration/Notification/FindNotifiableContactGroups.yaml"

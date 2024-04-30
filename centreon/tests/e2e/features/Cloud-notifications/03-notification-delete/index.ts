@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import {
   createNotification,
   enableNotificationFeature,
@@ -7,16 +8,18 @@ import {
   waitUntilLogFileChange
 } from '../common';
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
-  cy.startContainers({ useSlim: false });
+  cy.startContainers();
   enableNotificationFeature();
   setBrokerNotificationsOutput({
-    name: 'central-cloud-notifications-output',
-    configName: 'central-broker-master'
+    configName: 'central-broker-master',
+    name: 'central-cloud-notifications-output'
   });
 
   cy.intercept({
@@ -74,10 +77,6 @@ Given('a user with access to the Notification Rules page', () => {
   });
 });
 
-Given('the user is on the Notification Rules page', () => {
-  cy.url().should('include', '/configuration/notifications');
-});
-
 Given('a Notification Rule is already created', () => {
   createNotification(notificationBody);
 });
@@ -124,8 +123,8 @@ Then(
     waitUntilLogFileChange();
 
     notificationSentCheck({
-      log: `<<${data.hosts.host1.name}>>`,
-      contain: false
+      contain: false,
+      logs: `<<${data.hosts.host1.name}>>`
     });
   }
 );
