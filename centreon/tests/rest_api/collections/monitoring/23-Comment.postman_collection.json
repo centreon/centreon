@@ -532,7 +532,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a comment on the host and the service by admin (successful)",
+					"name": "Add a comment on the host by admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -560,11 +560,11 @@
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Add a comment on the host and the service by admin (successful)\");\r",
+									"    postman.setNextRequest(\"Add a comment on the host by admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The comment has been successfully added\", function () {\r",
+									"    pm.test(\"The comment has been successfully added on the host\", function () {\r",
 									"        pm.response.to.have.status(204);\r",
 									"    });\r",
 									"}"
@@ -579,7 +579,67 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/resources/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"resources",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a comment on the service by admin (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\") && pm.response.code !== 204) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Add a comment on the service by admin (successful)\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"The comment has been successfully added on the service\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -1495,7 +1555,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1505,11 +1566,12 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Service not found because user does not have necessary rights.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Service \" + pm.collectionVariables.get(\"Service1Id\") + \" on host \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2007,7 +2069,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2017,11 +2080,12 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Service not found because user does not have necessary rights.\", function () {\r",
 									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"    pm.expect(responseJson.message).to.eql(\"Service \" + pm.collectionVariables.get(\"Service1Id\") + \" on host \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
