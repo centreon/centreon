@@ -71,12 +71,7 @@ $dbmon = new CentreonDB('centstorage');
 $aclDbName = $acl->getNameDBAcl();
 $hgs = $acl->getHostGroupAclConf(null, 'broker');
 
-function mywrap($el)
-{
-    return "'" . $el . "'";
-}
-
-$hgString = implode(',', array_map('mywrap', array_keys($hgs)));
+$hostGroupIds = array_keys($hgs);
 $hoststring = $acl->getHostsString('ID', $dbmon);
 
 switch ($o) {
@@ -139,7 +134,6 @@ switch ($o) {
         }
         $acl = $centreon->user->access;
         $hgs = $acl->getHostGroupAclConf(null, 'broker');
-        $hgString = implode(',', array_map('mywrap', array_keys($hgs)));
         $hoststring = $acl->getHostsString('ID', $dbmon);
         require_once($path . "listHostGroup.php");
         break; #Duplicate n Host grou
