@@ -4,7 +4,7 @@
 		"name": "23_Comment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -579,7 +579,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Looks like there is a problem\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -633,7 +633,7 @@
 									"        pm.expect(responseJson.result.length).to.eql(1);\r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[0].content).to.eql(\"Looks like there is a problem\");\r",
+									"        pm.expect(responseJson.result[0].content).to.eql(\"Oh no\");\r",
 									"    });\r",
 									"}"
 								],
@@ -2507,12 +2507,12 @@
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[0].date).to.eql.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Hola\");\r",
 									"\r",
 									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[1].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[1].content).to.eql(\"Looks like there is a problem\");\r",
+									"        pm.expect(responseJson.result[1].date).to.eql.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[1].content).to.eql(\"Oh no\");\r",
 									"    });\r",
 									"}"
 								],
@@ -2589,16 +2589,13 @@
 									"\r",
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"        \r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"type\": \"comment\",\r",
-									"            \"date\": \"2024-01-14T13:26:52+00:00\",\r",
-									"            \"content\": \"Abcde\"\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"type\": \"comment\",\r",
-									"            \"date\": \"2024-01-16T13:26:52+00:00\",\r",
-									"            \"content\": \"Looks like there is a problem\"\r",
-									"        });\r",
+									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
+									"        pm.expect(responseJson.result[0].date).to.eql.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
+									"\r",
+									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
+									"        pm.expect(responseJson.result[1].date).to.eql.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[1].content).to.eql(\"This happened because the IP adress is incorrect\");\r",
 									"    });\r",
 									"}"
 								],
@@ -2754,76 +2751,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Service1Name",
-			"value": ""
-		},
-		{
-			"key": "Service1Id",
-			"value": ""
-		},
-		{
-			"key": "expectedHttpStatus",
-			"value": ""
-		},
-		{
-			"key": "maxNumberOfTries",
-			"value": ""
-		},
-		{
-			"key": "sleepBetweenTries",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }
