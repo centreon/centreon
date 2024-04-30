@@ -24,7 +24,8 @@ try {
       console.log(firstMonthVersion, latestPackageVersion);
 
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
-        core.setOutput("package_version", firstMonthVersion)
+        core.setOutput("package_version", firstMonthVersion);
+        return;
       }
     }
 
