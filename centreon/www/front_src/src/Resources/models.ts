@@ -87,6 +87,7 @@ export interface ResourceEndpoints {
   downtime?: string;
   forced_check?: string;
   metrics?: string;
+  notification_policy?: string;
   performance_graph?: string;
   sensitivity?: string;
   status_graph?: string;
