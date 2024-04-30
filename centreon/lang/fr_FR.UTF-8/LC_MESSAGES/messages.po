@@ -18967,6 +18967,9 @@ msgstr "Tous les groupes de contacts"
 msgid "All contact groups selected"
 msgstr "Tous les groupes de contacts sont sélectionnés"
 
+msgid "Downloading the performance metrics is not allowed"
+msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
 msgid "Business view"
 msgstr "Vue métier"
 
