@@ -25,6 +25,7 @@ try {
 
       if (compareVersions(latestPackageVersion, firstMonthVersion) === -1) {
         core.setOutput("package_version", firstMonthVersion);
+        core.setOutput("skip-bump-version", 1);
         return;
       }
     }
