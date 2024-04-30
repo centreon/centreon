@@ -16,13 +16,6 @@
         "url": "https://github.com/centreon/centreon-frontend/issues"
     },
     "homepage": "https://github.com/centreon/centreon-frontend#readme",
-    "files": [
-        "eslint",
-        "jest",
-        "tsconfig",
-        "rspack",
-        "cypress"
-    ],
     "peerDependencies": {
         "eslint": "^8.53.0",
         "prettier": "^3.0.0"
