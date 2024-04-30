@@ -19,21 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
+namespace Core\Application\Common\UseCase;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
-final class FindTimePeriodResponse implements StandardResponseInterface
+interface StandardPresenterInterface
 {
-    public function __construct(readonly public TimePeriod $timePeriod)
-    {
-    }
-
-    public function getData(): mixed
-    {
-        return $this->timePeriod;
-    }
+    /**
+     * @param StandardResponseInterface $data
+     * @param array<string, mixed> $context
+     * @param string $format
+     *
+     * @return string
+     */
+    public function present(
+        StandardResponseInterface $data,
+        array $context = [],
+        string $format = JsonEncoder::FORMAT,
+    ): string;
 }

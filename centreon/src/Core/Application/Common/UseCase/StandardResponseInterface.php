@@ -19,21 +19,11 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
+namespace Core\Application\Common\UseCase;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
-
-final class FindTimePeriodResponse implements StandardResponseInterface
+interface StandardResponseInterface
 {
-    public function __construct(readonly public TimePeriod $timePeriod)
-    {
-    }
-
-    public function getData(): mixed
-    {
-        return $this->timePeriod;
-    }
+    public function getData(): mixed;
 }

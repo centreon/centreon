@@ -23,18 +23,41 @@ declare(strict_types=1);
 
 namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 final class AddTimePeriodRequest
 {
-    public string $name = '';
-
-    public string $alias = '';
-
-    /** @var array<array{day: int, time_range: string}> */
-    public array $days = [];
-
-    /** @var int[] */
-    public array $templates = [];
-
-    /** @var array<array{day_range: string, time_range: string}> */
-    public array $exceptions = [];
+    /**
+     * @param mixed $name
+     * @param string $alias
+     * @param array<array{day: int, time_range:string}> $days
+     * @param int[] $templates
+     * @param DtoException[] $exceptions
+     */
+    public function __construct(
+        #[Assert\NotBlank()]
+        #[Assert\Length(min: 10, max: 20)]
+        #[Assert\Type('string')]
+        public readonly mixed $name,
+        #[Assert\Type('string')]
+        public readonly mixed $alias,
+        #[Assert\All(
+            new Assert\Collection(
+            fields: [
+                'day' => [
+                    new Assert\Type('integer'),
+                    new Assert\NotBlank,
+                ],
+                'time_range' => [
+                    new Assert\Type('string'),
+                    new Assert\NotBlank,
+                ],
+            ])
+        )]
+        public readonly array $days,
+        public readonly array $templates = [],
+        #[Assert\Valid]
+        public readonly array $exceptions = [],
+    ) {
+    }
 }

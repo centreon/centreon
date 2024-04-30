@@ -1,0 +1,8 @@
+Core\TimePeriod\Domain\Model\Template:
+  attributes:
+    id:
+      groups:
+        - 'Default'
+    alias:
+      groups:
+        - 'Default'

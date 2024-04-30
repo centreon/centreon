@@ -28,13 +28,11 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\{
-    ConflictResponse,
+use Core\Application\Common\UseCase\{ConflictResponse,
     CreatedResponse,
     ErrorResponse,
     InvalidArgumentResponse,
-    PresenterInterface
-};
+    PresenterInterface};
 use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;

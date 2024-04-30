@@ -19,21 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\TimePeriod\Application\UseCase\FindTimePeriod;
+namespace Core\TimePeriod\Application\UseCase\AddTimePeriod;
 
-use Core\Application\Common\UseCase\StandardResponseInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 
-final class FindTimePeriodResponse implements StandardResponseInterface
+class DtoException
 {
-    public function __construct(readonly public TimePeriod $timePeriod)
-    {
-    }
-
-    public function getData(): mixed
-    {
-        return $this->timePeriod;
+    public function __construct(
+        #[Assert\NotBlank]
+        #[Assert\Type('string')]
+        #[SerializedName('day_range')]
+        public readonly string $dayRange,
+        #[Assert\NotBlank]
+        #[Assert\Type('string')]
+        #[SerializedName('time_range')]
+        public readonly string $timeRange,
+    ) {
     }
 }
