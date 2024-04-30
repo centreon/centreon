@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-Cypress.Commands.add("executePostRequestMultipleTimes", () => {
+Cypress.Commands.add("executePostRequestMultipleTimes", (numberOfTimes) => {
   // eslint-disable-next-line no-plusplus
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 1; i <= numberOfTimes; i++) {
     const name = `Rule${i}`;
     const payload = {
       contact_groups: { all: false, ids: [] },

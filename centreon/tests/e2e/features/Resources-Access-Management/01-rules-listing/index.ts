@@ -44,7 +44,7 @@ Then("a button to add a new rule is available", () => {
 });
 
 Then("I should see at least 15 rules registered", () => {
-  cy.executePostRequestMultipleTimes();
+  cy.executePostRequestMultipleTimes(15);
   cy.reload();
   cy.waitUntil(
     () => {
@@ -87,7 +87,7 @@ Then("I should see the previous first 10 rules displayed", () => {
 When(
   "I enter a search query in the search field for a rule or description",
   () => {
-    cy.executePostRequestMultipleTimes();
+    cy.executePostRequestMultipleTimes(4);
     cy.reload();
     cy.getByTestId({ tag: "input", testId: "Search" }).type("Rule2");
   }
