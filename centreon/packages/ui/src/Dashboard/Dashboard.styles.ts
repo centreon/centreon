@@ -61,7 +61,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       },
       '& .react-resizable-handle:hover': {
         opacity: 1
-      }
+      },
+      position: 'relative'
     }
   })
 );

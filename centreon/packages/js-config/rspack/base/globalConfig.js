@@ -52,7 +52,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ['css-loader']
+        use: ['style-loader', 'css-loader']
       }
     ]
   }),
