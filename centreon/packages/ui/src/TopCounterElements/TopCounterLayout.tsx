@@ -114,7 +114,6 @@ const TopCounterLayout = ({
   showPendingBadge
 }: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
-  
   const [toggled, setToggled] = useState(false);
   const subMenuId = title.replace(/[^A-Za-z]/, '-');
   useCloseOnLegacyPage({ setToggled });
