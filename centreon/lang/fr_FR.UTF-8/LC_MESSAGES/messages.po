@@ -18026,8 +18026,8 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
-msgid "Manage the organization's authentication tokens"
-msgstr "Gérer les jetons d'authentification de l'organisation"
+msgid "Manage API tokens"
+msgstr "Gérer les jetons d’API"
 
 msgid "Widget type"
 msgstr "Type de widget"
@@ -18954,6 +18954,27 @@ msgstr "Tous les groupes d'hôtes"
 
 msgid "All service groups"
 msgstr "Tous les groupes de services"
+
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
+
+msgid "Business view"
+msgstr "Vue métier"
+
+msgid "All business views"
+msgstr "Toutes les vues métier"
+
+msgid "All business views selected"
+msgstr "Toutes les vues métier sont sélectionnées"
 
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
