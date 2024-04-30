@@ -1,30 +1,35 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-Cypress.Commands.add("executePostRequestMultipleTimes", (numberOfTimes) => {
-  // eslint-disable-next-line no-plusplus
+Cypress.Commands.add('createMultipleResourceAccessRules', (numberOfTimes) => {
   for (let i = 1; i <= numberOfTimes; i++) {
     const name = `Rule${i}`;
     const payload = {
       contact_groups: { all: false, ids: [] },
       contacts: { all: false, ids: [17] },
       dataset_filters: [
-        { dataset_filter: null, resources: [14], type: "host" },
+        { dataset_filter: null, resources: [14], type: 'host' }
       ],
-      description: "",
+      description: '',
       is_enabled: true,
-      name: name,
+      name: name
     };
     cy.request({
       body: payload,
-      method: "POST",
-      url: "/centreon/api/v24.04/administration/resource-access/rules?*",
+      method: 'POST',
+      url: '/centreon/api/v24.04/administration/resource-access/rules?*'
     });
   }
 });
 
+Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
+  return cy.execInContainer({
+    command: `sed -i 's/"resource_access_management": 0,/"resource_access_management": 3,/g' /usr/share/centreon/config/features.json`,
+    name: 'web'
+  });
+});
 declare global {
   namespace Cypress {
     interface Chainable {
-      executePostRequestMultipleTimes: () => Cypress.Chainable;
+      createMultipleResourceAccessRules: () => Cypress.Chainable;
+      enableResourcesAccessManagementFeature: () => Cypress.Chainable;
     }
   }
 }
