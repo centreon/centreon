@@ -1137,7 +1137,7 @@
 			]
 		},
 		{
-			"name": "0702 - Creation user-non-admin",
+			"name": "0702 - Acknowledgement by user without ACL Group",
 			"item": [
 				{
 					"name": "Add user-non-admin (successful)",
@@ -1344,6 +1344,411 @@
 							"raw": "{{baseUriCentreonCLAPI}}",
 							"host": [
 								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from admin user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with user-non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Acknowledge all resources by user non-admin without rights",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The acknowledgement has not been submitted, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"acknowledgement\": {\r\n        \"comment\": \"Acknowledged by admin\",\r\n        \"is_notify_contacts\": false,\r\n        \"with_services\": false,\r\n        \"force_active_checks\": false,\r\n        \"is_persistent_comment\": false,\r\n        \"is_sticky\": false\r\n      },\r\n      \"resources\": [\r\n        {\r\n          \"type\": \"host\",\r\n          \"id\": {{Host1Id}},\r\n          \"parent\": null\r\n        },\r\n        {\r\n          \"type\": \"service\",\r\n          \"id\": {{Service1Id}},\r\n          \"parent\": {\r\n              \"id\": {{Host1Id}}\r\n          }\r\n        }\r\n      ]\r\n    }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/resources/acknowledge",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"resources",
+								"acknowledge"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List acknowledged resources by user non-admin without rights",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"No acknowledgements have been listed, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"acknowledgements"
+							],
+							"query": [
+								{
+									"key": "sort_by",
+									"value": "{\"id\":\"ASC\"}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Disacknowledge all resources by user non-admin without rights",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Acknowledgements have not been deleted, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"resources",
+								"acknowledgements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0703 - Acknowledgement by user without access to Actions and Ressources",
+			"item": [
+				{
+					"name": "Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
 							]
 						}
 					},
@@ -1707,7 +2112,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from admin user (successful)",
+					"name": "Logout from admin user",
 					"event": [
 						{
 							"listen": "test",
@@ -1783,12 +2188,7 @@
 						"description": "Entry point to delete an existing authentication token."
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "0703 - Acknowledgement by user without access to Actions and Ressources",
-			"item": [
+				},
 				{
 					"name": "Login with user-non-admin user",
 					"event": [
