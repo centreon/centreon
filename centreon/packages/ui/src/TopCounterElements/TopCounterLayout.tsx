@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Badge, ClickAwayListener } from '@mui/material';
 import type { SvgIcon } from '@mui/material';
+
 import useCloseOnLegacyPage from './useCloseOnLegacyPage';
 
 const useStyles = makeStyles()((theme) => ({
