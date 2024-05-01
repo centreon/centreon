@@ -144,7 +144,7 @@
     "dom-to-image": "^2.6.0",
     "dompurify": "^3.1.2",
     "file-saver": "^2.0.5",
-    "formik": "^2.4.6",
+    "formik": "^2.4.5",
     "html-react-parser": "^5.1.10",
     "i18next": "^23.11.3",
     "intl-pluralrules": "^2.0.1",
