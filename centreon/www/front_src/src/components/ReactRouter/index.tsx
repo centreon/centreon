@@ -4,6 +4,7 @@ import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { flatten, isNil, not } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { animated, useTransition } from '@react-spring/web';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { styled } from '@mui/material';
 
@@ -23,7 +24,6 @@ import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 
 import DeprecatedRoute from './DeprecatedRoute';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
