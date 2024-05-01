@@ -21,6 +21,7 @@ export const useFormInputStyles = makeStyles()((theme) => ({
     borderRadius: theme.spacing(0.5),
     display: 'flex',
     flexDirection: 'column',
+    gap: theme.spacing(2),
     height: '100%',
     justifyContent: 'flex-start',
     padding: theme.spacing(2)

@@ -17,6 +17,9 @@ export const useStyles = makeStyles<StyleProps>()(
       marginTop: theme.spacing(0.5)
     },
     channels: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
       paddingBottom: theme.spacing(1),
       paddingTop: theme.spacing(3)
     },
@@ -35,6 +38,9 @@ export const useStyles = makeStyles<StyleProps>()(
       padding: theme.spacing(1.5, 1)
     },
     hostsGrid: {
+      columnGap: theme.spacing(2),
+      display: 'grid',
+      gridTemplateColumns: 'auto auto',
       rowGap: isExtraFieldHidden ? 0 : theme.spacing(3)
     },
     input: {

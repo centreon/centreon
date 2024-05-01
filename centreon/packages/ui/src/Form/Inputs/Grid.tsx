@@ -32,7 +32,7 @@ const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
   const className = grid?.className || '';
 
   return (
-    <div className={cx(classes.gridFields, className)}>
+    <div className={cx(className, !className && classes.gridFields)}>
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
 
