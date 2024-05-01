@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "24.4.0",
+  "version": "1.0.0",
   "description": "Centreon UI Components",
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
