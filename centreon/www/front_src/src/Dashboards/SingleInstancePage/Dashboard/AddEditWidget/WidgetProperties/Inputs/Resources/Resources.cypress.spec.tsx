@@ -308,12 +308,12 @@ describe('Resources tree', () => {
     cy.makeSnapshot();
   });
 
-  it("confirms that the 'Add Filter' button is hidden when the 'Service' type is selected", () => {
+  it("confirms that the 'Add Filter' button is disabled when the 'Service' type is selected", () => {
     cy.findByTestId(labelResourceType).parent().click();
 
     cy.contains('Service').click();
 
-    cy.findByTestId(labelAddFilter).should('not.exist');
+    cy.findByTestId(labelAddFilter).should('be.disbaled');
 
     cy.makeSnapshot();
   });
