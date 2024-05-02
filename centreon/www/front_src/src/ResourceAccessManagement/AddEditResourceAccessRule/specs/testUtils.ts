@@ -231,8 +231,14 @@ export const findContactGroupsResponse = {
 };
 
 export const formData = {
-  contact_groups: [5],
-  contacts: [4],
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
   dataset_filters: [
     {
       dataset_filter: {
@@ -255,8 +261,14 @@ export const formData = {
 };
 
 export const formDataWithAllHostGroups = {
-  contact_groups: [5],
-  contacts: [4],
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -270,8 +282,14 @@ export const formDataWithAllHostGroups = {
 };
 
 export const allResourcesFormData = {
-  contact_groups: [5],
-  contacts: [4],
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -284,9 +302,78 @@ export const allResourcesFormData = {
   name: 'rule#0'
 };
 
+export const formDataWithAllContacts = {
+  contact_groups: {
+    all: false,
+    ids: []
+  },
+  contacts: {
+    all: true,
+    ids: []
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'hostgroup'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
+export const formDataWithAllContactGroups = {
+  contact_groups: {
+    all: true,
+    ids: []
+  },
+  contacts: {
+    all: false,
+    ids: []
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'hostgroup'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
 export const editedRuleFormData = {
-  contact_groups: [3, 5],
-  contacts: [1, 4],
+  contact_groups: {
+    all: false,
+    ids: [3, 5]
+  },
+  contacts: {
+    all: false,
+    ids: [1, 4]
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'hostgroup'
+    }
+  ],
+  description: 'First rule',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
+export const editedRuleFormDataWithAllContactsAndContactGroups = {
+  contact_groups: {
+    all: true,
+    ids: []
+  },
+  contacts: {
+    all: true,
+    ids: []
+  },
   dataset_filters: [
     {
       dataset_filter: null,
@@ -300,14 +387,20 @@ export const editedRuleFormData = {
 };
 
 export const findResourceAccessRuleResponse = (): object => ({
-  contact_groups: [
-    { id: 3, name: 'Guest' },
-    { id: 5, name: 'Supervisor' }
-  ],
-  contacts: [
-    { id: 1, name: 'admin admin' },
-    { id: 4, name: 'centreon-gorgone' }
-  ],
+  contact_groups: {
+    all: false,
+    values: [
+      { id: 3, name: 'Guest' },
+      { id: 5, name: 'Supervisor' }
+    ]
+  },
+  contacts: {
+    all: false,
+    values: [
+      { id: 1, name: 'admin admin' },
+      { id: 4, name: 'centreon-gorgone' }
+    ]
+  },
   dataset_filters: [
     {
       dataset_filter: {
@@ -334,3 +427,126 @@ export const findResourceAccessRuleResponse = (): object => ({
   is_enabled: true,
   name: 'Rule 1'
 });
+
+export const platformVersions = {
+  isCloudPlatform: true,
+  modules: {
+    'centreon-bam-server': {
+      fix: '0',
+      major: '24',
+      minor: '04',
+      version: '24.04.0'
+    }
+  },
+  web: {
+    fix: '0',
+    major: '24',
+    minor: '04',
+    version: '24.04.0'
+  },
+  widgets: {}
+};
+
+export const findBusinessViewsResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 2
+  },
+  result: [
+    {
+      id: 1,
+      name: 'BV1'
+    },
+    {
+      id: 2,
+      name: 'BV2'
+    }
+  ]
+};
+
+export const formDataWithBusinessViews = {
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [1, 2],
+      type: 'business_view'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
+export const formDataWithAllBusinessViews = {
+  contact_groups: {
+    all: false,
+    ids: [5]
+  },
+  contacts: {
+    all: false,
+    ids: [4]
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'business_view'
+    }
+  ],
+  description: 'rule#1: Lorem ipsum...',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
+export const editedRuleFormDataiWithBusinessViews = {
+  contact_groups: {
+    all: false,
+    ids: [3, 5]
+  },
+  contacts: {
+    all: false,
+    ids: [1, 4]
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [1, 2],
+      type: 'business_view'
+    }
+  ],
+  description: 'First rule',
+  is_enabled: true,
+  name: 'rule#1'
+};
+
+export const editedRuleFormDataiWithAllBusinessViews = {
+  contact_groups: {
+    all: false,
+    ids: [3, 5]
+  },
+  contacts: {
+    all: false,
+    ids: [1, 4]
+  },
+  dataset_filters: [
+    {
+      dataset_filter: null,
+      resources: [],
+      type: 'business_view'
+    }
+  ],
+  description: 'First rule',
+  is_enabled: true,
+  name: 'rule#1'
+};

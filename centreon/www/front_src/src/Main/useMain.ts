@@ -24,7 +24,7 @@ export const router = {
   useNavigate
 };
 
-const useMain = (): void => {
+const useMain = (hasReachedAPublicPage: boolean): void => {
   const { sendRequest: getPlatformInstallationStatus } =
     useRequest<PlatformInstallationStatus>({
       decoder: platformInstallationStatusDecoder,
@@ -32,8 +32,12 @@ const useMain = (): void => {
     });
   const { showErrorMessage } = useSnackbar();
 
-  const { getBrowserLocale, getInternalTranslation, i18next } =
-    useInitializeTranslation();
+  const {
+    getBrowserLocale,
+    getInternalTranslation,
+    getExternalTranslation,
+    i18next
+  } = useInitializeTranslation();
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
     areUserParametersLoadedAtom
@@ -65,6 +69,14 @@ const useMain = (): void => {
 
   useEffect(() => {
     displayAuthenticationError();
+
+    if (hasReachedAPublicPage) {
+      setAreUserParametersLoaded(false);
+      getPlatformVersions();
+      getExternalTranslation();
+
+      return;
+    }
 
     getPlatformInstallationStatus({
       endpoint: platformInstallationStatusEndpoint

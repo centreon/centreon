@@ -22,11 +22,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer;
 
-use Centreon\Domain\MonitoringServer\MonitoringServer;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\MonitoringServer\Exception\RealTimeMonitoringServerException;
 use Centreon\Infrastructure\MonitoringServer\Repository\RealTimeMonitoringServerRepositoryRDB;
 use Centreon\Domain\Log\LoggerTrait;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * This class is designed to represent a use case to find all monitoring servers.
@@ -38,53 +39,48 @@ class FindRealTimeMonitoringServers
     use LoggerTrait;
 
     /**
-     * @var ContactInterface
-     */
-    private $contact;
-
-    /**
-     * @var RealTimeMonitoringServerRepositoryRDB
-     */
-    private $realTimeMonitoringServerRepository;
-
-    /**
      * FindRealTimeMonitoringServers constructor.
      *
+     * @param RealTimeMonitoringServerRepositoryRDB $realTimeMonitoringServerRepository
      * @param ContactInterface $contact
      */
     public function __construct(
-        RealTimeMonitoringServerRepositoryRDB $realTimeMonitoringServerRepository,
-        ContactInterface $contact
+        readonly private RealTimeMonitoringServerRepositoryRDB $realTimeMonitoringServerRepository,
+        readonly private ContactInterface $contact
     ) {
-        $this->contact = $contact;
-        $this->realTimeMonitoringServerRepository = $realTimeMonitoringServerRepository;
     }
 
     /**
      * Execute the use case for which this class was designed.
      *
-     * @return FindRealTimeMonitoringServersResponse
      * @throws RealTimeMonitoringServerException
+     * @throws \Throwable
+     * @return FindRealTimeMonitoringServersResponse
      */
     public function execute(): FindRealTimeMonitoringServersResponse
     {
+        $this->info('Find all realtime monitoring servers information.');
+
+        if (! $this->contact->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)) {
+            $this->error('User doesn\'t have sufficient rights to see realtime monitoring servers', [
+                    'user_id' => $this->contact->getId(),
+                ]);
+            throw new AccessDeniedException();
+        }
         $response = new FindRealTimeMonitoringServersResponse();
 
         $realTimeMonitoringServers = [];
+
         if ($this->contact->isAdmin()) {
             try {
-                $this->info('Find all realtime monitoring servers information.');
                 $realTimeMonitoringServers = $this->realTimeMonitoringServerRepository->findAll();
             } catch (\Throwable $ex) {
                 throw RealTimeMonitoringServerException::findRealTimeMonitoringServersException($ex);
             }
         } else {
-            /**
-             * @var MonitoringServer[]
-             */
             $allowedMonitoringServers = $this->realTimeMonitoringServerRepository
                 ->findAllowedMonitoringServers($this->contact);
-            if (!empty($allowedMonitoringServers)) {
+            if (! empty($allowedMonitoringServers)) {
                 $allowedMonitoringServerIds = array_map(
                     function ($allowedMonitoringServer) {
                         return $allowedMonitoringServer->getId();

@@ -4,6 +4,11 @@ export const baseEndpoint = './api/latest';
 
 export const dashboardsEndpoint = `${baseEndpoint}/configuration/dashboards`;
 
+export const getPublicDashboardEndpoint = ({
+  playlistID,
+  dashboardId
+}): string => `/dashboards/playlists/${playlistID}/dashboards/${dashboardId}`;
+
 export const getDashboardEndpoint = (id?: NamedEntity['id']): string =>
   `${dashboardsEndpoint}/${id}`;
 

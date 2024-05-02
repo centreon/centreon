@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 
 import { Typography } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
@@ -26,6 +28,8 @@ const Legend = ({
   direction,
   getLinkToResourceStatusPage
 }: Props): JSX.Element => {
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const { classes } = useLegendStyles({
     direction
   });
@@ -40,6 +44,9 @@ const Legend = ({
               classes={{
                 tooltip: classes.tooltip
               }}
+              disableFocusListener={isOnPublicPage}
+              disableHoverListener={isOnPublicPage}
+              disableTouchListener={isOnPublicPage}
               followCursor={false}
               label={
                 <TooltipContent

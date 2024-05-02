@@ -1,5 +1,6 @@
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import pluralize from 'pluralize';
 
 import Divider from '@mui/material/Divider';
 
@@ -48,7 +49,7 @@ const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
-      <Title msg={t(labelApiToken)} />
+      <Title msg={pluralize(t(labelApiToken))} />
       <Divider className={classes.divider} />
       <Listing
         innerScrollDisabled
