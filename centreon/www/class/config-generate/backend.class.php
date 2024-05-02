@@ -135,9 +135,11 @@ class Backend
         $this->tmp_file = basename(tempnam($this->full_path, TMP_DIR_PREFIX));
         $this->tmp_dir = $this->tmp_file . TMP_DIR_SUFFIX;
         $this->full_path .= '/' . $this->tmp_dir;
-        if (!mkdir($this->full_path, 0770, true)) {
+        if (! mkdir($this->full_path)) {
             throw new Exception("Cannot create directory '" . $this->full_path . "'");
         }
+        // rights cannot be set in mkdir function (2nd argument) because current sgid bit on parent directory override it
+        chmod($this->full_path, 0770);
     }
 
     public function getPath()

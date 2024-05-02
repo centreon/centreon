@@ -1,7 +1,6 @@
 const path = require('path');
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { ModuleFederationPlugin } = require('webpack').container;
+const rspack = require('@rspack/core');
 
 const {
   getModuleConfiguration,
@@ -13,21 +12,20 @@ const {
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  jscTransformConfiguration,
   enableCoverage
 }) => ({
   cache,
-  module: getModuleConfiguration(jscTransformConfiguration, enableCoverage),
+  module: getModuleConfiguration(enableCoverage),
   optimization,
   output: {
     ...output,
+    clean: true,
     library: moduleName,
     uniqueName: moduleName
   },
   plugins: [
-    new CleanWebpackPlugin(),
     moduleName &&
-      new ModuleFederationPlugin({
+      new rspack.container.ModuleFederationPlugin({
         filename: 'remoteEntry.[chunkhash:8].js',
         library: { name: moduleName, type: 'umd' },
         name: moduleName,

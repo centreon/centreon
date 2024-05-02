@@ -17184,6 +17184,9 @@ msgstr "Modo avanzado"
 # msgid "All contact groups selected"
 # msgstr ""
 
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
 # msgid "Business view"
 # msgstr ""
 
@@ -17191,4 +17194,7 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
 # msgstr ""

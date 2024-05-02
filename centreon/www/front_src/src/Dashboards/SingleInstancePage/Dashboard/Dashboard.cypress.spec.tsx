@@ -582,8 +582,6 @@ describe('Dashboard', () => {
         .then(() => {
           expect(blockNavigation).to.have.been.calledWith();
         });
-
-      cy.makeSnapshot();
     });
   });
 

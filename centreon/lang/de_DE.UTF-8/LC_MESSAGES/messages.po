@@ -16850,6 +16850,9 @@ msgstr "Erweiterter Modus"
 # msgid "All contact groups selected"
 # msgstr ""
 
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
 # msgid "Business view"
 # msgstr ""
 
@@ -16857,4 +16860,7 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
 # msgstr ""

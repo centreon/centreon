@@ -1,7 +1,7 @@
 {
     "name": "@centreon/js-config",
     "description": "Centreon Frontend shared build configuration",
-    "version": "24.4.0",
+    "version": "1.0.0",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -16,13 +16,6 @@
         "url": "https://github.com/centreon/centreon-frontend/issues"
     },
     "homepage": "https://github.com/centreon/centreon-frontend#readme",
-    "files": [
-        "eslint",
-        "jest",
-        "tsconfig",
-        "webpack",
-        "cypress"
-    ],
     "peerDependencies": {
         "eslint": "^8.53.0",
         "prettier": "^3.0.0"

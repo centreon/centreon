@@ -17632,6 +17632,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "All contact groups selected"
 # msgstr ""
 
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
 # msgid "Business view"
 # msgstr ""
 
@@ -17639,4 +17642,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
 # msgstr ""
