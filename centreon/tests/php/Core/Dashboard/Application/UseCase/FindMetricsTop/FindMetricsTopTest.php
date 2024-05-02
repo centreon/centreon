@@ -46,6 +46,7 @@ beforeEach(function () {
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->metricRepository = $this->createMock(ReadDashboardPerformanceMetricRepositoryInterface::class);
     $this->rights = $this->createMock(DashboardRights::class);
+    $this->isCloudPlatform = false;
 });
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function () {
@@ -57,7 +58,8 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
         $this->requestParameters,
         $this->accessGroupRepository,
         $this->metricRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
@@ -82,12 +84,13 @@ it('should present an ErrorResponse when an error occurs', function () {
         $this->requestParameters,
         $this->accessGroupRepository,
         $this->metricRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository
@@ -111,12 +114,13 @@ it('should present a NotFoundResponse when no metrics are found', function () {
         $this->requestParameters,
         $this->accessGroupRepository,
         $this->metricRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository
@@ -131,6 +135,31 @@ it('should present a NotFoundResponse when no metrics are found', function () {
         ->and($presenter->data->getMessage())->toBe((new NotFoundResponse('metrics'))->getMessage());
 });
 
+it('should take account of access groups when the user is not admin', function () {
+    $presenter = new FindMetricsTopPresenterStub();
+    $request =  new FindMetricsTopRequest();
+    $request->metricName = "rta";
+    $useCase = new FindMetricsTop(
+        $this->nonAdminUser,
+        $this->requestParameters,
+        $this->accessGroupRepository,
+        $this->metricRepository,
+        $this->rights,
+        $this->isCloudPlatform
+    );
+
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(true);
+
+    $this->metricRepository
+        ->expects($this->once())
+        ->method('findByRequestParametersAndAccessGroupsAndMetricName');
+
+    $useCase($presenter, $request);
+});
+
 it('should present a FindMetricsTopResponse when metrics are found', function () {
     $presenter = new FindMetricsTopPresenterStub();
     $request =  new FindMetricsTopRequest();
@@ -140,7 +169,8 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
         $this->requestParameters,
         $this->accessGroupRepository,
         $this->metricRepository,
-        $this->rights
+        $this->rights,
+        $this->isCloudPlatform
     );
 
     $response = [
@@ -166,7 +196,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
 
     $this->rights
         ->expects($this->once())
-        ->method('canAccess')
+        ->method('hasAdminRole')
         ->willReturn(true);
 
     $this->metricRepository

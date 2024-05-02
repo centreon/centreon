@@ -136,13 +136,15 @@ interface ReadDashboardShareRepositoryInterface
      * Find users with Topology ACLs on dashboards.
      *
      * @param RequestParametersInterface $requestParameters
+     * @param bool $isCloudPlatform
      *
      * @throws \Throwable|\UnexpectedValueException
      *
      * @return DashboardContactRole[]
      */
     public function findContactsWithAccessRightByRequestParameters(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
+        bool $isCloudPlatform
     ): array;
 
     /**

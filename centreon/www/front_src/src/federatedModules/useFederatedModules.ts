@@ -36,9 +36,13 @@ const useFederatedModules = (): UseFederatedModulesState => {
       return;
     }
 
+    const timestamp = `?t=${new Date().getTime()}`;
+
     Promise.all(
       modules?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedModuleFederationFile(moduleName) })
+        sendRequest({
+          endpoint: `${getFederatedModuleFederationFile(moduleName)}${timestamp}`
+        })
       ) || []
     ).then((federatedModuleConfigs: Array<FederatedModule>): void => {
       setFederatedModules(federatedModuleConfigs);

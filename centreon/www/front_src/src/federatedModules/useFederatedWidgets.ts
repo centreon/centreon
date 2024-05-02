@@ -50,9 +50,13 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
       return;
     }
 
+    const timestamp = `?t=${new Date().getTime()}`;
+
     Promise.all(
       widgets?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedWidget(moduleName) })
+        sendRequest({
+          endpoint: `${getFederatedWidget(moduleName)}${timestamp}`
+        })
       ) || []
     ).then((federatedWidgetConfigs: Array<FederatedModule>): void => {
       setFederatedWidgets(federatedWidgetConfigs);

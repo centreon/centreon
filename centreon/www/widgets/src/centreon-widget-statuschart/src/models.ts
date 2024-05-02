@@ -21,12 +21,14 @@ export interface PanelOptions {
   unit: 'number' | 'percentage';
 }
 
-export interface StatusChartProps extends CommonWidgetProps<PanelOptions> {
+export interface StatusChartProps
+  extends Omit<CommonWidgetProps<PanelOptions>, 'store'> {
   panelData: Data;
   panelOptions: PanelOptions;
 }
 
-export interface ChartType {
+export interface ChartType
+  extends Pick<StatusChartProps, 'dashboardId' | 'id' | 'playlistHash'> {
   displayLegend: boolean;
   displayType: DisplayType;
   displayValues: boolean;

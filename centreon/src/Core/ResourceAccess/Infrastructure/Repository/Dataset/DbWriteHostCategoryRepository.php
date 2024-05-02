@@ -79,4 +79,12 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
 
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
+    {
+        return;
+    }
 }

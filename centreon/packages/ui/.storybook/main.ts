@@ -1,7 +1,5 @@
-import type { StorybookConfig } from "@storybook/react-vite";
+import type { StorybookConfig } from "@storybook/react-webpack5";
 import remarkGfm from "remark-gfm";
-import  turbosnap from 'vite-plugin-turbosnap';
-import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
@@ -26,20 +24,16 @@ const config: StorybookConfig = {
   ],
   features: {},
   framework: {
-    name: "@storybook/react-vite",
-    options: {},
+    name: '@modern-js/storybook',
+    options: {
+      bundler: 'rspack'
+    },
   },
   typescript: {
-    reactDocgen: "react-docgen-typescript",
+    reactDocgen: "react-docgen",
   },
   docs: {
     autodocs: "tag",
-  },
-  core: { builder: '@storybook/builder-vite' },
-  async viteFinal(config, { configType }) {
-    return mergeConfig(config, {
-      plugins: configType === 'PRODUCTION' ? [turbosnap({ rootDir: config.root ?? process.cwd() })] : [],
-    });
   },
 };
 

@@ -1,8 +1,9 @@
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 import { equals, last } from 'ramda';
 
-import { Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Data, DisplayType, PanelOptions } from '../models';
 import {
@@ -10,7 +11,8 @@ import {
   resourcesEndpoint,
   serviceStatusesEndpoint
 } from '../api/endpoint';
-import StatusChart from '..';
+import StatusChart from '../StatusChart';
+import { getPublicWidgetEndpoint } from '../../../utils';
 
 import {
   options as resourcesOptions,
@@ -23,30 +25,37 @@ import {
 
 interface Props {
   data: Data;
+  isPublic?: boolean;
   options: PanelOptions;
 }
 
-const store = createStore();
-
-const initialize = ({ options, data }: Props): void => {
+const initialize = ({ options, data, isPublic = false }: Props): void => {
   cy.viewport('macbook-11');
+  const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.mount({
     Component: (
-      <BrowserRouter>
-        <div style={{ height: '90vh', width: '90%' }}>
-          <StatusChart
-            globalRefreshInterval={{
-              interval: 30,
-              type: 'manual'
-            }}
-            panelData={data}
-            panelOptions={options}
-            refreshCount={0}
-            store={store}
-          />
-        </div>
-      </BrowserRouter>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <BrowserRouter>
+            <div style={{ height: '90vh', width: '90%' }}>
+              <StatusChart
+                dashboardId={1}
+                globalRefreshInterval={{
+                  interval: 30,
+                  type: 'manual'
+                }}
+                id="1"
+                panelData={data}
+                panelOptions={options}
+                playlistHash="hash"
+                refreshCount={0}
+              />
+            </div>
+          </BrowserRouter>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 };
@@ -66,6 +75,18 @@ const interceptRequests = (): void => {
       alias: 'getResourcesByHost',
       method: Method.GET,
       path: `./api/latest${hostStatusesEndpoint}`,
+      response: data
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        extraQueryParameters: '?&resource_type=%22host%22',
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
       response: data
     });
   });
@@ -98,6 +119,23 @@ const displayTypes = [
     label: 'Vertical bar'
   }
 ];
+
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    interceptRequests();
+    initialize({
+      data: { resources },
+      isPublic: true,
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
 
 displayTypes.forEach(({ displayType, label }) => {
   describe(label, () => {

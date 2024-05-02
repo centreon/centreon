@@ -131,7 +131,7 @@ export {
   default as useGraphQuery,
   resourceTypeQueryParameter
 } from './api/useGraphQuery';
-export { default as QueryProvider } from './api/QueryProvider';
+export { default as QueryProvider, client } from './api/QueryProvider';
 export {
   default as FileDropZone,
   transformFileListToArray
