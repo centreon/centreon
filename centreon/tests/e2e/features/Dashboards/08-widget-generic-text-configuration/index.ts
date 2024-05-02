@@ -61,6 +61,9 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
+  // avoid random "Cannot read properties of null (reading 'postMessage')" when stopping containers
+  cy.on('uncaught:exception', () => false);
+
   cy.stopContainers();
 });
 
