@@ -68,6 +68,9 @@ const Resources = ({
     (value.length <= 1 && (required || isNil(required))) ||
     equals(value.length, 1);
 
+  const iAddButtonHidden =
+    !canEditField || singleResourceType || isLastResourceInTree;
+
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
@@ -83,9 +86,7 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={
-            !canEditField || singleResourceType || isLastResourceInTree
-          }
+          addButtonHidden={iAddButtonHidden}
           addbuttonDisabled={!areResourcesFullfilled(value)}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
@@ -106,7 +107,7 @@ const Resources = ({
                 disabled={
                   !canEditField ||
                   getResourceStatic(resource.resourceType) ||
-                  (value.length > 1 && index !== value.length - 1)
+                  (value.length > 1 && !equals(index, value.length - 1))
                 }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(resource)}
