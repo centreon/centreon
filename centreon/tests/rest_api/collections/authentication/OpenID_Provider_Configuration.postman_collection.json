@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "57a4cb10-e276-46a1-bf48-10552dbbab41",
-		"name": "04 - OpenID Provider Configuration",
+		"_postman_id": "7081bae9-e648-497d-8c72-5183bded3322",
+		"name": "OpenID_Provider_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-57a4cb10-e276-46a1-bf48-10552dbbab41?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7081bae9-e648-497d-8c72-5183bded3322?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "0401 - Update and retrieve OpenId Provider Configuration",
+			"name": "0101 - Update and retrieve OpenId Provider Configuration",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -580,7 +580,7 @@
 			]
 		},
 		{
-			"name": "0402 - Update OpenId Provider Configuration with invalid information",
+			"name": "0102 - Update OpenId Provider Configuration with invalid information",
 			"item": [
 				{
 					"name": "PUT required property missing (error)",
@@ -924,10 +924,10 @@
 			]
 		},
 		{
-			"name": "0403 - Update and retrieve OpenId Provider Configuration information as logged non-admin user without Reach API rights",
+			"name": "0103 - Update and retrieve OpenId Provider Configuration information as logged non-admin user without Topology rights",
 			"item": [
 				{
-					"name": "Add user without reach_api rights (successful)",
+					"name": "Add user (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -962,6 +962,108 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;user-test;user-test@localhost;Centreon!1234;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add reach_api parameters (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;reach_api;1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link user to ALL (successful)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;user-test\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1321,7 +1423,7 @@
 			]
 		},
 		{
-			"name": "0404 - Update and retrieve OpenId Provider Configuration information as logged non-admin user with Reach API rights",
+			"name": "0104 - Update and retrieve OpenId Provider Configuration information as logged non-admin user with Topology rights",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -1366,108 +1468,6 @@
 							],
 							"path": [
 								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters (successful)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to ALL (successful)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;user-test\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
 							]
 						}
 					},
@@ -1533,7 +1533,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1544,7 +1545,8 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1559,7 +1561,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"Authentication-user;1;Administration\"\r\n}",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"Authentication-user;1;Administration;Authentication\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

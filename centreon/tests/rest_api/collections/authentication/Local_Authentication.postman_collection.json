@@ -1,14 +1,14 @@
 {
 	"info": {
 		"_postman_id": "7a4a5e81-a3a7-4855-9383-885e133c3408",
-		"name": "02 - Local Authentication",
+		"name": "Local_Authentication",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7a4a5e81-a3a7-4855-9383-885e133c3408?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "0201 - Successful login with admin",
+			"name": "0101 - Successful login with admin",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -293,7 +293,7 @@
 			]
 		},
 		{
-			"name": "0202 - Wrong credentials for admin once",
+			"name": "0102 - Wrong credentials for admin once",
 			"item": [
 				{
 					"name": "Wrong credentials for admin once (error)",
@@ -343,7 +343,7 @@
 			]
 		},
 		{
-			"name": "0203 - Successful login with admin after 1 wrong",
+			"name": "0103 - Successful login with admin after 1 wrong",
 			"item": [
 				{
 					"name": "Login with admin user after 1 wrong (successful)",
@@ -474,7 +474,7 @@
 			]
 		},
 		{
-			"name": "0204 - Wrong credentials for admin multiple times",
+			"name": "0104 - Wrong credentials for admin multiple times",
 			"item": [
 				{
 					"name": "Wrong password multiple times with admin (error)",
@@ -585,7 +585,7 @@
 			]
 		},
 		{
-			"name": "0205 - Wrong credentials for user once",
+			"name": "0105 - Wrong credentials for user once",
 			"item": [
 				{
 					"name": "Wrong credentials for user once (error)",
@@ -635,7 +635,7 @@
 			]
 		},
 		{
-			"name": "0206 - Successful login with user after 1 wrong",
+			"name": "0106 - Successful login with user after 1 wrong",
 			"item": [
 				{
 					"name": "Login with user after 1 wrong (successful)",
@@ -766,7 +766,7 @@
 			]
 		},
 		{
-			"name": "0207 - Wrong credentials for user multiple times",
+			"name": "0107 - Wrong credentials for user multiple times",
 			"item": [
 				{
 					"name": "Wrong password multiple times with user (error)",

@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "7db37a35-c0bd-42d9-81e8-267a6a9693f7",
-		"name": "07_Acknowledgement",
+		"_postman_id": "f010db3a-ba7a-4e67-9de9-0dbef0dfe1d0",
+		"name": "Check",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f010db3a-ba7a-4e67-9de9-0dbef0dfe1d0?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "0701 - By admin",
+			"name": "0101 - By admin",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -153,7 +153,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"{{HostTemplate1Name}}\",\r\n\"alias\": \"{{HostTemplate1Alias}}\",\r\n\"check_command_id\": {{CommandId}},\r\n\"max_check_attempts\": 1\r\n}\r\n",
+							"raw": "{\r\n\"name\": \"{{HostTemplate1Name}}\",\r\n\"alias\": \"{{HostTemplate1Alias}}\",\r\n\"check_command_id\": {{CommandId}},\r\n\"max_check_attempts\": 5\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -531,7 +531,7 @@
 					"response": []
 				},
 				{
-					"name": "Schedule a check on a host",
+					"name": "Retrieve last_check value for the host by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -539,8 +539,7 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						},
 						{
@@ -548,118 +547,59 @@
 							"script": {
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
-									"pm.collectionVariables.set(\"maxNumberOfTries\", 20);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 3000);\r",
+									"pm.collectionVariables.set(\"maxNumberOfTries\", 10);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Schedule a check on a host\");\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the host by the admin\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The check has been successfully sent\", function () {\r",
-									"        pm.response.to.have.status(204);\r",
+									"    pm.test(\"last_check value is retrieved for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
 									"    });\r",
+									"\r",
 									"}"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"is_forced\": true\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/check",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
 								"hosts",
-								"{{Host1Id}}",
-								"check"
+								"{{Host1Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Schedule a check on a service",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
-									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
-									"}\r",
-									"\r",
-									"if ((pm.response.code != 204) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
-									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Schedule a check on a host\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"collection_tries\");\r",
-									"\r",
-									"    pm.test(\"The check has been successfully sent\", function () {\r",
-									"        pm.response.to.have.status(204);\r",
-									"    });\r",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"status\": 2,\r\n    \"output\": \"CRITICAL \"\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}/submit",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"hosts",
-								"{{Host1Id}}",
-								"services",
-								"{{Service1Id}}",
-								"submit"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Wait for the service to be in HARD state",
+					"name": "Retrieve last_check value for the service by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -682,16 +622,16 @@
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Wait for the service to be in HARD state\");\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the service by the admin\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The service is in Hard state\", function () {\r",
+									"    pm.test(\"last_check value is retrieved for the service\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"        const responseJson = pm.response.json();\r",
-									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"        pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
 									"    });\r",
+									"\r",
 									"}"
 								],
 								"type": "text/javascript"
@@ -725,7 +665,7 @@
 					"response": []
 				},
 				{
-					"name": "Wait for the host to be in HARD state",
+					"name": "Scheduled a check on resources",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -740,24 +680,70 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"pm.test(\"The check has been successfully sent.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check\": {\r\n        \"is_forced\": true\r\n    },\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            }\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/resources/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"resources",
+								"check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the host by the admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.response.code != 200) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckHost\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"Wait for the host to be in HARD state\");\r",
+									"    postman.setNextRequest(\"Compare last_check value for the host by the admin\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The host is in Hard state\", function () {\r",
-									"        pm.response.to.have.status(200);\r",
-									"        const responseJson = pm.response.json();\r",
-									"        pm.expect(responseJson.state_type).not.to.eql(0);\r",
-									"        pm.expect(responseJson.state).not.to.eql(0);\r",
+									"    pm.test(\"last_check value is different for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
 									"    });\r",
+									"\r",
 									"}"
 								],
 								"type": "text/javascript"
@@ -789,7 +775,7 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge services by admin",
+					"name": "Compare last_check value for the service by the admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -797,32 +783,50 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The acknowledgement has successfully been submitted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckService\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the service by the admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
+									"    });\r",
+									"}"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"comment\": \"Acknowledged by admin\",\r\n    \"is_notify_contacts\": false,\r\n    \"is_persistent_comment\": true,\r\n    \"is_sticky\": true\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}/acknowledgements",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -831,304 +835,7 @@
 								"hosts",
 								"{{Host1Id}}",
 								"services",
-								"{{Service1Id}}",
-								"acknowledgements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Acknowledge hosts by admin",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The acknowledgement has successfully been submitted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"comment\": \"Acknowledged by admin\",\r\n    \"is_notify_contacts\": false,\r\n    \"with_services\": true,\r\n    \"is_persistent_comment\": false,\r\n    \"is_sticky\": false\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/acknowledgements",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"hosts",
-								"{{Host1Id}}",
-								"acknowledgements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List acknowledged resources by admin",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"\r",
-									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
-									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
-									"}\r",
-									"\r",
-									"if ((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
-									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"List acknowledged resources by admin\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"collection_tries\");\r",
-									"\r",
-									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
-									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
-									"        \r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": true,\r",
-									"            \"is_sticky\": true,\r",
-									"            \"state\": 2,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"\r",
-									"    });\r",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Disacknowledge all resources by admin",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Acknowledgements have been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"resources",
-								"acknowledgements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List disacknowledged resources by admin",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
-									"\r",
-									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
-									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
-									"}\r",
-									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null) && (responseJson.result[1].deletion_time == null)) {\r",
-									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"List disacknowledged resources by admin\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"collection_tries\");\r",
-									"\r",
-									"    pm.test(\"Disacknowledgements have been listed\", function () {\r",
-									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
-									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            //\"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": true,\r",
-									"            \"is_sticky\": true,\r",
-									"            \"state\": 2,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"    });\r",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
+								"{{Service1Id}}"
 							]
 						}
 					},
@@ -1137,7 +844,7 @@
 			]
 		},
 		{
-			"name": "0702 - Acknowledgement by user without ACL Group",
+			"name": "0102 - Check by user without ACL Group",
 			"item": [
 				{
 					"name": "Add user-non-admin (successful)",
@@ -1175,63 +882,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Retrieve user-non-admin ID (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The user ID has been successfully retrieved.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"  for(let i=0; i < responseJson.result.length; i++){\r",
-									"    if(responseJson.result[i].alias === pm.collectionVariables.get('api_login_user_non_admin')){\r",
-									"        pm.collectionVariables.set(\"user_Id\", responseJson.result[i].id);\r",
-									"    }\r",
-									"  }\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"show\",\r\n  \"object\": \"CONTACT\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1476,7 +1126,7 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge all resources by user non-admin without rights",
+					"name": "Retrieve last_check value for the host",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1491,59 +1141,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The acknowledgement has not been submitted, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n      \"acknowledgement\": {\r\n        \"comment\": \"Acknowledged by admin\",\r\n        \"is_notify_contacts\": false,\r\n        \"with_services\": false,\r\n        \"force_active_checks\": false,\r\n        \"is_persistent_comment\": false,\r\n        \"is_sticky\": false\r\n      },\r\n      \"resources\": [\r\n        {\r\n          \"type\": \"host\",\r\n          \"id\": {{Host1Id}},\r\n          \"parent\": null\r\n        },\r\n        {\r\n          \"type\": \"service\",\r\n          \"id\": {{Service1Id}},\r\n          \"parent\": {\r\n              \"id\": {{Host1Id}}\r\n          }\r\n        }\r\n      ]\r\n    }"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledge",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"resources",
-								"acknowledge"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List acknowledged resources by user non-admin without rights",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"No acknowledgements have been listed, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
 									"\r",
-									"});"
+									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -1558,26 +1162,21 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
+								"hosts",
+								"{{Host1Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Disacknowledge all resources by user non-admin without rights",
+					"name": "Retrieve last_check value for the service",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1585,46 +1184,195 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Acknowledgements have not been deleted, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});"
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
-								"resources",
-								"acknowledgements"
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Logout from non-admin-user (successful)",
+					"name": "Scheduled a check on resources",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The check has not been sent.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"check\": {\r\n        \"is_forced\": true\r\n    },\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            }\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/resources/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"resources",
+								"check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the host",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the service",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from non-admin-user",
 					"event": [
 						{
 							"listen": "test",
@@ -1704,7 +1452,7 @@
 			]
 		},
 		{
-			"name": "0703 - Acknowledgement by user without access to Actions and Ressources",
+			"name": "0103 - Check by user without access to Actions and Ressources",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -2238,7 +1986,7 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge all resources by user non-admin without rights",
+					"name": "Retrieve last_check value for the host",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2253,59 +2001,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The acknowledgement has not been submitted, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n      \"acknowledgement\": {\r\n        \"comment\": \"Acknowledged by admin\",\r\n        \"is_notify_contacts\": false,\r\n        \"with_services\": false,\r\n        \"force_active_checks\": false,\r\n        \"is_persistent_comment\": false,\r\n        \"is_sticky\": false\r\n      },\r\n      \"resources\": [\r\n        {\r\n          \"type\": \"host\",\r\n          \"id\": {{Host1Id}},\r\n          \"parent\": null\r\n        },\r\n        {\r\n          \"type\": \"service\",\r\n          \"id\": {{Service1Id}},\r\n          \"parent\": {\r\n              \"id\": {{Host1Id}}\r\n          }\r\n        }\r\n      ]\r\n    }"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledge",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"resources",
-								"acknowledge"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List acknowledged resources by user non-admin without rights",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"No acknowledgements have been listed, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
 									"\r",
-									"});"
+									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2320,26 +2022,21 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
+								"hosts",
+								"{{Host1Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Disacknowledge all resources by user non-admin without rights",
+					"name": "Retrieve last_check value for the service",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2347,39 +2044,188 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Acknowledgements have not been deleted, because the user does not have access to the resources.\", function () {\r",
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scheduled a check on resources",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The check has not been sent.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
+							"raw": "{\r\n    \"check\": {\r\n        \"is_forced\": true\r\n    },\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            }\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
+							"raw": "{{baseUrl}}/monitoring/resources/check",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
 								"resources",
-								"acknowledgements"
+								"check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the host",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the service",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
 							]
 						}
 					},
@@ -2466,7 +2312,7 @@
 			]
 		},
 		{
-			"name": "0704 - Acknowledgement by user-non-admin with access to Actions but without access to Resources",
+			"name": "0104 - Check by user-non-admin with access to Actions but without access to Resources",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -2517,7 +2363,7 @@
 					"response": []
 				},
 				{
-					"name": "Grant acknowledgement action in Action-non-admin (successful)",
+					"name": "Grant check scheduling action in Action-non-admin (successful)",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2532,7 +2378,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The Acknowledgement right has successfully been grant.\", function () {\r",
+									"pm.test(\"The check scheduling right has successfully been grant.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
@@ -2551,7 +2397,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grant\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;host_acknowledgement|service_acknowledgement|host_disacknowledgement|service_disacknowledgement\"\r\n}",
+							"raw": "{\r\n  \"action\": \"grant\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;host_schedule_check|service_schedule_check\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2745,7 +2591,7 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge all resources by user non-admin without access to resources",
+					"name": "Retrieve last_check value for the host",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2760,58 +2606,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The acknowledgement has not been submitted, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n      \"acknowledgement\": {\r\n        \"comment\": \"Acknowledged by admin\",\r\n        \"is_notify_contacts\": false,\r\n        \"with_services\": false,\r\n        \"force_active_checks\": false,\r\n        \"is_persistent_comment\": false,\r\n        \"is_sticky\": false\r\n      },\r\n      \"resources\": [\r\n        {\r\n          \"type\": \"host\",\r\n          \"id\": {{Host1Id}},\r\n          \"parent\": null\r\n        },\r\n        {\r\n          \"type\": \"service\",\r\n          \"id\": {{Service1Id}},\r\n          \"parent\": {\r\n              \"id\": {{Host1Id}}\r\n          }\r\n        }\r\n      ]\r\n    }"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledge",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"resources",
-								"acknowledge"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List acknowledged resources by user non-admin without access to resources",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"No acknowledgements have been listed, because the user does not have access to the resources.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2826,26 +2626,21 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
+								"hosts",
+								"{{Host1Id}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Disacknowledge all resources by user non-admin without access to resources",
+					"name": "Retrieve last_check value for the service",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2853,39 +2648,188 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Acknowledgements have not been deleted, because the user does not have access to the resources.\", function () {\r",
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scheduled a check on resources",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The check has not been sent.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"});"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
+							"raw": "{\r\n    \"check\": {\r\n        \"is_forced\": true\r\n    },\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            }\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
+							"raw": "{{baseUrl}}/monitoring/resources/check",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
 								"resources",
-								"acknowledgements"
+								"check"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the host",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Host not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the service",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Service not found, because the user does not have access to the resources.\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
 							]
 						}
 					},
@@ -2972,7 +2916,7 @@
 			]
 		},
 		{
-			"name": "0705 - Acknowledgement by user-non-admin with access to resources and actions",
+			"name": "0105 - Check by user-non-admin with access to resources and actions",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -3251,7 +3195,7 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge all resources by user non-admin with correct rights",
+					"name": "Retrieve last_check value for the host by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3266,7 +3210,137 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"The acknowledgement has been submitted.\", function () {\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the host by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the host\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckHost\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve last_check value for the service by user non-admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.response.code != pm.collectionVariables.get(\"expectedHttpStatus\")) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Retrieve last_check value for the service by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is retrieved for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.collectionVariables.set(\"lastCheckService\", responseJson.last_check);\r",
+									"    });\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scheduled a check on resources",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The check has been successfully sent.\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
@@ -3279,151 +3353,24 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n      \"acknowledgement\": {\r\n        \"comment\": \"Acknowledged by user non admin\",\r\n        \"is_notify_contacts\": false,\r\n        \"with_services\": false,\r\n        \"force_active_checks\": false,\r\n        \"is_persistent_comment\": false,\r\n        \"is_sticky\": false\r\n      },\r\n      \"resources\": [\r\n        {\r\n          \"type\": \"host\",\r\n          \"id\": {{Host1Id}},\r\n          \"parent\": null\r\n        },\r\n        {\r\n          \"type\": \"service\",\r\n          \"id\": {{Service1Id}},\r\n          \"parent\": {\r\n              \"id\": {{Host1Id}}\r\n          }\r\n        }\r\n      ]\r\n    }"
+							"raw": "{\r\n    \"check\": {\r\n        \"is_forced\": true\r\n    },\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            }\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledge",
+							"raw": "{{baseUrl}}/monitoring/resources/check",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
 								"resources",
-								"acknowledge"
+								"check"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List acknowledged resources by user non-admin with correct rights",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"\r",
-									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
-									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
-									"}\r",
-									"\r",
-									"if ((responseJson.result.length != 4) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
-									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
-									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"List acknowledged resources by user non-admin with correct rights\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"collection_tries\");\r",
-									"\r",
-									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
-									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
-									"        \r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[2]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"            \"comment\": \"Acknowledged by user non admin\",\r",
-									"            \"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"\r",
-									"        pm.expect(responseJson.result[3]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"            \"comment\": \"Acknowledged by user non admin\",\r",
-									"            \"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"\r",
-									"    });\r",
-									"}"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"acknowledgements"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Disacknowledge by user non-admin with correct rights",
+					"name": "Compare last_check value for the service by user non-admin",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3438,130 +3385,29 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Acknowledgements have been deleted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"disacknowledgement\": {\r\n    \"with_services\": true\r\n  },\r\n  \"resources\": [\r\n    {\r\n      \"type\": \"host\",\r\n      \"id\": {{Host1Id}},\r\n      \"parent\": null\r\n    }\r\n  ]\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/resources/acknowledgements",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"resources",
-								"acknowledgements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List disacknowledged resources by user non-admin with correct rights",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
 									"const responseJson = pm.response.json();\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result[2].deletion_time == null) && (responseJson.result[0].deletion_time == null) && (responseJson.result.length != 4) && (responseJson.result[0].deletion_time == null) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckHost\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
-									"    postman.setNextRequest(\"List disacknowledged resources by user non-admin with correct rights\");\r",
+									"    postman.setNextRequest(\"Compare last_check value for the service by user non-admin\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"Acknowledgements have been listed\", function () {\r",
+									"    pm.test(\"last_check value is different for the host\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
-									"\r",
-									"        pm.expect(responseJson.result[0]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[2]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": 0,\r",
-									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"            \"comment\": \"Acknowledged by user non admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[2].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[3]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
-									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
-									"            \"comment\": \"Acknowledged by user non admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 1,\r",
-									"            \"type\": 0\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[3].deletion_time).not.to.equal(null);\r",
-									"\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckHost\"));\r",
 									"    });\r",
+									"\r",
 									"}"
 								],
-								"type": "text/javascript",
-								"packages": {}
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -3576,19 +3422,81 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"monitoring",
-								"acknowledgements"
+								"hosts",
+								"{{Host1Id}}",
+								"services",
+								"{{Service1Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare last_check value for the host by user non-admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
+									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
+									"}\r",
+									"\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.last_check == pm.collectionVariables.get(\"lastCheckService\"))) {\r",
+									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
+									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
+									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    postman.setNextRequest(\"Compare last_check value for the host by user non-admin\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"collection_tries\");\r",
+									"\r",
+									"    pm.test(\"last_check value is different for the service\", function () {\r",
+									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
+									"        const responseJson = pm.response.json();\r",
+									"        pm.expect(responseJson.last_check).not.to.eql(pm.collectionVariables.get(\"lastCheckService\"));\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}",
+							"host": [
+								"{{baseUrl}}"
 							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
-								}
+							"path": [
+								"monitoring",
+								"hosts",
+								"{{Host1Id}}"
 							]
 						}
 					},
