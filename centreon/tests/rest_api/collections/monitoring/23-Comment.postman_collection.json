@@ -2930,7 +2930,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"null\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -2985,7 +2985,7 @@
 									"\r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-14T13:26:52+00:00\",\"2024-01-14T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[0].content).to.eql(\"null\");\r",
+									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
 									"        pm.expect(responseJson.result[0].contact).to.include({\r",
 									"            \"name\": pm.collectionVariables.get(\"api_login_user_non_admin\")\r",
 									"        });\r",
