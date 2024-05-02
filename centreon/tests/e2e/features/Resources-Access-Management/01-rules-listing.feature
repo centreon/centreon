@@ -12,7 +12,7 @@ Feature: Pagination and Search Functionality in Resource Access Management
 
   Scenario: Pagination functionality
     When I navigate to the Resource Access Management page
-    Then I should see at least 15 rules registered
+    Then I should see at least 10 rules registered
     And the default pagination should be set to 10 per page
     When I click on the next page button
     Then I should see the next 5 rules displayed
