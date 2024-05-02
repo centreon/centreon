@@ -53,6 +53,21 @@ interface ReadServiceTemplateRepositoryInterface
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Find all service tempalte by request parameters and access groups.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate[]
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array;
+
+    /**
      * Indicates whether the service template already exists.
      *
      * @param int $serviceTemplateId
