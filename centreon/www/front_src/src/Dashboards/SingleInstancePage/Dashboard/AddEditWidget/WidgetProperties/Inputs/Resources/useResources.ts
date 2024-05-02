@@ -89,7 +89,7 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
 
-const resourceTypeOptions = [
+export const resourceTypeOptions = [
   {
     availableResourceTypeOptions: [
       { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
