@@ -694,6 +694,7 @@
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Oh no\");\r",
+									"        pm.expect(responseJson.result[0].contact.name).to.eql(pm.collectionVariables.get(\"api_login\"));\r",
 									"    });\r",
 									"}"
 								],
@@ -766,6 +767,7 @@
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"This happened because the IP adress is incorrect\");\r",
+									"        pm.expect(responseJson.result[0].contact.name).to.eql(pm.collectionVariables.get(\"api_login\"));\r",
 									"    });\r",
 									"}"
 								],
@@ -1141,21 +1143,21 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Host not found because user does not have necessary rights.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Host id \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"pm.test(\"Can't check the comments because user does not have necessary rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1201,10 +1203,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Service not found because user does not have necessary rights.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"    pm.expect(responseJson.message).to.eql(\"Service \" + pm.collectionVariables.get(\"Service1Id\") + \" on host \" + pm.collectionVariables.get(\"Host1Id\") + \" not found\");\r",
+									"pm.test(\"Can't check the comments because user does not have necessary rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"});\r",
 									""
 								],
@@ -2978,12 +2978,14 @@
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-14T13:26:52+00:00\",\"2024-01-14T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Hola\");\r",
+									"        pm.expect(responseJson.result[0].contact.name).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
 									"\r",
 									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[1].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[1].content).to.eql(\"Oh no\");\r",
+									"        pm.expect(responseJson.result[1].contact.name).to.eql(pm.collectionVariables.get(\"api_login\"));\r",
 									"    });\r",
 									"}"
 								],
@@ -3061,12 +3063,14 @@
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"        \r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-14T13:26:52+00:00\",\"2024-01-14T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
+									"        pm.expect(responseJson.result[0].contact.name).to.eql(pm.collectionVariables.get(\"api_login_user_non_admin\"));\r",
 									"\r",
 									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[1].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
 									"        pm.expect(responseJson.result[1].content).to.eql(\"This happened because the IP adress is incorrect\");\r",
+									"        pm.expect(responseJson.result[1].contact.name).to.eql(pm.collectionVariables.get(\"api_login\"));\r",
 									"    });\r",
 									"}"
 								],
