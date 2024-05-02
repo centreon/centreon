@@ -76,7 +76,7 @@ describe('Authentication configuration', () => {
     cy.makeSnapshot();
   });
 
-  it.only('displays the OpenID Connect configuration when the corresponding tab is clicked', () => {
+  it('displays the OpenID Connect configuration when the corresponding tab is clicked', () => {
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
     cy.findAllByLabelText(labelOpenIDConnectConfiguration)
