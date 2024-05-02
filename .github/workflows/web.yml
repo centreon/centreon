@@ -805,6 +805,13 @@ jobs:
         e2e-test,
         performances-test,
         legacy-e2e-test,
+        translation-build,
+        backend-dependencies,
+        backend-unit-test,
+        frontend-web-build,
+        frontend-widgets-build,
+        frontend-unit-test,
+        frontend-component-test,
       ]
     if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
 
