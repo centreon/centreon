@@ -52,7 +52,8 @@ const Resources = ({
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleResourceSelection
+    singleResourceSelection,
+    isLastResourceInTree
   } = useResources({
     propertyName,
     required,
@@ -82,7 +83,9 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={!canEditField || singleResourceType}
+          addButtonHidden={
+            !canEditField || singleResourceType || isLastResourceInTree
+          }
           addbuttonDisabled={!areResourcesFullfilled(value)}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
@@ -101,7 +104,9 @@ const Resources = ({
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
                 disabled={
-                  !canEditField || getResourceStatic(resource.resourceType)
+                  !canEditField ||
+                  getResourceStatic(resource.resourceType) ||
+                  (value.length > 1 && index !== value.length - 1)
                 }
                 label={t(labelSelectResourceType) as string}
                 options={getResourceTypeOptions(resource)}
@@ -118,9 +123,10 @@ const Resources = ({
                   disableClearable={false}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   queryKey={`${resource.resourceType}-${index}`}
@@ -142,9 +148,10 @@ const Resources = ({
                   className={classes.resources}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   placeholder=""
