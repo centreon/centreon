@@ -497,7 +497,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
              : <<<SQL
                 AND severity.sc_id IN ({$subRequest})
                 SQL;
-        $request = <<<SQL
+
+        return <<<SQL
             SELECT service_id,
                    service.cg_additive_inheritance,
                    service.contact_additive_inheritance,
@@ -553,7 +554,5 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 ON host.host_id = hsr.host_host_id
                 AND host.host_register = '0'
             SQL;
-
-        return $request;
     }
 }
