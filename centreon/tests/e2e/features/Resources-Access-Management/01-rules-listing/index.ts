@@ -1,5 +1,5 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
-import data from "../../fixtures/versions/major_version.json";
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -42,7 +42,9 @@ Then("a button to add a new rule is available", () => {
 });
 
 Then("I should see at least 15 rules registered", () => {
-  cy.createMultipleResourceAccessRules(15, data.major_verion);
+  cy.getWebVersion().then(({ major_version }) => {
+  cy.createMultipleResourceAccessRules(15, major_version);
+  });
   cy.reload();
   cy.waitUntil(
     () => {
@@ -85,7 +87,9 @@ Then("I should see the previous first 10 rules displayed", () => {
 When(
   "I enter a search query in the search field for a rule or description",
   () => {
-    cy.createMultipleResourceAccessRules(4, data.major_version);
+    cy.getWebVersion().then(({ major_version }) => {
+      cy.createMultipleResourceAccessRules(4, major_version);
+      });
     cy.reload();
     cy.getByTestId({ tag: "input", testId: "Search" }).type("Rule2");
   }
