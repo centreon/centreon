@@ -495,8 +495,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $categoryAcls = empty($subRequest)
              ? ''
              : <<<SQL
-                AND severity.sc_id IN ({$subRequest})
-                SQL;
+                 AND severity.sc_id IN ({$subRequest})
+                 SQL;
 
         return <<<SQL
             SELECT service_id,
