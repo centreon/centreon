@@ -1,6 +1,4 @@
-import data from '../../fixtures/versions/major_verion.json';
-
-Cypress.Commands.add('createMultipleResourceAccessRules', (numberOfTimes) => {
+Cypress.Commands.add('createMultipleResourceAccessRules', (numberOfTimes, major_version) => {
   for (let i = 1; i <= numberOfTimes; i++) {
     const name = `Rule${i}`;
     const payload = {
@@ -16,7 +14,7 @@ Cypress.Commands.add('createMultipleResourceAccessRules', (numberOfTimes) => {
     cy.request({
       body: payload,
       method: 'POST',
-      url: `/centreon/api/v${data.major_verion}/administration/resource-access/rules?*`
+      url: `/centreon/api/v${major_version}/administration/resource-access/rules?*`
     });
   }
 });
