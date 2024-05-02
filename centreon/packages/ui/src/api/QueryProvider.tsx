@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const defaultCacheTime = 5 * 1_000;
 
-const client = new QueryClient({
+export const client = new QueryClient({
   defaultOptions: {
     queries: {
       gcTime: defaultCacheTime,

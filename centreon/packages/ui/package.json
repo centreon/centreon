@@ -1,12 +1,12 @@
 {
   "name": "@centreon/ui",
-  "version": "24.4.0",
+  "version": "1.0.0",
   "description": "Centreon UI Components",
   "scripts": {
     "update:deps": "pnpx npm-check-updates -i --format group",
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
-    "storybook": "storybook dev -p 9001 -c .storybook",
+    "storybook": "storybook dev -p 9001 -c .storybook -s ../public",
     "build:storybook": "storybook build -c .storybook -o .out",
     "test": "jest",
     "test:storybook:local": "test-storybook --url http://127.0.0.1:9001",
@@ -53,6 +53,8 @@
     "@cypress/webpack-dev-server": "^3.7.4",
     "@faker-js/faker": "^8.4.1",
     "@mdx-js/react": "^3.0.1",
+    "@modern-js/prod-server": "^2.49.2",
+    "@modern-js/storybook": "^2.49.2",
     "@simonsmith/cypress-image-snapshot": "^9.0.1",
     "@storybook/addon-a11y": "^7.0.9",
     "@storybook/addon-docs": "^7.0.9",
@@ -169,6 +171,8 @@
     "output": "./junit.xml"
   },
   "msw": {
-    "workerDirectory": "public"
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

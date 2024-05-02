@@ -17,7 +17,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         boxShadow: theme.shadows[3]
       },
       '& .react-grid-item.react-grid-placeholder': {
-        backgroundColor: alpha(theme.palette.primary.main, 0.7)
+        backgroundColor: alpha(theme.palette.primary.main, 0.2)
       },
       '& .react-grid-item.resizing': {
         boxShadow: theme.shadows[3]
@@ -61,7 +61,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       },
       '& .react-resizable-handle:hover': {
         opacity: 1
-      }
+      },
+      position: 'relative'
     }
   })
 );
