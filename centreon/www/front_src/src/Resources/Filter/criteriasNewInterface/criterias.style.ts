@@ -6,7 +6,7 @@ export const useStyles = makeStyles()((theme) => ({
     margin: theme.spacing(0, 2)
   },
   containerFilter: {
-    width: theme.spacing(75 / 2)
+    width: '100%'
   },
   divider: {
     borderStyle: 'dashed',
@@ -19,27 +19,24 @@ export const useStyles = makeStyles()((theme) => ({
   extended: {
     display: 'flex',
     flexDirection: 'row',
-    maxWidth: theme.spacing(75)
+    width: theme.spacing(81)
   },
   footer: {
     borderStyle: 'dashed',
     margin: theme.spacing(1, 0, 0, 0)
-  },
-  formControlContainer: {
-    paddingLeft: theme.spacing(1)
   },
   inputInformation: {
     backgroundColor: theme.palette.background.default,
     minWidth: theme.spacing(35)
   },
   moreFiltersButton: {
+    alignSelf: 'flex-end',
     display: 'flex',
-    justifyContent: 'flex-end',
     marginBottom: theme.spacing(1)
   },
   small: {
     display: 'flex',
     flexDirection: 'row',
-    maxWidth: theme.spacing(75 / 2)
+    width: theme.spacing(40.5)
   }
 }));

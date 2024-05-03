@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
@@ -158,7 +158,9 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
           variant="ghost"
           onClick={controlFilterInterface}
         >
-          {t(open ? labelShowFewerFilters : labelShowMoreFilters)}
+          <Typography variant="body1">
+            {t(open ? labelShowFewerFilters : labelShowMoreFilters)}
+          </Typography>
         </Button>
       </div>
       <div className={cx(classes.small, { [classes.extended]: open })}>
@@ -202,9 +204,7 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
       <Divider className={classes.footer} />
 
-      {displayActions && (
-        <div className={classes.formControlContainer}>{actions}</div>
-      )}
+      {displayActions && actions}
     </>
   );
 };

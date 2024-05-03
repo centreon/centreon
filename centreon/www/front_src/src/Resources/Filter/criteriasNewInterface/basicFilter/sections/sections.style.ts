@@ -7,7 +7,7 @@ export const useStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   },
   containerFilter: {
-    width: theme.spacing(75 / 2)
+    width: '100%'
   },
   divider: {
     borderStyle: 'dashed',
