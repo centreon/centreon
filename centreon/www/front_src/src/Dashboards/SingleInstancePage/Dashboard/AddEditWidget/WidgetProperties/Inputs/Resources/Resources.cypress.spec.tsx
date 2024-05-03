@@ -313,7 +313,7 @@ describe('Resources tree', () => {
 
     cy.contains('Service').click();
 
-    cy.findByTestId(labelAddFilter).should('be.disbaled');
+    cy.findByTestId(labelAddFilter).should('be.disabled');
 
     cy.makeSnapshot();
   });
