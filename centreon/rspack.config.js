@@ -1,20 +1,28 @@
 const path = require('path');
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
-const webpack = require('webpack');
+const rspack = require('@rspack/core');
 const { merge } = require('webpack-merge');
 
-const getBaseConfiguration = require('./packages/js-config/webpack/base');
+const getBaseConfiguration = require('./packages/js-config/rspack/base');
+const {
+  publicPath,
+  isDevelopmentMode
+} = require('./packages/js-config/rspack/patch/devServer');
 
-module.exports = (jscTransformConfiguration, enableCoverage = false) =>
+module.exports = (enableCoverage = false) =>
   merge(
     getBaseConfiguration({
       enableCoverage,
-      jscTransformConfiguration,
       moduleName: 'centreon'
     }),
     {
+      devServer: {
+        devMiddleware: {
+          writeToDisk: (filename) => {
+            return /index.html$/.test(filename);
+          }
+        }
+      },
       entry: ['./www/front_src/src/index.tsx'],
       output: {
         crossOriginLoading: 'anonymous',
@@ -23,16 +31,20 @@ module.exports = (jscTransformConfiguration, enableCoverage = false) =>
         publicPath: './static/'
       },
       plugins: [
-        new webpack.ProvidePlugin({
+        new rspack.ProvidePlugin({
           React: 'react',
           process: 'process/browser'
         }),
-        new HtmlWebpackPlugin({
-          alwaysWriteToDisk: true,
+        new rspack.HtmlRspackPlugin({
           filename: path.resolve(`${__dirname}`, 'www', 'index.html'),
+          publicPath: isDevelopmentMode ? publicPath : './static/',
           template: './www/front_src/public/index.html'
         }),
-        new HtmlWebpackHarddiskPlugin()
+        new rspack.IgnorePlugin({
+          resourceRegExp: enableCoverage
+            ? /.(js.map|chunk.css|chunk.js)/
+            : /www\/widgets/
+        })
       ],
       resolve: {
         alias: {
