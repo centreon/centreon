@@ -25,6 +25,7 @@ namespace Core\ServiceTemplate\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
