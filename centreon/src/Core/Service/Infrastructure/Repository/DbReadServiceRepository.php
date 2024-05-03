@@ -43,6 +43,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\ServiceCategory\Infrastructure\Repository\ServiceCategoryRepositoryTrait;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
@@ -98,6 +99,7 @@ use Utility\SqlConcatenator;
 class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServiceRepositoryInterface
 {
     use LoggerTrait;
+    use ServiceCategoryRepositoryTrait;
     use SqlMultipleBindTrait;
 
     /**
@@ -896,21 +898,13 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         $categoryAcls = '';
         if ([] !== $accessGroupIds) {
-            if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
-                $categoryAcls = <<<'SQL'
-                    AND scr.sc_id IN (
-                        SELECT arscr.sc_id
-                        FROM `:db`.acl_resources_sc_relations arscr
-                        INNER JOIN `:db`.acl_resources res
-                            ON arscr.acl_res_id = res.acl_res_id
-                        INNER JOIN `:db`.acl_res_group_relations argr
-                            ON res.acl_res_id = argr.acl_res_id
-                        INNER JOIN `:db`.acl_groups ag
-                            ON argr.acl_group_id = ag.acl_group_id
-                        WHERE ag.acl_group_id IN (:access_group_ids)
-                    )
+            $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+            $categoryAcls = empty($subRequest)
+                ? ''
+                : <<<SQL
+                    AND scr.sc_id IN ({$subRequest})
                     SQL;
-            }
+
             $concatenator->appendJoins(
                 <<<SQL
                     LEFT JOIN `:db`.service_categories_relation scr

@@ -495,7 +495,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $categoryAcls = empty($subRequest)
              ? ''
              : <<<SQL
-                 AND severity.sc_id IN ({$subRequest})
+                 AND scr.sc_id IN ({$subRequest})
                  SQL;
 
         return <<<SQL
@@ -544,10 +544,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 ON esi.service_service_id = service.service_id
             LEFT JOIN `:db`.service_categories_relation scr
                 ON scr.service_service_id = service.service_id
+                {$categoryAcls}
             LEFT JOIN `:db`.service_categories severity
                 ON severity.sc_id = scr.sc_id
                 AND severity.level IS NOT NULL
-                {$categoryAcls}
             LEFT JOIN `:db`.host_service_relation hsr
                 ON hsr.service_service_id = service.service_id
             LEFT JOIN `:db`.host
