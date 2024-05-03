@@ -90,7 +90,6 @@ jobs:
 
       - name: Merge coverage reports
         run: |
-          ls .
           pnpx nyc merge .nyc_output
           mv coverage.json .nyc_output/out.json
         shell: bash
