@@ -16266,9 +16266,6 @@ msgstr "Erweiterter Modus"
 # msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display resources with this type"
-# msgstr ""
-
 # msgid "Display resources with this status"
 # msgstr ""
 
