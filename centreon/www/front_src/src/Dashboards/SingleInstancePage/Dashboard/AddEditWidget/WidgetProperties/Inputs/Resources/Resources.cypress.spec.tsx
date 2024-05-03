@@ -358,7 +358,7 @@ describe('Resources tree', () => {
     });
   });
 
-  it('removes all subsequent resource lines, if the type of a dataset resource line in the middle of the tree is updated', () => {
+  it('removes all subsequent resource lines, if a resource type line in the middle of the tree is updated', () => {
     cy.findByTestId(labelResourceType).parent().click();
 
     cy.contains(labelHostCategory).click();
