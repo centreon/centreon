@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
@@ -18,9 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
-    tags:
-      - centreon-ha-*
 
 env:
   module: ha
