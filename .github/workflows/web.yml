@@ -18,6 +18,8 @@ on:
   pull_request:
     paths:
       - "centreon/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
       - "!centreon/packages/**"
   push:
     branches:
@@ -27,9 +29,9 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
       - "!centreon/packages/**"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
