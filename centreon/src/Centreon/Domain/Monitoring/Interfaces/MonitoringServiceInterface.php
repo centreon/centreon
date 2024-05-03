@@ -146,11 +146,7 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param Host $monitoringHost Monitoring host
      * @param string $replacementValue Replacement value used instead of macro password value
-     * @throws HostConfigurationException
-     * @throws MonitoringServiceException
-     * @throws RepositoryException
-     * @throws ServiceConfigurationException
-     * @throws MonitoringServerException
+     * @throws \Exception
      */
     public function hidePasswordInHostCommandLine(Host $monitoringHost, string $replacementValue = '***'): void;
 
@@ -159,11 +155,7 @@ interface MonitoringServiceInterface extends ContactFilterInterface
      *
      * @param Service $monitoringService Monitoring service
      * @param string $replacementValue Replacement value used instead of macro password value
-     * @throws HostConfigurationException
-     * @throws MonitoringServiceException
-     * @throws RepositoryException
-     * @throws ServiceConfigurationException
-     * @throws MonitoringServerException
+     * @throws \Exception
      */
     public function hidePasswordInServiceCommandLine(
         Service $monitoringService,
