@@ -12,8 +12,12 @@ import { WidgetResourceType } from '../../../models';
 import {
   labelAddFilter,
   labelDelete,
+  labelHostCategory,
+  labelHostGroup,
   labelResourceType,
-  labelSelectAResource
+  labelSelectAResource,
+  labelServiceCategory,
+  labelServiceGroup
 } from '../../../../translatedLabels';
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
@@ -352,5 +356,36 @@ describe('Resources tree', () => {
 
       cy.makeSnapshot();
     });
+  });
+
+  it('removes all subsequent resource lines, if the type of a dataset resource line in the middle of the tree is updated', () => {
+    cy.findByTestId(labelResourceType).parent().click();
+
+    cy.contains(labelHostCategory).click();
+
+    cy.findByTestId(labelSelectAResource).click();
+
+    cy.contains(`${labelHostCategory} 1`).click();
+
+    cy.findByTestId(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(labelHostGroup).click();
+    cy.findAllByTestId(labelSelectAResource).eq(1).click();
+    cy.contains(`${labelHostGroup} 1`).click();
+
+    cy.findByTestId(labelAddFilter).click();
+    cy.findAllByTestId(labelResourceType).eq(2).parent().click();
+    cy.contains(labelServiceCategory).click();
+    cy.findAllByTestId(labelSelectAResource).eq(2).click();
+    cy.contains(`${labelServiceCategory} 1`).click();
+
+    cy.findAllByTestId(labelResourceType).should('have.length', 3);
+
+    cy.findAllByTestId(labelResourceType).eq(1).parent().click();
+    cy.contains(labelServiceGroup).click();
+
+    cy.findAllByTestId(labelResourceType).should('have.length', 2);
+
+    cy.makeSnapshot();
   });
 });
