@@ -77,7 +77,7 @@ export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
   'Thresholds are automatically hidden as soon as you select 2 metric units.';
-export const labelDisplayType = 'Display type';
+export const labelDisplayAs = 'Display as';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
 export const labelBar = 'Bar chart';

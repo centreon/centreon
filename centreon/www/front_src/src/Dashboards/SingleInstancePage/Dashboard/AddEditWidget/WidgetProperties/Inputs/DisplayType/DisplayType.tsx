@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { labelDisplayType } from '../../../../translatedLabels';
+import { labelDisplayAs } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 
@@ -20,7 +20,7 @@ const DisplayType = ({
 
   return (
     <div>
-      <Subtitle>{t(labelDisplayType)}</Subtitle>
+      <Subtitle>{t(labelDisplayAs)}</Subtitle>
       <div className={classes.displayTypeContainer}>
         {options?.map(({ id, icon, label }) => (
           <Option

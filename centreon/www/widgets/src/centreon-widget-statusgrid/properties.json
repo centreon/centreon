@@ -20,7 +20,7 @@
     },
     "resourceType": {
       "type": "radio",
-      "label": "Display with this resource type",
+      "label": "Display resources with this type",
       "options": [
         {
           "id": "host",
