@@ -208,7 +208,9 @@ const useResources = ({
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      if (value?.length - 1 > index) {
+      const selectedResourcesTypesCount = value?.length || 0;
+
+      if (selectedResourcesTypesCount - 1 > index) {
         const newValue = value?.slice(0, index + 1);
         setFieldValue(`data.${propertyName}`, newValue);
       }
