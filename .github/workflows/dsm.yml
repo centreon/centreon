@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-dsm/**"
+      - "!centreon-dsm/veracode.json"
       - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
@@ -18,9 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-dsm/**"
+      - "!centreon-dsm/veracode.json"
       - "!centreon-dsm/.veracode-exclusions"
-    tags:
-      - centreon-dsm-*
 
 env:
   module: dsm
