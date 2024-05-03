@@ -4,20 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
+import { labelHost, labelService } from '../../../translatedLabels';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import {
-  ChangedCriteriaParams,
-  DeactivateProps,
-  ExtendedCriteriaResourceType,
-  SectionType
-} from '../model';
+import { ChangedCriteriaParams, DeactivateProps, SectionType } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-import {
-  labelHost,
-  labelMetaService,
-  labelService
-} from '../../../translatedLabels';
 
 import useSectionsData from './sections/useSections';
 
@@ -30,8 +21,7 @@ interface Props {
 
 const label = {
   [SectionType.host]: labelHost,
-  [SectionType.service]: labelService,
-  [ExtendedCriteriaResourceType.metaservice]: labelMetaService
+  [SectionType.service]: labelService
 };
 
 const SelectInput = ({

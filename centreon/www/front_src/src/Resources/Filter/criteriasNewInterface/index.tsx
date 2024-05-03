@@ -3,17 +3,18 @@ import { useMemo, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider, Typography } from '@mui/material';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { Divider, Typography } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
+import { labelState, labelType } from '../../translatedLabels';
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
 
+import MemoizedCheckBox from './MemoizedCheckBox';
 import MemoizedPoller from './MemoizedPoller';
-import MemoizedState from './MemoizedState';
 import BasicFilter from './basicFilter';
 import {
   displayActionsAtom,
@@ -31,11 +32,11 @@ import {
   DataByCategoryFilter,
   ExtendedCriteria
 } from './model';
-import { handleDataByCategoryFilter, mergeArraysByField } from './utils';
 import {
   labelShowFewerFilters,
   labelShowMoreFilters
 } from './translatedLabels';
+import { mergeArraysByField } from './utils';
 
 export { CheckboxGroup } from '@centreon/ui';
 
@@ -119,16 +120,11 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
       categoryFilter === CategoryFilter.BasicFilter
         ? Object.values(BasicCriteria)
         : Object.values(ExtendedCriteria);
-    const dataByCategory = buildDataByCategoryFilter({
+
+    return buildDataByCategoryFilter({
       CriteriaType: criteriaType,
       builtCriteria,
       selectableCriteria
-    });
-
-    return handleDataByCategoryFilter({
-      data: dataByCategory,
-      fieldToUpdate: 'options',
-      filter: categoryFilter
     });
   };
 
@@ -179,9 +175,19 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
             />
           }
           state={
-            <MemoizedState
+            <MemoizedCheckBox
               basicData={basicData}
               changeCriteria={changeCriteria}
+              filterName={BasicCriteria.states}
+              title={labelState}
+            />
+          }
+          types={
+            <MemoizedCheckBox
+              basicData={basicData}
+              changeCriteria={changeCriteria}
+              filterName={BasicCriteria.resourceTypes}
+              title={labelType}
             />
           }
         />

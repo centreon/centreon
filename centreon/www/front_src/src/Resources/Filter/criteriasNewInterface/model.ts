@@ -55,16 +55,6 @@ export enum categoryServiceStatus {
   PENDING = labelPending
 }
 
-export enum BasicCriteriaResourceType {
-  host = ResourceType.host,
-  service = ResourceType.service
-}
-
-export enum ExtendedCriteriaResourceType {
-  anomalyDetection = ResourceType.anomalyDetection,
-  metaservice = ResourceType.metaservice
-}
-
 export enum CategoryFilter {
   BasicFilter = 'BasicFilter',
   ExtendedFilter = 'ExtendedFilter'
@@ -110,11 +100,12 @@ export interface ChangedCriteriaParams {
 export interface MemoizedChild {
   basicData: Array<Criteria & CriteriaDisplayProps>;
   changeCriteria: (data: ChangedCriteriaParams) => void;
+  filterName?: BasicCriteria | ExtendedCriteria;
   searchData?: SearchDataPropsCriterias;
+  title?: string;
 }
 
 export interface MemoizedChildSectionWrapper extends MemoizedChild {
-  filterName: string;
   searchData?: SearchDataPropsCriterias;
   sectionType: SectionType;
 }
