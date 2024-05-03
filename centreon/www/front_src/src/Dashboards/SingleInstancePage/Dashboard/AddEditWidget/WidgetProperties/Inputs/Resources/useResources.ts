@@ -208,9 +208,9 @@ const useResources = ({
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
-      const selectedResourcesTypesCount = value?.length || 0;
+      const isNotLastResourceTypeChanged = value?.length || 0 - 1 > index;
 
-      if (selectedResourcesTypesCount - 1 > index) {
+      if (isNotLastResourceTypeChanged) {
         const newValue = value?.slice(0, index + 1);
         setFieldValue(`data.${propertyName}`, newValue);
       }
@@ -262,7 +262,7 @@ const useResources = ({
     index: number,
     resourceType
   ): Array<QueryParameter> => {
-    if (index < 1) {
+    if (equals(index, 0)) {
       return equals(resourceType, WidgetResourceType.service)
         ? getServiceQueryParameters(hasMetricInputType)
         : [];

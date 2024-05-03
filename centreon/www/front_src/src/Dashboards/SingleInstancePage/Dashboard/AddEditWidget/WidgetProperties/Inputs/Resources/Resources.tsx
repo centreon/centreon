@@ -68,7 +68,7 @@ const Resources = ({
     (value.length <= 1 && (required || isNil(required))) ||
     equals(value.length, 1);
 
-  const iAddButtonHidden = !canEditField || singleResourceType;
+  const isAddButtonHidden = !canEditField || singleResourceType;
   const isAddButtonDisabled =
     !areResourcesFullfilled(value) || isLastResourceInTree;
 
@@ -87,7 +87,7 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={iAddButtonHidden}
+          addButtonHidden={isAddButtonHidden}
           addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
