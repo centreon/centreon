@@ -68,7 +68,7 @@ interface UseResourcesState {
     resourceType: string;
   }) => (parameters) => string;
   getResourceStatic: (resourceType: WidgetResourceType) => boolean | undefined;
-  getResourceTypeOptions: (resource) => Array<ResourceTypeOption>;
+  getResourceTypeOptions: (index, resource) => Array<ResourceTypeOption>;
   getSearchField: (resourceType: WidgetResourceType) => string;
   isLastResourceInTree: boolean;
   singleResourceSelection?: boolean;
@@ -208,6 +208,11 @@ const useResources = ({
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
+      if (value?.length - 1 > index) {
+        const newValue = value?.slice(0, index + 1);
+        setFieldValue(`data.${propertyName}`, newValue);
+      }
+
       setFieldValue(
         `data.${propertyName}.${index}.resourceType`,
         e.target.value
@@ -356,7 +361,10 @@ const useResources = ({
 
   const resourcetypesIds = pluck('resourceType', value || []);
 
-  const getResourceTypeOptions = (resource): Array<ResourceTypeOption> => {
+  const getResourceTypeOptions = (
+    index,
+    resource
+  ): Array<ResourceTypeOption> => {
     const additionalResourceTypeOptions = useAdditionalResources
       ? additionalResources.map(({ resourceType, label }) => ({
           id: resourceType,
@@ -370,17 +378,18 @@ const useResources = ({
     ];
 
     const availableResourceTypes =
-      resourcetypesIds.length <= 1
+      index < 1
         ? resourceTypeOptions
         : resourceTypeOptions.find(
-            ({ id }) => id === resourcetypesIds[resourcetypesIds.length - 2]
+            ({ id }) => id === value?.[index - 1].resourceType
           )?.availableResourceTypeOptions;
 
     const newResourceTypeOptions = filter(
       ({ id }) =>
         hasRestrictedTypes
           ? includes(id, restrictedResourceTypes || [])
-          : includes(id, pluck('id', availableResourceTypes)) ||
+          : (includes(id, pluck('id', availableResourceTypes)) &&
+              !includes(id, resourcetypesIds)) ||
             equals(id, resource.resourceType),
       allResourceTypeOptions
     );

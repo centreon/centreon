@@ -106,12 +106,10 @@ const Resources = ({
                 className={classes.resourceType}
                 dataTestId={labelResourceType}
                 disabled={
-                  !canEditField ||
-                  getResourceStatic(resource.resourceType) ||
-                  (value.length > 1 && !equals(index, value.length - 1))
+                  !canEditField || getResourceStatic(resource.resourceType)
                 }
                 label={t(labelSelectResourceType) as string}
-                options={getResourceTypeOptions(resource)}
+                options={getResourceTypeOptions(index, resource)}
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
