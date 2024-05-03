@@ -100,7 +100,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini`,
         `/etc/init.d/mysql start`,
         `mkdir -p /run/php-fpm`,
-        `systemctl start php-fpm`,
+        `systemctl start php-fpm || systemtl restart php-fpm`,
         `systemctl start httpd`,
         `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
         `dnf config-manager --set-enabled 'centreon-*'`
