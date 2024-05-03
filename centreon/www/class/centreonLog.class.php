@@ -44,6 +44,7 @@ class CentreonUserLog
     public const TYPE_SQL = 2;
     public const TYPE_LDAP = 3;
     public const TYPE_UPGRADE = 4;
+    public const TYPE_VAULT = 5;
 
     /*
      * Constructor
@@ -76,6 +77,7 @@ class CentreonUserLog
         $this->errorType[self::TYPE_SQL] = $this->path . "/sql-error.log";
         $this->errorType[self::TYPE_LDAP] = $this->path . "/ldap.log";
         $this->errorType[self::TYPE_UPGRADE] = $this->path . "/upgrade.log";
+        $this->errorType[self::TYPE_VAULT] = $this->path . "/vault.log";
     }
 
     /*

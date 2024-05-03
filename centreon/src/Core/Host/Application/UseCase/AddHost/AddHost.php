@@ -53,6 +53,8 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface;
 
 final class AddHost
 {
@@ -75,6 +77,8 @@ final class AddHost
         private readonly OptionService $optionService,
         private readonly ContactInterface $user,
         private readonly AddHostValidation $validation,
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+
     ) {
     }
 
@@ -100,6 +104,9 @@ final class AddHost
             try {
                 $this->dataStorageEngine->startTransaction();
 
+                if ($this->readVaultConfigurationRepository->findDefaultVaultConfiguration() !== null) {
+                    $this->addSecretsToVault($request->snmpCommunity, $request->macros);
+                }
                 $hostId = $this->createHost($request);
                 $this->linkHostCategories($request, $hostId);
                 $this->linkHostGroups($request, $hostId);
