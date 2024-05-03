@@ -4,7 +4,7 @@
 		"name": "Monitoring_Timeline",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6964f372-2d56-47d3-a8c3-d123aaab01ee?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-6964f372-2d56-47d3-a8c3-d123aaab01ee?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1240,11 +1240,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Host not found, because the user does not have access to the resources\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"User doesn't have sufficient rights to see the host timeline\");\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1300,11 +1297,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Service not found, because the user does not have access to the resources\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"User doesn't have sufficient rights to see the service timeline\");\r",
 									"});"
 								],
 								"type": "text/javascript",

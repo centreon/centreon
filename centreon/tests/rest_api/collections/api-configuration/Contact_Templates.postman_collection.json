@@ -4,7 +4,7 @@
 		"name": "Contact_Templates",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-79222ac7-4117-49be-a063-abe639b2c058?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-79222ac7-4117-49be-a063-abe639b2c058?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -59,6 +59,59 @@
 					"response": []
 				},
 				{
+					"name": "Create contact template (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The contact template has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"uuid": "2ee03cf0-1205-4ca0-9691-7f120f63600f"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACTTPL\",\r\n  \"values\": \"contact_tpl;contact_tpl;contact_tpl@mail.com;1;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Retrieve contact_template ID (successful)",
 					"event": [
 						{
@@ -69,7 +122,7 @@
 									"pm.test(\"The id of the contact template has been successfully retrieved.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
 									"  for(let i=0; i < responseJson.result.length; i++){\r",
-									"    if(responseJson.result[i].name === \"contact_template\"){\r",
+									"    if(responseJson.result[i].name === \"contact_tpl\"){\r",
 									"        pm.collectionVariables.set(\"Contact_Template_Id\", responseJson.result[i].id);\r",
 									"    }\r",
 									"  }\r",
@@ -96,8 +149,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "2ee03cf0-1205-4ca0-9691-7f120f63600f"
+								"uuid": "18e97d63-f659-4888-9573-ed77b8016b00"
 							}
 						],
 						"body": {
