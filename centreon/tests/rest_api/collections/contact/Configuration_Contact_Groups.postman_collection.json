@@ -1550,7 +1550,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Contact Groups are not retrieved, because the user is not linked to any of the existing Contact groups.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.result.length).to.be.an('Array').that.is.empty;\r",
+									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
 									"});\r",
 									""
 								],
