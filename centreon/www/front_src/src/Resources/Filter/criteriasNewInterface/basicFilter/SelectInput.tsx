@@ -156,6 +156,7 @@ const SelectInput = ({
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
+      inputProps={{ dataTestId: resourceType }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
       placeholder={t(label[resourceType]) as string}

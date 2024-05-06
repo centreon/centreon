@@ -22,7 +22,6 @@ const BasicFilter = ({
       {sections}
       {poller}
       <Divider className={classes.divider} />
-
       {types}
       <div className={classes.div} />
       {state}

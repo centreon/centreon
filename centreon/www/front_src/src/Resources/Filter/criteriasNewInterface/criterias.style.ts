@@ -22,7 +22,7 @@ export const useStyles = makeStyles()((theme) => ({
   extended: {
     display: 'flex',
     flexDirection: 'row',
-    width: theme.spacing(81)
+    width: theme.spacing(80)
   },
   footer: {
     borderStyle: 'dashed',
@@ -30,7 +30,7 @@ export const useStyles = makeStyles()((theme) => ({
   },
   inputInformation: {
     backgroundColor: theme.palette.background.default,
-    minWidth: theme.spacing(38.5)
+    minWidth: theme.spacing(38)
   },
   moreFiltersButton: {
     alignSelf: 'flex-end',
@@ -40,6 +40,6 @@ export const useStyles = makeStyles()((theme) => ({
   small: {
     display: 'flex',
     flexDirection: 'row',
-    width: theme.spacing(40.5)
+    width: theme.spacing(40)
   }
 }));
