@@ -94,6 +94,25 @@ const CheckBoxSection = ({
   const translatedOptions = getTranslated(dataByFilterName?.options);
   const translatedValues = getTranslated(values);
 
+  const handleSelectedStatus = (value): void => {
+    const arrayToFilter = selectedStatusByResourceType
+      ? [...selectedStatusByResourceType, value]
+      : [value];
+
+    const result = [
+      ...new Map(
+        arrayToFilter.map((element) => {
+          const key = `${element?.id}${element.resourceType}`;
+
+          return [key, element];
+        })
+      ).values()
+    ];
+
+    setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
+    changeFilter(result as Array<SelectedResourceType>);
+  };
+
   const handleChangeStatus = (event): void => {
     const originalValue = translatedOptions.find(({ name }) =>
       equals(name, event.target.id)
@@ -106,31 +125,14 @@ const CheckBoxSection = ({
 
     if (event.target.checked) {
       const currentValue = { ...item, checked: true, resourceType };
-      const result = removeDuplicateFromObjectArray({
-        array: selectedStatusByResourceType
-          ? [...selectedStatusByResourceType, currentValue]
-          : [currentValue],
-        byFields: ['id', 'resourceType']
-      });
-      setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
-      changeFilter(result as Array<SelectedResourceType>);
+      handleSelectedStatus(currentValue);
 
       return;
     }
 
-    const currentItem = { ...item, checked: false, resourceType };
+    const currentValue = { ...item, checked: false, resourceType };
 
-    const result = reject(
-      propEq('id', item?.id),
-      removeDuplicateFromObjectArray({
-        array: selectedStatusByResourceType
-          ? [...selectedStatusByResourceType, currentItem]
-          : [currentItem],
-        byFields: ['id', 'resourceType']
-      })
-    );
-    setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
-    changeFilter(result as Array<SelectedResourceType>);
+    handleSelectedStatus(currentValue);
   };
 
   return (
