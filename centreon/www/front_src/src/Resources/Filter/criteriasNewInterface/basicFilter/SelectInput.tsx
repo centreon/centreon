@@ -59,23 +59,31 @@ const SelectInput = ({
     if (isEmpty(updatedValue)) {
       changeCriteria({
         filterName: 'resource_types',
-        updatedValue: reject(propEq('id', resourceType), resourceTypesCriteria)
+        updatedValue: reject(propEq(resourceType, 'id'), resourceTypesCriteria)
       });
+
+      return;
     }
 
     if (find(propEq('id', resourceType), resourceTypesCriteria)) {
       return;
     }
 
+    const updatedValues = [
+      ...resourceTypesCriteria,
+      {
+        id: resourceType,
+        name: resourceType
+      }
+    ];
+
+    const uniqUpdatedValues = [
+      ...new Map(updatedValues.map((item) => [item.id, item]))
+    ].map(([, item]) => item);
+
     changeCriteria({
       filterName: 'resource_types',
-      updatedValue: [
-        ...resourceTypesCriteria,
-        {
-          id: resourceType,
-          name: resourceType
-        }
-      ]
+      updatedValue: uniqUpdatedValues
     });
   };
 
@@ -100,7 +108,7 @@ const SelectInput = ({
   };
 
   const onDelete = (_, option): void => {
-    const updatedValue = reject(propEq('name', option.name), value);
+    const updatedValue = reject(propEq(option.name, 'name'), value);
 
     updateResourceType(updatedValue);
 
