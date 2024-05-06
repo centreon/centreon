@@ -65,15 +65,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The platform has not been updated, because there is no update available.\", function () {\r",
-									"    pm.response.to.have.status(404);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"Updates not found\");\r",
+									"pm.test(\"The platform has successfully been updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -82,7 +80,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -90,11 +89,11 @@
 						"disableCookies": true
 					},
 					"request": {
-						"method": "PATCH",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"components\": [\r\n        {\r\n            \"name\": \"centreon-web\"\r\n        }\r\n    ]\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
