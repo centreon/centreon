@@ -17294,3 +17294,6 @@ msgstr ""
 
 #  msgid "You are not allowed to access the Resources Status page"
 #  msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
