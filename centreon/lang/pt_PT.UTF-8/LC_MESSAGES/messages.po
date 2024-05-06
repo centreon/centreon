@@ -17563,3 +17563,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
