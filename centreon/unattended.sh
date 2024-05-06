@@ -806,8 +806,8 @@ function enable_new_services() {
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable "$DBMS_SERVICE_NAME" "$(systemd-escape -u $OS_SPEC_SERVICES)" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart "$DBMS_SERVICE_NAME" "$(systemd-escape -u $OS_SPEC_SERVICES)" snmpd snmptrapd
+			systemctl enable "$DBMS_SERVICE_NAME" "$(systemd-escape -u "$OS_SPEC_SERVICES")" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart "$DBMS_SERVICE_NAME" "$(systemd-escape -u "$OS_SPEC_SERVICES")" snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
