@@ -6,13 +6,11 @@ on:
     paths:
       - "centreon/packages/ui-context/**"
       - '.github/workflows/ui-context.yml'
-    branches:
-      - develop
 
 env:
   directory: "centreon/packages/ui-context"
   package: 'ui-context'
-  base_branch: develop
+  base_branch: dev-24.04.x
 
 jobs:
   lint:
