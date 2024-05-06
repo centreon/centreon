@@ -101,14 +101,14 @@ function getHostSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $uuid;
+        . $vaultConfiguration->getRootPath() . '/data/monitoring/hosts/' . $uuid;
     $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Search Host %d secrets at: %s", $hostId, $url));
 
     try {
         $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
-        if (array_key_exists('data', $content)) {
-            return $content['data'];
+        if (array_key_exists('data', $content) && array_key_exists('data', $content['data'])) {
+            return $content['data']['data'];
         }
 
         return [];
@@ -145,20 +145,21 @@ function writeHostSecretsInVault(
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/monitoring/hosts/' . $uuid;
+            . '/data/monitoring/hosts/' . $uuid;
         $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
         $logger->info(
             "Writing Host Secrets at : " . $url,
             ["secrets" => implode(", ", array_keys($passwordTypeData))]
         );
-        $httpClient->call($url, "POST", $passwordTypeData, ['X-Vault-Token: ' . $clientToken]);
+        $httpClient->call($url, "POST", ['data' => $passwordTypeData], ['X-Vault-Token: ' . $clientToken]);
     } catch(\Exception $ex) {
         $logger->error(
             "Unable to write host secrets into vault",
             [
                 "message" => $ex->getMessage(),
+                "url" => $url,
                 "trace" => $ex->getTraceAsString(),
-                "secrets" => implode(", ", array_keys($passwordTypeData))
+                "secrets" => implode(", ", array_keys($passwordTypeData)),
             ]
         );
 
@@ -255,7 +256,7 @@ function duplicateHostSecretsInVault(
         );
         $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
             . $vaultConfiguration->getRootPath()
-            . "/monitoring/hosts/" . $newUuid;
+            . "/data/monitoring/hosts/" . $newUuid;
         //Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $hostSecretsFromVault)){
             updateHostTableWithVaultPath($pearDB, $hostPath, $newHostId);
@@ -364,11 +365,11 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
         <<<SQL
             SELECT DISTINCT h.host_snmp_community, odmh.host_macro_value, odms.svc_macro_value
             FROM host as h
-                INNER JOIN on_demand_macro_host as odmh
+                LEFT JOIN on_demand_macro_host as odmh
                     ON h.host_id = odmh.host_host_id
-                INNER JOIN host_service_relation as hsr
+                LEFT JOIN host_service_relation as hsr
                     ON h.host_id = hsr.host_host_id
-                INNER JOIN on_demand_macro_service as odms
+                LEFT JOIN on_demand_macro_service as odms
                     ON odms.svc_svc_id = hsr.service_service_id
                 WHERE (h.host_snmp_community LIKE :vaultPath
                     OR odmh.host_macro_value LIKE :vaultPath)
@@ -417,7 +418,7 @@ function deleteHostFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/monitoring/hosts/' . $uuid;
+        . $vaultConfiguration->getRootPath() . '/metadata/monitoring/hosts/' . $uuid;
     $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Deleting Host: %s", $uuid));
     try {
@@ -446,7 +447,7 @@ function deleteServiceFromVault(
     CentreonRestHttp $httpClient
 ): void {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/monitoring/services/' . $uuid;
+        . $vaultConfiguration->getRootPath() . '/metadata/monitoring/services/' . $uuid;
     $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Deleting Service: %s", $uuid));
     try {
@@ -588,7 +589,7 @@ function updateHostSecretsInVaultFromMC(
 
         $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
             . $vaultConfiguration->getRootPath()
-            . "/monitoring/hosts/" . $uuid;
+            . "/data/monitoring/hosts/" . $uuid;
 
         //Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)) {
@@ -715,7 +716,7 @@ function updateHostSecretsInVault(
 
         $hostPath = "secret::" . $vaultConfiguration->getName() . "::"
             . $vaultConfiguration->getRootPath()
-            . "/monitoring/hosts/" . $uuid;
+            . "/data/monitoring/hosts/" . $uuid;
         //Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $updateHostPayload)){
             updateHostTableWithVaultPath($pearDB, $hostPath, $hostId);
@@ -836,7 +837,7 @@ function insertHostSecretsInVault(
             $httpClient
         );
         $hostPath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
-            . "/monitoring/hosts/" . $uuid;
+            . "/data/monitoring/hosts/" . $uuid;
 
         //Store vault path for SNMP Community
         if (array_key_exists(SNMP_COMMUNITY_MACRO_NAME, $passwordTypeData)){
@@ -907,7 +908,7 @@ function duplicateServiceSecretsInVault(
         );
         $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
             . $vaultConfiguration->getRootPath()
-            . "/monitoring/services/" . $newUuid;
+            . "/data/monitoring/services/" . $newUuid;
 
         //Store vault path for macros
         if (! empty($macroPasswords)) {
@@ -940,14 +941,14 @@ function getServiceSecretsFromVault(
     CentreonRestHttp $httpClient
 ): array {
     $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
-        . $vaultConfiguration->getRootPath() . '/monitoring/services/' . $uuid;
+        . $vaultConfiguration->getRootPath() . '/data/monitoring/services/' . $uuid;
     $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
     $logger->info(sprintf("Search Service %d secrets at: %s", $serviceId, $url));
 
     try {
         $content = $httpClient->call($url, 'GET', null, ['X-Vault-Token: ' . $clientToken]);
-        if (array_key_exists('data', $content)) {
-            return $content['data'];
+        if (array_key_exists('data', $content) && array_key_exists('data', $content['data'])) {
+            return $content['data']['data'];
         }
 
         return [];
@@ -982,13 +983,13 @@ function writeServiceSecretsInVault(
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
             . '/v1/' . $vaultConfiguration->getRootPath()
-            . '/monitoring/services/' . $uuid;
+            . '/data/monitoring/services/' . $uuid;
         $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
         $logger->info(
             "Writing Service Secrets at : " . $url,
             ["secrets" => implode(", ", array_keys($macros))]
         );
-        $httpClient->call($url, "POST", $macros, ['X-Vault-Token: ' . $clientToken]);
+        $httpClient->call($url, "POST", ['data' => $macros], ['X-Vault-Token: ' . $clientToken]);
     } catch(\Exception $ex) {
         $logger->error(
             "Unable to write Service secrets into vault",
@@ -1123,7 +1124,7 @@ function updateServiceSecretsInVaultFromMC(
 
         $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
             . $vaultConfiguration->getRootPath()
-            . "/monitoring/services/" . $uuid;
+            . "/data/monitoring/services/" . $uuid;
 
         //Store vault path for macros
         if (! empty($macroPasswordIds)) {
@@ -1214,7 +1215,7 @@ function updateServiceSecretsInVault(
         );
 
         $servicePath = "secret::" . $vaultConfiguration->getName() . "::"
-            . $vaultConfiguration->getRootPath() . "/monitoring/services/" . $uuid;
+            . $vaultConfiguration->getRootPath() . "/data/monitoring/services/" . $uuid;
 
         //Store vault path for macros
         if (! empty($macroPasswordIds)) {
@@ -1308,7 +1309,7 @@ function insertServiceSecretsInVault(
             $httpClient
         );
         $servicePath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
-            . "/monitoring/services/" . $uuid;
+            . "/data/monitoring/services/" . $uuid;
         updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
     }
 }

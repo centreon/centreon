@@ -122,6 +122,10 @@ class CentreonRestHttp
                 break;
         }
 
+        error_log("DATA SENT =====================");
+        error_log(json_encode($data));
+        error_log("END OF DATA SENT =====================");
+
         if (!is_null($data)) {
             if (isset($this->contentType) && $this->contentType == 'application/json') {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -149,6 +153,8 @@ class CentreonRestHttp
                 ];
             }
         }
+
+        error_log($result);
 
         /* Manage HTTP status code */
         $exceptionClass = null;

@@ -38,6 +38,8 @@ if (!isset($centreon)) {
     exit();
 }
 
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
 /**
  * For ACL
  *
@@ -890,6 +892,7 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
+                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -906,6 +909,13 @@ function multipleServiceInDB(
                             $statement->bindValue(':is_password', $sv["is_password"]);
                             $statement->execute();
                             $fields["_" . strtoupper($macName) . "_"] = $sv['svc_macro_value'];
+                            if ($sv['is_password'] === 1) {
+                                $maxIdStatement = $pearDB->query(
+                                    "SELECT MAX(svc_macro_id) from on_demand_macro_service WHERE is_password = 1"
+                                );
+                                $resultMacro = $maxIdStatement->fetch();
+                                $macroPasswords[$resultMacro['MAX(svc_macro_id)']] = $macVal;
+                            }
                         }
 
                         if (! empty($macroPasswords) && $vaultConfiguration !== null) {
@@ -3371,7 +3381,7 @@ function updateServiceHost_MC($service_id = null)
     $dbResult = $statement->execute();
     $hsvs = array();
     $hgsvs = array();
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
         }
