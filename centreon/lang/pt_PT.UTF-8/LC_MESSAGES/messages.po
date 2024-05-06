@@ -17431,7 +17431,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgstr ""
 
 #  msgid "You are not allowed to access the Resources Status page"
-#  msgstr ""
 
 #  msgid "Error while adding a broker output"
 #  msgstr ""
@@ -17551,7 +17550,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Group monitoring"
 #  msgstr ""
 
-msgid "Display with this view"
+#  msgid "Display with this view"
 #  msgstr ""
 
 #  msgid "Standard"
