@@ -1,0 +1,156 @@
+{
+	"info": {
+		"_postman_id": "11275823-61f2-4359-b3e9-5b917e7faab6",
+		"name": "Platform_Version",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16182525",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-11275823-61f2-4359-b3e9-5b917e7faab6?action=share&source=collection_link&creator=16182525"
+	},
+	"item": [
+		{
+			"name": "Get platform versions (successful)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.test(\"The platform versions has been successfully listed.\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"\r",
+							"    var schema = {\r",
+							"        type: \"object\",\r",
+							"        properties: {\r",
+							"        web:  { \r",
+							"            $ref: \"#/definitions/formatVersion\" \r",
+							"        },\r",
+							"        modules: {\r",
+							"            type: \"object\",\r",
+							"            properties: {\r",
+							"                \"centreon-license-manager\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-pp-manager\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-autodiscovery-server\": { $ref: \"#/definitions/formatVersion\" }\r",
+							"            }\r",
+							"        },\r",
+							"        widgets: {\r",
+							"            type: \"object\",\r",
+							"            properties: {\r",
+							"                \"Engine-status\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Global Health\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Graph Monitoring\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Grid-map\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"HTTP Loader\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Host Monitoring\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Hostgroup Monitoring\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Live Top 10 CPU Usage\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Live Top 10 Memory Usage\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"NtopNG\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Service Monitoring\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Servicegroup Monitoring\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Single Metric\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"Tactical Overview\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-widget-generictext\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-widget-singlemetric\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-widget-graph\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-widget-topbottom\": { $ref: \"#/definitions/formatVersion\" },\r",
+							"                \"centreon-widget-statusgrid\": { $ref: \"#/definitions/formatVersion\" }\r",
+							"            }\r",
+							"        }\r",
+							"        },\r",
+							"        required: [\"web\", \"modules\", \"widgets\"],\r",
+							"        definitions: {\r",
+							"            formatVersion: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                version: { type: \"string\" },\r",
+							"                major: { type: \"string\" },\r",
+							"                minor: { type: \"string\" },\r",
+							"                fix: { type: \"string\" }\r",
+							"                },\r",
+							"                required: [\"version\", \"major\", \"minor\", \"fix\"]\r",
+							"            }\r",
+							"        }\r",
+							"    };\r",
+							"\r",
+							"    pm.expect(tv4.validate(responseJson, schema)).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableCookies": true,
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/platform/versions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"platform",
+						"versions"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
