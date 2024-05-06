@@ -34,7 +34,7 @@ trait ServiceCategoryRepositoryTrait
      *
      * @return bool
      */
-    public function hasAccessToAllServiceCategories(array $accessGroupIds): bool
+    public function hasRestrictedAccessToServiceCategories(array $accessGroupIds): bool
     {
         if ($accessGroupIds === []) {
             return false;
@@ -76,7 +76,7 @@ trait ServiceCategoryRepositoryTrait
 
         if (
             $accessGroupIds !== []
-            && ! $this->hasAccessToAllServiceCategories($accessGroupIds)
+            && $this->hasRestrictedAccessToServiceCategories($accessGroupIds)
         ) {
             [, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 

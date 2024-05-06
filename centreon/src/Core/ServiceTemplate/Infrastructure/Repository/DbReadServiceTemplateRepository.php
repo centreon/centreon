@@ -278,6 +278,9 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $statement = $this->db->prepare($this->translateDbName($sql));
         $sqlTranslator->bindSearchValues($statement);
         $sqlConcatenator->bindValuesToStatement($statement);
+        foreach ($accessGroupIds as $index => $id) {
+            $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $sqlTranslator->calculateNumberOfRows($this->db);
