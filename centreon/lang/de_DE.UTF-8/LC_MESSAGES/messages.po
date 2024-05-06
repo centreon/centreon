@@ -15882,6 +15882,27 @@ msgstr ""
 # msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
 # msgid "Start"
 # msgstr ""
 
@@ -15889,6 +15910,27 @@ msgstr ""
 # msgstr ""
 
 # msgid "Custom value"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
 # msgstr ""
 
 # msgid "Start"
@@ -16047,22 +16089,7 @@ msgstr "Erweiterter Modus"
 # msgid "View widget properties"
 # msgstr ""
 
-# msgid "Create dashboard"
-# msgstr ""
-
-# msgid "Create a dashboard"
-# msgstr ""
-
-# msgid "Update dashboard"
-# msgstr ""
-
-# msgid "Dashboard updated"
-# msgstr ""
-
-# msgid "Manage access rights"
-# msgstr ""
-
-# msgid "Select a widget type to activate the preview."
+# msgid "Dashboard library"
 # msgstr ""
 
 # msgid "Welcome to the Dashboards interface!"
@@ -16113,16 +16140,7 @@ msgstr "Erweiterter Modus"
 # msgid "Time period"
 # msgstr ""
 
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 3 hours"
-# msgstr ""
-
-# msgid "Last 6 hours"
-# msgstr ""
-
-# msgid "Last 12 hours"
+# msgid "Last hour (default)"
 # msgstr ""
 
 # msgid "Last 24 hours"
@@ -16135,9 +16153,6 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
 # msgstr ""
 
 # msgid "Last 12 months"
@@ -16263,7 +16278,7 @@ msgstr "Erweiterter Modus"
 # msgid "Status grid"
 # msgstr ""
 
-# msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+# msgid "Displays a status overview for selected resources."
 # msgstr ""
 
 # msgid "Display with this resource type"
@@ -16300,39 +16315,6 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "You are not allowed to list media"
-# msgstr ""
-
-# msgid "Playlists"
-# msgstr ""
-
-# msgid "Welcome to the Playlist interface!"
-# msgstr ""
-
-# msgid "Create a playlist"
-# msgstr ""
-
-# msgid "Playlist name"
-# msgstr ""
-
-# msgid "Playlist properties"
-# msgstr ""
-
-# msgid "Rotation time"
-# msgstr ""
-
-# msgid "Select dashboards"
-# msgstr ""
-
-# msgid "Define the order of dashboards"
-# msgstr ""
-
-# msgid "Add a dashboard"
-# msgstr ""
-
-# msgid "Playlist created"
-# msgstr ""
-
-# msgid "Playlist updated"
 # msgstr ""
 
 # msgid "Add at least 1 contact"
@@ -16431,18 +16413,6 @@ msgstr "Erweiterter Modus"
 # msgid "Token has been created"
 # msgstr ""
 
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
-# msgstr ""
-
-# msgid "Delete token"
-# msgstr ""
-
-# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
-# msgstr ""
-
-# msgid "Delete token"
-# msgstr ""
-
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -16506,42 +16476,6 @@ msgstr "Erweiterter Modus"
 # msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer access the dashboard."
 # msgstr ""
 
-# msgid "Create a new resource access rule"
-# msgstr ""
-
-# msgid "Edit resource access rule"
-# msgstr ""
-
-# msgid "Rule properties"
-# msgstr ""
-
-# msgid "Resource selection"
-# msgstr ""
-
-# msgid "Contacts/Contact groups"
-# msgstr ""
-
-# msgid "The resource access rule was successfully added"
-# msgstr ""
-
-# msgid "The resource access rule was successfully updated"
-# msgstr ""
-
-# msgid "Add new dataset"
-# msgstr ""
-
-# msgid "Choose at least one contact or contact group"
-# msgstr ""
-
-# msgid "Metaservice"
-# msgstr ""
-
-# msgid "Select resource type"
-# msgstr ""
-
-# msgid "Your comment has been saved."
-# msgstr "
-
 # msgid "Displays data on resource status and events, centralized in a table."
 # msgstr ""
 
@@ -16558,21 +16492,6 @@ msgstr "Erweiterter Modus"
 # msgstr ""
 
 # msgid "Fullscreen (F)"
-# msgstr ""
-
-# msgid "Expiration date"
-# msgstr ""
-
-# msgid "Clear"
-# msgstr ""
-
-# msgid "The {{name}} widget will be permanently deleted."
-# msgstr ""
-
-# msgid "The widget will be permanently deleted."
-# msgstr ""
-
-# msgid "The {{name}} dashboard will be permanently deleted."
 # msgstr ""
 
 #  msgid "Invalid page name. Valid page names are: %s"
