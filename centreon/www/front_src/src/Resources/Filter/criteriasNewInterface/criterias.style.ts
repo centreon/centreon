@@ -8,6 +8,9 @@ export const useStyles = makeStyles()((theme) => ({
   containerFilter: {
     width: '100%'
   },
+  div: {
+    marginTop: theme.spacing(1)
+  },
   divider: {
     borderStyle: 'dashed',
     margin: theme.spacing(2, 0, 0, 0)
@@ -27,7 +30,7 @@ export const useStyles = makeStyles()((theme) => ({
   },
   inputInformation: {
     backgroundColor: theme.palette.background.default,
-    minWidth: theme.spacing(35)
+    minWidth: theme.spacing(38.5)
   },
   moreFiltersButton: {
     alignSelf: 'flex-end',

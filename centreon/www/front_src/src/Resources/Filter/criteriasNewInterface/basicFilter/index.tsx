@@ -22,10 +22,9 @@ const BasicFilter = ({
       {sections}
       {poller}
       <Divider className={classes.divider} />
-      <div style={{ marginTop: 12 }} />
 
       {types}
-      <div style={{ marginTop: 8 }} />
+      <div className={classes.div} />
       {state}
     </div>
   );
