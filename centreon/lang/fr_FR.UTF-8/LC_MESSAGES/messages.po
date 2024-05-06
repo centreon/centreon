@@ -18033,7 +18033,7 @@ msgid "Widget type"
 msgstr "Type de widget"
 
 msgid "Display as"
-msgstr "Afficher en"
+msgstr "Afficher en tant que"
 
 msgid "Text"
 msgstr "Texte"
