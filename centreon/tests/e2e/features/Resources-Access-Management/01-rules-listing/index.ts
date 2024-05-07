@@ -38,7 +38,7 @@ Then(
 );
 
 Then('a button to add a new rule is available', () => {
-  cy.get('[data-testid="createResourceAccessRule"]').should('exist');
+  cy.getByTestId({ testId: 'createResourceAccessRule' }).should('exist');
 });
 
 Then('I should see at least 10 rules registered', () => {
