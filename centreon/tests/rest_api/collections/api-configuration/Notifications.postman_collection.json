@@ -1690,10 +1690,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The Contact Group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
-									"  console.log(responseJson);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1712,7 +1710,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setcontact\",\r\n  \"object\": \"CG\",\r\n  \"values\": \"contact_group_1;{{api_login_user1}}|{{api_login_user2}}|{{api_login_user_RW}}|{{api_login_user_RW_filters}}|{{api_login_user_Read}}|{{api_login_user_Read_filters}}|{{api_login_user_Nothing}}\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"CG\",\r\n  \"values\": \"contact_group_1;{{api_login_user1}}|{{api_login_user2}}|{{api_login_user_RW}}|{{api_login_user_RW_filters}}|{{api_login_user_Nothing}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1745,10 +1743,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The Contact Group has been successfully created.\", function () {\r",
 									"  pm.response.to.have.status(200);\r",
-									"  console.log(responseJson);\r",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1767,7 +1763,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setcontact\",\r\n  \"object\": \"CG\",\r\n  \"values\": \"contact_group_2;user1|user2|{{api_login_user_RW}}|{{api_login_user_RW_filters}}|{{api_login_user_Read}}|{{api_login_user_Read_filters}}|{{api_login_user_Nothing}}\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"CG\",\r\n  \"values\": \"contact_group_2;{{api_login_user1}}|{{api_login_user2}}|{{api_login_user_RW}}|{{api_login_user_RW_filters}}|{{api_login_user_Nothing}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
