@@ -2122,11 +2122,11 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"var response = pm.response.json();\r",
+									"console.log(response);\r",
 									"pm.test(\"The notification has been successfully created, with name '\" + pm.collectionVariables.get(\"Notification1Name\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new service group\r",
-									"    var response = pm.response.json();\r",
 									"    pm.collectionVariables.set(\"Notification1Id\", response.id);\r",
 									"\r",
 									"    pm.expect(response).to.eql({\r",
@@ -5531,7 +5531,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Notification1Name}}\",\r\n    \"timeperiod_id\": 1,\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"hostgroup\",\r\n        \"events\": 5,\r\n        \"ids\": [ {{HostGroup1Id}}, {{HostGroup2Id}} ],\r\n        \"extra\": {\r\n        \"event_services\": 2\r\n        }\r\n    },\r\n    {\r\n        \"type\": \"servicegroup\",\r\n        \"events\": 5,\r\n        \"ids\": [ {{ServiceGroup1Id}}, {{ServiceGroup2Id}} ]\r\n    }\r\n    ],\r\n    \"messages\": [\r\n    {\r\n        \"channel\": \"Email\",\r\n        \"subject\": \"Hello world !\",\r\n        \"message\": \"just a small message\",\r\n        \"formatted_message\": \"a formatted message\"\r\n    }\r\n    ],\r\n    \"users\": [ {{user1_Id}}, {{user2_Id}} ],\r\n    \"contactgroups\": [ {{Contact_Group_1_Id}}, {{Contact_Group_2_Id}} ],\r\n    \"is_activated\": true\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/notifications/{{Notification4Id}}",
@@ -5542,6 +5542,57 @@
 								"configuration",
 								"notifications",
 								"{{Notification4Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete multiple notifications",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The notification rule has not been deleted, because the user does not have sufficient rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to delete a notification configuration\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\": [ {{Notification1Id}}, {{Notification4Id}} ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/notifications/_delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"notifications",
+								"_delete"
 							]
 						}
 					},
@@ -5622,6 +5673,205 @@
 									"value": "{{version}}",
 									"description": "Version of the API",
 									"uuid": "28ac66df-1c5c-4c2e-8555-09b561eb11ff"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "0105 - Multiple notification deletion by user R/W",
+			"item": [
+				{
+					"name": "Login with user R/W",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_RW'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete multiple notifications",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The notifications have not been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(207);\r",
+									"\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"href\": \"/centreon/api/latest/configuration/notifications/\" + pm.collectionVariables.get(\"Notification1Id\"),\r",
+									"        \"status\": 204,\r",
+									"        \"message\": null\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson.result[1]).to.eql({\r",
+									"        \"href\": \"/centreon/api/latest/configuration/notifications/\" + pm.collectionVariables.get(\"Notification4Id\"),\r",
+									"        \"status\": 204,\r",
+									"        \"message\": null\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ids\": [ {{Notification1Id}}, {{Notification4Id}} ]\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/notifications/_delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"notifications",
+								"_delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout from user R/W user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)",
+									"uuid": "2a4e254c-b32d-4ea1-b90c-c6a053890e35"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server",
+									"uuid": "419ae63f-fedf-4efe-a217-61e33da5ba3e"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server",
+									"uuid": "fba7f711-2ad1-490e-a7d0-f91a85d867d7"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API",
+									"uuid": "0e7fd22e-968b-441e-b782-87605d266ad3"
 								}
 							]
 						},
