@@ -1173,10 +1173,14 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_DBMS_PKG="centreon-mariadb"
+	if [[ "$version" =~ "24.0[1-9]" || "$version" =~ "24.1[0-2]" ]]; then
+		if [[ $dbms == "MariaDB" ]]; then
+			CENTREON_DBMS_PKG="centreon-mariadb"
+		else
+			CENTREON_DBMS_PKG="centreon-mysql"
+		fi
 	else
-		CENTREON_DBMS_PKG="centreon-mysql"
+		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
