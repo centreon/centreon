@@ -88,6 +88,7 @@ jobs:
           echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
           echo "display_summary=$DISPLAY_SUMMARY" >> $GITHUB_OUTPUT
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
+          echo "[DEBUG] - pouterie"
           cat $GITHUB_OUTPUT
 
   pipeline-scan:
