@@ -863,12 +863,12 @@ jobs:
 
       - if: ${{ needs.get-version.outputs.release_cloud == '1' }}
         name: Build cloud openapi documentation
-        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api-v${{ needs.get-version.outputs.major_version }}.yaml -o index.html
+        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
         shell: bash
 
       - if: ${{ needs.get-version.outputs.release_cloud == '0' }}
         name: Build onprem openapi documentation
-        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api-v${{ needs.get-version.outputs.major_version }}.yaml -o index.html
+        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api.yaml -o index.html
         shell: bash
 
       - name: Upload built openapi doc
