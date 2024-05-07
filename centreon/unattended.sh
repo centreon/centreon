@@ -1176,7 +1176,7 @@ function install_central() {
 		else
 			CENTREON_DBMS_PKG="centreon-mysql"
 		fi
-	then
+	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
