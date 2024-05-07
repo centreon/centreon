@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { gt, has, isEmpty, isNil } from 'ramda';
+import { has, isEmpty, isNil } from 'ramda';
 
 import { Typography } from '@mui/material';
 
