@@ -2,7 +2,7 @@ name: Chromatic
 description: Publish stories to Chromatic
 inputs:
   frontend_directory:
-    description: "The frontend source directory"
+    description: "The frontend directory"
     required: true
   dependencies_lock_file:
     description: "The frontend dependencies lock file path"
@@ -21,7 +21,7 @@ runs:
   using: "composite"
 
   steps:
-    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.41.0
       with:
         version: 8
         run_install: false
