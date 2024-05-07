@@ -43,7 +43,6 @@ const DeleteDashboardModal = (): JSX.Element => {
   }, [platformVersions]);
 
   const { isFetching, data } = useFetchQuery({
-    baseEndpoint: 'http://localhost:3001/centreon/api/latest',
     decoder: playlistsByDashboardDecoder,
     getEndpoint: () =>
       playlistsByDashboardEndpoint(dashboardToDelete?.id as number),
