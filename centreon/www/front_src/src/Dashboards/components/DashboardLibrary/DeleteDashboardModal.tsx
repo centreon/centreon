@@ -25,7 +25,6 @@ import { playlistsByDashboardDecoder } from '../../api/decoders';
 
 const DeleteDashboardModal = (): JSX.Element => {
   const dashboardRef = useRef('');
-  const playlistsCountRef = useRef(0);
 
   const { t } = useTranslation();
   const [dashboardToDelete, setDashboardToDelete] = useAtom(
@@ -66,10 +65,6 @@ const DeleteDashboardModal = (): JSX.Element => {
 
   if (dashboardToDelete?.name) {
     dashboardRef.current = dashboardToDelete?.name;
-  }
-
-  if (data) {
-    playlistsCountRef.current = data.length;
   }
 
   const bodyMessage = useMemo(

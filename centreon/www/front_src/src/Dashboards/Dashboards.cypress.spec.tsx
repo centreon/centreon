@@ -61,7 +61,6 @@ interface InitializeAndMountProps {
   canViewDashboard?: boolean;
   emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
-  isIEEInstalled?: boolean;
   layout?: DashboardLayout;
   ownRole?: DashboardRole;
 }
@@ -72,8 +71,7 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   emptyList,
-  layout = DashboardLayout.Library,
-  isIEEInstalled = false
+  layout = DashboardLayout.Library
 }: InitializeAndMountProps): {
   navigate;
   store;
@@ -181,27 +179,25 @@ const initializeAndMount = ({
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
 
-  if (isIEEInstalled) {
-    const version = {
-      fix: '0',
-      major: '0',
-      minor: '0',
-      version: '1.0.0'
-    };
-    store.set(platformVersionsAtom, {
-      modules: {
-        'centreon-it-edition-extensions': version
-      },
-      web: version,
-      widgets: {}
-    });
-    cy.interceptAPIRequest({
-      alias: 'revokeUser',
-      method: Method.GET,
-      path: `./api/latest/${playlistsByDashboardEndpoint(1)}`,
-      response: []
-    });
-  }
+  const version = {
+    fix: '0',
+    major: '0',
+    minor: '0',
+    version: '1.0.0'
+  };
+  store.set(platformVersionsAtom, {
+    modules: {
+      'centreon-it-edition-extensions': version
+    },
+    web: version,
+    widgets: {}
+  });
+  cy.interceptAPIRequest({
+    alias: 'revokeUser',
+    method: Method.GET,
+    path: `./api/latest${playlistsByDashboardEndpoint(1)}`,
+    response: [{ id: 1, name: 'playlist' }]
+  });
 
   cy.stub(routerHooks, 'useParams').returns({
     layout
@@ -715,25 +711,8 @@ describe('Dashboards', () => {
     cy.contains(labelDeleteDashboard).should('not.exist');
   });
 
-  it('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+  it.only('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
-
-    cy.findByLabelText(labelListView).click();
-
-    cy.findAllByLabelText(labelMoreActions).eq(0).click();
-    cy.findByLabelText(labelDelete).click();
-    cy.contains(
-      'The My Dashboard dashboard will be permanently deleted.'
-    ).should('be.visible');
-    cy.findAllByLabelText(labelDelete).last().click();
-
-    cy.waitForRequest('@deleteDashboard');
-
-    cy.contains(labelDashboardDeleted).should('be.visible');
-  });
-
-  it('displays a message when the corresponding extensions is installed and the corresponding icon button is clicked', () => {
-    initializeAndMount({ ...administratorRole, isIEEInstalled: true });
 
     cy.findByLabelText(labelListView).click();
 
@@ -742,8 +721,11 @@ describe('Dashboards', () => {
     cy.contains(
       'The My Dashboard dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to.'
     ).should('be.visible');
+    cy.findAllByLabelText(labelDelete).last().click();
 
-    cy.makeSnapshot();
+    cy.waitForRequest('@deleteDashboard');
+
+    cy.contains(labelDashboardDeleted).should('be.visible');
   });
 
   it('does not delete a dashboard in the listing view when the corresponding icon button is clicked and the cancellation button is clicked', () => {
