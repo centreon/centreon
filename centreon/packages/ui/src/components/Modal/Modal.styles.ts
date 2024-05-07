@@ -52,6 +52,7 @@ const useStyles = makeStyles<{
   modalActions: {
     '&[data-fixed="true"]': {
       background: theme.palette.background.paper,
+      padding: theme.spacing(1, 2.5, 2.5, 0),
       position: 'fixed',
       width: '100%'
     },
