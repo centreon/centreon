@@ -199,7 +199,6 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 AND scr.sc_id IN ({$subRequest})
                 SQL;
 
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT 1
