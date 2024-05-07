@@ -206,96 +206,101 @@ before(() => {
   userData.result.current.locale = 'en_US';
 });
 
-const initializeRequests = (): void => {
-  cy.interceptAPIRequest({
-    alias: 'filterRequest',
-    method: Method.GET,
-    path: '**/events-view*',
-    response: emptyListData
-  });
+interface SetupIntercept {
+  alias: string;
+  fixtureFile?: string;
+  method?: Method;
+  path: string;
+  query?: { name: string; value: string };
+}
 
-  cy.interceptAPIRequest({
+const setupIntercept = ({
+  alias,
+  method = Method.GET,
+  path,
+  fixtureFile,
+  query
+}: SetupIntercept): void => {
+  const body = !query
+    ? { alias, method, path }
+    : { alias, method, path, query };
+
+  if (!fixtureFile) {
+    cy.interceptAPIRequest({
+      ...body,
+      response: emptyListData
+    });
+
+    return;
+  }
+  cy.fixture(fixtureFile).then((response) => {
+    cy.interceptAPIRequest({
+      ...body,
+      response
+    });
+  });
+};
+
+const initializeRequests = (): void => {
+  setupIntercept({ alias: 'filterRequest', path: '**/events-view*' });
+
+  setupIntercept({
     alias: 'getResources',
-    method: Method.GET,
     path: `${resourcesEndpoint}**`,
     query: {
       name: 'page',
       value: '1'
-    },
-    response: emptyListData
-  });
-
-  cy.fixture('resources/filter/resourcesByHostType.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'GetResourcesByHostType',
-      method: Method.GET,
-      path: `${resourcesEndpoint}**`,
-      query: {
-        name: 'types',
-        value: '["host"]'
-      },
-      response
-    });
-  });
-
-  cy.fixture('resources/filter/resourcesByServiceType.json').then(
-    (response) => {
-      cy.interceptAPIRequest({
-        alias: 'GetResourcesByServiceType',
-        method: Method.GET,
-        path: `${resourcesEndpoint}**`,
-        query: {
-          name: 'types',
-          value: '["service"]'
-        },
-        response
-      });
     }
-  );
-
-  cy.fixture('resources/filter/pollers.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'pollersRequest',
-      method: Method.GET,
-      path: '**/monitoring/servers?*',
-      response
-    });
   });
 
-  cy.fixture('resources/filter/hostGroups.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'hostGroupsRequest',
-      method: Method.GET,
-      path: '**/hostgroups?*',
-      response
-    });
+  setupIntercept({
+    alias: 'GetResourcesByHostType',
+    fixtureFile: 'resources/filter/resourcesByHostType.json',
+    path: `${resourcesEndpoint}**`,
+    query: {
+      name: 'types',
+      value: '["host"]'
+    }
   });
 
-  cy.fixture('resources/filter/webAccessServiceGroup.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'serviceGroupsRequest',
-      method: Method.GET,
-      path: '**/servicegroups?*',
-      response
-    });
+  setupIntercept({
+    alias: 'GetResourcesByServiceType',
+    fixtureFile: 'resources/filter/resourcesByServiceType.json',
+    path: `${resourcesEndpoint}**`,
+    query: {
+      name: 'types',
+      value: '["service"]'
+    }
   });
 
-  cy.fixture('resources/filter/hostCategory.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'hostCategoryRequest',
-      method: Method.GET,
-      path: '**/monitoring/hosts/categories?*',
-      response
-    });
+  setupIntercept({
+    alias: 'pollersRequest',
+    fixtureFile: 'resources/filter/pollers.json',
+    path: `**/monitoring/servers?*`
   });
 
-  cy.fixture('resources/filter/hostSeverity.json').then((response) => {
-    cy.interceptAPIRequest({
-      alias: 'hostSeverityRequest',
-      method: Method.GET,
-      path: '**/monitoring/severities/host?*',
-      response
-    });
+  setupIntercept({
+    alias: 'hostGroupsRequest',
+    fixtureFile: 'resources/filter/hostGroups.json',
+    path: `**/hostgroups?*`
+  });
+
+  setupIntercept({
+    alias: 'serviceGroupsRequest',
+    fixtureFile: 'resources/filter/webAccessServiceGroup.json',
+    path: `**/servicegroups?*`
+  });
+
+  setupIntercept({
+    alias: 'hostCategoryRequest',
+    fixtureFile: 'resources/filter/hostCategory.json',
+    path: `**/monitoring/hosts/categories?*`
+  });
+
+  setupIntercept({
+    alias: 'hostSeverityRequest',
+    fixtureFile: 'resources/filter/hostSeverity.json',
+    path: `**/monitoring/severities/host?*`
   });
 };
 
