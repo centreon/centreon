@@ -12,6 +12,7 @@ import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { Method } from '@centreon/js-config/cypress/component/commands';
 
 import { labelMoreActions } from '../Resources/translatedLabels';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { DashboardsPage } from './DashboardsPage';
 import { DashboardRole } from './api/models';
@@ -20,7 +21,8 @@ import {
   dashboardsEndpoint,
   dashboardSharesEndpoint,
   getDashboardAccessRightsContactGroupEndpoint,
-  getDashboardEndpoint
+  getDashboardEndpoint,
+  playlistsByDashboardEndpoint
 } from './api/endpoints';
 import {
   labelShareWithContacts,
@@ -59,6 +61,7 @@ interface InitializeAndMountProps {
   canViewDashboard?: boolean;
   emptyList?: boolean;
   globalRole?: DashboardGlobalRole;
+  isIEEInstalled?: boolean;
   layout?: DashboardLayout;
   ownRole?: DashboardRole;
 }
@@ -69,7 +72,8 @@ const initializeAndMount = ({
   canViewDashboard = true,
   canAdministrateDashboard = true,
   emptyList,
-  layout = DashboardLayout.Library
+  layout = DashboardLayout.Library,
+  isIEEInstalled = false
 }: InitializeAndMountProps): {
   navigate;
   store;
@@ -176,6 +180,28 @@ const initializeAndMount = ({
     method: Method.DELETE,
     path: getDashboardAccessRightsContactGroupEndpoint(1, 3)
   });
+
+  if (isIEEInstalled) {
+    const version = {
+      fix: '0',
+      major: '0',
+      minor: '0',
+      version: '1.0.0'
+    };
+    store.set(platformVersionsAtom, {
+      modules: {
+        'centreon-it-edition-extensions': version
+      },
+      web: version,
+      widgets: {}
+    });
+    cy.interceptAPIRequest({
+      alias: 'revokeUser',
+      method: Method.GET,
+      path: `./api/latest/${playlistsByDashboardEndpoint(1)}`,
+      response: []
+    });
+  }
 
   cy.stub(routerHooks, 'useParams').returns({
     layout
@@ -696,11 +722,28 @@ describe('Dashboards', () => {
 
     cy.findAllByLabelText(labelMoreActions).eq(0).click();
     cy.findByLabelText(labelDelete).click();
+    cy.contains(
+      'The My Dashboard dashboard will be permanently deleted.'
+    ).should('be.visible');
     cy.findAllByLabelText(labelDelete).last().click();
 
     cy.waitForRequest('@deleteDashboard');
 
     cy.contains(labelDashboardDeleted).should('be.visible');
+  });
+
+  it('displays a message when the corresponding extensions is installed and the corresponding icon button is clicked', () => {
+    initializeAndMount({ ...administratorRole, isIEEInstalled: true });
+
+    cy.findByLabelText(labelListView).click();
+
+    cy.findAllByLabelText(labelMoreActions).eq(0).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.contains(
+      'The My Dashboard dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to.'
+    ).should('be.visible');
+
+    cy.makeSnapshot();
   });
 
   it('does not delete a dashboard in the listing view when the corresponding icon button is clicked and the cancellation button is clicked', () => {
