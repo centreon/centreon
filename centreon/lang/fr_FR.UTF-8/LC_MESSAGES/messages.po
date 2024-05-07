@@ -18770,7 +18770,7 @@ msgid "The {{name}} dashboard will be permanently deleted."
 msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
 
 msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
-msgstr "Le tableau de bord {{name}} fait parti d'une ou plusieurs playlists. Il sera définitivement supprimé des playlists dont il appartient."
+msgstr "Le tableau de bord {{name}} fait partie d'une ou plusieurs listes de diffusion. Il sera définitivement supprimé des listes de diffusion auxquelles il appartient."
 
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
