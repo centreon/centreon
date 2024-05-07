@@ -85,3 +85,5 @@ SELECT vid.dir_id, vi.img_id FROM view_img_dir vid, view_img vi
 WHERE vid.dir_name = 'ppm'
 AND vi.img_name = 'Florizarre.png'
 "
+
+sed -i 's@"notification": 0@"notification": 3@' /usr/share/centreon/config/features.json
