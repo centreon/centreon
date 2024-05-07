@@ -1,11 +1,12 @@
 import { ReactElement, useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { inc } from 'ramda';
+import { inc, map, uniq } from 'ramda';
 
 import {
   Settings as SettingsIcon,
-  Share as ShareIcon
+  Share as ShareIcon,
+  FileUploadOutlined as ExportIcon
 } from '@mui/icons-material';
 import { Divider } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -19,6 +20,7 @@ import { Dashboard as DashboardType } from '../../api/models';
 import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { isSharesOpenAtom } from '../../atoms';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
+import useExportPDF from '../../hooks/useExportPDF';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './hooks/useDashboardDetails';
@@ -30,12 +32,12 @@ import { useDashboardStyles } from './Dashboard.styles';
 import DeleteWidgetModal from './components/DeleteWidgetModal';
 import DashboardSaveBlockerModal from './components/DashboardSaveBlockerModal';
 
-const Dashboard = (): ReactElement => {
+const Dashboard = ({ id }: { id?: string }): ReactElement => {
   const { classes } = useDashboardStyles();
 
   const { dashboardId } = routerParams.useParams();
   const { dashboard, panels } = useDashboardDetails({
-    dashboardId: dashboardId as string
+    dashboardId: dashboardId || (id as string)
   });
   const { editDashboard } = useDashboardConfig();
 
@@ -68,6 +70,38 @@ const Dashboard = (): ReactElement => {
       setRefreshCounts({});
     };
   }, []);
+
+  const contentElement = document.getElementById('dashboard-content');
+
+  const rect = contentElement?.getBoundingClientRect();
+
+  const topDashbaordY = rect?.y || 0;
+  const dashboardHeight = rect?.height || 1;
+
+  const widgets = contentElement?.getElementsByClassName('react-grid-item');
+
+  const widgetsCoordinates = uniq(
+    map(
+      (widget) =>
+        (widget?.getBoundingClientRect()?.y +
+          widget?.getBoundingClientRect()?.height -
+          topDashbaordY) /
+        dashboardHeight,
+      widgets || []
+    )
+  );
+
+  const { exportPDf: asyncExportPDf } = useExportPDF({
+    description: dashboard?.description || '',
+    exportOptions: { filename: 'dashboard.pdf' },
+    name: dashboard?.name || '',
+    targetElm: contentElement,
+    widgetsCoordinates
+  });
+
+  const exportPDf = async () => {
+    await asyncExportPDf();
+  };
 
   return (
     <PageLayout>
@@ -112,6 +146,14 @@ const Dashboard = (): ReactElement => {
                 size="small"
                 variant="primary"
                 onClick={refreshAllWidgets}
+              />
+              <IconButton
+                aria-label="export"
+                data-testid="export"
+                icon={<ExportIcon />}
+                size="small"
+                variant="primary"
+                onClick={exportPDf}
               />
             </span>
           )}

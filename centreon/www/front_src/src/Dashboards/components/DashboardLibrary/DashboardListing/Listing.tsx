@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
@@ -16,7 +16,7 @@ import {
 import useColumns from './Columns/useColumns';
 import { Actions } from './Actions';
 import useListing from './useListing';
-import { askBeforeRevokeAtom } from './atom';
+import { askBeforeRevokeAtom, selectedRowsAtom } from './atom';
 
 interface ListingProp {
   customListingComponent?: JSX.Element;
@@ -36,6 +36,7 @@ const Listing = ({
   const { t } = useTranslation();
   const { columns, defaultColumnsIds } = useColumns();
 
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
   const askingBeforRevoke = useAtomValue(askBeforeRevokeAtom);
 
   const {
@@ -58,6 +59,7 @@ const Listing = ({
   return (
     <>
       <MemoizedListing
+        checkable
         actions={<Actions openConfig={openConfig} />}
         columnConfiguration={{
           selectedColumnIds: displayCustomListing
@@ -73,6 +75,7 @@ const Listing = ({
         loading={loading}
         memoProps={[columns, page, sorto, sortf]}
         rows={formattedRows}
+        selectedRows={selectedRows}
         sortField={sortf}
         sortOrder={sorto}
         subItems={{
@@ -88,6 +91,7 @@ const Listing = ({
         onResetColumns={resetColumns}
         onRowClick={navigateToDashboard}
         onSelectColumns={setSelectedColumnIds}
+        onSelectRows={setSelectedRows}
         onSort={changeSort}
       />
       <Modal open={!!askingBeforRevoke} onClose={closeAskRevokeAccessRight}>

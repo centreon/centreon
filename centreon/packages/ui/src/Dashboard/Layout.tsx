@@ -53,7 +53,7 @@ const DashboardLayout = <T extends Layout>({
       <ResponsiveHeight margin={40}>
         <ParentSize>
           {({ width, height }): JSX.Element => (
-            <div className={classes.container}>
+            <div className={classes.container} id="dashboard-content">
               {displayGrid && (
                 <Grid columns={columns} height={height} width={width} />
               )}

@@ -50,6 +50,7 @@ module.exports = (enableCoverage = false) =>
         alias: {
           'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
         },
+        fallback: { 'process/browser': require.resolve('process/browser') },
         modules: [path.resolve(__dirname, '.'), 'node_modules']
       }
     }

@@ -11,6 +11,7 @@ import DashboardPageLayout from './components/DashboardPageLayout';
 import DashboardNavbar from './components/DashboardNavbar/DashboardNavbar';
 import DeleteDashboardModal from './components/DashboardLibrary/DeleteDashboardModal';
 import DuplicateDashboardModal from './components/DashboardLibrary/DuplicateDashboardModal';
+import ExportDashboardModal from './components/DashboardLibrary/ExportDashboardModal';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ const DashboardsPage = (): ReactElement => {
       <DashboardAccessRightsModal />
       <DeleteDashboardModal />
       <DuplicateDashboardModal />
+      <ExportDashboardModal />
     </PageLayout>
   );
 };
