@@ -11,6 +11,7 @@ on:
       - "centreon-awie/**"
       - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
+      - you_R_Fired
   push:
     branches:
       - develop
