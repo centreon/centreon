@@ -156,9 +156,18 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function exists(int $serviceId): bool
     {
-        $concatenator = $this->getServiceRequestConcatenator();
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.`service` s
+                WHERE s.`service_id` = :service_id
+                AND s.`service_register` = '1'
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
 
-        return $this->existsService($concatenator, $serviceId);
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -177,9 +186,41 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             $accessGroups
         );
 
-        $concatenator = $this->getServiceRequestConcatenator($accessGroupIds);
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $id) {
+            $bindValuesArray[':access_group_id_' . $index] = $id;
+        }
+        $bindParamsAsString = implode(',', array_keys($bindValuesArray));
 
-        return $this->existsService($concatenator, $serviceId);
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+            ? ''
+            : <<<SQL
+                AND scr.sc_id IN ({$subRequest})
+                SQL;
+
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.`service` s
+                INNER JOIN `:db`.`service_categories_relation` scr
+                    ON scr.`service_service_id` = s.`service_id`
+                    {$categoryAcls}
+                JOIN `:dbstg`.`centreon_acl` acl
+                WHERE acl.`group_id` IN ({$bindParamsAsString})
+                AND s.`service_id` = :service_id
+                AND s.`service_register` = '1'
+                SQL
+        ));
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -879,77 +920,6 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         return false;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @return SqlConcatenator
-     */
-    private function getServiceRequestConcatenator(array $accessGroupIds = []): SqlConcatenator
-    {
-        $concatenator = (new SqlConcatenator())
-            ->defineFrom(
-                <<<'SQL'
-                    FROM
-                        `:db`.`service` s
-                    SQL
-            );
-
-        $categoryAcls = '';
-        if ([] !== $accessGroupIds) {
-            $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
-            $categoryAcls = empty($subRequest)
-                ? ''
-                : <<<SQL
-                    AND scr.sc_id IN ({$subRequest})
-                    SQL;
-
-            $concatenator->appendJoins(
-                <<<SQL
-                    LEFT JOIN `:db`.service_categories_relation scr
-                        ON scr.service_service_id = s.service_id
-                        {$categoryAcls}
-                    JOIN `:dbstg`.centreon_acl acl
-                        ON s.service_id = acl.service_id
-                    SQL
-            );
-            $concatenator->appendWhere(
-                <<<'SQL'
-                    WHERE acl.group_id IN (:access_group_ids)
-                    SQL
-            );
-            $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
-        }
-
-        return $concatenator;
-    }
-
-    /**
-     * @param SqlConcatenator $concatenator
-     * @param int $serviceId
-     *
-     * @throws \PDOException
-     *
-     * @return bool
-     */
-    private function existsService(SqlConcatenator $concatenator, int $serviceId): bool
-    {
-        $concatenator->defineSelect(
-                <<<'SQL'
-                    SELECT 1
-                    SQL
-            )->appendWhere(
-                <<<'SQL'
-                    WHERE s.service_id = :service_id
-                    AND s.service_register = '1'
-                    SQL
-            )->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
     }
 
     /**
