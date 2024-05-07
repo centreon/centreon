@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { equals, propEq, reject } from 'ramda';
 
 import { Variant } from '@mui/material/styles/createTypography';
 
@@ -14,7 +14,7 @@ import {
   SelectedResourceType
 } from '../../model';
 import useInputData from '../../useInputsData';
-import { findData, removeDuplicateFromObjectArray } from '../../utils';
+import { findData } from '../../utils';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
 
