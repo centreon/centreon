@@ -1169,11 +1169,14 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_DBMS_PKG="centreon-mariadb"
-	else
-		CENTREON_DBMS_PKG="centreon-mysql"
-	fi
+	CENTREON_DBMS_PKG=""
+	if [[ "$version" == "22.04" ]]; then
+		if [[ $dbms == "MariaDB" ]]; then
+			CENTREON_DBMS_PKG="centreon-mariadb"
+		else
+			CENTREON_DBMS_PKG="centreon-mysql"
+		fi
+	then
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
