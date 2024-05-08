@@ -19,7 +19,7 @@ import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
 
 import { useStyles } from './checkBox.style';
-import useCheckBox from './useCheckBox';
+import useSynchronizeSearchBarWithCheckBoxInterface from './useSynchronizeSearchBarWithCheckBoxInterface';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
@@ -42,7 +42,9 @@ const CheckBoxSection = ({
     classes: { root: classes.label },
     variant: 'body2' as Variant
   };
+
   const formGroupProps = { classes: { root: classes.container } };
+
   const [selectedStatusByResourceType, setSelectedStatusByResourceType] =
     useAtom(selectedStatusByResourceTypeAtom);
 
@@ -53,12 +55,10 @@ const CheckBoxSection = ({
     filterName
   });
 
-  const { values } = useCheckBox({
-    changeCriteria,
+  useSynchronizeSearchBarWithCheckBoxInterface({
     data,
     filterName,
     resourceType,
-    selectedStatusByResourceType,
     setSelectedStatusByResourceType
   });
 
@@ -72,6 +72,21 @@ const CheckBoxSection = ({
     return input?.map((item) => item?.name);
   };
 
+  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
+    return keys.map((entry) => ({
+      id: entry.id,
+      name: t(entry.name)
+    }));
+  };
+
+  const translatedOptions = getTranslated(dataByFilterName?.options);
+
+  const translatedValues = getTranslated(
+    selectedStatusByResourceType?.filter(
+      (e) => e.checked && e.resourceType === resourceType
+    ) ?? []
+  );
+
   const changeFilter = (selectedStatus: Array<SelectedResourceType>): void => {
     const checkedData = selectedStatus?.filter((item) => item?.checked);
     const updatedValue = checkedData?.map((element) => ({
@@ -84,33 +99,36 @@ const CheckBoxSection = ({
     });
   };
 
-  const getTranslated = (keys: Array<SelectEntry>): Array<SelectEntry> => {
-    return keys.map((entry) => ({
-      id: entry.id,
-      name: t(entry.name)
-    }));
-  };
+  const handleSelectedStatus = (newStatus): void => {
+    if (selectedStatusByResourceType) {
+      const oldStatus = selectedStatusByResourceType.find(
+        ({ id, resourceType }) =>
+          id === newStatus.id && resourceType === newStatus.resourceType
+      );
 
-  const translatedOptions = getTranslated(dataByFilterName?.options);
-  const translatedValues = getTranslated(values);
+      const newArrayStatus = oldStatus
+        ? selectedStatusByResourceType.filter(
+            (item) =>
+              `${item.id}${item.resourceType}` !==
+              `${oldStatus.id}${oldStatus.resourceType}`
+          )
+        : selectedStatusByResourceType;
 
-  const handleSelectedStatus = (value): void => {
-    const arrayToFilter = selectedStatusByResourceType
-      ? [...selectedStatusByResourceType, value]
-      : [value];
+      const result = [
+        ...newArrayStatus,
+        newStatus
+      ] as Array<SelectedResourceType>;
 
-    const result = [
-      ...new Map(
-        arrayToFilter.map((element) => {
-          const key = `${element?.id}${element.resourceType}`;
+      setSelectedStatusByResourceType(result);
+      changeFilter(result);
 
-          return [key, element];
-        })
-      ).values()
-    ];
+      return;
+    }
 
-    setSelectedStatusByResourceType(result as Array<SelectedResourceType>);
-    changeFilter(result as Array<SelectedResourceType>);
+    const result = [newStatus] as Array<SelectedResourceType>;
+
+    setSelectedStatusByResourceType(result);
+    changeFilter(result);
   };
 
   const handleChangeStatus = (event): void => {
