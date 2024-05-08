@@ -743,7 +743,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy
-    .get('[data-cy="clock"]')
+    .get('header div[data-cy="clock"]', { timeout: 20000 })
     .should('be.visible')
     .then(($time) => {
       const headerTime = $time.children()[1].textContent;
