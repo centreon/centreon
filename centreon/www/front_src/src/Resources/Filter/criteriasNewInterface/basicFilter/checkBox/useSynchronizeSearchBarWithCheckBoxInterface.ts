@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import { useEffect } from 'react';
 
 import { isEmpty, isNil } from 'ramda';
@@ -24,7 +23,7 @@ const useSynchronizeSearchBarWithCheckBoxInterface = ({
     const initialValue = data.find((item) => item.name === filterName)?.value;
 
     if (isEmpty(initialValue) || isNil(initialValue)) {
-      return;
+      return () => undefined;
     }
 
     const result = initialValue.map((item) => {
