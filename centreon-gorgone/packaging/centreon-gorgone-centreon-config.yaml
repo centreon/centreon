@@ -56,11 +56,11 @@ overrides:
     depends:
       - centreon-gorgone (= ${VERSION}-${RELEASE}${DIST})
     replaces:
-      - centreon-gorgone (<< 24.04.0)
+      - centreon-gorgone (<< 24.05.0)
 
 deb:
   breaks:
-    - centreon-gorgone (<< 24.04.0)
+    - centreon-gorgone (<< 24.05.0)
 
 rpm:
   summary: Configure Centreon Gorgone for use with Centreon Web
