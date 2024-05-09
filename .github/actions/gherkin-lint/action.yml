@@ -2,7 +2,6 @@ name: gherkin-lint
 
 inputs:
   features_path:
-    description: The path to the feature files
     required: true
 
 runs:
