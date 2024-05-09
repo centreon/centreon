@@ -7,7 +7,7 @@
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
     "storybook": "storybook dev -p 9001 -c .storybook -s ../public",
-    "build:storybook": "storybook build -c .storybook -o .out",
+    "build:storybook": "storybook build -c .storybook -o .out -s ./public",
     "test": "jest",
     "test:storybook:local": "test-storybook --url http://127.0.0.1:9001",
     "test:ci": "jest --silent --reporter=jest-junit",
