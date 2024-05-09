@@ -67,6 +67,7 @@ const TileContent = ({
       alignItems: 'center',
       backgroundColor,
       display: 'flex',
+      height: '100%',
       justifyContent: 'center'
     }}
   >
