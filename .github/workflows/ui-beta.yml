@@ -75,7 +75,7 @@ jobs:
   chromatic:
     if: startsWith(github.head_ref, 'MON-') && !github.event.pull_request.draft
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test, cypress-component-testing]
+    # needs: [lint, unit-test, cypress-component-testing]
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
