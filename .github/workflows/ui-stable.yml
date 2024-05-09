@@ -41,6 +41,7 @@ jobs:
           package: ${{ env.package }}
 
   chromatic:
+    if: ${{ github.ref_name == env.base_branch }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -54,7 +55,7 @@ jobs:
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - uses: ./.github/actions/chromatic
-        if: steps.filter.outputs.has_code_changes && github.ref_name == env.base_branch
+        if: steps.filter.outputs.has_code_changes
         with:
           frontend_directory: ${{ env.directory }}
           dependencies_lock_file: centreon/pnpm-lock.yaml
