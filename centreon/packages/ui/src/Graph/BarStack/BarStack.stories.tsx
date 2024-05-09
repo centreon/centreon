@@ -26,7 +26,12 @@ const dataWithSmallNumber = [
 ];
 
 const meta: Meta<typeof BarStack> = {
-  component: BarStack
+  component: BarStack,
+  parameters: {
+    chromatic: {
+      delay: 1000
+    }
+  }
 };
 
 export default meta;

@@ -19,7 +19,12 @@ const dataWithBigNumbers = [
 ];
 
 const meta: Meta<typeof PieChart> = {
-  component: PieChart
+  component: PieChart,
+  parameters: {
+    chromatic: {
+      delay: 1000
+    }
+  }
 };
 
 export default meta;
