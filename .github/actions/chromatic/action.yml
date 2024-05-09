@@ -56,6 +56,6 @@ runs:
           - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
-        ignoreLastBuildOnBranch: "MON-**"
+        ignoreLastBuildOnBranch: "MON-*"
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
