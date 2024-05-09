@@ -2,6 +2,11 @@ name: centreon-ui-beta
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon/packages/ui/**"
       - '.github/workflows/ui-beta.yml'
