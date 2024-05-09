@@ -37,8 +37,8 @@ if (!isset($centreon)) {
     exit();
 }
 
-if (!$centreon->user->admin) {
-    if ($hg_id && false === strpos($hgString, "'" . $hg_id . "'")) {
+if (! $centreon->user->admin) {
+    if ($hostGroupId && ! in_array($hostGroupId, $hostGroupIds, true)) {
         $msg = new CentreonMsg();
         $msg->setImage("./img/icons/warning.png");
         $msg->setTextStyle("bold");
