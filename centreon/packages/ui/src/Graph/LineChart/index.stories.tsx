@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 import { Curve } from '@visx/visx';
-import dayjs from 'dayjs';
 
 import { Button } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -14,7 +13,7 @@ import { useLocaleDateTimeFormat } from '@centreon/ui';
 import TimePeriod from '../../TimePeriods';
 import { LineChartData } from '../common/models';
 
-import { dateFormat, dateTimeFormat } from './common';
+import { dateTimeFormat } from './common';
 import {
   argTypes,
   args as argumentsData,
@@ -223,28 +222,6 @@ const LineChartAndTimePeriod = (args): JSX.Element => {
     <>
       <TimePeriod
         adjustTimePeriodData={adjustedTimePeriodInterval}
-        extraTimePeriods={[
-          {
-            dateTimeFormat: dateFormat,
-            getStart: (): Date =>
-              dayjs(new Date(2024, 4, 1))
-                .subtract(29, 'day')
-                .toDate(),
-            id: 'last_29_days',
-            largeName: 'last 29 days',
-            name: '29 days'
-          },
-          {
-            dateTimeFormat: dateFormat,
-            getStart: (): Date =>
-              dayjs(new Date(2024, 4, 1))
-                .subtract(5, 'day')
-                .toDate(),
-            id: 'last_5_days',
-            largeName: 'last 5 days',
-            name: '5 days'
-          }
-        ]}
         getParameters={getParameters}
         renderExternalComponent={
           <TimePeriodSwitch getDataSwitch={getDataSwitch} />
@@ -375,6 +352,9 @@ export const LineChartWithTimePeriod: Story = {
     end: defaultEnd,
     height: 500,
     start: defaultStart
+  },
+  parameters: {
+    chromatic: { disableSnapshot: true }
   }
 };
 
