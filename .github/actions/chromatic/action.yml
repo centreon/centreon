@@ -50,6 +50,7 @@ runs:
         buildScriptName: build:storybook
         onlyChanged: true
         untraced: |
+          - ".github/actions/code-coverage-gate-keeper/package.json"
           - "centreon/packages/ui/package.json"
           - "centreon/package.json"
           - "centreon/tests/rest_api/package.json"

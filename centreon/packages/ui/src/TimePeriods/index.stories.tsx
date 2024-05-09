@@ -73,14 +73,20 @@ const args = {
   extraTimePeriods: [
     {
       dateTimeFormat: dateFormat,
-      getStart: (): Date => dayjs(Date.now()).subtract(29, 'day').toDate(),
+      getStart: (): Date =>
+        dayjs(new Date(2024, 4, 1))
+          .subtract(29, 'day')
+          .toDate(),
       id: 'last_29_days',
       largeName: 'last 29 days',
       name: '29 days'
     },
     {
       dateTimeFormat: dateFormat,
-      getStart: (): Date => dayjs(Date.now()).subtract(5, 'day').toDate(),
+      getStart: (): Date =>
+        dayjs(new Date(2024, 4, 1))
+          .subtract(5, 'day')
+          .toDate(),
       id: 'last_5_days',
       largeName: 'last 5 days',
       name: '5 days'
@@ -88,34 +94,34 @@ const args = {
   ]
 };
 
-const parameters = {
-  chromatic: { diffThreshold: 0.4 }
-};
-
 export const BasicTimePeriod: Story = {
   ...Template,
-  argTypes,
-  parameters
+  argTypes
 };
 
 export const WithExtraTimePeriods: Story = {
   ...Template,
   argTypes,
-  args,
-  parameters
+  args
 };
 
 export const WithExternalComponent: Story = {
   ...TemplateWithExternalComponent,
   argTypes,
-  parameters
+  args: {
+    endDate: dayjs(new Date(2024, 4, 1)).toDate(),
+    startDate: dayjs(new Date(2024, 4, 1))
+      .subtract(29, 'day')
+      .toDate()
+  }
 };
 
 export const SimpleTimePeriod: StorySimpleTimePeriod = {
   ...TemplateWithSimpleTimePeriod,
   args: {
-    endDate: dayjs(Date.now()).toDate(),
-    startDate: dayjs(Date.now()).subtract(29, 'day').toDate()
-  },
-  parameters
+    endDate: dayjs(new Date(2024, 4, 1)).toDate(),
+    startDate: dayjs(new Date(2024, 4, 1))
+      .subtract(29, 'day')
+      .toDate()
+  }
 };
