@@ -193,7 +193,7 @@ const initializeAndMount = ({
     widgets: {}
   });
   cy.interceptAPIRequest({
-    alias: 'revokeUser',
+    alias: 'getPlaylistsByDashboard',
     method: Method.GET,
     path: `./api/latest${playlistsByDashboardEndpoint(1)}`,
     response: [{ id: 1, name: 'playlist' }]
@@ -483,7 +483,7 @@ describe('Dashboards', () => {
 
         cy.findByLabelText(labelDelete).click();
         cy.contains(
-          'The My Dashboard dashboard will be permanently deleted.'
+          'The My Dashboard dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to.'
         ).should('be.visible');
 
         cy.findByLabelText(labelDelete).click();
@@ -736,9 +736,11 @@ describe('Dashboards', () => {
     cy.findAllByLabelText(labelMoreActions).eq(0).click();
     cy.findByLabelText(labelDelete).click();
 
+    cy.waitForRequest('@getPlaylistsByDashboard');
+
     cy.contains(labelDeleteDashboard).should('be.visible');
     cy.contains(
-      'The My Dashboard dashboard will be permanently deleted.'
+      'The My Dashboard dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to.'
     ).should('be.visible');
 
     cy.contains(labelCancel).click();
