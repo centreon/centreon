@@ -7,6 +7,7 @@ import StoryBookThemeProvider from "../src/StoryBookThemeProvider";
 import QueryProvider from "../src/api/QueryProvider";
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { allModes } from "./modes";
 
 initialize();
 
@@ -29,7 +30,7 @@ const preview: Preview = {
   loaders: [mswLoader],
   decorators: [
     withThemeProvider,
-    withQueryProvider,
+    withQueryProvider
   ],
   globalTypes: {
     reactquerydevtools: {
@@ -56,7 +57,17 @@ const preview: Preview = {
         date: /Date$/,
       }
     },
-    chromatic: { diffThreshold: 0.1, delay: 100 },
+    chromatic: {
+      diffThreshold: 0.1,
+      delay: 300,
+      modes: {
+        desktop: allModes.desktop,
+      },
+    },
+    viewport: {
+      defaultViewport: 'tablet',
+      defaultOrientation: 'landscape'
+    },
   }
 };
 

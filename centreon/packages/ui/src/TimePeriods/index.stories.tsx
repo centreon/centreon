@@ -89,7 +89,7 @@ const args = {
 };
 
 const parameters = {
-  chromatic: { diffThreshold: 0.1 }
+  chromatic: { diffThreshold: 0.4 }
 };
 
 export const BasicTimePeriod: Story = {

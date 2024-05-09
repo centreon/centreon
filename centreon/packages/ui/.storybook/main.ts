@@ -19,7 +19,7 @@ const config = {
     "@storybook/addon-a11y",
     "@storybook/addon-interactions",
     "storybook-addon-mock",
-    "storybook-dark-mode",
+    "storybook-dark-mode"
   ],
   features: {},
   framework: {

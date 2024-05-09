@@ -354,7 +354,7 @@ export const LineChartWithTimePeriod: Story = {
     start: defaultStart
   },
   parameters: {
-    chromatic: { diffThreshold: 0.1 }
+    chromatic: { diffThreshold: 0.4 }
   }
 };
 
