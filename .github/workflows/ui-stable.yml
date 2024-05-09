@@ -51,7 +51,7 @@ jobs:
           filters: |
             has_code_changes:
               - 'centreon/packages/ui/**'
-          token: ${{ inputs.token }}
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - uses: ./.github/actions/chromatic
         if: steps.filter.outputs.has_code_changes && github.ref_name == env.base_branch
