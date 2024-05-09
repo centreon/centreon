@@ -711,7 +711,7 @@ describe('Dashboards', () => {
     cy.contains(labelDeleteDashboard).should('not.exist');
   });
 
-  it.only('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
+  it('deletes a dashboard in the listing view when the corresponding icon button is clicked and the confirmation button is clicked', () => {
     initializeAndMount(administratorRole);
 
     cy.findByLabelText(labelListView).click();
