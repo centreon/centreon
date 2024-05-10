@@ -47,7 +47,8 @@ runs:
         projectToken: ${{ inputs.project_token }}
         token: ${{ inputs.pat }}
         buildScriptName: build:storybook
-        onlyChanged: true
+        # Looking for a fix with the Chromatic support team
+        onlyChanged: false
         untraced: |
           - ".github/actions/code-coverage-gate-keeper/package.json"
           - "centreon/packages/ui/package.json"
@@ -57,6 +58,5 @@ runs:
         exitOnceUploaded: true
         ignoreLastBuildOnBranch: "MON-*"
         workingDir: ${{ inputs.frontend_directory }}
-        debug: true
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
