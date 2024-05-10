@@ -47,13 +47,12 @@ runs:
         projectToken: ${{ inputs.project_token }}
         token: ${{ inputs.pat }}
         buildScriptName: build:storybook
-        # Looking for a fix with the Chromatic support team
-        # onlyChanged: true
-        # untraced: |
-        #   - ".github/actions/code-coverage-gate-keeper/package.json"
-        #   - "centreon/packages/ui/package.json"
-        #   - "centreon/package.json"
-        #   - "centreon/tests/rest_api/package.json"
+        onlyChanged: true
+        untraced: |
+          - ".github/actions/code-coverage-gate-keeper/package.json"
+          - "centreon/packages/ui/package.json"
+          - "centreon/package.json"
+          - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
         ignoreLastBuildOnBranch: "MON-*"
