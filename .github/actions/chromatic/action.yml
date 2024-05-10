@@ -56,7 +56,7 @@ runs:
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
         ignoreLastBuildOnBranch: "MON-*"
-        storybookConfigDir: ${{ inputs.frontend_directory }}
+        storybookBaseDir: ${{ inputs.frontend_directory }}
         debug: true
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"
