@@ -5,9 +5,9 @@ import { ThemeMode } from "@centreon/ui-context";
 
 import StoryBookThemeProvider from "../src/StoryBookThemeProvider";
 import QueryProvider from "../src/api/QueryProvider";
+import { allModes } from './modes';
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { allModes } from "./modes";
 
 initialize();
 
@@ -30,7 +30,7 @@ const preview: Preview = {
   loaders: [mswLoader],
   decorators: [
     withThemeProvider,
-    withQueryProvider
+    withQueryProvider,
   ],
   globalTypes: {
     reactquerydevtools: {
