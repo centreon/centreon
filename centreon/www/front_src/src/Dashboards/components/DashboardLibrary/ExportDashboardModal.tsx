@@ -2,24 +2,23 @@ import { useRef, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { pluck } from 'ramda';
+import { map } from 'ramda';
 
 import { Modal } from '@centreon/ui/components';
 
 import { dashboardsToExportAtom } from '../../atoms';
-import {
-  labelCancel,
-  labelDelete,
-  labelDescriptionDeleteDashboard
-} from '../../translatedLabels';
+import { labelCancel } from '../../translatedLabels';
 
 import { selectedRowsAtom } from './DashboardListing/atom';
 
-const dimensions = { height: window.innerHeight, width: window.innerWidth };
+import { centreonBaseURL } from 'packages/ui/src';
+
+const dimensions = { height: screen.height, width: screen.width };
 
 const ExportDashboardModal = (): JSX.Element => {
   const { t } = useTranslation();
   const dashboardRef = useRef('');
+  const { protocol, hostname, port } = window.location;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,10 +35,14 @@ const ExportDashboardModal = (): JSX.Element => {
       JSON.stringify(dashboardsToExport)
     );
 
-    const url = `/export-pdf?dimensions=${dimensionsParam}&dashboards=${dashboardsParam}`;
+    const baseUrl = encodeURIComponent(
+      JSON.stringify(`${protocol}//${hostname}:${port}${centreonBaseURL}`)
+    );
+
+    const url = `/export-pdf?dimensions=${dimensionsParam}&dashboards=${dashboardsParam}&baseUrl=${baseUrl}`;
 
     try {
-      const response = await fetch(`http://localhost:3001${url}`);
+      const response = await fetch(`http://localhost:3002${url}`);
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -66,10 +69,13 @@ const ExportDashboardModal = (): JSX.Element => {
   return (
     <Modal open={Boolean(dashboardsToExport)} onClose={close}>
       <Modal.Header>Export PDF</Modal.Header>
-      <Modal.Body>export selected dashboards as pdf</Modal.Body>
+      <Modal.Body>
+        Export dashboards{': '}
+        {dashboardsToExport?.map(({ name }) => name)?.join(',')}
+      </Modal.Body>
       {isLoading && (
         <div style={{ color: 'orange' }}>
-          please wait, the process may take few seconds
+          Please wait, the process may take few seconds
         </div>
       )}
       <Modal.Actions

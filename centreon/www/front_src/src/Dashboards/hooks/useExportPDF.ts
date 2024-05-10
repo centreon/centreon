@@ -49,7 +49,6 @@ const useExportPDF = ({
     pdfObject.setFontSize(8);
     pdfObject.text(description, 10, 35);
 
-    // Draw a blue line
     pdfObject.setDrawColor(63, 133, 213);
     pdfObject.setLineWidth(0.2);
     pdfObject.line(10, 37, pdfWidth - 10, 37);
@@ -77,7 +76,6 @@ const useExportPDF = ({
 
       addHTMLTitle(pdf, pageWidth);
 
-      // Function to crop and add part of the canvas to a PDF page
       const cropAndAddToPDF = (cropStartY, cropHeight, position) => {
         const croppedCanvas = document.createElement('canvas');
         croppedCanvas.width = originalCanvas.width;
@@ -98,7 +96,7 @@ const useExportPDF = ({
 
         const contentDataURL = croppedCanvas.toDataURL('image/jpeg', 1.0);
         const displayHeight =
-          (croppedCanvas.height * imgWidth) / croppedCanvas.width; // Maintain aspect ratio
+          (croppedCanvas.height * imgWidth) / croppedCanvas.width;
 
         pdf.addImage(
           contentDataURL,
@@ -127,17 +125,15 @@ const useExportPDF = ({
         ...widgetsCoordinates.filter((y) => y < topCropHeightPercent)
       );
 
-      // Crop and add the top of closestInferiorwidgetY or topCropHeightPercent
       const topCropHeight =
         originalCanvas.height *
         (imageFits ? closestInferiorwidgetY : topCropHeightPercent);
 
-      cropAndAddToPDF(0, topCropHeight, topPadding); // 48 mm from the top of the page
+      cropAndAddToPDF(0, topCropHeight, topPadding);
 
       if (imageFits) {
         pdf.addPage();
 
-        // Crop and add the rest
         const bottomCropStartY = topCropHeight;
         const bottomCropHeight = originalCanvas.height - topCropHeight;
         cropAndAddToPDF(bottomCropStartY, bottomCropHeight, 10);
