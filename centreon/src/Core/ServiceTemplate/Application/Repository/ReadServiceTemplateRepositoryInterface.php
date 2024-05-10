@@ -43,6 +43,16 @@ interface ReadServiceTemplateRepositoryInterface
     public function findById(int $serviceTemplateId): ?ServiceTemplate;
 
     /**
+     * Find one service template by id and access group ids.
+     *
+     * @param int $serviceTemplateId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return ServiceTemplate|null
+     */
+    public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate;
+
+    /**
      * Find all service templates.
      *
      * @param RequestParametersInterface $requestParameters

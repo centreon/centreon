@@ -185,6 +185,103 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
+    public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
+    {
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+        $categoryAcls = empty($subRequest)
+             ? ''
+             : <<<SQL
+                 AND scr.sc_id IN ({$subRequest})
+                 SQL;
+
+        $request = $request = <<<SQL
+            SELECT service_id,
+                service.cg_additive_inheritance,
+                service.contact_additive_inheritance,
+                service.command_command_id,
+                service.command_command_id2,
+                service.command_command_id_arg,
+                service.command_command_id_arg2,
+                service.timeperiod_tp_id,
+                service.timeperiod_tp_id2,
+                service_acknowledgement_timeout,
+                service_active_checks_enabled,
+                service_event_handler_enabled,
+                service_flap_detection_enabled,
+                service_check_freshness,
+                service_locked,
+                service_notifications_enabled,
+                service_passive_checks_enabled,
+                service_is_volatile,
+                service_low_flap_threshold,
+                service_high_flap_threshold,
+                service_max_check_attempts,
+                service_description,
+                service_comment,
+                service_alias,
+                service_freshness_threshold,
+                service_normal_check_interval,
+                service_notification_interval,
+                service_notification_options,
+                service_recovery_notification_delay,
+                service_retry_check_interval,
+                service_template_model_stm_id,
+                service_first_notification_delay,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id,
+                GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+            FROM `:db`.service
+            LEFT JOIN `:db`.extended_service_information esi
+                ON esi.service_service_id = service.service_id
+            INNER JOIN `:db`.service_categories_relation scr
+                ON scr.service_service_id = service.service_id
+                {$categoryAcls}
+            LEFT JOIN `:db`.service_categories severity
+                ON severity.sc_id = scr.sc_id
+                AND severity.level IS NOT NULL
+            LEFT JOIN `:db`.host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            LEFT JOIN `:db`.host
+                ON host.host_id = hsr.host_host_id
+                AND host.host_register = '0'
+            WHERE service.service_id = :id
+                AND service.service_register = '0'
+            GROUP BY
+                service.service_id,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        foreach ($accessGroupIds as $index => $id) {
+            $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _ServiceTemplate $result */
+            return $this->createServiceTemplate($result);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Searching for service templates');
@@ -545,7 +642,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             FROM `:db`.service
             LEFT JOIN `:db`.extended_service_information esi
                 ON esi.service_service_id = service.service_id
-            LEFT JOIN `:db`.service_categories_relation scr
+            INNER JOIN `:db`.service_categories_relation scr
                 ON scr.service_service_id = service.service_id
                 {$categoryAcls}
             LEFT JOIN `:db`.service_categories severity
