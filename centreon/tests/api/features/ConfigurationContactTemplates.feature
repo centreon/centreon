@@ -31,11 +31,28 @@ Feature: List Contact Templates API
       }
     """
 
+  Scenario: List Contact Templates as a non-admin user with no rights to reach API
+  Given the following CLAPI import data:
+    """
+      CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;kev;reach_api;1
+    """
+    And I am logged in with "kev"/"Centreon@2022"
+    When I send a GET request to '/api/latest/configuration/contacts/templates'
+    Then the response code should be "403"
+
   Scenario: List Contact Templates as a non-admin user with rights to reach API
     Given the following CLAPI import data:
     """
       CONTACT;ADD;kev;kev;kev@localhost;Centreon@2022;0;1;en_US;local
       CONTACT;setparam;kev;reach_api;1
+      ACLMENU;ADD;new_contact_menu;new_contact_menu
+      ACLMENU;SETPARAM;new_contact_menu;activate;1
+      ACLMENU;GRANTRW;new_contact_menu;0;Configuration;Users
+      ACLMENU;GRANTRO;new_contact_menu;0;Configuration;Users;Contact Templates
+      ACLGROUP;ADD;new_aclgroup;new_aclgroup
+      ACLGROUP;SETMENU;new_aclgroup;new_contact_menu
+      ACLGROUP;SETCONTACT;new_aclgroup;kev
     """
     And I am logged in with "kev"/"Centreon@2022"
 

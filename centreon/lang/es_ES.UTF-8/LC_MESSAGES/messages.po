@@ -16268,7 +16268,7 @@ msgstr ""
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -16599,7 +16599,7 @@ msgstr "Modo avanzado"
 # msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -16969,9 +16969,6 @@ msgstr "Modo avanzado"
 # msgid "Percentage"
 # msgstr ""
 
-# msgid "Display resources with this type"
-# msgstr ""
-
 # msgid  "Horizontal bar chart"
 # msgstr ""
 
@@ -17177,6 +17174,9 @@ msgstr "Modo avanzado"
 # msgid "All contact groups selected"
 # msgstr ""
 
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
 # msgid "Business view"
 # msgstr ""
 
@@ -17184,4 +17184,7 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
 # msgstr ""
