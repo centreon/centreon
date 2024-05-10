@@ -1,4 +1,5 @@
 name: gherkin-lint
+description: "Gherkin linting on feature files"
 
 inputs:
   features_path:
