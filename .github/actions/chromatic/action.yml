@@ -45,7 +45,6 @@ runs:
       uses: chromaui/action@latest
       with:
         projectToken: ${{ inputs.project_token }}
-        workingDir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
         buildScriptName: build:storybook
         onlyChanged: true
