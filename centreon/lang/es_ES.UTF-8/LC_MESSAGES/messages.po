@@ -16268,7 +16268,7 @@ msgstr ""
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -16599,7 +16599,7 @@ msgstr "Modo avanzado"
 # msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -16970,9 +16970,6 @@ msgstr "Modo avanzado"
 # msgstr ""
 
 # msgid "Percentage"
-# msgstr ""
-
-# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid  "Horizontal bar chart"

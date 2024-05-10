@@ -18032,8 +18032,8 @@ msgstr "Gérer les jetons d’API"
 msgid "Widget type"
 msgstr "Type de widget"
 
-msgid "Display type"
-msgstr "Type d'affichage"
+msgid "Display as"
+msgstr "Afficher en tant que"
 
 msgid "Text"
 msgstr "Texte"
@@ -18362,9 +18362,6 @@ msgstr "Grille de statut"
 
 msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
-
-msgid "Display with this resource type"
-msgstr "Afficher avec ce type de ressource"
 
 msgid "Display resources with this status"
 msgstr "Afficher les ressources avec ce statut"
