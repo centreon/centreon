@@ -143,9 +143,17 @@ it('should present a NotFoundResponse when the service template does not exist',
             ]
         );
 
+    $accessGroups = [2];
+
+    $this->readAccessGroupRepository
+        ->expects($this->any())
+        ->method('findByContact')
+        ->with($this->contact)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(null);
 
@@ -160,6 +168,7 @@ it('should present a NotFoundResponse when the service template does not exist',
 it('should present a ConflictResponse when a host template does not exist', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
     $this->contact
         ->expects($this->once())
@@ -170,9 +179,15 @@ it('should present a ConflictResponse when a host template does not exist', func
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->contact)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
@@ -194,6 +209,7 @@ it('should present a ConflictResponse when a host template does not exist', func
 it('should present an ErrorResponse when an error occurs during host templates unlink', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
     $this->contact
         ->expects($this->once())
@@ -204,9 +220,15 @@ it('should present an ErrorResponse when an error occurs during host templates u
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->contact)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
@@ -232,6 +254,7 @@ it('should present an ErrorResponse when an error occurs during host templates u
 it('should present a ErrorResponse when an error occurs during host templates link', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
+    $accessGroups = [9, 11];
 
     $this->contact
         ->expects($this->once())
@@ -242,9 +265,15 @@ it('should present a ErrorResponse when an error occurs during host templates li
             ]
         );
 
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->contact)
+        ->willReturn($accessGroups);
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
@@ -586,12 +615,6 @@ it('should present a NoContentResponse when everything has gone well for a non-a
 
     $serviceTemplate = new ServiceTemplate(1, 'fake_name', 'fake_alias');
 
-    $this->readServiceTemplateRepository
-        ->expects($this->once())
-        ->method('findById')
-        ->with($request->id)
-        ->willReturn($serviceTemplate);
-
     $this->contact
         ->expects($this->exactly(2))
         ->method('isAdmin')
@@ -602,6 +625,12 @@ it('should present a NoContentResponse when everything has gone well for a non-a
         ->method('findByContact')
         ->with($this->contact)
         ->willReturn($accessGroups);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->with($request->id, $accessGroups)
+        ->willReturn($serviceTemplate);
 
     $this->writeServiceTemplateRepository
         ->expects($this->once())
