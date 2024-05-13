@@ -1,8 +1,7 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { map } from 'ramda';
 
 import { Modal } from '@centreon/ui/components';
 
@@ -17,7 +16,6 @@ const dimensions = { height: screen.height, width: screen.width };
 
 const ExportDashboardModal = (): JSX.Element => {
   const { t } = useTranslation();
-  const dashboardRef = useRef('');
   const { protocol, hostname, port } = window.location;
 
   const [isLoading, setIsLoading] = useState(false);
