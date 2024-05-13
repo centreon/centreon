@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      database_image:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -84,7 +87,7 @@ jobs:
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
@@ -106,7 +109,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -134,36 +137,47 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
+          database_image: ${{ inputs.database_image }}
           web_image_os: ${{ inputs.os }}
           web_image_version: ${{ github.head_ref || github.ref_name }}
           openid_image_version: ${{ inputs.major_version }}
+          saml_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
           test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
 
+      - name: Replace / with - in the feature path
+        id: feature-path
+        if: always()
+        run: |
+          feature_name="${{ matrix.feature }}"
+          feature_name_with_dash="${feature_name//\//-}"
+          echo "Modified Feature Name: $feature_name_with_dash"
+          echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
+
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
       - name: Upload test reports
         if: failure()
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
       - name: Upload xray reports
         if: always()
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/cucumber-logs/*.json
+          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
+          path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
   # This action is only for NIGHTLY and testing branches
@@ -174,15 +188,16 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           version: 7
 
       - name: Download Artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-*
           path: ${{ inputs.name }}-json-xray-reports
+          merge-multiple: true
 
       - name: Generate Xray Token
         id: generate-xray-token
@@ -214,15 +229,16 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           version: 8
 
       - name: Download Artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
           path: ${{ inputs.name }}-json-reports
+          merge-multiple: true
 
       - name: Merge reports
         run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
@@ -235,3 +251,23 @@ jobs:
           path: mochawesome.json
           format: cypress
           urlFilePrefix: centreon
+
+  regroup-artifacts:
+    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-results, test-reports, xray-reports]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
+        if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
+        with:
+          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
+          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,9 +1,6 @@
 name: web
-run-name:
-  ${{ github.event_name == 'schedule' && format('web nightly {0}', github.ref ) ||
-  github.event_name == 'pull_request' && github.event.pull_request.title ||
-  github.event_name == 'push' && github.event.head_commit.message ||
-  github.event_name == 'workflow_dispatch' && github.workflow || 'unknown' }}
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -21,6 +18,9 @@ on:
   pull_request:
     paths:
       - "centreon/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -29,6 +29,9 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
+      - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
 
 env:
   base_directory: centreon
@@ -44,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: dorny/paths-filter@0bc4621a3135347011ad047f9ecf449bf72ce2bd # v3.0.0
+      - uses: dorny/paths-filter@ebc4d7e9ebcb0b1eb21480bb8f43113e996ac77a # v3.0.1
         id: filter
         with:
           filters: |
@@ -99,7 +102,11 @@ jobs:
         uses: actions/checkout@v4
 
       - run: |
-          gh workflow run web.yml -r "dev-23.10.x" -f is_nightly=true
+          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x")
+          for target in ${NIGHTLY_TARGETS[@]}; do
+            echo "[INFO] - Dispatching nightly run to $target branch."
+            gh workflow run web.yml -r "$target" -f is_nightly=true
+          done
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -196,7 +203,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -222,7 +229,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.widgets_directory }}
@@ -237,12 +243,12 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           version: 8
           run_install: false
 
-      - uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           node-version: 20
           cache: pnpm
@@ -284,7 +290,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
           php-version: 8.1
           coverage: none
@@ -292,7 +298,7 @@ jobs:
           runner: ubuntu-22.04
 
       - name: Install dependencies
-        uses: ramsey/composer-install@83af392bf5f031813d25e6fe4cd626cdba9a2df6 # v2.2.0
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
         with:
           working-directory: centreon
           composer-options: "--optimize-autoloader"
@@ -316,7 +322,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
         with:
           php-version: 8.1
           coverage: none
@@ -401,28 +407,28 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Restore translation from cache
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
           fail-on-cache-miss: true
 
       - name: Restore web index.html from cache
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/index.html
           key: ${{ github.sha }}-${{ github.run_id }}-index
           fail-on-cache-miss: true
 
       - name: Restore web frontend from cache
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
 
       - name: Restore widget frontend from cache
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/www/widgets/src
           key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
@@ -433,7 +439,7 @@ jobs:
         shell: bash
 
       - name: Restore vendor directory from cache
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: centreon/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
@@ -463,16 +469,11 @@ jobs:
       - name: Replace macros in source code
         run: |
           MACRO_REPLACEMENT_FILE="centreon/packaging/src/centreon-macroreplacement.txt"
-
           if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
-            LIB_ARCH="lib64"
             APACHE_USER="apache"
           else
-            LIB_ARCH="lib"
             APACHE_USER="www-data"
           fi
-          sed -i -e "s#@LIB_ARCH@#$LIB_ARCH#g" $MACRO_REPLACEMENT_FILE
-          echo "s#@LIB_ARCH@#$LIB_ARCH#g" >> $MACRO_REPLACEMENT_FILE
           echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
 
           find ./centreon -type f -not -path "./vendor/*" | grep -v $MACRO_REPLACEMENT_FILE | xargs --delimiter='\n' sed -i -f $MACRO_REPLACEMENT_FILE
@@ -539,6 +540,9 @@ jobs:
           elif [ "${{ matrix.os }}" = "bookworm" ]; then
             DISTRIB=bookworm
             PACKAGE_EXTENSION=deb
+          elif [ "${{ matrix.os }}" = "jammy" ]; then
+            DISTRIB=jammy
+            PACKAGE_EXTENSION=deb
           else
             echo "::error::${{ matrix.os }} is not managed"
             exit 1
@@ -556,7 +560,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -564,24 +568,10 @@ jobs:
 
       - uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
-      - name: Build and push fresh image
+      - name: Build web image
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_fresh
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
-      - name: Build standard image
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_standard
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -590,11 +580,10 @@ jobs:
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - name: Push standard image
+      - name: Push web image
         uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_standard
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
@@ -604,28 +593,36 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.7
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.11
         shell: bash
 
-      - name: Build standard slim image
+      - name: Build slim image
         run: |
-          slim build --show-clogs --show-blogs \
+          export WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}"
+          sed -i '/openid:/,$d' .github/docker/docker-compose.yml # remove all services after openid
+          docker compose -f .github/docker/docker-compose.yml pull db
+          slim build \
+            --compose-file .github/docker/docker-compose.yml \
+            --compose-env-file .github/docker/.env \
+            --target-compose-svc web \
+            --show-clogs \
+            --show-blogs \
             --include-shell \
+            --include-new=false \
             --http-probe-off \
             --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
             --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
             --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
             --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
           docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Push standard slim image
+      - name: Push slim image
         run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Store standard slim image in local archive
+      - name: Store slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
           docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
@@ -640,8 +637,8 @@ jobs:
             https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
-      - name: Store standard slim image in cache
-        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - name: Store slim image in cache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
@@ -662,6 +659,7 @@ jobs:
       container_name: my_centreon_container
       centreon_url: http://localhost
       centreon_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+      database_image: bitnami/mariadb:10.11
       dependencies_lock_file: centreon/pnpm-lock.yaml
       major_version: ${{ needs.get-version.outputs.major_version }}
       stability: ${{ needs.get-version.outputs.stability }}
@@ -687,6 +685,7 @@ jobs:
     with:
       name: api
       module_name: centreon
+      database_image: bitnami/mariadb:10.11
       image_name: centreon-web
       os: ${{ matrix.os }}
       features_path: tests/api/features
@@ -708,6 +707,7 @@ jobs:
     with:
       name: legacy-e2e
       module_name: centreon
+      database_image: bitnami/mariadb:10.11
       image_name: centreon-web
       os: ${{ matrix.os }}
       features_path: features
@@ -748,6 +748,7 @@ jobs:
       name: e2e
       module_name: centreon
       image_name: centreon-web
+      database_image: bitnami/mariadb:10.11
       os: ${{ matrix.os }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-version.outputs.major_version }}
@@ -784,6 +785,7 @@ jobs:
           path: "centreon/lighthouse"
           image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-slim-alma9
           image_version: ${{ github.head_ref || github.ref_name }}
+          database_image: bitnami/mariadb:10.11
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
           dependencies_lock_file: centreon/pnpm-lock.yaml
@@ -798,7 +800,7 @@ jobs:
           secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
       - name: Publish report
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
@@ -869,6 +871,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
@@ -886,7 +890,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -901,6 +905,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
@@ -923,7 +929,9 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
-          github_base_ref: ${{ github.base_ref }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deploy-platform-nightly:
     needs:

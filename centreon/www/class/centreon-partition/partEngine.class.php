@@ -579,6 +579,7 @@ class PartEngine
                 (
                     stristr($dbType, "MySQL")
                     || stristr($dbType, "Source distribution")
+                    || stristr($dbType, "Percona Server")
                 )
                 && (version_compare($dbVersion, '8.0.0', '>='))
             ) {

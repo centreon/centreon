@@ -233,7 +233,7 @@ function insertCommandInDB($ret = array())
 
 function insertCommand($ret = array())
 {
-    global $form, $pearDB, $centreon;
+    global $form, $pearDB, $centreon, $isCloudPlatform;
 
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
@@ -243,6 +243,8 @@ function insertCommand($ret = array())
     if (!isset($ret['enable_shell'])) {
         $ret['enable_shell'] = 0;
     }
+
+    $commandType = $isCloudPlatform ? $ret['type'] : $ret["command_type"]["command_type"];
 
     /*
      * Insert
@@ -254,12 +256,13 @@ function insertCommand($ret = array())
             '" . $pearDB->escape($ret["command_line"]) . "',
             " . (int)$ret['enable_shell'] . ",
             '" . $pearDB->escape($ret["command_example"]) . "',
-            " . (int)$ret["command_type"]["command_type"] . ",
+            " . (int) $commandType . ",
             " . (!empty($ret["graph_id"]) ? (int)$ret['graph_id'] : "NULL") . ",
             " . (!empty($ret["connectors"]) ? (int)$ret['connectors'] : "NULL") . ",
             '" . $pearDB->escape($ret["command_comment"]) . "',
             '" . $pearDB->escape($ret["command_activate"]["command_activate"]) . "'";
     $rq .= ")";
+
     $pearDB->query($rq);
 
     /*

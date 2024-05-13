@@ -93,7 +93,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
      */
     public function createForReporting(array $parameters): ?string
     {
-        if (! $this->canContactAccessPages($this->contact, [Contact::ROLE_REPORTING_DASHBOARD_HOSTS])) {
+        if (! $this->canContactAccessPages($this->contact, [Contact::ROLE_REPORTING_AVAILABILITY_HOSTS])) {
             return null;
         }
 

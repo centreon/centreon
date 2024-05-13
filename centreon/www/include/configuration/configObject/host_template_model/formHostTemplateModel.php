@@ -432,18 +432,18 @@ $cloneSetMacro = [
     ),
 ];
 
+$form->addElement('header', 'check', _('Host Check Properties'));
+
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+$checkCommandSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+);
+
+$form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
+
 // Check information
 if (! $isCloudPlatform) {
-    $form->addElement('header', 'check', _('Host Check Properties'));
-
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-    $checkCommandSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-    );
-
-    $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
-
     $hostEHE = [
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),

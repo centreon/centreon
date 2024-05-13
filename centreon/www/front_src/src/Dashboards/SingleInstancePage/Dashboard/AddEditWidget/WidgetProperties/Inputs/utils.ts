@@ -12,7 +12,10 @@ import * as Yup from 'yup';
 import { TFunction } from 'i18next';
 import { FormikValues } from 'formik';
 
-import { FederatedWidgetOptionType } from '../../../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  FederatedWidgetOptionType
+} from '../../../../../../federatedModules/models';
 import {
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
@@ -42,15 +45,13 @@ const metricSchema = Yup.object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  isResourcesFieldRequired?: boolean;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   t: TFunction;
-  widgetOptionType: FederatedWidgetOptionType;
 }
 
 const getYupValidatorType = ({
   t,
-  widgetOptionType,
-  isResourcesFieldRequired
+  properties
 }: GetYupValidatorTypeProps):
   | Yup.StringSchema
   | Yup.AnyObjectSchema
@@ -84,16 +85,20 @@ const getYupValidatorType = ({
           .of(
             Yup.object()
               .shape({
-                resourceType: isResourcesFieldRequired
-                  ? Yup.string().required(t(labelRequired) as string)
-                  : Yup.string(),
-                resources: isResourcesFieldRequired
+                resourceType:
+                  properties.required || properties.requireResourceType
+                    ? Yup.string().required(t(labelRequired) as string)
+                    : Yup.string(),
+                resources: properties.required
                   ? Yup.array().of(namedEntitySchema).min(1)
                   : Yup.array()
               })
               .optional()
           )
-          .min(1, t(labelPleaseSelectAResource) as string)
+          .min(
+            properties.required ? 1 : 0,
+            t(labelPleaseSelectAResource) as string
+          )
       )
     ],
     [
@@ -132,28 +137,23 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(Yup.number().min(1))
     ]
-  ])(widgetOptionType);
+  ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  required?: boolean;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   t: TFunction;
-  type: FederatedWidgetOptionType;
 }
 
 export const buildValidationSchema = ({
-  type,
-  required,
-  t
+  t,
+  properties
 }: BuildValidationSchemaProps): Yup.StringSchema => {
-  const isResourcesFieldRequired = equals(type, 'resources') && required;
-
   const yupValidator = getYupValidatorType({
-    isResourcesFieldRequired,
-    t,
-    widgetOptionType: type
+    properties,
+    t
   });
 
-  return required
+  return properties.required
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };

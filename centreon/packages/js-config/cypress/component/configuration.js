@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const { devServer } = require('cypress-rspack-dev-server');
 const { defineConfig } = require('cypress');
 const {
   addMatchImageSnapshotPlugin
@@ -6,22 +7,22 @@ const {
 const cypressCodeCoverageTask = require('@cypress/code-coverage/task');
 
 module.exports = ({
-  webpackConfig,
+  rspackConfig,
   cypressFolder,
   specPattern,
   env,
-  useVite = false,
   excludeSpecPattern
 }) => {
   const mainCypressFolder = cypressFolder || 'cypress';
 
   return defineConfig({
     component: {
-      devServer: {
-        bundler: useVite ? 'vite' : 'webpack',
-        framework: 'react',
-        webpackConfig
-      },
+      devServer: (devServerConfig) =>
+        devServer({
+          ...devServerConfig,
+          framework: 'react',
+          rspackConfig
+        }),
       excludeSpecPattern,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
@@ -31,6 +32,7 @@ module.exports = ({
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.name === 'chrome' && browser.isHeadless) {
             launchOptions.args.push('--headless=new');
+            launchOptions.args.push('--force-color-profile=srgb');
           }
 
           return launchOptions;

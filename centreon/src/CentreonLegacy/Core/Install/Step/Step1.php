@@ -44,7 +44,7 @@ class Step1 extends AbstractStep
         return $template->fetch('content.tpl');
     }
 
-    public function setConfiguration()
+    public function setConfiguration(): void
     {
         $configurationFile = __DIR__ . '/../../../../../www/install/install.conf.php';
 

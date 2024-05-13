@@ -243,7 +243,7 @@ class CentreonUser
      *
      * @return string
      */
-    public function get_lang()
+    public function get_lang(): string
     {
         $lang = $this->lang;
 

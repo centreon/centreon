@@ -53,21 +53,22 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                '
-            SELECT sat.user_id, sat.provider_configuration_id,
-              provider_token.id as pt_id,
-              provider_token.token AS provider_token,
-              provider_token.creation_date as provider_token_creation_date,
-              provider_token.expiration_date as provider_token_expiration_date,
-              refresh_token.id as rt_id,
-              refresh_token.token AS refresh_token,
-              refresh_token.creation_date as refresh_token_creation_date,
-              refresh_token.expiration_date as refresh_token_expiration_date
-            FROM `:db`.security_authentication_tokens sat
-            INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
-            LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
-            WHERE sat.token = :token
-        '
+                <<<'SQL'
+                    SELECT sat.user_id, sat.provider_configuration_id,
+                    provider_token.id as pt_id,
+                    provider_token.token AS provider_token,
+                    provider_token.creation_date as provider_token_creation_date,
+                    provider_token.expiration_date as provider_token_expiration_date,
+                    refresh_token.id as rt_id,
+                    refresh_token.token AS refresh_token,
+                    refresh_token.creation_date as refresh_token_creation_date,
+                    refresh_token.expiration_date as refresh_token_expiration_date
+                    FROM `:db`.security_authentication_tokens sat
+                    INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
+                    LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
+                    WHERE sat.token = :token
+                        AND sat.is_revoked = 0
+                    SQL
             )
         );
         $statement->bindValue(':token', $token);

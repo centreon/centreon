@@ -13,8 +13,8 @@ const useSkeletonStyles = makeStyles<Props>()(
       display: 'grid',
       gridGap: theme.spacing(1),
       gridTemplateRows: `${
-        displayTitleSkeleton ? '1fr' : ''
-      } ${graphHeight}px ${theme.spacing(7)}`,
+        displayTitleSkeleton ? '0.8fr' : ''
+      } ${graphHeight}px ${theme.spacing(2)}`,
       height: '100%'
     },
     loadingSkeletonLine: {

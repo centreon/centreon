@@ -387,7 +387,7 @@ class Broker extends AbstractObjectJSON
                     unset($config['input'][$key]['compression']);
                     unset($config['input'][$key]['retention']);
 
-                    if ($config['input']['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['private_key']);
                         unset($config['input'][$key]['certificate']);
                     }
@@ -395,7 +395,7 @@ class Broker extends AbstractObjectJSON
                 if ($inputCfg['type'] === self::STREAM_BBDO_CLIENT) {
                     unset($config['input'][$key]['compression']);
 
-                    if ($config['input'][$key]['encrypt'] === 'no') {
+                    if ($config['input'][$key]['encryption'] === 'no') {
                         unset($config['input'][$key]['ca_certificate']);
                         unset($config['input'][$key]['ca_name']);
                     }

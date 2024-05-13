@@ -32,6 +32,7 @@ use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
 use EV;
+use HTML::Entities;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -103,8 +104,8 @@ sub class_handle_HUP {
 
 sub send_message {
     my ($self, %options) = @_;
-
-    $self->{tx}->send({text => $options{message} });
+    my $message = HTML::Entities::encode_entities($options{message});
+    $self->{tx}->send({text => $message });
 }
 
 sub ping {

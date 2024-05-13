@@ -33,34 +33,28 @@ class NagiosServer implements Mapping\MetadataInterface
     public const SERIALIZER_GROUP_LIST = 'nagios-server-list';
 
     /**
-     * @Serializer\Groups({
-     *     NagiosServer::SERIALIZER_GROUP_REMOTE_LIST,
-     *     NagiosServer::SERIALIZER_GROUP_LIST
-     * })
      * @var int
      */
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST, NagiosServer::SERIALIZER_GROUP_LIST])]
     private $id;
 
     /**
-     * @Serializer\Groups({
-     *     NagiosServer::SERIALIZER_GROUP_REMOTE_LIST,
-     *     NagiosServer::SERIALIZER_GROUP_LIST
-     * })
      * @var string
      */
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST, NagiosServer::SERIALIZER_GROUP_LIST])]
     private $name;
 
     /**
-     * @Serializer\Groups({NagiosServer::SERIALIZER_GROUP_LIST})
      * @var string
      */
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $localhost;
 
     /**
-     * @Serializer\SerializedName("default")
-     * @Serializer\Groups({NagiosServer::SERIALIZER_GROUP_LIST})
      * @var int
      */
+    #[Serializer\SerializedName('default')]
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $isDefault;
 
     /**
@@ -69,17 +63,17 @@ class NagiosServer implements Mapping\MetadataInterface
     private $lastRestart;
 
     /**
-     * @Serializer\SerializedName("ip")
-     * @Serializer\Groups({NagiosServer::SERIALIZER_GROUP_REMOTE_LIST})
      * @var string
      */
+    #[Serializer\SerializedName('ip')]
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_REMOTE_LIST])]
     private $nsIpAddress;
 
     /**
-     * @Serializer\SerializedName("activate")
-     * @Serializer\Groups({NagiosServer::SERIALIZER_GROUP_LIST})
      * @var string
      */
+    #[Serializer\SerializedName('activate')]
+    #[Serializer\Groups([NagiosServer::SERIALIZER_GROUP_LIST])]
     private $nsActivate;
 
     /**

@@ -286,7 +286,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::CENTREON_VALIDATOR_TRANSLATOR] =
             function (Container $container): Validation\CentreonValidatorTranslator {
-                return new Validation\CentreonValidatorTranslator();
+                return new Validation\CentreonValidatorTranslator($container['centreon.user']);
             };
 
         $pimple[static::VALIDATOR_EXPRESSION] = function (): Constraints\ExpressionValidator {

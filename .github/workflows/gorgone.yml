@@ -9,6 +9,8 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
+      - "!centreon-gorgone/veracode.json"
+      - "!centreon-gorgone/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -17,6 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-gorgone/**"
+      - "!centreon-gorgone/veracode.json"
+      - "!centreon-gorgone/.veracode-exclusions"
 
 env:
   base_directory: centreon-gorgone
@@ -52,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye, bookworm, jammy]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -66,6 +70,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-nfpm-jammy
+            distrib: jammy
 
     runs-on: ubuntu-22.04
 
@@ -121,6 +128,65 @@ jobs:
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-version.outputs.stability }}
 
+  test-gorgone:
+    needs: [get-version, package]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [el8]
+        include:
+          - package_extension: rpm
+            image: gorgone-testing-alma8
+            distrib: el8
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: password
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: get cached gorgone package
+        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        with:
+          path: ./*.${{ matrix.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          fail-on-cache-miss: true
+
+      - name: Install gorgogne
+        run: |
+          if [[ "${{ matrix.package_extension }}" == "deb" ]]; then
+            apt install -y ./centreon-gorgone*${{ matrix.distrib }}*
+          else
+            dnf install -y ./centreon-gorgone*${{ matrix.distrib }}* ./centreon-gorgone-centreon-config*${{ matrix.distrib }}*
+            # in el8 at least, there is a package for the configuration and a package for the actual code.
+            # this is not the case for debian, and for now I don't know why it was made any different between the 2 Os.
+          fi
+
+      - name: Create database
+        run: |
+          mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon\`"
+          mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon-storage\`"
+          mysql -h mariadb -u root -ppassword 'centreon' < centreon/www/install/createTables.sql
+          mysql -h mariadb -u root -ppassword 'centreon-storage' < centreon/www/install/createTablesCentstorage.sql
+
+      - name: Run tests
+        run: robot centreon-gorgone/tests
+
   deliver-sources:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
@@ -162,6 +228,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   deliver-deb:
     runs-on: [self-hosted, common]
@@ -170,7 +238,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bullseye, bookworm, jammy]
 
     steps:
       - name: Checkout sources
@@ -185,6 +253,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
@@ -207,4 +277,6 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
-          github_base_ref: ${{ github.base_ref }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}

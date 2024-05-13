@@ -146,7 +146,6 @@ class SessionAPIAuthenticator extends AbstractAuthenticator
     {
         $isValidToken = $this->authenticationService->isValidToken($sessionId);
 
-        $this->authenticationService->deleteExpiredSecurityTokens();
         $this->sessionRepository->deleteExpiredSession();
 
         if (! $isValidToken) {

@@ -30,11 +30,9 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInte
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Exceptions\ProviderException;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Security\Encryption;
 
@@ -43,12 +41,10 @@ class AuthenticateApi
     use LoggerTrait;
 
     /**
-     * @param AuthenticationServiceInterface $authenticationService
      * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private AuthenticationServiceInterface $authenticationService,
         private WriteTokenRepositoryInterface $writeTokenRepository,
         private ProviderAuthenticationFactoryInterface $providerFactory
     ) {
@@ -63,7 +59,6 @@ class AuthenticateApi
     public function execute(AuthenticateApiRequest $request, AuthenticateApiResponse $response): void
     {
         $this->info(sprintf("[AUTHENTICATE API] Beginning API authentication for contact '%s'", $request->getLogin()));
-        $this->deleteExpiredToken();
 
         $localProvider = $this->findLocalProviderOrFail();
         $this->authenticateOrFail($localProvider, $request);
@@ -86,21 +81,6 @@ class AuthenticateApi
                 "contact_alias" => $contact->getAlias()
             ]
         );
-    }
-
-    /**
-     * Delete all expired Security tokens.
-     */
-    private function deleteExpiredToken(): void
-    {
-        /**
-         * Remove all expired token before starting authentication process.
-         */
-        try {
-            $this->authenticationService->deleteExpiredSecurityTokens();
-        } catch (AuthenticationException $ex) {
-            $this->notice('[AUTHENTICATE API] Unable to delete expired security tokens');
-        }
     }
 
     /**

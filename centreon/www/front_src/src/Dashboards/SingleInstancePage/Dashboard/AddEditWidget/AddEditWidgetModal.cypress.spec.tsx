@@ -20,11 +20,9 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,
@@ -443,6 +441,19 @@ describe('AddEditWidgetModal', () => {
         cy.contains(title).should('exist');
         cy.contains(description).should('exist');
       });
+
+      cy.makeSnapshot();
+    });
+
+    it('hides a property when an option value matches the condition', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Sort by').should('exist');
+
+      cy.findByLabelText('Show thresholds').click();
+
+      cy.contains('Sort by').should('not.exist');
 
       cy.makeSnapshot();
     });
@@ -904,6 +915,77 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText(labelSelectMetric).should('be.disabled');
       cy.contains(labelAddFilter).should('not.exist');
       cy.contains(labelAddMetric).should('not.exist');
+    });
+  });
+
+  describe('No widgets', () => {
+    beforeEach(() => {
+      const jotaiStore = createStore();
+      jotaiStore.set(federatedWidgetsAtom, []);
+      jotaiStore.set(federatedWidgetsPropertiesAtom, null);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display widgets when any widgets are registered', () => {
+      cy.findByTestId(labelWidgetType).click();
+
+      cy.contains('No options').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Unrecognized widget property', () => {
+    beforeEach(() => {
+      const jotaiStore = initializeWidgets();
+      jotaiStore.set(federatedWidgetsPropertiesAtom, [
+        {
+          description: 'This is the description of the data widget',
+          moduleName: 'centreon-widget-data',
+          options: {
+            threshold: {
+              defaultValue: '',
+              label: 'threshold',
+              type: 'unknown'
+            }
+          },
+          title: 'Generic data (example)'
+        }
+      ]);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display the widget property when it is not recognized', () => {
+      cy.findByTestId(labelWidgetType).click();
+      cy.contains('Generic data').click();
+
+      cy.findByTestId('unknown widget property').should('exist');
+
+      cy.makeSnapshot();
     });
   });
 });

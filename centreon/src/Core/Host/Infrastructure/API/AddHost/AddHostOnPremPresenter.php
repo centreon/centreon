@@ -50,7 +50,7 @@ class AddHostOnPremPresenter extends AbstractPresenter implements AddHostPresent
                         'monitoring_server_id' => $response->monitoringServerId,
                         'name' => $response->name,
                         'address' => $response->address,
-                        'alias' => $response->alias,
+                        'alias' => $this->emptyStringAsNull($response->alias),
                         'snmp_version' => $response->snmpVersion,
                         'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'geo_coords' => $response->geoCoords,
@@ -116,6 +116,7 @@ class AddHostOnPremPresenter extends AbstractPresenter implements AddHostPresent
                             function (array $macro) {
                                 return [
                                     'name' => $macro['name'],
+                                    // Note: do not handle vault storage at the moment
                                     'value' => $macro['isPassword'] ? null : $macro['value'],
                                     'is_password' => $macro['isPassword'],
                                     'description' => $this->emptyStringAsNull($macro['description']),

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\DeleteContactDashboardShare;
 
 use Centreon\Domain\Contact\Contact;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -38,6 +39,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardShare;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactDashboardSharePresenterStub();
@@ -48,12 +50,14 @@ beforeEach(closure: function (): void {
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->testedDashboard = new Dashboard(
         random_int(1, 1_000_000),
         uniqid('dashboard_', true),
-        '',
         null,
         null,
         new \DateTimeImmutable(),
@@ -167,6 +171,8 @@ it(
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canCreate')->willReturn(true);
         $this->rights->expects($this->once())->method('canDeleteShare')->willReturn(true);
+        $this->readContactRepository->expects($this->once())->method('existInAccessGroups')
+            ->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())->method('findById')

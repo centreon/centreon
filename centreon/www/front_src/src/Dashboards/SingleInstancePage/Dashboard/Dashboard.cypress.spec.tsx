@@ -9,23 +9,25 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
 import { BrowserRouter } from 'react-router-dom';
+import { initReactI18next } from 'react-i18next';
+import i18next from 'i18next';
 
 import {
+  additionalResourcesAtom,
   DashboardGlobalRole,
+  federatedWidgetsAtom,
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import { DashboardRole } from '../../api/models';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
@@ -41,7 +43,6 @@ import { routerParams } from './hooks/useDashboardDetails';
 import {
   labelAddAWidget,
   labelDeleteWidget,
-  labelDoYouWantToDeleteThisWidget,
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
@@ -57,10 +58,12 @@ import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
-  labelUnsavedChanges
+  labelDoYouWantToSaveChanges,
+  labelIfYouClickOnDiscard
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
+import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -75,6 +78,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-generictext/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
     }
   ];
 
@@ -83,7 +90,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetGenericTextProperties
+    widgetGenericTextProperties,
+    widgetSingleMetricProperties
   ]);
 
   return store;
@@ -93,7 +101,9 @@ interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
+  isBlocked?: boolean;
   ownRole?: DashboardRole;
 }
 
@@ -134,8 +144,14 @@ const initializeAndMount = ({
   globalRole = DashboardGlobalRole.administrator,
   canCreateDashboard = true,
   canViewDashboard = true,
-  canAdministrateDashboard = true
-}: InitializeAndMountProps): ReturnType<typeof createStore> => {
+  canAdministrateDashboard = true,
+  isBlocked = false,
+  detailsWithData = false
+}: InitializeAndMountProps): {
+  blockNavigation;
+  proceedNavigation;
+  store: ReturnType<typeof createStore>;
+} => {
   const store = initializeWidgets();
 
   store.set(userAtom, {
@@ -154,10 +170,24 @@ const initializeAndMount = ({
     user_interface_density: ListingVariant.compact
   });
   store.set(refreshIntervalAtom, 15);
+  store.set(additionalResourcesAtom, [
+    {
+      baseEndpoint: '/ba',
+      label: 'BA',
+      resourceType: 'business-activity'
+    }
+  ]);
+
+  i18next.use(initReactI18next).init({
+    lng: 'en',
+    resources: {}
+  });
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+  cy.fixture(
+    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
+  ).then((dashboardDetails) => {
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
@@ -201,7 +231,15 @@ const initializeAndMount = ({
     statusCode: 204
   });
 
+  const proceedNavigation = cy.stub();
+  const blockNavigation = cy.stub();
+
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
+  cy.stub(saveBlockerHooks, 'useBlocker').returns({
+    proceed: proceedNavigation,
+    reset: blockNavigation,
+    state: isBlocked ? 'blocked' : 'unblocked'
+  });
 
   cy.mount({
     Component: (
@@ -217,7 +255,11 @@ const initializeAndMount = ({
     )
   });
 
-  return store;
+  return {
+    blockNavigation,
+    proceedNavigation,
+    store
+  };
 };
 
 describe('Dashboard', () => {
@@ -258,33 +300,6 @@ describe('Dashboard', () => {
     });
   });
 
-  it('displays a warning message indicating unsaved changes in the dashboard when updating it', () => {
-    initializeAndMount(editorRoles);
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.findByLabelText(labelEditDashboard).click();
-    cy.findByLabelText(labelAddAWidget).click();
-
-    cy.findByLabelText(labelWidgetType).click();
-    cy.contains('Generic input (example)').click();
-
-    cy.findByLabelText(labelTitle).type('Generic input');
-    cy.findByLabelText('Generic text').type('Text for the new widget');
-
-    cy.findAllByLabelText(labelSave).eq(1).click();
-
-    cy.contains(labelUnsavedChanges).should('be.visible');
-
-    cy.makeSnapshot();
-
-    cy.findByLabelText(labelSave).click();
-
-    cy.contains(labelUnsavedChanges).should('not.exist');
-
-    cy.findByLabelText(labelEditDashboard).should('be.visible');
-  });
-
   describe('Add widget', () => {
     it('adds a widget when a widget type is selected and the submission button is clicked', () => {
       initializeAndMount(editorRoles);
@@ -301,6 +316,7 @@ describe('Dashboard', () => {
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
+      cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.contains('Text for the new widget').should('be.visible');
 
@@ -310,7 +326,7 @@ describe('Dashboard', () => {
 
   describe('Edit widget', () => {
     it('edits a widget when the corresponding button is clicked and the widget type is changed the edit button is clicked', () => {
-      const store = initializeAndMount(editorRoles);
+      const { store } = initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
 
@@ -333,13 +349,13 @@ describe('Dashboard', () => {
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
-          assert.equal(dashboard.layout.length, 2);
-          assert.exists(dashboard.layout[1].data);
+          assert.equal(dashboard.layout.length, 3);
+          assert.exists(dashboard.layout[2].data);
           assert.equal(
-            dashboard.layout[1].options?.text,
+            dashboard.layout[2].options?.text,
             'Text for the new widget'
           );
-          assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
         });
 
       cy.makeSnapshot();
@@ -355,11 +371,28 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
-      cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
+      cy.contains('The Widget text widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.findByLabelText(labelDelete).click();
 
       cy.contains(labelAddAWidget).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('does not display the name of the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findAllByLabelText(labelMoreActions).eq(2).click();
+      cy.contains(labelDeleteWidget).click();
+
+      cy.contains('The widget will be permanently deleted.').should(
+        'be.visible'
+      );
 
       cy.makeSnapshot();
     });
@@ -491,5 +524,108 @@ describe('Dashboard', () => {
     cy.contains(labelSharesSaved).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  describe('Route blocking', () => {
+    it('saves changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
+      const { proceedNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.contains(labelEditDashboard).click();
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.contains(labelDoYouWantToSaveChanges).should('be.visible');
+      cy.contains(labelIfYouClickOnDiscard).should('be.visible');
+
+      cy.findByTestId('confirm').click();
+
+      cy.waitForRequest('@patchDashboardDetails').then(() => {
+        expect(proceedNavigation).to.have.been.calledWith();
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('does not save changes when a dashboard is being edited, a dashboard is updated, the user goes to another page and the corresponding button is clicked', () => {
+      const { proceedNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByTestId('cancel')
+        .click()
+        .then(() => {
+          expect(proceedNavigation).to.have.been.calledWith();
+        });
+
+      cy.makeSnapshot();
+    });
+
+    it('blocks the redirection when a dashboard is being edited, a dashboard is updated, the user goes to another page and the close button is clicked', () => {
+      const { blockNavigation } = initializeAndMount({
+        ...editorRoles,
+        isBlocked: true
+      });
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findByLabelText('close')
+        .click()
+        .then(() => {
+          expect(blockNavigation).to.have.been.calledWith();
+        });
+    });
+  });
+
+  describe('Dataset', () => {
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(0)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status and the widget is single metric', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(2)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?details=%7B%22id%22%3Anull%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2Fundefined%2Fservices%2Fundefined%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Business activity when the widget has only business activities', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Business Activity page')
+        .eq(0)
+        .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
+      cy.makeSnapshot();
+    });
   });
 });

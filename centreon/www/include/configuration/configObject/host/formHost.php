@@ -529,17 +529,17 @@ $form->addElement('text', 'host_max_check_attempts', _('Max Check Attempts'), $a
 $form->addElement('text', 'host_check_interval', _('Normal Check Interval'), $attrsText2);
 $form->addElement('text', 'host_retry_check_interval', _('Retry Check Interval'), $attrsText2);
 
+$form->addElement('header', 'check', _('Host Check Properties'));
+
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+$checkCommandSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+);
+
+$form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
+
 if (! $isCloudPlatform) {
-    $form->addElement('header', 'check', _('Host Check Properties'));
-
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-    $checkCommandSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-    );
-
-    $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
-
     $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
     $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
     $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
@@ -797,6 +797,10 @@ if ($o !== HOST_MASSIVE_CHANGE) {
 $form->addElement('textarea', 'host_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('select2', 'host_hgs', _('Host Groups'), [], $attributes['host_groups']);
+
+if ($isCloudPlatform) {
+    $form->addRule('host_hgs', _('Mandatory field for ACL purpose.'), 'required');
+}
 
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_hhg = [];

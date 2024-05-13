@@ -26,12 +26,15 @@ namespace Tests\Core\Dashboard\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
+use Core\Dashboard\Domain\Model\Refresh;
 
 beforeEach(function (): void {
     $this->createDashboard = static function (array $fields = []): NewDashboard {
+        $refresh = new Refresh(Refresh\RefreshType::Global, null);
         $dashboard = new NewDashboard(
             $fields['name'] ?? 'dashboard-name',
-            $fields['created_by'] ?? 2
+            $fields['created_by'] ?? 2,
+            $refresh
         );
         $dashboard->setDescription($fields['description'] ?? 'dashboard-description');
         $dashboard->setUpdatedBy($fields['updated_by'] ?? 3);

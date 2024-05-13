@@ -408,7 +408,7 @@ class CentreonConfigPoller
         }
 
         if ($setFilesOwner == 0) {
-            print "We can set configuration file owner after the generation. \n";
+            print "Cannot set configuration file owner after the generation. \n";
             print "Please check that files in the followings directory are writable by apache user : "
                 . $this->engineCachePath . "/$poller_id/\n";
             print "Please check that files in the followings directory are writable by apache user : "

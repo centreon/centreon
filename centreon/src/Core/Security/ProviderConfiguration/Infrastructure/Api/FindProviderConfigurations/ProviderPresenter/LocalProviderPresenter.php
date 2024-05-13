@@ -27,9 +27,6 @@ use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigur
     LocalProviderResponse
 };
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter\{
-    ProviderPresenterInterface
-};
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LocalProviderPresenter implements ProviderPresenterInterface

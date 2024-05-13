@@ -41,6 +41,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindDashboardContacts
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param RequestParametersInterface $requestParameters
@@ -49,6 +50,7 @@ final class FindDashboardContacts
      * @param ReadDashboardShareRepositoryInterface $readDashboardShareRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadContactRepositoryInterface $readContactRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
@@ -56,7 +58,8 @@ final class FindDashboardContacts
         private readonly ContactInterface $contact,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ReadContactRepositoryInterface $readContactRepository
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -66,19 +69,23 @@ final class FindDashboardContacts
     public function __invoke(FindDashboardContactsPresenterInterface $presenter): void
     {
         try {
-            if ($this->rights->canAccess()) {
+            if ($this->isUserAdmin()) {
+                $users = $this->findContactAsAdmin();
+            }
+            elseif ($this->rights->canAccess()) {
                 $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
-                $users = $this->contact->isAdmin()
-                    ? $this->findContactAsAdmin()
-                    : $this->findContactsAsNonAdmin();
-                $presenter->presentResponse($this->createResponse($users));
+                $users = $this->findContactsAsNonAdmin();
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
                 $presenter->presentResponse(new ForbiddenResponse(DashboardException::accessNotAllowed()));
+
+                return;
             }
+
+            $presenter->presentResponse($this->createResponse($users));
         } catch (\UnexpectedValueException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -118,11 +125,14 @@ final class FindDashboardContacts
     private function findContactAsAdmin(): array
     {
         $users = $this->readDashboardShareRepository->findContactsWithAccessRightByRequestParameters(
-            $this->requestParameters
+            $this->requestParameters,
+            $this->isCloudPlatform
         );
+        $total = $this->requestParameters->getTotal();
         $admins = $this->readContactRepository->findAdminWithRequestParameters(
             $this->requestParameters
         );
+        $this->requestParameters->setTotal($total + $this->requestParameters->getTotal());
         $adminContactRoles = [];
         foreach ($admins as $admin) {
             $adminContactRoles[] = new DashboardContactRole(
@@ -152,5 +162,25 @@ final class FindDashboardContacts
             $this->requestParameters,
             $accessGroupIds
         );
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

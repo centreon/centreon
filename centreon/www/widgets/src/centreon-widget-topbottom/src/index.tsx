@@ -1,15 +1,11 @@
-import { createStore } from 'jotai';
-
 import { Module } from '@centreon/ui';
 
-import { Data, FormThreshold, GlobalRefreshInterval } from '../../models';
+import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 
 import { ValueFormat, TopBottomSettings } from './models';
 import TopBottom from './TopBottom';
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+interface Props extends CommonWidgetProps<object> {
   panelData: Data;
   panelOptions: {
     refreshInterval: 'default' | 'custom';
@@ -18,32 +14,39 @@ interface Props {
     topBottomSettings: TopBottomSettings;
     valueFormat: ValueFormat;
   };
-  refreshCount: number;
-  store: ReturnType<typeof createStore>;
 }
 
-const Widget = ({
-  store,
+export const TopBottomWrapper = ({
+  dashboardId,
   globalRefreshInterval,
+  id,
+  isFromPreview,
   panelData,
   panelOptions,
-  refreshCount,
-  isFromPreview
-}: Props): JSX.Element => {
+  playlistHash,
+  refreshCount
+}: Omit<Props, 'store'>): JSX.Element => (
+  <TopBottom
+    dashboardId={dashboardId}
+    globalRefreshInterval={globalRefreshInterval}
+    id={id}
+    isFromPreview={isFromPreview}
+    metrics={panelData.metrics}
+    playlistHash={playlistHash}
+    refreshCount={refreshCount}
+    refreshInterval={panelOptions.refreshInterval}
+    refreshIntervalCustom={panelOptions.refreshIntervalCustom}
+    resources={panelData.resources}
+    threshold={panelOptions.threshold}
+    topBottomSettings={panelOptions.topBottomSettings}
+    valueFormat={panelOptions.valueFormat}
+  />
+);
+
+const Widget = ({ store, ...props }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="topbottom" store={store}>
-      <TopBottom
-        globalRefreshInterval={globalRefreshInterval}
-        isFromPreview={isFromPreview}
-        metrics={panelData.metrics}
-        refreshCount={refreshCount}
-        refreshInterval={panelOptions.refreshInterval}
-        refreshIntervalCustom={panelOptions.refreshIntervalCustom}
-        resources={panelData.resources}
-        threshold={panelOptions.threshold}
-        topBottomSettings={panelOptions.topBottomSettings}
-        valueFormat={panelOptions.valueFormat}
-      />
+      <TopBottomWrapper {...props} />
     </Module>
   );
 };

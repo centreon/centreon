@@ -3,7 +3,10 @@
     "title": "Add a new dashboard",
     "type": "object",
     "required": [
-        "name"
+        "name",
+        "description",
+        "panels",
+        "refresh"
     ],
     "additionalProperties": false,
     "properties": {
@@ -15,6 +18,70 @@
                 "string",
                 "null"
             ]
+        },
+        "panels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "layout",
+                    "widget_type",
+                    "widget_settings"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "layout": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "minProperties": 6,
+                        "properties": {
+                            "x": {
+                                "type": "integer"
+                            },
+                            "y": {
+                                "type": "integer"
+                            },
+                            "width": {
+                                "type": "integer"
+                            },
+                            "height": {
+                                "type": "integer"
+                            },
+                            "min_width": {
+                                "type": "integer"
+                            },
+                            "min_height": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "widget_type": {
+                        "type": "string"
+                    },
+                    "widget_settings": {
+                        "type": "object"
+                    }
+                }
+            }
+        },
+        "refresh": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "interval": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ]
+                }
+            }
         }
     }
 }

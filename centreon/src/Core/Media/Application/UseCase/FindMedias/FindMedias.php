@@ -77,8 +77,7 @@ final class FindMedias
 
     private function canAccessToListing(): bool
     {
-        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)
-            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
+        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW);
     }
 
     /**

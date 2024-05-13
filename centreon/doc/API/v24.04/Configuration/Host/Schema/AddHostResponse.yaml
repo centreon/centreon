@@ -20,6 +20,7 @@ properties:
     type: string
     description: "Host template alias"
     example: "generic-active-host"
+    nullable: true
   snmp_community:
     type: string
     nullable: true
@@ -64,11 +65,11 @@ properties:
     description: "Check command timeperiod ID"
     example: 1
     nullable: true
-  max_check_attemps:
+  max_check_attempts:
     type: integer
     nullable: true
     description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
-  check_interval:
+  normal_check_interval:
     type: integer
     nullable: true
     description: |

@@ -86,7 +86,7 @@ $authorized_actions = [
     "service_notifications" => "",
     "service_event_handler" => "",
     "service_flap_detection" => "",
-    "service_obsess" => "",
+    "global_service_obsess" => "",
     "service_acknowledgement" => "",
     "service_disacknowledgement" => "",
 ];
@@ -951,7 +951,7 @@ if (!is_null($host_id)) {
             "<?php echo $img_en[1];?>"
         );
 
-        labels['service_obsess'] = new Array(
+        labels['global_service_obsess'] = new Array(
             "<?php echo $str_obsess_svc_enable;?>",
             "<?php echo $str_obsess_svc_disable;?>",
             "<?php echo $img_en[0];?>",
@@ -1012,7 +1012,7 @@ if (!is_null($host_id)) {
                 "service_event_handler",
                 "service_flap_detection",
                 "service_passive_checks",
-                "service_obsess"
+                "global_service_obsess"
             );
 
             if (state == "0") {

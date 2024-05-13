@@ -43,6 +43,7 @@ jobs:
       fail_build: ${{ steps.routing-mode.outputs.fail_build }}
       development_stage: ${{ steps.routing-mode.outputs.development_stage }}
       display_summary: ${{ steps.routing-mode.outputs.display_summary }}
+      enable_qg: ${{ steps.routing-mode.outputs.enable_qg }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -56,6 +57,11 @@ jobs:
       - name: Set routing mode
         id: routing-mode
         run: |
+          ENABLE_QG="true"
+          if [[ "${{ vars.VERACODE_QUALITY_GATE }}" == "false" ]] || [[ -n "${{ vars.VERACODE_EXCEPTION_ON_PR }}" && "${{ vars.VERACODE_EXCEPTION_ON_PR }}" == "${{ github.event.pull_request.number }}" ]]; then
+            ENABLE_QG="false"
+          fi
+
           CHECK_BRANCH=`echo "${{ github.ref_name }}" | cut -d'/' -f2`
           if [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'stable' ]]; then
             # e.g master
@@ -64,7 +70,7 @@ jobs:
             DISPLAY_SUMMARY="false"
           elif [[ $CHECK_BRANCH != "merge" && '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
             # e.g develop
-            FAIL_BUILD="${{ vars.VERACODE_QUALITY_GATE }}"
+            FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Testing"
             DISPLAY_SUMMARY="false"
           elif [[ $CHECK_BRANCH == "merge" && -n '${{ github.head_ref }}' && '${{ github.head_ref }}' =~ ^release-[2-9][0-9].[0-9][0-9]-next ]]; then
@@ -73,7 +79,7 @@ jobs:
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="false"
           else
-            FAIL_BUILD="${{ vars.VERACODE_QUALITY_GATE }}"
+            FAIL_BUILD="$ENABLE_QG"
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="true"
           fi
@@ -81,6 +87,7 @@ jobs:
           echo "fail_build=$FAIL_BUILD" >> $GITHUB_OUTPUT
           echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
           echo "display_summary=$DISPLAY_SUMMARY" >> $GITHUB_OUTPUT
+          echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
   pipeline-scan:
@@ -93,7 +100,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get build binary
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -142,8 +149,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@651b8c3a9c9b32b3b1e7c334c8b34d3cabc2da3f # v1.0.12
+        uses: veracode/Veracode-pipeline-scan-action@5644ae0f9f16ccc10344fc874246555d6f08730a # v1.0.14
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
@@ -160,7 +166,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: needs.build.outputs.enable_qg == 'false' || (failure() && github.event.pull_request.draft == false)
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -216,7 +222,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: vars.VERACODE_BACKUP_DEBUG == 'true' || steps.pipeline-scan.outcome == 'failure'
+        if: needs.build.outputs.enable_qg == 'false' || (failure() && github.event.pull_request.draft == false)
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
@@ -245,7 +251,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: geekyeggo/delete-artifact@65041433121f7239077fa20be14c0690f70569de # v4.1.0
+      - uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
           name: "Veracode Pipeline-Scan Results"
 
@@ -258,7 +264,7 @@ jobs:
 
     steps:
       - name: Get build binary
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
@@ -290,7 +296,7 @@ jobs:
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
 
         # Action forked due to an API call hardcoding the '.com' route
-        uses: sc979/veracode-sandboxes-helper@cf67241c27cbe6405ad8705111121ece9a48c4ff # v0.2
+        uses: sc979/veracode-sandboxes-helper@616cfc1e3428691c30382dab33d569f00b14f664 # v0.3
         with:
           activity: "promote-latest-scan"
           app-name: "${{ inputs.module_name }}"
@@ -326,7 +332,7 @@ jobs:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: sc979/veracode-sca@d3cf7437b198b0e861785f2568d50aeed45bb99b # v1.10
+        uses: sc979/veracode-sca@c407924976db886ffb1bfdbbbf3463f0939f835d # v1.11
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:

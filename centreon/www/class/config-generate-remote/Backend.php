@@ -124,11 +124,13 @@ class Backend
                 if (!is_dir($dir)) {
                     throw new Exception("Generation path '" . $dir . "' is not a directory.");
                 }
+                if (posix_getuid() === fileowner($dir)) {
+                    chmod($dir, 0770);
+                }
             } else {
                 if (!mkdir($dir, 0770, true)) {
                     throw new Exception("Cannot create directory '" . $dir . "'");
                 }
-                chmod($dir, 0770);
             }
         }
 

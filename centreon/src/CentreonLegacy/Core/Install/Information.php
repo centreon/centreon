@@ -49,7 +49,7 @@ class Information
         return $step;
     }
 
-    public function setStep($step)
+    public function setStep($step): void
     {
         $stepDir = __DIR__ . '/../../../../www/install/tmp';
         if (! $this->dependencyInjector['filesystem']->exists($stepDir)) {

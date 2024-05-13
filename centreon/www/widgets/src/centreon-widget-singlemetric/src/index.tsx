@@ -1,19 +1,16 @@
-import { createStore } from 'jotai';
 import { extend } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 
 import { Module } from '@centreon/ui';
 
-import { Data, GlobalRefreshInterval } from '../../models';
+import { Data, CommonWidgetProps } from '../../models';
 
 import Graph from './Graph';
 import { FormThreshold, ValueFormat } from './models';
 
 extend(duration);
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
-  isFromPreview?: boolean;
+interface Props extends CommonWidgetProps<object> {
   panelData: Data;
   panelOptions: {
     displayType: 'text' | 'gauge' | 'bar';
@@ -22,8 +19,6 @@ interface Props {
     threshold: FormThreshold;
     valueFormat: ValueFormat;
   };
-  refreshCount: number;
-  store: ReturnType<typeof createStore>;
 }
 
 const SingleMetric = ({
@@ -32,14 +27,20 @@ const SingleMetric = ({
   panelOptions,
   globalRefreshInterval,
   refreshCount,
-  isFromPreview
+  isFromPreview,
+  playlistHash,
+  dashboardId,
+  id
 }: Props): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
     <Graph
       {...panelData}
       {...panelOptions}
+      dashboardId={dashboardId}
       globalRefreshInterval={globalRefreshInterval}
+      id={id}
       isFromPreview={isFromPreview}
+      playlistHash={playlistHash}
       refreshCount={refreshCount}
     />
   </Module>

@@ -8,12 +8,10 @@ import {
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer()
-    .startOpenIdProviderContainer()
-    .then(() => {
-      configureProviderAcls();
-      initializeSAMLUser();
-    });
+  cy.startContainers({ profiles: ['saml'] }).then(() => {
+    configureProviderAcls();
+    initializeSAMLUser();
+  });
 });
 
 beforeEach(() => {
@@ -187,5 +185,5 @@ after(() => {
   // avoid random "Cannot read properties of null (reading 'postMessage')" when stopping containers
   cy.on('uncaught:exception', () => false);
 
-  cy.stopWebContainer().stopOpenIdProviderContainer();
+  cy.stopContainers();
 });

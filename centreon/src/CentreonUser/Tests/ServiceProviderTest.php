@@ -35,10 +35,10 @@ class ServiceProviderTest extends TestCase
 {
     use WebserviceTrait;
 
-    /** @var \Pimple\Container */
+    /** @var Container */
     protected $container;
 
-    /** @var \CentreonUser\ServiceProvider */
+    /** @var ServiceProvider */
     protected $provider;
 
     /**

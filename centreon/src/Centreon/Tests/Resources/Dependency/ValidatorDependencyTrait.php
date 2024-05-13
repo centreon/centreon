@@ -64,7 +64,7 @@ trait ValidatorDependencyTrait
      *
      * @param \Pimple\Container $container
      */
-    public function setUpValidator(Container $container)
+    public function setUpValidator(Container $container): void
     {
         $container[ServiceProvider::VALIDATOR] = $this->createMock(RecursiveValidator::class);
     }

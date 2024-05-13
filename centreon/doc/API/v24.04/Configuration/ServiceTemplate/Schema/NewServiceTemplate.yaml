@@ -40,7 +40,7 @@ properties:
     type: integer
     description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
     nullable: true
-  normal_check_interval:
+  normal_normal_check_interval:
     type: integer
     description: |
       Define the number of 'time units' between regularly scheduled checks of the service.

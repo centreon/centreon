@@ -82,10 +82,11 @@ Given(
       }
 
       cy.startContainer({
+        command: 'tail -f /dev/null',
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
           'WEB_IMAGE_OS'
         )}:${major_version_from}`,
-        name: Cypress.env('dockerName'),
+        name: 'web',
         portBindings: [
           {
             destination: 4000,
@@ -124,7 +125,7 @@ Given(
                     `Not needed to test ${version_from_expression} version.`
                   );
 
-                  return cy.wrap('skipped');
+                  return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
 
                 cy.log(
@@ -144,7 +145,7 @@ Given(
                           dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/${distrib}/centreon-${major_version}.repo
                           dnf config-manager --set-enabled 'centreon*'
 EOF`,
-                        name: Cypress.env('dockerName')
+                        name: 'web'
                       });
                     }
 
@@ -156,10 +157,10 @@ EOF`,
                         echo "deb https://packages.centreon.com/apt-plugins-stable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
                         echo "deb https://packages.centreon.com/apt-plugins-testing/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
                         echo "deb https://packages.centreon.com/apt-plugins-unstable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                        wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
-                      name: Cypress.env('dockerName')
+                      name: 'web'
                     });
                   })
                   .then(() => {
@@ -176,5 +177,5 @@ EOF`,
 );
 
 afterEach(() => {
-  cy.visitEmptyPage().stopContainer({ name: Cypress.env('dockerName') });
+  cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

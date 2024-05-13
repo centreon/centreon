@@ -29,17 +29,21 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroups;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroupsResponse;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardContactGroupsPresenterStub();
     $this->useCase = new FindDashboardContactGroups(
-        $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
+        $this->readAccessgroupRepository = $this->createMock(ReadAccessgroupRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 });
 
@@ -71,7 +75,15 @@ it(
     'should present a FindDashboardContactGroupsResponse if the contact is allowed',
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->readContactGroupRepository->expects($this->once())->method('findAllByUserId')->willReturn([]);
+
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
+            ->willReturn(false);
+
+        $this->readDashboardShareRepository
+            ->expects($this->once())
+            ->method('findContactGroupsWithAccessRightByUserAndRequestParameters')
+            ->willReturn([]);
 
         ($this->useCase)($this->presenter);
 

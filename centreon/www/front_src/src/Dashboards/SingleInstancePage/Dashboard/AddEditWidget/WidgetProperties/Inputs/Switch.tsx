@@ -9,6 +9,7 @@ import { Switch } from '@centreon/ui/components';
 
 import { Widget, WidgetPropertyProps } from '../../models';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
+import Subtitle from '../../../components/Subtitle';
 
 import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';
@@ -16,7 +17,8 @@ import { useSwitchStyles } from './Inputs.styles';
 const WidgetSwitch = ({
   propertyName,
   label,
-  endAdornment
+  endAdornment,
+  secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useSwitchStyles();
@@ -35,24 +37,27 @@ const WidgetSwitch = ({
   };
 
   return (
-    <FormControlLabel
-      control={
-        <Switch
-          checked={value}
-          inputProps={{
-            'aria-label': t(label) || ''
-          }}
-          onChange={changeSwitchValue}
-        />
-      }
-      disabled={!canEditField}
-      label={
-        <Box className={classes.switch}>
-          <Typography>{t(label)}</Typography>
-          {endAdornment}
-        </Box>
-      }
-    />
+    <>
+      {secondaryLabel && <Subtitle>{t(secondaryLabel)}</Subtitle>}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={value}
+            inputProps={{
+              'aria-label': t(label) || ''
+            }}
+            onChange={changeSwitchValue}
+          />
+        }
+        disabled={!canEditField}
+        label={
+          <Box className={classes.switch}>
+            <Typography>{t(label)}</Typography>
+            {endAdornment}
+          </Box>
+        }
+      />
+    </>
   );
 };
 

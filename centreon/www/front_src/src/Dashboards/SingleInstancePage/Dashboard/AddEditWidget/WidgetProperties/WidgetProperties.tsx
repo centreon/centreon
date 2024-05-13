@@ -32,7 +32,7 @@ const WidgetProperties = (): JSX.Element => {
   const hasProperties = !isEmpty(widgetProperties);
 
   return (
-    <>
+    <div className={classes.widgetPropertiesContainer}>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <div className={classes.widgetProperties}>
@@ -79,7 +79,7 @@ const WidgetProperties = (): JSX.Element => {
           </div>
         </CollapsibleItem>
       )}
-    </>
+    </div>
   );
 };
 

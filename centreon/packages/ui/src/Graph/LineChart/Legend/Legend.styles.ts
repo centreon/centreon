@@ -8,7 +8,7 @@ interface MakeStylesProps {
 
 export const legendWidth = 21;
 const legendItemHeight = 5.25;
-const legendItemHeightCompact = 1.75;
+const legendItemHeightCompact = 2;
 
 export const useStyles = makeStyles<MakeStylesProps>()(
   (theme, { limitLegendRows }) => ({
@@ -28,10 +28,11 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       columnGap: theme.spacing(3),
       display: 'grid',
       gridAutoRows: theme.spacing(legendItemHeight),
-      gridTemplateColumns: `repeat(auto-fit, ${theme.spacing(legendWidth)})`,
+      gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(legendWidth)}, 1fr))`,
       maxHeight: limitLegendRows
         ? theme.spacing(legendItemHeight * 2 + 1)
         : 'unset',
+      overflowX: 'hidden',
       overflowY: 'auto',
       rowGap: theme.spacing(1),
       width: '100%'
@@ -63,9 +64,6 @@ interface StylesProps {
 export const useLegendHeaderStyles = makeStyles<StylesProps>()(
   (theme, { color }) => ({
     container: {
-      display: 'flex',
-      flexDirection: 'row',
-      gap: theme.spacing(0.5),
       width: '100%'
     },
     disabled: {
@@ -79,10 +77,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       width: theme.spacing(1.5)
     },
     legendName: {
-      '&[data-mode="compact"]': {
-        maxWidth: theme.spacing(legendWidth * 0.5)
-      },
-      maxWidth: theme.spacing(legendWidth * 0.75)
+      maxWidth: '95%'
     },
     markerAndLegendName: {
       alignItems: 'center',
@@ -97,6 +92,7 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       whiteSpace: 'nowrap'
     },
     text: {
+      fontSize: '0.75rem',
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
     }

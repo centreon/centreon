@@ -217,7 +217,7 @@ const checkActionsButton = (): void => {
 };
 
 describe('Details', () => {
-  it('displays resource details information', () => {
+  it.only('displays resource details information', () => {
     const store = getStore();
     interceptDetailsRequest({
       alias: 'getDetails',
@@ -302,7 +302,16 @@ describe('Details', () => {
     ).should('exist');
 
     cy.contains(labelCommand).should('exist');
-    cy.contains('base_host_alive').should('exist');
+    cy.contains(/^base_host_alive$/).should('exist');
+    cy.contains('--test').should('exist');
+    cy.contains('-n').should('exist');
+    cy.contains('-w').should('exist');
+    cy.contains('3000,80').should('exist');
+    cy.contains('-c').should('exist');
+    cy.contains('5000,100').should('exist');
+    cy.contains('-t').should('exist');
+    cy.contains('host').should('exist');
+    cy.contains(/^--test2="ok"$/).should('exist');
     cy.makeSnapshot();
   });
   it('displays actions as icons when the panel width is less than 615 px', () => {

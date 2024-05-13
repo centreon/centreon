@@ -18,7 +18,11 @@ patch:
   tags:
     - Service template
   summary: "Partial update of a service template"
-  description: "Partial update of a service template configuration"
+  description: |
+    Partial update of a service template configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
   parameters:
     - $ref: 'QueryParameter/ServiceTemplateId.yaml'
   requestBody:

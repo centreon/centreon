@@ -1775,7 +1775,7 @@ msgstr "Auteur"
 
 #: centreon-web/www/install/smarty_translate.php:327
 msgid "Expiration date"
-msgstr "Date de fin de licence"
+msgstr "Date d'expiration"
 
 #: centreon-web/www/install/smarty_translate.php:330
 #: centreon-web/www/include/options/oreon/modules/formModule.php:57
@@ -1933,10 +1933,6 @@ msgstr "Modèle de graphique"
 #: centreon-web/www/install/smarty_translate.php:381
 msgid "Virtual metrics"
 msgstr "Métriques/courbes virtuelles"
-
-#: centreon-web/www/install/smarty_translate.php:390
-msgid "Curve"
-msgstr "Courbes"
 
 #: centreon-web/www/install/smarty_translate.php:396
 #: centreon-web/www/install/smarty_translate.php:399
@@ -16841,8 +16837,8 @@ msgstr "Se connecter avec"
 msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
-msgid "Impossible to get contact templates from data storage"
-msgstr "Impossible d'obtenir les modèles de contact depuis le stockage de données"
+msgid "Error while searching for contact templates"
+msgstr "Erreur lors de la recherche de modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
@@ -18030,14 +18026,14 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
-msgid "Manage the organization's authentication tokens"
-msgstr "Gérer les jetons d'authentification de l'organisation"
+msgid "Manage API tokens"
+msgstr "Gérer les jetons d’API"
 
 msgid "Widget type"
 msgstr "Type de widget"
 
-msgid "Display type"
-msgstr "Type d'affichage"
+msgid "Display as"
+msgstr "Afficher en tant que"
 
 msgid "Text"
 msgstr "Texte"
@@ -18141,8 +18137,23 @@ msgstr "Vous n'êtes pas autorisé à lister les jetons d'authentification"
 msgid "View widget properties"
 msgstr "Voir les propriétés du widget"
 
-msgid "Dashboard library"
-msgstr "Bibliothèque de tableaux de bord"
+msgid "Create dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Create a dashboard"
+msgstr "Créer un tableau de bord"
+
+msgid "Update dashboard"
+msgstr "Mettre à jour le tableau de bord"
+
+msgid "Dashboard updated"
+msgstr "Tableau de bord mis à jour"
+
+msgid "Manage access rights"
+msgstr "Gérer les droits d'accès"
+
+msgid "Select a widget type to activate the preview."
+msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
@@ -18349,11 +18360,8 @@ msgstr "Nom de la métrique"
 msgid "Status grid"
 msgstr "Grille de statut"
 
-msgid "Displays a status overview for selected resources."
-msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées."
-
-msgid "Display with this resource type"
-msgstr "Afficher avec ce type de ressource"
+msgid "Displays a status overview for selected resources, grouped by hosts or by services."
+msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
 
 msgid "Display resources with this status"
 msgstr "Afficher les ressources avec ce statut"
@@ -18550,6 +18558,12 @@ msgstr "Jeton"
 msgid "Token has been created"
 msgstr "Le jeton a été créé"
 
+msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cette action est <br> irréversible. Si vous le supprimez, toutes les requêtes effectuées avec ce jeton seront <br> rejetées. Voulez-vous supprimer le jeton ?"
+
+msgid "Delete token"
+msgstr "Supprimer le jeton"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18653,6 +18667,9 @@ msgstr "Sélectionnez un type de ressource"
 msgid "Displays data on resource status and events, centralized in a table."
 msgstr "Affiche des données sur le statut des ressources et les événements, centralisées dans un tableau."
 
+msgid "Success (OK/Up)"
+msgstr "Succès (OK/Disponible)"
+
 msgid "Problem (Down/Critical)"
 msgstr "Problème (Indisponible/Critique)"
 
@@ -18664,3 +18681,300 @@ msgstr "Ajouter des colonnes"
 
 msgid "Resource table"
 msgstr "Tableau des ressources"
+
+msgid "Displays a detailed view of the current status for selected resources as a chart."
+msgstr "Affiche une vue détaillée du statut actuel des ressources sélectionnées sous la forme d'un graphique."
+
+msgid "Status chart"
+msgstr "Graphique de statut"
+
+msgid "Show value on chart"
+msgstr "Afficher la valeur sur le graphique"
+
+msgid "Number"
+msgstr "Numérique"
+
+msgid "Show legend"
+msgstr "Afficher la légende"
+
+msgid "Percentage"
+msgstr "Pourcentage"
+
+msgid "Display resources with this type"
+msgstr "Afficher les ressources avec ce type"
+
+msgid  "Horizontal bar chart"
+msgstr "Diagramme à barres horizontales"
+
+msgid  "Vertical bar chart"
+msgstr "Diagramme à barres verticales"
+
+msgid  "Pie chart"
+msgstr "Camembert"
+
+msgid  "Donut chart"
+msgstr "Donut"
+
+msgid "Status:"
+msgstr "Statut :"
+
+msgid "No {{resourcesType}} found with this status"
+msgstr "Aucun {{resourcesType}} trouvé avec ce statut"
+
+msgid "No host found"
+msgstr "Aucun hôte trouvé"
+
+msgid "No service found"
+msgstr "Aucun service trouvé"
+
+msgid "are working fine."
+msgstr "fonctionnent correctement."
+
+msgid "down"
+msgstr "indisponible"
+
+msgid "pending"
+msgstr "en attente"
+
+msgid "warning"
+msgstr "alerte"
+
+msgid "critical"
+msgstr "critique"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "up"
+msgstr "disponible"
+
+msgid "unreachable"
+msgstr "injoignable"
+
+msgid "Fullscreen (F)"
+msgstr "Plein écran (F)"
+
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+msgid "The {{name}} widget will be permanently deleted."
+msgstr "Le widget {{name}} sera définitivement supprimé."
+
+msgid "The widget will be permanently deleted."
+msgstr "Le widget sera définitivement supprimé."
+
+msgid "The {{name}} dashboard will be permanently deleted."
+msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
+
+msgid "No Data Available"
+msgstr "Pas de données disponibles"
+
+msgid "Invalid page name. Valid page names are: %s"
+msgstr "Nom de page invalide. Les noms de page valident sont: %s"
+
+msgid "You are not allowed to access the Resources Status page"
+msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "Error while retrieving the number of hosts by status"
+msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
+
+msgid "Delete rule"
+msgstr "Supprimer la règle"
+
+msgid "is used to allow users to access resources."
+msgstr "est utilisée pour permettre aux utilisateurs d'accéder aux resources."
+
+msgid "It will be permanently deleted and users will no longer have this permission"
+msgstr "Elle sera définitivement supprimée et les utilisateurs n'auront plus ces accès"
+
+msgid "Failed to delete resource access rule"
+msgstr "Échec de la suppression de la règle d'accès aux ressources"
+
+msgid "The resource access rule was successfully deleted"
+msgstr "La règle d'accès aux ressouces a été supprimée avec succès"
+
+msgid "Error while retrieving the number of services by status"
+msgstr "Erreur lors de la récupération du nombre de services par statut"
+
+msgid "Error while adding a broker output"
+msgstr "Erreur lors de l'ajout d'une sortie Centreon Broker"
+
+msgid "You are not allowed to edit a broker configuration"
+msgstr "Vous n'êtes pas autorisé à éditer une configuration Broker"
+
+msgid "Broker configuration #%d not found"
+msgstr "Configuration Broker #%d introuvable"
+
+msgid "Missing output parameter: %s"
+msgstr "Paramètre de sortie manquant: %s"
+
+msgid "Parameter '%s' (%s) is invalid"
+msgstr "Le paramètre '%s' (%s) est invalide"
+
+msgid "Parameter '%s' of type %s is invalid"
+msgstr "Le paramètre '%s' de type %s est invalide"
+
+msgid "Output #%d not found for broker configuration #%d"
+msgstr "Sortie #%d introuvable pour la configuration Broker #%d"
+
+msgid "Display resources with this unit"
+msgstr "Afficher les ressources avec cette unité"
+
+msgid "Rules are used to allow users to access resources."
+msgstr "Les règles sont utilisées pour permettre aux utilisateurs d'accéder aux ressources."
+
+msgid "They will be permanently deleted and users will no longer have these permissions."
+msgstr "Elles seront définitivement supprimées et les utilisateurs n'auront plus ces accès."
+
+msgid "Delete rules"
+msgstr "Supprimer les règles"
+
+msgid "Delete multiple resource access rules"
+msgstr "Supprimer plusieurs règles d'accès aux ressources"
+
+msgid "Failed to delete the selected resource access rules"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
+
+msgid "The selected resource access rules have been deleted successfully"
+msgstr "Les règles d'accès aux ressources sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to duplicate the resource access rule"
+msgstr "Échec de la duplication de la règle d'accès aux ressources"
+
+msgid "The resource access rule has been successfully duplicated"
+msgstr "La règle d'accès aux ressources a été dupliquée avec succès"
+
+msgid "Resource access rule name"
+msgstr "Nom de la règle d'accès aux ressources"
+
+msgid "Please enter a name for the resource access rule to duplicate"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+
+msgid "An error occurred during authentication"
+msgstr "Une erreur est survenue durant l'authentification"
+
+msgid "Duplicate dashboard"
+msgstr "Dupliquer le tableau de bord"
+
+msgid "Delete dashboard"
+msgstr "Supprimer le tableau de bord"
+
+msgid "Dashboard deleted"
+msgstr "Tableau de bord supprimé"
+
+msgid "Dashboard duplicated"
+msgstr "Tableau de bord dupliqué"
+
+msgid "Failed to duplicate the dashboard"
+msgstr "Échec de la duplication du tableau de bord"
+
+msgid "Share with contacts"
+msgstr "Partager avec des contacts"
+
+msgid "All resources"
+msgstr "Toutes les ressources"
+
+msgid "All resources selected"
+msgstr "Toutes les ressources sont sélectionnées"
+
+msgid "Error while updating a broker output"
+msgstr "Erreur lors de la mise à jour d'une sortie Centreon Broker"
+
+msgid "Action not permitted for output of type '%s'"
+msgstr "Action non autorisée pour une sortie de type '%s'"
+
+msgid "Content is not a valid JSON string"
+msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
+
+msgid "An error occurred while creating the file '%s'"
+msgstr "Une erreur est survenue lors de la création du fichier '%s'"
+
+msgid "An error occurred while deleting the file '%s'"
+msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
+
+msgid "Until"
+msgstr "Jusqu'à"
+
+msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."
+
+msgid "Group monitoring"
+msgstr "Group monitoring"
+
+msgid "Display with this view"
+msgstr "Afficher avec cette vue"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Condensed"
+msgstr "Condensé"
+
+msgid "Business Activity Diagram"
+msgstr "Diagramme d'activité métier"
+
+msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+msgstr "Affiche graphiquement et permet la navigation dans la hiérarchie d'une activité métier."
+
+msgid "Display the diagram with this status"
+msgstr "Afficher le diagramme avec ce statut"
+
+msgid "Problem (Critical)"
+msgstr "Problème (Critique)"
+
+msgid "Success (OK)"
+msgstr "Succès (OK)"
+
+msgid "Link types"
+msgstr "Types de lien"
+
+msgid "Curve"
+msgstr "Courbe"
+
+msgid "Line"
+msgstr "Ligne"
+
+msgid "All hosts selected"
+msgstr "Tous les hôtes sont sélectionnés"
+
+msgid "All host groups selected"
+msgstr "Tous les groupes d'hôtes sont sélectionnés"
+
+msgid "All service groups selected"
+msgstr "Tous les groupes de services sont sélectionnés"
+
+msgid "All hosts"
+msgstr "Tous les hôtes"
+
+msgid "All host groups"
+msgstr "Tous les groupes d'hôtes"
+
+msgid "All service groups"
+msgstr "Tous les groupes de services"
+
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
+
+msgid "Downloading the performance metrics is not allowed"
+msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
+msgid "Business view"
+msgstr "Vue métier"
+
+msgid "All business views"
+msgstr "Toutes les vues métier"
+
+msgid "All business views selected"
+msgstr "Toutes les vues métier sont sélectionnées"
+
+msgid "You are not allowed to list contact templates"
+msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"

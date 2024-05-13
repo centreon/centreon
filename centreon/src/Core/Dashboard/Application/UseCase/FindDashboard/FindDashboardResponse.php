@@ -32,7 +32,7 @@ final class FindDashboardResponse
 
     public string $name = '';
 
-    public string $description = '';
+    public ?string $description = null;
 
     public ?UserResponseDto $createdBy = null;
 

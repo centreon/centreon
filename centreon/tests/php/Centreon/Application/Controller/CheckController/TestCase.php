@@ -23,14 +23,21 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Application\Controller\CheckController;
 
-use DateTime;
+use Centreon\Application\Controller\AbstractController;
+use Centreon\Application\Controller\CheckController;
+use Centreon\Domain\Check\Check;
+use Centreon\Domain\Check\Interfaces\CheckServiceInterface;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Entity\EntityValidator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use DateInterval;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase as BaseTestCase;
+use DateTime;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Exception\ValidationFailedException;
 use JMS\Serializer\SerializerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,12 +47,6 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\GroupSequence;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Centreon\Domain\Check\Check;
-use Centreon\Application\Controller\CheckController;
-use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Check\Interfaces\CheckServiceInterface;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Entity\EntityValidator;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -70,7 +71,8 @@ abstract class TestCase extends BaseTestCase
                 $this->mockToken($contact)
             )
         );
-        $sut = new CheckController($this->mockService());
+
+        $sut = new CheckController($this->mockService(), $this->createMock(ReadAccessGroupRepositoryInterface::class));
         $sut->setContainer($container);
 
         call_user_func_array([$sut, static::METHOD_UNDER_TEST], $this->getTestMethodArguments());
@@ -83,7 +85,7 @@ abstract class TestCase extends BaseTestCase
             $this->mockAuthorizationChecker(isGranted: true),
             $this->mockTokenStorage($this->mockToken($contact))
         );
-        $sut = new CheckController($this->mockService());
+        $sut = new CheckController($this->mockService(), $this->createMock(ReadAccessGroupRepositoryInterface::class));
         $sut->setContainer($container);
 
         $view = call_user_func_array([$sut, static::METHOD_UNDER_TEST], $this->getTestMethodArguments());
@@ -104,7 +106,7 @@ abstract class TestCase extends BaseTestCase
         $service = $this->mockService();
         $service->method($expectedServiceMethodName)->with($this->equalTo($check));
 
-        $sut = new CheckController($service);
+        $sut = new CheckController($service, $this->createMock(ReadAccessGroupRepositoryInterface::class));
         $sut->setContainer($container);
         $checks = [$check];
 
@@ -137,7 +139,7 @@ abstract class TestCase extends BaseTestCase
             $this->mockTokenStorage($this->mockToken($contact))
         );
 
-        $sut = new CheckController($this->mockService());
+        $sut = new CheckController($this->mockService(), $this->createMock(ReadAccessGroupRepositoryInterface::class));
         $sut->setContainer($container);
 
         $view = call_user_func_array(

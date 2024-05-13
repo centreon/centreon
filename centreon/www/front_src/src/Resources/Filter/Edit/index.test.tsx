@@ -174,7 +174,7 @@ describe(EditFilterPanel, () => {
       expect(filterState.customFilters[0].name).toEqual(newName);
       expect(mockedAxios.put).toHaveBeenCalledWith(
         `${filterEndpoint}/${firstFilter.id}`,
-        omit(['id'], { ...firstFilter, name: newName }),
+        JSON.stringify(omit(['id'], { ...firstFilter, name: newName })),
         expect.anything()
       );
     });

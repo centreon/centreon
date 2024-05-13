@@ -21,3 +21,5 @@ export * from './useRefreshInterval';
 export * from './centreonBaseURL';
 export * from './usePluralizedTranslation';
 export * from './useResizeObserver';
+export * from './useFullscreen';
+export * from './resourcesStatusURL';

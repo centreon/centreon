@@ -69,12 +69,12 @@ class CentreonI18nTest extends TestCase
         $this->webservice->setDi($this->container);
     }
 
-    public function testGetName()
+    public function testGetName(): void
     {
         $this->assertEquals('centreon_i18n', CentreonI18n::getName());
     }
 
-    public function testGetTranslation()
+    public function testGetTranslation(): void
     {
         $value = ['test OK'];
         $this->container->offsetGet(ServiceProvider::CENTREON_I18N_SERVICE)
@@ -84,7 +84,7 @@ class CentreonI18nTest extends TestCase
         $this->assertEquals($value, $this->webservice->getTranslation());
     }
 
-    public function testGetTranslationWithException()
+    public function testGetTranslationWithException(): void
     {
         $this->container->offsetGet(ServiceProvider::CENTREON_I18N_SERVICE)
             ->method('getTranslation')

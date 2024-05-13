@@ -11,4 +11,4 @@ export { default as WidgetMetrics } from './Metrics/Metrics';
 export { default as WidgetRadio } from './Radio/Radio';
 export { default as WidgetCheckboxes } from './Checboxes/Chekboxes';
 export { default as WidgetTiles } from './Tiles/Tiles';
-export { default as DisplayType } from './DisplayType/DisplayType';
+export { default as WidgetDisplayType } from './DisplayType/DisplayType';

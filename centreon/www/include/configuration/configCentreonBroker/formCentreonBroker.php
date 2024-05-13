@@ -303,7 +303,7 @@ if ($form->validate()) {
     if ($form->getSubmitValue("submitA")) {
         $cbObj->insertConfig($data);
     } elseif ($form->getSubmitValue("submitC")) {
-        $cbObj->updateConfig($data['id'], $data);
+        $cbObj->updateConfig((int) $data['id'], $data);
     }
     $o = null;
     $valid = true;

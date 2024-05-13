@@ -62,8 +62,8 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
     {
         return $this->checkListOfIdsTrait(
             $ids,
-            TimePeriod::TABLE,
-            TimePeriod::ENTITY_IDENTIFICATOR_COLUMN
+            Timeperiod::TABLE,
+            Timeperiod::ENTITY_IDENTIFICATOR_COLUMN
         );
     }
 

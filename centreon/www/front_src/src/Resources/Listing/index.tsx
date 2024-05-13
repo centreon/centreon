@@ -154,7 +154,9 @@ const ResourceListing = (): JSX.Element => {
 
   const onForcedCheck = (): void => {
     checkResource({
-      is_forced: true
+      payload: {
+        is_forced: true
+      }
     }).then(() => {
       showSuccessMessage(t(labelForcedCheckCommandSent));
     });
@@ -226,7 +228,9 @@ const ResourceListing = (): JSX.Element => {
   const changeViewModeTableResources = (): void => {
     updateUser();
     mutateAsync({
-      user_interface_density: viewerMode
+      payload: {
+        user_interface_density: viewerMode
+      }
     });
   };
 

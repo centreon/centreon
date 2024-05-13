@@ -2,6 +2,7 @@ import { ReactElement } from 'react';
 
 import { generatePath, useNavigate } from 'react-router-dom';
 import { equals } from 'ramda';
+import { useSetAtom } from 'jotai';
 
 import { PageLayout } from '@centreon/ui/components';
 
@@ -9,10 +10,11 @@ import { Dashboard } from '../../../api/models';
 import routeMap from '../../../../reactRoutes/routeMap';
 import {
   labelCreateADashboard,
-  labelDashboardLibrary
+  labelDashboards
 } from '../../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import { DashboardLayout } from '../../../models';
+import { isEditingAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 
@@ -27,6 +29,8 @@ const DashboardsQuickAccessMenu = ({
 
   const { createDashboard } = useDashboardConfig();
 
+  const setIsEditing = useSetAtom(isEditingAtom);
+
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number) => (): void =>
     navigate(
@@ -36,10 +40,12 @@ const DashboardsQuickAccessMenu = ({
       })
     );
 
-  const navigateToDashboardLibrary = (): void =>
+  const navigateToDashboardLibrary = (): void => {
+    setIsEditing(false);
     navigate(
       generatePath(routeMap.dashboards, { layout: DashboardLayout.Library })
     );
+  };
 
   return (
     <PageLayout.QuickAccess
@@ -49,7 +55,7 @@ const DashboardsQuickAccessMenu = ({
       isActive={(id) => equals(id, Number(dashboard?.id))}
       labels={{
         create: labelCreateADashboard,
-        goBack: labelDashboardLibrary
+        goBack: labelDashboards
       }}
       navigateToElement={navigateToDashboard}
     />

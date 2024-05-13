@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { equals, includes } from 'ramda';
+import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
 
-import { CardHeader } from '@mui/material';
+import { CardHeader, Typography } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DvrIcon from '@mui/icons-material/Dvr';
 
@@ -16,8 +16,11 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
-import { resourceBasedWidgets } from '../../utils';
+import {
+  labelMoreActions,
+  labelResourcesStatus,
+  labelSeeMore
+} from '../../translatedLabels';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -27,8 +30,8 @@ interface PanelHeaderProps {
   displayMoreActions: boolean;
   id: string;
   linkToResourceStatus?: string;
+  pageType: string | null;
   setRefreshCount?: (id) => void;
-  widgetName?: string;
 }
 
 const PanelHeader = ({
@@ -36,8 +39,8 @@ const PanelHeader = ({
   setRefreshCount,
   linkToResourceStatus,
   displayMoreActions,
-  widgetName,
-  changeViewMode
+  changeViewMode,
+  pageType
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -52,7 +55,7 @@ const PanelHeader = ({
 
   const duplicate = (event): void => {
     event.preventDefault();
-    setIsEditing(true);
+    setIsEditing(() => true);
     duplicatePanel(id);
   };
 
@@ -64,21 +67,23 @@ const PanelHeader = ({
     useDeepCompare([dashboard.layout])
   );
 
+  const page = t(pageType || labelResourcesStatus);
+
   return (
     <CardHeader
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
-            {includes(widgetName, resourceBasedWidgets) && (
+            {linkToResourceStatus && (
               <Link
-                data-testid={labelSeeMore}
+                data-testid={t(labelSeeMore, { page })}
                 style={{ all: 'unset' }}
                 target="_blank"
                 to={linkToResourceStatus as string}
               >
                 <IconButton
-                  ariaLabel={t(labelSeeMore)}
-                  title={t(labelSeeMore)}
+                  ariaLabel={t(labelSeeMore, { page })}
+                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
                 >
                   <DvrIcon fontSize="small" />
@@ -103,7 +108,11 @@ const PanelHeader = ({
         )
       }
       className={classes.panelHeader}
-      title={panel?.options?.name || ''}
+      title={
+        <Typography className={classes.panelTitle}>
+          {panel?.options?.name || ''}
+        </Typography>
+      }
     />
   );
 };

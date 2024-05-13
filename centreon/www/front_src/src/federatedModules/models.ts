@@ -13,11 +13,12 @@ export interface FederatedModule {
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;
+  preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
 }
 
-interface PageComponent {
+export interface PageComponent {
   children?: string;
   component: string;
   featureFlag?: string;
@@ -39,12 +40,18 @@ export enum FederatedWidgetOptionType {
   resources = 'resources',
   richText = 'rich-text',
   singleMetricGraphType = 'single-metric-graph-type',
+  switch = 'switch',
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
   timePeriod = 'time-period',
   topBottomSettings = 'top-bottom-settings',
   valueFormat = 'value-format'
+}
+
+interface WidgetHiddenCondition {
+  matches: unknown;
+  when: string;
 }
 
 export interface FederatedWidgetOption {
@@ -56,6 +63,7 @@ export interface FederatedWidgetOption {
         then: unknown;
         when: string;
       };
+  hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
     | Array<SelectEntry>
@@ -81,7 +89,7 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
-  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
+  singleResourceSelection?: boolean;
   title: string;
 }

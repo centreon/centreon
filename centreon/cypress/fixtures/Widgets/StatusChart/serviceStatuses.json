@@ -1,0 +1,18 @@
+{
+    "critical" : {
+        "total" : 39 
+    },
+    "warning" : {
+        "total" : 30
+    },
+    "unknown" : {
+        "total" : 99 
+    },
+    "pending" : {
+        "total" : 99 
+    },
+    "ok" : {
+        "total" : 411 
+    },
+    "total" : 700
+}

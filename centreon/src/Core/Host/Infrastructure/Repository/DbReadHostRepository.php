@@ -611,7 +611,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $request .= $search !== null
             ? ' AND h.host_register = \'1\''
             : ' WHERE h.host_register = \'1\'';
-        $request .= ' GROUP BY h.host_id';
+        $request .= ' GROUP BY h.host_id, ns.id, ns.name';
 
         // Sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();

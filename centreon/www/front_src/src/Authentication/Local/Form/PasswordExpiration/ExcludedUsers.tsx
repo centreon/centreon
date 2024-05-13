@@ -129,6 +129,7 @@ const ExcludedUsers = (): JSX.Element => {
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(labelExcludedUsers)}
       name="excludedUsers"
+      optionProperty="alias"
       size="small"
       value={formattedUsers}
       onChange={change}

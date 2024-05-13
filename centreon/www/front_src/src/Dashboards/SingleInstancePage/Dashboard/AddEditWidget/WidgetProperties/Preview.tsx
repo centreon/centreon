@@ -45,8 +45,10 @@ const Preview = (): JSX.Element | null => {
 
   const isGenericTextWidget = isGenericText(values.panelConfiguration?.path);
 
-  const changePanelOptions = (field, value): void => {
-    setFieldValue(`options.${field}`, value);
+  const changePanelOptions = (partialOptions: object): void => {
+    Object.entries(partialOptions).forEach(([key, value]) => {
+      setFieldValue(`options.${key}`, value, false);
+    });
   };
 
   return (
@@ -85,7 +87,7 @@ const Preview = (): JSX.Element | null => {
             style={{
               height: `${
                 (previewRef.current?.getBoundingClientRect().height || 0) -
-                16 -
+                36 -
                 46
               }px`,
               overflow: 'auto'

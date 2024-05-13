@@ -1,6 +1,9 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
@@ -8,20 +11,12 @@ import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/me
 import metricsGraphDoubleWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwometricsGraphWidget.json';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
   );
-
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
-  });
-
+  cy.applyAcl();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -43,6 +38,13 @@ before(() => {
     {
       name: 'Ping',
       status: 'ok'
+    }
+  ]);
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
     }
   ]);
 });
@@ -82,7 +84,7 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given(
@@ -90,12 +92,7 @@ Given(
   () => {
     cy.insertDashboard({ ...dashboards.default });
     cy.visit('/centreon/home/dashboards/library');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -104,7 +101,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -180,12 +177,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -267,12 +259,7 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -303,12 +290,7 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -323,7 +305,7 @@ When(
     cy.getByTestId({ testId: 'DeleteIcon' }).click();
     cy.getByLabel({
       label: 'Delete',
-      tag: 'li'
+      tag: 'button'
     }).realClick();
   }
 );
@@ -343,12 +325,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
   cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -381,7 +358,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
+    cy.contains('Centreon-Server: Packet Loss').should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
@@ -394,3 +371,39 @@ Then('the thresholds are automatically hidden', () => {
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('not.exist');
   cy.getByTestId({ testId: 'critical-line-400-tooltip' }).should('not.exist');
 });
+
+Given('a dashboard with a configured Metrics Graph widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
+  cy.visit('/centreon/home/dashboards/library');
+  cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByLabel({
+    label: 'Edit widget',
+    tag: 'li'
+  }).realClick();
+  cy.wait('@performanceData');
+  cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
+});
+
+When('the dashboard administrator selects more than two metric units', () => {
+  cy.getByTestId({ testId: 'pl' }).realClick();
+  cy.getByTestId({ testId: 'rtmax' }).realClick();
+});
+
+Then(
+  'a message should be displayed indicating that the user can only select a maximum of two metric units',
+  () => {
+    cy.contains('span', 'You can select a maximum of 2 metric units.').should(
+      'exist'
+    );
+    cy.contains(
+      'span',
+      'Thresholds are automatically hidden as soon as you select 2 metric units.'
+    ).should('exist');
+  }
+);

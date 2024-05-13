@@ -51,14 +51,14 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required" : true
+      "required": true
     },
     "metrics": {
       "type": "metrics",
       "defaultValue": []
     }
   },
-  "singleHostPerMetric": true,
+  "singleResourceSelection": true,
   "singleMetricSelection": true,
   "customBaseColor": true,
   "moduleName": "centreon-widget-singlemetric"

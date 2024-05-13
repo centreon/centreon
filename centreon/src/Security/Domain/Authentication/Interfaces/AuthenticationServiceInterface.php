@@ -51,13 +51,6 @@ interface AuthenticationServiceInterface
     public function deleteSession(string $sessionToken): void;
 
     /**
-     * Delete all expired API tokens.
-     *
-     * @throws AuthenticationException
-     */
-    public function deleteExpiredSecurityTokens(): void;
-
-    /**
      * @param AuthenticationTokens $authenticationToken
      *
      * @throws AuthenticationException

@@ -45,7 +45,7 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 
 class CentreonWebserviceServiceTest extends TestCase
 {
-    public function testAdd()
+    public function testAdd(): void
     {
         $service = new CentreonWebserviceService();
         $this->assertInstanceOf(ContainerInterface::class, $service);
@@ -59,7 +59,7 @@ class CentreonWebserviceServiceTest extends TestCase
         $this->assertSame(WebserviceMock::class, $service->get($serviceId));
     }
 
-    public function testAddWithoutInterface()
+    public function testAddWithoutInterface(): void
     {
         $service = new CentreonWebserviceService();
         $this->assertInstanceOf(ContainerInterface::class, $service);
@@ -69,7 +69,7 @@ class CentreonWebserviceServiceTest extends TestCase
         $service->add(\stdClass::class);
     }
 
-    public function testAll()
+    public function testAll(): void
     {
         $service = new CentreonWebserviceService();
         $service->add(WebserviceMock::class);
@@ -82,7 +82,7 @@ class CentreonWebserviceServiceTest extends TestCase
         ], $service->all());
     }
 
-    public function testHas()
+    public function testHas(): void
     {
         $service = new CentreonWebserviceService();
         $service->add(WebserviceMock::class);
@@ -94,7 +94,7 @@ class CentreonWebserviceServiceTest extends TestCase
         $this->assertFalse($service->has('non-exists'));
     }
 
-    public function testGet()
+    public function testGet(): void
     {
         $service = new CentreonWebserviceService();
         $service->add(WebserviceMock::class);
@@ -102,7 +102,7 @@ class CentreonWebserviceServiceTest extends TestCase
         $this->assertEquals(WebserviceMock::class, $service->get(WebserviceMock::getName()));
     }
 
-    public function testGetWithNonExistsId()
+    public function testGetWithNonExistsId(): void
     {
         $service = new CentreonWebserviceService();
 
