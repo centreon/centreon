@@ -93,7 +93,7 @@ const ResponsivePie = ({
       <div
         className={classes.svgWrapper}
         style={{
-          height,
+          minHeight: height,
           width: svgWrapperWidth
         }}
       >
