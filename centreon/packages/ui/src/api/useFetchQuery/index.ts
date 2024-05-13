@@ -68,8 +68,10 @@ const useFetchQuery = <T extends object>({
 
   const isCypressTest = equals(window.Cypress?.testingType, 'component');
 
+  const cacheOptions =
+    !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};
+
   const queryData = useQuery<T | ResponseError, Error>({
-    gcTime: !isCypressTest && useLongCache ? 60 * 1000 : undefined,
     queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
         baseEndpoint,
@@ -81,6 +83,7 @@ const useFetchQuery = <T extends object>({
         signal
       }),
     queryKey: getQueryKey(),
+    ...cacheOptions,
     ...queryOptions
   });
 
