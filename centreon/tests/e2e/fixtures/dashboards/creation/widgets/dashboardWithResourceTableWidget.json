@@ -39,7 +39,6 @@
                    "enabled":true
                 },
                 "name":"Resource table",
-                 
                 "selectedColumnIds":[
                    "status",
                    "resource",
