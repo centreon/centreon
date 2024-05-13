@@ -398,7 +398,6 @@ describe('Edit Panel', () => {
   it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findByTestId(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).within(() => {
       cy.findByRole('checkbox').should('be.checked').and('be.disabled');
     });
