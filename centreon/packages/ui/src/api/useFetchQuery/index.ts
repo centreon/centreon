@@ -32,6 +32,7 @@ export interface UseFetchQueryProps<T> {
     UseQueryOptions<T | ResponseError, Error, T | ResponseError, QueryKey>,
     'queryKey' | 'queryFn'
   >;
+  useLongCache?: boolean;
 }
 
 export type UseFetchQueryState<T> = {
@@ -58,13 +59,15 @@ const useFetchQuery = <T extends object>({
   queryOptions,
   httpCodesBypassErrorSnackbar = [],
   baseEndpoint,
-  doNotCancelCallsOnUnmount = false
+  doNotCancelCallsOnUnmount = false,
+  useLongCache
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useQuery<T | ResponseError, Error>({
+    gcTime: useLongCache ? 60 * 1000 : undefined,
     queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
         baseEndpoint,

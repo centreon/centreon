@@ -61,7 +61,8 @@ const useLoadResources = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   return {
