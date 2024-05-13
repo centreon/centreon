@@ -109,8 +109,8 @@ const CheckBoxSection = ({
       const newArrayStatus = oldStatus
         ? selectedStatusByResourceType.filter(
             (item) =>
-              `${item.id}${item.resourceType}` !==
-              `${oldStatus.id}${oldStatus.resourceType}`
+              !equals(`${item.id}${item.resourceType}`,
+              `${oldStatus.id}${oldStatus.resourceType}`)
           )
         : selectedStatusByResourceType;
 
