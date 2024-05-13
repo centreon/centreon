@@ -141,6 +141,6 @@ class TokenException extends \Exception
 
     public static function notAllowedToPartiallyUpdateToken(): self
     {
-        return new self(_('You are not allowed to partially update token'));
+        return new self(_('You are not allowed to partially update the token'));
     }
 }
