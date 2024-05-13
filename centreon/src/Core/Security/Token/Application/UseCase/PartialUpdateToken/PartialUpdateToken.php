@@ -155,7 +155,7 @@ final class PartialUpdateToken
             [
                 'token_name' => $token->getName(),
                 'user_id' => $token->getUserId(),
-                'is_revoked' => $requestDto->isRevoked
+                'is_revoked' => $requestDto->isRevoked,
             ]
         );
 
