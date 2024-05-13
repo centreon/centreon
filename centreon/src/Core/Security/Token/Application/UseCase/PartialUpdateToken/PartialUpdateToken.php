@@ -44,11 +44,11 @@ final class PartialUpdateToken
     use LoggerTrait;
 
     /**
-    * @param ContactInterface $contact
-    * @param ReadTokenRepositoryInterface $readRepository
-    * @param WriteTokenRepositoryInterface $writeRepository
-    * @param DataStorageEngineInterface $dataStorageEngine
-    */
+     * @param ContactInterface $contact
+     * @param ReadTokenRepositoryInterface $readRepository
+     * @param WriteTokenRepositoryInterface $writeRepository
+     * @param DataStorageEngineInterface $dataStorageEngine
+     */
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly ReadTokenRepositoryInterface $readRepository,
