@@ -747,7 +747,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 
                     /**
                      * The value should be duplicated in vault if it's a password and is already in vault
-                     * The regex /^secret::\\d+::/ define that the value is store in vault.
+                     * The regex /^secret::[^:]*::/ define that the value is store in vault.
                      */
                     if (
                         ! empty($row['host_snmp_community'])
