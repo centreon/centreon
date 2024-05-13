@@ -86,4 +86,4 @@ WHERE vid.dir_name = 'ppm'
 AND vi.img_name = 'Florizarre.png'
 "
 
-sed -i 's@"notification" : 0@"notification": 3@' /usr/share/centreon/config/features.json
+sed -i 's@"notification" : 2@"notification": 3@' /usr/share/centreon/config/features.json
