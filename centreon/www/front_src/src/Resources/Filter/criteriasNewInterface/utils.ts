@@ -42,7 +42,7 @@ export const handleDataByCategoryFilter = ({
     }
 
     const filteredData = item[fieldToUpdate]?.filter(({ id }) =>
-      dataToCheck.some((status) => status === id)
+      dataToCheck.some(equals(id))
     );
 
     return { ...item, [fieldToUpdate]: filteredData };
