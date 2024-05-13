@@ -103,7 +103,12 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
               )}
             >
               {!isInViewport ? (
-                <LoadingSkeleton animation={false} height="100%" width="100%" />
+                <LoadingSkeleton
+                  animation={false}
+                  data-widget-skeleton={id}
+                  height="100%"
+                  width="100%"
+                />
               ) : (
                 children
               )}
