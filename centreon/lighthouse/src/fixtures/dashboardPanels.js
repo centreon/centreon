@@ -54,7 +54,7 @@ export default {
             "content": null,
             "enabled": true
           },
-          "openLinksInNewTab": true
+           
         }
       },
       "widget_type": "/widgets/graph"
@@ -117,7 +117,7 @@ export default {
             "content": null,
             "enabled": true
           },
-          "openLinksInNewTab": true
+           
         }
       },
       "widget_type": "/widgets/singlemetric"
@@ -140,7 +140,7 @@ export default {
             "content": "{\"root\":{\"children\":[{\"children\":[{\"detail\":0,\"format\":0,\"mode\":\"normal\",\"style\":\"\",\"text\":\"Hello world\",\"type\":\"text\",\"version\":1}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"heading\",\"version\":1,\"tag\":\"h2\"}],\"direction\":\"ltr\",\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
             "enabled": true
           },
-          "openLinksInNewTab": true
+           
         }
       },
       "widget_type": "/widgets/generictext"

@@ -40,7 +40,7 @@
                    "enabled":true
                 },
                 "name":"Group Monitoring widget title",
-                "openLinksInNewTab":true,
+                 
                 "limit":10,
                 "page":0
              }

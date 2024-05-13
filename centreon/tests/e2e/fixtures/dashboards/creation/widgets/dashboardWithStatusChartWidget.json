@@ -40,7 +40,7 @@
                    "enabled":true
                 },
                 "name":"New status chart",
-                "openLinksInNewTab":true
+                 
              }
           },
           "widget_type":"/widgets/statuschart"

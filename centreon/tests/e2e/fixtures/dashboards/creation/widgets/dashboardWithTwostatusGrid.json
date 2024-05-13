@@ -41,7 +41,7 @@
                   "enabled": true
                },
                "name": "Title For status grid",
-               "openLinksInNewTab": true
+                
             }
          },
          "widget_type": "/widgets/statusgrid"
@@ -87,7 +87,7 @@
                   "enabled": true
                },
                "name": "Title For status grid",
-               "openLinksInNewTab": true
+                
             }
          },
          "widget_type": "/widgets/statusgrid"
