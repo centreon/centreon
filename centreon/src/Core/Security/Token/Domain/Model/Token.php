@@ -52,7 +52,7 @@ class Token
         private readonly TrimmedString $creatorName,
         private readonly \DateTimeInterface $creationDate,
         private readonly \DateTimeInterface $expirationDate,
-        private readonly bool $isRevoked = false,
+        private bool $isRevoked = false,
     ) {
         Assertion::notEmptyString((string) $name, 'Token::name');
         Assertion::maxLength((string) $name, self::MAX_TOKEN_NAME_LENGTH, 'Token::name');
@@ -105,5 +105,12 @@ class Token
     public function isRevoked(): bool
     {
         return $this->isRevoked;
+    }
+
+    public function setIsRevoked(bool $isRevoked): self
+    {
+        $this->isRevoked = $isRevoked;
+
+        return $this;
     }
 }
