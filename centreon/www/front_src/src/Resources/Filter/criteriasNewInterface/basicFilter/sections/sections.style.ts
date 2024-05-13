@@ -12,5 +12,8 @@ export const useStyles = makeStyles()((theme) => ({
   divider: {
     borderStyle: 'dashed',
     margin: theme.spacing(2, 0)
+  },
+  input: {
+    maxWidth: theme.spacing(40)
   }
 }));

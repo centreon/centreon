@@ -194,12 +194,14 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
 
         {open && (
           <>
-            <Divider
-              flexItem
-              className={classes.bridge}
-              orientation="vertical"
-              variant="middle"
-            />
+            <div className={classes.containerDivider}>
+              <Divider
+                flexItem
+                className={classes.bridge}
+                orientation="vertical"
+                variant="middle"
+              />
+            </div>
             <ExtendedFilter
               changeCriteria={changeCriteria}
               data={extendedData}

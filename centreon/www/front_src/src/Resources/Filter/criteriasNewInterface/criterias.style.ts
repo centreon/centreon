@@ -2,7 +2,10 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   bridge: {
-    borderStyle: 'dashed',
+    borderStyle: 'dashed'
+  },
+  containerDivider: {
+    display: 'flex',
     margin: theme.spacing(0, 2)
   },
   containerFilter: {
@@ -22,15 +25,14 @@ export const useStyles = makeStyles()((theme) => ({
   extended: {
     display: 'flex',
     flexDirection: 'row',
-    width: theme.spacing(80)
+    width: theme.spacing(84)
   },
   footer: {
-    borderStyle: 'dashed',
-    margin: theme.spacing(1, 0, 0, 0)
+    borderStyle: 'dashed'
   },
   inputInformation: {
     backgroundColor: theme.palette.background.default,
-    minWidth: theme.spacing(38)
+    minWidth: theme.spacing(40)
   },
   moreFiltersButton: {
     alignSelf: 'flex-end',

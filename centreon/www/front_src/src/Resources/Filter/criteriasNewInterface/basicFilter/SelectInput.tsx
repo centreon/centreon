@@ -11,6 +11,7 @@ import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
 
 import useSectionsData from './sections/useSections';
+import { useStyles } from './sections/sections.style';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
@@ -31,6 +32,7 @@ const SelectInput = ({
   changeCriteria,
   isDeactivated
 }: Props & DeactivateProps): JSX.Element | null => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName } = useInputData({
@@ -153,6 +155,7 @@ const SelectInput = ({
       chipProps={{
         onDelete
       }}
+      className={classes.input}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}

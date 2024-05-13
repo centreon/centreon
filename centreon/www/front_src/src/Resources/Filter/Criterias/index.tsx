@@ -143,7 +143,7 @@ const CriteriasContent = ({
         dataTestId={labelSearchOptions}
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-start"
+        popperPlacement="bottom-end"
         title={t(labelSearchOptions) as string}
         onClose={onClose}
         onOpen={open}
