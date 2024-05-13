@@ -4,7 +4,7 @@
 		"name": "Notifications",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-70afadf4-2394-42c8-bc83-092dde17f688?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-70afadf4-2394-42c8-bc83-092dde17f688?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -89,7 +89,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "bffe1996-b6cf-47b0-af8f-bc43bdee1a8b"
+								"uuid": "4a2f1632-e902-4e6b-bc74-090bc91ebb0f"
 							}
 						],
 						"body": {
@@ -140,7 +140,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "937fcd96-71ef-4e8f-9310-88622a042cd8"
+								"uuid": "1c2425f7-ed58-4058-bb02-c12e8852a70b"
 							}
 						],
 						"body": {
@@ -191,7 +191,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "12307711-9def-4c69-9882-07056a683f0f"
+								"uuid": "6c7bdaf2-9b85-4c09-b45a-fdc6beecae8a"
 							}
 						],
 						"body": {
@@ -242,7 +242,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "6cdd816b-8275-44bd-b511-2b14af084e07"
+								"uuid": "163c2eeb-5852-4aeb-bd1d-9e472112a2b3"
 							}
 						],
 						"body": {
@@ -293,7 +293,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "ff4b1a43-08a3-4661-b143-0df1e60e2eea"
+								"uuid": "d266feb5-b44e-48a7-b4d3-c1b85602fce0"
 							}
 						],
 						"body": {
@@ -344,7 +344,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "900db173-46ce-42ed-a19e-d5c533380d20"
+								"uuid": "7c281e7c-efc1-4630-9626-e3c692033edc"
 							}
 						],
 						"body": {
@@ -395,7 +395,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "feb42772-6786-480a-8744-071d00388b56"
+								"uuid": "57380425-6728-4491-8197-589e6c30a676"
 							}
 						],
 						"body": {
@@ -446,7 +446,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "d47a49e0-8747-4560-a5e7-e4f0e9d57af8"
+								"uuid": "c28482ad-d36b-44b9-af3d-710433603e94"
 							}
 						],
 						"body": {
@@ -497,7 +497,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "179ceaa0-1e85-4cb4-8786-0960d23d5402"
+								"uuid": "4967f0a8-49b0-49f5-87fd-dc7d7e639531"
 							}
 						],
 						"body": {
@@ -554,7 +554,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "dc7ffbb7-ddac-4c68-b0be-b015deacddf1"
+								"uuid": "883c5a62-ad5b-4afd-9ddb-8d6e9049c014"
 							}
 						],
 						"body": {
@@ -605,7 +605,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "33c04089-6ae8-4d2f-8650-b25559f510a2"
+								"uuid": "1deb1537-60a1-475f-af97-563c1abe1010"
 							}
 						],
 						"body": {
@@ -656,7 +656,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "af8d1ff1-27d8-44a5-a8f7-240c7a9e8a62"
+								"uuid": "05132bc8-6a7e-40d9-a97f-9fea0512e365"
 							}
 						],
 						"body": {
@@ -707,7 +707,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "ca96ee41-fe9d-4450-bb2f-24743883aa22"
+								"uuid": "5707fd5c-f128-4b2b-af4e-9274ca23aee3"
 							}
 						],
 						"body": {
@@ -758,7 +758,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "485c85e1-f4b3-4b97-aace-c4dbc848ed3a"
+								"uuid": "25791b2b-10f3-4cd0-af85-89565083beff"
 							}
 						],
 						"body": {
@@ -809,7 +809,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "bf4895cc-9c14-4f1f-b588-d5c58ebd5bda"
+								"uuid": "b7540b73-7ee5-45ff-9a2d-7e7a2b980f25"
 							}
 						],
 						"body": {
@@ -860,7 +860,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "6c7a6958-3aa9-4350-a241-9d97e280f4c2"
+								"uuid": "509b6849-320c-4d80-94f6-9afb5144f642"
 							}
 						],
 						"body": {
@@ -911,7 +911,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "d4ef29de-bbf5-428f-931a-4b78278576ff"
+								"uuid": "80b72885-9c37-4ac2-88a3-b480876dbdfd"
 							}
 						],
 						"body": {
@@ -968,7 +968,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "9c3e78ca-0e0b-4431-9583-eacc255c01b3"
+								"uuid": "ed704b9e-cc2f-4bc7-9e45-214bb975e8f3"
 							}
 						],
 						"body": {
@@ -1019,7 +1019,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "fd7e02d3-8c3d-4173-a8a1-ee1cb6543fbd"
+								"uuid": "48582feb-4e65-455b-8fd6-a5e35e7601e0"
 							}
 						],
 						"body": {
@@ -1070,7 +1070,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "4d798081-4278-441e-9ade-94071501bca4"
+								"uuid": "07df7e43-7edf-4f09-8b35-81d58062ecb1"
 							}
 						],
 						"body": {
@@ -1121,7 +1121,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "fe9249c4-4fc3-4b9d-ae7a-d2a097a7d92f"
+								"uuid": "bba039b3-a01e-4eb7-aa83-72207b197978"
 							}
 						],
 						"body": {
@@ -1172,7 +1172,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "10401204-fec8-4833-8548-59dee52e1bf7"
+								"uuid": "0bff908e-737f-464e-a6bd-bd05a36c47dc"
 							}
 						],
 						"body": {
@@ -1223,7 +1223,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "73cea53a-1d4a-4121-8fb8-29b39849d649"
+								"uuid": "ca7aff05-8227-4e29-836f-1bb377d57955"
 							}
 						],
 						"body": {
@@ -1274,7 +1274,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "d18070de-725a-462a-b98d-e970e86b9f34"
+								"uuid": "a04c4f74-558e-4ab6-87d4-c0aafb19f505"
 							}
 						],
 						"body": {
@@ -1325,7 +1325,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "6f0ecc86-9b57-4b44-86a5-6da8870c87a6"
+								"uuid": "127dfdec-8e3c-4485-8d38-004ce588c2c4"
 							}
 						],
 						"body": {
@@ -1431,7 +1431,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "c7d5c48f-757e-49a8-9c0d-2a6247d7fe2d"
+								"uuid": "354cfddc-09db-4c70-8f8c-2cf78fcaed08"
 							}
 						],
 						"body": {
@@ -1484,7 +1484,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "7882802e-215d-4f01-9834-923befaca6f7"
+								"uuid": "386999e3-c1f1-4b13-b6cb-876740909fb9"
 							}
 						],
 						"body": {
@@ -1546,7 +1546,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "b727f832-bd02-4316-89fc-fb2ea8446dec"
+								"uuid": "a09bc14d-e8b1-4f87-9d11-55809ac0dfa3"
 							}
 						],
 						"body": {
@@ -1599,7 +1599,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "3c1a8baf-bb8b-46ec-b83a-78e8ab0a568b"
+								"uuid": "e42dbaa7-f16f-46d4-aad4-0a68351932d8"
 							}
 						],
 						"body": {
@@ -1652,7 +1652,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "9598f1c0-081b-4f15-a329-5ea251274517"
+								"uuid": "883fbebf-babd-4a56-b027-3243d438ab63"
 							}
 						],
 						"body": {
@@ -1705,7 +1705,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "4fde645b-5191-48b9-bb2e-1af6ba344b72"
+								"uuid": "8bf8f5e9-6039-42b8-90f7-d66fe0462d56"
 							}
 						],
 						"body": {
@@ -1758,7 +1758,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "5cb66c40-ba84-489e-8848-5d2c4e796e06"
+								"uuid": "f226fc55-e78e-471a-bf2e-6d54660985cf"
 							}
 						],
 						"body": {
@@ -1820,7 +1820,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"uuid": "71de79a3-4005-4ad6-baaf-cfb9d72a781f"
+								"uuid": "149b7432-e4de-47b6-9fa8-697842f77e92"
 							}
 						],
 						"body": {
@@ -3717,7 +3717,7 @@
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
 								"type": "text",
-								"uuid": "511be8dd-0dab-4532-92e6-449b559ed84a"
+								"uuid": "b25064e0-0f01-455d-8141-2f58a23c68e9"
 							}
 						],
 						"body": {
@@ -3794,25 +3794,25 @@
 									"key": "protocol",
 									"value": "{{protocol}}",
 									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "d258910a-7e8f-4c9a-b4d8-3c96749b3fb9"
+									"uuid": "75014d0a-1970-428c-90cb-37faf7740e03"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
 									"description": "IP address or hostname of Centreon server",
-									"uuid": "0797d268-de92-41ad-a000-717936a3ffd5"
+									"uuid": "81d170a9-c81e-4896-9e19-1ab6a3af8b16"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
 									"description": "Port used by HTTP server",
-									"uuid": "0d14f7bf-3caa-46e7-9a93-b97ccd66da19"
+									"uuid": "06571fe3-eed7-4e14-8b57-ee5412bd65e9"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
 									"description": "Version of the API",
-									"uuid": "195e6a53-6cf9-4728-89a4-a709e4a2c918"
+									"uuid": "c04fea43-f614-4028-9882-fb57fb658e9e"
 								}
 							]
 						},
@@ -4568,25 +4568,25 @@
 									"key": "protocol",
 									"value": "{{protocol}}",
 									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "3b545c96-e2bc-40a8-a9b6-7e5cb4a9b6c5"
+									"uuid": "57da3091-4788-4b50-9087-15fb3ffe198e"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
 									"description": "IP address or hostname of Centreon server",
-									"uuid": "7c98b525-554d-4527-b2a5-ed94b57d1059"
+									"uuid": "40bc7367-533e-4013-8932-8da834caf85a"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
 									"description": "Port used by HTTP server",
-									"uuid": "4af8fd46-d0c3-4b13-8806-33a6d78c9a3b"
+									"uuid": "fff9cec8-4166-4fa7-903c-6475b597c187"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
 									"description": "Version of the API",
-									"uuid": "1a888f69-d9fa-4dd4-9bc4-2c7f9c131728"
+									"uuid": "81f8bd54-c57e-4be7-8acf-97b703c3026c"
 								}
 							]
 						},
@@ -5152,25 +5152,25 @@
 									"key": "protocol",
 									"value": "{{protocol}}",
 									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "f43a04dc-d24d-44b8-b2db-e5c3c6c39b63"
+									"uuid": "fe52e34f-6be6-4c18-9ac9-d8909eb071f4"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
 									"description": "IP address or hostname of Centreon server",
-									"uuid": "e80ae713-a518-4708-944a-981c03c3c9a1"
+									"uuid": "38260288-912e-4881-bb66-354c4a1f84e0"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
 									"description": "Port used by HTTP server",
-									"uuid": "a1f8235e-1be2-4016-b68f-04d1e5491e18"
+									"uuid": "0f623a65-7e41-43a1-affe-db5b49c39f53"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
 									"description": "Version of the API",
-									"uuid": "226a7a1c-00b0-4c7f-91f8-6fcf3f82c0e6"
+									"uuid": "8eda9eda-1b6a-410c-97d4-749abaac1c41"
 								}
 							]
 						},
@@ -5565,6 +5565,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The notification rule has not been deleted, because the user does not have sufficient rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
@@ -5654,25 +5655,25 @@
 									"key": "protocol",
 									"value": "{{protocol}}",
 									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "3662e6f4-99b6-4654-990f-df42401fc90a"
+									"uuid": "5bd21239-dd93-47b9-b56c-beda36bf0fd9"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
 									"description": "IP address or hostname of Centreon server",
-									"uuid": "ee6845a6-c96d-447c-b6c0-34d716310da1"
+									"uuid": "4d72931c-7d29-4d46-9eb6-0d575af1687c"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
 									"description": "Port used by HTTP server",
-									"uuid": "543e400b-7191-4133-8db7-e7bb46a5f0bb"
+									"uuid": "8a847ca2-173f-4770-9363-8042fa801543"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
 									"description": "Version of the API",
-									"uuid": "28ac66df-1c5c-4c2e-8555-09b561eb11ff"
+									"uuid": "050b7fad-8589-4902-8d4e-8ccd86e7ad03"
 								}
 							]
 						},
@@ -5752,6 +5753,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The notifications have not been successfully deleted.\", function () {\r",
 									"    pm.response.to.have.status(207);\r",
 									"\r",
@@ -5853,25 +5855,25 @@
 									"key": "protocol",
 									"value": "{{protocol}}",
 									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "2a4e254c-b32d-4ea1-b90c-c6a053890e35"
+									"uuid": "19e4f2dd-ad75-4892-952d-e642c021836f"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
 									"description": "IP address or hostname of Centreon server",
-									"uuid": "419ae63f-fedf-4efe-a217-61e33da5ba3e"
+									"uuid": "1bbd7822-c715-452f-a507-8878ce265504"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
 									"description": "Port used by HTTP server",
-									"uuid": "fba7f711-2ad1-490e-a7d0-f91a85d867d7"
+									"uuid": "bcb25b36-6a8f-409e-898b-ad448363334c"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
 									"description": "Version of the API",
-									"uuid": "0e7fd22e-968b-441e-b782-87605d266ad3"
+									"uuid": "2be632af-8cd1-4469-b98f-daf73a286652"
 								}
 							]
 						},
