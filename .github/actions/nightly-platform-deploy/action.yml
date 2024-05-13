@@ -13,7 +13,7 @@ inputs:
   poller_number:
     description: "Instance poller number"
     required: true
-  system_name:
+  instance_features:
     description: "Operating System name"
     required: true
   centreon_branch:
