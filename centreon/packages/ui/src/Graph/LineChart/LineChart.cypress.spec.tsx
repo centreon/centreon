@@ -3,6 +3,7 @@ import { LineChartData } from '../common/models';
 import dataLastDay from './mockedData/lastDay.json';
 import dataLastDayWithNullValues from './mockedData/lastDayWithNullValues.json';
 import dataLastDayWithIncompleteValues from './mockedData/lastDayWithIncompleteValues.json';
+import dataCurvesWithSameColor from './mockedData/curvesWithSameColor.json';
 import { args as argumentsData } from './helpers/doc';
 
 import WrapperLineChart from '.';
@@ -87,5 +88,57 @@ describe('Line chart', () => {
 
       cy.makeSnapshot();
     });
+  });
+
+  it('displays the curves with different shades when curves have same color', () => {
+    initialize(dataCurvesWithSameColor);
+
+    cy.findByLabelText('Centreon-Server: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(41, 175, 238)');
+    cy.findByLabelText('Centreon-Server_5: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(83, 191, 241)');
+    cy.findByLabelText('Centreon-Server_4: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(8, 34, 47)');
+    cy.findByLabelText('Centreon-Server_3: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(16, 70, 95)');
+    cy.findByLabelText('Centreon-Server_2: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(24, 105, 142)');
+    cy.findByLabelText('Centreon-Server_1: Round-Trip Average Time')
+      .find('[data-icon="true"]')
+      .should('have.css', 'background-color', 'rgb(32, 140, 190)');
+
+    cy.get('[data-metric="1"]').should(
+      'have.attr',
+      'stroke',
+      'rgb(41, 175, 238)'
+    );
+    cy.get('[data-metric="21"]').should(
+      'have.attr',
+      'stroke',
+      'rgb(32, 140, 190)'
+    );
+    cy.get('[data-metric="17"]').should(
+      'have.attr',
+      'stroke',
+      'rgb(24, 105, 142)'
+    );
+    cy.get('[data-metric="13"]').should(
+      'have.attr',
+      'stroke',
+      'rgb(16, 70, 95)'
+    );
+    cy.get('[data-metric="9"]').should('have.attr', 'stroke', 'rgb(8, 34, 47)');
+    cy.get('[data-metric="5"]').should(
+      'have.attr',
+      'stroke',
+      'rgb(83, 191, 241)'
+    );
+
+    cy.makeSnapshot();
   });
 });
