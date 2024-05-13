@@ -8,7 +8,7 @@ import {
   UseQueryOptions
 } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
-import { has, includes, isNil, not, omit } from 'ramda';
+import { equals, has, includes, isNil, not, omit } from 'ramda';
 
 import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
@@ -66,8 +66,10 @@ const useFetchQuery = <T extends object>({
 
   const { showErrorMessage } = useSnackbar();
 
+  const isCypressTest = equals(window.Cypress?.testingType, 'component');
+
   const queryData = useQuery<T | ResponseError, Error>({
-    gcTime: useLongCache ? 60 * 1000 : undefined,
+    gcTime: !isCypressTest && useLongCache ? 60 * 1000 : undefined,
     queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
         baseEndpoint,
