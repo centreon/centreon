@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 
 import { ResourceType } from '../../../../models';
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
@@ -20,7 +20,9 @@ const useSynchronizeSearchBarWithCheckBoxInterface = ({
   resourceType
 }: Parameters): void => {
   useEffect(() => {
-    const initialValue = data.find((item) => equals(item.name, filterName))?.value;
+    const initialValue = data.find((item) =>
+      equals(item.name, filterName)
+    )?.value;
 
     if (isEmpty(initialValue) || isNil(initialValue)) {
       return () => undefined;

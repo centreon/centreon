@@ -1,4 +1,4 @@
-import { compose, pick, prop, sortBy, toLower, uniqBy } from 'ramda';
+import { compose, equals, pick, prop, sortBy, toLower, uniqBy } from 'ramda';
 
 import { ResourceType } from '../../models';
 import {
