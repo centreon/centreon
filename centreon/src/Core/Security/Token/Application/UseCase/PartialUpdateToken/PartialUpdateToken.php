@@ -61,13 +61,13 @@ final class PartialUpdateToken
      * @param PartialUpdateTokenRequest $requestDto
      * @param PresenterInterface $presenter
      * @param string $tokenName
-     * @param int|null $userId
+     * @param int $userId
      */
     public function __invoke(
         PartialUpdateTokenRequest $requestDto,
         PresenterInterface $presenter,
         string $tokenName,
-        ?int $userId
+        int $userId
     ): void {
         try {
             if ($this->contactCanExecuteUseCase()) {
@@ -100,7 +100,7 @@ final class PartialUpdateToken
     /**
      * @param PartialUpdateTokenRequest $requestDto
      * @param string $tokenName
-     * @param int|null $userId
+     * @param int $userId
      *
      * @throws \Throwable
      *
@@ -109,7 +109,7 @@ final class PartialUpdateToken
     private function partiallyUpdateToken(
         PartialUpdateTokenRequest $requestDto,
         string $tokenName,
-         ?int $userId
+        int $userId
     ): ResponseStatusInterface {
         $token = $this->readRepository->findByNameAndUserId($tokenName, $userId);
         if ($token === null) {

@@ -33,6 +33,7 @@ use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateToke
 use Core\Security\Token\Application\UseCase\PartialUpdateToken\PartialUpdateTokenRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class PartialUpdateTokenController extends AbstractController
 {
@@ -43,7 +44,7 @@ final class PartialUpdateTokenController extends AbstractController
      * @param DefaultPresenter $presenter
      * @param PartialUpdateToken $useCase
      * @param string $tokenName
-     * @param int|null $userId
+     * @param int $userId
      *
      * @throws AccessDeniedException
      *
@@ -54,14 +55,14 @@ final class PartialUpdateTokenController extends AbstractController
         DefaultPresenter $presenter,
         PartialUpdateToken $useCase,
         string $tokenName,
-        ?int $userId = null
+        int $userId
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
             /**
              * @var array{
-             *     is_enabled?: bool
+             *     is_revoked?: bool
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateTokenSchema.json');
