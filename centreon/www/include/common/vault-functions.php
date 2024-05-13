@@ -372,7 +372,8 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
                 LEFT JOIN on_demand_macro_service as odms
                     ON odms.svc_svc_id = hsr.service_service_id
                 WHERE (h.host_snmp_community LIKE :vaultPath
-                    OR odmh.host_macro_value LIKE :vaultPath)
+                    OR odmh.host_macro_value LIKE :vaultPath
+                    OR odms.svc_macro_value LIKE :vaultPath)
                     AND h.host_id IN ( $bindString );
         SQL
     );
@@ -383,15 +384,17 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
     $statement->execute();
     $uuids = [];
     while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        if ($result['host_snmp_community']) {
+        if (preg_match("/^" . $vaultPath ."/", $result['host_snmp_community'])) {
             $vaultPathPart = explode("/", $result['host_snmp_community']);
-        } elseif ($result['host_macro_value']) {
+        } elseif (preg_match("/^" . $vaultPath ."/", $result['host_macro_value'])) {
             $vaultPathPart = explode("/", $result['host_macro_value']);
         }
-        $uuids['host'][] = end($vaultPathPart);
+        if (isset($vaultPathPart)) {
+            $uuids['host'][] = end($vaultPathPart);
+        }
 
         //Add UUID of services linked to host
-        if ($result['svc_macro_value']) {
+        if (preg_match("/^" . $vaultPath ."/", $result['svc_macro_value'])) {
             $vaultPathPart = explode("/", $result['svc_macro_value']);
             $uuids['service'][] = end($vaultPathPart);
         }
@@ -552,7 +555,8 @@ function updateHostSecretsInVaultFromMC(
     UUIDGeneratorInterface $uuidGenerator,
     ?string $uuid,
     int $hostId,
-    array $macros
+    array $macros,
+    ?string $snmpCommunity
 ): void {
     global $pearDB;
 
@@ -571,7 +575,7 @@ function updateHostSecretsInVaultFromMC(
     }
     $macroPasswordIds = getIdOfUpdatedPasswordMacros($macros);
     $updateHostPayload = prepareHostUpdateMCPayload(
-        $bindParams[':host_snmp_community'][\PDO::PARAM_STR] ?? null,
+        $snmpCommunity,
         $macros,
         $hostSecretsFromVault
     );

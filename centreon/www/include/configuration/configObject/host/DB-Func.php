@@ -1988,7 +1988,8 @@ function updateHost_MC($hostId = null)
                 $uuidGenerator,
                 $uuid,
                 $hostId,
-                $hostObj->getFormattedMacros()
+                $hostObj->getFormattedMacros(),
+                $submittedValues['host_snmp_community']
             );
         } catch (\Throwable $ex) {
             error_log((string) $ex);
