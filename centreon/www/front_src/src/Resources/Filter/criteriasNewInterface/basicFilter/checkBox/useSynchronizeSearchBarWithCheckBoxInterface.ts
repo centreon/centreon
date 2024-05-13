@@ -20,7 +20,7 @@ const useSynchronizeSearchBarWithCheckBoxInterface = ({
   resourceType
 }: Parameters): void => {
   useEffect(() => {
-    const initialValue = data.find((item) => item.name === filterName)?.value;
+    const initialValue = data.find((item) => equals(item.name, filterName))?.value;
 
     if (isEmpty(initialValue) || isNil(initialValue)) {
       return () => undefined;
