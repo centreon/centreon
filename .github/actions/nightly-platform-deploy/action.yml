@@ -13,7 +13,7 @@ inputs:
   poller_number:
     description: "Instance poller number"
     required: true
-  system_name:
+  instance_features:
     description: "Operating System name"
     required: true
   centreon_branch:
@@ -66,5 +66,5 @@ runs:
             -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
-            -d '{"ref": "main", "inputs":{"bu":"${{ inputs.bu }}", "deployment_profile":"Standard profile", "poller_number":"${{ inputs.poller_number }}", "system_name":"${{ inputs.system_name }}", "centreon_branch":"${{ inputs.centreon_branch }}", "custom_centreon_web_admin_password":"${{ inputs.instance_password }}", "configured_resources":"${{ inputs.configured_resources }}", "install_business_modules":"${{ inputs.install_business_modules }}" }}'
+            -d '{"ref": "main", "inputs":{"bu":"${{ inputs.bu }}", "deployment_profile":"Standard profile", "poller_number":"${{ inputs.poller_number }}", "instance_features":"${{ inputs.instance_features }}", "centreon_branch":"${{ inputs.centreon_branch }}", "custom_centreon_web_admin_password":"${{ inputs.instance_password }}", "configured_resources":"${{ inputs.configured_resources }}", "install_business_modules":"${{ inputs.install_business_modules }}" }}'
       shell: bash
