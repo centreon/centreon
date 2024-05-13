@@ -46,7 +46,7 @@ const PanelsLayout = ({
       {panels.map(
         ({ i, panelConfiguration, refreshCount, data, name, options }) => (
           <DashboardLayout.Item
-            additionalMemoProps={[dashboardId]}
+            additionalMemoProps={[dashboardId, panelConfiguration.path]}
             canMove={
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
