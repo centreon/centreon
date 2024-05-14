@@ -1,6 +1,5 @@
 import { MutableRefObject, useRef } from 'react';
 
-import { Curve } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
