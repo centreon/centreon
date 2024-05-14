@@ -13,11 +13,12 @@ export interface FederatedModule {
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;
+  preloadScript?: string;
   remoteEntry: string;
   remoteUrl?: string;
 }
 
-interface PageComponent {
+export interface PageComponent {
   children?: string;
   component: string;
   featureFlag?: string;
@@ -88,7 +89,7 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
-  singleHostPerMetric?: boolean;
   singleMetricSelection?: boolean;
+  singleResourceSelection?: boolean;
   title: string;
 }

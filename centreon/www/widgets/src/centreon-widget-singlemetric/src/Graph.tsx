@@ -1,25 +1,30 @@
 import { equals, isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import {
   ContentWithCircularLoading,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import useThresholds from '../../useThresholds';
 import { Resource, GlobalRefreshInterval, Metric } from '../../models';
 import NoResources from '../../NoResources';
-import { areResourcesFullfilled } from '../../utils';
+import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
 import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
+  dashboardId: number | string;
   displayType: SingleMetricGraphType;
   globalRefreshInterval: GlobalRefreshInterval;
+  id: string;
   isFromPreview;
   metrics: Array<Metric>;
+  playlistHash?: string;
   refreshCount: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
@@ -38,8 +43,12 @@ const Graph = ({
   valueFormat,
   refreshCount,
   resources,
-  isFromPreview
+  isFromPreview,
+  playlistHash,
+  dashboardId,
+  id
 }: Props): JSX.Element => {
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
@@ -49,9 +58,18 @@ const Graph = ({
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
+  const baseEndpoint = getWidgetEndpoint({
+    dashboardId,
+    defaultEndpoint: graphEndpoint,
+    isOnPublicPage,
+    playlistHash,
+    widgetId: id
+  });
+
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
-    baseEndpoint: graphEndpoint,
+    baseEndpoint,
     bypassMetricsExclusion: true,
+    bypassQueryParams: isOnPublicPage,
     metrics,
     refreshCount,
     refreshInterval: refreshIntervalToUse,

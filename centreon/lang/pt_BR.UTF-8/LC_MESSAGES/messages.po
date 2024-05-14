@@ -16730,7 +16730,7 @@ msgstr ""
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -17060,7 +17060,7 @@ msgstr ""
 # msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -17369,9 +17369,6 @@ msgstr ""
 # msgid "Percentage"
 # msgstr ""
 
-# msgid "Display resources with this type"
-# msgstr ""
-
 # msgid  "Horizontal bar chart"
 # msgstr ""
 
@@ -17560,3 +17557,102 @@ msgstr ""
 
 #  msgid "An error occurred while deleting the file '%s'"
 #  msgstr ""
+
+# msgid "Until"
+# msgstr ""
+
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""
+
+# msgid "Business Activity Diagram"
+# msgstr ""
+
+# msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+# msgstr ""
+
+# msgid "Display the diagram with this status"
+# msgstr ""
+
+# msgid "Problem (Critical)"
+# msgstr ""
+
+# msgid "Warning"
+# msgstr ""
+
+# msgid "Success (OK)"
+# msgstr ""
+
+# msgid "Link types"
+# msgstr ""
+
+# msgid "Curve"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Step"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "All hosts selected"
+# msgstr ""
+
+# msgid "All host groups selected"
+# msgstr ""
+
+# msgid "All service groups selected"
+# msgstr ""
+
+# msgid "All hosts"
+# msgstr ""
+
+# msgid "All host groups"
+# msgstr ""
+
+# msgid "All service groups"
+# msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""

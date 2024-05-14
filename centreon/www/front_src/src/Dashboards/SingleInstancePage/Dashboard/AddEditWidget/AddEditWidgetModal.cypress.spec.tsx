@@ -20,11 +20,9 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,

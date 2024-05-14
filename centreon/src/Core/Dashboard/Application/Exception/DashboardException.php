@@ -132,34 +132,6 @@ class DashboardException extends \Exception
     }
 
     /**
-     * @return self
-     */
-    public static function errorWhileRetrievingJustCreatedShare(): self
-    {
-        return new self(_('Error while retrieving the new dashboard share'));
-    }
-
-    /**
-     * @param int $contactGroupId
-     *
-     * @return self
-     */
-    public static function theContactGroupDoesNotExist(int $contactGroupId): self
-    {
-        return new self(sprintf(_("The contact group id #%d doesn't exist"), $contactGroupId));
-    }
-
-    /**
-     * @param int $contactId
-     *
-     * @return self
-     */
-    public static function theContactDoesNotExist(int $contactId): self
-    {
-        return new self(sprintf(_('The contact ID #%d does not exist'), $contactId));
-    }
-
-    /**
      * @param int $dashboardId
      *
      * @return self

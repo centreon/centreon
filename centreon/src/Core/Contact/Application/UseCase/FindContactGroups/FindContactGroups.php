@@ -29,18 +29,25 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class FindContactGroups
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
      * @param ReadContactGroupRepositoryInterface $repository
      * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
-        private ReadContactGroupRepositoryInterface $repository,
-        private ContactInterface $user
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ReadContactGroupRepositoryInterface $repository,
+        private readonly ContactInterface $user,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -50,23 +57,22 @@ class FindContactGroups
     public function __invoke(FindContactGroupsPresenterInterface $presenter): void
     {
         try {
-            if ($this->user->isAdmin()) {
+            $this->info('Find contact groups', ['user' => $this->user->getName()]);
+            if ($this->isUserAdmin()) {
                 $contactGroups = $this->repository->findAll();
-            } else {
-                if (
-                    ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ)
-                    && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE)
-                ) {
-                    $this->error('User doesn\'t have sufficient right to see contact groups', [
-                        'user_id' => $this->user->getId(),
-                    ]);
-                    $presenter->setResponseStatus(
-                        new ForbiddenResponse('You are not allowed to access contact groups')
-                    );
-
-                    return;
-                }
+                $presenter->present(new FindContactGroupsResponse($contactGroups));
+            } elseif ($this->contactCanExecuteThisUseCase()) {
                 $contactGroups = $this->repository->findAllByUserId($this->user->getId());
+                $presenter->present(new FindContactGroupsResponse($contactGroups));
+            } else {
+                $this->error('User doesn\'t have sufficient right to see contact groups', [
+                    'user_id' => $this->user->getId(),
+                ]);
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse('You are not allowed to access contact groups')
+                );
+
+                return;
             }
         } catch (\Throwable $ex) {
             $this->error(
@@ -79,7 +85,36 @@ class FindContactGroups
 
             return;
         }
+    }
 
-        $presenter->present(new FindContactGroupsResponse($contactGroups));
+    /**
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->user->isAdmin()) {
+            return true;
+        }
+
+        // this is only true on Cloud context
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform === true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function contactCanExecuteThisUseCase(): bool
+    {
+        // The use case can be executed onPrem is user has access to the pages.
+        // On Cloud context user does not have access to those pages so he can execute the use case in any case.
+        return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ)
+            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_READ_WRITE)
+            || $this->isCloudPlatform === true;
     }
 }

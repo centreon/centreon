@@ -92,7 +92,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {header}
       <div className={classes.resourceComposition}>
         {widgetProperties?.singleMetricSelection &&
-        widgetProperties?.singleHostPerMetric ? (
+        widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
             className={classes.resources}
             disabled={

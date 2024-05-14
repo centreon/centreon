@@ -1,4 +1,5 @@
 name: gherkin-lint
+description: Gherkin linter
 
 inputs:
   features_path:

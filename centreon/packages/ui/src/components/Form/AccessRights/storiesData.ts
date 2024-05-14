@@ -105,9 +105,6 @@ export const buildResult = (isGroup): Listing<SelectEntry> => ({
 export const labels: Labels = {
   actions: {
     cancel: 'Cancel',
-    copyError: 'Failed to copy',
-    copyLink: 'Copy link',
-    copySuccess: 'Copied',
     save: 'Save'
   },
   add: {

@@ -43,6 +43,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 final class FindPerformanceMetricsData
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ContactInterface $user,
@@ -50,7 +51,8 @@ final class FindPerformanceMetricsData
         private readonly MetricRepositoryInterface $metricRepositoryLegacy,
         private readonly ReadMetricRepositoryInterface $metricRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly DashboardRights $rights
+        private readonly DashboardRights $rights,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -59,21 +61,14 @@ final class FindPerformanceMetricsData
         FindPerformanceMetricsDataRequest $request
     ): void {
         try {
-            if (! $this->rights->canAccess()) {
-                $presenter->presentResponse(new ForbiddenResponse(
-                    DashboardException::accessNotAllowed()->getMessage()
-                ));
-
-                return;
-            }
-            if ($this->user->IsAdmin()) {
+            if ($this->isUserAdmin()) {
                 $this->info('Retrieving metrics data for admin user', [
                     'user_id' => $this->user->getId(),
                     'metric_names' => implode(', ', $request->metricNames),
                 ]);
 
                 $performanceMetricsData = $this->findPerformanceMetricsDataAsAdmin($request);
-            } else {
+            } elseif ($this->rights->canAccess()) {
                 $this->info('Retrieving metrics data for non admin user', [
                     'user_id' => $this->user->getId(),
                     'metric_names' => implode(', ', $request->metricNames),
@@ -81,6 +76,12 @@ final class FindPerformanceMetricsData
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
                 $performanceMetricsData = $this->findPerformanceMetricsDataAsNonAdmin($request, $accessGroups);
+            } else {
+                $presenter->presentResponse(new ForbiddenResponse(
+                    DashboardException::accessNotAllowed()->getMessage()
+                ));
+
+                return;
             }
             $presenter->presentResponse($this->createResponse($performanceMetricsData));
         } catch (MetricException $ex) {
@@ -173,5 +174,25 @@ final class FindPerformanceMetricsData
 
         return (new PerformanceMetricsDataFactory())
             ->createFromRecords($metricsData, $request->metricNames);
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->accessGroupRepository->findByContact($this->user)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

@@ -9,25 +9,25 @@ import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properti
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
+import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
 
 import {
+  additionalResourcesAtom,
   DashboardGlobalRole,
+  federatedWidgetsAtom,
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../federatedModules/atoms';
 import { DashboardRole } from '../../api/models';
 import {
-  dashboardsContactGroupsEndpoint,
   dashboardsContactsEndpoint,
   dashboardsEndpoint,
   dashboardSharesEndpoint,
@@ -58,10 +58,8 @@ import {
   labelGlobalRefreshInterval,
   labelManualRefreshOnly,
   labelInterval,
-  labelUnsavedChanges,
   labelDoYouWantToSaveChanges,
-  labelIfYouClickOnDiscard,
-  labelDiscard
+  labelIfYouClickOnDiscard
 } from './translatedLabels';
 import Dashboard from './Dashboard';
 import { dashboardAtom } from './atoms';
@@ -80,6 +78,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-generictext/src'
+    },
+    {
+      ...widgetSingleMetricConfiguration,
+      moduleFederationName: 'centreon-widget-singlemetric/src'
     }
   ];
 
@@ -88,7 +90,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetGenericTextProperties
+    widgetGenericTextProperties,
+    widgetSingleMetricProperties
   ]);
 
   return store;
@@ -98,6 +101,7 @@ interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
   canCreateDashboard?: boolean;
   canViewDashboard?: boolean;
+  detailsWithData?: boolean;
   globalRole?: DashboardGlobalRole;
   isBlocked?: boolean;
   ownRole?: DashboardRole;
@@ -141,7 +145,8 @@ const initializeAndMount = ({
   canCreateDashboard = true,
   canViewDashboard = true,
   canAdministrateDashboard = true,
-  isBlocked = false
+  isBlocked = false,
+  detailsWithData = false
 }: InitializeAndMountProps): {
   blockNavigation;
   proceedNavigation;
@@ -165,6 +170,13 @@ const initializeAndMount = ({
     user_interface_density: ListingVariant.compact
   });
   store.set(refreshIntervalAtom, 15);
+  store.set(additionalResourcesAtom, [
+    {
+      baseEndpoint: '/ba',
+      label: 'BA',
+      resourceType: 'business-activity'
+    }
+  ]);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -173,7 +185,9 @@ const initializeAndMount = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Dashboards/Dashboard/details.json').then((dashboardDetails) => {
+  cy.fixture(
+    `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
+  ).then((dashboardDetails) => {
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
@@ -568,7 +582,49 @@ describe('Dashboard', () => {
         .then(() => {
           expect(blockNavigation).to.have.been.calledWith();
         });
+    });
+  });
 
+  describe('Dataset', () => {
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(0)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbMy%20host%5C%5Cb%22%2C%22name%22%3A%22My%20host%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Resources Status when the widget has resources compatible with Resource Status and the widget is single metric', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Resources Status page')
+        .eq(2)
+        .should(
+          'have.attr',
+          'href',
+          '/monitoring/resources?details=%7B%22id%22%3Anull%2C%22resourcesDetailsEndpoint%22%3A%22%2Fapi%2Flatest%2Fmonitoring%2Fresources%2Fhosts%2Fundefined%2Fservices%2Fundefined%22%2C%22selectedTimePeriodId%22%3A%22last_24_h%22%2C%22tab%22%3A%22graph%22%2C%22tabParameters%22%3A%7B%7D%7D&filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22service%22%2C%22name%22%3A%22Service%22%7D%5D%7D%2C%7B%22name%22%3A%22h.name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbCentreon-Server%5C%5Cb%22%2C%22name%22%3A%22Centreon-Server%22%7D%5D%7D%2C%7B%22name%22%3A%22name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbPing%5C%5Cb%22%2C%22name%22%3A%22Ping%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+        );
+    });
+
+    it('displays header link to Business activity when the widget has only business activities', () => {
+      initializeAndMount({
+        ...editorRoles,
+        detailsWithData: true
+      });
+
+      cy.findAllByTestId('See more on the Business Activity page')
+        .eq(0)
+        .should('have.attr', 'href', '/main.php?p=20701&o=d&ba_id=1');
       cy.makeSnapshot();
     });
   });

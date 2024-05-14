@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 
 import { Box, useTheme } from '@mui/material';
 
@@ -10,6 +11,7 @@ import {
   getStatusColors
 } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Resource, StatusDetail } from '../../../models';
 import { getResourcesUrl, severityStatusBySeverityCode } from '../../../utils';
@@ -38,6 +40,8 @@ const StatusCard = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const url = getResourcesUrl({
     allResources: resources,
     isForOneResource: false,
@@ -53,6 +57,9 @@ const StatusCard = ({
       classes={{
         tooltip: classes.tooltip
       }}
+      disableFocusListener={isOnPublicPage}
+      disableHoverListener={isOnPublicPage}
+      disableTouchListener={isOnPublicPage}
       followCursor={false}
       label={
         <ResourcesTooltip
