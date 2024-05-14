@@ -56,11 +56,16 @@ class DatasetFilter
         Assertion::notEmptyString($type, "{$shortName}::type");
         $this->assertTypeIsValid($type);
 
-        if ($type !== DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+        // if it can be empty it does not mean that it is empty.
+        // So we need to check if not empty that we do receive an array of ints.
+        if ($this->validator->canResourceIdsBeEmpty($type)) {
+            if ($resourceIds !== []) {
+                Assertion::arrayOfTypeOrNull('int', $this->resourceIds, "{$shortName}::resourceIds");
+            }
+        } else {
             Assertion::notEmpty($this->resourceIds, "{$shortName}::resourceIds");
             Assertion::arrayOfTypeOrNull('int', $this->resourceIds, "{$shortName}::resourceIds");
         }
-
     }
 
     /**

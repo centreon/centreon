@@ -106,46 +106,129 @@ jobs:
       - name: Associate Test Cases with Test plan
         id: xray-newman
         run: |
+          get_test_ids() {
+            start=0
+            test_issue_ids=()
+
+            while true; do
+                xray_graphql_getTests='{
+                    "query": "query getTests($jql: String, $limit: Int!, $start: Int) { getTests(jql: $jql, limit: $limit, start: $start) { total results { issueId } } }",
+                    "variables": {
+                        "jql": "reporter = \"712020:093f82f0-b0f1-4498-8369-fbe72fb50bcb\" AND project = MON AND type = \"Test\" AND testType = \"API\"",
+                        "limit": 100,
+                        "start": '$start'
+                    }
+                }'
+
+                response=$(curl -X POST \
+                    -H "Content-Type: application/json" \
+                    -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+                    --data "$xray_graphql_getTests" \
+                    "https://xray.cloud.getxray.app/api/v2/graphql")
+
+                echo "Response from getTests:"
+                echo "$response"
+
+                # Parsing and processing test IDs
+                current_test_issue_ids=($(echo "$response" | jq -r '.data.getTests.results[].issueId'))
+
+                echo "Current Test Issue IDs: ${current_test_issue_ids[@]}"
+
+                # Check if there are no more test issues
+                if [ ${#current_test_issue_ids[@]} -eq 0 ]; then
+                    echo "No more test issues. Exiting loop."
+                    break
+                fi
+
+                # Concatenate the current batch of results to the overall test_issue_ids array
+                test_issue_ids+=("${current_test_issue_ids[@]}")
+
+                # Increment the start value for the next iteration
+                start=$((start + 100))
+            done
+
+            # Display all retrieved test issue IDs
+            echo "All Test Issue IDs: ${test_issue_ids[@]}"
+          }
+
+          get_test_ids
+
+          formatted_getTest_issue_ids_str="["
+          for issue_id in "${test_issue_ids[@]}"; do
+          formatted_getTest_issue_ids_str+="\"$issue_id\","
+          done
+          formatted_getTest_issue_ids_str="${formatted_getTest_issue_ids_str%,}"
+          formatted_getTest_issue_ids_str+="]"
+          echo "$formatted_getTest_issue_ids_str"
+
+          # Display the retrieved test issue IDs
+          echo "Test Issue IDs: ${test_issue_ids[@]}"
+
+          # Mutation to add tests to the test plan
+          xray_graphql_addTestsToTestPlan='{
+            "query": "mutation AddTestsToTestPlan($issueId: String!, $testIssueIds: [String]!) { addTestsToTestPlan(issueId: $issueId, testIssueIds: $testIssueIds) { addedTests warning } }",
+            "variables": {
+              "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
+              "testIssueIds": '"$formatted_getTest_issue_ids_str"'
+            }
+          }'
+
+          # Execute the mutation to add tests to the test plan
+          response_addTestsToTestPlan=$(curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" \
+            --data "$xray_graphql_addTestsToTestPlan" \
+            "https://xray.cloud.getxray.app/api/v2/graphql")
+
+          echo "Response from Add Tests to Test Plan:"
+          echo "$response_addTestsToTestPlan"
+
           get_test_plan_issue_ids() {
             start=0
             issue=()
+            api_issue_ids=()
 
             while true; do
-              xray_graphql_getTestPlan='{
-                "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
-                "variables": {
-                  "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
-                  "start": '$start'
-                }
-              }'
+                xray_graphql_getTestPlan='{
+                    "query": "query GetTestPlan($issueId: String, $start: Int) { getTestPlan(issueId: $issueId) { issueId tests(limit: 100, start: $start) { results { issueId testType { name } } } } }",
+                    "variables": {
+                        "issueId": "'${{ steps.get-test-ids.outputs.test_plan_id }}'",
+                        "start": '$start'
+                    }
+                }'
 
-              response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
+                response=$(curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data "${xray_graphql_getTestPlan}" "https://xray.cloud.getxray.app/api/v2/graphql")
 
-              echo "Response from Get Test Plan:"
-              echo "$response"
+                echo "Response from Get Test Plan:"
+                echo "$response"
 
-              # Parsing and processing test IDs
-              current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
-              echo "Current Issue IDs: ${current_issue_ids[@]}"
+                # Parsing and processing test IDs
+                current_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | .issueId'))
+                echo "Current Issue IDs: ${current_issue_ids[@]}"
 
-              # Check if there are more results
-              if [ ${#current_issue_ids[@]} -eq 0 ]; then
-                echo "No more results. Exiting loop."
-                break
-              fi
+                # Concatenate the current batch of results to the overall issue_ids array
+                issue=("${issue[@]}" "${current_issue_ids[@]}")
 
-              # Concatenate the current batch of results to the overall issue_ids array
-              issue=("${issue[@]}" "${current_issue_ids[@]}")
+                # Parsing and processing test IDs for API tests and adding them to api_issue_ids
+                current_api_issue_ids=($(echo "$response" | jq -r '.data.getTestPlan.tests.results[] | select(.testType.name == "API") | .issueId'))
+                api_issue_ids=("${api_issue_ids[@]}" "${current_api_issue_ids[@]}")
 
-              # Increment the start value for the next iteration
-              start=$((start + 100))
+                # Increment the start value for the next iteration
+                start=$((start + 100))
+
+                # Check if there are more results
+                if [ -z "$response" ] || [ ${#current_issue_ids[@]} -eq 0 ]; then
+                    echo "No more results. Exiting loop."
+                    break
+                fi
             done
-          }
-          get_test_plan_issue_ids
-          issue_ids=("${issue[@]}")
 
-          # Display results
-          echo "Result Issue IDs: ${issue_ids[@]}"
+            # Display results
+            echo "API Issue IDs: ${api_issue_ids[@]}"
+          }
+
+          get_test_plan_issue_ids
+          issue_ids=("${api_issue_ids[@]}")
 
           summaries=()
 
@@ -315,7 +398,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -323,7 +406,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         continue-on-error: true
         timeout-minutes: 6
         with:

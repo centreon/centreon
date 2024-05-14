@@ -29,7 +29,7 @@ const TokenCreationDialog = ({
     duration: object({
       id: string().required(),
       name: string().required()
-    }).required({ msgError }),
+    }).required(msgError),
     tokenName: string().required(),
     user: object().shape({
       id: number().required(),

@@ -13,7 +13,10 @@ const StatusChart = ({
   globalRefreshInterval,
   panelData,
   panelOptions,
-  refreshCount
+  refreshCount,
+  id,
+  dashboardId,
+  playlistHash
 }: StatusChartProps): JSX.Element => {
   const { cx, classes } = useStyles();
 
@@ -59,13 +62,16 @@ const StatusChart = ({
 
         return (
           <Chart
+            dashboardId={dashboardId}
             displayLegend={displayLegend}
             displayType={displayType}
             displayValues={displayValues}
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+            id={id}
             isHorizontalBar={isHorizontalBar}
             isSingleChart={isSingleChart}
             key={resourceType}
+            playlistHash={playlistHash}
             refreshCount={refreshCount}
             refreshIntervalToUse={refreshIntervalToUse}
             resourceType={resourceType}

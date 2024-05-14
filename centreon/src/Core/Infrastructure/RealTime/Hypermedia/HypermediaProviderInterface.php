@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Hypermedia;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+
 interface HypermediaProviderInterface
 {
     /**
@@ -31,6 +33,11 @@ interface HypermediaProviderInterface
      * @return bool
      */
     public function isValidFor(string $resourceType): bool;
+
+    /**
+     * @param ContactInterface $contact
+     */
+    public function setContact(ContactInterface $contact): void;
 
     /**
      * Create endpoints for the Resource provided.

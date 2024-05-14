@@ -5,19 +5,17 @@ import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import {
   FederatedModule,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -39,7 +37,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
@@ -140,7 +138,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
-    setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
+    setSingleResourceSelection(
+      selectedWidgetProperties.singleResourceSelection
+    );
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,18 +23,20 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformTopology\Interfaces;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Engine\EngineException;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\MonitoringServer\Exception\MonitoringServerException;
-use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Domain\PlatformInformation\Exception\PlatformInformationException;
+use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 
 interface PlatformTopologyServiceInterface
 {
     /**
-     * Add new server as a pending platform
+     * Add new server as a pending platform.
      *
      * @param PlatformInterface $platformPending
+     *
      * @throws MonitoringServerException
      * @throws EngineException
      * @throws PlatformTopologyException
@@ -45,18 +47,32 @@ interface PlatformTopologyServiceInterface
     public function addPendingPlatformToTopology(PlatformInterface $platformPending): void;
 
     /**
-     * Get a topology with detailed nodes
+     * Get a topology with detailed nodes.
      *
-     * @return PlatformInterface[]
      * @throws PlatformTopologyException
      * @throws EntityNotFoundException
+     *
+     * @return PlatformInterface[]
      */
     public function getPlatformTopology(): array;
+
+    /**
+     * Get a topology with detailed nodes, according to a user's rights.
+     *
+     * @param ContactInterface $user
+     *
+     * @throws PlatformTopologyException
+     * @throws EntityNotFoundException
+     *
+     * @return PlatformInterface[]
+     */
+    public function getPlatformTopologyForUser(ContactInterface $user): array;
 
     /**
      * Delete a Platform and allocate its children to top level platform.
      *
      * @param int $serverId
+     *
      * @throws PlatformTopologyException
      * @throws EntityNotFoundException
      */
@@ -66,7 +82,7 @@ interface PlatformTopologyServiceInterface
      * Update a platform with given parameters.
      *
      * @param PlatformInterface $platform
-     * @return void
+     *
      * @throws PlatformTopologyException
      */
     public function updatePlatformParameters(PlatformInterface $platform): void;
@@ -74,8 +90,21 @@ interface PlatformTopologyServiceInterface
     /**
      * Find the top level platform of the topology.
      *
-     * @return PlatformInterface|null
      * @throws PlatformTopologyException
+     *
+     * @return PlatformInterface|null
      */
     public function findTopLevelPlatform(): ?PlatformInterface;
+
+    /**
+     * Determine if the user has access rights to the platform.
+     *
+     * @param ContactInterface $user
+     * @param int $platformId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function isValidPlatform(ContactInterface $user, int $platformId): bool;
 }

@@ -206,6 +206,36 @@ Cypress.Commands.add('applyAcl', () => {
   });
 });
 
+Cypress.Commands.add(
+  'verifyLegendItemStyle',
+  (index, expectedColors, expectedValue) => {
+    cy.get('[data-testid="Legend"] > *')
+      .eq(index)
+      .each(($legendItem) => {
+        cy.wrap($legendItem)
+          .find('[class*=legendItem] a')
+          .then(($aTags) => {
+            $aTags.each((i, aTag) => {
+              cy.wrap(aTag)
+                .find('div')
+                .invoke('attr', 'style')
+                .then((style) => {
+                  expect(style).to.contain(expectedColors[i]);
+                });
+
+              // Get the value of the <p> element next to the <a> tag
+              cy.wrap(aTag)
+                .next('p')
+                .invoke('text')
+                .then((text) => {
+                  expect(text).to.contain(expectedValue[i]);
+                });
+            });
+          });
+      });
+  }
+);
+
 interface Dashboard {
   description?: string;
   name: string;
@@ -239,6 +269,11 @@ declare global {
       ) => Cypress.Chainable;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
+      verifyLegendItemStyle: (
+        index: number,
+        expectedColors: Array<string>,
+        expectedValue: Array<string>
+      ) => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number

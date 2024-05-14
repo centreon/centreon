@@ -106,7 +106,7 @@ class UpdateRuleValidation
      *
      * @throws RuleException
      */
-    public function assertResourceIdsAreValid(string $type, array $ids): void
+    public function assertIdsAreValid(string $type, array $ids): void
     {
         $validIds = [];
         foreach ($this->repositoryProviders as $repository) {
@@ -123,14 +123,22 @@ class UpdateRuleValidation
     /**
      * @param int[] $contactIds
      * @param int[] $contactGroupIds
+     * @param bool $applyToAllContacts
+     * @param bool $applyToAllContactGroups
      *
      * @throws RuleException
      */
-    public function assertContactsAndContactGroupsAreNotEmpty(array $contactIds, array $contactGroupIds): void
-    {
+    public function assertContactsAndContactGroupsAreNotEmpty(
+        array $contactIds,
+        array $contactGroupIds,
+        bool $applyToAllContacts,
+        bool $applyToAllContactGroups
+    ): void {
         if (
             [] === $contactIds
             && [] === $contactGroupIds
+            && $applyToAllContacts === false
+            && $applyToAllContactGroups === false
         ) {
             throw RuleException::noLinkToContactsOrContactGroups();
         }

@@ -87,7 +87,7 @@ const Preview = (): JSX.Element | null => {
             style={{
               height: `${
                 (previewRef.current?.getBoundingClientRect().height || 0) -
-                16 -
+                36 -
                 46
               }px`,
               overflow: 'auto'

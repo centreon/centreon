@@ -20,7 +20,7 @@
     },
     "resourceType": {
       "type": "radio",
-      "label": "Display with this resource type",
+      "label": "Display resources with this type",
       "options": [
         {
           "id": "host",
@@ -38,24 +38,24 @@
       "label": "Display resources with this status",
       "options": [
         {
-          "id": "success",
-          "name": "Success (OK & Up)"
+          "id": "problem",
+          "name": "Problem (Down/Critical)"
         },
         {
           "id": "warning",
           "name": "Warning"
         },
         {
-          "id": "problem",
-          "name": "Problem (Down/Critical)"
+          "id": "pending",
+          "name": "Pending"
+        },
+        {
+          "id": "success",
+          "name": "Success (OK/Up)"
         },
         {
           "id": "undefined",
           "name": "Undefined (Unreachable/Unknown)"
-        },
-        {
-          "id": "pending",
-          "name": "Pending"
         }
       ],
       "defaultValue": [

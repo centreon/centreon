@@ -31,6 +31,7 @@ use Centreon\Domain\Entity\EntityValidator;
 use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\View\View;
 use JMS\Serializer\Exception\ValidationFailedException;
@@ -48,17 +49,10 @@ class AcknowledgementController extends AbstractController
     private const DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE
         = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Acknowledgement/DisacknowledgeResources.json';
 
-    /** @var AcknowledgementServiceInterface */
-    private AcknowledgementServiceInterface $acknowledgementService;
-
-    /**
-     * AcknowledgementController constructor.
-     *
-     * @param AcknowledgementServiceInterface $acknowledgementService
-     */
-    public function __construct(AcknowledgementServiceInterface $acknowledgementService)
-    {
-        $this->acknowledgementService = $acknowledgementService;
+    public function __construct(
+        private AcknowledgementServiceInterface $acknowledgementService,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+    ) {
     }
 
     /**
@@ -618,7 +612,7 @@ class AcknowledgementController extends AbstractController
 
             return $this->view($acknowledgement)->setContext($context);
         }
-  
+
             return View::create(null, Response::HTTP_NOT_FOUND, []);
     }
 
@@ -634,6 +628,22 @@ class AcknowledgementController extends AbstractController
     public function findAcknowledgements(RequestParametersInterface $requestParameters): View
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
+
+        /** @var Contact $user */
+        $user = $this->getUser();
+
+        if (false === $user->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($user);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         $acknowledgements = $this->acknowledgementService
             ->filterByContact($this->getUser())
             ->findAcknowledgements();
@@ -659,19 +669,29 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+        /** @var Contact $contact */
+        $contact = $this->getUser();
+
+        if (false === $contact->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         /**
          * Validate POST data for disacknowledge resources.
          */
         $payload = $this->validateAndRetrieveDataSent($request, self::DISACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE);
 
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
-
         $this->acknowledgementService->filterByContact($contact);
 
-        $disacknowledgement = $this->createDisacknowledgementFromPayload($payload); 
+        $disacknowledgement = $this->createDisacknowledgementFromPayload($payload);
 
         foreach ($payload['resources'] as $resourcePayload) {
             $resource = $this->createResourceFromPayload($resourcePayload);
@@ -710,16 +730,26 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+        /** @var Contact $contact */
+        $contact = $this->getUser();
+
+        if (false === $contact->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         /**
          * Validate POST data for acknowledge resources.
          */
         $payload = $this->validateAndRetrieveDataSent($request, self::ACKNOWLEDGE_RESOURCES_PAYLOAD_VALIDATION_FILE);
         $acknowledgement = $this->createAcknowledgementFromPayload($payload);
-
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
 
         $this->acknowledgementService->filterByContact($contact);
 
@@ -773,7 +803,7 @@ class AcknowledgementController extends AbstractController
      * @param array<string, mixed> $payload
      *
      * @return Acknowledgement
-     */ 
+     */
     private function createAcknowledgementFromPayload(array $payload): Acknowledgement
     {
         $acknowledgement = new Acknowledgement();
@@ -809,7 +839,7 @@ class AcknowledgementController extends AbstractController
      * @param array<string, mixed> $payload
      *
      * @return Acknowledgement
-     */ 
+     */
     private function createDisacknowledgementFromPayload(array $payload): Acknowledgement
     {
         $disacknowledgement = new Acknowledgement();
