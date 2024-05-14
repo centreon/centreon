@@ -7,7 +7,6 @@ Feature: Resource Access Management
   Background:
     Given I am logged in as a user with limited access
     And I have restricted visibility to resources
-    And I am logged out after setup
 
   Scenario: Adding access rule for one Host resources
     Given an Administrator is logged in on the platform
