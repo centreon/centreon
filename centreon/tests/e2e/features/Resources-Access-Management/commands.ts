@@ -16,7 +16,7 @@ Cypress.Commands.add(
       cy.request({
         body: payload,
         method: 'POST',
-        url: `/centreon/api/v${major_version}/administration/resource-access/rules?*`
+        url: `/centreon/api/v24.04/administration/resource-access/rules?*`
       });
     }
   }
