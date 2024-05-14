@@ -9,7 +9,6 @@ import {
   SearchedDataValue as SearchedDataValueModel
 } from '../Criterias/models';
 
-import { findData } from './utils';
 import {
   displayActionsAtom,
   displayInformationFilterAtom
