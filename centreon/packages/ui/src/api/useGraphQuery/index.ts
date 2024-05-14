@@ -24,6 +24,7 @@ interface CustomTimePeriod {
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   bypassMetricsExclusion?: boolean;
+  bypassQueryParams?: boolean;
   includeAllResources?: boolean;
   metrics: Array<Metric>;
   refreshCount?: number;
@@ -90,7 +91,8 @@ const useGraphQuery = ({
     timePeriodType: 1
   },
   refreshInterval = false,
-  refreshCount
+  refreshCount,
+  bypassQueryParams = false
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -114,6 +116,10 @@ const useGraphQuery = ({
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () => {
+      if (bypassQueryParams) {
+        return baseEndpoint;
+      }
+
       const endpoint = buildListingEndpoint({
         baseEndpoint,
         parameters: {

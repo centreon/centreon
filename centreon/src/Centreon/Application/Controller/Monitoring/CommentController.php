@@ -22,36 +22,23 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
+use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\Comment\Comment;
+use Centreon\Domain\Monitoring\Comment\Interfaces\CommentServiceInterface;
+use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Monitoring\Service;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Exception;
 use FOS\RestBundle\View\View;
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Monitoring\Comment\Comment;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Centreon\Domain\Monitoring\Comment\Interfaces\CommentServiceInterface;
 
 class CommentController extends AbstractController
 {
-    /**
-     * comment
-     *
-     * @var CommentServiceInterface
-     */
-    private $commentService;
-
-    /**
-     * MonitoringService
-     *
-     * @var MonitoringServiceInterface
-     */
-    private $monitoringService;
-
     private const COMMENT_RESOURCES_PAYLOAD_VALIDATION_FILE =
         __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/CommentResources.json';
 
@@ -60,11 +47,10 @@ class CommentController extends AbstractController
         __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/Comment.json';
 
     public function __construct(
-        CommentServiceInterface $commentService,
-        MonitoringServiceInterface $monitoringService
+        private CommentServiceInterface $commentService,
+        private MonitoringServiceInterface $monitoringService,
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
     ) {
-        $this->commentService = $commentService;
-        $this->monitoringService = $monitoringService;
     }
 
     /**
@@ -123,6 +109,19 @@ class CommentController extends AbstractController
         * @var Contact $contact
         */
         $contact = $this->getUser();
+
+        if (false === $contact->isAdmin()) {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
+            $accessGroupIds = array_map(
+                fn($accessGroup) => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+                return $this->view(null, Response::HTTP_FORBIDDEN);
+            }
+        }
+
         $this->commentService->filterByContact($contact);
 
        /*

@@ -7,21 +7,22 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     marginTop: theme.spacing(1)
   },
   previewHeading: {
-    display: 'block',
-    height: '19px',
-    lineHeight: 1
+    display: 'block'
   },
   previewPanelContainer: {
     height: '400px',
     [theme.breakpoints.down('sm')]: {
       height: '200px'
     },
-    padding: theme.spacing(1),
+    padding: theme.spacing(1.5),
     position: 'relative',
     width: '100%'
   },
   previewTitle: {
-    marginBottom: theme.spacing(1)
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(0)
   },
   previewUserRightPanel: {
     alignItems: 'center',

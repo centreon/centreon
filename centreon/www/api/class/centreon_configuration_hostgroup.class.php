@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,14 +34,12 @@
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 {
-    /**
-     * @var CentreonDB
-     */
+    /** @var CentreonDB */
     protected $pearDBMonitoring;
 
     /**
@@ -54,8 +52,9 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws Exception
+     *
+     * @return array
      */
     public function getList()
     {
@@ -64,67 +63,92 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $aclHostGroups = '';
-        $queryValues = array();
+        $queryValues = [];
 
-        /* Get ACL if user is not admin */
-        if (!$isAdmin) {
+        // Get ACL if user is not admin
+        if (
+            ! $isAdmin
+            && $centreon->user->access->hasAccessToAllHostGroups === false
+        ) {
             $acl = new CentreonACL($userId, $isAdmin);
-            $aclHostGroups .= 'AND hg.hg_id IN (' . $acl->getHostGroupsString('ID') . ') ';
+            $aclHostGroups .= ' AND hg.hg_id IN (' . $acl->getHostGroupsString() . ') ';
         }
 
-        // Check for select2 'q' argument
-        if (isset($this->arguments['q'])) {
-            $queryValues['hgName'] = '%' . (string)$this->arguments['q'] . '%';
-        } else {
-            $queryValues['hgName'] = '%%';
+        $query = filter_var(
+            $this->arguments['q'] ?? '',
+            FILTER_SANITIZE_FULL_SPECIAL_CHARS
+        );
+
+        $limit = array_key_exists('page_limit', $this->arguments)
+            ? filter_var($this->arguments['page_limit'], FILTER_VALIDATE_INT)
+            : null;
+
+        $page = array_key_exists('page', $this->arguments)
+            ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
+            : null;
+
+        if ($limit === false) {
+            throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
 
-        $queryHostGroup = "SELECT SQL_CALC_FOUND_ROWS DISTINCT "
-            . "hg.hg_name, hg.hg_id, hg.hg_activate FROM hostgroup hg "
-            . "WHERE hg.hg_name LIKE :hgName " . $aclHostGroups . "ORDER BY hg.hg_name ";
-
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
-                || $this->arguments['page_limit'] < 1
-            ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
-            }
-            $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $queryHostGroup .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
         }
-        $stmt = $this->pearDB->prepare($queryHostGroup);
-        $stmt->bindParam(':hgName', $queryValues["hgName"], PDO::PARAM_STR);
+
+        $queryValues['hostGroupName'] = $query !== '' ? '%' . $query . '%' : '%%';
+
+        $range = '';
+        if (
+            $page !== null
+            && $limit !== null
+        ) {
+            $range = ' LIMIT :offset, :limit';
+            $queryValues['offset'] = (int) (($page - 1) * $limit);
+            $queryValues['limit'] = $limit;
+        }
+
+        $request = <<<SQL
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                hg.hg_name,
+                hg.hg_id,
+                hg.hg_activate
+            FROM hostgroup hg
+            WHERE hg.hg_name LIKE :hostGroupName $aclHostGroups
+            ORDER BY hg.hg_name
+            $range
+        SQL;
+
+        $statement = $this->pearDB->prepare($request);
+
+        $statement->bindValue(':hostGroupName', $queryValues['hostGroupName'], PDO::PARAM_STR);
+
         if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
-        }
-        $dbResult = $stmt->execute();
-        if (!$dbResult) {
-            throw new \Exception("An error occured");
+            $statement->bindValue(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $statement->bindValue(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
 
-        $hostGroupList = array();
-        while ($data = $stmt->fetch()) {
+        $statement->execute();
+
+        $hostGroupList = [];
+
+        while ($record = $statement->fetch()) {
             $hostGroupList[] = [
-                'id' => htmlentities($data['hg_id']),
-                'text' => $data['hg_name'],
-                'status' => (bool) $data['hg_activate'],
+                'id' => htmlentities($record['hg_id']),
+                'text' => $record['hg_name'],
+                'status' => (bool) $record['hg_activate'],
             ];
         }
 
-        return array(
+        return [
             'items' => $hostGroupList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+            'total' => (int) $this->pearDB->numberRows(),
+        ];
     }
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     *
+     * @return array
      */
     public function getHostList()
     {
@@ -132,76 +156,99 @@ class CentreonConfigurationHostgroup extends CentreonConfigurationObjects
 
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
-        $aclHostGroups = '';
-        $aclHosts = '';
-        $queryValues = array();
-        $hgIdList = '';
+        $queryValues = [];
 
-        /* Get ACL if user is not admin */
-
-        if (!$isAdmin) {
+        // Get ACL if user is not admin
+        if (! $isAdmin) {
             $acl = new CentreonACL($userId, $isAdmin);
-            $aclHostGroups .= ' AND hg.hg_id IN (' . $acl->getHostGroupsString('ID') . ') ';
-            $aclHosts .= ' AND h.host_id IN (' . $acl->getHostsString('ID', $this->pearDBMonitoring) . ') ';
+            if ($centreon->user->access->hasAccessToAllHostGroups === false) {
+                $filters[] = ' hg.hg_id IN (' . $acl->getHostGroupsString() . ') ';
+            }
+
+            $filters[] = ' h.host_id IN (' . $acl->getHostsString($this->pearDBMonitoring) . ') ';
         }
 
-        // Check for select2 'q' argument
-        if (isset($this->arguments['hgid'])) {
-            $listId = explode(',', $this->arguments['hgid']);
-            foreach ($listId as $key => $idHg) {
-                if (!is_numeric($idHg)) {
-                    throw new \RestBadRequestException('Error, host group id must be numerical');
+        // Handle search by host group ids
+        $hostGroupIdsString = filter_var($this->arguments['hgid'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        $whereCondition = '';
+        if ($hostGroupIdsString !== '') {
+            $hostGroupIds = array_values(explode(',', $hostGroupIdsString));
+
+            foreach ($hostGroupIds as $key => $hostGroupId) {
+                if (! is_numeric($hostGroupId)) {
+                    throw new RestBadRequestException('Error, host group id must be numerical');
                 }
-                $hgIdList .= ':hgid' . $idHg . ',';
-                $queryValues['hgid'][$idHg] = (int)$idHg;
+                $queryValues[':hostGroupId' . $key] = (int) $hostGroupId;
             }
-            $hgIdList = rtrim($hgIdList, ',');
-        } else {
-            $queryValues['hgid'][0] = '""';
-            $hgIdList .= ':hgid0';
+
+            $whereCondition .= ' WHERE hg.hg_id IN (' . implode(',', $queryValues) . ')';
         }
 
-        $queryHostGroup = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT h.host_name , h.host_id FROM hostgroup hg ' .
-            'INNER JOIN hostgroup_relation hgr ON hg.hg_id = hgr.hostgroup_hg_id ' .
-            'INNER JOIN host h ON  h.host_id = hgr.host_host_id ' .
-            'WHERE hg.hg_id IN (' . $hgIdList . ') ' .
-            $aclHostGroups .
-            $aclHosts;
+        // Handle pagination and limit
+        $limit = array_key_exists('page_limit', $this->arguments)
+            ? filter_var($this->arguments['page_limit'], FILTER_VALIDATE_INT)
+            : null;
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
-                || $this->arguments['page_limit'] < 1
-            ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
-            }
-            $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $queryHostGroup .= 'LIMIT :offset, :limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$this->arguments['page_limit'];
-        }
-        $stmt = $this->pearDB->prepare($queryHostGroup);
+        $page = array_key_exists('page', $this->arguments)
+            ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
+            : null;
 
-        foreach ($queryValues["hgid"] as $k => $v) {
-            $stmt->bindValue(':hgid' . $k, $v, PDO::PARAM_INT);
-        }
-        if (isset($queryValues['offset'])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
-        }
-        $stmt->execute();
-        $hostList = array();
-        while ($data = $stmt->fetch()) {
-            $hostList[] = array(
-                'id' => htmlentities($data['host_id']),
-                'text' => $data['host_name']
-            );
+        if ($limit === false) {
+            throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
 
-        return array(
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
+        }
+
+        $range = '';
+        if (
+            $page !== null
+            && $limit !== null
+        ) {
+            $range = ' LIMIT :offset, :limit';
+            $queryValues['offset'] = (int) (($page - 1) * $limit);
+            $queryValues['limit'] = $limit;
+        }
+
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                h.host_name,
+                h.host_id
+            FROM hostgroup hg
+            INNER JOIN hostgroup_relation hgr
+                ON hg.hg_id = hgr.hostgroup_hg_id
+            INNER JOIN host h
+                ON h.host_id = hgr.host_host_id
+        SQL;
+
+        if ($filters !== []) {
+            $whereCondition .= empty($whereCondition) ? ' WHERE ' : ' AND ';
+            $whereCondition .= implode(' AND ', $filters);
+        }
+
+        $request .= $whereCondition . $range;
+
+        $statement = $this->pearDB->prepare($request);
+
+        foreach ($queryValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+
+        $hostList = [];
+        while ($record = $statement->fetch()) {
+            $hostList[] = [
+                'id' => htmlentities($record['host_id']),
+                'text' => $record['host_name'],
+            ];
+        }
+
+        return [
             'items' => $hostList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+            'total' => (int) $this->pearDB->numberRows(),
+        ];
     }
 }

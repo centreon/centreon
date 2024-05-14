@@ -77,7 +77,7 @@ export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
   'Thresholds are automatically hidden as soon as you select 2 metric units.';
-export const labelDisplayType = 'Display type';
+export const labelDisplayAs = 'Display as';
 export const labelText = 'Text';
 export const labelGauge = 'Gauge';
 export const labelBar = 'Bar chart';
@@ -128,7 +128,9 @@ export const labelUnsavedChanges =
   'If you leave without saving your dashboard, changes will be permanently lost.';
 export const labelIsTheSelectedResource =
   'is the selected metric by default. Refine filters to select another specific resource.';
-export const labelSeeMore = 'See more on the Resources Status page';
+export const labelSeeMore = 'See more on the {{ page }} page';
+export const labelResourcesStatus = 'Resources Status';
+export const labelBusinessActivity = 'Business Activity';
 export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =

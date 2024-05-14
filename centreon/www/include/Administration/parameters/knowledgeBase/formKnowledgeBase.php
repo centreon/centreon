@@ -51,6 +51,8 @@ $DBRESULT->closeCursor();
 
 $attrsAdvSelect = null;
 
+$autocompleteOff = ['autocomplete' => 'new-password'];
+
 /*
  * Form begin
  */
@@ -61,9 +63,9 @@ $form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
  */
 $form->addElement('text', 'kb_wiki_url', _("Knowledge base url"));
 $form->addRule('kb_wiki_url', _("Mandatory field"), 'required');
-$form->addElement('text', 'kb_wiki_account', _("Knowledge wiki account (with delete right)"));
+$form->addElement('text', 'kb_wiki_account', _("Knowledge wiki account (with delete right)"), $autocompleteOff);
 $form->addRule('kb_wiki_account', _("Mandatory field"), 'required');
-$form->addElement('password', 'kb_wiki_password', _("Knowledge wiki account password"));
+$form->addElement('password', 'kb_wiki_password', _("Knowledge wiki account password"), $autocompleteOff);
 $form->addRule('kb_wiki_password', _("Mandatory field"), 'required');
 $form->addElement('checkbox', 'kb_wiki_certificate', 'ssl certificate', _("Ignore ssl certificate"));
 

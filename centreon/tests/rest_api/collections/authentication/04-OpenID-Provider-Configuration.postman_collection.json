@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "44e088f8-36a1-4d9a-8532-a5a9de308a92",
+		"_postman_id": "57a4cb10-e276-46a1-bf48-10552dbbab41",
 		"name": "04 - OpenID Provider Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-44e088f8-36a1-4d9a-8532-a5a9de308a92?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-57a4cb10-e276-46a1-bf48-10552dbbab41?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -266,7 +266,7 @@
 					"response": []
 				},
 				{
-					"name": "Update OpenId Provider Configuration informations by admin (successful)",
+					"name": "Update with PUT OpenId Provider Configuration informations by admin (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -385,7 +385,164 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update with PATCH OpenId Provider Configuration informations by admin (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The OpenId Provider informations have been successfully updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\": false,\r\n    \"is_forced\": false,\r\n    \"base_url\": null,\r\n    \"authorization_endpoint\": null,\r\n    \"token_endpoint\": null,\r\n    \"introspection_token_endpoint\": null,\r\n    \"userinfo_endpoint\": null,\r\n    \"endsession_endpoint\": null,\r\n    \"connection_scopes\": [],\r\n    \"login_claim\": null,\r\n    \"client_id\": null,\r\n    \"client_secret\": null,\r\n    \"authentication_type\": \"client_secret_post\",\r\n    \"verify_peer\": true,\r\n    \"auto_import\": false,\r\n    \"email_bind_attribute\": null,\r\n    \"fullname_bind_attribute\": null,\r\n    \"authentication_conditions\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"\",\r\n        \"endpoint\": {\r\n            \"type\": \"introspection_endpoint\",\r\n            \"custom_endpoint\": null\r\n        },\r\n        \"authorized_values\": [],\r\n        \"trusted_client_addresses\": [],\r\n        \"blacklist_client_addresses\": []\r\n    },\r\n    \"groups_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"\",\r\n        \"endpoint\": {\r\n            \"type\": \"introspection_endpoint\",\r\n            \"custom_endpoint\": null\r\n        },\r\n        \"relations\": []\r\n    },\r\n    \"redirect_url\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve OpenId Provider Configuration information with updated values by PATCH(successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"All the OpenId Provider informations are displayed and correct.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"is_active\": false,\r",
+									"        \"is_forced\": false,\r",
+									"        \"base_url\": null,\r",
+									"        \"authorization_endpoint\": null,\r",
+									"        \"token_endpoint\": null,\r",
+									"        \"introspection_token_endpoint\": null,\r",
+									"        \"userinfo_endpoint\": null,\r",
+									"        \"endsession_endpoint\": null,\r",
+									"        \"connection_scopes\": [],\r",
+									"        \"login_claim\": null,\r",
+									"        \"client_id\": null,\r",
+									"        \"client_secret\": null,\r",
+									"        \"authentication_type\": \"client_secret_post\",\r",
+									"        \"verify_peer\": true,\r",
+									"        \"auto_import\": false,\r",
+									"        \"contact_template\": {\r",
+									"            \"id\": parseInt(pm.collectionVariables.get(\"ContactTemplateId\")),\r",
+									"            \"name\": \"contact_template\"\r",
+									"        },\r",
+									"        \"email_bind_attribute\": null,\r",
+									"        \"fullname_bind_attribute\": null,\r",
+									"        \"roles_mapping\": {\r",
+									"            \"is_enabled\": false,\r",
+									"            \"apply_only_first_role\": true,\r",
+									"            \"attribute_path\": \"users.roles.info.status\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"user_information_endpoint\",\r",
+									"                \"custom_endpoint\": \"/my/custom/endpoint/roles\"\r",
+									"            },\r",
+									"            \"relations\": [{\r",
+									"                \"claim_value\": \"status1\",\r",
+									"                \"access_group\": {\r",
+									"                    \"id\": 1,\r",
+									"                    \"name\": \"ALL\"\r",
+									"                },\r",
+									"                \"priority\": 1\r",
+									"            }]\r",
+									"        },\r",
+									"        \"authentication_conditions\": {\r",
+									"            \"is_enabled\": false,\r",
+									"            \"attribute_path\": \"\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"introspection_endpoint\",\r",
+									"                \"custom_endpoint\": null\r",
+									"            },\r",
+									"            \"authorized_values\": [],\r",
+									"            \"trusted_client_addresses\": [],\r",
+									"            \"blacklist_client_addresses\": []\r",
+									"        },\r",
+									"        \"groups_mapping\": {\r",
+									"            \"is_enabled\": false,\r",
+									"            \"attribute_path\": \"\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"introspection_endpoint\",\r",
+									"                \"custom_endpoint\": null\r",
+									"            },\r",
+									"            \"relations\": []\r",
+									"        },\r",
+									"        \"redirect_url\": null\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -426,7 +583,7 @@
 			"name": "0402 - Update OpenId Provider Configuration with invalid information",
 			"item": [
 				{
-					"name": "required property missing (error)",
+					"name": "PUT required property missing (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -474,7 +631,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value type passed to a property (error)",
+					"name": "PUT invalid value type passed to a property (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -522,7 +679,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value passed to \"trusted_client_addresses\" (error)",
+					"name": "PUT invalid value passed to \"trusted_client_addresses\" (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -570,7 +727,7 @@
 					"response": []
 				},
 				{
-					"name": "invalid value passed to \"blacklist_client_addresses\" (error)",
+					"name": "PUT invalid value passed to \"blacklist_client_addresses\" (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -592,6 +749,153 @@
 					},
 					"request": {
 						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\": true,\r\n    \"is_forced\": false,\r\n    \"base_url\": \"https://localhost:8080\",\r\n    \"authorization_endpoint\": \"/authorize\",\r\n    \"token_endpoint\": \"/token\",\r\n    \"introspection_token_endpoint\": null,\r\n    \"userinfo_endpoint\": \"/userinfo\",\r\n    \"endsession_endpoint\": \"/logout\",\r\n    \"connection_scopes\": [\"openid\", \"offline_access\"],\r\n    \"login_claim\": \"given_name\",\r\n    \"client_id\": \"user2\",\r\n    \"client_secret\": \"Centreon!2021\",\r\n    \"authentication_type\": \"client_secret_post\",\r\n    \"verify_peer\": false,\r\n    \"auto_import\": true,\r\n    \"contact_template\": {\r\n        \"id\": {{ContactTemplateId}},\r\n        \"name\": \"contact_template\"\r\n    },\r\n    \"email_bind_attribute\": \"email\",\r\n    \"fullname_bind_attribute\": \"given_name\",\r\n    \"authentication_conditions\": {\r\n        \"is_enabled\": true,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"authorized_values\": [\"status2\"],\r\n        \"trusted_client_addresses\": [],\r\n        \"blacklist_client_addresses\": [\".@\"]\r\n    },\r\n    \"roles_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"apply_only_first_role\": false,\r\n        \"relations\": [{\r\n        \"claim_value\": \"status1\",\r\n        \"priority\": 1,\r\n        \"access_group_id\": 1\r\n        }]\r\n    },\r\n    \"groups_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"relations\": [\r\n        ]\r\n    },\r\n    \"redirect_url\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH invalid value type passed to a property (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The OpenId Provider informations have not been updated because there's values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.be.eql(\"[is_active] Integer value found, but a boolean is required\\n[is_forced] String value found, but a boolean is required\\n[base_url] Boolean value found, but a string or a null is required\\n[authorization_endpoint] Integer value found, but a string or a null is required\\n[token_endpoint] Integer value found, but a string or a null is required\\n[introspection_token_endpoint] Integer value found, but a string or a null is required\\n[userinfo_endpoint] Boolean value found, but a string or a null is required\\n[endsession_endpoint] Boolean value found, but a string or a null is required\\n[connection_scopes[0]] Boolean value found, but a string is required\\n[connection_scopes[1]] Integer value found, but a string is required\\n[login_claim] Integer value found, but a string or a null is required\\n[client_id] Boolean value found, but a string or a null is required\\n[client_secret] Integer value found, but a string or a null is required\\n[authentication_type] Does not have a value in the enumeration [\\\"client_secret_post\\\",\\\"client_secret_basic\\\"]\\n[verify_peer] String value found, but a boolean is required\\n[auto_import] String value found, but a boolean is required\\n[contact_template.id] String value found, but a number is required\\n[contact_template.name] Integer value found, but a string is required\\n[email_bind_attribute] Integer value found, but a string or a null is required\\n[fullname_bind_attribute] Integer value found, but a string or a null is required\\n[authentication_conditions.is_enabled] String value found, but a boolean is required\\n[authentication_conditions.attribute_path] Boolean value found, but a string is required\\n[authentication_conditions.endpoint.type] Does not have a value in the enumeration [\\\"introspection_endpoint\\\",\\\"user_information_endpoint\\\",\\\"custom_endpoint\\\"]\\n[authentication_conditions.endpoint.custom_endpoint] Integer value found, but a string or a null is required\\n[authentication_conditions.authorized_values[0]] Boolean value found, but a string is required\\n[authentication_conditions.trusted_client_addresses[0]] Integer value found, but a string is required\\n[authentication_conditions.blacklist_client_addresses[0]] Integer value found, but a string is required\\n[groups_mapping.is_enabled] String value found, but a boolean is required\\n[groups_mapping.attribute_path] Integer value found, but a string is required\\n[groups_mapping.endpoint.type] Does not have a value in the enumeration [\\\"introspection_endpoint\\\",\\\"user_information_endpoint\\\",\\\"custom_endpoint\\\"]\\n[groups_mapping.endpoint.custom_endpoint] Boolean value found, but a string or a null is required\\n[groups_mapping.relations[0]] String value found, but an object is required\\n[roles_mapping.is_enabled] Integer value found, but a boolean is required\\n[roles_mapping.apply_only_first_role] String value found, but a boolean is required\\n[roles_mapping.attribute_path] Integer value found, but a string or a null is required\\n[roles_mapping.endpoint.type] Integer value found, but a string is required\\n[roles_mapping.endpoint.type] Does not have a value in the enumeration [\\\"introspection_endpoint\\\",\\\"user_information_endpoint\\\",\\\"custom_endpoint\\\"]\\n[roles_mapping.endpoint.custom_endpoint] Integer value found, but a string or a null is required\\n[roles_mapping.relations[0].claim_value] Integer value found, but a string is required\\n[roles_mapping.relations[0].access_group_id] String value found, but an integer is required\\n[roles_mapping.relations[0].priority] String value found, but an integer is required\\n[redirect_url] Integer value found, but a string or a null is required\\n\")\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"is_active\": 1,\r\n        \"is_forced\": \"false\",\r\n        \"base_url\": true,\r\n        \"authorization_endpoint\": 1,\r\n        \"token_endpoint\": 0,\r\n        \"introspection_token_endpoint\": 1,\r\n        \"userinfo_endpoint\": false,\r\n        \"endsession_endpoint\": true,\r\n        \"connection_scopes\": [true, 1],\r\n        \"login_claim\": 3,\r\n        \"client_id\": false,\r\n        \"client_secret\": 123,\r\n        \"authentication_type\": true,\r\n        \"verify_peer\": \"false\",\r\n        \"auto_import\": \"true\",\r\n        \"contact_template\": {\r\n          \"id\": \"19\",\r\n          \"name\": 1\r\n        },\r\n        \"email_bind_attribute\": 0,\r\n        \"fullname_bind_attribute\": 2,\r\n        \"authentication_conditions\": {\r\n            \"is_enabled\": \"true\",\r\n            \"attribute_path\": true,\r\n            \"endpoint\": {\r\n              \"type\": 1,\r\n              \"custom_endpoint\": 2\r\n            },\r\n            \"authorized_values\": [true],\r\n            \"trusted_client_addresses\": [1],\r\n            \"blacklist_client_addresses\": [3]\r\n        },\r\n        \"roles_mapping\": {\r\n          \"is_enabled\": 0,\r\n          \"attribute_path\": 1,\r\n          \"endpoint\": {\r\n              \"type\": 3,\r\n              \"custom_endpoint\": 1\r\n          },\r\n          \"apply_only_first_role\": \"false\",\r\n          \"relations\": [{\r\n            \"claim_value\": 1,\r\n            \"priority\": \"1\",\r\n            \"access_group_id\": \"1\"\r\n          }]\r\n        },\r\n        \"groups_mapping\": {\r\n          \"is_enabled\": \"false\",\r\n          \"attribute_path\": 0,\r\n          \"endpoint\": {\r\n              \"type\": 1,\r\n              \"custom_endpoint\": true\r\n          },\r\n          \"relations\": [\"coucou\"]\r\n        },\r\n        \"redirect_url\": 1\r\n      }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH invalid value passed to \"trusted_client_addresses\" (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The OpenId Provider informations have not been updated because there's values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.be.eql(\"[AuthenticationConditions::trustedClientAddresses] The value \\\".@\\\" was expected to be a valid ip address or domain name\")\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\": true,\r\n    \"is_forced\": false,\r\n    \"base_url\": \"https://localhost:8080\",\r\n    \"authorization_endpoint\": \"/authorize\",\r\n    \"token_endpoint\": \"/token\",\r\n    \"introspection_token_endpoint\": null,\r\n    \"userinfo_endpoint\": \"/userinfo\",\r\n    \"endsession_endpoint\": \"/logout\",\r\n    \"connection_scopes\": [\"openid\", \"offline_access\"],\r\n    \"login_claim\": \"given_name\",\r\n    \"client_id\": \"user2\",\r\n    \"client_secret\": \"Centreon!2021\",\r\n    \"authentication_type\": \"client_secret_post\",\r\n    \"verify_peer\": false,\r\n    \"auto_import\": true,\r\n    \"contact_template\": {\r\n        \"id\": {{ContactTemplateId}},\r\n        \"name\": \"contact_template\"\r\n    },\r\n    \"email_bind_attribute\": \"email\",\r\n    \"fullname_bind_attribute\": \"given_name\",\r\n    \"authentication_conditions\": {\r\n        \"is_enabled\": true,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"authorized_values\": [\"status2\"],\r\n        \"trusted_client_addresses\": [\".@\"],\r\n        \"blacklist_client_addresses\": []\r\n    },\r\n    \"roles_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"apply_only_first_role\": false,\r\n        \"relations\": [{\r\n        \"claim_value\": \"status1\",\r\n        \"priority\": 1,\r\n        \"access_group_id\": 1\r\n        }]\r\n    },\r\n    \"groups_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"relations\": [\r\n        ]\r\n    },\r\n    \"redirect_url\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH invalid value passed to \"blacklist_client_addresses\" (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The OpenId Provider informations have not been updated because there's values of the wrong type.\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.be.eql(\"[AuthenticationConditions::blacklistClientAddresses] The value \\\".@\\\" was expected to be a valid ip address or domain name\")\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -800,7 +1104,7 @@
 					"response": []
 				},
 				{
-					"name": "Update OpenId Provider Configuration informations by user without reach_api (error)",
+					"name": "Update with PUT OpenId Provider Configuration informations by user without reach_api (error)",
 					"event": [
 						{
 							"listen": "test",
@@ -819,6 +1123,52 @@
 					},
 					"request": {
 						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\": true,\r\n    \"is_forced\": false,\r\n    \"base_url\": \"https://localhost:8080\",\r\n    \"authorization_endpoint\": \"/authorize\",\r\n    \"token_endpoint\": \"/token\",\r\n    \"introspection_token_endpoint\": null,\r\n    \"userinfo_endpoint\": \"/userinfo\",\r\n    \"endsession_endpoint\": \"/logout\",\r\n    \"connection_scopes\": [\"openid\", \"offline_access\"],\r\n    \"login_claim\": \"given_name\",\r\n    \"client_id\": \"user2\",\r\n    \"client_secret\": \"Centreon!2021\",\r\n    \"authentication_type\": \"client_secret_post\",\r\n    \"verify_peer\": false,\r\n    \"auto_import\": true,\r\n    \"contact_template\": {\r\n        \"id\": {{ContactTemplateId}},\r\n        \"name\": \"contact_template\"\r\n    },\r\n    \"email_bind_attribute\": \"email\",\r\n    \"fullname_bind_attribute\": \"given_name\",\r\n    \"authentication_conditions\": {\r\n        \"is_enabled\": true,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"authorized_values\": [\"status2\"],\r\n        \"trusted_client_addresses\": [],\r\n        \"blacklist_client_addresses\": []\r\n    },\r\n    \"roles_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"apply_only_first_role\": false,\r\n        \"relations\": [{\r\n        \"claim_value\": \"status1\",\r\n        \"priority\": 1,\r\n        \"access_group_id\": 1\r\n        }]\r\n    },\r\n    \"groups_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint\"\r\n        },\r\n        \"relations\": [\r\n        ]\r\n    },\r\n    \"redirect_url\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update with PATCH OpenId Provider Configuration informations by user without reach_api (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The OpenId Provider informations have not been updated, because the user doesn't have reach_api rights.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -1403,7 +1753,7 @@
 					"response": []
 				},
 				{
-					"name": "Update OpenId Provider Configuration informations by user with reach_api (successful)",
+					"name": "Update with PUT OpenId Provider Configuration informations by user with reach_api (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1413,7 +1763,8 @@
 									"    pm.response.to.have.status(204);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1422,6 +1773,168 @@
 					},
 					"request": {
 						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"is_active\": true,\r\n    \"is_forced\": true,\r\n    \"base_url\": \"https://localhost:8181\",\r\n    \"authorization_endpoint\": \"/authorize\",\r\n    \"token_endpoint\": \"/token\",\r\n    \"introspection_token_endpoint\": null,\r\n    \"userinfo_endpoint\": \"/userinfo\",\r\n    \"endsession_endpoint\": \"/logout\",\r\n    \"connection_scopes\": [\"openid\", \"offline_access\"],\r\n    \"login_claim\": \"given_name\",\r\n    \"client_id\": \"user1\",\r\n    \"client_secret\": \"Centreon!2021\",\r\n    \"authentication_type\": \"client_secret_post\",\r\n    \"verify_peer\": false,\r\n    \"auto_import\": true,\r\n    \"contact_template\": {\r\n        \"id\": {{ContactTemplateId}},\r\n        \"name\": \"contact_template\"\r\n    },\r\n    \"email_bind_attribute\": \"email\",\r\n    \"fullname_bind_attribute\": \"given_name\",\r\n    \"authentication_conditions\": {\r\n        \"is_enabled\": true,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"custom_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint/auth\"\r\n        },\r\n        \"authorized_values\": [\"status123\"],\r\n        \"trusted_client_addresses\": [\"127.0.0.2\"],\r\n        \"blacklist_client_addresses\": [\"10.0.0.3\", \"10.0.0.4\"]\r\n    },\r\n    \"roles_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"user_information_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint/roles\"\r\n        },\r\n        \"apply_only_first_role\": true,\r\n        \"relations\": [{\r\n            \"claim_value\": \"status456\",\r\n            \"priority\": 2,\r\n            \"access_group_id\": 1\r\n        }]\r\n    },\r\n    \"groups_mapping\": {\r\n        \"is_enabled\": false,\r\n        \"attribute_path\": \"users.roles.info.status\",\r\n        \"endpoint\": {\r\n            \"type\": \"introspection_endpoint\",\r\n            \"custom_endpoint\": \"/my/custom/endpoint/groups\"\r\n        },\r\n        \"relations\": [\r\n        ]\r\n    },\r\n    \"redirect_url\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve OpenId Provider Configuration information by user with reach_api (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"All the OpenId Provider informations are displayed and correct.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"    pm.expect(responseJson).to.eql({\r",
+									"        \"is_active\": true,\r",
+									"        \"is_forced\": true,\r",
+									"        \"base_url\": \"https://localhost:8181\",\r",
+									"        \"authorization_endpoint\": \"/authorize\",\r",
+									"        \"token_endpoint\": \"/token\",\r",
+									"        \"introspection_token_endpoint\": null,\r",
+									"        \"userinfo_endpoint\": \"/userinfo\",\r",
+									"        \"endsession_endpoint\": \"/logout\",\r",
+									"        \"connection_scopes\": [\r",
+									"            \"openid\",\r",
+									"            \"offline_access\"\r",
+									"        ],\r",
+									"        \"login_claim\": \"given_name\",\r",
+									"        \"client_id\": \"user1\",\r",
+									"        \"client_secret\": \"Centreon!2021\",\r",
+									"        \"authentication_type\": \"client_secret_post\",\r",
+									"        \"verify_peer\": false,\r",
+									"        \"auto_import\": true,\r",
+									"        \"contact_template\": {\r",
+									"            \"id\": parseInt(pm.collectionVariables.get(\"ContactTemplateId\")),\r",
+									"            \"name\": \"contact_template\"\r",
+									"        },\r",
+									"        \"email_bind_attribute\": \"email\",\r",
+									"        \"fullname_bind_attribute\": \"given_name\",\r",
+									"        \"roles_mapping\": {\r",
+									"            \"is_enabled\": false,\r",
+									"            \"apply_only_first_role\": true,\r",
+									"            \"attribute_path\": \"users.roles.info.status\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"user_information_endpoint\",\r",
+									"                \"custom_endpoint\": \"/my/custom/endpoint/roles\"\r",
+									"            },\r",
+									"            \"relations\": [{\r",
+									"                \"claim_value\": \"status456\",\r",
+									"                \"access_group\": {\r",
+									"                    \"id\": 1,\r",
+									"                    \"name\": \"ALL\"\r",
+									"                },\r",
+									"                \"priority\": 2\r",
+									"            }]\r",
+									"        },\r",
+									"        \"authentication_conditions\": {\r",
+									"            \"is_enabled\": true,\r",
+									"            \"attribute_path\": \"users.roles.info.status\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"custom_endpoint\",\r",
+									"                \"custom_endpoint\": \"/my/custom/endpoint/auth\"\r",
+									"            },\r",
+									"            \"authorized_values\": [\"status123\"],\r",
+									"            \"trusted_client_addresses\": [\"127.0.0.2\"],\r",
+									"            \"blacklist_client_addresses\": [\r",
+									"                \"10.0.0.3\",\r",
+									"                \"10.0.0.4\"\r",
+									"            ]\r",
+									"        },\r",
+									"        \"groups_mapping\": {\r",
+									"            \"is_enabled\": false,\r",
+									"            \"attribute_path\": \"users.roles.info.status\",\r",
+									"            \"endpoint\": {\r",
+									"                \"type\": \"introspection_endpoint\",\r",
+									"                \"custom_endpoint\": \"/my/custom/endpoint/groups\"\r",
+									"            },\r",
+									"            \"relations\": []\r",
+									"        },\r",
+									"        \"redirect_url\": null\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/openid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"openid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update with PATCH OpenId Provider Configuration informations by user with reach_api (successful)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The OpenId Provider informations have been correctly updated.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -1448,7 +1961,7 @@
 					"response": []
 				},
 				{
-					"name": "Retrieve OpenId Provider Configuration information by user with reach_api (successful)",
+					"name": "Retrieve Provider Configuration information with updated values by PATCH by user with reach_api(successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -1632,7 +2145,7 @@
 		"apikey": [
 			{
 				"key": "value",
-				"value": "{{token}} ",
+				"value": "{{token}}",
 				"type": "string"
 			},
 			{
