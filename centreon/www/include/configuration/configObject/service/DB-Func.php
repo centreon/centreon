@@ -1902,13 +1902,9 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     //If there is a vault configuration  and macros write into vault
     if ($vaultConfiguration !== null && ! empty($macros)) {
         try {
-            /**
-             * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-             */
+            /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
             $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-            /**
-             * @var \Centreon\Domain\Log\Logger $logger
-             */
+            /** @var \Centreon\Domain\Log\Logger $logger */
             $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
             insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
         } catch (\Throwable $ex) {
