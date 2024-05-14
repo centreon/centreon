@@ -17188,3 +17188,6 @@ msgstr "Modo avanzado"
 
 # msgid "All business views selected"
 # msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
