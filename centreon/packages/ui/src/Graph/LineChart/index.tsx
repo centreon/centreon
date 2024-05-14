@@ -17,14 +17,13 @@ import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
 import { GlobalAreaLines, LineChartProps, LegendModel } from './models';
 import useLineChartData from './useLineChartData';
-import { CurveType } from './BasicComponents/Lines/models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  curve?: CurveType;
+  curve?: 'linear' | 'step' | 'natural';
   data?: LineChartData;
   end: string;
   legend: LegendModel;
@@ -52,7 +51,7 @@ const WrapperLineChart = ({
   annotationEvent,
   legend,
   header,
-  curve = Curve.curveLinear,
+  curve = 'linear',
   thresholds,
   thresholdUnit,
   limitLegend
