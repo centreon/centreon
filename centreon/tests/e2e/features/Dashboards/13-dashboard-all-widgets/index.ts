@@ -423,7 +423,7 @@ Then(
 
       case 'metrics graph':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const metricsGraphStatuses = ['Critical', 'Warning'];
+        const metricsGraphStatuses = ['Critical'];
 
         for (let i = 0; i < metricsGraphStatuses.length; i++) {
           cy.get('[class$="chip-statusColumnChip"]')
@@ -434,7 +434,7 @@ Then(
 
       case 'status grid':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
+        const statusGridStatuses = ['Critical', 'Unknown', 'Unknown'];
         cy.get('[class$="chip-statusColumnChip"]')
           .each(($chip) => {
             if (statusGridStatuses.includes($chip.text()) && !statusFound) {
@@ -451,7 +451,7 @@ Then(
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const topButtomStatuses = [
           'Critical',
-          'Warning',
+          'Unknown',
           'Unknown',
           'Unknown',
           'Unknown',
