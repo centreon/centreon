@@ -17188,3 +17188,15 @@ msgstr "Modo avanzado"
 
 # msgid "You are not allowed to list contact templates"
 # msgstr ""
+
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Curve type"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Natural"
+# msgstr ""
