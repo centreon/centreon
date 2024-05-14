@@ -45,6 +45,10 @@ jobs:
           context: .
           build-args: |
             "VERSION=${{ needs.get-version.outputs.major_version }}"
+            "RELEASE_CLOUD=${{ needs.get-version.outputs.release_cloud }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+          secrets: |
+            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
+            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"

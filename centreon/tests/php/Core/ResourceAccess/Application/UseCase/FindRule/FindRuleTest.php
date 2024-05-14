@@ -108,6 +108,7 @@ beforeEach(closure: function (): void {
         repository: $this->repository,
         contactRepository: $this->contactRepository,
         contactGroupRepository: $this->contactGroupRepository,
+        datasetFilterValidator: $datasetValidator,
         repositoryProviders: $providers
     );
 });

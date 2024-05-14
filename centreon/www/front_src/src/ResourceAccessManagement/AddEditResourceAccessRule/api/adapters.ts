@@ -58,6 +58,8 @@ const adaptDatasetFilters = (
   );
 
 export const adaptResourceAccessRule = ({
+  allContactGroups,
+  allContacts,
   contactGroups,
   contacts,
   datasetFilters,
@@ -65,8 +67,14 @@ export const adaptResourceAccessRule = ({
   isActivated,
   name
 }): object => ({
-  contact_groups: map(prop('id'), contactGroups),
-  contacts: map(prop('id'), contacts),
+  contact_groups: {
+    all: allContactGroups,
+    ids: map(prop('id'), contactGroups)
+  },
+  contacts: {
+    all: allContacts,
+    ids: map(prop('id'), contacts)
+  },
   dataset_filters: adaptDatasetFilters(datasetFilters),
   description,
   is_enabled: isActivated,

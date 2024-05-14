@@ -7,6 +7,7 @@ import { equals } from 'ramda';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import { selectedDatasetFiltersAtom } from '../../../atom';
 import {
+  labelAllBusinessViews,
   labelAllHostGroups,
   labelAllHosts,
   labelAllServiceGroups
@@ -21,7 +22,8 @@ interface UseAllOfResourceTypeCheckboxState {
 const allOfResourceTypeLabels = {
   [ResourceTypeEnum.HostGroup]: labelAllHostGroups,
   [ResourceTypeEnum.Host]: labelAllHosts,
-  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroups
+  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroups,
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViews
 };
 
 export const useAllOfResourceTypeCheckbox = (

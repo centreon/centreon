@@ -76,3 +76,13 @@ export const labelAllServiceGroupsSelected = 'All service groups selected';
 export const labelAllHosts = 'All hosts';
 export const labelAllHostGroups = 'All host groups';
 export const labelAllServiceGroups = 'All service groups';
+export const labelBusinessView = 'Business view';
+export const labelAllBusinessViews = 'All business views';
+export const labelAllBusinessViewsSelected = 'All business views selected';
+export const labelAllContacts = 'All contacts';
+export const labelAllContactsSelected = 'All contacts selected';
+export const labelAllContactGroups = 'All contact groups';
+export const labelAllContactGroupsSelected = 'All contact groups selected';
+export const labelDoYouWantToQuitWithoutSaving =
+  'Do you want to quit the form without saving the changes?';
+export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';

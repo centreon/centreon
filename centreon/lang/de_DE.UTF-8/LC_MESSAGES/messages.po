@@ -16830,3 +16830,30 @@ msgstr "Erweiterter Modus"
 
 # msgid "All service groups"
 # msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""

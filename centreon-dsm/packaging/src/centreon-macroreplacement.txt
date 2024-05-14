@@ -29,7 +29,7 @@ s:@CENTSTORAGE_RRD@:/var/lib/centreon:g
 s:@NAGIOS_IMG@:/usr/share/nagios/html/images/logos:g
 s:@WEB_USER@:apache:g
 s:@DB_CENTSTORAGE@:centreon_storage:g
-s:@NAGIOS_PLUGINS@:/usr/@LIB_ARCH@/nagios/plugins:g
+s:@NAGIOS_PLUGINS@:/usr/lib64/nagios/plugins:g
 s:@CENTREON_USER@:centreon:g
 s:@CENTREON_GROUP@:centreon:g
 s:@NAGIOS_VAR@:/var/log/nagios:g
