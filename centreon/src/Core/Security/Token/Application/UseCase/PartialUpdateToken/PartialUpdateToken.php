@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Common\Domain\TrimmedString;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
@@ -165,8 +166,17 @@ final class PartialUpdateToken
             return;
         }
 
-        $token->setIsRevoked($requestDto->isRevoked);
+        $updatedToken = new Token(
+            new TrimmedString($token->getName()),
+            $token->getUserId(),
+            new TrimmedString($token->getUserName()),
+            $token->getCreatorId(),
+            new TrimmedString($token->getCreatorName()),
+            $token->getCreationDate(),
+            $token->getExpirationDate(),
+            $requestDto->isRevoked
+        );
 
-        $this->writeRepository->update($token);
+        $this->writeRepository->update($updatedToken);
     }
 }
