@@ -34,9 +34,6 @@
  *
  */
 
-use Symfony\Component\HttpFoundation\Response;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-
 if (!isset($centreon)) {
     exit();
 }
