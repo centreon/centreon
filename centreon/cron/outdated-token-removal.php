@@ -91,6 +91,30 @@ function deleteExpiredProviderTokens(CentreonLog $logger, CentreonDB $pearDB): v
             )
             SQL
     );
+
+}
+
+/**
+ * Delete expired sessions.
+ */
+function deleteExpiredSessions(CentreonLog $logger, CentreonDB $pearDB): void
+{
+    $logger->insertLog(2, 'Deleting expired sessions');
+
+    $pearDB->query(
+        <<<'SQL'
+            DELETE s FROM session s
+            WHERE s.last_reload < (
+                SELECT UNIX_TIMESTAMP(NOW() - INTERVAL (`value` * 60) SECOND)
+                FROM options
+                WHERE `key` = 'session_expire'
+            )
+            OR s.last_reload IS NULL
+            OR s.session_id NOT IN (
+                SELECT token FROM security_authentication_tokens
+            )
+            SQL
+    );
 }
 
 /**
