@@ -162,30 +162,27 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
       <div className={cx(classes.small, { [classes.extended]: open })}>
         <BasicFilter
           poller={
-            <MemoizedPoller
-              basicData={basicData}
-              changeCriteria={changeCriteria}
-            />
+            <MemoizedPoller changeCriteria={changeCriteria} data={basicData} />
           }
           sections={
             <SectionWrapper
-              basicData={basicData}
               changeCriteria={changeCriteria}
+              data={basicData}
               searchData={searchData}
             />
           }
           state={
             <MemoizedCheckBox
-              basicData={basicData}
               changeCriteria={changeCriteria}
+              data={basicData}
               filterName={BasicCriteria.states}
               title={labelState}
             />
           }
           types={
             <MemoizedCheckBox
-              basicData={basicData}
               changeCriteria={changeCriteria}
+              data={basicData}
               filterName={BasicCriteria.resourceTypes}
               title={labelType}
             />

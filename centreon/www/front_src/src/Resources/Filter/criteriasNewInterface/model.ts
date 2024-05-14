@@ -98,16 +98,16 @@ export interface ChangedCriteriaParams {
 }
 
 export interface MemoizedChild {
-  basicData: Array<Criteria & CriteriaDisplayProps>;
   changeCriteria: (data: ChangedCriteriaParams) => void;
-  filterName?: BasicCriteria | ExtendedCriteria;
+  data: Array<Criteria & CriteriaDisplayProps>;
+  filterName: BasicCriteria | ExtendedCriteria;
   searchData?: SearchDataPropsCriterias;
   title?: string;
 }
 
 export interface MemoizedChildSectionWrapper extends MemoizedChild {
   searchData?: SearchDataPropsCriterias;
-  sectionType: SectionType;
+  sectionType?: SectionType;
 }
 
 export interface DeactivateProps {
@@ -116,7 +116,7 @@ export interface DeactivateProps {
 
 export interface FindData {
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   findBy?: string;
 }
 

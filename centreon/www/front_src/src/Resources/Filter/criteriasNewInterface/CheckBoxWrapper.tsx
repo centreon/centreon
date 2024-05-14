@@ -11,14 +11,18 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 
 import { useStyles } from './basicFilter/checkBox/checkBox.style';
-import { ChangedCriteriaParams } from './model';
+import {
+  BasicCriteria,
+  ChangedCriteriaParams,
+  ExtendedCriteria
+} from './model';
 import useInputData from './useInputsData';
 import { findData } from './utils';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   title?: ReactNode;
 }
 

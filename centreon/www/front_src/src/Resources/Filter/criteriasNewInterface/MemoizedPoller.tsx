@@ -9,23 +9,23 @@ import { BasicCriteria, MemoizedChild } from './model';
 import { findData } from './utils';
 
 const MemoizedPoller = ({
-  basicData,
+  data,
   changeCriteria
-}: MemoizedChild): JSX.Element => {
+}: Omit<MemoizedChild, 'filterName'>): JSX.Element => {
   const { t } = useTranslation();
 
   return useMemoComponent({
     Component: (
       <InputGroup
         changeCriteria={changeCriteria}
-        data={basicData}
+        data={data}
         filterName={BasicCriteria.monitoringServers}
         label={t(labelMonitoringServer) as string}
       />
     ),
     memoProps: [
       findData({
-        data: basicData,
+        data,
         filterName: BasicCriteria.monitoringServers
       })?.value
     ]

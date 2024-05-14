@@ -7,7 +7,7 @@ import { MemoizedChild } from './model';
 import { findData } from './utils';
 
 const MemoizedCheckBox = ({
-  basicData,
+  data,
   changeCriteria,
   title,
   filterName
@@ -18,14 +18,12 @@ const MemoizedCheckBox = ({
     Component: (
       <CheckBoxWrapper
         changeCriteria={changeCriteria}
-        data={basicData}
-        filterName={filterName as string}
+        data={data}
+        filterName={filterName}
         title={t(title as string)}
       />
     ),
-    memoProps: [
-      findData({ data: basicData, filterName: filterName as string })?.value
-    ]
+    memoProps: [findData({ data, filterName })?.value]
   });
 };
 
