@@ -1,8 +1,9 @@
-import { equals, groupBy, isEmpty, isNil } from 'ramda';
+import { equals, groupBy, isEmpty, isNil, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Divider, Typography } from '@mui/material';
 
 import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
 
@@ -19,7 +20,7 @@ import Subtitle from '../../components/Subtitle';
 import { widgetPropertiesAtom } from '../atoms';
 
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
-import { useWidgetInputs } from './useWidgetInputs';
+import { useWidgetInputs, WidgetPropertiesRenderer } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 import ShowInputWrapper from './ShowInputWrapper';
 
@@ -37,13 +38,13 @@ const WidgetProperties = (): JSX.Element => {
   const hasOptions = !isEmpty(widgetOptions);
   const hasProperties = !isEmpty(widgetProperties);
 
-  const groupedGeneralProperties = groupBy((input) => {
-    const group = groups.find(({ id }) => equals(input.group, id));
+  const groupedGeneralProperties = groupBy<WidgetPropertiesRenderer, string>(
+    (input) => {
+      const group = groups.find(({ id }) => equals(input.group, id));
 
-    return group?.name || '';
-  })(widgetProperties || []);
-
-  console.log(groupedGeneralProperties);
+      return group?.name || '';
+    }
+  )(widgetProperties || []);
 
   return (
     <div className={classes.widgetPropertiesContainer}>
@@ -79,13 +80,27 @@ const WidgetProperties = (): JSX.Element => {
             </div>
             {isWidgetSelected && hasProperties && (
               <div className={classes.widgetProperties}>
-                {(widgetProperties || []).map(({ Component, key, props }) => (
-                  <div key={key}>
-                    <ShowInputWrapper {...props}>
-                      <Component {...props} />
-                    </ShowInputWrapper>
-                  </div>
-                ))}
+                {toPairs(groupedGeneralProperties).map(
+                  ([groupName, inputs]) => (
+                    <div key={groupName}>
+                      <Divider className={classes.groupDivider} />
+                      {groupName && (
+                        <Typography className={classes.groupTitle} variant="h6">
+                          {t(groupName)}
+                        </Typography>
+                      )}
+                      <div className={classes.groupContent}>
+                        {inputs?.map(({ Component, key, props }) => (
+                          <div key={key}>
+                            <ShowInputWrapper {...props}>
+                              <Component {...props} />
+                            </ShowInputWrapper>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
             )}
           </div>
