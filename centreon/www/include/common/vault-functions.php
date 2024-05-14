@@ -515,11 +515,12 @@ function retrieveHostUuidFromDatabase(\CentreonDB $pearDB, int $hostId, string $
     $statement = $pearDB->prepare(
         <<<SQL
             SELECT h.host_snmp_community, odm.host_macro_value
-                FROM host as h, on_demand_macro_host AS odm
+                FROM host as h
+                     LEFT JOIN on_demand_macro_host AS odm
+                    ON odm.host_host_id = h.host_id 
             WHERE h.host_id= :hostId
-                AND odm.host_host_id= :hostId
-                AND odm.host_macro_value LIKE :vaultPath
-                AND h.host_snmp_community LIKE :vaultPath
+                AND (odm.host_macro_value LIKE :vaultPath
+                OR h.host_snmp_community LIKE :vaultPath)
         SQL
     );
     $statement->bindValue(':hostId', $hostId, \PDO::PARAM_STR);
