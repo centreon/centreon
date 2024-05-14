@@ -18,10 +18,6 @@ import {
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
-import {
-  FederatedModule,
-  FederatedWidgetProperties
-} from '../../../../federatedModules/models';
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 
 import {
@@ -87,7 +83,7 @@ const useWidgetModal = (): useWidgetModalState => {
         ? {
             ...getDefaultValues(selectedWidgetProperties.options),
             ...getDefaultValues(
-              selectedWidgetProperties.generalProperties.elements
+              selectedWidgetProperties.generalProperties?.elements
             )
           }
         : {};
