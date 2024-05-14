@@ -16837,8 +16837,8 @@ msgstr "Se connecter avec"
 msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
-msgid "Impossible to get contact templates from data storage"
-msgstr "Impossible d'obtenir les modèles de contact depuis le stockage de données"
+msgid "Error while searching for contact templates"
+msgstr "Erreur lors de la recherche de modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
@@ -18026,14 +18026,14 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
-msgid "Manage the organization's authentication tokens"
-msgstr "Gérer les jetons d'authentification de l'organisation"
+msgid "Manage API tokens"
+msgstr "Gérer les jetons d’API"
 
 msgid "Widget type"
 msgstr "Type de widget"
 
-msgid "Display type"
-msgstr "Type d'affichage"
+msgid "Display as"
+msgstr "Afficher en tant que"
 
 msgid "Text"
 msgstr "Texte"
@@ -18362,9 +18362,6 @@ msgstr "Grille de statut"
 
 msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 msgstr "Affiche une vue d'ensemble du statut des ressources sélectionnées, groupées par hôtes ou par services."
-
-msgid "Display with this resource type"
-msgstr "Afficher avec ce type de ressource"
 
 msgid "Display resources with this status"
 msgstr "Afficher les ressources avec ce statut"
@@ -18954,3 +18951,30 @@ msgstr "Tous les groupes d'hôtes"
 
 msgid "All service groups"
 msgstr "Tous les groupes de services"
+
+msgid "All contacts"
+msgstr "Tous les contacts"
+
+msgid "All contacts selected"
+msgstr "Tous les contacts sont sélectionnés"
+
+msgid "All contact groups"
+msgstr "Tous les groupes de contacts"
+
+msgid "All contact groups selected"
+msgstr "Tous les groupes de contacts sont sélectionnés"
+
+msgid "Downloading the performance metrics is not allowed"
+msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
+
+msgid "Business view"
+msgstr "Vue métier"
+
+msgid "All business views"
+msgstr "Toutes les vues métier"
+
+msgid "All business views selected"
+msgstr "Toutes les vues métier sont sélectionnées"
+
+msgid "You are not allowed to list contact templates"
+msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"

@@ -39,9 +39,6 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -340,9 +337,11 @@ final class UpdateRule
                 if ($parentApplicableFilter !== null) {
                     if ($this->shouldBothFiltersBeSaved($parentApplicableFilter, $applicableFilter)) {
                         if ($this->shouldUpdateDatasetAccesses($parentApplicableFilter)) {
-                            $this->updateDatasetAccesses(
+                            $this->writeRepository->updateDatasetAccess(
+                                ruleId: $updateRequest->id,
                                 datasetId: $datasetId,
-                                resourceType: $parentApplicableFilter->getType()
+                                resourceType: $parentApplicableFilter->getType(),
+                                fullAccess: true
                             );
                         } else {
                             $this->writeRepository->linkResourcesToDataset(
@@ -356,9 +355,11 @@ final class UpdateRule
                 }
 
                 if ($this->shouldUpdateDatasetAccesses($applicableFilter)) {
-                    $this->updateDatasetAccesses(
+                    $this->writeRepository->updateDatasetAccess(
+                        ruleId: $updateRequest->id,
                         datasetId: $datasetId,
-                        resourceType: $applicableFilter->getType()
+                        resourceType: $applicableFilter->getType(),
+                        fullAccess: true
                     );
                 } else {
                     $this->writeRepository->linkResourcesToDataset(
@@ -385,37 +386,6 @@ final class UpdateRule
     }
 
     /**
-     * @param int $datasetId
-     * @param string $resourceType
-     */
-    private function updateDatasetAccesses(int $datasetId, string $resourceType): void
-    {
-        switch ($resourceType) {
-            case HostGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hostgroups',
-                    fullAccess: true
-                );
-                break;
-            case ServiceGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'servicegroups',
-                    fullAccess: true
-                );
-                break;
-            case HostFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hosts',
-                    fullAccess: true
-                );
-                break;
-        }
-    }
-
-    /**
      * @param DatasetFilter $datasetFilter
      *
      * @return bool
@@ -423,14 +393,7 @@ final class UpdateRule
     private function shouldUpdateDatasetAccesses(DatasetFilter $datasetFilter): bool
     {
         return $datasetFilter->getResourceIds() === []
-            && in_array(
-                $datasetFilter->getType(),
-                [
-                    HostGroupFilterType::TYPE_NAME,
-                    ServiceGroupFilterType::TYPE_NAME,
-                    HostFilterType::TYPE_NAME,
-                ], true
-            );
+            && $this->datasetValidator->canResourceIdsBeEmpty($datasetFilter->getType());
     }
 
     /**

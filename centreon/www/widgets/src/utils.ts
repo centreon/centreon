@@ -9,7 +9,8 @@ import {
   identity,
   includes,
   pipe,
-  map
+  map,
+  toPairs
 } from 'ramda';
 
 import { SeverityCode, centreonBaseURL } from '@centreon/ui';
@@ -274,4 +275,51 @@ export const severityStatusBySeverityCode = {
   [SeverityCode.OK]: SeverityStatus.Success,
   [SeverityCode.None]: SeverityStatus.Undefined,
   [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
 };

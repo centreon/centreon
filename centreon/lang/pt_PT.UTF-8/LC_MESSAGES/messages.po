@@ -16722,7 +16722,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -17052,7 +17052,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -17367,9 +17367,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Percentage"
 # msgstr ""
 
-# msgid "Display resources with this type"
-# msgstr ""
-
 # msgid  "Horizontal bar chart"
 # msgstr ""
 
@@ -17611,4 +17608,31 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgstr ""
 
 # msgid "All service groups"
+# msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
 # msgstr ""

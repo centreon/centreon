@@ -50,3 +50,9 @@ export const selectedDatasetFiltersAtom = atom<
     }>
   >
 >([[{ allOfResourceType: false, ids: [], type: ResourceTypeEnum.Empty }]]);
+
+export const allContactsSelectedAtom = atom<boolean>(false);
+export const allContactGroupsSelectedAtom = atom<boolean>(false);
+
+export const isCloseModalConfirmationDialogOpenAtom = atom<boolean>(false);
+export const isDirtyAtom = atom<boolean>(false);

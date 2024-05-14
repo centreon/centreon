@@ -14,7 +14,10 @@ const GroupMonitoring = ({
   panelOptions,
   refreshCount,
   isFromPreview,
-  setPanelOptions
+  setPanelOptions,
+  id,
+  dashboardId,
+  playlistHash
 }: Omit<WidgetProps, 'store'>): JSX.Element => {
   const {
     hasResourceTypeDefined,
@@ -30,10 +33,13 @@ const GroupMonitoring = ({
     groupType,
     groupTypeName
   } = useGroupMonitoring({
+    dashboardId,
     globalRefreshInterval,
+    id,
     isFromPreview,
     panelData,
     panelOptions,
+    playlistHash,
     refreshCount,
     setPanelOptions
   });

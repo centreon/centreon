@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -52,7 +52,8 @@ const Resources = ({
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleResourceSelection
+    singleResourceSelection,
+    isLastResourceInTree
   } = useResources({
     propertyName,
     required,
@@ -63,7 +64,13 @@ const Resources = ({
   const { canEditField } = useCanEditProperties();
 
   const deleteButtonHidden =
-    !canEditField || (value.length <= 1 && (required || isNil(required)));
+    !canEditField ||
+    (value.length <= 1 && (required || isNil(required))) ||
+    equals(value.length, 1);
+
+  const isAddButtonHidden = !canEditField || singleResourceType;
+  const isAddButtonDisabled =
+    !areResourcesFullfilled(value) || isLastResourceInTree;
 
   return (
     <div className={classes.resourcesContainer}>
@@ -80,8 +87,8 @@ const Resources = ({
         <ItemComposition
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={!canEditField || singleResourceType}
-          addbuttonDisabled={!areResourcesFullfilled(value)}
+          addButtonHidden={isAddButtonHidden}
+          addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
@@ -102,7 +109,7 @@ const Resources = ({
                   !canEditField || getResourceStatic(resource.resourceType)
                 }
                 label={t(labelSelectResourceType) as string}
-                options={getResourceTypeOptions(resource)}
+                options={getResourceTypeOptions(index, resource)}
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
@@ -116,9 +123,10 @@ const Resources = ({
                   disableClearable={false}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   queryKey={`${resource.resourceType}-${index}`}
@@ -140,9 +148,10 @@ const Resources = ({
                   className={classes.resources}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   placeholder=""
