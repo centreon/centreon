@@ -10,3 +10,8 @@ export interface DeleteTokenEndpoint {
   tokenName: string;
   userId: number;
 }
+
+export interface PatchTokenEndpoint {
+  tokenName: string;
+  userId: number;
+}

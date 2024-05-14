@@ -14,6 +14,7 @@ import { labelActive, labelRevoked } from '../../translatedLabels';
 import { selectedColumnIdsAtom } from '../atoms';
 import { Row } from '../models';
 import Title from '../Title';
+import { Activate } from '../Actions/Activate';
 
 import ActionsColumn from './ActionsColumn';
 import { Column, UseColumns, defaultSelectedColumnIds } from './models';
@@ -118,6 +119,12 @@ export const useColumns = (): UseColumns => {
         Component: ActionsColumn,
         id: 'actions',
         label: Column.Actions,
+        type: ColumnType.component
+      },
+      {
+        Component: ({ row }: Row) => <Activate row={row} />,
+        id: 'activate',
+        label: Column.Activate,
         type: ColumnType.component
       }
     ];
