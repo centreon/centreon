@@ -306,26 +306,25 @@ When(
       return true;
     });
     cy.get('.react-grid-item')
-      .eq(3)
-      .find('.react-resizable-handle-se')
-      .trigger('mousedown', { button: 0, force: true })
-      .trigger('dragstart', { force: true })
-      .trigger('mousemove', { clientX: 486, force: true })
-      .wait('@resourceRequest');
-
-    cy.get('.react-grid-item').eq(3).realClick();
-
-    cy.get('.react-grid-item')
-      .eq(4)
+      .eq(0)
       .find('.react-resizable-handle-se')
       .trigger('mousedown', { button: 0, force: true })
       .trigger('dragstart', { force: true })
       .trigger('mousemove', { clientX: 486, force: true });
 
-    cy.get('.react-grid-item').eq(4).realClick();
+    cy.get('.react-grid-item').eq(0).realClick();
 
     cy.get('.react-grid-item')
-      .eq(4)
+      .eq(1)
+      .find('.react-resizable-handle-se')
+      .trigger('mousedown', { button: 0, force: true })
+      .trigger('dragstart', { force: true })
+      .trigger('mousemove', { clientX: 486, force: true });
+
+    cy.get('.react-grid-item').eq(1).realClick();
+
+    cy.get('.react-grid-item')
+      .eq(1)
       .find('[data-testid*="_move_panel"]')
       .then((element) => {
         cy.wrap(element)
@@ -333,7 +332,7 @@ When(
           .trigger('mousedown', { button: 0, force: true })
           .trigger('mousemove', { clientX: 836, clientY: 840, force: true });
       });
-    cy.get('.react-grid-item').eq(4).realClick();
+    cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
     cy.wait('@updateDashboard');
@@ -342,13 +341,13 @@ When(
 
 Then('the dashboard is updated with the new widget layout', () => {
   cy.get('.react-grid-item')
-    .eq(3)
+    .eq(0)
     .invoke('attr', 'style')
     .then((style) => {
       expect(style).to.include('width: calc(426px)');
     });
   cy.get('.react-grid-item')
-    .eq(4)
+    .eq(1)
     .invoke('attr', 'style')
     .then((style) => {
       expect(style).to.include('width: calc(426px)');
