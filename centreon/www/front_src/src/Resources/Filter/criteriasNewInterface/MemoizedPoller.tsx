@@ -23,12 +23,10 @@ const MemoizedPoller = ({
         label={t(labelMonitoringServer) as string}
       />
     ),
-    memoProps: [
-      findData({
-        data,
-        filterName: BasicCriteria.monitoringServers
-      })?.value
-    ]
+    memoProps: findData({
+      data,
+      filterName: BasicCriteria.monitoringServers
+    })
   });
 };
 export default MemoizedPoller;

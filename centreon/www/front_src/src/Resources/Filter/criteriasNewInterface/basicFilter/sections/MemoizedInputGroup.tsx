@@ -19,12 +19,10 @@ const MemoizedInputGroup = ({
         resourceType={sectionType}
       />
     ),
-    memoProps: [
-      findData({
-        data,
-        filterName
-      })?.value
-    ]
+    memoProps: findData({
+      data,
+      filterName
+    })
   });
 };
 

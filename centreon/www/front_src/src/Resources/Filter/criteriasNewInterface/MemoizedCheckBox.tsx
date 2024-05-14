@@ -23,7 +23,7 @@ const MemoizedCheckBox = ({
         title={t(title as string)}
       />
     ),
-    memoProps: [findData({ data, filterName })?.value]
+    memoProps: findData({ data, filterName })
   });
 };
 

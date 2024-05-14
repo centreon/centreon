@@ -34,10 +34,10 @@ const MemoizedStatus = ({
     ),
     memoProps: [
       selectedStatusByResourceType,
-      findData({
+      ...findData({
         data,
         filterName
-      })?.value,
+      }),
       isDeactivated
     ]
   });

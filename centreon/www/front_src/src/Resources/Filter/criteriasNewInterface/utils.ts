@@ -67,8 +67,11 @@ export const findData = ({
   filterName,
   data,
   findBy = 'name'
-}: FindData): (Criteria & CriteriaDisplayProps) | undefined =>
-  data?.find((item) => item[findBy] === filterName);
+}: FindData): Array<Criteria & CriteriaDisplayProps> => {
+  const element = data?.find((item) => item[findBy] === filterName);
+
+  return element ? [element] : [];
+};
 
 export const findFieldInformationFromSearchInput = ({
   search,

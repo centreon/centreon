@@ -27,7 +27,7 @@ const MemoizedSelectInput = ({
       />
     ),
     memoProps: [
-      findData({ data, filterName })?.value,
+      ...findData({ data, filterName }),
       searchData?.search,
       isDeactivated
     ]

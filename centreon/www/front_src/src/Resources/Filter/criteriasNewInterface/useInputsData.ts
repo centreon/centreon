@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 
 import {
   Criteria,
@@ -13,10 +14,11 @@ import {
   displayActionsAtom,
   displayInformationFilterAtom
 } from './basicFilter/atoms';
+import { BasicCriteria, ExtendedCriteria } from './model';
 
 interface Parameters {
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
 }
 
 type SearchedDataValue = SearchedDataValueModel | undefined | null;
@@ -39,7 +41,7 @@ const useInputData = ({ data, filterName }: Parameters): UseInputData => {
       return;
     }
 
-    const item = findData({ data, filterName });
+    const item = data.find(({ name }) => equals(name, filterName));
 
     setDataByFilterName(item);
   }, [data]);

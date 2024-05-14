@@ -8,13 +8,14 @@ import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
+  BasicCriteria,
   ChangedCriteriaParams,
   DeactivateProps,
+  ExtendedCriteria,
   SectionType,
   SelectedResourceType
 } from '../../model';
 import useInputData from '../../useInputsData';
-import { findData } from '../../utils';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
 
@@ -24,7 +25,7 @@ import useSynchronizeSearchBarWithCheckBoxInterface from './useSynchronizeSearch
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
   data: Array<Criteria & CriteriaDisplayProps>;
-  filterName: string;
+  filterName: BasicCriteria | ExtendedCriteria;
   resourceType: SectionType;
 }
 
@@ -66,6 +67,8 @@ const CheckBoxSection = ({
     return null;
   }
 
+  const options = dataByFilterName.options as Array<SelectEntry>;
+
   const transformData = (
     input: Array<SelectEntry>
   ): Array<string> | undefined => {
@@ -79,7 +82,7 @@ const CheckBoxSection = ({
     }));
   };
 
-  const translatedOptions = getTranslated(dataByFilterName?.options);
+  const translatedOptions = getTranslated(options);
 
   const translatedValues = getTranslated(
     selectedStatusByResourceType?.filter(
@@ -109,8 +112,10 @@ const CheckBoxSection = ({
       const newArrayStatus = oldStatus
         ? selectedStatusByResourceType.filter(
             (item) =>
-              !equals(`${item.id}${item.resourceType}`,
-              `${oldStatus.id}${oldStatus.resourceType}`)
+              !equals(
+                `${item.id}${item.resourceType}`,
+                `${oldStatus.id}${oldStatus.resourceType}`
+              )
           )
         : selectedStatusByResourceType;
 
@@ -134,12 +139,9 @@ const CheckBoxSection = ({
   const handleChangeStatus = (event): void => {
     const originalValue = translatedOptions.find(({ name }) =>
       equals(name, event.target.id)
-    );
-    const item = findData({
-      data: dataByFilterName?.options,
-      filterName: originalValue?.id,
-      findBy: 'id'
-    });
+    ) as SelectEntry;
+
+    const item = options.find(({ id }) => equals(id, originalValue.id));
 
     if (event.target.checked) {
       const currentValue = { ...item, checked: true, resourceType };
