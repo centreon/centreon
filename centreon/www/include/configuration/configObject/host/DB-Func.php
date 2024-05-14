@@ -360,13 +360,7 @@ function deleteHostInDB($hosts = array())
 
     $hostIds = array_keys($hosts);
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -431,13 +425,9 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 
     $hostAcl = [];
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -1345,13 +1335,9 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -1660,13 +1646,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -1860,13 +1842,9 @@ function updateHost_MC($hostId = null)
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class

@@ -84,6 +84,7 @@ function authenticateToVault(
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param int $hostId
+ * @param string $uuid
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
@@ -132,6 +133,7 @@ function getHostSecretsFromVault(
  * @param array<string,mixed> $passwordTypeData
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ *
  * @throws \Exception
  */
 function writeHostSecretsInVault(
@@ -279,6 +281,7 @@ function duplicateHostSecretsInVault(
  * @param \CentreonDB $pearDB
  * @param non-empty-array<int> $macroIds
  * @param string $hostPath
+ *
  * @throws \Throwable
  */
 function updateOnDemandMacroHostTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $hostPath): void
@@ -349,6 +352,7 @@ function deleteResourceSecretsInVault(
  *
  * @param non-empty-array<int> $hostIds
  * @param string $vaultPath
+ *
  * @return array<string,string[]>
  */
 function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath): array
@@ -411,6 +415,7 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds, string $vaultPath
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ *
  * @throws \Throwable
  */
 function deleteHostFromVault(
@@ -440,6 +445,7 @@ function deleteHostFromVault(
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ *
  * @throws \Throwable
  */
 function deleteServiceFromVault(
@@ -466,6 +472,7 @@ function deleteServiceFromVault(
  *
  * @param non-empty-array<int> $serviceIds
  * @param string $vaultPath
+ *
  * @return string[]
  */
 function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vaultPath): array
@@ -505,6 +512,7 @@ function retrieveMultipleServiceUuidsFromDatabase(array $serviceIds, string $vau
  * @param \CentreonDB $pearDB
  * @param int $hostId
  * @param string $vaultConfigurationName
+ *
  * @return string|null
  *
  * @throws Throwable
@@ -546,7 +554,7 @@ function retrieveHostUuidFromDatabase(\CentreonDB $pearDB, int $hostId, string $
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param string|null $uuid
  * @param int $hostId
- * @param array $macros
+ * @param array<int,array<string,string>> $macros
  *
  * @throws \Throwable $ex
  */
@@ -611,7 +619,8 @@ function updateHostSecretsInVaultFromMC(
 /**
  * Store all the ids of password macros that have been updated
  *
- * @param array<int,array<string,string> $macros
+ * @param array<int,array<string,string>> $macros
+ *
  * @return int[]
  */
 function getIdOfUpdatedPasswordMacros(array $macros): array
@@ -639,7 +648,7 @@ function getIdOfUpdatedPasswordMacros(array $macros): array
  *      macroPassword: '0'|'1',
  *      originalName?: string
  * }> $macros
- * @param array<string,string> $secretsFromVaul
+ * @param array<string,string> $secretsFromVault
  *
  * @return array<string,string>
  */
@@ -735,7 +744,7 @@ function updateHostSecretsInVault(
 }
 
 /**
- * Prepare the write in vault payload while updating a host.
+ * Prepare the write-in vault payload while updating a host.
  *
  * This method will compare the secrets already stored in the vault with the secrets submitted by the form
  * And update their value or delete them if they are no more setted.
@@ -748,6 +757,7 @@ function updateHostSecretsInVault(
  *  originalName?: string
  * }> $macros
  * @param array<string,string> $secretsFromVault
+ *
  * @return array<string,string>
  */
 function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, array $secretsFromVault): array
@@ -801,7 +811,12 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param Logger $logger
  * @param string|null $snmpCommunity
- * @param array $macros
+ * @param array<int,array{
+ *   macroName: string,
+ *   macroValue: string,
+ *   macroPassword: '0'|'1',
+ *   originalName?: string
+ *  }> $macros $macros
  * @param int $hostId
  *
  * @throws \Throwable
@@ -864,7 +879,7 @@ function insertHostSecretsInVault(
  * @param CentreonRestHttp $httpClient
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param int $duplicatedServiceId
- * @param array $macroPasswords
+ * @param array<int, string> $macroPasswords
  * @param string $clientToken
  *
  * @throws \Throwable
@@ -931,10 +946,13 @@ function duplicateServiceSecretsInVault(
  *
  * @param VaultConfiguration $vaultConfiguration
  * @param int $serviceId
+ * @param string $uuid
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ *
  * @return array<string, mixed>
+ *
  * @throws \Throwable
  */
 function getServiceSecretsFromVault(
@@ -975,6 +993,7 @@ function getServiceSecretsFromVault(
  * @param string $clientToken
  * @param Logger $logger
  * @param CentreonRestHttp $httpClient
+ *
  * @throws \Exception
  */
 function writeServiceSecretsInVault(
@@ -1017,6 +1036,7 @@ function writeServiceSecretsInVault(
  * @param \CentreonDB $pearDB
  * @param non-empty-array<int> $macroIds
  * @param string $servicePath
+ *
  * @throws \Throwable
  */
 function updateOnDemandMacroServiceTableWithVaultPath(\CentreonDB $pearDB, array $macroIds, string $servicePath): void
@@ -1044,7 +1064,9 @@ function updateOnDemandMacroServiceTableWithVaultPath(\CentreonDB $pearDB, array
  * @param \CentreonDB $pearDB
  * @param int $serviceId
  * @param string $vaultConfigurationName
+ *
  * @return string|null
+ *
  * @throws Throwable
  */
 function retrieveServiceSecretUuidFromDatabase(
@@ -1084,7 +1106,12 @@ function retrieveServiceSecretUuidFromDatabase(
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param string|null $uuid
  * @param int $serviceId
- * @param array $macros
+ * @param array<int,array{
+ *       macroName: string,
+ *       macroValue: string,
+ *       macroPassword: '0'|'1',
+ *       originalName?: string
+ *  }> $macros
  *
  * @throws \Throwable
  */
@@ -1148,6 +1175,7 @@ function updateServiceSecretsInVaultFromMC(
  *      originalName?: string
  * }> $macros
  * @param array<string,string> $serviceSecretsFromVault
+ *
  * @return array<string,string>
  */
 function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromVault)
@@ -1230,7 +1258,7 @@ function updateServiceSecretsInVault(
 }
 
 /**
- * Prepare the write in vault payload while updating a service.
+ * Prepare the write-in vault payload while updating a service.
  *
  * This method will compare the secrets already stored in the vault with the secrets submitted by the form
  * And update their value or delete them if they are no more setted.
@@ -1242,6 +1270,7 @@ function updateServiceSecretsInVault(
  *  originalName?: string
  * }> $macros
  * @param array<string,string> $serviceSecretsFromVault
+ *
  * @return array<string,string>
  */
 function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVault): array
@@ -1279,7 +1308,12 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  * @param VaultConfiguration $vaultConfiguration
  * @param UUIDGeneratorInterface $uuidGenerator
  * @param Logger $logger
- * @param array $macros
+ * @param array<int,array{
+ *       macroName: string,
+ *       macroValue: string,
+ *       macroPassword: '0'|'1',
+ *       originalName?: string
+ *  }> $macros
  *
  * @throws \Throwable
  */

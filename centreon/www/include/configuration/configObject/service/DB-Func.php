@@ -419,13 +419,7 @@ function deleteServiceInDB($services = array())
 
     $serviceIds = array_keys($services);
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
-    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -612,13 +606,9 @@ function multipleServiceInDB(
     $maxId["MAX(service_id)"] = null;
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -1009,13 +999,9 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
 
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -1168,13 +1154,9 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -2274,13 +2256,9 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
@@ -2531,13 +2509,9 @@ function updateService_MC($service_id = null, $params = array())
     }
 
     $kernel = \App\Kernel::createForWeb();
-    /**
-     * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
-     */
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-    /**
-     * @var \Centreon\Domain\Log\Logger $logger
-     */
+    /** @var \Centreon\Domain\Log\Logger $logger */
     $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
