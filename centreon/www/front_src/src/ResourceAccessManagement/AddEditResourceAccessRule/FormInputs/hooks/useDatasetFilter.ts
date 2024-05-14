@@ -1,6 +1,6 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useFormikContext } from 'formik';
 import {
   T,
@@ -8,6 +8,7 @@ import {
   cond,
   equals,
   flatten,
+  has,
   includes,
   isEmpty,
   isNil,
@@ -26,11 +27,13 @@ import {
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllBusinessViewsSelected,
   labelAllHostGroupsSelected,
   labelAllHostsSelected,
   labelAllResources,
   labelAllResourcesSelected,
   labelAllServiceGroupsSelected,
+  labelBusinessView,
   labelHost,
   labelHostCategory,
   labelHostGroup,
@@ -43,6 +46,7 @@ import {
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
+import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -73,6 +77,11 @@ const resourceTypeOptions = [
     availableResourceTypeOptions: [],
     id: ResourceTypeEnum.All,
     name: labelAllResources
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.BusinessView,
+    name: labelBusinessView
   },
   {
     availableResourceTypeOptions: [
@@ -134,6 +143,7 @@ const resourceTypeOptions = [
 ];
 
 export const resourceTypeBaseEndpoints = {
+  [ResourceTypeEnum.BusinessView]: '/configuration/business-views',
   [ResourceTypeEnum.Host]: '/configuration/hosts',
   [ResourceTypeEnum.HostCategory]: '/configuration/hosts/categories',
   [ResourceTypeEnum.HostGroup]: '/configuration/hosts/groups',
@@ -178,7 +188,8 @@ const searchParametersBySelectedResourceType = {
 const labelsForSelectedResources = {
   [ResourceTypeEnum.Host]: labelAllHostsSelected,
   [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
-  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected
+  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected,
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected
 };
 
 const useDatasetFilter = (
@@ -206,18 +217,28 @@ const useDatasetFilter = (
     ]
   );
 
+  const platform = useAtomValue(platformVersionsAtom);
+  const isBamInstalled = has('centreon-bam-server', platform?.modules);
+
   const lowestResourceTypeReached = (): boolean =>
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
-    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService);
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService) ||
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.BusinessView);
 
   const getResourceTypeOptions = (index: number): Array<SelectEntry> => {
+    const prefilteredResourceTypeOptions = isBamInstalled
+      ? resourceTypeOptions
+      : resourceTypeOptions.filter(
+          (option) => !equals(option.id, ResourceTypeEnum.BusinessView)
+        );
+
     if (isNil(value)) {
-      return resourceTypeOptions;
+      return prefilteredResourceTypeOptions;
     }
 
     const filteredResourceTypeOptions = flatten(
       pluck('availableResourceTypeOptions')(
-        resourceTypeOptions.filter((option) =>
+        prefilteredResourceTypeOptions.filter((option) =>
           equals(option.id, value[index - 1]?.resourceType)
         )
       )
@@ -237,7 +258,7 @@ const useDatasetFilter = (
     );
 
     return isEmpty(remainingResourceTypeOptions)
-      ? resourceTypeOptions
+      ? prefilteredResourceTypeOptions
       : remainingResourceTypeOptions;
   };
 
@@ -260,7 +281,8 @@ const useDatasetFilter = (
   ): boolean =>
     equals(resourceType, ResourceTypeEnum.HostGroup) ||
     equals(resourceType, ResourceTypeEnum.Host) ||
-    equals(resourceType, ResourceTypeEnum.ServiceGroup);
+    equals(resourceType, ResourceTypeEnum.ServiceGroup) ||
+    equals(resourceType, ResourceTypeEnum.BusinessView);
 
   const getLabelForSelectedResources = (index: number): string => {
     if (datasetFilter[index]?.allOfResourceType) {
@@ -488,7 +510,9 @@ const useDatasetFilter = (
     (index: number, resourceType: ResourceTypeEnum) =>
     (parameters): string => {
       return buildListingEndpoint({
-        baseEndpoint: `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
+        baseEndpoint: equals(resourceType, ResourceTypeEnum.BusinessView)
+          ? `${baseEndpoint}/bam${resourceTypeBaseEndpoints[ResourceTypeEnum.BusinessView]}`
+          : `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
         customQueryParameters: buildSearchParameters(index),
         parameters: {
           ...parameters,

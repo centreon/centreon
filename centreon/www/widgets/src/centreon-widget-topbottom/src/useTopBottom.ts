@@ -1,4 +1,5 @@
 import { equals, isNil, pluck } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import {
   buildListingEndpoint,
@@ -6,15 +7,25 @@ import {
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { GlobalRefreshInterval, Metric, Resource } from '../../models';
-import { areResourcesFullfilled } from '../../utils';
+import {
+  CommonWidgetProps,
+  GlobalRefreshInterval,
+  Metric,
+  Resource
+} from '../../models';
+import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
 import { metricsTopEndpoint } from './api/endpoint';
 import { MetricsTop, TopBottomSettings } from './models';
 import { metricsTopDecoder } from './api/decoder';
 
-interface UseTopBottomProps {
+interface UseTopBottomProps
+  extends Pick<
+    CommonWidgetProps<object>,
+    'playlistHash' | 'dashboardId' | 'id'
+  > {
   globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<Metric>;
   refreshCount: number;
@@ -37,8 +48,13 @@ const useTopBottom = ({
   metrics,
   topBottomSettings,
   resources,
-  refreshCount
+  refreshCount,
+  dashboardId,
+  id,
+  playlistHash
 }: UseTopBottomProps): UseTopBottomState => {
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval,
@@ -50,25 +66,31 @@ const useTopBottom = ({
   const { data: metricsTop, isFetching } = useFetchQuery<MetricsTop>({
     decoder: metricsTopDecoder,
     getEndpoint: () =>
-      `${buildListingEndpoint({
-        baseEndpoint: metricsTopEndpoint,
-        parameters: {
-          limit: topBottomSettings.numberOfValues,
-          search: {
-            lists: resources.map((resource) => ({
-              field: resourceTypeQueryParameter[resource.resourceType],
-              values: equals(resource.resourceType, 'service')
-                ? pluck('name', resource.resources)
-                : pluck('id', resource.resources)
-            }))
-          },
-          sort: {
-            current_value: equals(topBottomSettings.order, 'bottom')
-              ? 'DESC'
-              : 'ASC'
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: `${buildListingEndpoint({
+          baseEndpoint: metricsTopEndpoint,
+          parameters: {
+            limit: topBottomSettings.numberOfValues,
+            search: {
+              lists: resources.map((resource) => ({
+                field: resourceTypeQueryParameter[resource.resourceType],
+                values: equals(resource.resourceType, 'service')
+                  ? pluck('name', resource.resources)
+                  : pluck('id', resource.resources)
+              }))
+            },
+            sort: {
+              current_value: equals(topBottomSettings.order, 'bottom')
+                ? 'DESC'
+                : 'ASC'
+            }
           }
-        }
-      })}&metric_name=${metricName}`,
+        })}&metric_name=${metricName}`,
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
+      }),
     getQueryKey: () => [
       'topbottom',
       metricName,

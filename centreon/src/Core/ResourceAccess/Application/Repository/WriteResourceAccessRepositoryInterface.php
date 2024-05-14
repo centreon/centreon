@@ -79,11 +79,12 @@ interface WriteResourceAccessRepositoryInterface
     ): int;
 
     /**
+     * @param int $ruleId
      * @param int $datasetId
      * @param string $resourceType (possible values: hostgroups, servicegroups, hosts)
      * @param bool $fullAccess
      */
-    public function updateDatasetAccess(int $datasetId, string $resourceType, bool $fullAccess): void;
+    public function updateDatasetAccess(int $ruleId, int $datasetId, string $resourceType, bool $fullAccess): void;
 
     /**
      * @param int $ruleId

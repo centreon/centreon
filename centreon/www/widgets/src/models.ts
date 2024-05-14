@@ -77,8 +77,11 @@ export enum SeverityStatus {
 }
 
 export interface CommonWidgetProps<T extends object> {
+  dashboardId: number | string;
   globalRefreshInterval: GlobalRefreshInterval;
+  id: string;
   isFromPreview?: boolean;
+  playlistHash?: string;
   refreshCount: number;
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   store: ReturnType<typeof createStore>;

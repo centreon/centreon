@@ -15,6 +15,7 @@ import { useMemoComponent } from '../utils';
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
+  additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
   children: ReactElement;
   className?: string;
@@ -39,7 +40,8 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       onTouchEnd,
       id,
       disablePadding = false,
-      canMove = false
+      canMove = false,
+      additionalMemoProps = []
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
@@ -92,7 +94,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
           </Card>
         </div>
       ),
-      memoProps: [style, className, header, theme.palette.mode, canMove]
+      memoProps: [
+        style,
+        className,
+        header,
+        theme.palette.mode,
+        canMove,
+        ...additionalMemoProps
+      ]
     });
   }
 );

@@ -20,14 +20,20 @@ const Input = ({
   panelData,
   panelOptions,
   globalRefreshInterval,
-  refreshCount
+  refreshCount,
+  id,
+  playlistHash,
+  dashboardId
 }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="widget-graph" store={store}>
       <LineChart
+        dashboardId={dashboardId}
         globalRefreshInterval={globalRefreshInterval}
+        id={id}
         panelData={panelData}
         panelOptions={panelOptions}
+        playlistHash={playlistHash}
         refreshCount={refreshCount}
       />
     </Module>

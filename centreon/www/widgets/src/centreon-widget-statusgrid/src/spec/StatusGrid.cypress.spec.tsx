@@ -1,13 +1,13 @@
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 import { initReactI18next } from 'react-i18next';
 import i18next from 'i18next';
 
-import { Method } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { userAtom, isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { Data, PanelOptions } from '../StatusGridStandard/models';
-import StatusGrid from '..';
+import { StatusGridWrapper } from '..';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
@@ -18,6 +18,7 @@ import {
 import { resourcesEndpoint } from '../api/endpoints';
 import { router } from '../StatusGridStandard/Tile';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
+import { getPublicWidgetEndpoint } from '../../../utils';
 
 import {
   condensedOptions,
@@ -35,13 +36,14 @@ import {
 
 interface Props {
   data: Data;
+  isPublic?: boolean;
   options: PanelOptions;
 }
 
-const initialize = ({ options, data }: Props): void => {
+const initialize = ({ options, data, isPublic = false }: Props): void => {
   const store = createStore();
-
   store.set(userAtom, { locale: 'en_US', timezone: 'Europe/Paris' });
+  store.set(isOnPublicPageAtom, isPublic);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -50,20 +52,26 @@ const initialize = ({ options, data }: Props): void => {
 
   cy.mount({
     Component: (
-      <BrowserRouter>
-        <div style={{ height: '100vh', width: '100vw' }}>
-          <StatusGrid
-            globalRefreshInterval={{
-              interval: 30,
-              type: 'manual'
-            }}
-            panelData={data}
-            panelOptions={options}
-            refreshCount={0}
-            store={store}
-          />
-        </div>
-      </BrowserRouter>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <BrowserRouter>
+            <div style={{ height: '100vh', width: '100vw' }}>
+              <StatusGridWrapper
+                dashboardId={1}
+                globalRefreshInterval={{
+                  interval: 30,
+                  type: 'manual'
+                }}
+                id="1"
+                panelData={data}
+                panelOptions={options}
+                playlistHash="hash"
+                refreshCount={0}
+              />
+            </div>
+          </BrowserRouter>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 };
@@ -74,6 +82,17 @@ const hostsRequests = (): void => {
       alias: 'getHostResources',
       method: Method.GET,
       path: `./api/latest${resourcesEndpoint}?page=1&limit=20**`,
+      response: data
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidgetStandard',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
       response: data
     });
   });
@@ -156,6 +175,17 @@ const statusRequests = (): void => {
       path: `./api/latest${getStatusesEndpoint('service')}?**`,
       response: data
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidgetCondensed',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
+      response: data
+    });
   });
 
   cy.fixture('Widgets/StatusGrid/hostTooltipDetails.json').then((data) => {
@@ -167,6 +197,30 @@ const statusRequests = (): void => {
     });
   });
 };
+
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page and the standard view is enabled', () => {
+    hostsRequests();
+    initialize({
+      data: { resources },
+      isPublic: true,
+      options: hostOptions
+    });
+
+    cy.waitForRequest('@getPublicWidgetStandard');
+  });
+
+  it('sends a request to the public API when the widget is displayed in a public page and the condensed view is enabled', () => {
+    statusRequests();
+    initialize({
+      data: { resources },
+      isPublic: true,
+      options: condensedOptions
+    });
+
+    cy.waitForRequest('@getPublicWidgetCondensed');
+  });
+});
 
 describe('View by host', () => {
   describe('With Resources', () => {
