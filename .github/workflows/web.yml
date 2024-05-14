@@ -955,7 +955,7 @@ jobs:
           ref: main
           bu: RD
           poller_number: 1
-          system_name: Alma8
+          instance_features: "Alma9 - MariaDB"
           centreon_branch: develop
           configured_resources: false
           install_business_modules: false

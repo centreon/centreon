@@ -1,17 +1,21 @@
-name: chromatic-nightly
+name: chromatic
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 5 * * 1,2,3,4"
+  push:
+    branches:
+      - 'develop'
+      - 'MON-**'
+    paths:
+      - "centreon/packages/ui/**"
 
 env:
   directory: "centreon/packages/ui"
 
 jobs:
-  publish-snapshots:
-    if: ${{ github.event_name == 'schedule' && github.ref_name == 'develop' }}
+  chromatic:
     runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
