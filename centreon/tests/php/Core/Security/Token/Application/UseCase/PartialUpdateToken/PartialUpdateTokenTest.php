@@ -108,7 +108,7 @@ it('should present a Forbidden Response when the user does not have sufficient r
         ->toBe(TokenException::notAllowedToPartiallyUpdateToken()->getMessage());
 });
 
-it('should present a Not Found Response when no token exists for a given name and/or user id', function (): void {
+it('should present a Not Found Response when no token exists for a given name and/or user ID', function (): void {
     $this->contact
         ->expects($this->once())
         ->method('hasTopologyRole')
