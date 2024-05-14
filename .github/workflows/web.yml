@@ -5,6 +5,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      is_nightly:
+        description: 'Set to true for nightly run'
+        required: true
+        default: false
+        type: boolean
   pull_request:
     paths:
       - "centreon/**"
