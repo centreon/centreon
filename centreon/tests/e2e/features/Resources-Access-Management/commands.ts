@@ -11,7 +11,7 @@ Cypress.Commands.add(
         ],
         description: '',
         is_enabled: true,
-        name: name
+        name
       };
       cy.request({
         body: payload,
@@ -24,7 +24,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
   return cy.execInContainer({
-    command: `sed -i 's/"resource_access_management": 0,/"resource_access_management": 3,/g' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's/"resource_access_management": 2,/"resource_access_management": 3,/g' /usr/share/centreon/config/features.json`,
     name: 'web'
   });
 });
