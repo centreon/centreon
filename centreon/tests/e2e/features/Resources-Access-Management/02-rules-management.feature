@@ -1,4 +1,3 @@
-@ignore
 @REQ_MON-69140
 Feature: Resource Access Management
   As an administrator, I want to add rules to limit or grant access for other Centreon users.

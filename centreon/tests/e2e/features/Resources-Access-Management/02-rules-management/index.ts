@@ -6,11 +6,11 @@ import '../commands';
 
 beforeEach(() => {
   // using centreon-bam because we need BA modules
-  //   cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
-  //   cy.enableResourcesAccessManagementFeature();
-  //   cy.installCloudExtensionsOnContainer();
+    cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
+    cy.enableResourcesAccessManagementFeature();
+    cy.installCloudExtensionsOnContainer();
   // we should install cloud extension and anomaly detection
-  // cy.installCloudExtensionsModule();
+  cy.installCloudExtensionsModule();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -28,12 +28,12 @@ beforeEach(() => {
 Given('I am logged in as a user with limited access', () => {
   cy.setUserTokenApiV1();
   // verify later on if this user have BA access
-  // cy.addContact({
-  //   admin: data.admin,
-  //   email: data.email,
-  //   name: data.login,
-  //   password: data.password
-  // });
+  cy.addContact({
+    admin: data.admin,
+    email: data.email,
+    name: data.login,
+    password: data.password
+  });
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.navigateTo({
     page: 'Contacts / Users',
@@ -77,12 +77,12 @@ Given('I have restricted visibility to resources', () => {
   cy.logoutViaAPI();
 });
 
-Given('an Administrator is logged into the platform', () => {
+Given('an Administrator is logged in on the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 When(
-  'the Administrator is redirected to Administration > ACL > Resource Access Management',
+  'the Administrator is redirected to the "Resource Access Management" page',
   () => {
     cy.addHost({
       activeCheckEnabled: false,
@@ -117,7 +117,7 @@ Then(
 );
 
 When(
-  'the Administrator selects a simple user from the contacts and clicks "Save"',
+  'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.contains(`${data.login}`).click();
@@ -134,7 +134,7 @@ Given('the selected user is logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
-When('the user is redirected to Monitoring > Resources', () => {
+When('the user is redirected to monitoring "Resources" page', () => {
   cy.visit('centreon/monitoring/resources');
 });
 
@@ -142,6 +142,6 @@ Then('the user can see the Host selected by the Administrator', () => {
   cy.contains('Centreon-Database').should('be.visible');
 });
 
-// afterEach(() => {
-//   cy.stopContainers();
-// });
+afterEach(() => {
+  cy.stopContainers();
+});
