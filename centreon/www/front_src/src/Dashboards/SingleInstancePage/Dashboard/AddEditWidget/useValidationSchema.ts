@@ -68,6 +68,7 @@ const useValidationSchema = (): {
         enabled: Yup.boolean().required(requiredText)
       }),
       name: Yup.string().nullable(),
+      openLinksInNewTab: Yup.boolean().required(requiredText),
       ...widgetOptionsValidationSchema
     })
   });
