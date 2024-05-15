@@ -3,6 +3,7 @@ import { lazy, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
 import { createStore } from 'jotai';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { Module } from '@centreon/ui';
 
@@ -78,7 +79,7 @@ const Provider = (): JSX.Element | null => {
     <Module maxSnackbars={2} seedName="centreon" store={store}>
       <>
         <RouterProvider router={router} />
-        {/* <ReactQueryDevtools /> */}
+        <ReactQueryDevtools />
       </>
     </Module>
   );

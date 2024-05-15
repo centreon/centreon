@@ -16866,3 +16866,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "Natural"
 # msgstr ""
+
+# msgid "Error while partially updating the token"
+# msgstr ""
+
+# msgid "You are not allowed to partially update the token"
+# msgstr ""
