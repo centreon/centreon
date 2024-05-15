@@ -2,18 +2,18 @@
 name: release-trigger-builds
 
 on:
-    workflow_dispatch:
-      inputs:
-        dispatch_target_release_branch:
-          description: "Cloud release branch to trigger"
-          required: true
-        dispatch_content:
-          description: "Regular (only centreon named components) or Full (every component, including php and extra libs)"
-          required: true
-          type: choice
-          options:
-            - REGULAR
-            - FULL
+  workflow_dispatch:
+    inputs:
+      dispatch_target_release_branch:
+        description: "Cloud release branch to trigger"
+        required: true
+      dispatch_content:
+        description: "Regular (only centreon named components) or Full (every component, including php and extra libs)"
+        required: true
+        type: choice
+        options:
+          - REGULAR
+          - FULL
 
 
 jobs:
