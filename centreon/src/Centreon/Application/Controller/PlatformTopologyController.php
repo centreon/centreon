@@ -106,8 +106,11 @@ class PlatformTopologyController extends AbstractController
 
         // Check Topology access to Configuration > Pollers page
         if (
-            ! $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            && ($contact->isAdmin() || $contact->hasRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG))
+            ! $contact->isAdmin()
+            && ! (
+                $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                && $contact->hasRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG)
+            )
         ) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
