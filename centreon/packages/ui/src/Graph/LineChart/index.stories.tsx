@@ -33,6 +33,7 @@ import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
 import dataLastDay from './mockedData/lastDay.json';
+import dataCurvesSameColor from './mockedData/curvesWithSameColor.json';
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperLineChart from './index';
@@ -474,6 +475,18 @@ export const thresholdsRange: Story = {
     <WrapperLineChart
       {...args}
       data={dataLastDay as unknown as LineChartData}
+    />
+  )
+};
+
+export const LineChartWithSameColorCurves: Story = {
+  ...Template,
+  argTypes,
+  args: argumentsData,
+  render: (args) => (
+    <WrapperLineChart
+      {...args}
+      data={dataCurvesSameColor as unknown as LineChartData}
     />
   )
 };
