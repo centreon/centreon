@@ -52,11 +52,9 @@ import {
   labelExpirationDate,
   labelGenerateNewToken,
   labelName,
-  labelRevoked,
   labelRevokedToken,
   labelSearch,
   labelSecurityToken,
-  labelStatus,
   labelTokenCreated,
   labelTokenDeletedSuccessfully,
   labelUser
