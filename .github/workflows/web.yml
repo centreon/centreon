@@ -1,10 +1,18 @@
 name: web
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.is_nightly == 'true')) && format('web nightly {0}', github.ref_name) || '' }}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 on:
   workflow_dispatch:
+    inputs:
+      is_nightly:
+        description: 'Set to true for nightly run'
+        required: true
+        default: false
+        type: boolean
   pull_request:
     paths:
       - "centreon/**"
