@@ -4523,7 +4523,7 @@ paths:
   /administration/tokens/{token_name}:
     $ref: "./v24.04/Administration/Token/DeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
-    $ref: "./v24.04/Administration/Token/DeleteTokenByUser.yaml"
+    $ref: "./v24.04/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:

@@ -1,3 +1,6 @@
+import * as Curve from '@visx/curve';
+import { always, cond, equals } from 'ramda';
+
 import { alpha } from '@mui/material';
 
 const commonTickLabelProps = {
@@ -24,6 +27,16 @@ const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
 const maxLinesDisplayedLegend = 11;
 
+const getCurveFactory = (
+  curve: 'linear' | 'step' | 'natural'
+): typeof Curve.curveLinear => {
+  return cond([
+    [equals('linear'), always(Curve.curveLinear)],
+    [equals('step'), always(Curve.curveStep)],
+    [equals('natural'), always(Curve.curveCatmullRom)]
+  ])(curve);
+};
+
 export {
   commonTickLabelProps,
   margin,
@@ -31,5 +44,6 @@ export {
   dateFormat,
   timeFormat,
   dateTimeFormat,
-  maxLinesDisplayedLegend
+  maxLinesDisplayedLegend,
+  getCurveFactory
 };
