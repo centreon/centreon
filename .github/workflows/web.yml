@@ -102,7 +102,7 @@ jobs:
         uses: actions/checkout@v4
 
       - run: |
-          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x")
+          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.04.x" "dev-23.10.x" "dev-24.04.x")
           for target in ${NIGHTLY_TARGETS[@]}; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run web.yml -r "$target" -f is_nightly=true
@@ -955,7 +955,7 @@ jobs:
           ref: main
           bu: RD
           poller_number: 1
-          system_name: Alma8
+          instance_features: "Alma9 - MariaDB"
           centreon_branch: develop
           configured_resources: false
           install_business_modules: false

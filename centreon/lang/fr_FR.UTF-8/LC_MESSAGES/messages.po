@@ -18981,3 +18981,9 @@ msgstr "Toutes les vues métier sont sélectionnées"
 
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
+
+msgid "Error while partially updating the token"
+msgstr "Erreur lors de la mise à jour partielle du jeton"
+
+msgid "You are not allowed to partially update the token"
+msgstr "Vous n'êtes pas autorisé à mettre à jour partiellement le jeton"
