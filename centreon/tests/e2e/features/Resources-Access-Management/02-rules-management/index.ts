@@ -27,67 +27,7 @@ beforeEach(() => {
 });
 
 Given('I am logged in as a user with limited access', () => {
-  cy.setUserTokenApiV1();
-  // verify later on if this user have BA access
-  cy.addContact({
-    admin: data.admin,
-    email: data.email,
-    name: data.login,
-    password: data.password
-  });
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.addHost({
-    activeCheckEnabled: false,
-    address: data2.adress,
-    checkCommand: 'check_centreon_cpu',
-    hostGroup: data2.hostGroups.hostGroup1.name,
-    name: data2.hosts.host1.name,
-    template: 'generic-host'
-  });
-  cy.applyPollerConfiguration();
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
-  cy.getIframeBody().contains(data.login).click();
-  cy.wait('@getContactFrame');
-  cy.wait('@getTimeZone');
-  cy.getIframeBody()
-    .find('span[aria-labelledby$="-timeperiod_tp_id-container"]')
-    .click();
-  cy.getIframeBody().contains('24x7').click();
-  cy.getIframeBody()
-    .find('input[placeholder="Host Notification Commands"]')
-    .parent()
-    .parent()
-    .click();
-  cy.getIframeBody().contains('host-notify-by-email').click();
-  cy.getIframeBody()
-    .find('span[aria-labelledby$="-timeperiod_tp_id2-container"]')
-    .click();
-  cy.getIframeBody().contains('none').click();
-  cy.getIframeBody()
-    .find('input[placeholder="Service Notification Commands"]')
-    .parent()
-    .parent()
-    .click();
-  cy.getIframeBody().contains('host-notify-by-epager').click();
-
-  cy.getIframeBody().find('li.b#c2').click();
-  cy.getIframeBody().contains('label[for="reach_api_yes"]', 'Yes').click();
-  cy.getIframeBody().contains('label[for="reach_api_rt_yes"]', 'Yes').click();
-  cy.getIframeBody()
-    .find('input[placeholder="Access list groups"]')
-    .parent()
-    .parent()
-    .click();
-  cy.getIframeBody().contains('customer_user_acl').click();
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('.btc.bt_success[name="submitC"]')
-    .click();
-  cy.wait(3000);
+  cy.createSimpleUser(data, data2);
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
@@ -99,7 +39,7 @@ Given('I have restricted visibility to resources', () => {
         return cy.wrap($element.length === 1);
       });
     },
-    { interval: 8000, timeout: 100000 }
+    { interval: 5000, timeout: 100000 }
   );
   cy.get('div[class$="-root-emptyDataCell"]').contains('No result found');
   cy.logoutViaAPI();

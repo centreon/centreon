@@ -41,6 +41,10 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
       type: CopyToContainerContentType.File
     })
     .execInContainer({
+      command: `ls tmp`,
+      name: 'web'
+    })
+    .execInContainer({
       command: `dnf install /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
       name: 'web'
     })
@@ -69,6 +73,70 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.logoutViaAPI();
 });
 
+Cypress.Commands.add('createSimpleUser', (userInformation, hostInformation) => {
+  cy.setUserTokenApiV1();
+  // verify later on if this user have BA access
+  cy.addContact({
+    admin: userInformation.admin,
+    email: userInformation.email,
+    name: userInformation.login,
+    password: userInformation.password
+  });
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.addHost({
+    activeCheckEnabled: false,
+    address: hostInformation.adress,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: hostInformation.hostGroups.hostGroup1.name,
+    name: hostInformation.hosts.host1.name,
+    template: 'generic-host'
+  });
+  cy.applyPollerConfiguration();
+  cy.navigateTo({
+    page: 'Contacts / Users',
+    rootItemNumber: 3,
+    subMenu: 'Users'
+  });
+  cy.getIframeBody().contains(userInformation.login).click();
+  cy.wait('@getContactFrame');
+  cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-timeperiod_tp_id-container"]')
+    .click();
+  cy.getIframeBody().contains('24x7').click();
+  cy.getIframeBody()
+    .find('input[placeholder="Host Notification Commands"]')
+    .parent()
+    .parent()
+    .click();
+  cy.getIframeBody().contains('host-notify-by-email').click();
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-timeperiod_tp_id2-container"]')
+    .click();
+  cy.getIframeBody().contains('none').click();
+  cy.getIframeBody()
+    .find('input[placeholder="Service Notification Commands"]')
+    .parent()
+    .parent()
+    .click();
+  cy.getIframeBody().contains('host-notify-by-epager').click();
+
+  cy.getIframeBody().find('li.b#c2').click();
+  cy.getIframeBody().contains('label[for="reach_api_yes"]', 'Yes').click();
+  cy.getIframeBody().contains('label[for="reach_api_rt_yes"]', 'Yes').click();
+  cy.getIframeBody()
+    .find('input[placeholder="Access list groups"]')
+    .parent()
+    .parent()
+    .click();
+  cy.getIframeBody().contains('customer_user_acl').click();
+  cy.getIframeBody()
+    .find('div#validForm')
+    .find('.btc.bt_success[name="submitC"]')
+    .click();
+  cy.wait(3000);
+});
+
 Cypress.Commands.add('reloadAcl', () => {
   return cy.execInContainer({
     command: `sudo -u apache php /usr/share/centreon/cron/centAcl.php`,
@@ -83,6 +151,7 @@ declare global {
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
+      createSimpleUser: () => Cypress.Chainable;
       reloadAcl: () => Cypress.Chainable;
     }
   }
