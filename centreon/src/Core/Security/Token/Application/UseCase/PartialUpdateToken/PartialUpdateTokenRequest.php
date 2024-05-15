@@ -21,32 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Token\Application\Repository;
+namespace Core\Security\Token\Application\UseCase\PartialUpdateToken;
 
-use Core\Security\Token\Domain\Model\NewToken;
-use Core\Security\Token\Domain\Model\Token;
+use Core\Common\Application\Type\NoValue;
 
-interface WriteTokenRepositoryInterface
+final class PartialUpdateTokenRequest
 {
     /**
-     * @param NewToken $newToken
-     *
-     * @throws \Throwable
+     * @param NoValue|bool $isRevoked
      */
-    public function add(NewToken $newToken): void;
-
-    /**
-     * @param string $tokenName
-     * @param int $userId
-     *
-     * @throws \Throwable
-     */
-    public function deleteByNameAndUserId(string $tokenName, int $userId): void;
-
-    /**
-     * @param Token $token
-     *
-     * @throws \Throwable
-     */
-    public function update(Token $token): void;
+    public function __construct(public NoValue|bool $isRevoked = new NoValue())
+    {
+    }
 }

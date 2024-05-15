@@ -1,0 +1,6 @@
+type: object
+properties:
+  is_revoked:
+    type: boolean
+    description: 'Indicate if the token has been revoked'
+    example: false
