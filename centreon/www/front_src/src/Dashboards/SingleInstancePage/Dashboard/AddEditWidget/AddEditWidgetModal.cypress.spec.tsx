@@ -457,6 +457,16 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays general properties when a widget is selected', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Group name').should('be.visible');
+      cy.contains('Select field').should('be.visible');
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {

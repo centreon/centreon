@@ -87,7 +87,8 @@ const StatusGrid = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const hasMoreResources = gt(data?.meta.total || 0, tiles);
