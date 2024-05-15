@@ -67,6 +67,6 @@ jobs:
           fi
 
           if [[ $? -eq 0 ]];then
-            echo "Dispatch was successfully triggered. Runs can be found at "
+            echo "Dispatch was successfully triggered. Runs can be found at "${RUNS_URL}".
         shell: bash
 
