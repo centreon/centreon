@@ -22,7 +22,6 @@ const WidgetProperties = (): JSX.Element => {
   const { classes } = useWidgetPropertiesStyles();
 
   const widgetProperties = useWidgetInputs('options');
-
   const isWidgetSelected = !isNil(widgetProperties);
 
   const hasProperties = !isEmpty(widgetProperties);
