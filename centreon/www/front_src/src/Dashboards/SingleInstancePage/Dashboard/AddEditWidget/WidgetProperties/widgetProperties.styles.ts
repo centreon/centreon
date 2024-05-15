@@ -3,6 +3,15 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
+  groupContent: {
+    marginLeft: theme.spacing(0.5)
+  },
+  groupDivider: {
+    marginBottom: theme.spacing(1)
+  },
+  groupTitle: {
+    fontSize: '1.15rem'
+  },
   previewDescription: {
     marginTop: theme.spacing(1)
   },

@@ -518,6 +518,10 @@ Cypress.Commands.add('stopContainers', (): Cypress.Chainable => {
     .createDirectory(logDirectory)
     .getContainersLogs()
     .then((containersLogs: Array<Array<string>>) => {
+      if (!containersLogs) {
+        return;
+      }
+
       Object.entries(containersLogs).forEach(([containerName, logs]) => {
         cy.writeFile(
           `results/logs/${Cypress.spec.name.replace(

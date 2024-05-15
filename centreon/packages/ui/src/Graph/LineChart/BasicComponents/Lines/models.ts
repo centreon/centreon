@@ -1,5 +1,4 @@
 import { ScaleLinear } from 'd3-scale';
-import { curveBasis } from '@visx/curve';
 
 import { Line, TimeValue } from '../../../common/timeSeries/models';
 import { LineChartData } from '../../../common/models';
@@ -41,5 +40,3 @@ export interface Shape {
   areaStackedLines: AreaStackedLines;
   areaThreshold: AreaThreshold;
 }
-
-export type CurveType = typeof curveBasis;
