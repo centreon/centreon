@@ -17637,6 +17637,18 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to list contact templates"
 # msgstr ""
 
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Curve type"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Natural"
+# msgstr ""
+
 # msgid "Error while partially updating the token"
 # msgstr ""
 
