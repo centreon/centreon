@@ -6,9 +6,10 @@ import '../commands';
 
 beforeEach(() => {
   // using centreon-bam because we need BA modules
-    cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
-    cy.enableResourcesAccessManagementFeature();
-    cy.installCloudExtensionsOnContainer();
+  // cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
+  cy.startContainers();
+  cy.enableResourcesAccessManagementFeature();
+  cy.installCloudExtensionsOnContainer();
   // we should install cloud extension and anomaly detection
   cy.installCloudExtensionsModule();
   cy.intercept({
@@ -35,6 +36,15 @@ Given('I am logged in as a user with limited access', () => {
     password: data.password
   });
   cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.addHost({
+    activeCheckEnabled: false,
+    address: data2.adress,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: data2.hostGroups.hostGroup1.name,
+    name: data2.hosts.host1.name,
+    template: 'generic-host'
+  });
+  cy.applyPollerConfiguration();
   cy.navigateTo({
     page: 'Contacts / Users',
     rootItemNumber: 3,
@@ -43,23 +53,41 @@ Given('I am logged in as a user with limited access', () => {
   cy.getIframeBody().contains(data.login).click();
   cy.wait('@getContactFrame');
   cy.wait('@getTimeZone');
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-timeperiod_tp_id-container"]')
+    .click();
+  cy.getIframeBody().contains('24x7').click();
+  cy.getIframeBody()
+    .find('input[placeholder="Host Notification Commands"]')
+    .parent()
+    .parent()
+    .click();
+  cy.getIframeBody().contains('host-notify-by-email').click();
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-timeperiod_tp_id2-container"]')
+    .click();
+  cy.getIframeBody().contains('none').click();
+  cy.getIframeBody()
+    .find('input[placeholder="Service Notification Commands"]')
+    .parent()
+    .parent()
+    .click();
+  cy.getIframeBody().contains('host-notify-by-epager').click();
+
   cy.getIframeBody().find('li.b#c2').click();
   cy.getIframeBody().contains('label[for="reach_api_yes"]', 'Yes').click();
   cy.getIframeBody().contains('label[for="reach_api_rt_yes"]', 'Yes').click();
   cy.getIframeBody()
-    .find(
-      'span.selection > span.select2-selection > ul.select2-selection__rendered > li.select2-search > input.select2-search__field[placeholder="Access list groups"]'
-    )
+    .find('input[placeholder="Access list groups"]')
     .parent()
     .parent()
     .click();
   cy.getIframeBody().contains('customer_user_acl').click();
   cy.getIframeBody()
-    .find('.btc.bt_success[name="submitC"]')
-    .parent()
-    .parent()
     .find('div#validForm')
+    .find('.btc.bt_success[name="submitC"]')
     .click();
+  cy.wait(3000);
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
@@ -84,13 +112,6 @@ Given('an Administrator is logged in on the platform', () => {
 When(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
-    cy.addHost({
-      activeCheckEnabled: false,
-      checkCommand: 'check_centreon_cpu',
-      hostGroup: data2.hostGroups.hostGroup1.name,
-      name: data2.hosts.host1.name,
-      template: 'generic-host'
-    });
     cy.visit(`centreon/administration/resource-access/rules`);
   }
 );
@@ -122,7 +143,8 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.contains(`${data.login}`).click();
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-    cy.wait(30000);
+    cy.wait(3000);
+    cy.reloadAcl();
   }
 );
 

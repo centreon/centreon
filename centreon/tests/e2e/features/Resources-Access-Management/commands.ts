@@ -69,6 +69,13 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.logoutViaAPI();
 });
 
+Cypress.Commands.add('reloadAcl', () => {
+  return cy.execInContainer({
+    command: `sudo -u apache php /usr/share/centreon/cron/centAcl.php`,
+    name: 'web'
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -76,6 +83,7 @@ declare global {
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
+      reloadAcl: () => Cypress.Chainable;
     }
   }
 }
