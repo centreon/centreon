@@ -68,5 +68,8 @@ jobs:
 
           if [[ $? -eq 0 ]];then
             echo "Dispatch was successfully triggered. Runs can be found at "${RUNS_URL}".
+          else
+            echo "Run was not successfully triggered, target release branch may not exist yet."
+          fi
         shell: bash
 
