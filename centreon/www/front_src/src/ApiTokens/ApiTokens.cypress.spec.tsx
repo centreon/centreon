@@ -679,7 +679,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it.only('displays an error message upon failed revoking of a token', () => {
+  it('displays an error message upon failed revoking of a token', () => {
     cy.waitForRequest('@getListTokens');
     const patchToken = patchTokenEndpoint({
       tokenName: tokenToPatch,
