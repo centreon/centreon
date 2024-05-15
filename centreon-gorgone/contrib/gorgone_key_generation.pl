@@ -16,7 +16,7 @@ my $pub_dest = '/var/lib/centreon-gorgone/.keys/rsakey.pub.pem';
 $ARGV[0] and $priv_dest = $ARGV[0];
 $ARGV[1] and $pub_dest = $ARGV[1];
 if (-f $priv_dest or -f $pub_dest){
-    print("files already exists, no overriding is done.\n");
+    print("files already exist, no overriding is done.\n");
     exit 0;
 }
 try {
