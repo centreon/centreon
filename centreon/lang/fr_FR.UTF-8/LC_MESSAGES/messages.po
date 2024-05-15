@@ -18984,3 +18984,6 @@ msgstr "Erreur lors de la mise à jour partielle du jeton"
 
 msgid "You are not allowed to partially update the token"
 msgstr "Vous n'êtes pas autorisé à mettre à jour partiellement le jeton"
+
+msgid "Active / Revoked"
+msgstr "Actif / Révoqué"
