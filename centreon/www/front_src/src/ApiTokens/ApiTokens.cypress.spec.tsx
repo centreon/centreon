@@ -36,9 +36,11 @@ import {
   createTokenEndpoint,
   deleteTokenEndpoint,
   listConfiguredUser,
-  listTokensEndpoint
+  listTokensEndpoint,
+  patchTokenEndpoint
 } from './api/endpoints';
 import {
+  labelActiveOrRevoked,
   labelActiveToken,
   labelCancel,
   labelClear,
@@ -50,9 +52,11 @@ import {
   labelExpirationDate,
   labelGenerateNewToken,
   labelName,
+  labelRevoked,
   labelRevokedToken,
   labelSearch,
   labelSecurityToken,
+  labelStatus,
   labelTokenCreated,
   labelTokenDeletedSuccessfully,
   labelUser
@@ -90,6 +94,10 @@ const columns = [
   {
     id: 'actions',
     label: Column.Actions
+  },
+  {
+    id: 'activate',
+    label: Column.Activate
   }
 ];
 
@@ -231,6 +239,7 @@ const parametersWithAllSearchableFields =
 const parametersWithSelectedFilters =
   '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T15:16:33Z"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T15:16:33Z"}}]},{"$or":[{"user.name":{"$rg":"User"}}]}]}';
 const tokenToDelete = 'a-token';
+const tokenToPatch = 'a-token';
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
   'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
@@ -668,6 +677,30 @@ describe('Api-token', () => {
       });
       checkTokenInput(data.token);
     });
+
+    cy.makeSnapshot();
+  });
+
+  it.only('displays an error message upon failed revoking of a token', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = patchTokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      response: {
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+
+    cy.findByText('internal server error').should('be.visible');
 
     cy.makeSnapshot();
   });

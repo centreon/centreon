@@ -13,6 +13,7 @@ export enum Column {
 
 export enum SelectableColumnsIds {
   Actions = 'actions',
+  Activate = 'activate',
   CreationDate = 'creation_date',
   CreatorName = 'creator_name',
   ExpirationDate = 'expiration_date',
@@ -28,7 +29,8 @@ export const defaultSelectedColumnIds: Array<string> = [
   SelectableColumnsIds.ExpirationDate,
   SelectableColumnsIds.UserName,
   SelectableColumnsIds.CreatorName,
-  SelectableColumnsIds.Actions
+  SelectableColumnsIds.Actions,
+  SelectableColumnsIds.Activate
 ];
 
 export interface UseColumns {
