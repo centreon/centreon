@@ -13,7 +13,6 @@ const DisplayType = ({
   propertyName
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
-
   const { t } = useTranslation();
 
   const { value, changeType } = useDisplayType({ propertyName });
