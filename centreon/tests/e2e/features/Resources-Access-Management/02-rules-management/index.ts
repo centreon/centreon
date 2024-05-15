@@ -7,6 +7,7 @@ import '../commands';
 beforeEach(() => {
   // using centreon-bam because we need BA modules
   // cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
+  // to test execInContainer commands, we should ask how fix/replace bam here
   cy.startContainers();
   cy.enableResourcesAccessManagementFeature();
   cy.installCloudExtensionsOnContainer();
@@ -28,6 +29,7 @@ beforeEach(() => {
 
 Given('I am logged in as a user with limited access', () => {
   cy.createSimpleUser(data, data2);
+  cy.wait('@getTimeZone');
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
@@ -83,8 +85,8 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.contains(`${data.login}`).click();
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-    cy.wait(3000);
-    cy.reloadAcl();
+    cy.wait('3000');
+    // cy.reloadAcl();
   }
 );
 
