@@ -185,8 +185,8 @@ jobs:
         run: |
           mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon\`"
           mysql -h mariadb -u root -ppassword -e "CREATE DATABASE \`centreon-storage\`"
-          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%';"
-          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON  \`centreon-storage\`.* TO 'centreon'@'%';"
+          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON centreon.* TO 'centreon'@'%'"
+          mysql -h mariadb -u root -ppassword -e "GRANT ALL PRIVILEGES ON  \`centreon-storage\`.* TO 'centreon'@'%'"
           mysql -h mariadb -u root -ppassword 'centreon' < centreon/www/install/createTables.sql
           mysql -h mariadb -u root -ppassword 'centreon-storage' < centreon/www/install/createTablesCentstorage.sql
 
@@ -200,9 +200,9 @@ jobs:
         with:
           name: gorgone-debug-${{ matrix.distrib }}
           path: |
-            ./log.html
-            /var/log/centreon-gorgone/*/*
-            /etc/centreon-gorgone/*
+            log.html
+            /var/log/centreon-gorgone
+            /etc/centreon-gorgone
           retention-days: 1
 
   deliver-sources:

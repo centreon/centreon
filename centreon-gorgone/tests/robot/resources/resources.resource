@@ -61,15 +61,15 @@ Setup Gorgone Config
     END
     ${key_thumbprint}    Run    perl /usr/local/bin/gorgone_key_thumbprint.pl --key-path=/var/lib/centreon-gorgone/.keys/rsakey.priv.pem | cut -d: -f4
 
-    ${result}    Run    sed -i -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g' /etc/centreon-gorgone/${gorgone_name}/includer.yaml
-
+    ${result}    Run    sed -i -e 's/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/${gorgone_name}/g' /etc/centreon-gorgone/${gorgone_name}/includer.yaml
+    
     ${CMD}    Catenate
-    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g'
-    ...    -e 's/@DBNAME@/${DBNAME}/g'
-    ...    -e 's/@DBNAME@/${DBNAME}/g'
-    ...    -e 's/@DBHOST@/${DBHOST}/g'
-    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g'
-    ...    -e 's/@DBUSER@/${DBUSER}/g'
+    ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' 
+    ...    -e 's/@DBNAME@/${DBNAME}/g' 
+    ...    -e 's/@DBNAME@/${DBNAME}/g' 
+    ...    -e 's/@DBHOST@/${DBHOST}/g' 
+    ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g' 
+    ...    -e 's/@DBUSER@/${DBUSER}/g' 
     ...    -e 's/@UNIQIDFROMROBOTTESTINCONFIGFILE@/${gorgone_name}/g'
     ...    /etc/centreon-gorgone/${gorgone_name}/config.d/*.yaml
 
