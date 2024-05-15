@@ -149,7 +149,8 @@ const useGraphQuery = ({
       enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const data = useRef<PerformanceGraphData | undefined>(undefined);
