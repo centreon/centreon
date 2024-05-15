@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
-import { Curve } from '@visx/visx';
 
 import { Button } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -342,7 +341,7 @@ export const LineChartWithStepCurve: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    curve: Curve.curveStep
+    curve: 'step'
   }
 };
 
