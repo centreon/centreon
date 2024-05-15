@@ -126,7 +126,8 @@ export const useGroupMonitoring = ({
       enabled: hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const changeLimit = (newLimit: number): void => {
