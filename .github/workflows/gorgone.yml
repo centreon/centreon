@@ -16,7 +16,6 @@ on:
       - "centreon-gorgone/**"
       - "!centreon-gorgone/veracode.json"
       - "!centreon-gorgone/.veracode-exclusions"
-      - ".github/workflows/gorgone.yml"
   push:
     branches:
       - develop
@@ -27,7 +26,6 @@ on:
       - "centreon-gorgone/**"
       - "!centreon-gorgone/veracode.json"
       - "!centreon-gorgone/.veracode-exclusions"
-      - ".github/workflows/gorgone.yml"
 
 env:
   base_directory: centreon-gorgone
