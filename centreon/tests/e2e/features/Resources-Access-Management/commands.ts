@@ -37,12 +37,8 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
     .copyToContainer({
       destination: `/tmp/`,
       source:
-        './centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
+        'centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
-    })
-    .execInContainer({
-      command: `ls tmp`,
-      name: 'web'
     })
     .execInContainer({
       command: `dnf install /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
