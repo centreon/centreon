@@ -26,6 +26,7 @@ import ShowInputWrapper from './ShowInputWrapper';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
+
   const { classes } = useWidgetPropertiesStyles();
 
   const widgetOptions = useWidgetInputs('options');
