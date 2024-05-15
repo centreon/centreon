@@ -1,0 +1,15 @@
+{
+    "hostGroups": {
+      "hostGroup1": {
+        "name": "Switchs"
+      }
+    },
+  
+    "hosts": {
+      "host1": {
+        "name": "Centreon-Database",
+        "hostGroup": "Switchs"
+      }
+    }
+  }
+  
