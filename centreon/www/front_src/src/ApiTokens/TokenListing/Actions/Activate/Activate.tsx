@@ -34,7 +34,7 @@ const Activate = ({ row }: Row): React.JSX.Element => {
     getEndpoint: () =>
       patchTokenEndpoint({ tokenName: row?.name, userId: row?.user.id }),
     method: Method.PATCH,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: [''] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listTokens'] })
   });
 
   const onClick = (e: React.BaseSyntheticEvent): void => {
