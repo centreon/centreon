@@ -37,7 +37,6 @@ const Option = ({
     <IconButton
       ariaLabel={t(title)}
       className={classes.iconButton}
-      data-icon={title}
       data-testid={title}
       title={t(title)}
       tooltipClassName={classes.tooltipClassName}
