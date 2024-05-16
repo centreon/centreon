@@ -2,7 +2,7 @@ import { useEffect, useState, useTransition } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Method, useMutationQuery } from '@centreon/ui';
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
 import { patchTokenEndpoint } from '../../../api/endpoints';
@@ -36,6 +36,10 @@ const Activate = ({ row }: Row): React.JSX.Element => {
 
     mutateAsync({
       payload: { is_revoked: !value }
+    }).then((response) => {
+      if ((response as ResponseError).isError) {
+        setIsRevoked(value);
+      }
     });
   };
 
