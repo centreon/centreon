@@ -42,7 +42,7 @@ const Option = ({
       tooltipClassName={classes.tooltipClassName}
       onClick={changeDisplayType}
     >
-      <Image alt={title} imagePath={imagePath} />
+      <Image imagePath={imagePath} />
     </IconButton>
   );
 };
