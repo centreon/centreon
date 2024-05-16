@@ -1,4 +1,4 @@
-name: docker-gorgone-packaging
+name: docker-gorgone-testing
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -28,7 +28,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [alma8]
+        distrib: [alma8, bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
