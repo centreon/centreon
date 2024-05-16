@@ -21,7 +21,7 @@ import { ResourceDetails } from '../../Details/models';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { Resource } from '../../models';
+import { Resource, ResourceType } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
@@ -106,7 +106,7 @@ const GraphActions = ({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: svcId
+        svc_id: svcId,
       });
 
       return params.toString();
