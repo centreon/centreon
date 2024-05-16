@@ -214,7 +214,7 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('button[data-testid="View by host"]').realClick();
+    cy.get('button[data-testid="View by host"]').click();
 
     cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
@@ -243,7 +243,7 @@ Then('only the hosts must be displayed', () => {
 When(
   'the dashboard administrator user selects view by service as a display type',
   () => {
-    cy.get('button[data-testid="View by service"]').realClick();
+    cy.get('button[data-testid="View by service"]').click();
 
     cy.wait('@resourceRequest');
   }
