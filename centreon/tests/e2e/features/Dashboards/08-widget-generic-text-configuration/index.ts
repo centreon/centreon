@@ -61,7 +61,6 @@ after(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
-
   cy.stopContainers();
 });
 
