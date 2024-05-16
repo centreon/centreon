@@ -39,5 +39,35 @@
       "defaultValue": []
     }
   },
+  "generalProperties": {
+    "groups": [
+      {
+        "id": "graphStyles",
+        "name": "Graph style"
+      }
+    ],
+    "elements": {
+      "curveType": {
+        "group": "graphStyles",
+        "type": "select",
+        "label": "Curve type",
+        "defaultValue": "linear",
+        "options": [
+          {
+            "id": "linear",
+            "name": "Linear"
+          },
+          {
+            "id": "natural",
+            "name": "Natural"
+          },
+          {
+            "id": "step",
+            "name": "Step"
+          }
+        ]
+      }
+    }
+  },
   "moduleName": "centreon-widget-graph"
 }
