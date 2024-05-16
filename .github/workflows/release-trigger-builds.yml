@@ -42,32 +42,33 @@ jobs:
           # names defined in workflow files per components
           COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
           COMPONENTS_OSS_FULL=("awie" "dsm" "gorgone" "ha" "open-tickets" "web" "perl-cpan-libraries" "perl-crypt-argon2" "perl-filesys-smbclient" "perl-json-path" "perl-keepass-reader" "perl-libssh-session" "perl-net-curl" "plink")
-          COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
-          COMPONENTS_MOULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
-          COMPONENTS_COLLECT=("Centreon collect")
+          #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
+          #COMPONENTS_MOULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
+          #COMPONENTS_COLLECT=("Centreon collect")
           RUNS_URL=""
 
-          if [[ ${{ inputs.dispatch_target_release_branch }} =~ "^release-2[0-9][0-9]-next$" ]];then
+          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]];then
             echo "Using ${{ inputs.dispatch_target_release_branch }} as release branch to build testing packages."
-            RUNS_URL="https://github.com/centreon/centreon-modules/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
+            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
             echo "Invalid release branch name, please check the release branch name."
+            exit 1
           fi
 
           if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
             echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
-            for COMPONENT in ${COMPONENTS_OSS_FULL};do
+            for COMPONENT in ${COMPONENTS_OSS_FULL[@]};do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           else
             echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
-            for COMPONENT in ${COMPONENTS_OSS};do
+            for COMPONENT in ${COMPONENTS_OSS[@]};do
               gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
             done
           fi
 
           if [[ $? -eq 0 ]];then
-            echo "Dispatch was successfully triggered. Runs can be found at "${RUNS_URL}".
+            echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
           else
             echo "Run was not successfully triggered, target release branch may not exist yet."
           fi
