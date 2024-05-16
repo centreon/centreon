@@ -91,11 +91,11 @@ const GraphActions = ({
   const goToPerformancePage = (): void => {
     const startTimestamp = format({
       date: customTimePeriod?.start as Date,
-      formatString: 'X',
+      formatString: 'X'
     });
     const endTimestamp = format({
       date: customTimePeriod?.end as Date,
-      formatString: 'X',
+      formatString: 'X'
     });
     const svcId = resource?.type === ResourceType.metaservice
       ? `_Module_Meta;meta_${resource?.id}`
@@ -106,7 +106,7 @@ const GraphActions = ({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: svcId,
+        svc_id: svcId
       });
 
       return params.toString();
