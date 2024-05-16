@@ -39,7 +39,7 @@ jobs:
       - name: Trigger selected branches
         run: |
           set -eux
-          
+
           # VARS
           # names defined in workflow files per components
           COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
