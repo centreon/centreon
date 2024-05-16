@@ -53,7 +53,7 @@ jobs:
             echo "Using ${{ inputs.dispatch_target_release_branch }} as release branch to build testing packages."
             RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
-            echo "Invalid release branch name, please check the release branch name."
+            echo "::error::Invalid release branch name, please check the release branch name."
             exit 1
           fi
 
