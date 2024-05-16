@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -12,6 +12,7 @@ import { Row } from '../../models';
 const Activate = ({ row }: Row): React.JSX.Element => {
   const queryClient = useQueryClient();
 
+  const [isPending, startTransition] = useTransition();
   const [isRevoked, setIsRevoked] = useState<boolean>(row?.isRevoked);
 
   useEffect(() => {
@@ -29,7 +30,9 @@ const Activate = ({ row }: Row): React.JSX.Element => {
 
   const onClick = (e: React.BaseSyntheticEvent): void => {
     const value = e.target.checked;
-    setIsRevoked(value);
+    startTransition(() => {
+      setIsRevoked(value);
+    });
 
     mutateAsync({
       payload: { is_revoked: !value }
@@ -40,6 +43,7 @@ const Activate = ({ row }: Row): React.JSX.Element => {
     <Switch
       aria-label={labelActiveOrRevoked}
       checked={!isRevoked}
+      disabled={isPending}
       size="small"
       onClick={onClick}
     />
