@@ -122,7 +122,7 @@ export const useColumns = (): UseColumns => {
         type: ColumnType.component
       },
       {
-        Component: ({ row }: Row) => <Activate row={row} />,
+        Component: Activate,
         id: 'activate',
         label: Column.Activate,
         type: ColumnType.component
