@@ -28,7 +28,6 @@ $centreonLog = new CentreonLog();
 $versionOfTheUpgrade = 'UPGRADE - 24.06.0: ';
 $errorMessage = '';
 
-// ------------ Widgets database updates ---------------- //
 $deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to drop table vault configuration';
         $pearDB->query(
