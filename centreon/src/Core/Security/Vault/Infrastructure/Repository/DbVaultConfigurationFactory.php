@@ -62,7 +62,6 @@ class DbVaultConfigurationFactory
             $this->encryption,
             (int) $recordData['id'],
             (string) $recordData['name'],
-            new Vault($recordData['vault_id'], $recordData['vault_name']),
             (string) $recordData['url'],
             (int) $recordData['port'],
             (string) $recordData['root_path'],

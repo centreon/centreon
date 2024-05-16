@@ -296,6 +296,15 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
+    Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository:
+        arguments:
+            $configurationFile: '%vault_conf_path%'
+
+    Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository:
+        arguments:
+            $configurationFile: '%vault_conf_path%'
+
+
     # Monitoring resources
     _instanceof:
         Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface:
@@ -465,9 +474,6 @@ services:
         class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
         public: true
 
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
-        public: true
 
     Utility\Interfaces\UUIDGeneratorInterface:
         class: Utility\UUIDGenerator

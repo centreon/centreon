@@ -47,5 +47,5 @@ interface WriteVaultConfigurationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function delete(int $vaultConfigurationId): void;
+    public function delete(): void;
 }

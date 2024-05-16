@@ -34,12 +34,8 @@ class NewVaultConfigurationFactory
 {
     /**
      * @param EncryptionInterface $encryption
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      */
-    public function __construct(
-        private EncryptionInterface $encryption,
-        private ReadVaultRepositoryInterface $readVaultRepository
-    ) {
+    public function __construct(private readonly EncryptionInterface $encryption) {
     }
 
     /**
@@ -57,16 +53,9 @@ class NewVaultConfigurationFactory
      */
     public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
     {
-        $vault = $this->readVaultRepository->findById($request->typeId);
-
-        if ($vault === null) {
-            throw VaultException::providerDoesNotExist();
-        }
-
         return new NewVaultConfiguration(
             $this->encryption,
             $request->name,
-            $vault,
             $request->address,
             $request->port,
             $request->rootPath,

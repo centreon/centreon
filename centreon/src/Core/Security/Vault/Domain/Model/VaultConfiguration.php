@@ -47,7 +47,6 @@ class VaultConfiguration
      * @param EncryptionInterface $encryption
      * @param int $id
      * @param string $name
-     * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $rootPath
@@ -61,7 +60,6 @@ class VaultConfiguration
         private EncryptionInterface $encryption,
         private int $id,
         private string $name,
-        private Vault $vault,
         private string $address,
         private int $port,
         private string $rootPath,
@@ -89,14 +87,6 @@ class VaultConfiguration
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @return Vault
-     */
-    public function getVault(): Vault
-    {
-        return $this->vault;
     }
 
     /**

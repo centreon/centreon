@@ -51,8 +51,8 @@ final class CreateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
+        private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
         private readonly ContactInterface $user
@@ -77,13 +77,7 @@ final class CreateVaultConfiguration
                 return;
             }
 
-            if (
-                $this->readVaultConfigurationRepository->existsSameConfiguration(
-                    $createVaultConfigurationRequest->address,
-                    $createVaultConfigurationRequest->port,
-                    $createVaultConfigurationRequest->rootPath,
-                )
-            ) {
+            if ($this->readVaultConfigurationRepository->exists()) {
                 $this->error(
                     'Vault configuration with these properties already exists',
                     [
@@ -94,15 +88,6 @@ final class CreateVaultConfiguration
                 );
                 $presenter->setResponseStatus(
                     new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
-                );
-
-                return;
-            }
-
-            if (! $this->readVaultRepository->exists($createVaultConfigurationRequest->typeId)) {
-                $this->error('Vault provider not found', ['id' => $createVaultConfigurationRequest->typeId]);
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider')
                 );
 
                 return;

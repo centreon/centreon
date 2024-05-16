@@ -59,12 +59,8 @@ final class DeleteVaultConfiguration
 
     /**
      * @param PresenterInterface $presenter
-     * @param DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
      */
-    public function __invoke(
-        PresenterInterface $presenter,
-        DeleteVaultConfigurationRequest $deleteVaultConfigurationRequest
-    ): void {
+    public function __invoke(PresenterInterface $presenter): void {
         try {
             if (! $this->user->isAdmin()) {
                 $this->error('User is not admin', ['user' => $this->user->getName()]);
@@ -75,26 +71,8 @@ final class DeleteVaultConfiguration
                 return;
             }
 
-            if (! $this->readVaultRepository->exists($deleteVaultConfigurationRequest->typeId)) {
-                $this->error('Vault provider not found', ['id' => $deleteVaultConfigurationRequest->typeId]);
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider')
-                );
-
-                return;
-            }
-
-            if (
-                ! $this->readVaultConfigurationRepository->exists(
-                    $deleteVaultConfigurationRequest->vaultConfigurationId
-                )
-            ) {
-                $this->error(
-                    'Vault configuration not found',
-                    [
-                        'id' => $deleteVaultConfigurationRequest->vaultConfigurationId,
-                    ]
-                );
+            if (! $this->readVaultConfigurationRepository->exists()) {
+                $this->error('Vault configuration not found');
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault configuration')
                 );
@@ -102,7 +80,7 @@ final class DeleteVaultConfiguration
                 return;
             }
 
-            $this->writeVaultConfigurationRepository->delete($deleteVaultConfigurationRequest->vaultConfigurationId);
+            $this->writeVaultConfigurationRepository->delete();
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $this->error(

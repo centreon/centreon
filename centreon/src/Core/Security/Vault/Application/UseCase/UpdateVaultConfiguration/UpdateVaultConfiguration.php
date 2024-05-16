@@ -79,42 +79,10 @@ final class UpdateVaultConfiguration
                 return;
             }
 
-            if (! $this->readVaultRepository->exists($request->typeId)) {
-                $this->error('Vault provider not found', ['id' => $request->typeId]);
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider')
-                );
-
-                return;
-            }
-
-            $vaultConfiguration = $this->readVaultConfigurationRepository->findById($request->vaultConfigurationId);
+            $vaultConfiguration = $this->readVaultConfigurationRepository->find();
             if ($vaultConfiguration === null) {
-                $this->error(
-                    'Vault configuration not found',
-                    [
-                        'id' => $request->vaultConfigurationId,
-                    ]
-                );
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault configuration')
-                );
-
-                return;
-            }
-
-            if ($this->isVaultConfigurationAlreadyExists($request, $vaultConfiguration->getRootPath())) {
-                $this->error(
-                    'Vault configuration with these properties already exists for same provider',
-                    [
-                        'address' => $request->address,
-                        'port' => $request->port,
-                        'root_path' => $vaultConfiguration->getRootPath(),
-                    ]
-                );
-                $presenter->setResponseStatus(
-                    new InvalidArgumentResponse(VaultConfigurationException::configurationExists()->getMessage())
-                );
+                $this->error('Vault configuration not found');
+                $presenter->setResponseStatus(new NotFoundResponse('Vault configuration'));
 
                 return;
             }
@@ -141,26 +109,6 @@ final class UpdateVaultConfiguration
 
             return;
         }
-    }
-
-    /**
-     * @param UpdateVaultConfigurationRequest $request
-     * @param string $rootPath
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $rootPath): bool
-    {
-        $existingVaultConfiguration = $this->readVaultConfigurationRepository->findByAddressAndPortAndRootPath(
-            $request->address,
-            $request->port,
-            $rootPath
-        );
-
-        return $existingVaultConfiguration !== null
-            && $existingVaultConfiguration->getId() !== $request->vaultConfigurationId;
     }
 
     /**
