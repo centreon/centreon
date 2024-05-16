@@ -16781,3 +16781,6 @@ msgstr "Erweiterter Modus"
 #  msgstr ""
 # msgid "An error occurred during authentication"
 # msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
