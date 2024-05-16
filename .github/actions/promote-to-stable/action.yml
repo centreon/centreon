@@ -153,7 +153,7 @@ runs:
           jf rt download $ARTIFACT --flat
         done
 
-        for ARTIFACT_DL in $(dir|grep -E "*.deb"); do
+        for ARTIFACT_DL in $(dir -1|grep -E ".+${{ inputs.distrib }}.+\.deb"); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           DISTRIB=$(echo $ARTIFACT_DL | cut -d '_' -f2 | cut -d '-' -f2)
           if [[ "${{ inputs.distrib }}" != "$DISTRIB" ]]; then
