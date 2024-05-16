@@ -1,8 +1,8 @@
-import { useEffect, useState, useTransition } from 'react';
+import { useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+import { Method, useMutationQuery } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
 import { patchTokenEndpoint } from '../../../api/endpoints';
@@ -12,34 +12,22 @@ import { Row } from '../../models';
 const Activate = ({ row }: Row): React.JSX.Element => {
   const queryClient = useQueryClient();
 
-  const [isPending, startTransition] = useTransition();
   const [isRevoked, setIsRevoked] = useState<boolean>(row?.isRevoked);
-
-  useEffect(() => {
-    if (row?.isRevoked !== isRevoked) {
-      setIsRevoked(row?.isRevoked);
-    }
-  }, [row?.isRevoked]);
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       patchTokenEndpoint({ tokenName: row?.name, userId: row?.user.id }),
     method: Method.PATCH,
+    onError: () => setIsRevoked(!isRevoked),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listTokens'] })
   });
 
   const onClick = (e: React.BaseSyntheticEvent): void => {
-    const value = e.target.checked;
-    startTransition(() => {
-      setIsRevoked(value);
-    });
+    const value = !e.target.checked;
+    setIsRevoked(value);
 
     mutateAsync({
-      payload: { is_revoked: !value }
-    }).then((response) => {
-      if ((response as ResponseError).isError) {
-        setIsRevoked(value);
-      }
+      payload: { is_revoked: value }
     });
   };
 
@@ -47,7 +35,6 @@ const Activate = ({ row }: Row): React.JSX.Element => {
     <Switch
       aria-label={labelActiveOrRevoked}
       checked={!isRevoked}
-      disabled={isPending}
       size="small"
       onClick={onClick}
     />
