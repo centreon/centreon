@@ -27,7 +27,6 @@ final class FindVaultConfigurationResponse
 {
     /**
      * @var array{
-     *  id: int,
      *  name: string,
      *  url: string,
      *  port: int,

@@ -92,7 +92,6 @@ final class FindVaultConfiguration
     private function createResponse(VaultConfiguration $vaultConfiguration): FindVaultConfigurationResponse
     {
         $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
-        $findVaultConfigurationResponse->vaultConfiguration['id'] = $vaultConfiguration->getId();
         $findVaultConfigurationResponse->vaultConfiguration['name'] = $vaultConfiguration->getName();
         $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
         $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();

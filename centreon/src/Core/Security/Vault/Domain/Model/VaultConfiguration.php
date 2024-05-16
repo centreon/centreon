@@ -45,7 +45,6 @@ class VaultConfiguration
 
     /**
      * @param EncryptionInterface $encryption
-     * @param int $id
      * @param string $name
      * @param string $address
      * @param int $port
@@ -58,7 +57,6 @@ class VaultConfiguration
      */
     public function __construct(
         private EncryptionInterface $encryption,
-        private int $id,
         private string $name,
         private string $address,
         private int $port,
@@ -71,14 +69,6 @@ class VaultConfiguration
         $this->setAddress($address);
         $this->setPort($port);
         $this->setRootPath($rootPath);
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
     }
 
     /**

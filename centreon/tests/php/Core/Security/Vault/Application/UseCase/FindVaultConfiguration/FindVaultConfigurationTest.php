@@ -124,7 +124,6 @@ it('should present FindVaultConfigurationResponse', function () {
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
-        1,
         'myVaultConfiguration',
         '127.0.0.1',
         8200,
@@ -153,7 +152,6 @@ it('should present FindVaultConfigurationResponse', function () {
 
     $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
     $findVaultConfigurationResponse->vaultConfiguration = [
-        'id' => $vaultConfiguration->getId(),
         'name' => $vaultConfiguration->getName(),
         'url' => $vaultConfiguration->getAddress(),
         'port' => $vaultConfiguration->getPort(),

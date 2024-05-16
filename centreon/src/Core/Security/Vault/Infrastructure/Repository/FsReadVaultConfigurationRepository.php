@@ -38,7 +38,7 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
     public function __construct(
         private readonly string $configurationFile,
         private readonly Filesystem $filesystem,
-        private readonly DbVaultConfigurationFactory $factory
+        private readonly FsVaultConfigurationFactory $factory
     ) {
     }
 

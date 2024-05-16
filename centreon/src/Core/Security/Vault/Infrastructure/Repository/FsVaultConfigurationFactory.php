@@ -24,11 +24,10 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
-use Core\Security\Vault\Domain\Model\Vault;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
-class DbVaultConfigurationFactory
+class FsVaultConfigurationFactory
 {
     /**
      * @param EncryptionInterface $encryption
@@ -39,10 +38,7 @@ class DbVaultConfigurationFactory
 
     /**
      * @param array{
-     *  id: int,
      *  name: string,
-     *  vault_id: int,
-     *  vault_name: string,
      *  url: string,
      *  port: int,
      *  root_path: string,
@@ -60,7 +56,6 @@ class DbVaultConfigurationFactory
     {
         return new VaultConfiguration(
             $this->encryption,
-            (int) $recordData['id'],
             (string) $recordData['name'],
             (string) $recordData['url'],
             (int) $recordData['port'],

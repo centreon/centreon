@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Infrastructure\Common\Repository\RepositoryException;
 use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;

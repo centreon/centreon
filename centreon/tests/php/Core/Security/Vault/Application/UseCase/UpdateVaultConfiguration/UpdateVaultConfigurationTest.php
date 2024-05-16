@@ -123,7 +123,6 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     $salt = $encryption->generateRandomString(VaultConfiguration::SALT_LENGTH);
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
-        2,
         'myVaultConfiguration',
         '127.0.0.2',
         8200,
@@ -201,7 +200,6 @@ it('should present NoContentResponse when vault configuration is created with su
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,
-        2,
         'myVaultConfiguration',
         '127.0.0.2',
         8201,
