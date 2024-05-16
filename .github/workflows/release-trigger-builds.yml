@@ -38,6 +38,8 @@ jobs:
 
       - name: Trigger selected branches
         run: |
+          set -eux
+          
           # VARS
           # names defined in workflow files per components
           COMPONENTS_OSS=("awie" "dsm" "gorgone" "ha" "open-tickets" "web")
@@ -67,9 +69,5 @@ jobs:
             done
           fi
 
-          if [[ $? -eq 0 ]];then
-            echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
-          else
-            echo "Run was not successfully triggered, target release branch may not exist yet."
-          fi
+          echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
         shell: bash
