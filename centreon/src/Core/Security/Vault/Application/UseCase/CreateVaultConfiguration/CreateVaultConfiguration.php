@@ -50,8 +50,8 @@ final class CreateVaultConfiguration
      * @param ContactInterface $user
      */
     public function __construct(
-        private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
+        private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
         private readonly ContactInterface $user
     ) {
