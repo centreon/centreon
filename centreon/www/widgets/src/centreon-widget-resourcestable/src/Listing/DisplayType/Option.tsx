@@ -35,9 +35,8 @@ const Option = ({
 
   return (
     <IconButton
-      ariaLabel={t(title)}
+      ariaLabel={`${t(title)}x`}
       className={classes.iconButton}
-      data-testid={title}
       title={t(title)}
       tooltipClassName={classes.tooltipClassName}
       onClick={changeDisplayType}
