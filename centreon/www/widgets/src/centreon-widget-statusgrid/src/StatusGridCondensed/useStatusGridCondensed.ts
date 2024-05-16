@@ -95,7 +95,8 @@ export const useStatusGridCondensed = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const statusesToDisplay = useMemo(

@@ -6,12 +6,11 @@ import { equals, isNil, prop } from 'ramda';
 
 import { getTime } from '../../../../common/timeSeries';
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { getFillColor } from '../../../common';
-import { CurveType } from '../models';
+import { getCurveFactory, getFillColor } from '../../../common';
 
 interface Props {
   areaColor: string;
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   filled: boolean;
   graphHeight: number;
   highlight?: boolean;
@@ -40,8 +39,9 @@ const RegularLine = ({
   graphHeight,
   curve
 }: Props): JSX.Element => {
+  const curveType = getCurveFactory(curve);
   const props = {
-    curve,
+    curve: curveType,
     data: timeSeries,
     defined: (value): boolean => !isNil(value[metric_id]),
     opacity: 1,
@@ -55,6 +55,7 @@ const RegularLine = ({
   if (filled) {
     return (
       <Shape.AreaClosed<TimeValue>
+        data-metric={metric_id}
         fill={getFillColor({ areaColor, transparency })}
         fillRule="nonzero"
         key={metric_id}
@@ -65,7 +66,7 @@ const RegularLine = ({
     );
   }
 
-  return <Shape.LinePath<TimeValue> {...props} />;
+  return <Shape.LinePath<TimeValue> data-metric={metric_id} {...props} />;
 };
 
 export default memo(RegularLine, (prevProps, nextProps) => {
@@ -74,14 +75,16 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     graphHeight: prevGraphHeight,
     highlight: prevHighlight,
     xScale: prevXScale,
-    yScale: prevYScale
+    yScale: prevYScale,
+    curve: prevCurve
   } = prevProps;
   const {
     timeSeries: nextTimeSeries,
     graphHeight: nextGraphHeight,
     highlight: nextHighlight,
     xScale: nextXScale,
-    yScale: nextYScale
+    yScale: nextYScale,
+    curve: nextCurve
   } = nextProps;
 
   const prevXScaleRange = prevXScale.range();
@@ -94,6 +97,7 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     equals(prevGraphHeight, nextGraphHeight) &&
     equals(prevHighlight, nextHighlight) &&
     equals(prevXScaleRange, nextXScaleRange) &&
-    equals(prevYScaleDomain, nextYScaleDomain)
+    equals(prevYScaleDomain, nextYScaleDomain) &&
+    equals(prevCurve, nextCurve)
   );
 });

@@ -30,7 +30,6 @@ import {
   LegendModel
 } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
 import { legendWidth } from './Legend/Legend.styles';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
@@ -38,7 +37,7 @@ import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphVa
 const extraMargin = 10;
 
 interface Props extends LineChartProps {
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
