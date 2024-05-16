@@ -5,14 +5,14 @@ import data2 from '../../../fixtures/resources-access-management/new-host.json';
 import '../commands';
 
 beforeEach(() => {
-  cy.startContainers();
-  // install BAM module
-  cy.installBamModuleOnContainer();
-  cy.installCloudExtensionsOnContainer();
-  // we should install cloud extension and anomaly detection
-  cy.installBamModule();
-  cy.installCloudExtensionsModule();
-  cy.enableResourcesAccessManagementFeature();
+  // cy.startContainers();
+  // // install BAM module
+  // cy.installBamModuleOnContainer();
+  // cy.installCloudExtensionsOnContainer();
+  // // we should install cloud extension and anomaly detection
+  // cy.installBamModule();
+  // cy.installCloudExtensionsModule();
+  // cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
