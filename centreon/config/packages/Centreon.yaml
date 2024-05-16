@@ -300,7 +300,9 @@ services:
         arguments:
             $configurationFile: '%vault_conf_path%'
 
-    Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository:
+    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
+        public: true
         arguments:
             $configurationFile: '%vault_conf_path%'
 
