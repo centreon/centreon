@@ -97,16 +97,17 @@ const GraphActions = ({
       date: customTimePeriod?.end as Date,
       formatString: 'X'
     });
-    const svcId = resource?.type === ResourceType.metaservice
-      ? `_Module_Meta;meta_${resource?.id}`
-      : `${resource?.parent?.name};${resource?.name}`;
+    const svcId =
+      resource?.type === ResourceType.metaservice
+        ? `_Module_Meta;meta_${resource?.id}`
+        : `${resource?.parent?.name};${resource?.name}`;
 
     const urlParameters = (): string => {
       const params = new URLSearchParams({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: svcId,
+        svc_id: svcId
       });
 
       return params.toString();
