@@ -9,6 +9,8 @@ on:
   pull_request:
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
+      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -17,6 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
+      - "!centreon-ha/.veracode-exclusions"
 
 env:
   module: ha
@@ -141,7 +145,7 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bullseye]
 
     steps:
       - name: Checkout sources
