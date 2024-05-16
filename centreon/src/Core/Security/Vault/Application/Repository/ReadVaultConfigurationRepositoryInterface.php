@@ -35,7 +35,6 @@ interface ReadVaultConfigurationRepositoryInterface
     public function exists(): bool;
 
     /**
-     *
      * @throws \Throwable
      *
      * @return VaultConfiguration|null

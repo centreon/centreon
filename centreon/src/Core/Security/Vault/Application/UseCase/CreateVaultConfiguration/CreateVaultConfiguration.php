@@ -31,13 +31,13 @@ use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
-    NotFoundResponse,
     PresenterInterface
 };
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
-    WriteVaultConfigurationRepositoryInterface};
+use Core\Security\Vault\Application\Repository\{
+    ReadVaultConfigurationRepositoryInterface,
+    WriteVaultConfigurationRepositoryInterface
+};
 
 final class CreateVaultConfiguration
 {
@@ -46,14 +46,12 @@ final class CreateVaultConfiguration
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
      * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param NewVaultConfigurationFactory $newVaultConfigurationFactory
      * @param ContactInterface $user
      */
     public function __construct(
         private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
         private readonly ContactInterface $user
     ) {

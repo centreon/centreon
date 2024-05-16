@@ -25,10 +25,10 @@ namespace Core\Security\Vault\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Infrastructure\Common\Repository\RepositoryException;
-use Symfony\Component\Filesystem\Filesystem;
 use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
 class FsWriteVaultConfigurationRepository implements WriteVaultConfigurationRepositoryInterface
@@ -50,10 +50,6 @@ class FsWriteVaultConfigurationRepository implements WriteVaultConfigurationRepo
      */
     public function create(NewVaultConfiguration $vaultConfiguration): void
     {
-        if ($this->filesystem->exists($this->configurationFile)) {
-            throw new RepositoryException('Vault configuration file already exists');
-        }
-
         $vaultConfigurationAsArray = [
             'name' => $vaultConfiguration->getName(),
             'url' => $vaultConfiguration->getAddress(),
@@ -74,10 +70,9 @@ class FsWriteVaultConfigurationRepository implements WriteVaultConfigurationRepo
      */
     public function update(VaultConfiguration $vaultConfiguration): void
     {
-        if (! $this->filesystem->exists($this->configurationFile)) {
-            throw new RepositoryException('Vault configuration file does not exists');
-        }
-
+        /**
+         * @var array<string, mixed> $vaultConfigurationAsArray
+         */
         $vaultConfigurationAsArray = Yaml::parseFile($this->configurationFile);
         $vaultConfigurationUpdate = [
             'name' => $vaultConfiguration->getName(),

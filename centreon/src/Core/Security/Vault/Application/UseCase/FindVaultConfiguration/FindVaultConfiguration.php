@@ -27,10 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface
-};
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class FindVaultConfiguration
@@ -39,12 +36,10 @@ final class FindVaultConfiguration
 
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param ContactInterface $user
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ContactInterface $user
     ) {
     }
@@ -64,7 +59,6 @@ final class FindVaultConfiguration
 
                 return;
             }
-
 
             if (! $this->readVaultConfigurationRepository->exists()) {
                 $this->error('Vault configuration not found');

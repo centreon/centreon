@@ -38,7 +38,6 @@ use Core\Application\Common\UseCase\{
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
     ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface,
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
@@ -50,13 +49,11 @@ final class UpdateVaultConfiguration
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
      * @param WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param ContactInterface $user
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ContactInterface $user
     ) {
     }

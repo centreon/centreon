@@ -43,8 +43,6 @@ interface WriteVaultConfigurationRepositoryInterface
     public function update(VaultConfiguration $vaultConfiguration): void;
 
     /**
-     * @param int $vaultConfigurationId
-     *
      * @throws \Throwable
      */
     public function delete(): void;

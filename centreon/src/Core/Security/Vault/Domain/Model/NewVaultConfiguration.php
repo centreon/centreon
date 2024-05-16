@@ -94,7 +94,6 @@ class NewVaultConfiguration
         return $this->name;
     }
 
-
     /**
      * @return string
      */

@@ -70,7 +70,6 @@ final class CreateVaultConfigurationController extends AbstractController
     }
 
     /**
-     * @param int $vaultId
      * @param array{
      *  "name": string,
      *  "address": string,
