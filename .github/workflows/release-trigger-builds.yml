@@ -71,3 +71,5 @@ jobs:
 
           echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
