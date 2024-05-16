@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/.veracode"
+      - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
@@ -19,10 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-open-tickets/**"
-      - "!centreon-open-tickets/.veracode"
+      - "!centreon-open-tickets/veracode.json"
       - "!centreon-open-tickets/.veracode-exclusions"
-    tags:
-      - centreon-open-tickets-*
 
 env:
   module: open-tickets

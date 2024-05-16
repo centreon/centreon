@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-awie/**"
-      - "!centreon-awie/.veracode"
+      - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
   push:
     branches:
@@ -19,10 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-awie/**"
-      - "!centreon-awie/.veracode"
+      - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
-    tags:
-      - centreon-awie-*
 
 env:
   module: awie
