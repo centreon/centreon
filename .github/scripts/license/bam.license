@@ -1,0 +1,37 @@
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+{
+  "product": {
+    "name": "bam"
+  },
+  "client": {
+    "name": "centreon"
+  },
+  "platform": {
+    "fingerprint": [],
+    "environment": "demo",
+    "mode": "offline"
+  },
+  "licensing": {
+    "type": "demo",
+    "isMachineLocked": "false",
+    "generated": "2024-05-15",
+    "start": "2024-05-15",
+    "end": "2024-06-15",
+    "hosts": -1,
+    "catalog_level": "4"
+  }
+}
+-----BEGIN PGP SIGNATURE-----
+
+wsBzBAEBCAAGBQJmRRRaACEJELijFsvIj7vKFiEE0CniJxoeww0OGhfuuKMW
+y8iPu8qWBAf/Q4yBCellD7DvDU/9KaJl6m6idMAQP2AlB/D6iu0q76dkHpT6
+/ZgA94WTgTWpU+ZHxJQQxvMHazxJB8Yxab2TotODuBm4rCM3U3TxPELHwYna
+Dvi1X9ydSzssao/trZVb8YOOrxI8qvO0qdFL+LF1GrBSKij6EBTfoGvJdceb
+PhelDeauh0Qar8xukKrLK44SoI+RWczoCLkdGO0EF6IwVSLsKl7EgZVzOO97
+pieqwa2mCg1O3OqqApRMO6m259PgSN/4iuhk7I0r2GyNurBPF2n36WRe+TAJ
+Evcuoi/MiJYq4yD1zXO35aRU71K3XjfKwsx307oO3nIzzrQ8MqX/LA==
+=yhkX
+-----END PGP SIGNATURE-----

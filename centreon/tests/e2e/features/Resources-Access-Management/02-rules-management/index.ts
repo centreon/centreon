@@ -5,14 +5,14 @@ import data2 from '../../../fixtures/resources-access-management/new-host.json';
 import '../commands';
 
 beforeEach(() => {
-  // using centreon-bam because we need BA modules
-  // cy.startContainers({ moduleName: 'centreon-bam', useSlim: false });
-  // to test execInContainer commands, we should ask how fix/replace bam here
   cy.startContainers();
-  cy.enableResourcesAccessManagementFeature();
+  // install BAM module
+  cy.installBamModuleOnContainer();
   cy.installCloudExtensionsOnContainer();
   // we should install cloud extension and anomaly detection
+  cy.installBamModule();
   cy.installCloudExtensionsModule();
+  cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -32,7 +32,6 @@ Given('I am logged in as a user with limited access', () => {
   cy.wait('@getTimeZone');
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
-
 Given('I have restricted visibility to resources', () => {
   cy.visit(`centreon/monitoring/resources`);
   cy.waitUntil(
@@ -83,10 +82,11 @@ When(
   'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
+    cy.wait(2000);
     cy.contains(`${data.login}`).click();
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('3000');
-    // cy.reloadAcl();
+    cy.reloadAcl();
   }
 );
 
