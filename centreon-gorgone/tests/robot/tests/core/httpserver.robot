@@ -48,5 +48,5 @@ Setup Gorgone
     Start Gorgone    /etc/centreon-gorgone/httpserver_api_statuscode/includer.yaml    debug    httpserver_api_statuscode
 
     Log To Console    \nGorgone Started. We have to wait for it to be ready to respond.
-    Sleep    5
+    Sleep    10
     Log To Console    Gorgone should be ready. \n
