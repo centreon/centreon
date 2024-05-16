@@ -39,5 +39,42 @@
       "defaultValue": []
     }
   },
+  "generalProperties": {
+    "groups": [
+      {
+        "id": "group",
+        "name": "Group name"
+      }
+    ],
+    "elements": {
+      "select": {
+        "group": "group",
+        "type": "select",
+        "label": "Select field",
+        "defaultValue": "option1",
+        "options": [
+          {
+            "id": "option1",
+            "name": "Option 1"
+          },
+          {
+            "id": "option2",
+            "name": "Option 2"
+          }
+        ]
+      },
+      "radio": {
+        "type": "radio",
+        "label": "Radio",
+        "options": [
+          {
+            "id": "name",
+            "name": "Name"
+          }
+        ],
+        "defaultValue": "name"
+      }
+    }
+  },
   "moduleName": "centreon-widget-data"
 }
