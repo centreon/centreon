@@ -35,14 +35,17 @@ runs:
         declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
+        RELEASE_CLOUD=0
 
         # Get current stable branch name
         # If MASTER, use root .version
         # Else use branch name
         if [[ "${{ inputs.github_ref_name }}" == "master" ]]; then
           CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          RELEASE_CLOUD=1
         else
           CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+          RELEASE_CLOUD=0
         fi
         echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
@@ -56,7 +59,11 @@ runs:
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # Previous stable tags array
-          PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
+          if [[ $RELEASE_CLOUD -eq 1 ]]; then
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
+          else
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          fi
           # New stable tags array
           TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
