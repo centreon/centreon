@@ -66,6 +66,7 @@ runs:
 
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
         echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
+
         # Building final NEW_STABLE_TAGS with the new version tags only
         # Iterate over elements of TMP_STABLE_TAGS
         for new_tag in "${TMP_STABLE_TAGS[@]}"; do
