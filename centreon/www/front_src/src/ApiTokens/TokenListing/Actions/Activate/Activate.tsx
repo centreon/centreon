@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Method, useMutationQuery } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
-import { patchTokenEndpoint } from '../../../api/endpoints';
+import { tokenEndpoint } from '../../../api/endpoints';
 import { labelActiveOrRevoked } from '../../../translatedLabels';
 import { Row } from '../../models';
 
@@ -16,7 +16,7 @@ const Activate = ({ row }: Row): React.JSX.Element => {
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
-      patchTokenEndpoint({ tokenName: row?.name, userId: row?.user.id }),
+      tokenEndpoint({ tokenName: row?.name, userId: row?.user.id }),
     method: Method.PATCH,
     onError: () => setIsRevoked(!isRevoked),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listTokens'] })

@@ -6,12 +6,7 @@ export interface BuildListEndpoint {
   parameters: ListingParameters;
 }
 
-export interface DeleteTokenEndpoint {
-  tokenName: string;
-  userId: number;
-}
-
-export interface PatchTokenEndpoint {
+export interface TokenEndpoint {
   tokenName: string;
   userId: number;
 }

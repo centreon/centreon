@@ -34,10 +34,9 @@ import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
-  deleteTokenEndpoint,
   listConfiguredUser,
   listTokensEndpoint,
-  patchTokenEndpoint
+  tokenEndpoint
 } from './api/endpoints';
 import {
   labelActiveOrRevoked,
@@ -679,9 +678,32 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
+  it('revokes an API token when Activate / Revoke token is clicked', () => {
+    cy.waitForRequest('@getListTokens');
+    const patchToken = tokenEndpoint({
+      tokenName: tokenToPatch,
+      userId: 23
+    });
+    interceptListTokens({
+      alias: 'getListTokensAfterRevoke',
+      dataPath: 'apiTokens/listing/listAfterRevoke.json'
+    });
+    cy.interceptAPIRequest({
+      alias: 'patchToken',
+      method: Method.PATCH,
+      path: `./api/latest${patchToken}**`,
+      statusCode: 204
+    });
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).click();
+    cy.waitForRequest('@patchToken');
+    cy.findAllByLabelText(labelActiveOrRevoked).eq(0).should('not.be.checked');
+
+    cy.makeSnapshot();
+  });
+
   it('displays an error message upon failed revoking of a token', () => {
     cy.waitForRequest('@getListTokens');
-    const patchToken = patchTokenEndpoint({
+    const patchToken = tokenEndpoint({
       tokenName: tokenToPatch,
       userId: 23
     });
@@ -706,7 +728,7 @@ describe('Api-token', () => {
   it('deletes the token when clicking on the Delete button', () => {
     cy.waitForRequest('@getListTokens');
 
-    const deleteToken = deleteTokenEndpoint({
+    const deleteToken = tokenEndpoint({
       tokenName: tokenToDelete,
       userId: 23
     });
