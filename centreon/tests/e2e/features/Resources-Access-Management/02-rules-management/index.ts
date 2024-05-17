@@ -25,6 +25,26 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?*'
   }).as('getContactFrame');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
+  }).as('getTopCounteruser');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=pollersListIssues'
+  }).as('getTopCounterpoller');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=servicesStatus'
+  }).as('getTopCounterservice');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topcounter&action=hosts_status'
+  }).as('getTopCounterhosts');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/resource-access/rules'
+  }).as('getRules');
 });
 
 Given('I am logged in as a user with limited access', () => {
@@ -82,11 +102,14 @@ When(
   'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
-    cy.wait(2000);
     cy.contains(`${data.login}`).click();
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-    cy.wait('3000');
-    cy.reloadAcl();
+    cy.wait('@getTopCounteruser');
+    cy.wait('@getTopCounterpoller');
+    cy.wait('@getTopCounterservice');
+    cy.wait('@getTopCounterhosts');
+    cy.wait('@getRules');
+    // cy.reloadAcl();
   }
 );
 
