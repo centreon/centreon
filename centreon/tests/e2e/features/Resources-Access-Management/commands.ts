@@ -72,22 +72,22 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
 Cypress.Commands.add('createSimpleUser', (userInformation, hostInformation) => {
   cy.setUserTokenApiV1();
   // verify later on if this user have BA access
-  cy.addContact({
-    admin: userInformation.admin,
-    email: userInformation.email,
-    name: userInformation.login,
-    password: userInformation.password
-  });
+  // cy.addContact({
+  //   admin: userInformation.admin,
+  //   email: userInformation.email,
+  //   name: userInformation.login,
+  //   password: userInformation.password
+  // });
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.addHost({
-    activeCheckEnabled: false,
-    address: hostInformation.adress,
-    checkCommand: 'check_centreon_cpu',
-    hostGroup: hostInformation.hostGroups.hostGroup1.name,
-    name: hostInformation.hosts.host1.name,
-    template: 'generic-host'
-  });
-  cy.applyPollerConfiguration();
+  // cy.addHost({
+  //   activeCheckEnabled: false,
+  //   address: hostInformation.adress,
+  //   checkCommand: 'check_centreon_cpu',
+  //   hostGroup: hostInformation.hostGroups.hostGroup1.name,
+  //   name: hostInformation.hosts.host1.name,
+  //   template: 'generic-host'
+  // });
+  // cy.applyPollerConfiguration();
   cy.navigateTo({
     page: 'Contacts / Users',
     rootItemNumber: 3,

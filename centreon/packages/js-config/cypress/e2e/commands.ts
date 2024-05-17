@@ -250,7 +250,7 @@ Cypress.Commands.add(
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
           `{selectAll}{backspace}${credential.login}`
         );
-        cy.getByLabel({ label: 'Password', tag: 'input' }).type(
+        cy.getByLabel({ label: 'Mot de passe', tag: 'input' }).type(
           `{selectAll}{backspace}${credential.password}`
         );
       })
