@@ -35,7 +35,7 @@ const Option = ({
 
   return (
     <IconButton
-      ariaLabel={`${t(title)}x`}
+      ariaLabel={title}
       className={classes.iconButton}
       title={t(title)}
       tooltipClassName={classes.tooltipClassName}
