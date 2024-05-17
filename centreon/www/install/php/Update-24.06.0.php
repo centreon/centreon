@@ -39,7 +39,7 @@ $deleteVaultTables = function(CentreonDB $pearDB) use(&$errorMessage): void {
     $errorMessage = 'Unable to drop table vault';
     $pearDB->query(
         <<<'SQL'
-            DROP TABLE `vault`
+            DROP TABLE IF EXISTS `vault`
             SQL
     );
 
