@@ -14,7 +14,7 @@ export const loadScript = async ({
 }: LoadScriptProps): Promise<void> => {
   const timestamp = `?t=${new Date().getTime()}`;
 
-  const formattedScriptPath = scriptPath.replace('.', `/${centreonBaseURL}`);
+  const formattedScriptPath = scriptPath.replace('.', centreonBaseURL);
 
   const filePath = `${window.location.origin}${formattedScriptPath}.js`;
 
