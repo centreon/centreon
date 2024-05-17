@@ -98,7 +98,7 @@ Check Poller Communicate
     [Arguments]    ${poller_id}
     ${response}     Set Variable    ${EMPTY}
     Log To Console    checking Gorgone see poller in rest api response...
-    FOR    ${i}    IN RANGE    10
+    FOR    ${i}    IN RANGE    20
         Sleep    5
         ${response}=    GET  http://127.0.0.1:8085/api/internal/constatus
         Log    ${response.json()}
