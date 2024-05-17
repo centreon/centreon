@@ -67,11 +67,9 @@ runs:
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
       with:
-        browser: electron
-        component: false
+        command: pnpm run cypress:run --browser electron --spec features/**/${{ inputs.feature_file_path }}
         install: false
         working-directory: ${{ inputs.module }}/tests/e2e
-        spec: features/**/${{ inputs.feature_file_path }}
         publish-summary: false
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
