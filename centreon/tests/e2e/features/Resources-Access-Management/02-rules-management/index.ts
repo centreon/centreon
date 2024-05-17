@@ -2,17 +2,20 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/users/simple-user.json';
 import data2 from '../../../fixtures/resources-access-management/new-host.json';
+import data_bv from '../../../fixtures/resources-access-management/bv-names.json';
+import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
+
 import '../commands';
 
 beforeEach(() => {
-  // cy.startContainers();
-  // // install BAM module
-  // cy.installBamModuleOnContainer();
-  // cy.installCloudExtensionsOnContainer();
-  // // we should install cloud extension and anomaly detection
-  // cy.installBamModule();
-  // cy.installCloudExtensionsModule();
-  // cy.enableResourcesAccessManagementFeature();
+  cy.startContainers();
+  // install BAM module
+  cy.installBamModuleOnContainer();
+  cy.installCloudExtensionsOnContainer();
+  // we should install cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
+  cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -108,7 +111,7 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    cy.wait('@getRules');
+    // cy.wait('@getRules');
     // cy.reloadAcl();
   }
 );
@@ -127,6 +130,61 @@ When('the user is redirected to monitoring "Resources" page', () => {
 
 Then('the user can see the Host selected by the Administrator', () => {
   cy.contains('Centreon-Database').should('be.visible');
+});
+
+When(
+  'the Administrator selects "Business view" as the resource and fills in the required fields',
+  () => {
+    data_bv.forEach((value) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'BV',
+          values: `BV${value.Ba};${value.description}`
+        }
+      });
+    });
+
+    data_ba.forEach((value) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'BA',
+          values: `${value.Ba};${value.description};${value.State_Source};${value.Warning_threshold};${value.Critical_threshold};${value.Notification_interval}`
+        }
+      });
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'SETBV',
+          object: 'BA',
+          values: `${value.Ba};${value.Bv}`
+        }
+      });
+    });
+    cy.get('#Name').type('Rule1');
+    cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
+    cy.getByLabel({ label: 'Business view', tag: 'li' }).click();
+    cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
+    cy.contains('Centreon-Database').click();
+  }
+);
+
+When(
+  'the user is redirected to the monitoring "Business Activity" page',
+  () => {
+    cy.navigateTo({
+      page: 'Monitoring',
+      rootItemNumber: 1,
+      subMenu: 'Business Activity'
+    });
+  }
+);
+
+Then('the user can access the selected business view', () => {
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-bv_filter-container"]')
+    .click();
+  cy.getIframeBody().contains('BV1').click();
 });
 
 afterEach(() => {
