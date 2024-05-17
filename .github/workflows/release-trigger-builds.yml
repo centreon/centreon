@@ -21,7 +21,8 @@ jobs:
     steps:
       - name: Install Github CLI
         run: |
-          echo "Installing GH CLI."
+          set -eux
+
           if ! command -v gh &> /dev/null; then
             echo "Installing GH CLI."
             type -p curl >/dev/null || (sudo apt-get update && sudo apt-get install curl -y)
