@@ -172,38 +172,137 @@ sub getHostGroups {
 
 #Fill a class Hash table that contains the relation between host_id and table[hc_id,hc_name]
 sub getHostCategoriesWithTemplate {
-	my $self = shift;
+	my $self	  = shift;
+	my $centreon  = $self->{"centreon"};
+	my $activated = 1;
 
-    my @hostCategoriesAllowed = split(/,/, $self->{etlProperties}->{'dimension.hostcategories'});
+	#Hash : each key of the hash table is a host id
+	#each key is linked to a table containing entries like : "hc_id,hc_name"
+	my $hostCategoriesWithTemplate = $self->{'hostCategoriesWithTemplates'};
+	if (@_) {
+		$activated = 0;
+	}
 
-    my %loop = ();
-    my $hcResult = {};
-    foreach my $host_id (keys %{$self->{hosts}}) {
-        my $stack = [$host_id];
-        my $hcAdd = {};
-        my $hc = [];
-        foreach (my $id = shift(@$stack)) {
-            next if (defined($loop{$id}));
-            $loop{$id} = 1;
+	my $query = "SELECT   `host_id` FROM `host` WHERE `host_activate` ='1'";
 
-            if (defined($self->{host_hc_relations}->{$id})) {
-                foreach my $category_id (@{$self->{host_hc_relations}->{$id}}) {
-                    next if (defined($hcAdd->{$category_id}));
-                    if ((grep {$_ eq $category_id} @hostCategoriesAllowed) ||
-                        (defined($self->{etlProperties}->{'dimension.all.hostcategories'}) && $self->{etlProperties}->{'dimension.all.hostcategories'} ne '')) {
-                        $hcAdd->{$category_id} = 1;
-                        push @$hc, $category_id . ';' . $self->{hc}->{$category_id};
-                    }
-                }
-            }
+	my $sth		 = $centreon->query({ query => $query });
+	while (my $row  = $sth->fetchrow_hashref()) {
+		my @tab	 = ();
+		my $host_id = $row->{"host_id"};
+		$self->getRecursiveCategoriesForOneHost($host_id, \@tab);
+		$self->getDirectLinkedCategories($host_id, \@tab);
+		$hostCategoriesWithTemplate->{$row->{"host_id"}} = [@tab];
+		undef @tab;
+	}
+	$self->{'hostCategoriesWithTemplates'} = $hostCategoriesWithTemplate;
+	$sth->finish();
+}
 
-            unshift(@$stack, @{$self->{host_htpl_relations}->{id}}) if (defined($self->{host_htpl_relations}->{id}));
-        }
+#Get the link between host and categories using direct link hc <> host
+sub getDirectLinkedCategories {
+	my $self		  = shift;
+	my $host_id	   = shift;
+	my $ref_hostCat   = shift;
+	my $centreon	  = $self->{"centreon"};
+	my $etlProperties = $self->{"etlProperties"};
+	my @tab		   = ();
 
-        $hcResult->{$host_id} = $hc;
-    }
+	my $query = "SELECT `host_id`, `host_name`, `hc_id`, `hc_name`" .
+				" FROM `host`, `hostcategories_relation`, `hostcategories`" .
+				" WHERE `host_register`='1'" .
+				" AND `hostcategories_hc_id` = `hc_id`" .
+				" AND `host_id`= `host_host_id`" .
+				" AND `host_id`= " . $host_id . " " .
+				" AND `host_activate` ='1' AND hostcategories.hc_activate = '1' ";
 
-    return $hcResult;
+	if (!defined($etlProperties->{'dimension.all.hostcategories'}) && $etlProperties->{'dimension.hostcategories'}
+																	  ne '') {
+		$query .= " AND `hc_id` IN (" . $etlProperties->{'dimension.hostcategories'} . ")";
+	}
+
+	my $sth		   = $centreon->query({ query => $query });
+	while (my $row	= $sth->fetchrow_hashref()) {
+		my $new_entry = $row->{"hc_id"} . ";" . $row->{"hc_name"};
+		if (!scalar(@$ref_hostCat)) {
+			@$ref_hostCat = ($new_entry);
+		} else {
+			@tab	   = @$ref_hostCat;
+			my $exists = 0;
+			foreach (@$ref_hostCat) {
+				if ($_ eq $new_entry) {
+					$exists = 1;
+					last;
+				}
+			}
+			if (!$exists) {
+				push @$ref_hostCat, $new_entry;
+			}
+		}
+	}
+	$sth->finish();
+}
+
+#Get the link between host and categories using templates
+sub getRecursiveCategoriesForOneHost {
+	my $self		  = shift;
+	my $host_id	   = shift;
+	my $ref_hostCat   = shift;
+	my $centreon	  = $self->{"centreon"};
+	my $etlProperties = $self->{"etlProperties"};
+
+
+	#Get all categories linked to the templates associated with the host or just template associated with host to be able to call the method recursively
+
+	my $query
+		= "SELECT host_id, host_name, template_id,template_name,  categories.hc_id as category_id, categories.hc_activate as hc_activate," .
+		  " categories.hc_name as category_name " .
+		  " FROM ( SELECT t1.host_id,t1.host_name,templates.host_id as template_id,templates.host_name as template_name " .
+		  " FROM host t1, host_template_relation t2, host templates " .
+		  " WHERE t1.host_id = t2.host_host_id AND t2.host_tpl_id = templates.host_id AND t1.host_activate ='1' AND t1.host_id = " . $host_id . " ) r1 " .
+		  " LEFT JOIN hostcategories_relation t3 ON t3.host_host_id = r1.template_id LEFT JOIN hostcategories categories ON t3.hostcategories_hc_id = categories.hc_id ";
+
+	my @hostCategoriesAllowed = split /,/, $etlProperties->{'dimension.hostcategories'};
+
+	my $sth		= $centreon->query({ query => $query });
+	while (my $row = $sth->fetchrow_hashref()) {
+		my @tab	= ();
+		my $new_entry;
+		my $categoryId	   = $row->{"category_id"};
+		my $categoryName	 = $row->{"category_name"};
+		my $categoryActivate = $row->{"hc_activate"};
+
+		#If current category is in allowed categories in ETL configuration
+		#add it to the categories link to the host,
+		#Then check for templates categories recursively
+		if (defined($categoryId) && defined($categoryName) && $categoryActivate == '1') {
+			if ((grep { $_ eq $categoryId } @hostCategoriesAllowed) || (defined($etlProperties
+				->{'dimension.all.hostcategories'})					 &&										$etlProperties
+																													  ->{'dimension.all.hostcategories'}
+																												  ne '')) {
+				$new_entry = $categoryId . ";" . $categoryName;
+				#If no hostcat has been found for the host, create the line
+				if (!scalar(@$ref_hostCat)) {
+					@$ref_hostCat = ($new_entry);
+				} else {
+					#If the tab is not empty, check wether the combination already exists in the tab
+					@tab	   = @$ref_hostCat;
+					my $exists = 0;
+					foreach (@$ref_hostCat) {
+						if ($_ eq $new_entry) {
+							$exists = 1;
+							last;
+						}
+					}
+					#If the host category did not exist, add it to the table @$ref_hostCat
+					if (!$exists) {
+						push @$ref_hostCat, $new_entry;
+					}
+				}
+			}
+		}
+		$self->getRecursiveCategoriesForOneHost($row->{"template_id"}, $ref_hostCat);
+	}
+	$sth->finish();
 }
 
 sub getHostGroupAndCategories {
@@ -211,10 +310,11 @@ sub getHostGroupAndCategories {
 	
     my $hostGroups = $self->getHostGroups();
 
-    $self->loadAllCategories();
-    $self->loadAllHosts();
-    my $hostCategories = $self->getHostCategoriesWithTemplate();
-    my @results;
+	$self->loadAllCategories();
+	$self->loadAllHosts();
+	$self->getHostCategoriesWithTemplate();
+	my $hostCategories = $self->{"hostCategoriesWithTemplates"};
+	my @results;
 
     while (my ($hostId, $groups) = each (%$hostGroups)) {
         my $categories_ref = $hostCategories->{$hostId};
