@@ -365,7 +365,7 @@ function deleteHostInDB($hosts = array())
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
         deleteResourceSecretsInVault($vaultConfiguration, $logger, $hostIds, []);
     }
@@ -432,7 +432,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
         $httpClient = new CentreonRestHttp();
         $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
@@ -1342,7 +1342,7 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
         try {
             insertHostSecretsInVault(
@@ -1653,7 +1653,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
@@ -1849,7 +1849,7 @@ function updateHost_MC($hostId = null)
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;

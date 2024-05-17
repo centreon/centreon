@@ -424,7 +424,7 @@ function deleteServiceInDB($services = array())
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
         deleteResourceSecretsInVault($vaultConfiguration, $logger, [], $serviceIds);
     }
@@ -613,7 +613,7 @@ function multipleServiceInDB(
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
 
     //Authenticate to Vault to avoid multiple authentication for each duplicated services
     if ($vaultConfiguration !== null) {
@@ -1006,7 +1006,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
@@ -1161,7 +1161,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
@@ -1898,7 +1898,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
     if ($vaultConfiguration !== null && ! empty($macros)) {
         try {
@@ -2144,7 +2144,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //If there is a vault configuration  and macros write into vault
     if ($vaultConfiguration !== null && ! empty($macros)) {
         try {
@@ -2259,7 +2259,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
@@ -2512,7 +2512,7 @@ function updateService_MC($service_id = null, $params = array())
     $readVaultConfigurationRepository = $kernel->getContainer()->get(
         Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
     );
-    $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
     //Retrieve UUID for vault path before updating values in database.
     $uuid = null;
     if ($vaultConfiguration !== null ){
