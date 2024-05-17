@@ -1,0 +1,4 @@
+nodes:
+  - id: 2
+    type: wss
+    prevail: 1

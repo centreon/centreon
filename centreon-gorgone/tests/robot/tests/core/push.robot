@@ -5,7 +5,7 @@ Resource            ${CURDIR}${/}..${/}..${/}resources${/}import.resource
 Test Timeout        220s
 
 *** Variables ***
-@{process_list}    gorgone_central    gorgone_poller_2
+@{process_list}    push_zmq_gorgone_central    push_zmq_gorgone_poller_2
 
 *** Test Cases ***
 connect 1 poller to a central
