@@ -140,7 +140,7 @@ When(
         bodyContent: {
           action: 'ADD',
           object: 'BV',
-          values: `BV${value.Ba};${value.description}`
+          values: `${value.Bv};${value.description}`
         }
       });
     });
