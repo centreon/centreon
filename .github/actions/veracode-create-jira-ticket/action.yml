@@ -31,7 +31,7 @@ runs:
           --header 'Content-Type: application/json' \
           --data '{
             "fields": ["summary"],
-            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on $module_name_workaround\" AND resolution = unresolved",
+            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ module_name_workaround }}\" AND resolution = unresolved",
             "maxResults": 1
         }' | jq .issues[0].key )
 
