@@ -84,9 +84,6 @@ sub handle_TERM {
 
     if ($self->{connected} == 1) {
         $self->{tx}->send({text => $message });
-        $self->{tx}->on(drain => sub { Mojo::IOLoop->stop_gracefully(); });
-    } else {
-        Mojo::IOLoop->stop_gracefully();
     }
 }
 
