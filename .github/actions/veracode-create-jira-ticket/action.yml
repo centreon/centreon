@@ -26,6 +26,8 @@ runs:
         # Workaround: JQL won't match on summary when exact pattern is found and summary contains dashes
         module_name_workaround=$( echo "centreon-it-edition-extensions" | sed 's/\-/\\\"\-\\\"/g' )
         echo "module_name_workaround = $module_name_workaround"
+        echo "jql"
+        echo "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR- incident on $module_name_workaround\" AND resolution = unresolved"
 
         check_if_ticket_exists=$( curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
@@ -50,7 +52,7 @@ runs:
         # Creating a new incident ticket on Jira
 
         # to revert
-        module_name_workaround=$( echo "centreon-it-edition-extensions" | sed 's/\-/\\\"\-\\\"/g' )
+        module_name_workaround="centreon-it-edition-extensions"
         echo "module_name_workaround = $module_name_workaround"
 
         DATA=$( cat <<-EOF
