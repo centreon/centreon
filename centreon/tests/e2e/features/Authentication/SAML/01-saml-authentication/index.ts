@@ -16,6 +16,7 @@ before(() => {
   });
 });
 
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
