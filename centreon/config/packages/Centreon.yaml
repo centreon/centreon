@@ -318,6 +318,8 @@ services:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
             tags: ['configuration.notification.notifiable.resource.request.provider']
+        Core\Dashboard\Application\Repository\WidgetDataProviderInterface:
+            tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
 

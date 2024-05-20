@@ -52,9 +52,6 @@ export const labelPleaseSelectAMetric = 'Please select a metric';
 export const labelYouCanSelectUpToTwoMetricUnits =
   'You can select a maximum of 2 metric units.';
 export const labelShowDescription = 'Show description';
-export const labelOpenLinksInNewTab = 'Open links in new tab';
-export const labelOpenLinksInNewTabTooltip =
-  'By turning off this option, all links included in the widget will be opened in the same tab.';
 export const labelAddFilter = 'Add filter';
 export const labelAddMetric = 'Add metric';
 export const labelAvailable = 'available';
