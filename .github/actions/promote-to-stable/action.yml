@@ -115,9 +115,17 @@ runs:
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
+        if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
+          ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        else
+          echo "Invalid repository name: ${{ inputs.repository_name }}"
+          exit 1
+        fi
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt search --include-dirs apt-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/*${{ inputs.major_version }}.${{ inputs.minor_version }}*${{ inputs.distrib }}*.deb | jq -r '.[].path')
+        SRC_PATHS=$(jf rt search --include-dirs "$ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -129,7 +137,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -138,7 +146,7 @@ runs:
           jf rt download $ARTIFACT --flat
         done
 
-        for ARTIFACT_DL in $(dir|grep -E "*.deb"); do
+        for ARTIFACT_DL in $(dir -1|grep -E ".+${{ inputs.distrib }}.+\.deb"); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           DISTRIB=$(echo $ARTIFACT_DL | cut -d '_' -f2 | cut -d '-' -f2)
           if [[ "${{ inputs.distrib }}" != "$DISTRIB" ]]; then
