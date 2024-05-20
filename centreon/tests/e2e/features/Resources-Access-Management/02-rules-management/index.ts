@@ -8,14 +8,14 @@ import data_ba from '../../../fixtures/resources-access-management/ba-names.json
 import '../commands';
 
 beforeEach(() => {
-  // cy.startContainers();
-  // // install BAM module
-  // cy.installBamModuleOnContainer();
-  // cy.installCloudExtensionsOnContainer();
-  // // we should install cloud extension and anomaly detection
-  // cy.installBamModule();
-  // cy.installCloudExtensionsModule();
-  // cy.enableResourcesAccessManagementFeature();
+  cy.startContainers();
+  // install BAM module
+  cy.installBamModuleOnContainer();
+  cy.installCloudExtensionsOnContainer();
+  // we should install cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
+  cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -82,12 +82,19 @@ When(
       rootItemNumber: 4,
       subMenu: 'ACL'
     });
+    cy.on('window:confirm', (text) => {
+      expect(text).to.equal('Do you confirm the deletion ?');
+
+      return true;
+    });
     cy.getIframeBody()
-      .find('td.ListColLeft a:contains("idk")')
-      .find('input[type="checkbox"]')
+      .find('td.ListColPicker input[type="checkbox"]')
+      .parent()
       .click();
-    cy.getIframeBody().find('tr.ToolbarTR').find('select[name="o2"]').click();
-    cy.getIframeBody().contains('Delete').click();
+    cy.getIframeBody()
+      .find('table.ToolbarTable.table')
+      .find('select[name="o2"]')
+      .select('Delete');
     cy.visit(`centreon/administration/resource-access/rules`);
   }
 );
@@ -123,7 +130,6 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    // cy.wait('@getRules');
     // cy.reloadAcl();
   }
 );
@@ -147,32 +153,7 @@ Then('the user can see the Host selected by the Administrator', () => {
 When(
   'the Administrator selects "Business view" as the resource and fills in the required fields',
   () => {
-    data_bv.forEach((value) => {
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'ADD',
-          object: 'BV',
-          values: `${value.Bv};${value.description}`
-        }
-      });
-    });
-
-    data_ba.forEach((value) => {
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'ADD',
-          object: 'BA',
-          values: `${value.Ba};${value.description};${value.State_Source};${value.Warning_threshold};${value.Critical_threshold};${value.Notification_interval}`
-        }
-      });
-      cy.executeActionViaClapi({
-        bodyContent: {
-          action: 'SETBV',
-          object: 'BA',
-          values: `${value.Ba};${value.Bv}`
-        }
-      });
-    });
+    cy.addBusinessViewsAndBas(data_bv, data_ba);
     cy.get('#Name').type('Rule1');
     cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
     cy.getByLabel({ label: 'Business view', tag: 'li' }).click();
