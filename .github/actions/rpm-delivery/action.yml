@@ -47,6 +47,16 @@ runs:
 
         FILES="*.rpm"
 
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
         # DEBUG
         echo "[DEBUG] - Version: ${{ inputs.version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
