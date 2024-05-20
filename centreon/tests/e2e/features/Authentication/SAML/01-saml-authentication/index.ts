@@ -129,6 +129,8 @@ Then(
     const username = 'user-non-admin-for-SAML-authentication';
 
     cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
+    cy.saveCookies();
+    cy.restoreCookies();
     cy.loginKeycloak(username);
 
     cy.url().should('include', '/monitoring/resources');

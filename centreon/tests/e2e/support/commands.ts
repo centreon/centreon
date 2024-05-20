@@ -24,7 +24,6 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
-  cy.rewriteHeaders();
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
     cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
@@ -61,22 +60,34 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('rewriteHeaders', () => {
-  cy.intercept('*', (req) =>
-    req.on('response', (res) => {
-      const setCookies = res.headers['set-cookie'];
-      res.headers['set-cookie'] = (
-        Array.isArray(setCookies) ? setCookies : [setCookies]
-      )
-        .filter((x) => x)
-        .map((headerContent) =>
-          headerContent.replace(
-            /samesite=(lax|strict)/gi,
-            'secure; samesite=none'
-          )
-        );
-    })
-  );
+let cookiesToSave: Array<Cypress.Cookie> = [];
+
+Cypress.Commands.add('saveCookies', () => {
+  cy.getCookies().then((cookieArray) => {
+    cookiesToSave = cookieArray.filter(
+      (cookie) =>
+        cookie.name === 'AUTH_SESSION_ID' ||
+        cookie.name === 'AUTH_SESSION_ID_LEGACY' ||
+        cookie.name === 'KC_RESTART'
+    );
+    cy.log('Cookies saved:', JSON.stringify(cookiesToSave));
+    console.log('Cookies saved:', cookiesToSave);
+  });
+});
+
+Cypress.Commands.add('restoreCookies', () => {
+  cookiesToSave.forEach((cookie) => {
+    cy.setCookie(cookie.name, cookie.value, {
+      domain: cookie.domain,
+      expiry: cookie.expiry,
+      httpOnly: cookie.httpOnly,
+      path: cookie.path,
+      sameSite: cookie.sameSite,
+      secure: cookie.secure
+    });
+  });
+  cy.log('Cookies restored:', JSON.stringify(cookiesToSave));
+  console.log('Cookies restored:', cookiesToSave);
 });
 
 declare global {
@@ -88,7 +99,8 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
-      rewriteHeaders: () => Cypress.Chainable;
+      restoreCookies: () => Cypress.Chainable;
+      saveCookies: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
