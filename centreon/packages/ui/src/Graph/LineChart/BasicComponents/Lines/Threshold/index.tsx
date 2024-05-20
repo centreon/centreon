@@ -7,7 +7,6 @@ import {
   VariationThreshold
 } from '../../../models';
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';
@@ -17,7 +16,7 @@ import { WrapperThresholdLinesModel } from './models';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {
-  curve: CurveType;
+  curve: 'linear' | 'natural' | 'step';
   graphHeight: number;
   timeSeries: Array<TimeValue>;
 }
