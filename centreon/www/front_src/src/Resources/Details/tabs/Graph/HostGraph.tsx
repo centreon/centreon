@@ -1,6 +1,9 @@
-import { isNil } from 'ramda';
+import { useState } from 'react';
 
-import { useRequest } from '@centreon/ui';
+import { isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
+
+import { TimePeriods, useRequest } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
 
 import { TabProps } from '..';
@@ -10,11 +13,16 @@ import InfiniteScroll from '../../InfiniteScroll';
 import ServiceGraphs from '../Services/Graphs';
 import LoadingSkeleton from '../Timeline/LoadingSkeleton';
 import { listResources } from '../../../Listing/api';
+import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
 
 const HostGraph = ({ details }: TabProps): JSX.Element => {
+  const [graphTimeParameters, setGraphTimeParameters] = useState();
+
   const { sendRequest, sending } = useRequest({
     request: listResources
   });
+
+  const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
 
   const limit = 6;
 
@@ -41,10 +49,24 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     });
   };
 
+  const getTimePeriodsParameters = (data): void => {
+    setGraphTimeParameters(data);
+  };
+
+  const newGraphInterval = updatedGraphInterval
+    ? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
+    : undefined;
+
   return (
     <InfiniteScroll<Resource>
       details={details}
-      filter={<TimePeriodButtonGroup />}
+      filter={
+        <TimePeriods
+          adjustTimePeriodData={newGraphInterval}
+          getParameters={getTimePeriodsParameters}
+          renderExternalComponent={<div>swiitchoo</div>}
+        />
+      }
       limit={limit}
       loading={sending}
       loadingSkeleton={<LoadingSkeleton />}
@@ -54,6 +76,7 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
       {({ infiniteScrollTriggerRef, entities }): JSX.Element => {
         return (
           <ServiceGraphs
+            graphTimeParameters={graphTimeParameters}
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
             services={entities}
           />

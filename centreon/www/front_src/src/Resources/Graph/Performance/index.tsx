@@ -147,7 +147,6 @@ const PerformanceGraph = <T,>({
   resource,
   onAddComment,
   canAdjustTimePeriod = false,
-  resourceDetailsUpdated = true,
   displayEventAnnotations = false,
   displayTitle = true,
   limitLegendRows,
@@ -390,9 +389,7 @@ const PerformanceGraph = <T,>({
               height={height}
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
-              loading={
-                not(resourceDetailsUpdated) && sendingGetGraphDataRequest
-              }
+              loading={sendingGetGraphDataRequest}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}

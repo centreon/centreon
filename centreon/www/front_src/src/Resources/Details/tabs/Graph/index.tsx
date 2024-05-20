@@ -1,26 +1,23 @@
 import { useState } from 'react';
 
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useAtom, useAtomValue } from 'jotai';
 
 import { Theme } from '@mui/material';
 
 import { TimePeriods } from '@centreon/ui';
 
 import { TabProps } from '..';
+import FederatedComponent from '../../../../components/FederatedComponents';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
+import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
+import PopoverCustomTimePeriodPickers from '../../../Graph/Performance/TimePeriods/PopoverCustomTimePeriodPicker';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
-import FederatedComponent from '../../../../components/FederatedComponents';
-import PopoverCustomTimePeriodPickers from '../../../Graph/Performance/TimePeriods/PopoverCustomTimePeriodPicker';
-import {
-  customTimePeriodAtom,
-  graphQueryParametersDerivedAtom
-} from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
-import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
+import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 
 import HostGraph from './HostGraph';
 
@@ -102,7 +99,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   };
 
   const getTimePeriodsParameters = (data): void => {
-    console.log({ data });
     setGraphTimeParameters(data);
   };
 
@@ -114,11 +110,11 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     <div className={classes.container}>
       {isService ? (
         <>
-          <TimePeriodButtonGroup />
+          {/* <TimePeriodButtonGroup /> */}
           <TimePeriods
             adjustTimePeriodData={newGraphInterval}
             getParameters={getTimePeriodsParameters}
-            renderExternalComponent={<div>swiitchoo</div>}
+            renderExternalComponent={<GraphOptions />}
           />
           {graphTimeParameters && (
             <ExportablePerformanceGraphWithTimeline

@@ -8,6 +8,7 @@ import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGr
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
 
 interface Props {
+  graphTimeParameters;
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
   services: Array<Resource>;
 }
@@ -30,7 +31,8 @@ const useStyles = makeStyles()((theme) => ({
 
 const ServiceGraphs = ({
   services,
-  infiniteScrollTriggerRef
+  infiniteScrollTriggerRef,
+  graphTimeParameters
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -50,6 +52,7 @@ const ServiceGraphs = ({
               interactWithGraph
               limitLegendRows
               graphHeight={120}
+              graphTimeParameters={graphTimeParameters}
               resource={service}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}
