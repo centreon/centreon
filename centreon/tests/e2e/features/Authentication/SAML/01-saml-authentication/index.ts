@@ -41,7 +41,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getFilters');
-  cy.rewriteHeaders();
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -127,7 +126,10 @@ Then(
 
     const username = 'user-non-admin-for-SAML-authentication';
     cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-    cy.loginKeycloak(username);
+    cy.task('modifyCookieFlags').then(() => {
+      cy.loginKeycloak(username);
+
+    });
     cy.url().should('include', '/monitoring/resources');
     cy.wait('@getFilters').its('response.statusCode').should('eq', 200);
   }

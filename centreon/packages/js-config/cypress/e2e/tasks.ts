@@ -253,6 +253,21 @@ export default (on: Cypress.PluginEvents): void => {
       execSync(`npx wait-on ${url}`);
 
       return null;
+    },
+    modifyCookieFlags:async()  =>{
+      const puppeteer = require('puppeteer');
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto('chrome://settings/cookies');
+      await page.waitForSelector('settings-ui');
+      await page.type('settings-ui', 'SameSite by default cookies');
+      await page.waitForSelector('settings-ui .name');
+      await page.click('settings-ui .switch');
+      await page.type('settings-ui', 'Cookies without SameSite must be secure');
+      await page.waitForSelector('settings-ui .name');
+      await page.click('settings-ui .switch');
+      await browser.close();
+      return null;
     }
   });
 };
