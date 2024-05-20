@@ -120,7 +120,6 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: gorgone
-          repository_name: standard
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}

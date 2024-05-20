@@ -68,7 +68,7 @@ jobs:
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: widget-${{ inputs.widget_name }}
-          repository_name: standard
+          
           distrib: ${{ matrix.distrib }}
           version: ${{ inputs.major_version }}
           minor_version: ${{ inputs.minor_version }}
