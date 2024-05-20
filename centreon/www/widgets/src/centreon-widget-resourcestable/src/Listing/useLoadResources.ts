@@ -65,6 +65,11 @@ const useLoadResources = ({
           statuses,
           type: displayType
         }),
+        extraQueryParameters: {
+          limit: limit || 10,
+          page: page || 1,
+          sort_by: sort || { status_severity_code: SortOrder.Desc }
+        },
         isOnPublicPage,
         playlistHash,
         widgetId: id
@@ -84,7 +89,8 @@ const useLoadResources = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   return { data: formatRessources({ data, displayType }), isLoading };

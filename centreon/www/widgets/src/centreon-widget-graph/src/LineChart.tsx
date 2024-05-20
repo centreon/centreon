@@ -74,6 +74,7 @@ const WidgetLineChart = ({
 
   return (
     <LineChart
+      curve={panelOptions.curveType}
       data={graphData}
       end={end}
       height={null}

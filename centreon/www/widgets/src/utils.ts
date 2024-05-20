@@ -301,13 +301,14 @@ export const getWidgetEndpoint = ({
   extraQueryParameters
 }: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
   defaultEndpoint: string;
-  extraQueryParameters?: Record<string, string | number>;
+  extraQueryParameters?: Record<string, string | number | object>;
   isOnPublicPage: boolean;
 }): string => {
   if (isOnPublicPage && playlistHash) {
     const extraqueryParametersStringified = extraQueryParameters
       ? toPairs(extraQueryParameters).reduce(
-          (acc, [key, value]) => `${acc}&${key as string}=${value}`,
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
           '?'
         )
       : '';

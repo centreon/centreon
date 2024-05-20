@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
 
+use Centreon\Domain\Log\LoggerTrait;
 use FOS\RestBundle\View\View;
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -36,17 +37,22 @@ use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTi
  */
 class RealTimeMonitoringServerController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * @param RequestParametersInterface $requestParameters
      * @param FindRealTimeMonitoringServers $findRealTimeMonitoringServers
-     * @return View
+     *
      * @throws RealTimeMonitoringServerException
+     * @throws \Throwable
+     * @return View
      */
     public function findRealTimeMonitoringServers(
         RequestParametersInterface $requestParameters,
-        FindRealTimeMonitoringServers $findRealTimeMonitoringServers
+        FindRealTimeMonitoringServers $findRealTimeMonitoringServers,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
+
         $response = $findRealTimeMonitoringServers->execute();
         return $this->view(
             [

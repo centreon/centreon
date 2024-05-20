@@ -35,3 +35,6 @@ export const playlistEndpoint = (id: number | string): string =>
 
 export const dashboardSharesEndpoint = (id: number | string): string =>
   `/configuration/dashboards/${id}/shares`;
+
+export const playlistsByDashboardEndpoint = (id: number | string): string =>
+  `/it-edition-extensions/configuration/dashboards/${id}/playlists`;

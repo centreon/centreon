@@ -37,9 +37,6 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -286,9 +283,11 @@ final class AddRule
                 if ($parentApplicableFilter !== null) {
                     if ($this->shouldBothFiltersBeSaved($parentApplicableFilter, $applicableFilter)) {
                         if ($this->shouldUpdateDatasetAccesses($parentApplicableFilter)) {
-                            $this->updateDatasetAccesses(
+                            $this->writeRepository->updateDatasetAccess(
+                                ruleId: $ruleId,
                                 datasetId: $datasetId,
-                                resourceType: $parentApplicableFilter->getType()
+                                resourceType: $parentApplicableFilter->getType(),
+                                fullAccess: true
                             );
                         } else {
                             $this->writeRepository->linkResourcesToDataset(
@@ -302,9 +301,11 @@ final class AddRule
                 }
 
                 if ($this->shouldUpdateDatasetAccesses($applicableFilter)) {
-                    $this->updateDatasetAccesses(
+                    $this->writeRepository->updateDatasetAccess(
+                        ruleId: $ruleId,
                         datasetId: $datasetId,
-                        resourceType: $applicableFilter->getType()
+                        resourceType: $applicableFilter->getType(),
+                        fullAccess: true
                     );
                 } else {
                     $this->writeRepository->linkResourcesToDataset(
@@ -328,45 +329,7 @@ final class AddRule
     private function shouldUpdateDatasetAccesses(DatasetFilter $datasetFilter): bool
     {
         return $datasetFilter->getResourceIds() === []
-            && in_array(
-                $datasetFilter->getType(),
-                [
-                    HostGroupFilterType::TYPE_NAME,
-                    ServiceGroupFilterType::TYPE_NAME,
-                    HostFilterType::TYPE_NAME,
-                ], true
-            );
-    }
-
-    /**
-     * @param int $datasetId
-     * @param string $resourceType
-     */
-    private function updateDatasetAccesses(int $datasetId, string $resourceType): void
-    {
-        switch ($resourceType) {
-            case HostGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hostgroups',
-                    fullAccess: true
-                );
-                break;
-            case ServiceGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'servicegroups',
-                    fullAccess: true
-                );
-                break;
-            case HostFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hosts',
-                    fullAccess: true
-                );
-                break;
-        }
+            && $this->datasetValidator->canResourceIdsBeEmpty($datasetFilter->getType());
     }
 
     /**

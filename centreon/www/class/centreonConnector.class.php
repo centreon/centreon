@@ -244,78 +244,84 @@ class CentreonConnector
     /**
      * Updates connector
      *
-     * @param int $id
+     * @param int $connectorId
+     * @param array $connector
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     *
      * @return CentreonConnector
      */
-    public function update($id, $connector = array())
+    public function update(int $connectorId, array $connector = array()): self
     {
-        if (!is_array($connector)) {
-            throw new InvalidArgumentException('Data is not an array');
-        }
-
-        if (!is_numeric($id)) {
-            throw new InvalidArgumentException('Id is not integer');
-        }
-
-        if (count($connector) === 0) {
+        if ($connector === []) {
             return $this;
         }
 
-        $data = array();
-
-        if (isset($connector['name'])) {
-            $data['name'] = $connector['name'];
-        }
-        if (isset($connector['description'])) {
-            $data['description'] = $connector['description'];
-        }
-        if (isset($connector['command_line'])) {
-            $data['command_line'] = $connector['command_line'];
-        }
-        if (isset($connector['enabled'])) {
-            $data['enabled'] = $connector['enabled'];
-        }
-        if (count($data) !== 0) {
-            $sqlParts = array();
-            $values = array();
-            $sqlParts[] = '`modified` =  ?';
-            $values[] = time();
-            foreach ($data as $fieldName => $fieldValue) {
-                $sqlParts[] = "`$fieldName` = ?";
-                $values[] = $fieldValue;
-            }
-            $sqlParts = implode(', ', $sqlParts);
-            $values[] = $id;
-            try {
-                $updateResult = $this->dbConnection->prepare(
-                    "UPDATE  `connector` SET $sqlParts WHERE  `connector`.`id` = ? LIMIT 1"
-                );
-                $updateResult->execute($values);
-            } catch (\PDOException $e) {
-                throw new RuntimeException('Cannot update connector');
-            }
-        }
-
         try {
-            $updateResult = $this->dbConnection->query(
-                "UPDATE `command` SET connector_id = NULL WHERE `connector_id` = $id"
+            $this->dbConnection->beginTransaction();
+            $bindValues = [];
+            $subRequest = '';
+
+            if (isset($connector['name'])) {
+                $bindValues[':name'] = $connector['name'];
+                $subRequest = ', `name` = :name';
+            }
+
+            if (isset($connector['description'])) {
+                $bindValues[':description'] = $connector['description'];
+                $subRequest .= ', `description` = :description';
+            }
+
+            if (isset($connector['command_line'])) {
+                $bindValues[':command_line'] = $connector['command_line'];
+                $subRequest .= ', `command_line` = :command_line';
+            }
+
+            if (isset($connector['enabled'])) {
+                $bindValues[':enabled'] = $connector['enabled'];
+                $subRequest .= ', `enabled` = :enabled';
+            }
+
+            if ($bindValues !== []) {
+                $bindValues[':date_now'] = time();
+                $subRequest = '`modified` = :date_now' . $subRequest;
+
+                $statement = $this->dbConnection->prepare(
+                    <<<SQL
+                        UPDATE `connector`
+                            SET $subRequest
+                        WHERE `connector`.`id` = :id
+                        LIMIT 1
+                        SQL
+                );
+                $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
+                foreach ($bindValues as $fieldName => $fieldValue) {
+                    $statement->bindValue($fieldName, $fieldValue);
+                }
+                $statement->execute();
+            }
+
+            $statement = $this->dbConnection->prepare(
+                "UPDATE `command` SET connector_id = NULL WHERE `connector_id` = :id"
             );
-        } catch (\PDOException $e) {
+            $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            $commandIds = $connector["command_id"] ?? [];
+            foreach ($commandIds as $commandId) {
+                $statement = $this->dbConnection->prepare(
+                    "UPDATE `command` SET `connector_id` = :id WHERE `command_id` = :command_id"
+                );
+                $statement->bindValue(':id', (int) $connectorId, \PDO::PARAM_INT);
+                $statement->bindValue(':command_id', (int) $commandId, \PDO::PARAM_INT);
+                $statement->execute();
+            }
+            $this->dbConnection->commit();
+        } catch (\Throwable) {
+            $this->dbConnection->rollBack();
             throw new RuntimeException('Cannot update connector');
         }
-
-        if (isset($connector["command_id"])) {
-            foreach ($connector["command_id"] as $key => $value) {
-                try {
-                    $updateResult = $this->dbConnection->query(
-                        "UPDATE `command` SET connector_id = '$id' WHERE `command_id` = '$value'"
-                    );
-                } catch (\PDOException $e) {
-                    throw new RuntimeException('Cannot update connector');
-                }
-            }
-        }
-
 
         return $this;
     }

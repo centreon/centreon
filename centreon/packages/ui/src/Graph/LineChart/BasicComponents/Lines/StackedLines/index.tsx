@@ -4,13 +4,12 @@ import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
 import StackedAnchorPoint from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
-import { getFillColor } from '../../../common';
+import { getCurveFactory, getFillColor } from '../../../common';
 import { getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
 
 interface Props {
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   displayAnchor: boolean;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
@@ -26,9 +25,11 @@ const StackLines = ({
   displayAnchor,
   curve
 }: Props): JSX.Element => {
+  const curveType = getCurveFactory(curve);
+
   return (
     <Shape.AreaStack
-      curve={curve}
+      curve={curveType}
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
@@ -45,10 +46,8 @@ const StackLines = ({
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {
-          const { areaColor, transparency, lineColor, highlight } = nth(
-            index,
-            lines
-          ) as Line;
+          const { areaColor, transparency, lineColor, highlight, metric_id } =
+            nth(index, lines) as Line;
 
           return (
             <g key={`stack-${prop('key', stack)}`}>
@@ -65,6 +64,7 @@ const StackLines = ({
               )}
               <path
                 d={linePath(stack) || ''}
+                data-metric={metric_id}
                 fill={getFillColor({ areaColor, transparency })}
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}

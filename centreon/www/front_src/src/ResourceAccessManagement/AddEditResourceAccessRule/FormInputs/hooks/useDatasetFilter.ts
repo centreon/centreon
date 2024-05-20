@@ -46,8 +46,7 @@ import {
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
+import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;

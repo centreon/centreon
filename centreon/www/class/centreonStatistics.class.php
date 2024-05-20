@@ -400,7 +400,7 @@ class CentreonStatistics
     }
 
     /**
-     * @return array<string,array<string,array<string,int|null>>>
+     * @return array<string,array<string, array{widget_number: int, metric_number?: int}>>
      */
     private function getAdditionalDashboardsInformation(): array
     {
@@ -408,32 +408,39 @@ class CentreonStatistics
         $dashboardsInformations = $this->dbConfig->query(
             <<<'SQL'
                 SELECT `dashboard_id`,
-                    `name` AS `widget_type`,
+                    `name` AS `widget_name`,
                     `widget_settings`
                 FROM
                     `dashboard_panel`
                 SQL
         );
+
+        $extractMetricInformationFromWidgetSettings = function (array $widgetSettings): int|null
+        {
+            return \array_key_exists('metrics', $widgetSettings['data'])
+                ? \count($widgetSettings['data']['metrics'])
+                : null;
+        };
+
         $dashboardId = '';
         foreach ($dashboardsInformations as $dashboardsInformation) {
-            $widgetType = (string) $dashboardsInformation['widget_type'];
+            $widgetName = (string) $dashboardsInformation['widget_name'];
             $widgetSettings = \json_decode((string) $dashboardsInformation['widget_settings'], true);
 
             if ($dashboardId !== (string) $dashboardsInformation['dashboard_id']) {
                 $dashboardId = (string) $dashboardsInformation['dashboard_id'];
                 $data[$dashboardId] = [];
             }
-            if (\array_key_exists($widgetType, $data[$dashboardId])) {
-                $data[$dashboardId][$widgetType]['widget_number'] += 1;
-                if ($data[$dashboardId][$widgetType]['metric_number'] !== null) {
-                    $data[$dashboardId][$widgetType]['metric_number'] += \count($widgetSettings['data']['metrics']);
+
+            if (\array_key_exists($widgetName, $data[$dashboardId])) {
+                $data[$dashboardId][$widgetName]['widget_number'] += 1;
+
+                if ($data[$dashboardId][$widgetName]['metric_number'] !== null) {
+                    $data[$dashboardId][$widgetName]['metric_number'] += $extractMetricInformationFromWidgetSettings($widgetSettings);
                 }
             } else {
-                $data[$dashboardId][$widgetType]['widget_number'] = 1;
-                $data[$dashboardId][$widgetType]['metric_number'] =
-                (\is_array($widgetSettings['data']) && [] === $widgetSettings['data'])
-                    ? null
-                    : \count($widgetSettings['data']['metrics']);
+                $data[$dashboardId][$widgetName]['widget_number'] = 1;
+                $data[$dashboardId][$widgetName]['metric_number'] = $extractMetricInformationFromWidgetSettings($widgetSettings);
             }
         }
 

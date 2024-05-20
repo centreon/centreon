@@ -72,7 +72,7 @@ const resourcesRequests = (): void => {
         dashboardId: 1,
         playlistHash: 'hash',
         widgetId: '1'
-      })}`,
+      })}?&limit=40&page=1&sort_by=%7B%22status%22%3A%22desc%22%7D`,
       response: data
     });
   });
