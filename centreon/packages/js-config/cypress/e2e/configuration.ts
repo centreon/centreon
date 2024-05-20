@@ -51,13 +51,15 @@ export default ({
       setupNodeEvents: async (on, config) => {
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.family === 'chromium') {
+            // Mac/Linux
             launchOptions.args.push(
               '--disable-features=SameSiteByDefaultCookies'
             );
-            launchOptions.args.push(
-              '--disable-features=CookiesWithoutSameSiteMustBeSecure'
-            );
+            launchOptions.args.push('--reduce-security-for-testing');
           }
+          console.log('launch options', launchOptions);
+
+          return launchOptions;
         });
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
