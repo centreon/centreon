@@ -180,6 +180,30 @@ Then('the user can access the selected business view', () => {
   cy.getIframeBody().contains('BV1').click();
 });
 
+Then('the Administrator selects "All hosts"', () => {
+  cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+});
+
+Then('the user can see all hosts', () => {
+  cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('Centreon-Server').should('be.visible');
+  // we should add a counter or verify a certain length ..
+});
+
+Then('the Administrator selects "All Business views"', () => {
+  cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+});
+
+Then('the user can access all the business views', () => {
+  cy.getIframeBody()
+    .find('span[aria-labelledby$="-bv_filter-container"]')
+    .click();
+  cy.getIframeBody().contains('BV1');
+  cy.getIframeBody().contains('BV2');
+  cy.getIframeBody().contains('BV3');
+  //fix this loop and values should be dynamic
+});
+
 afterEach(() => {
   cy.stopContainers();
 });
