@@ -15,14 +15,14 @@ Feature: List Existing API Tokens in Administration
       | <Name>  | <User> | <Duration> |
     When I navigate to API tokens page
     Then a list of API tokens is displayed with the following fields
-      | Status   | Name   | User   | Creator     |
-      | <Status> | <Name> | <User> | admin admin |
+      | Name   | User   | Creator     |
+      | <Name> | <User> | admin admin |
     And the Creation Date field has the current day as value
     And the Expiration Date field has the current day plus "<Duration>" as value
     Examples:
-      | Status  | Name    | User   | Duration |
-      | Active  | Token_1 | User_1 | 7 days   |
-      | Active  | Token_2 | User_2 | 30 days  |
-      | Active  | Token_3 | User_3 | 60 days  |
-      | Active  | Token_4 | User_4 | 90 days  |
-      | Active  | Token_5 | User_5 | 1 year   |
+      | Name    | User   | Duration |
+      | Token_1 | User_1 | 7 days   |
+      | Token_2 | User_2 | 30 days  |
+      | Token_3 | User_3 | 60 days  |
+      | Token_4 | User_4 | 90 days  |
+      | Token_5 | User_5 | 1 year   |
