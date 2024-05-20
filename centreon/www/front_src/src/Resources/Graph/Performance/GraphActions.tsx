@@ -1,6 +1,5 @@
 import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
 
-import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +17,6 @@ import {
 
 import FederatedComponent from '../../../components/FederatedComponents';
 import { ResourceDetails } from '../../Details/models';
-import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
 import { Resource } from '../../models';
@@ -32,17 +30,14 @@ import {
 } from '../../translatedLabels';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
-import {
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom
-} from './TimePeriods/timePeriodAtoms';
 
 interface Props {
-  customTimePeriod?: CustomTimePeriod;
+  end: string;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
   renderAdditionalGraphActions?: ReactNode;
   resource?: Resource | ResourceDetails;
+  start: string;
   timeline?: Array<TimelineEvent>;
 }
 
@@ -56,11 +51,12 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 const GraphActions = ({
-  customTimePeriod,
   resource,
   timeline,
   performanceGraphRef,
   open,
+  end,
+  start,
   renderAdditionalGraphActions
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
@@ -78,9 +74,6 @@ const GraphActions = ({
   const closeSizeExportMenu = (): void => {
     setMenuAnchor(null);
   };
-  const getIntervalDates = useAtomValue(getDatesDerivedAtom);
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const [start, end] = getIntervalDates(selectedTimePeriod);
 
   const graphToCsvEndpoint = `${resource?.links?.endpoints.performance_graph}/download?start_date=${start}&end_date=${end}`;
 
@@ -90,11 +83,11 @@ const GraphActions = ({
 
   const goToPerformancePage = (): void => {
     const startTimestamp = format({
-      date: customTimePeriod?.start as Date,
+      date: start,
       formatString: 'X'
     });
     const endTimestamp = format({
-      date: customTimePeriod?.end as Date,
+      date: end,
       formatString: 'X'
     });
 
@@ -211,12 +204,13 @@ const GraphActions = ({
 const MemoizedGraphActions = memoizeComponent<Props>({
   Component: GraphActions,
   memoProps: [
-    'customTimePeriod',
     'resourceParentName',
     'resourceName',
     'timeline',
     'performanceGraphRef',
-    'renderAdditionalGraphActions'
+    'renderAdditionalGraphActions',
+    'end',
+    'start'
   ]
 });
 

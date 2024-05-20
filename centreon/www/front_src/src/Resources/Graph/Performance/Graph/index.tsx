@@ -60,6 +60,7 @@ import {
   getXScale,
   getYScale
 } from '../timeSeries';
+import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 
 import AddCommentForm from './AddCommentForm';
 import Annotations from './Annotations';
@@ -200,6 +201,7 @@ interface GraphContentProps {
   containsMetrics: boolean;
   displayEventAnnotations: boolean;
   displayTimeValues: boolean;
+  end: string;
   format: (parameters) => string;
   height: number;
   hideAddCommentTooltip: () => void;
@@ -210,8 +212,8 @@ interface GraphContentProps {
   onAddComment?: (commentParameters: CommentParameters) => void;
   renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
-  shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
+  start: string;
   timeSeries: Array<TimeValue>;
   timeline?: Array<TimelineEvent>;
   width: number;
@@ -236,8 +238,7 @@ const GraphContent = ({
   hideAddCommentTooltip,
   showAddCommentTooltip,
   format,
-  applyZoom,
-  shiftTime,
+  // applyZoom,
   loading,
   canAdjustTimePeriod,
   displayEventAnnotations,
@@ -245,7 +246,9 @@ const GraphContent = ({
   isInViewport,
   interactWithGraph,
   displayTimeValues,
-  renderAdditionalLines
+  renderAdditionalLines,
+  end,
+  start
 }: GraphContentProps): JSX.Element => {
   const { classes } = useStyles({ onAddComment });
   const { t } = useTranslation();
@@ -270,6 +273,8 @@ const GraphContent = ({
   const changeAnnotationHovered = useSetAtom(
     changeAnnotationHoveredDerivedAtom
   );
+
+  const updatedGraphInterval = useSetAtom(updatedGraphIntervalAtom);
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
@@ -402,7 +407,7 @@ const GraphContent = ({
     }
 
     if (zoomBoundaries?.start !== zoomBoundaries?.end) {
-      applyZoom?.({
+      updatedGraphInterval?.({
         end: xScale.invert(zoomBoundaries?.end || graphWidth),
         start: xScale.invert(zoomBoundaries?.start || 0)
       });
@@ -594,12 +599,13 @@ const GraphContent = ({
             value={useMemo(
               () => ({
                 canAdjustTimePeriod,
+                end,
                 graphHeight,
                 graphWidth,
                 loading,
                 marginLeft: margin.left,
                 marginTop: margin.top,
-                shiftTime
+                start
               }),
               [
                 canAdjustTimePeriod,
@@ -607,7 +613,8 @@ const GraphContent = ({
                 graphWidth,
                 loading,
                 margin,
-                shiftTime
+                end,
+                start
               ]
             )}
           >

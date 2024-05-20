@@ -58,6 +58,8 @@ const YAxes = ({
 
   const ticksCount = Math.ceil(graphHeight / 30);
 
+  console.log({ hasMoreThanTwoUnits });
+
   return (
     <>
       {!hasMoreThanTwoUnits && <UnitLabel unit={firstUnit} x={0} />}
