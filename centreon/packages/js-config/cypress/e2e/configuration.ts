@@ -51,11 +51,12 @@ export default ({
       setupNodeEvents: async (on, config) => {
         on('before:browser:launch', (browser, launchOptions) => {
           if (browser.family === 'chromium') {
-            // Mac/Linux
             launchOptions.args.push(
               '--disable-features=SameSiteByDefaultCookies'
             );
-            launchOptions.args.push('--reduce-security-for-testing');
+            launchOptions.args.push(
+              '--disable-features=CookiesWithoutSameSiteMustBeSecure'
+            );
           }
           console.log('launch options', launchOptions);
 
