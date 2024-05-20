@@ -82,11 +82,12 @@ When(
       rootItemNumber: 4,
       subMenu: 'ACL'
     });
-    cy.getIframeBody().find('td.ListColLeft a:contains("idk")').click();
     cy.getIframeBody()
-      .find('div#validForm')
-      .find('.btc.bt_danger[name="reset"]')
+      .find('td.ListColLeft a:contains("idk")')
+      .find('input[type="checkbox"]')
       .click();
+    cy.getIframeBody().find('tr.ToolbarTR').find('select[name="o2"]').click();
+    cy.getIframeBody().contains('Delete').click();
     cy.visit(`centreon/administration/resource-access/rules`);
   }
 );
