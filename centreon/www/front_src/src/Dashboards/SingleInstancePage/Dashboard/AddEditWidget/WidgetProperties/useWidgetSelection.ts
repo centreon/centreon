@@ -9,6 +9,7 @@ import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import {
   FederatedModule,
+  FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
@@ -28,6 +29,37 @@ interface UseWidgetSelectionState {
   selectedWidget: SelectEntry | undefined;
   widgets: Array<FederatedWidgetProperties>;
 }
+
+export const getDefaultValues = (
+  options:
+    | {
+        [key: string]: FederatedWidgetOption;
+      }
+    | undefined
+): object => {
+  if (!options) {
+    return {};
+  }
+
+  return Object.entries(options).reduce((acc, [key, value]) => {
+    if (!has('when', value.defaultValue)) {
+      return {
+        ...acc,
+        [key]: value.defaultValue
+      };
+    }
+
+    return {
+      ...acc,
+      [key]: equals(
+        options[value.defaultValue.when].defaultValue,
+        value.defaultValue.is
+      )
+        ? value.defaultValue.then
+        : value.defaultValue.otherwise
+    };
+  }, {});
+};
 
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
@@ -70,8 +102,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
           description: {
             content: null,
             enabled: true
-          },
-          openLinksInNewTab: true
+          }
         },
         panelConfiguration: null
       });
@@ -103,27 +134,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       false
     );
 
-    const options = Object.entries(selectedWidgetProperties.options).reduce(
-      (acc, [key, value]) => {
-        if (!has('when', value.defaultValue)) {
-          return {
-            ...acc,
-            [key]: value.defaultValue
-          };
-        }
-
-        return {
-          ...acc,
-          [key]: equals(
-            selectedWidgetProperties.options[value.defaultValue.when]
-              .defaultValue,
-            value.defaultValue.is
-          )
-            ? value.defaultValue.then
-            : value.defaultValue.otherwise
-        };
-      },
-      {}
+    const options = getDefaultValues(selectedWidgetProperties.options);
+    const properties = getDefaultValues(
+      selectedWidgetProperties.generalProperties?.elements
     );
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
@@ -149,6 +162,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
+        ...properties,
         description:
           shouldResetDescription || isNil(currentValues.options.description)
             ? {
@@ -156,8 +170,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
                 enabled: true
               }
             : currentValues.options.description,
-        name: currentValues.options.name,
-        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
+        name: currentValues.options.name
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration[0]
     }));
