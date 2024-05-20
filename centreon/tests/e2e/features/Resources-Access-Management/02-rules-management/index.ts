@@ -8,14 +8,14 @@ import data_ba from '../../../fixtures/resources-access-management/ba-names.json
 import '../commands';
 
 beforeEach(() => {
-  cy.startContainers();
-  // install BAM module
-  cy.installBamModuleOnContainer();
-  cy.installCloudExtensionsOnContainer();
-  // we should install cloud extension and anomaly detection
-  cy.installBamModule();
-  cy.installCloudExtensionsModule();
-  cy.enableResourcesAccessManagementFeature();
+  // cy.startContainers();
+  // // install BAM module
+  // cy.installBamModuleOnContainer();
+  // cy.installCloudExtensionsOnContainer();
+  // // we should install cloud extension and anomaly detection
+  // cy.installBamModule();
+  // cy.installCloudExtensionsModule();
+  // cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -77,6 +77,17 @@ Given('an Administrator is logged in on the platform', () => {
 When(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
+    // all resources should be deleted first
+    cy.navigateTo({
+      page: 'Resources Access',
+      rootItemNumber: 4,
+      subMenu: 'ACL'
+    });
+    cy.getIframeBody().find('td.ListColLeft a:contains("idk")').click();
+    cy.getIframeBody()
+      .find('div#validForm')
+      .find('.btc.bt_danger[name="reset"]')
+      .click();
     cy.visit(`centreon/administration/resource-access/rules`);
   }
 );
