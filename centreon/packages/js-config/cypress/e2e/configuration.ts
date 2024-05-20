@@ -50,18 +50,12 @@ export default ({
       },
       setupNodeEvents: async (on, config) => {
         on('before:browser:launch', (browser, launchOptions) => {
-          if (browser.name === 'chromium') {
+          if (browser.family === 'chromium') {
             launchOptions.args.push(
-              '--disable-gpu',
-              '--disable-site-isolation-trials',
-              '--disable-dev-shm-usage',
-              '--no-sandbox',
-              '--disable-setuid-sandbox',
-              '--disable-web-security', // Disable Web Security
-              '--allow-running-insecure-content', // Allow insecure content
-              '--ignore-certificate-errors', // Ignore certificate errors
-              '--disable-features=SameSiteByDefaultCookies', // Disable SameSite cookies by default
-              '--disable-features=CookiesWithoutSameSiteMustBeSecure' // Disable secure requirement for cookies without SameSite
+              '--disable-features=SameSiteByDefaultCookies'
+            );
+            launchOptions.args.push(
+              '--disable-features=CookiesWithoutSameSiteMustBeSecure'
             );
           }
         });
