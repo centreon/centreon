@@ -48,6 +48,24 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
+        const launchOptions = {
+          args: [] as Array<string>
+        };
+
+        if (Cypress.browser.name === 'chrome' && Cypress.browser.isHeadless) {
+          (launchOptions.args as Array<string>).push(
+            '--disable-gpu',
+            '--disable-site-isolation-trials',
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-web-security', // Disable Web Security
+            '--allow-running-insecure-content', // Allow insecure content
+            '--ignore-certificate-errors', // Ignore certificate errors
+            '--disable-features=SameSiteByDefaultCookies', // Disable SameSite cookies by default
+            '--disable-features=CookiesWithoutSameSiteMustBeSecure' // Disable secure requirement for cookies without SameSite
+          );
+        }
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
