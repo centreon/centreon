@@ -24,6 +24,7 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+  cy.rewriteHeaders();
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
     cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
@@ -60,6 +61,24 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add('rewriteHeaders', () => {
+  cy.intercept('*', (req) =>
+    req.on('response', (res) => {
+      const setCookies = res.headers['set-cookie'];
+      res.headers['set-cookie'] = (
+        Array.isArray(setCookies) ? setCookies : [setCookies]
+      )
+        .filter((x) => x)
+        .map((headerContent) =>
+          headerContent.replace(
+            /samesite=(lax|strict)/gi,
+            'secure; samesite=none'
+          )
+        );
+    })
+  );
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -69,6 +88,7 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
+      rewriteHeaders: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
