@@ -50,7 +50,7 @@ export default ({
       },
       setupNodeEvents: async (on, config) => {
         on('before:browser:launch', (browser, launchOptions) => {
-          if (browser.name === 'chrome' && browser.isHeadless) {
+          if (browser.name === 'chromium') {
             launchOptions.args.push(
               '--disable-gpu',
               '--disable-site-isolation-trials',
