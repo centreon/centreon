@@ -94,5 +94,5 @@ jobs:
           artifactory_token: ${{ secrets.artifactory_token }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ inputs.stability }}
-          release_type: ${{ needs.get-version.outputs.release_type }}
-          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
+          release_type: ${{ inputs.release_type }}
+          release_cloud: ${{ inputs.release_cloud }}
