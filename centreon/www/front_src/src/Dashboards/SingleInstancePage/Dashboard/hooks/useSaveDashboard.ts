@@ -9,6 +9,7 @@ import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
+import { formatLayoutResources } from '../utils';
 
 import { routerParams } from './useDashboardDetails';
 
@@ -26,23 +27,38 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       options,
       data,
       name
-    }) => ({
-      id: Number(i),
-      layout: {
-        height: h,
-        min_height: minH || 0,
-        min_width: minW || 0,
-        width: w,
-        x,
-        y
-      },
-      name: name || '',
-      widget_settings: {
-        data: data || null,
-        options
-      },
-      widget_type: panelConfiguration.path
-    })
+    }) => {
+      // const formattedData = data
+      //   ? {
+      //       ...data,
+      //       resources: data?.resources.map((item) => ({
+      //         ...item,
+      //         resources: item.resources.map((elm) => ({
+      //           id: elm.id,
+      //           name: elm.name
+      //         }))
+      //       }))
+      //     }
+      //   : null;
+
+      return {
+        id: Number(i),
+        layout: {
+          height: h,
+          min_height: minH || 0,
+          min_width: minW || 0,
+          width: w,
+          x,
+          y
+        },
+        name: name || '',
+        widget_settings: {
+          data: formatLayoutResources(data),
+          options
+        },
+        widget_type: panelConfiguration.path
+      };
+    }
   );
 
 interface UseSaveDashboardState {
