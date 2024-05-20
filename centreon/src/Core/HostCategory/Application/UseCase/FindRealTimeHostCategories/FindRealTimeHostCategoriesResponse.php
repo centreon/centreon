@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Application\UseCase\FindHostCategory;
+namespace Core\HostCategory\Application\UseCase\FindRealTimeHostCategories;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Tag\RealTime\Application\UseCase\FindTag\FindTagResponse;
 
-interface FindHostCategoryPresenterInterface extends PresenterInterface
+final class FindRealTimeHostCategoriesResponse extends FindTagResponse
 {
 }
