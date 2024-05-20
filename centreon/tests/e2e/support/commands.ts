@@ -1,4 +1,6 @@
+/* eslint-disable import/no-unresolved */
 /* eslint-disable cypress/unsafe-to-chain-command */
+/* eslint-disable newline-before-return */
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import 'cypress-wait-until';
@@ -30,14 +32,7 @@ Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
   });
 
-  return cy
-    .get('#kc-login')
-    .click()
-    .then(() => {
-      cy.log('aaaa');
-
-      cy.rewriteHeaders();
-    });
+  return cy.get('#kc-login').click();
 });
 
 Cypress.Commands.add(
@@ -83,7 +78,7 @@ Cypress.Commands.add('rewriteHeaders', () => {
           )
         );
     })
-  ).as('headerInterceptor'); // Nommez l'interception pour y faire référence dans les assertions
+  );
 });
 
 declare global {

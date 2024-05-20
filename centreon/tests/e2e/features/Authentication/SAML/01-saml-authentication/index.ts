@@ -41,6 +41,7 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getFilters');
+  cy.rewriteHeaders();
 });
 
 Given('an administrator is logged on the platform', () => {
