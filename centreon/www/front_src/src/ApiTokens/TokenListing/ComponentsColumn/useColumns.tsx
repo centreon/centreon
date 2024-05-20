@@ -42,18 +42,6 @@ export const useColumns = (): UseColumns => {
   const columns: Array<ColumnTable> = useMemo(() => {
     return [
       {
-        Component: ({ row }: Row) => (
-          <Title
-            msg={row.isRevoked ? t(labelRevoked) : t(labelActive)}
-            variant="body2"
-          />
-        ),
-        id: 'status',
-        label: Column.Status,
-        sortable: true,
-        type: ColumnType.component
-      },
-      {
         Component: ({ row }: Row) => {
           return <Title msg={row.name} variant="body2" />;
         },

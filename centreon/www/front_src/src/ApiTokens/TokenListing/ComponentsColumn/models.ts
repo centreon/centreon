@@ -7,7 +7,6 @@ export enum Column {
   Creator = 'Creator',
   ExpirationDate = 'Expiration Date',
   Name = 'Name',
-  Status = 'Status',
   User = 'User'
 }
 
@@ -17,13 +16,11 @@ export enum SelectableColumnsIds {
   CreationDate = 'creation_date',
   CreatorName = 'creator_name',
   ExpirationDate = 'expiration_date',
-  Status = 'status',
   TokenName = 'token_name',
   UserName = 'user_name'
 }
 
 export const defaultSelectedColumnIds: Array<string> = [
-  SelectableColumnsIds.Status,
   SelectableColumnsIds.TokenName,
   SelectableColumnsIds.CreationDate,
   SelectableColumnsIds.ExpirationDate,
