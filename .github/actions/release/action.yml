@@ -177,7 +177,7 @@ runs:
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
-        Rebuild NEW_STABLE_TAGS as an array
+        # Rebuild NEW_STABLE_TAGS as an array
         for i in ${NEW_STABLE_TAGS[@]}; do
           NEW_RELEASE_TAGS+=("$i")
         done
