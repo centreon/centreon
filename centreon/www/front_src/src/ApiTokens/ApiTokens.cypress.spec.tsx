@@ -25,10 +25,7 @@ import {
   DefaultParameters,
   Fields
 } from './TokenListing/Actions/Filter/models';
-import {
-  convertToBoolean,
-  translateWhiteSpaceToRegex
-} from './TokenListing/Actions/Search/utils';
+import { translateWhiteSpaceToRegex } from './TokenListing/Actions/Search/utils';
 import { Column } from './TokenListing/ComponentsColumn/models';
 import TokenListing from './TokenListing/TokenListing';
 import {
