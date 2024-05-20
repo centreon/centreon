@@ -4,7 +4,7 @@
   "description": "centreon web package",
   "scripts": {
     "cypress:open": "TESTCONTAINERS_RYUK_DISABLED=true cypress open --config-file cypress.dev.config.ts --e2e",
-    "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --e2e",
+    "cypress:run": "TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --browser edge --config-file cypress.config.ts --e2e",
     "cypress:run:develop:debug": "DEBUG=cypress:* cypress run --config-file cypress.dev.json 2> ./cypress/results/logs.txt",
     "cypress:open:dev": "cypress open --config-file cypress.dev.config.ts --e2e",
     "eslint": "eslint ./features",
