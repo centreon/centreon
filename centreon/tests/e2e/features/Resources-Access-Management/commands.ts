@@ -31,6 +31,24 @@ Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
   });
 });
 
+Cypress.Commands.add('installBamModuleOnContainer', () => {
+  return cy
+    .execInContainer({
+      command: `dnf install -y centreon-license-manager`,
+      name: 'web'
+    })
+    .copyToContainer({
+      destination: `/tmp/`,
+      source:
+        'features/Resources-Access-Management/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm',
+      type: CopyToContainerContentType.File
+    })
+    .execInContainer({
+      command: `dnf install /tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
+      name: 'web'
+    });
+});
+
 // the rpm package is taken from JFrog artifactroy repos
 Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
   return cy
@@ -133,6 +151,38 @@ Cypress.Commands.add('createSimpleUser', (userInformation, hostInformation) => {
     .click();
 });
 
+Cypress.Commands.add(
+  'addBusinessViewsAndBas',
+  (businessViewInfos, businessActivityInfos) => {
+    businessViewInfos.forEach((value) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'BV',
+          values: `${value.Bv};${value.description}`
+        }
+      });
+    });
+
+    businessActivityInfos.forEach((value) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'BA',
+          values: `${value.Ba};${value.description};${value.State_Source};${value.Warning_threshold};${value.Critical_threshold};${value.Notification_interval}`
+        }
+      });
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'SETBV',
+          object: 'BA',
+          values: `${value.Ba};${value.Bv}`
+        }
+      });
+    });
+  }
+);
+
 Cypress.Commands.add('reloadAcl', () => {
   return cy.execInContainer({
     command: `sudo -u apache php /usr/share/centreon/cron/centAcl.php`,
@@ -149,6 +199,9 @@ declare global {
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
       createSimpleUser: () => Cypress.Chainable;
       reloadAcl: () => Cypress.Chainable;
+      installBamModuleOnContainer: () => Cypress.Chainable;
+      installBamModule: () => Cypress.Chainable;
+      addBusinessViewsAndBas: () => Cypress.Chainable;
     }
   }
 }
