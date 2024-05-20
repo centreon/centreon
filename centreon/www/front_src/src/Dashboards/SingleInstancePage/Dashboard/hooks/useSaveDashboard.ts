@@ -28,19 +28,6 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       data,
       name
     }) => {
-      // const formattedData = data
-      //   ? {
-      //       ...data,
-      //       resources: data?.resources.map((item) => ({
-      //         ...item,
-      //         resources: item.resources.map((elm) => ({
-      //           id: elm.id,
-      //           name: elm.name
-      //         }))
-      //       }))
-      //     }
-      //   : null;
-
       return {
         id: Number(i),
         layout: {
