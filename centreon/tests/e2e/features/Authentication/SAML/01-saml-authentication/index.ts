@@ -128,7 +128,6 @@ Then(
     cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
     cy.task('modifyCookieFlags').then(() => {
       cy.loginKeycloak(username);
-
     });
     cy.url().should('include', '/monitoring/resources');
     cy.wait('@getFilters').its('response.statusCode').should('eq', 200);
