@@ -14,8 +14,8 @@ import { labelActive, labelRevoked } from '../../translatedLabels';
 import { selectedColumnIdsAtom } from '../atoms';
 import { Row } from '../models';
 import Title from '../Title';
-import { Activate } from '../Actions/Activate';
 
+import Activate from './Activate';
 import ActionsColumn from './ActionsColumn';
 import { Column, UseColumns, defaultSelectedColumnIds } from './models';
 
