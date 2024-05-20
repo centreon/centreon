@@ -32,7 +32,7 @@ info:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: "24.04"
+  version: "24.10"
 externalDocs:
   description: You can contact us on our community Slack
   url: 'https://centreon.slack.com/messages/CCRGLQSE5'
@@ -52,7 +52,7 @@ servers:
         default: '80'
         description: "Port used by HTTP server"
       version:
-        default: v24.04
+        default: v24.10
         description: "Version of the API"
 tags:
   - name: Acknowledgement
@@ -254,23 +254,23 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/broker/{brokerId}/outputs:
-    $ref: "./v24.04/Configuration/Broker/AddBrokerOutput.yaml"
+    $ref: "./v24.10/Configuration/Broker/AddBrokerOutput.yaml"
   /configuration/broker/{brokerId}/outputs/{outputId}/file:
-    $ref: "./v24.04/Configuration/Broker/UpdateStreamConnectorFile.yaml"
+    $ref: "./v24.10/Configuration/Broker/UpdateStreamConnectorFile.yaml"
   /configuration/commands:
-    $ref: "./v24.04/Configuration/Command/AddAndFindCommands.yaml"
+    $ref: "./v24.10/Configuration/Command/AddAndFindCommands.yaml"
   /configuration/graphs/templates:
-    $ref: "./v24.04/Configuration/GraphTemplate/FindGraphTemplates.yaml"
+    $ref: "./v24.10/Configuration/GraphTemplate/FindGraphTemplates.yaml"
   /configuration/connectors:
-    $ref: "./v24.04/Configuration/Connector/FindConnectors.yaml"
+    $ref: "./v24.10/Configuration/Connector/FindConnectors.yaml"
   /configuration/hosts/{host_id}:
-    $ref: './v24.04/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
+    $ref: './v24.10/Configuration/Host/DeleteAndPartialUpdateHost.yaml'
   /configuration/hosts/templates:
-    $ref: './v24.04/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
+    $ref: './v24.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
-    $ref: './v24.04/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
+    $ref: './v24.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
   /configuration/hosts:
-    $ref: './v24.04/Configuration/Host/AddAndFindHosts.yaml'
+    $ref: './v24.10/Configuration/Host/AddAndFindHosts.yaml'
   /configuration/hosts/categories:
     get:
       tags:
@@ -480,13 +480,13 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/services/templates:
-    $ref: "./v24.04/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml"
+    $ref: "./v24.10/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml"
   /configuration/services/templates/{service_template_id}:
-    $ref: "./v24.04/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
+    $ref: "./v24.10/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
   /configuration/services/{service_id}:
-    $ref: "./v24.04/Configuration/Service/PartialUpdateAndDeleteService.yaml"
+    $ref: "./v24.10/Configuration/Service/PartialUpdateAndDeleteService.yaml"
   /configuration/services:
-    $ref: "./v24.04/Configuration/Service/AddServiceAndFindServices.yaml"
+    $ref: "./v24.10/Configuration/Service/AddServiceAndFindServices.yaml"
   /monitoring/services/categories:
     get:
       tags:
@@ -909,9 +909,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/services/severities:
-    $ref: './v24.04/Configuration/ServiceSeverity/AddAndFindServiceSeverities.yaml'
+    $ref: './v24.10/Configuration/ServiceSeverity/AddAndFindServiceSeverities.yaml'
   /configuration/services/severities/{service_severity_id}:
-    $ref: './v24.04/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml'
+    $ref: './v24.10/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml'
   /configuration/icons:
     get:
       tags:
@@ -960,7 +960,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/medias:
-    $ref: './v24.04/Configuration/Media/AddAndFindMedia.yaml'
+    $ref: './v24.10/Configuration/Media/AddAndFindMedia.yaml'
   /configuration/proxy:
     get:
       tags:
@@ -1517,9 +1517,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    $ref: './v24.04/Configuration/Users/Users.yaml'
+    $ref: './v24.10/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
-    $ref: './v24.04/Configuration/Users/CurrentParameters.yaml'
+    $ref: './v24.10/Configuration/Users/CurrentParameters.yaml'
   /configuration/contacts/templates:
     get:
       tags:
@@ -1573,27 +1573,27 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/dashboards:
-    $ref: './v24.04/Configuration/Dashboard/Dashboards.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
-    $ref: './v24.04/Configuration/Dashboard/Dashboard.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Dashboard.yaml'
   /configuration/dashboards/{dashboard_id}/shares:
-    $ref: './v24.04/Configuration/Dashboard/ShareDashboard.yaml'
+    $ref: './v24.10/Configuration/Dashboard/ShareDashboard.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContact.yaml'
+    $ref: './v24.10/Configuration/Dashboard/DashboardShareContact.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
-    $ref: './v24.04/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+    $ref: './v24.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
   /configuration/dashboards/contacts:
-    $ref: './v24.04/Configuration/Dashboard/Contacts.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
-    $ref: './v24.04/Configuration/Dashboard/ContactGroups.yaml'
+    $ref: './v24.10/Configuration/Dashboard/ContactGroups.yaml'
   /monitoring/dashboard/metrics/performances:
-    $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:
-    $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
   /monitoring/dashboard/metrics/top:
-    $ref: './v24.04/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
+    $ref: './v24.10/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
   /monitoring/resources/hosts:
-    $ref: './v24.04/Realtime/Resources/FindResourcesByParent.yaml'
+    $ref: './v24.10/Realtime/Resources/FindResourcesByParent.yaml'
   /configuration/access-groups:
     get:
       tags:
@@ -1993,9 +1993,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
-    $ref: './v24.04/Realtime/Resources/FindHostsStatus.yaml'
+    $ref: './v24.10/Realtime/Resources/FindHostsStatus.yaml'
   /monitoring/services/status:
-    $ref: './v24.04/Realtime/Resources/FindServicesStatus.yaml'
+    $ref: './v24.10/Realtime/Resources/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
@@ -3433,7 +3433,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics:
-    $ref: './v24.04/Realtime/Metrics/FindMetricsByService.yaml'
+    $ref: './v24.10/Realtime/Metrics/FindMetricsByService.yaml'
   /monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}:
     get:
       tags:
@@ -4214,11 +4214,11 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /platform/features:
-    $ref: './v24.04/Platform/Features.yaml'
+    $ref: './v24.10/Platform/Features.yaml'
   /platform/versions:
-    $ref: './v24.04/Platform/Versions.yaml'
+    $ref: './v24.10/Platform/Versions.yaml'
   /platform/updates:
-    $ref: "./v24.04/Administration/Update/updates.yaml"
+    $ref: "./v24.10/Administration/Update/updates.yaml"
   /platform/installation/status:
     get:
       tags:
@@ -4447,7 +4447,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /administration/authentication/providers/openid:
-    $ref: './v24.04/Administration/Authentication/OpenIdProvider/OpenIdProvider.yaml'
+    $ref: './v24.10/Administration/Authentication/OpenIdProvider/OpenIdProvider.yaml'
   /administration/authentication/providers/saml:
     get:
       tags:
@@ -4519,11 +4519,11 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /administration/tokens:
-    $ref: "./v24.04/Administration/Token/AddTokenAndFindTokens.yaml"
+    $ref: "./v24.10/Administration/Token/AddTokenAndFindTokens.yaml"
   /administration/tokens/{token_name}:
-    $ref: "./v24.04/Administration/Token/DeleteToken.yaml"
+    $ref: "./v24.10/Administration/Token/DeleteToken.yaml"
   /administration/tokens/{token_name}/users/{user_id}:
-    $ref: "./v24.04/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
+    $ref: "./v24.10/Administration/Token/PartialUpdateAndDeleteTokenByUser.yaml"
   /administration/parameters:
     post:
       tags:
