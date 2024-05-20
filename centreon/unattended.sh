@@ -428,8 +428,8 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_release" in
-	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+  case "$detected_os_release" in
+	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"

@@ -20,7 +20,7 @@ const DefaultLengd = ({ scale, direction }: LegendProps): JSX.Element => (
   <LegendComponent direction={direction} scale={scale} />
 );
 
-const BarStack = ({
+const ResponsiveBarStack = ({
   title,
   data,
   width,
@@ -73,7 +73,7 @@ const BarStack = ({
       <div
         className={classes.svgWrapper}
         style={{
-          height,
+          minHeight: height,
           width: svgWrapperWidth
         }}
       >
@@ -206,4 +206,4 @@ const BarStack = ({
   );
 };
 
-export default BarStack;
+export default ResponsiveBarStack;

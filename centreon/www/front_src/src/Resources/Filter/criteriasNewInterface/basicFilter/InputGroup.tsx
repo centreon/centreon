@@ -9,6 +9,7 @@ import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { ChangedCriteriaParams, SectionType } from '../model';
 
 import useSectionsData from './sections/useSections';
+import { useStyles } from './sections/sections.style';
 
 interface ParametersGetEndpoint {
   page: number;
@@ -30,6 +31,7 @@ const InputGroup = ({
   label,
   resourceType
 }: Props): JSX.Element | null => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
 
@@ -86,6 +88,7 @@ const InputGroup = ({
       chipProps={{
         onDelete
       }}
+      className={classes.input}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}

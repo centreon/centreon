@@ -42,19 +42,20 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Publish to Chromatic
-      uses: chromaui/action@v1
+      uses: chromaui/action@81dfdf89d3c77ec60bf536f3e4dd86af26cf870c # 11.3.2
       with:
         projectToken: ${{ inputs.project_token }}
-        workingDir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
         buildScriptName: build:storybook
         onlyChanged: true
         untraced: |
+          - ".github/actions/code-coverage-gate-keeper/package.json"
           - "centreon/packages/ui/package.json"
           - "centreon/package.json"
           - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
-        skip: '!(develop)'
+        ignoreLastBuildOnBranch: "MON-*"
+        workingDir: ${{ inputs.frontend_directory }}
       env:
         NODE_OPTIONS: "--max_old_space_size=4096"

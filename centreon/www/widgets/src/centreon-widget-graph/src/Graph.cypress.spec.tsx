@@ -84,6 +84,7 @@ const customTimePeriod: FormTimePeriod = {
 };
 
 interface InitializeComponentProps {
+  curveType?: 'linear' | 'step' | 'natural';
   data?: Data;
   isPublic?: boolean;
   threshold?: FormThreshold;
@@ -94,7 +95,8 @@ const initializeComponent = ({
   data = serviceMetrics,
   threshold = defaultThreshold,
   timePeriod = defaultTimePeriod,
-  isPublic = false
+  isPublic = false,
+  curveType
 }: InitializeComponentProps): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
@@ -135,6 +137,7 @@ const initializeComponent = ({
               id="1"
               panelData={data}
               panelOptions={{
+                curveType,
                 globalRefreshInterval: 30,
                 refreshInterval: 'manual',
                 threshold,
@@ -239,5 +242,27 @@ describe('Graph Widget', () => {
       expect(request.url.search).to.include('start=2021-09-01T00:00:00.000Z');
       expect(request.url.search).to.include('end=2021-09-02T00:00:00.000Z');
     });
+  });
+
+  it('displays the line chart with a natural curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'natural' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the line chart with a step curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'step' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

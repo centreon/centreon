@@ -4,12 +4,11 @@ import { LinePath } from '@visx/shape';
 import { useTheme } from '@mui/material/styles';
 
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 
 interface Props {
-  curve: CurveType;
+  curve: 'linear' | 'natural' | 'step';
   getX: (timeValue: TimeValue) => number;
   getY0Variation: (timeValue: TimeValue) => number;
   getY1Variation: (timeValue: TimeValue) => number;
