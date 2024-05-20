@@ -71,7 +71,7 @@ class Broker extends AbstractObject
      */
     private function generate(int $pollerId)
     {
-        if (is_null($this->stmtEngine)) {
+        if (is_null($this->stmtBroker)) {
             $this->stmtBroker = $this->backendInstance->db->prepare(
                 "SELECT $this->attributesSelect FROM cfg_centreonbroker " .
                 "WHERE ns_nagios_server = :poller_id AND config_activate = '1'"
