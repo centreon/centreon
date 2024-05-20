@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import {
   Column as ColumnTable,
@@ -10,7 +9,6 @@ import {
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { labelActive, labelRevoked } from '../../translatedLabels';
 import { selectedColumnIdsAtom } from '../atoms';
 import { Row } from '../models';
 import Title from '../Title';
@@ -22,7 +20,6 @@ import { Column, UseColumns, defaultSelectedColumnIds } from './models';
 const dateFormat = 'L';
 
 export const useColumns = (): UseColumns => {
-  const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const [selectedColumnIds, setSelectedColumnIds] = useAtom(

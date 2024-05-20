@@ -65,10 +65,6 @@ dayjs.extend(LocalizedFormat);
 
 const columns = [
   {
-    id: 'status',
-    label: Column.Status
-  },
-  {
     id: 'token_name',
     label: Column.Name
   },
@@ -427,6 +423,8 @@ describe('Api-token', () => {
         defaultParameters
       );
     });
+
+    cy.clickOutside();
 
     cy.fixture('apiTokens/listing/list.json').then((data) => {
       checkArrowSorting(data.meta);
@@ -824,11 +822,6 @@ describe('Api-token', () => {
           cy.contains(
             equals(field, Fields.CreationDate) ? '02/20/2024' : '03/28/2024'
           );
-
-          return;
-        }
-        if (equals(type, 'boolean')) {
-          cy.contains(convertToBoolean(value) ? 'Revoked' : 'Active');
 
           return;
         }
