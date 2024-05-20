@@ -52,7 +52,7 @@ export default ({
           args: [] as Array<string>
         };
 
-        if (Cypress.browser.name === 'chrome' && Cypress.browser.isHeadless) {
+        if (Cypress.browser.name === 'chrome' && !Cypress.browser.isHeaded) {
           (launchOptions.args as Array<string>).push(
             '--disable-gpu',
             '--disable-site-isolation-trials',
