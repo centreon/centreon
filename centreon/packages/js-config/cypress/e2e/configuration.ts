@@ -96,6 +96,7 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
+    experimentalCspAllowList: true,
     experimentalModifyObstructiveThirdPartyCode: true,
     requestTimeout: 20000,
     retries: 0,
