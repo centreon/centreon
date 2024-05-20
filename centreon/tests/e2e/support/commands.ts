@@ -1,3 +1,4 @@
+/* eslint-disable cypress/unsafe-to-chain-command */
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import 'cypress-wait-until';
@@ -29,7 +30,14 @@ Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
   });
 
-  return cy.get('#kc-login').click();
+  return cy
+    .get('#kc-login')
+    .click()
+    .then(() => {
+      cy.log('aaaa');
+
+      cy.rewriteHeaders();
+    });
 });
 
 Cypress.Commands.add(
@@ -60,6 +68,24 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add('rewriteHeaders', () => {
+  cy.intercept('*', (req) =>
+    req.on('response', (res) => {
+      const setCookies = res.headers['set-cookie'];
+      res.headers['set-cookie'] = (
+        Array.isArray(setCookies) ? setCookies : [setCookies]
+      )
+        .filter((x) => x)
+        .map((headerContent) =>
+          headerContent.replace(
+            /samesite=(lax|strict)/gi,
+            'secure; samesite=none'
+          )
+        );
+    })
+  ).as('headerInterceptor'); // Nommez l'interception pour y faire référence dans les assertions
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -69,6 +95,7 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
+      rewriteHeaders: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }

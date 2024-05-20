@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
@@ -108,14 +109,11 @@ When('the administrator activates SAML authentication on the platform', () => {
   })
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
-
   cy.getByLabel({
     label: 'Enable SAMLv2 authentication',
     tag: 'input'
   }).check();
-
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
   cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
 });
 
@@ -127,10 +125,8 @@ Then(
     cy.wait('@getCentreonAuthConfigs');
 
     const username = 'user-non-admin-for-SAML-authentication';
-
     cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
     cy.loginKeycloak(username);
-
     cy.url().should('include', '/monitoring/resources');
     cy.wait('@getFilters').its('response.statusCode').should('eq', 200);
   }
