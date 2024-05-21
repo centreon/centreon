@@ -14,7 +14,6 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
   };
 
   useEffect(() => {
-    
     if (!isLegacyRoute) {
       return () => undefined;
     }
