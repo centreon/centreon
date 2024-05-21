@@ -299,16 +299,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
-        $sqlConcatenator->appendWhere("service_register = '0'");
-        $sqlConcatenator->appendGroupBy(
-            'service.service_id',
-            'esi.esi_action_url',
-            'esi.esi_icon_image',
-            'esi.esi_icon_image_alt',
-            'esi.esi_notes',
-            'esi.esi_notes_url',
-            'esi.graph_id'
-        );
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -360,16 +350,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $request = $this->findServiceTemplatesRequest($accessGroupIds);
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
-        $sqlConcatenator->appendWhere("service_register = '0'");
-        $sqlConcatenator->appendGroupBy(
-            'service.service_id',
-            'esi.esi_action_url',
-            'esi.esi_icon_image',
-            'esi.esi_icon_image_alt',
-            'esi.esi_notes',
-            'esi.esi_notes_url',
-            'esi.graph_id'
-        );
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -642,9 +622,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             FROM `:db`.service
             LEFT JOIN `:db`.extended_service_information esi
                 ON esi.service_service_id = service.service_id
-            INNER JOIN `:db`.service_categories_relation scr
+            LEFT JOIN `:db`.service_categories_relation scr
                 ON scr.service_service_id = service.service_id
-                {$categoryAcls}
             LEFT JOIN `:db`.service_categories severity
                 ON severity.sc_id = scr.sc_id
                 AND severity.level IS NOT NULL
@@ -653,6 +632,15 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             LEFT JOIN `:db`.host
                 ON host.host_id = hsr.host_host_id
                 AND host.host_register = '0'
+            WHERE service_register = '0'
+                {$categoryAcls}
+            GROUP BY service.service_id,
+                esi.esi_action_url,
+                esi.esi_icon_image,
+                esi.esi_icon_image_alt,
+                esi.esi_notes,
+                esi.esi_notes_url,
+                esi.graph_id
             SQL;
     }
 }
