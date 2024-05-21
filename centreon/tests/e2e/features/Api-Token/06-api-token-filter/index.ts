@@ -108,10 +108,7 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.navigateTo({
-    page: 'API Tokens',
-    rootItemNumber: 4
-  });
+  cy.visit('/centreon/administration/api-token');
   cy.wait('@getTokens');
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
