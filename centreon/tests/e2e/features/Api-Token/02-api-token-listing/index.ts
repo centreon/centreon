@@ -35,7 +35,6 @@ Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.get('.MuiAlert-message').then(($snackbar) => {
     if ($snackbar.text().includes('Login succeeded')) {
-      cy.wait('@getNavigationList');
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
