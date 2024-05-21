@@ -33,6 +33,10 @@ final class UpdateRuleRequest
 
     public bool $isEnabled = true;
 
+    public bool $applyToAllContacts = false;
+
+    public bool $applyToAllContactGroups = false;
+
     /** @var int[] */
     public array $contactIds = [];
 
@@ -42,7 +46,7 @@ final class UpdateRuleRequest
     /** @var array{
      *      array{
      *          type:string,
-     *          resources: non-empty-list<int>,
+     *          resources: list<int>,
      *          ...
      *      }
      *  }|array{} $datasetFilters

@@ -1,6 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import remarkGfm from "remark-gfm";
-import  turbosnap from 'vite-plugin-turbosnap';
+import turbosnap from 'vite-plugin-turbosnap';
 import { mergeConfig } from 'vite';
 
 const config: StorybookConfig = {
@@ -24,7 +24,6 @@ const config: StorybookConfig = {
     "storybook-addon-mock",
     "storybook-dark-mode",
   ],
-  features: {},
   framework: {
     name: "@storybook/react-vite",
     options: {},
@@ -38,7 +37,7 @@ const config: StorybookConfig = {
   core: { builder: '@storybook/builder-vite' },
   async viteFinal(config, { configType }) {
     return mergeConfig(config, {
-      plugins: configType === 'PRODUCTION' ? [turbosnap({ rootDir: config.root ?? process.cwd() })] : [],
+      plugins: configType === 'PRODUCTION' ? [turbosnap({ rootDir: process.cwd() })] : [],
     });
   },
 };

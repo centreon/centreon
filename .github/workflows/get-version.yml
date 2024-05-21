@@ -46,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+      - uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         if: ${{ endsWith(inputs.version_file, '.php') }}
         with:
           php-version: 8.1
@@ -118,9 +118,19 @@ jobs:
           GITHUB_RELEASE_TYPE=$(echo $BRANCHNAME |cut -d '-' -f 1)
 
           case "$BRANCHNAME" in
-            master | [2-9][0-9].[0-9][0-9].x)
+            master)
               echo "release=1" >> $GITHUB_OUTPUT
-              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            [2-9][0-9].[0-9][0-9].x)
+              echo "release=1" >> $GITHUB_OUTPUT
+              echo "release_cloud=0" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              ;;
+            develop)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
@@ -151,9 +161,19 @@ jobs:
               fi
               ;;
             *)
+              # Any branch name
+              GITHUB_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
+              GITHUB_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
               echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-              echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+
+              # Check if pull request branch targeting develop
+              if [[ "$GITHUB_BRANCH_BASE_REF_NAME" == "develop" ]] && [[ "$GITHUB_BRANCH_PR_STATE" == "OPEN" ]]; then
+                echo "release_cloud=1" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              else
+                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
+                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
+              fi
               ;;
           esac
 

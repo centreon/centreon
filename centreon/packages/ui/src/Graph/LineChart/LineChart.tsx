@@ -14,7 +14,6 @@ import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
 import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
-import LoadingProgress from './BasicComponents/LoadingProgress';
 import useFilterLines from './BasicComponents/useFilterLines';
 import { useStyles } from './LineChart.styles';
 import Header from './Header';
@@ -31,7 +30,6 @@ import {
   LegendModel
 } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
 import { legendWidth } from './Legend/Legend.styles';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
@@ -39,13 +37,12 @@ import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphVa
 const extraMargin = 10;
 
 interface Props extends LineChartProps {
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
   limitLegend?: false | number;
-  marginBottom: number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
@@ -63,7 +60,6 @@ const LineChart = ({
   shapeLines,
   axis,
   displayAnchor,
-  loading,
   zoomPreview,
   graphInterval,
   timeShiftZones,
@@ -73,7 +69,6 @@ const LineChart = ({
   graphRef,
   header,
   curve,
-  marginBottom,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -104,8 +99,7 @@ const LineChart = ({
     (height || 0) > 0
       ? (height || 0) -
         margin.top -
-        margin.bottom -
-        marginBottom -
+        5 -
         (legendRef.current?.getBoundingClientRect().height || 0)
       : 0;
 
@@ -196,11 +190,6 @@ const LineChart = ({
           title={<GraphValueTooltip base={baseAxis} />}
         >
           <div className={classes.container}>
-            <LoadingProgress
-              display={loading}
-              height={graphHeight}
-              width={width}
-            />
             <svg
               height={graphHeight + margin.top}
               ref={graphSvgRef}
@@ -259,8 +248,7 @@ const LineChart = ({
                   }}
                   timeShiftZonesData={{
                     ...timeShiftZones,
-                    graphInterval,
-                    loading
+                    graphInterval
                   }}
                   zoomData={{ ...zoomPreview }}
                 />

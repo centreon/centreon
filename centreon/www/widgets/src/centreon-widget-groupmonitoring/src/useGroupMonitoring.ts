@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { inc, isEmpty, pluck } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import {
   ListingModel,
@@ -9,8 +10,10 @@ import {
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { SortOrder } from '../../models';
+import { getWidgetEndpoint } from '../../utils';
 
 import { FormattedGroup, Group, WidgetProps } from './models';
 import { getEndpoint } from './api/endpoints';
@@ -41,10 +44,15 @@ export const useGroupMonitoring = ({
   panelData,
   isFromPreview,
   setPanelOptions,
-  refreshCount
+  refreshCount,
+  dashboardId,
+  id,
+  playlistHash
 }: Omit<WidgetProps, 'store'>): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -77,42 +85,49 @@ export const useGroupMonitoring = ({
   const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: getEndpoint(resource?.resourceType),
-        customQueryParameters: [
-          {
-            name: 'show_service',
-            value: true
-          },
-          {
-            name: 'show_host',
-            value: true
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildListingEndpoint({
+          baseEndpoint: getEndpoint(resource?.resourceType),
+          customQueryParameters: [
+            {
+              name: 'show_service',
+              value: true
+            },
+            {
+              name: 'show_host',
+              value: true
+            }
+          ],
+          parameters: {
+            limit: limitToUse,
+            page: inc(pageToUse),
+            search: hasResourcesDefined
+              ? {
+                  lists: [
+                    {
+                      field: 'name',
+                      values: pluck('name', resource?.resources)
+                    }
+                  ]
+                }
+              : undefined,
+            sort: {
+              [sortFieldToUse]: sortOrderToUse.toUpperCase()
+            }
           }
-        ],
-        parameters: {
-          limit: limitToUse,
-          page: inc(pageToUse),
-          search: hasResourcesDefined
-            ? {
-                lists: [
-                  {
-                    field: 'name',
-                    values: pluck('name', resource?.resources)
-                  }
-                ]
-              }
-            : undefined,
-          sort: {
-            [sortFieldToUse]: sortOrderToUse.toUpperCase()
-          }
-        }
+        }),
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
       }),
     getQueryKey: () => key,
     queryOptions: {
       enabled: hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const changeLimit = (newLimit: number): void => {

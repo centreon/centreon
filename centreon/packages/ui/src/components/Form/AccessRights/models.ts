@@ -16,9 +16,6 @@ export interface AccessRight extends AccessRightInitialValues {
 export interface Labels {
   actions: {
     cancel: string;
-    copyError: string;
-    copyLink: string;
-    copySuccess: string;
     save: string;
   };
   add: {

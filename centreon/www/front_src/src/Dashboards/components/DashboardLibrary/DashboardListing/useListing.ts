@@ -13,6 +13,7 @@ import {
 import { useDeleteAccessRightsContact } from '../../../api/useDeleteAccessRightsContact';
 import { useDeleteAccessRightsContactGroup } from '../../../api/useDeleteAccessRightsContactGroup';
 import { routerHooks } from '../../../routerHooks';
+import routeMap from '../../../../reactRoutes/routeMap';
 
 import {
   pageAtom,
@@ -22,8 +23,6 @@ import {
   askBeforeRevokeAtom
 } from './atom';
 import { formatListingData } from './utils';
-
-import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
 interface ConfirmRevokeAccessRightProps {
   dashboardId: string | number;

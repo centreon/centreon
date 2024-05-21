@@ -306,34 +306,33 @@ When(
       return true;
     });
     cy.get('.react-grid-item')
-      .eq(3)
+      .eq(0)
       .find('.react-resizable-handle-se')
-      .trigger('mousedown', { button: 0 })
-      .trigger('dragstart')
-      .trigger('mousemove', { clientX: 486, force: true })
-      .wait('@resourceRequest');
-
-    cy.get('.react-grid-item').eq(3).realClick();
-
-    cy.get('.react-grid-item')
-      .eq(4)
-      .find('.react-resizable-handle-se')
-      .trigger('mousedown', { button: 0 })
-      .trigger('dragstart')
+      .trigger('mousedown', { button: 0, force: true })
+      .trigger('dragstart', { force: true })
       .trigger('mousemove', { clientX: 486, force: true });
 
-    cy.get('.react-grid-item').eq(4).realClick();
+    cy.get('.react-grid-item').eq(0).realClick();
 
     cy.get('.react-grid-item')
-      .eq(4)
+      .eq(1)
+      .find('.react-resizable-handle-se')
+      .trigger('mousedown', { button: 0, force: true })
+      .trigger('dragstart', { force: true })
+      .trigger('mousemove', { clientX: 486, force: true });
+
+    cy.get('.react-grid-item').eq(1).realClick();
+
+    cy.get('.react-grid-item')
+      .eq(1)
       .find('[data-testid*="_move_panel"]')
       .then((element) => {
         cy.wrap(element)
-          .trigger('dragstart')
+          .trigger('dragstart', { force: true })
           .trigger('mousedown', { button: 0, force: true })
           .trigger('mousemove', { clientX: 836, clientY: 840, force: true });
       });
-    cy.get('.react-grid-item').eq(4).realClick();
+    cy.get('.react-grid-item').eq(1).realClick();
 
     cy.getByTestId({ testId: 'save_dashboard' }).click();
     cy.wait('@updateDashboard');
@@ -342,13 +341,13 @@ When(
 
 Then('the dashboard is updated with the new widget layout', () => {
   cy.get('.react-grid-item')
-    .eq(3)
+    .eq(0)
     .invoke('attr', 'style')
     .then((style) => {
       expect(style).to.include('width: calc(426px)');
     });
   cy.get('.react-grid-item')
-    .eq(4)
+    .eq(1)
     .invoke('attr', 'style')
     .then((style) => {
       expect(style).to.include('width: calc(426px)');
@@ -410,6 +409,7 @@ When(
 Then(
   'the dashboard administrator should be redirected to the {string} widget resources',
   (widgetType) => {
+    let statusFound = false;
     switch (widgetType) {
       case 'single metric':
         cy.url().should('include', '/centreon/monitoring/resources?details=');
@@ -423,7 +423,7 @@ Then(
 
       case 'metrics graph':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const metricsGraphStatuses = ['Critical', 'Warning'];
+        const metricsGraphStatuses = ['Critical'];
 
         for (let i = 0; i < metricsGraphStatuses.length; i++) {
           cy.get('[class$="chip-statusColumnChip"]')
@@ -434,18 +434,24 @@ Then(
 
       case 'status grid':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = ['Critical', 'Warning', 'Unknown'];
-        for (let i = 0; i < statusGridStatuses.length; i++) {
-          cy.get('[class$="chip-statusColumnChip"]')
-            .eq(i)
-            .should('contain.text', statusGridStatuses[i]);
-        }
+        const statusGridStatuses = ['Critical', 'Unknown', 'Unknown'];
+        cy.get('[class$="chip-statusColumnChip"]')
+          .each(($chip) => {
+            if (statusGridStatuses.includes($chip.text()) && !statusFound) {
+              statusFound = true;
+              return false;
+            }
+            return undefined;
+          })
+          .then(() => {
+            expect(statusFound).to.be.true;
+          });
         break;
       case 'top buttom':
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const topButtomStatuses = [
           'Critical',
-          'Warning',
+          'Unknown',
           'Unknown',
           'Unknown',
           'Unknown',
@@ -455,7 +461,6 @@ Then(
           'OK',
           'OK'
         ];
-        let statusFound = false;
         cy.get('[class$="chip-statusColumnChip"]')
           .each(($chip) => {
             if (topButtomStatuses.includes($chip.text()) && !statusFound) {

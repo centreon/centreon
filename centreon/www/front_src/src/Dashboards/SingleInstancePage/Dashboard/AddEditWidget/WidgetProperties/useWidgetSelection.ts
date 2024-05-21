@@ -5,19 +5,18 @@ import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import {
   FederatedModule,
+  FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -31,6 +30,37 @@ interface UseWidgetSelectionState {
   widgets: Array<FederatedWidgetProperties>;
 }
 
+export const getDefaultValues = (
+  options:
+    | {
+        [key: string]: FederatedWidgetOption;
+      }
+    | undefined
+): object => {
+  if (!options) {
+    return {};
+  }
+
+  return Object.entries(options).reduce((acc, [key, value]) => {
+    if (!has('when', value.defaultValue)) {
+      return {
+        ...acc,
+        [key]: value.defaultValue
+      };
+    }
+
+    return {
+      ...acc,
+      [key]: equals(
+        options[value.defaultValue.when].defaultValue,
+        value.defaultValue.is
+      )
+        ? value.defaultValue.then
+        : value.defaultValue.otherwise
+    };
+  }, {});
+};
+
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
 
@@ -39,7 +69,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
@@ -72,8 +102,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
           description: {
             content: null,
             enabled: true
-          },
-          openLinksInNewTab: true
+          }
         },
         panelConfiguration: null
       });
@@ -105,27 +134,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       false
     );
 
-    const options = Object.entries(selectedWidgetProperties.options).reduce(
-      (acc, [key, value]) => {
-        if (!has('when', value.defaultValue)) {
-          return {
-            ...acc,
-            [key]: value.defaultValue
-          };
-        }
-
-        return {
-          ...acc,
-          [key]: equals(
-            selectedWidgetProperties.options[value.defaultValue.when]
-              .defaultValue,
-            value.defaultValue.is
-          )
-            ? value.defaultValue.then
-            : value.defaultValue.otherwise
-        };
-      },
-      {}
+    const options = getDefaultValues(selectedWidgetProperties.options);
+    const properties = getDefaultValues(
+      selectedWidgetProperties.generalProperties?.elements
     );
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
@@ -140,7 +151,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
     setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
-    setSingleHostPerMetric(selectedWidgetProperties.singleHostPerMetric);
+    setSingleResourceSelection(
+      selectedWidgetProperties.singleResourceSelection
+    );
     setCustomBaseColor(selectedWidgetProperties.customBaseColor);
 
     setValues((currentValues) => ({
@@ -149,6 +162,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
+        ...properties,
         description:
           shouldResetDescription || isNil(currentValues.options.description)
             ? {
@@ -156,8 +170,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
                 enabled: true
               }
             : currentValues.options.description,
-        name: currentValues.options.name,
-        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
+        name: currentValues.options.name
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration[0]
     }));
