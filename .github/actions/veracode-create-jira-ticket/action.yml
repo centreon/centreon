@@ -36,7 +36,7 @@ runs:
           --header 'Content-Type: application/json' \
           --data '{
             "fields": ["summary"],
-            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND resolution = unresolved AND summary ~ \"PR- incident on $module_name_workaround\"",
+            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR- incident on $module_name_workaround\" AND resolution = unresolved",
             "maxResults": 1
         }' | jq .issues[0].key )
 
