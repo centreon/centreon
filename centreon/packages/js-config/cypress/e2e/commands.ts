@@ -92,7 +92,7 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'clickSubRootMenuItem',
   (page: string): Cypress.Chainable => {
-    return cy.get('div[data-cy="collapse"]').eq(1).contains(page).click();
+    return cy.get('div[data-cy="collapse"]').eq(1).contains(page).realClick();
   }
 );
 

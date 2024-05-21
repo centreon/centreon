@@ -23,7 +23,6 @@ export default (
       launchOptions.args.push('--hide-scrollbars');
       launchOptions.args.push('--mute-audio');
 
-
       // force screen to be non-retina and just use our given resolution
       launchOptions.args.push('--force-device-scale-factor=1');
     }

@@ -73,7 +73,6 @@ When('I navigate to API tokens page', () => {
     rootItemNumber: 4
   });
   cy.wait('@getTokens');
-
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
   cy.wait('@getTokens');
 });
