@@ -300,7 +300,7 @@ class Severity extends AbstractObject
 
         $this->service_severity_by_name_cache[$hc_name] = &$severity;
         $this->service_severity_cache[$severity['sc_id']] = &$severity;
-        $this->service_severities[$sc_id] = $this->service_severity_cache[$severity['sc_id']];
+        $this->service_severities[$severity['sc_id']] = $this->service_severity_cache[$severity['sc_id']];
         return $severity;
     }
 
