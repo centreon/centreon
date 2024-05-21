@@ -8,7 +8,7 @@ import {
   labelViewByService,
   labelAll
 } from '../translatedLabels';
-import { DisplayType } from '../models';
+import { DisplayType as DisplayTypeEnum } from '../models';
 
 import viewByServiceActive from './icons/view_service_actif.svg';
 import viewByServiceInactive from './icons/view_service_inactif.svg';
@@ -23,25 +23,25 @@ const options = [
   {
     IconOnActive: viewByAllActive,
     IconOnInactive: viewByAllInactive,
-    option: DisplayType.All,
+    option: DisplayTypeEnum.All,
     title: labelAll
   },
   {
     IconOnActive: viewByHostActive,
     IconOnInactive: viewByHostInactive,
-    option: DisplayType.Host,
+    option: DisplayTypeEnum.Host,
     title: labelViewByHost
   },
   {
     IconOnActive: viewByServiceActive,
     IconOnInactive: viewByServiceInactive,
-    option: DisplayType.Service,
+    option: DisplayTypeEnum.Service,
     title: labelViewByService
   }
 ];
 
 interface Props {
-  displayType: DisplayType;
+  displayType: DisplayTypeEnum;
   setPanelOptions: (panelOptions) => void;
 }
 

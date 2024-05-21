@@ -10,8 +10,8 @@ import { PanelOptions } from '../models';
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
 import { defaultSelectedColumnIds } from './Columns';
-import { DisplayType } from './models';
-import DisplayTypeComponent from './DisplayType';
+import { DisplayType as DisplayTypeEnum } from './models';
+import DisplayType from './DisplayType';
 
 interface ListingProps
   extends Pick<
@@ -19,7 +19,7 @@ interface ListingProps
     'dashboardId' | 'id' | 'playlistHash'
   > {
   changeViewMode?: (displayType) => void;
-  displayType?: DisplayType;
+  displayType?: DisplayTypeEnum;
   isFromPreview?: boolean;
   limit?: number;
   refreshCount: number;
@@ -34,7 +34,7 @@ interface ListingProps
 }
 
 const Listing = ({
-  displayType = DisplayType.All,
+  displayType = DisplayTypeEnum.All,
   refreshCount,
   refreshIntervalToUse,
   resources,
@@ -117,7 +117,7 @@ const Listing = ({
       }}
       totalRows={data?.meta?.total}
       visualizationActions={
-        <DisplayTypeComponent
+        <DisplayType
           displayType={displayType}
           setPanelOptions={setPanelOptions}
         />
