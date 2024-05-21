@@ -14,6 +14,10 @@ export default (
     if (browser.family === 'chromium' && browser.name !== 'electron') {
       if (browser.isHeadless) {
         launchOptions.args.push('--headless=new');
+        launchOptions.args.push('--disable-features=SameSiteByDefaultCookies');
+        launchOptions.args.push(
+          '--disable-features=CookiesWithoutSameSiteMustBeSecure'
+        );
       }
 
       // flags description : https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
@@ -22,7 +26,10 @@ export default (
       launchOptions.args.push('--disable-extensions');
       launchOptions.args.push('--hide-scrollbars');
       launchOptions.args.push('--mute-audio');
-
+      launchOptions.args.push('--disable-features=SameSiteByDefaultCookies');
+      launchOptions.args.push(
+        '--disable-features=CookiesWithoutSameSiteMustBeSecure'
+      );
       launchOptions.args.push(`--window-size=${width},${height}`);
 
       // force screen to be non-retina and just use our given resolution

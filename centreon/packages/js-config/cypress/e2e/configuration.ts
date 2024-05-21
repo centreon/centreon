@@ -1,3 +1,4 @@
+/* eslint-disable default-param-last */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
@@ -66,6 +67,8 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
+    experimentalCspAllowList: true,
+    experimentalModifyObstructiveThirdPartyCode: true,
     requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,

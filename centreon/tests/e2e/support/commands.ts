@@ -60,6 +60,36 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+let cookiesToSave: Array<Cypress.Cookie> = [];
+
+Cypress.Commands.add('saveCookies', () => {
+  cy.getCookies().then((cookieArray) => {
+    cookiesToSave = cookieArray.filter(
+      (cookie) =>
+        cookie.name === 'AUTH_SESSION_ID' ||
+        cookie.name === 'AUTH_SESSION_ID_LEGACY' ||
+        cookie.name === 'KC_RESTART'
+    );
+    cy.log('Cookies saved:', JSON.stringify(cookiesToSave));
+    console.log('Cookies saved:', cookiesToSave);
+  });
+});
+
+Cypress.Commands.add('restoreCookies', () => {
+  cookiesToSave.forEach((cookie) => {
+    cy.setCookie(cookie.name, cookie.value, {
+      domain: cookie.domain,
+      expiry: cookie.expiry,
+      httpOnly: cookie.httpOnly,
+      path: cookie.path,
+      sameSite: cookie.sameSite,
+      secure: cookie.secure
+    });
+  });
+  cy.log('Cookies restored:', JSON.stringify(cookiesToSave));
+  console.log('Cookies restored:', cookiesToSave);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -69,6 +99,8 @@ declare global {
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;
+      restoreCookies: () => Cypress.Chainable;
+      saveCookies: () => Cypress.Chainable;
       startOpenIdProviderContainer: () => Cypress.Chainable;
       stopOpenIdProviderContainer: () => Cypress.Chainable;
     }
