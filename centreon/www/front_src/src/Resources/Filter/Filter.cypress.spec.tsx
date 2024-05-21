@@ -495,4 +495,18 @@ describe('Keyboard actions', () => {
     searchBar.should('have.value', 'host_group:');
     searchBar.type('ESX');
     cy.findByText(linuxServersHostGroupName).should('exist');
-    searchBar.type('{E
+    searchBar.type('{Enter}');
+    cy.findByPlaceholderText(labelSearch).should(
+      'have.value',
+      `host_group:${linuxServersHostGroupName}`
+    );
+
+    searchBar.type(',');
+    cy.findByText('Firewall').should('exist');
+    searchBar.type('{downArrow}');
+    searchBar.type('{Enter}');
+    cy.waitForRequest('@hostGroupsRequest');
+
+    cy.makeSnapshot();
+  });
+});
