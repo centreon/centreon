@@ -49,35 +49,6 @@ export default ({
         configFile: `${__dirname}/reporter-config.js`
       },
       setupNodeEvents: async (on, config) => {
-        on(
-          'before:browser:launch',
-          (
-            browser = {
-              channel: '',
-              displayName: '',
-              family: 'chromium',
-              isHeaded: false,
-              isHeadless: true,
-              majorVersion: '',
-              name: '',
-              path: '',
-              version: ''
-            },
-            launchOptions
-          ) => {
-            if (browser.family === 'chromium') {
-              launchOptions.args.push(
-                '--disable-features=SameSiteByDefaultCookies'
-              );
-              launchOptions.args.push(
-                '--disable-features=CookiesWithoutSameSiteMustBeSecure'
-              );
-            }
-            console.log('launch options', launchOptions);
-
-            return launchOptions;
-          }
-        );
         installLogsPrinter(on);
         await esbuildPreprocessor(on, config);
         tasks(on);
