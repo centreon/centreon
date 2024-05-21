@@ -58,11 +58,10 @@ const SelectInput = ({
       return;
     }
 
-    // a reveniiiiiiiiiiiiiiiiiir
     if (isEmpty(updatedValue)) {
       changeCriteria({
         filterName: 'resource_types',
-        updatedValue: reject(propEq(resourceType, 'id'), resourceTypesCriteria)
+        updatedValue: reject(propEq('id', resourceType), resourceTypesCriteria)
       });
 
       return;
@@ -111,7 +110,7 @@ const SelectInput = ({
   };
 
   const onDelete = (_, option): void => {
-    const updatedValue = reject(propEq(option.name, 'name'), value);
+    const updatedValue = reject(propEq('name', option.name), value);
 
     updateResourceType(updatedValue);
 
