@@ -8,11 +8,11 @@ import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 before(() => {
-  cy.startContainers();
-  cy.enableDashboardFeature();
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  // cy.startContainers();
+  // cy.enableDashboardFeature();
+  // cy.executeCommandsViaClapi(
+  //   'resources/clapi/config-ACL/dashboard-check-permissions.json'
+  // );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -25,24 +25,24 @@ before(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
-  cy.loginByTypeOfUser({
-    jsonName: adminUser.login,
-    loginViaApi: true
-  });
-  cy.insertDashboard(dashboards.fromAdminUser);
-  cy.logoutViaAPI();
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: true
-  });
-  cy.insertDashboard(dashboards.fromDashboardAdministratorUser);
-  cy.logoutViaAPI();
-  cy.loginByTypeOfUser({
-    jsonName: dashboardCreatorUser.login,
-    loginViaApi: true
-  });
-  cy.insertDashboard(dashboards.fromDashboardCreatorUser);
-  cy.logoutViaAPI();
+  // cy.loginByTypeOfUser({
+  //   jsonName: adminUser.login,
+  //   loginViaApi: true
+  // });
+  // cy.insertDashboard(dashboards.fromAdminUser);
+  // cy.logoutViaAPI();
+  // cy.loginByTypeOfUser({
+  //   jsonName: dashboardAdministratorUser.login,
+  //   loginViaApi: true
+  // });
+  // cy.insertDashboard(dashboards.fromDashboardAdministratorUser);
+  // cy.logoutViaAPI();
+  // cy.loginByTypeOfUser({
+  //   jsonName: dashboardCreatorUser.login,
+  //   loginViaApi: true
+  // });
+  // cy.insertDashboard(dashboards.fromDashboardCreatorUser);
+  // cy.logoutViaAPI();
 });
 
 beforeEach(() => {
