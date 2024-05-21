@@ -49,7 +49,6 @@ class NewVaultConfiguration
     /**
      * @param EncryptionInterface $encryption
      * @param string $name
-     * @param Vault $vault
      * @param string $address
      * @param int $port
      * @param string $rootPath
@@ -62,7 +61,6 @@ class NewVaultConfiguration
     public function __construct(
         protected EncryptionInterface $encryption,
         protected string $name,
-        protected Vault $vault,
         protected string $address,
         protected int $port,
         protected string $rootPath,
@@ -94,14 +92,6 @@ class NewVaultConfiguration
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * @return Vault
-     */
-    public function getVault(): Vault
-    {
-        return $this->vault;
     }
 
     /**
