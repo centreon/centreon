@@ -28,6 +28,7 @@ use gorgone::standard::library;
 use gorgone::standard::constants qw(:all);
 use gorgone::standard::misc;
 use Mojo::UserAgent;
+use Mojo::IOLoop::Signal;
 use IO::Socket::SSL;
 use IO::Handle;
 use JSON::XS;
@@ -44,6 +45,7 @@ sub new {
 
     $connector->{ping_timer} = -1;
     $connector->{connected} = 0;
+    $connector->{stop} = 0;
 
     $connector->set_signal_handlers();
     return $connector;
@@ -51,11 +53,11 @@ sub new {
 
 sub set_signal_handlers {
     my $self = shift;
+    # see https://metacpan.org/pod/EV#PERL-SIGNALS
+    # EV and Mojo::IOLoop don't seem to work in this module for setting a signal handler.
+    Mojo::IOLoop::Signal->on(TERM => sub { $self->handle_TERM() });
+    Mojo::IOLoop::Signal->on(HUP => sub { $self->handle_HUP() });
 
-    $SIG{TERM} = \&class_handle_TERM;
-    $handlers{TERM}->{$self} = sub { $self->handle_TERM() };
-    $SIG{HUP} = \&class_handle_HUP;
-    $handlers{HUP}->{$self} = sub { $self->handle_HUP() };
 }
 
 sub handle_HUP {
@@ -83,20 +85,32 @@ sub handle_TERM {
     );
 
     if ($self->{connected} == 1) {
-        $self->{tx}->send({text => $message });
+        # if the websocket is still connected, we send a message to the other end so it know we are shutting down
+        # And we say to mojo to stop when he don't have other message to process.
+        $self->{logger}->writeLogDebug("[pullwss] sending UNREGISTERNODES message to central before quiting as we are still connected to them.");
+        $self->{tx}->send( {text => $message });
+
+        $self->{tx}->on(drain => sub {
+            $self->{logger}->writeLogDebug("[pullwss] starting the stop_gracefully mojo sub");
+            Mojo::IOLoop->stop_gracefully()
+        });
+    }
+    else {
+        # if the websocket is not connected, we simply remove zmq socket and shutdown
+        # we need to shutdown the zmq socket ourself or there is a c++ stack trace error in the log.
+        disconnect_zmq_socket_and_exit();
     }
 }
 
-sub class_handle_TERM {
-    foreach (keys %{$handlers{TERM}}) {
-        &{$handlers{TERM}->{$_}}();
-    }
-}
-
-sub class_handle_HUP {
-    foreach (keys %{$handlers{HUP}}) {
-        &{$handlers{HUP}->{$_}}();
-    }
+sub disconnect_zmq_socket_and_exit {
+    $connector->{logger}->writeLogDebug("[pullwss] removing zmq socket :  $connector->{internal_socket}");
+    # Following my tests we need both close() and undef to correctly close the zmq socket
+    # If we add only one of them the following error can arise after shutdown :
+    # Bad file descriptor (src/epoll.cpp:73)
+    $connector->{internal_socket}->close();
+    undef $connector->{internal_socket};
+    $connector->{logger}->writeLogInfo("[pullwss] exit now.");
+    exit(0);
 }
 
 sub send_message {
@@ -132,7 +146,7 @@ sub ping {
 sub wss_connect {
     my ($self, %options) = @_;
 
-    return if ($connector->{connected} == 1);
+    return if ($self->{stop} == 1 or $connector->{connected} == 1);
 
     $self->{ua} = Mojo::UserAgent->new();
     $self->{ua}->transactor->name('gorgone mojo');
@@ -216,14 +230,16 @@ sub run {
     Mojo::IOLoop->singleton->reactor->watch($socket, 1, 0);
 
     Mojo::IOLoop->singleton->recurring(60 => sub {
-        $connector->{logger}->writeLogDebug('[pullwss] recurring timeout loop');
-        $connector->wss_connect();
-        $connector->ping();
+        if (!$connector->{stop}){
+            $connector->{logger}->writeLogDebug('[pullwss] recurring timeout loop');
+            $connector->wss_connect();
+            $connector->ping();
+        }
     });
-
     Mojo::IOLoop->start() unless (Mojo::IOLoop->is_running);
 
-    exit(0);
+    disconnect_zmq_socket_and_exit();
+
 }
 
 sub transmit_back {
@@ -265,7 +281,7 @@ sub transmit_back {
 sub read_zmq_events {
     my ($self, %options) = @_;
 
-    while ($self->{internal_socket}->has_pollin()) {
+    while (!$self->{stop} and $self->{internal_socket}->has_pollin()) {
         my ($message) = $connector->read_message();
         $message = transmit_back(message => $message);
         next if (!defined($message));

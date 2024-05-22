@@ -161,6 +161,7 @@ overrides:
       - perl-Libssh-Session >= 0.8
       - perl-CryptX
       - perl-Mojolicious
+      - perl(Mojo::IOLoop::Signal)
       - perl(Archive::Tar)
       - perl(Schedule::Cron)
       - perl(ZMQ::FFI)
@@ -211,6 +212,7 @@ overrides:
       - libhash-merge-perl
       - libcryptx-perl
       - libmojolicious-perl
+      - libmojo-ioloop-signal-perl
       - libauthen-simple-perl
       - libauthen-simple-net-perl
       - libnet-curl-perl

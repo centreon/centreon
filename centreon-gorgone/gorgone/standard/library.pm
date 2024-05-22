@@ -705,7 +705,7 @@ sub connect_com {
     if ($options{type} eq 'tcp') {
         $socket->set(ZMQ_TCP_KEEPALIVE, 'int', defined($options{zmq_tcp_keepalive}) ? $options{zmq_tcp_keepalive} : -1);
     }
-
+    $options{logger}->writeLogInfo("connection to zmq socket : " . $options{type} . '://' . $options{path});
     $socket->connect($options{type} . '://' . $options{path});
     return $socket;
 }
