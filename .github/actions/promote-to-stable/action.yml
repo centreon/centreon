@@ -56,14 +56,15 @@ runs:
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if base branch is master
-        ROOT_REPO_PATH="rpm-standard"
         if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
+        else
+          ROOT_REPO_PATH="rpm-standard"
         fi
-
 
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
+
           # Build search path based on release_cloud and release_type values
           # if cloud, search in testing-<release_type> path
           # if non-cloud, search in the testing usual path
@@ -125,15 +126,14 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
 
-        if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
-          ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
-        else
-          echo "Invalid repository name: ${{ inputs.repository_name }}"
-          exit 1
-        fi
+        # Define ROOT_REPO_PATH for debian
+        # There is no cloud ROOT_REPO_PATH for debian, only onprem
+        # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
+        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
+        SRC_PATHS=$(jf rt search --include-dirs "$ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
+
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Source path found: $SRC_PATH"
@@ -155,11 +155,6 @@ runs:
 
         for ARTIFACT_DL in $(dir -1|grep -E ".+${{ inputs.distrib }}.+\.deb"); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          DISTRIB=$(echo $ARTIFACT_DL | cut -d '_' -f2 | cut -d '-' -f2)
-          if [[ "${{ inputs.distrib }}" != "$DISTRIB" ]]; then
-            echo "::error::Distrib [$DISTRIB] from package does not match distrib [${{ inputs.distrib }}] from input, aborting promotion."
-            exit 1
-          fi
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
           jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat
         done
