@@ -1,88 +1,86 @@
-Monitoring.ServiceDetail:
+Monitoring.HostDetail:
   type: object
   properties:
     uuid:
       type: string
-      description: "Unique identifier of the Service resource"
+      description: "Unique identifier of the Host resource"
       example: "h14"
     id:
       type: integer
       format: int32
-      description: "Id of the Service resource"
+      description: "Id of the Host resource"
       example: 14
     name:
       type: string
-      description: "Name of the Service resource"
-      example: "Ping"
+      description: "Name of the Host resource"
+      example: "Centreon-Central"
     monitoring_server_name:
       type: string
-      description: "Name of the monitoring server that monitors the Service resource"
+      description: "Name of the monitoring server that monitors the Host resource"
       example: "Central"
     type:
       type: string
-      description: "Type of the Service Resource"
-      example: "service"
+      description: "Type of the Host Resource"
+      example: "host"
     short_type:
       type: string
-      description: "Shorter version of the Service Resource type"
-      example: "s"
+      description: "Shorter version of the Host Resource type"
+      example: "h"
+    fqdn:
+      type: string
+      description: "FQDN of the Host Resource"
+      example: "localhost|127.0.0.1"
+    alias:
+      type: string
+      nullable: true
+      description: "Alias given to the Host Resource"
+      example: "central"
     status:
       type: object
       properties:
         code:
           type: integer
           description: |
-            Service resource status code
-            * `0` - OK
-            * `1` - WARNING
-            * `2` - CRITICAL
-            * `3` - UNKNOWN
-            * `4` - PENDING
+            Host resource status code
+            * `0` - UP
+            * `1` - DOWN
+            * `2` - UNREACHABLE
           example: 0
         name:
           type: string
-          enum:
-            - OK
-            - WARNING
-            - CRITICAL
-            - UNKNOWN
-            - PENDING
           description: |
-            Service resource status name
-            * OK
-            * WARNING
-            * CRITICAL
-            * UNKNOWN
-            * PENDING
-          example: "OK"
+            Host resource status name
+            * UP
+            * DOWN
+            * UNREACHABLE
+          example: "UP"
         severity_code:
           type: integer
           description: |
-            Service resource status severity code
-            * `1` - CRITICAL
-            * `2` - WARNING
-            * `3` - UNKNOWN
+            Host resource status severity code
+            * `1` - DOWN
+            * `3` - UNREACHABLE
             * `4` - PENDING
-            * `5` - OK
+            * `5` - UP
           example: 1
         type:
           type: integer
           description: |
-            Service resource status type
+            Host resource status type
             * `0` - Soft
             * `1` - Hard
           example: 1
     in_downtime:
       type: boolean
-      description: "Indicates if the Service resource is currently in downtime"
+      description: "Indicates if the Host resource is currently in downtime"
       example: true
     acknowledged:
       type: boolean
-      description: "Indicates if the Service resource is currently acknowledged"
+      description: "Indicates if the Host resource is currently acknowledged"
       example: false
     flapping:
       type: boolean
-      description: "Indicates if the Service resource is currently flapping"
+      description: "Indicates if the Host resource is currently flapping"
       example: false
     performance_data:
       type: string
@@ -123,10 +121,10 @@ Monitoring.ServiceDetail:
       type: boolean
       description: "Indicates whether the check script is active or not"
       example: true
-    parent:
-      $ref: './ResourceHostDetail.yaml'
+    parent: null
     icon:
       type: object
+      nullable: true
       properties:
         name:
           type: string
@@ -142,27 +140,23 @@ Monitoring.ServiceDetail:
         id:
           type: integer
           format: int64
-          description: "ID of the service group"
+          description: "ID of the host group"
           example: 28
         name:
           type: string
-          description: "Name of the service group"
-          example: "All-Cpu-Services"
-        configuration_uri:
-          type: string
-          nullable: true
-          description: "Internal URI to reach group configuration"
+          description: "Name of the host group"
+          example: "Linux-Servers"
     categories:
       type: object
       properties:
         id:
           type: integer
           format: int64
-          description: "ID of the service category"
+          description: "ID of the host category"
           example: 28
         name:
           type: string
-          description: "Name of the service category"
+          description: "Name of the host category"
           example: "All-Cpu-Services"
         configuration_uri:
           type: string
@@ -358,6 +352,11 @@ Monitoring.ServiceDetail:
             type: boolean
             description: "Indicates whether the downtime has started"
             example: true
+    timezone:
+      type: string
+      nullable: true
+      description: "Timezone configured on the Host resource"
+      example: 'Europe/Paris'
     duration:
       type: string
       nullable: true
@@ -401,38 +400,28 @@ Monitoring.ServiceDetail:
             configuration:
               type: string
               nullable: true
-              description: "Redirection link to Service resource configuration page"
-              example: "/centreon/main.php?p=60201&o=c&service_id=1533"
+              description: "configuration uri"
+              example: "/centreon/main.php?p=60101&o=c&host_id=11"
             logs:
               type: string
               nullable: true
-              description: "Redirection link to Service resource logs pre-filtered page"
-              example: "centreon/main.php?p=20301&svc=202_1533"
+              description: "logs uri"
+              example: "/centreon/main.php?p=20301&h=11"
             reporting:
               type: string
               nullable: true
-              description: "Redirection link to Service resource reporting pre-filtered page"
-              example: "/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=202&item=1533"
+              description: "reporting uri"
+              example: "/centreon/main.php?p=307&host=11"
         endpoints:
           type: object
           properties:
             notification_policy:
               type: string
               nullable: true
-              description: "Service resource notification policy endpoint"
-              example: "/centreon/api/v22.04/monitoring/hosts/202/services/1533/notification-policy"
+              description: "Host resource notification policy endpoint"
+              example: "/centreon/api/v22.04/monitoring/hosts/202/notification-policy"
             timeline:
               type: string
               nullable: true
-              description: "Service resource timeline endpoint"
-              example: "/centreon/api/v22.04/monitoring/hosts/202/services/1533/timeline"
-            status_graph:
-              type: string
-              nullable: true
-              description: "Service resource status graph endpoint"
-              example: "/centreon/api/v22.04/monitoring/hosts/14/services/26/metrics/status"
-            performance_graph:
-              type: string
-              nullable: true
-              description: "Service resource performance graph endpoint"
-              example: "/centreon/api/v22.04/monitoring/hosts/14/services/26/metrics/performance"
+              description: "resource timeline endpoint"
+              example: "/centreon/api/latest/monitoring/hosts/11/timeline"
