@@ -836,6 +836,124 @@
 					"response": []
 				},
 				{
+					"name": "Creation of a new service category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The service group has been successfully created, with name '\" + pm.collectionVariables.get(\"ServiceCategory0Name\") + \"' and alias '\" + pm.collectionVariables.get(\"ServiceCategory0Alias\") + \"'.\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"\r",
+									"    // Creation of a variable with the ID of the new service group\r",
+									"    var response = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ServiceCategory0Id\", response.id);\r",
+									"\r",
+									"    pm.expect(response).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"ServiceCategory0Id\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"ServiceCategory0Name\"),\r",
+									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory0Alias\"),\r",
+									"        \"is_activated\": true    \r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ServiceCategory0Name\", \"Test_S_Category_0\");\r",
+									"pm.collectionVariables.set(\"ServiceCategory0Alias\", \"I should be successful !\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{ServiceCategory0Name}}\",\n    \"alias\": \"{{ServiceCategory0Alias}}\",\n    \"is_activated\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/services/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"services",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add filter to the ACL Resource",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The filter has been added to the ACL Resource.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"addfilter_servicecategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"limited;{{ServiceCategory0Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Link resources to RW_limited",
 					"event": [
 						{
