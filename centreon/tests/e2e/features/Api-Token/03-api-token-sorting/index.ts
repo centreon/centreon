@@ -26,6 +26,11 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
 });
 
 Given('API tokens with predefined details are created', () => {
@@ -57,12 +62,8 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.navigateTo({
-    page: 'API Tokens',
-    rootItemNumber: 4
-  });
+  cy.visit('/centreon/administration/api-token');
   cy.wait('@getTokens');
-
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
   cy.wait('@getTokens');
 });

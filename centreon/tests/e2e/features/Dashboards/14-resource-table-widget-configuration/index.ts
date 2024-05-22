@@ -214,7 +214,8 @@ Given('a dashboard that includes a configured resource table widget', () => {
 When(
   'the dashboard administrator user selects view by host as a display type',
   () => {
-    cy.get('svg[data-icon="View by host"]').should('exist').realClick();
+    cy.get('button[data-testid="View by host"]').eq(1).realClick();
+
     cy.wait('@resourceRequestByHost');
     cy.wait('@resourceRequest');
   }
@@ -242,7 +243,8 @@ Then('only the hosts must be displayed', () => {
 When(
   'the dashboard administrator user selects view by service as a display type',
   () => {
-    cy.get('svg[data-icon="View by service"]').should('exist').realClick();
+    cy.get('button[data-testid="View by service"]').eq(1).realClick();
+
     cy.wait('@resourceRequest');
   }
 );
@@ -484,8 +486,10 @@ Then(
   () => {
     cy.contains('Widget properties').should('exist');
     cy.getByLabel({ label: 'Title' }).should('exist');
-    cy.get('svg[data-icon="View by host"]').should('exist');
-    cy.get('svg[data-icon="All"]').should('exist');
+
+    cy.get('button[data-testid="View by host"]').should('exist');
+    cy.get('button[data-testid="All"]').should('exist');
+
     cy.get('input[name="success"]').should('exist');
     cy.get('input[name="warning"]').should('exist');
     cy.get('input[name="problem"]').should('exist');
