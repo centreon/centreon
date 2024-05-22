@@ -1,4 +1,4 @@
-import { equals, map, pick, propOr, uniq } from 'ramda';
+import { equals, uniq } from 'ramda';
 
 import { centreonBaseURL } from '@centreon/ui';
 
