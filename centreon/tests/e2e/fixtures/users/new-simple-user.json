@@ -1,0 +1,6 @@
+{
+    "email": "testNewUser@localhost.com",
+    "login": "testNewUser",
+    "password": "Centreon!2021NewUser",
+    "admin": false
+}
