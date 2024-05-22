@@ -43,4 +43,5 @@ Feature: Creating a Notification Rule
     Then an email is sent to the configured '<contact_settings>' with the configured format
     Examples:
       | contact_settings |
+      | one contact      |
       | two contacts     |
