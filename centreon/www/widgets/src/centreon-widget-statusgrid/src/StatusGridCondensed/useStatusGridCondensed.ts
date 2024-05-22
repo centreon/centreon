@@ -39,7 +39,8 @@ export const useStatusGridCondensed = ({
   globalRefreshInterval,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: Pick<
   StatusGridProps,
   | 'panelOptions'
@@ -49,6 +50,7 @@ export const useStatusGridCondensed = ({
   | 'dashboardId'
   | 'id'
   | 'playlistHash'
+  | 'widgetPrefixQuery'
 >): UseStatusGridCondensedState => {
   const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
     panelOptions;
@@ -85,6 +87,7 @@ export const useStatusGridCondensed = ({
         widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       'condensed',
       resourceType,

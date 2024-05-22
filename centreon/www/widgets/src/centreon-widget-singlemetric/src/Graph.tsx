@@ -31,6 +31,7 @@ interface Props {
   resources: Array<Resource>;
   threshold: FormThreshold;
   valueFormat: ValueFormat;
+  widgetPrefixQuery: string;
 }
 
 const Graph = ({
@@ -46,7 +47,8 @@ const Graph = ({
   isFromPreview,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
@@ -71,6 +73,7 @@ const Graph = ({
     bypassMetricsExclusion: true,
     bypassQueryParams: isOnPublicPage,
     metrics,
+    prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources
