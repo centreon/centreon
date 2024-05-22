@@ -31,7 +31,7 @@ Start Gorgone
     ...    alias=${ALIAS}
 
 Stop Gorgone And Remove Gorgone Config
-    [Documentation]    This keyword stop the gorgone process and remove the configuration in the database. file configuration are not modified as we want them in case something failed to analyse the problem
+    [Documentation]    This keyword stops the gorgone process and removes the configuration in the database. Configuration files are not modified as we want them in case something failed to analyse the problem.
     [Arguments]    @{process_alias}    ${sql_file}=
     Gorgone Execute Sql    ${sql_file}
     # remove configuration in db if needed.
@@ -65,7 +65,6 @@ Setup Gorgone Config
     
     ${CMD}    Catenate
     ...    sed -i -e 's/@KEYTHUMBPRINT@/${key_thumbprint}/g' 
-    ...    -e 's/@DBNAME@/${DBNAME}/g' 
     ...    -e 's/@DBNAME@/${DBNAME}/g' 
     ...    -e 's/@DBHOST@/${DBHOST}/g' 
     ...    -e 's/@DBPASSWORD@/${DBPASSWORD}/g' 
@@ -107,7 +106,7 @@ Check Poller Communicate
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
 
-Setup 2 Gorgone
+Setup Two Gorgone Instances
     [Arguments]    ${communication_mode}=push_zmq    ${central_name}=gorgone_central    ${poller_name}=gorgone_poller_2
 
     ${result}    Run    perl /usr/local/bin/gorgone_key_generation.pl
