@@ -657,11 +657,29 @@ class PlatformTopologyService implements PlatformTopologyServiceInterface
      */
     public function isValidPlatform(ContactInterface $user, int $platformId): bool
     {
+        if (! ($platform = $this->platformTopologyRepository->findPlatform($platformId))) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
         $accessGroupIds = array_map(
             fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->readAccessGroupRepository->findByContact($user)
         );
 
-        return $this->platformTopologyRepository->hasAccessToPlatform($accessGroupIds, $platformId);
+        if (
+            (
+                null !== $platform->getServerId()
+                && $this->platformTopologyRepository->hasAccessToPlatform($accessGroupIds, $platform->getServerId())
+            )
+            || ! $this->platformTopologyRepository->hasRestrictedAccessToPlatforms($accessGroupIds)
+        ) {
+            return true;
+        }
+
+        return  false;
     }
 }
