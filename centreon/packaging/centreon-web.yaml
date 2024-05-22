@@ -260,6 +260,13 @@ contents:
     file_info:
       mode: 0664
 
+  - dst: "/usr/share/centreon/config/vault"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
+
   - src: "../cron"
     dst: "/usr/share/centreon/cron"
     file_info:

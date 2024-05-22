@@ -28,9 +28,6 @@ final class CreateVaultConfigurationRequest
     /** @var string */
     public string $name = '';
 
-    /** @var int */
-    public int $typeId = 0;
-
     /** @var string */
     public string $address = '';
 
