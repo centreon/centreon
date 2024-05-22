@@ -18,6 +18,7 @@ beforeEach(() => {
   cy.installBamModule();
   cy.installCloudExtensionsModule();
   cy.enableResourcesAccessManagementFeature();
+  cy.grantBaAccessToUsers();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -252,6 +253,7 @@ Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
 });
 
 Given('a new user is created', () => {
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.addContact({
     admin: data2.admin,
     email: data2.email,

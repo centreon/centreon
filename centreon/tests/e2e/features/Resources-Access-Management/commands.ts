@@ -159,7 +159,9 @@ Cypress.Commands.add('createSimpleUser', (userInformation) => {
     .find('.btc.bt_success[name="submitC"]')
     .click();
   cy.wait('@getTimeZone');
-  // give this user ba access
+});
+
+Cypress.Commands.add('grantBaAccessToUsers', () => {
   cy.navigateTo({
     page: 'Menus Access',
     rootItemNumber: 4,
@@ -228,6 +230,7 @@ declare global {
       installBamModuleOnContainer: () => Cypress.Chainable;
       installBamModule: () => Cypress.Chainable;
       createMultipleResourceAccessRules: () => Cypress.Chainable;
+      grantBaAccessToUsers: () => Cypress.Chainable;
     }
   }
 }
