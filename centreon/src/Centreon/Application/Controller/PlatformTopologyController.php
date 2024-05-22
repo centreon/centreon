@@ -106,8 +106,11 @@ class PlatformTopologyController extends AbstractController
 
         // Check Topology access to Configuration > Pollers page
         if (
-            ! $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-            && ($contact->isAdmin() || $contact->hasRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG))
+            ! $contact->isAdmin()
+            && ! (
+                $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                && $contact->hasRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG)
+            )
         ) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
@@ -214,11 +217,11 @@ class PlatformTopologyController extends AbstractController
     /**
      * Delete a platform from the topology.
      *
-     * @param int $serverId
+     * @param int $platformId
      *
      * @return View
      */
-    public function deletePlatform(int $serverId): View
+    public function deletePlatform(int $platformId): View
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -226,19 +229,22 @@ class PlatformTopologyController extends AbstractController
 
         /** @var Contact $contact */
         $contact = $this->getUser();
+
         if (
-            ! $contact->isAdmin()
-            && ! (
-                $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
-                && $contact->hasRole(Contact::ROLE_DELETE_POLLER_CFG)
-                && $this->platformTopologyService->isValidPlatform($contact, $serverId)
+            ! $this->platformTopologyService->isValidPlatform($contact, $platformId)
+            || ! (
+                $contact->isAdmin()
+                || (
+                    $contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ_WRITE)
+                    && $contact->hasRole(Contact::ROLE_DELETE_POLLER_CFG)
+                )
             )
         ) {
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
 
         try {
-            $this->platformTopologyService->deletePlatformAndReallocateChildren($serverId);
+            $this->platformTopologyService->deletePlatformAndReallocateChildren($platformId);
             return $this->view(null, Response::HTTP_NO_CONTENT);
         } catch (EntityNotFoundException $ex) {
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_NOT_FOUND);
