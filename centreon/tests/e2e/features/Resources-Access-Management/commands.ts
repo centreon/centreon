@@ -87,26 +87,7 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.logoutViaAPI();
 });
 
-Cypress.Commands.add('createSimpleUser', (userInformation, hostInformation) => {
-  cy.setUserTokenApiV1();
-  // verify later on if this user have BA access
-  cy.addContact({
-    admin: userInformation.admin,
-    email: userInformation.email,
-    name: userInformation.login,
-    password: userInformation.password
-  });
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
-  // cy.loginAsAdminViaApiV2();
-  cy.addHost({
-    activeCheckEnabled: false,
-    address: hostInformation.adress,
-    checkCommand: 'check_centreon_cpu',
-    hostGroup: hostInformation.hostGroups.hostGroup1.name,
-    name: hostInformation.hosts.host1.name,
-    template: 'generic-host'
-  });
-  cy.applyPollerConfiguration();
+Cypress.Commands.add('createSimpleUser', (userInformation) => {
   cy.navigateTo({
     page: 'Contacts / Users',
     rootItemNumber: 3,
@@ -149,10 +130,27 @@ Cypress.Commands.add('createSimpleUser', (userInformation, hostInformation) => {
     .find('div#validForm')
     .find('.btc.bt_success[name="submitC"]')
     .click();
+  cy.wait('@getTimeZone');
+  // give this user ba access
+  cy.navigateTo({
+    page: 'Menus Access',
+    rootItemNumber: 4,
+    subMenu: 'ACL'
+  });
+  cy.wait(4000);
+  cy.getIframeBody().contains('customer_user_menu_access').click();
+  // after waiting for timeZone and topCounter requests it still can't find the elment, so we were forced to wait for 4s
+  cy.wait(4000);
+  cy.getIframeBody().find('img#img_1').click();
+  cy.getIframeBody().find('input#i1_4').parent().click();
+  cy.getIframeBody()
+    .find('div#validForm')
+    .find('.btc.bt_success[name="submitC"]')
+    .click();
 });
 
 Cypress.Commands.add(
-  'addBusinessViewsAndBas',
+  'addBvsAndBas',
   (businessViewInfos, businessActivityInfos) => {
     businessViewInfos.forEach((value) => {
       cy.executeActionViaClapi({
@@ -193,7 +191,7 @@ Cypress.Commands.add('reloadAcl', () => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      createMultipleResourceAccessRules: () => Cypress.Chainable;
+      addBvsAndBas: () => Cypress.Chainable;
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
@@ -201,7 +199,7 @@ declare global {
       reloadAcl: () => Cypress.Chainable;
       installBamModuleOnContainer: () => Cypress.Chainable;
       installBamModule: () => Cypress.Chainable;
-      addBusinessViewsAndBas: () => Cypress.Chainable;
+      createMultipleResourceAccessRules: () => Cypress.Chainable;
     }
   }
 }

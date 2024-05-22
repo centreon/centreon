@@ -1,11 +1,13 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/users/simple-user.json';
-import data2 from '../../../fixtures/resources-access-management/new-host.json';
+import data2 from '../../../fixtures/users/new-simple-user.json';
+import host_data from '../../../fixtures/resources-access-management/new-host.json';
 import data_bv from '../../../fixtures/resources-access-management/bv-names.json';
 import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
 import '../commands';
+import { forEach } from 'cypress/types/lodash';
 
 beforeEach(() => {
   cy.startContainers();
@@ -30,6 +32,10 @@ beforeEach(() => {
   }).as('getContactFrame');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_bam_top_counter&action=getBamTopCounterData'
+  }).as('getTopCounter');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
   }).as('getTopCounteruser');
   cy.intercept({
@@ -51,8 +57,16 @@ beforeEach(() => {
 });
 
 Given('I am logged in as a user with limited access', () => {
-  cy.createSimpleUser(data, data2);
-  cy.wait('@getTimeZone');
+  cy.setUserTokenApiV1();
+  // user should have access to ba
+  cy.addContact({
+    admin: data.admin,
+    email: data.email,
+    name: data.login,
+    password: data.password
+  });
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.createSimpleUser(data);
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
@@ -74,7 +88,19 @@ Given('an Administrator is logged in on the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
-When(
+When('a new host is created', () => {
+  cy.addHost({
+    activeCheckEnabled: false,
+    address: host_data.adress,
+    checkCommand: 'check_centreon_cpu',
+    hostGroup: host_data.hostGroups.hostGroup1.name,
+    name: host_data.hosts.host1.name,
+    template: 'generic-host'
+  });
+  cy.applyPollerConfiguration();
+});
+
+Then(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
     // all resources should be deleted first
@@ -154,12 +180,12 @@ Then('the user can see the Host selected by the Administrator', () => {
 When(
   'the Administrator selects "Business view" as the resource and fills in the required fields',
   () => {
-    cy.addBusinessViewsAndBas(data_bv, data_ba);
+    cy.addBvsAndBas(data_bv, data_ba);
     cy.get('#Name').type('Rule1');
     cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
     cy.getByLabel({ label: 'Business view', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
-    cy.contains('Centreon-Database').click();
+    cy.contains('BV1').click();
   }
 );
 
@@ -182,7 +208,11 @@ Then('the user can access the selected business view', () => {
 });
 
 Then('the Administrator selects "All hosts"', () => {
-  cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+  cy.contains('span', 'All hosts')
+    .parent()
+    .within(() => {
+      cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+    });
 });
 
 Then('the user can see all hosts', () => {
@@ -192,17 +222,48 @@ Then('the user can see all hosts', () => {
 });
 
 Then('the Administrator selects "All Business views"', () => {
-  cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+  cy.contains('span', 'All business views')
+    .parent()
+    .within(() => {
+      cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+    });
 });
 
 Then('the user can access all the business views', () => {
   cy.getIframeBody()
     .find('span[aria-labelledby$="-bv_filter-container"]')
     .click();
-  cy.getIframeBody().contains('BV1');
-  cy.getIframeBody().contains('BV2');
-  cy.getIframeBody().contains('BV3');
-  //fix this loop and values should be dynamic
+  data_bv.forEach((value) => {
+    cy.getIframeBody().contains(value.Bv);
+  });
+});
+
+Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
+  cy.contains('span', 'All contacts')
+    .parent()
+    .within(() => {
+      cy.getByTestId({ testId: 'CheckBoxOutlineBlankIcon' }).parent().click();
+    });
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@getTopCounteruser');
+  cy.wait('@getTopCounterpoller');
+  cy.wait('@getTopCounterservice');
+  cy.wait('@getTopCounterhosts');
+  cy.reloadAcl();
+});
+
+Given('a new user is created', () => {
+  cy.addContact({
+    admin: data2.admin,
+    email: data2.email,
+    name: data2.login,
+    password: data2.password
+  });
+  cy.createSimpleUser(data2);
+});
+
+When('the user that was just created is logged in', () => {
+  cy.loginByTypeOfUser({ jsonName: 'new-simple-user', loginViaApi: true });
 });
 
 afterEach(() => {
