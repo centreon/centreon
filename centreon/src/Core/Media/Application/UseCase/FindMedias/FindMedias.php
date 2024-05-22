@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\FindMedias;
 
@@ -77,7 +77,9 @@ final class FindMedias
 
     private function canAccessToListing(): bool
     {
-        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW);
+        return $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW)
+            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MEDIA_R)
+            || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_MEDIA_RW);
     }
 
     /**
