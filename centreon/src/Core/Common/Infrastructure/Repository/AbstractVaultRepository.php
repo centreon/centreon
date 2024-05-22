@@ -39,7 +39,7 @@ abstract class AbstractVaultRepository
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
         protected HttpClientInterface $httpClient
     ) {
-        $this->vaultConfiguration = $configurationRepository->findDefaultVaultConfiguration();
+        $this->vaultConfiguration = $configurationRepository->find();
     }
 
     /**
