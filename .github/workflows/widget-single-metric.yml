@@ -49,7 +49,6 @@ jobs:
       widget_name: single-metric
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
-      release: ${{ needs.get-version.outputs.release }}
       stability: ${{ needs.get-version.outputs.stability }}
       environment: ${{ needs.get-version.outputs.environment }}
       release_type: ${{ needs.get-version.outputs.release_type }}
