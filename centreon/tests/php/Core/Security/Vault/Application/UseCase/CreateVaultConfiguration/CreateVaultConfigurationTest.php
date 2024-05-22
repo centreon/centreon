@@ -51,7 +51,6 @@ use Security\Encryption;
 beforeEach(function (): void {
     $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class);
     $this->writeVaultConfigurationRepository = $this->createMock(WriteVaultConfigurationRepositoryInterface::class);
-    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->factory = $this->createMock(NewVaultConfigurationFactory::class);
     $this->user = $this->createMock(ContactInterface::class);
@@ -70,7 +69,6 @@ it('should present ForbiddenResponse when user is not admin', function (): void 
     $useCase = new CreateVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->factory,
         $this->user
     );
@@ -94,14 +92,13 @@ it('should present InvalidArgumentResponse when vault configuration already exis
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('existsSameConfiguration')
+        ->method('exists')
         ->willReturn(true);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->factory,
         $this->user
     );
@@ -124,19 +121,13 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('existsSameConfiguration')
-        ->willReturn(false);
-
-    $this->readVaultRepository
-        ->expects($this->once())
         ->method('exists')
-        ->willReturn(true);
+        ->willReturn(false);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->factory,
         $this->user
     );
@@ -145,7 +136,6 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
     $createVaultConfigurationRequest->name = $invalidName;
-    $createVaultConfigurationRequest->typeId = 1;
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
     $createVaultConfigurationRequest->rootPath = 'myStorage';
@@ -181,48 +171,6 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
     );
 });
 
-it('should present NotFoundResponse when vault provider does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-
-    $this->readVaultConfigurationRepository
-        ->expects($this->once())
-        ->method('existsSameConfiguration')
-        ->willReturn(false);
-
-    $this->readVaultRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(false);
-
-    $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
-    $useCase = new CreateVaultConfiguration(
-        $this->readVaultConfigurationRepository,
-        $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
-        $this->factory,
-        $this->user
-    );
-
-    $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
-    $createVaultConfigurationRequest->name = 'myVault';
-    $createVaultConfigurationRequest->typeId = 3;
-    $createVaultConfigurationRequest->address = '127.0.0.1';
-    $createVaultConfigurationRequest->port = 8200;
-    $createVaultConfigurationRequest->rootPath = 'myStorage';
-    $createVaultConfigurationRequest->roleId = 'myRole';
-    $createVaultConfigurationRequest->secretId = 'mySecretId';
-
-    $useCase($presenter, $createVaultConfigurationRequest);
-
-    expect($presenter->getResponseStatus())->toBeInstanceOf(NotFoundResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        (new NotFoundResponse('Vault provider'))->getMessage()
-    );
-});
-
 it('should present ErrorResponse when an unhandled error occurs', function (): void {
     $this->user
         ->expects($this->once())
@@ -231,14 +179,13 @@ it('should present ErrorResponse when an unhandled error occurs', function (): v
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('existsSameConfiguration')
+        ->method('exists')
         ->willThrowException(new \Exception());
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->factory,
         $this->user
     );
@@ -261,27 +208,19 @@ it('should present CreatedResponse when vault configuration is created with succ
 
     $this->readVaultConfigurationRepository
         ->expects($this->once())
-        ->method('existsSameConfiguration')
-        ->willReturn(false);
-
-    $vault = new Vault(1, 'myVaultProvider');
-    $this->readVaultRepository
-        ->expects($this->once())
         ->method('exists')
-        ->willReturn(true);
+        ->willReturn(false);
 
     $presenter = new CreateVaultConfigurationPresenterStub($this->presenterFormatter);
     $useCase = new CreateVaultConfiguration(
         $this->readVaultConfigurationRepository,
         $this->writeVaultConfigurationRepository,
-        $this->readVaultRepository,
         $this->factory,
         $this->user
     );
 
     $createVaultConfigurationRequest = new CreateVaultConfigurationRequest();
     $createVaultConfigurationRequest->name = 'myVault';
-    $createVaultConfigurationRequest->typeId = $vault->getId();
     $createVaultConfigurationRequest->address = '127.0.0.1';
     $createVaultConfigurationRequest->port = 8200;
     $createVaultConfigurationRequest->rootPath = 'myStorage';
