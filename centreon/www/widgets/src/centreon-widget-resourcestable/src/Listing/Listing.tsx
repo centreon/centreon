@@ -31,6 +31,7 @@ interface ListingProps
   sortOrder?: SortOrder;
   states: Array<string>;
   statuses: Array<string>;
+  widgetPrefixQuery: string;
 }
 
 const Listing = ({
@@ -49,7 +50,8 @@ const Listing = ({
   isFromPreview,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -79,7 +81,8 @@ const Listing = ({
     sortField,
     sortOrder,
     states,
-    statuses
+    statuses,
+    widgetPrefixQuery
   });
 
   return (
