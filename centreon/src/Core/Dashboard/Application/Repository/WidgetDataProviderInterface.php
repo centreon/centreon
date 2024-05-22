@@ -21,13 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\UseCase\DeleteVaultConfiguration;
+namespace Core\Dashboard\Application\Repository;
 
-final class DeleteVaultConfigurationRequest
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Domain\Model\DashboardPanel;
+
+interface WidgetDataProviderInterface
 {
-    /** @var int */
-    public int $vaultConfigurationId = 0;
+    /**
+     * @param string $widgetName
+     *
+     * @return bool
+     */
+    public function isValidFor(string $widgetName): bool;
 
-    /** @var int */
-    public int $typeId = 0;
+    /**
+     * @param DashboardPanel $panel
+     * @param ContactInterface $user
+     *
+     * @throws \Throwable
+     *
+     * @return ResponseStatusInterface|mixed
+     */
+    public function getData(DashboardPanel $panel, ContactInterface $user): mixed;
 }
