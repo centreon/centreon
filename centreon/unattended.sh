@@ -67,7 +67,8 @@ centreon_admin_password=
 BASE_PACKAGES=
 CENTREON_SELINUX_PACKAGES=
 RELEASE_REPO_FILE=
-OS_SPEC_SERVICES=
+PHP_SERVICE_UNIT=
+HTTP_SERVICE_UNIT=
 PKG_MGR=
 has_systemd=
 CENTREON_REPO=
@@ -427,15 +428,16 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_release" in
-	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+  case "$detected_os_release" in
+	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
@@ -485,7 +487,8 @@ function set_required_prerequisite() {
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
-			OS_SPEC_SERVICES="php-fpm httpd"
+			PHP_SERVICE_UNIT="php-fpm"
+			HTTP_SERVICE_UNIT="httpd"
 			PKG_MGR="dnf"
 
 			case "$detected_os_release" in
@@ -552,7 +555,8 @@ function set_required_prerequisite() {
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11/12. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
 			;;
 		esac
-		OS_SPEC_SERVICES="php8.1-fpm apache2"
+		PHP_SERVICE_UNIT="php8.1-fpm"
+		HTTP_SERVICE_UNIT="apache2"
 		log "INFO" "Setting specific part for Debian"
 		PKG_MGR="apt -qq"
 		${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
@@ -806,8 +810,8 @@ function enable_new_services() {
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart "$DBMS_SERVICE_NAME" "$OS_SPEC_SERVICES" snmpd snmptrapd
+			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
+			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd
 			systemctl start centreontrapd
 			;;
 
@@ -864,7 +868,11 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "insertBaseConf.php"
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
-	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
+	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
+	if [[ "$version" == "24.04" ]]; then
+		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
+	fi
+	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
 }
 #========= end of function play_install_wizard()
@@ -1165,10 +1173,14 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ $dbms == "MariaDB" ]]; then
-		CENTREON_DBMS_PKG="centreon-mariadb"
+	if [[ "$version" =~ ^24\.0[1-9]$ || "$version" =~ ^24\.1[0-2]$ ]]; then
+		if [[ $dbms == "MariaDB" ]]; then
+			CENTREON_DBMS_PKG="centreon-mariadb"
+		else
+			CENTREON_DBMS_PKG="centreon-mysql"
+		fi
 	else
-		CENTREON_DBMS_PKG="centreon-mysql"
+		CENTREON_DBMS_PKG="centreon-database"
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
