@@ -242,9 +242,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             FROM `:db`.service
             LEFT JOIN `:db`.extended_service_information esi
                 ON esi.service_service_id = service.service_id
-            INNER JOIN `:db`.service_categories_relation scr
+            LEFT JOIN `:db`.service_categories_relation scr
                 ON scr.service_service_id = service.service_id
-                {$categoryAcls}
             LEFT JOIN `:db`.service_categories severity
                 ON severity.sc_id = scr.sc_id
                 AND severity.level IS NOT NULL
@@ -255,6 +254,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 AND host.host_register = '0'
             WHERE service.service_id = :id
                 AND service.service_register = '0'
+                {$categoryAcls}
             GROUP BY
                 service.service_id,
                 esi.esi_action_url,
@@ -266,8 +266,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
-        foreach ($accessGroupIds as $index => $id) {
-            $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+        if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            foreach ($accessGroupIds as $index => $id) {
+                $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+            }
         }
         $statement->execute();
 
@@ -355,8 +357,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $statement = $this->db->prepare($this->translateDbName($sql));
         $sqlTranslator->bindSearchValues($statement);
         $sqlConcatenator->bindValuesToStatement($statement);
-        foreach ($accessGroupIds as $index => $id) {
-            $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+        if ($this->hasRestrictedAccessToServiceCategories($accessGroupIds)) {
+            foreach ($accessGroupIds as $index => $id) {
+                $statement->bindValue(':access_group_id_' . $index, $id, \PDO::PARAM_INT);
+            }
         }
         $statement->execute();
 
