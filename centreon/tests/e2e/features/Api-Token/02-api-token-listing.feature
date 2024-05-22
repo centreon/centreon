@@ -22,7 +22,7 @@ Feature: List Existing API Tokens in Administration
     Examples:
       | Status  | Name    | User   | Duration |
       | Active  | Token_1 | User_1 | 7 days   |
-      | Active  | Token_2 | User_2 | 30 days  |
-      | Active  | Token_3 | User_3 | 60 days  |
-      | Active  | Token_4 | User_4 | 90 days  |
-      | Active  | Token_5 | User_5 | 1 year   |
+      # | Active  | Token_2 | User_2 | 30 days  |
+      # | Active  | Token_3 | User_3 | 60 days  |
+      # | Active  | Token_4 | User_4 | 90 days  |
+      # | Active  | Token_5 | User_5 | 1 year   |

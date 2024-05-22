@@ -7,7 +7,10 @@ import './commands/monitoring';
 
 import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 
-installLogsCollector({ enableExtendedCollector: true });
+installLogsCollector({
+  commandTimings: 'seconds',
+  enableExtendedCollector: true
+});
 
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
