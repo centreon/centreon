@@ -30,10 +30,9 @@ this part of the configuration is only used if some poller must connect with pul
 | ssl_cert_file | Path to a ssl certificate file. required if ssl: true                                          |               |
 | ssl_key_file  | Path to a ssl key file associated to the certificate already configured. required if ssl: true |               |
 | passphrase    | No idea, maybe an optionnal pasphrase for the ssl key.                                         |               |
-| token         | Allow to authenticate node. Is required to enable http server.                                 |               |
-| address       | Address to listen to. can be 0.0.0.0 to listen on all ipv4 address                             |               |
+| token         | Allow to authenticate node. It is required to enable the http server.                          |               |
+| address       | Address to listen to. can be 0.0.0.0 to listen on all IPv4 address                             |               |
 | port          | tcp port to listen to.                                                                         |               |
-
 
 #### Example
 
@@ -54,7 +53,6 @@ httpserver:  # this is used only if you want to configure pullwss nodes. to work
   token: secure_token
   address: "0.0.0.0"
 ```
-
 
 ## Events
 

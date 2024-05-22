@@ -3,6 +3,7 @@
 We are showing how to configure gorgone to manage that architecture:
 
 ```text
+
 Central server <------- Distant Poller
 ```
 contrary to pull module, the communication is entierely done on http(s) websocket.
@@ -59,7 +60,7 @@ gorgone:
       command_file: "/var/lib/centreon-engine/rw/centengine.cmd"
 
     - name: pullwss
-      package: "gorgone::modules::core::pull::hooks"
+      package: "gorgone::modules::core::pullwss::hooks"
       enable: true
       ssl: true
       port: 443
@@ -79,6 +80,7 @@ The Central server is already installed and Gorgone too.
 We configure the file **/etc/centreon-gorgone/config.d/40-gorgoned.yaml**:
 
 ```yaml
+
 ...
 gorgone:
     ...

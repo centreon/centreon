@@ -6,7 +6,6 @@ This module should be used on remote nodes where the connection has to be http/h
 
 ## Configuration
 
-
 | Directive | Description                                                   | Default value |
 |:----------|:--------------------------------------------------------------|:--------------|
 | ssl       | should connection be made over tls/ssl or not                 | `false`       |
