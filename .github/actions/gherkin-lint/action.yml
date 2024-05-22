@@ -1,4 +1,5 @@
 name: gherkin-lint
+description: linter dedicated to gherkin files
 
 inputs:
   features_path:
