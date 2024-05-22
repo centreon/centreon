@@ -95,19 +95,3 @@ export const getResourcesUrlForMetricsWidgets = ({
 
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
 };
-
-const formatResource = (item): object => ({
-  ...item,
-  resources: map(pick(['id', 'name']), propOr([], 'resources', item))
-});
-
-export const formatLayoutResources = (data?: object): object | null => {
-  if (!data) {
-    return null;
-  }
-
-  return {
-    ...data,
-    resources: map(formatResource, propOr([], 'resources', data))
-  };
-};

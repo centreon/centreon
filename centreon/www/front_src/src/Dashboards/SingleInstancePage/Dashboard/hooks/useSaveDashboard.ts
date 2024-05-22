@@ -9,7 +9,6 @@ import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
-import { formatLayoutResources } from '../utils';
 
 import { routerParams } from './useDashboardDetails';
 
@@ -39,7 +38,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       },
       name: name || '',
       widget_settings: {
-        data: formatLayoutResources(data),
+        data,
         options
       },
       widget_type: panelConfiguration.path
