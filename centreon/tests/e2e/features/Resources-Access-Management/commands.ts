@@ -222,13 +222,6 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('reloadAcl', () => {
-  return cy.execInContainer({
-    command: `sudo -u apache php /usr/share/centreon/cron/centAcl.php`,
-    name: 'web'
-  });
-});
-
 declare global {
   namespace Cypress {
     interface Chainable {
