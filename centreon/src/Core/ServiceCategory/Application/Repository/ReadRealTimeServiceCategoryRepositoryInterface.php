@@ -21,10 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Application\UseCase\FindServiceCategory;
+namespace Core\ServiceCategory\Application\Repository;
 
-use Core\Tag\RealTime\Application\UseCase\FindTag\FindTagResponse;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
-final class FindServiceCategoryResponse extends FindTagResponse
+interface ReadRealTimeServiceCategoryRepositoryInterface
 {
+    /**
+     * @param null|RequestParametersInterface $requestParameters
+     *
+     * @return Tag[]
+     */
+    public function findAll(?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * @param null|RequestParametersInterface $requestParameters
+     * @param int[] $accessGroupIds
+     *
+     * @return Tag[]
+     */
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): array;
 }
