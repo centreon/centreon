@@ -29,7 +29,7 @@ interface UseListingState {
 interface UseListingProps
   extends Pick<
     CommonWidgetProps<PanelOptions>,
-    'dashboardId' | 'id' | 'playlistHash'
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
   displayType: DisplayType;
@@ -60,7 +60,8 @@ const useListing = ({
   isFromPreview,
   id,
   dashboardId,
-  playlistHash
+  playlistHash,
+  widgetPrefixQuery
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -80,7 +81,8 @@ const useListing = ({
     sortField,
     sortOrder,
     states,
-    statuses
+    statuses,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {
