@@ -8,9 +8,21 @@ import { IconButton } from '@centreon/ui';
 
 import { labelDelete } from '../../../translatedLabels';
 
-import ConfirmationDeletionModal from './ConfirmationDeletionModal';
+interface Parameters {
+  close: () => void;
+}
 
-const Deletion = (): JSX.Element => {
+interface Props {
+  disabled?: boolean;
+  label?: string;
+  renderModalConfirmation: (parameters: Parameters) => JSX.Element;
+}
+
+const Deletion = ({
+  renderModalConfirmation,
+  disabled = false,
+  label = labelDelete
+}: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [displayConfirmationModal, setDisplayConfirmationModal] =
@@ -27,22 +39,18 @@ const Deletion = (): JSX.Element => {
   return (
     <>
       <IconButton
-        ariaLabel={t(labelDelete) as string}
-        data-testid={labelDelete}
+        ariaLabel={t(label) as string}
+        data-testid={label}
+        disabled={disabled}
         size="large"
         sx={{ marginLeft: 1 }}
-        title={t(labelDelete)}
+        title={t(label)}
         onClick={displayModal}
       >
         <DeleteIcon />
       </IconButton>
 
-      {displayConfirmationModal && (
-        <ConfirmationDeletionModal
-          close={close}
-          open={displayConfirmationModal}
-        />
-      )}
+      {displayConfirmationModal && renderModalConfirmation?.({ close })}
     </>
   );
 };

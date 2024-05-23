@@ -18564,6 +18564,12 @@ msgstr "Vous êtes sur le point de supprimer le jeton <b> {{tokenName}}</b>. Cet
 msgid "Delete token"
 msgstr "Supprimer le jeton"
 
+msgid "deleted successfully"
+msgstr "supprimé avec succès"
+
+msgid "This action cannot be undone. If you proceed, all requests made using these tokens will be rejected. Do you want to delete these tokens?"
+msgstr "Cette action est irréversible. Si vous supprimez ces jetons, toutes les requêtes effectuées avec seront rejetées. Voulez-vous supprimer ces jetons?"
+
 msgid "Failed to copy link"
 msgstr "Échec de la copie du lien"
 
@@ -18897,6 +18903,9 @@ msgstr "Une erreur est survenue lors de la suppression du fichier '%s'"
 
 msgid "Until"
 msgstr "Jusqu'à"
+
+msgid "Delete selected tokens"
+msgstr "Supprimer les jetons sélectionnés"
 
 msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
 msgstr "Affiche la répartition des statuts actuels pour les groupes de ressources sélectionnés, sous forme de tableau."

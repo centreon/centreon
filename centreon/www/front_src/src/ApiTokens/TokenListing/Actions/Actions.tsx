@@ -1,6 +1,7 @@
-import { useStyles } from './actions.styles';
-import Search from './Search';
+import Delete from './Delete';
 import TokenFilter from './Filter';
+import Search from './Search';
+import { useStyles } from './actions.styles';
 
 interface Props {
   buttonCreateToken: React.ReactNode;
@@ -21,6 +22,7 @@ const Actions = ({
     <div className={classes.container}>
       <div className={classes.subContainer}>
         {buttonCreateToken}
+        <Delete />
         {refresh}
       </div>
       {displaySearch && (

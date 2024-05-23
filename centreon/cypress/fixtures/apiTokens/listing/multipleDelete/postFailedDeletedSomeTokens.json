@@ -1,0 +1,20 @@
+
+{
+    "results": [
+         {
+           "self": "administration/tokens/a-token/users/23",
+           "status": 200 ,
+           "message": null
+       },
+         {
+           "self": "administration/tokens/c-token/users/23",
+           "status": 400 ,
+           "message": "something wrong"
+       },
+       {
+           "self": "administration/tokens/e-token/users/23",
+           "status": 400 ,
+           "message": "something wrong"
+       }
+    ]
+}

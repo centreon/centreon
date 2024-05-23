@@ -1,4 +1,4 @@
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import pluralize from 'pluralize';
 
@@ -13,7 +13,7 @@ import Actions from './Actions';
 import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
-import { selectedRowAtom } from './atoms';
+import { clickedRowAtom, selectedRowsAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
 import { useTokenListing } from './useTokenListing';
 
@@ -24,7 +24,8 @@ interface Props {
 const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const setSelectRow = useSetAtom(selectedRowAtom);
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+  const setClickedRow = useSetAtom(clickedRowAtom);
 
   const { width } = useResizeObserver<HTMLElement>({
     ref: document.getElementById(id)
@@ -43,15 +44,12 @@ const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
 
-  const selectRow = (row): void => {
-    setSelectRow(row);
-  };
-
   return (
     <div className={classes.container}>
       <Title msg={pluralize(t(labelApiToken))} />
       <Divider className={classes.divider} />
       <Listing
+        checkable
         innerScrollDisabled
         actions={
           <Actions
@@ -71,14 +69,16 @@ const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
         loading={dataListing?.isLoading}
         memoProps={[width]}
         rows={dataListing?.rows}
+        selectedRows={selectedRows}
         sortField={sortedField}
         sortOrder={sortOrder}
         totalRows={dataListing?.total}
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={onResetColumns}
-        onRowClick={selectRow}
+        onRowClick={setClickedRow}
         onSelectColumns={onSelectColumns}
+        onSelectRows={setSelectedRows}
         onSort={onSort}
       />
     </div>

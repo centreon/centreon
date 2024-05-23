@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, durationMap } from '../common';
 
 let tokenName = '';
@@ -54,12 +55,12 @@ Given('API tokens with the following details are created', (dataTable: any) => {
       user_id: userId
     };
     cy.request({
-      method: 'POST',
-      url: '/centreon/api/latest/administration/tokens',
       body: payload,
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/administration/tokens'
     }).then((response) => {
       expect(response.status).to.eq(201);
       userId++;
@@ -88,13 +89,14 @@ Then(
             // User and Creator
             if (cellIndex >= 2) {
               cy.get('.MuiTableCell-body')
-                .eq(cellIndex + 2)
+                .eq(cellIndex + 3)
                 .should('contain.text', cell);
+
               return;
             }
 
             cy.get('.MuiTableCell-body')
-              .eq(cellIndex)
+              .eq(cellIndex + 1)
               .should('contain.text', cell);
           });
         });
@@ -104,8 +106,8 @@ Then(
 
 Then('the Creation Date field has the current day as value', () => {
   const creationDate = new Date().toLocaleDateString('en-US', {
-    month: '2-digit',
     day: '2-digit',
+    month: '2-digit',
     year: 'numeric'
   });
 
@@ -114,7 +116,7 @@ Then('the Creation Date field has the current day as value', () => {
     .parent()
     .parent()
     .within(() => {
-      cy.get('.MuiTableCell-body').eq(2).should('contain.text', creationDate);
+      cy.get('.MuiTableCell-body').eq(3).should('contain.text', creationDate);
     });
 });
 
@@ -126,8 +128,8 @@ Then(
     const durationToADD = durationMap[duration];
     expirationDate.setDate(today.getDate() + durationToADD);
     const parsedExpirationDate = expirationDate.toLocaleDateString('en-US', {
-      month: '2-digit',
       day: '2-digit',
+      month: '2-digit',
       year: 'numeric'
     });
 
@@ -137,7 +139,7 @@ Then(
       .parent()
       .within(() => {
         cy.get('.MuiTableCell-body')
-          .eq(3)
+          .eq(4)
           .should('contain.text', parsedExpirationDate);
       });
   }

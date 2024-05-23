@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, Token, columns, durationMap } from '../common';
 
 beforeEach(() => {
@@ -48,12 +49,12 @@ Given('API tokens with predefined details are created', () => {
         user_id: token.userId
       };
       cy.request({
-        method: 'POST',
-        url: '/centreon/api/latest/administration/tokens',
         body: payload,
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        method: 'POST',
+        url: '/centreon/api/latest/administration/tokens'
       }).then((response) => {
         expect(response.status).to.eq(201);
       });
@@ -76,13 +77,13 @@ When('I click on the {string} column header', (columnHeader: string) => {
 Then(
   'the tokens are sorted by {string} in descending order',
   (orderBy: string) => {
-    let values: string[] = [];
-    let parsedDates: Date[] = [];
+    const values: Array<string> = [];
+    const parsedDates: Array<Date> = [];
     cy.get('.MuiTableBody-root .MuiTableRow-root')
       .each((row) => {
         cy.wrap(row)
           .find('.MuiTableCell-body')
-          .eq(columns.indexOf(orderBy))
+          .eq(columns.indexOf(orderBy) + 1)
           .invoke('text')
           .then((value) => {
             if (orderBy.toLowerCase().includes('date')) {

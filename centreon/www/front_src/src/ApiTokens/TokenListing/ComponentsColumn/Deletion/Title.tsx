@@ -6,13 +6,17 @@ import { labelDeleteToken } from '../../../translatedLabels';
 
 import { useStyles } from './deletion.styles';
 
-const Title = (): JSX.Element => {
+interface Props {
+  title?: string;
+}
+
+const Title = ({ title = labelDeleteToken }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
     <Typography className={classes.title} variant="h6">
-      {t(labelDeleteToken)}
+      {t(title)}
     </Typography>
   );
 };

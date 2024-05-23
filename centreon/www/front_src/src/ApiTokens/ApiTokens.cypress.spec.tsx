@@ -8,6 +8,7 @@ import { Provider, createStore, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router-dom';
+import pluralize from 'pluralize';
 
 import {
   ListingParameters,
@@ -34,7 +35,8 @@ import TokenListing from './TokenListing/TokenListing';
 import {
   buildListEndpoint,
   createTokenEndpoint,
-  deleteTokenEndpoint,
+  deleteMultipleTokensEndpoint,
+  deleteSingleTokenEndpoint,
   listConfiguredUser,
   listTokensEndpoint
 } from './api/endpoints';
@@ -45,6 +47,7 @@ import {
   labelCreateNewToken,
   labelCreationDate,
   labelCreator,
+  labelDelete,
   labelDeleteToken,
   labelDuration,
   labelExpirationDate,
@@ -54,8 +57,12 @@ import {
   labelSearch,
   labelSecurityToken,
   labelTokenCreated,
-  labelTokenDeletedSuccessfully,
-  labelUser
+  labelDeletedSuccessfully,
+  labelUser,
+  labelToken,
+  labelDeleteSelectedTokens,
+  labelMsgConfirmationDeletionTokens,
+  labelFailedToDeleteSelectedToken
 } from './translatedLabels';
 
 dayjs.extend(utcPlugin);
@@ -231,6 +238,7 @@ const parametersWithAllSearchableFields =
 const parametersWithSelectedFilters =
   '{"$and":[{"$or":[{"creation_date":{"$ge":"2024-02-20T15:16:33Z"}}]},{"$or":[{"expiration_date":{"$le":"2024-03-28T15:16:33Z"}}]},{"$or":[{"user.name":{"$rg":"User"}}]}]}';
 const tokenToDelete = 'a-token';
+const tokensToDelete = ['a-token', 'e-token', 'c-token'];
 const msgConfirmationDeletion = 'You are about to delete the token';
 const irreversibleMsg =
   'This action cannot be undone. If you proceed, all requests made using this token will be rejected. Do you want to delete the token?';
@@ -347,6 +355,36 @@ const searchableFieldsValues = [
   { field: Fields.IsRevoked, type: 'boolean', values: ['false'] }
 ];
 
+const deleteMultipleTokensData = [
+  {
+    alias: 'getListAfterSuccessfulMultipleDelete',
+    description: 'all selected tokens deleted successfully',
+    failedDeletedTokens: [],
+    listDataPath:
+      'apiTokens/listing/multipleDelete/listAfterSuccessfulMultipleDelete.json',
+    postDataPath:
+      'apiTokens/listing/multipleDelete/postSuccessfulDeletedTokens.json',
+    snackBarMsg: [
+      { msg: `${pluralize(labelToken)} ${labelDeletedSuccessfully}` }
+    ],
+    successfulDeletedToken: tokensToDelete
+  },
+  {
+    alias: 'getListAfterFailedDeleteSomeTokens',
+    description: 'Failed to delete some tokens',
+    failedDeletedTokens: ['e-token', 'c-token'],
+    listDataPath:
+      'apiTokens/listing/multipleDelete/listAfterFailedDeleteSomeTokens.json',
+    postDataPath:
+      'apiTokens/listing/multipleDelete/postFailedDeletedSomeTokens.json',
+    snackBarMsg: [
+      { msg: `${labelFailedToDeleteSelectedToken}: e-token` },
+      { msg: `${labelFailedToDeleteSelectedToken}: c-token` }
+    ],
+    successfulDeletedToken: [tokenToDelete]
+  }
+];
+
 const constructSearchInput = (arr): string => {
   return arr
     .map(({ field, values }) => {
@@ -382,7 +420,7 @@ describe('Api-token', () => {
     cy.mount({
       Component: (
         <Provider store={store}>
-          <SnackbarProvider>
+          <SnackbarProvider maxSnackbars={2}>
             <Router>
               <TestQueryProvider>
                 <TokenListing id="cy-root" />
@@ -672,10 +710,10 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('deletes the token when clicking on the Delete button', () => {
+  it('deletes the token when clicking on the inline Delete icon', () => {
     cy.waitForRequest('@getListTokens');
 
-    const deleteToken = deleteTokenEndpoint({
+    const deleteToken = deleteSingleTokenEndpoint({
       tokenName: tokenToDelete,
       userId: 23
     });
@@ -691,11 +729,7 @@ describe('Api-token', () => {
       dataPath: 'apiTokens/listing/listAfterDelete.json'
     });
 
-    cy.findAllByTestId('DeleteIcon')
-      .eq(0)
-      .parent()
-      .should('be.enabled')
-      .click();
+    cy.findAllByTestId(labelDelete).eq(0).should('be.enabled').click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
@@ -711,21 +745,82 @@ describe('Api-token', () => {
         expect(calls).to.have.length(1);
       });
     });
-    cy.contains(labelTokenDeletedSuccessfully);
+    cy.contains(`${labelToken} ${labelDeletedSuccessfully}`);
     cy.waitForRequest('@getListTokensAfterDeletion');
     cy.findAllByTestId('deleteDialog').should('not.exist');
     cy.contains(tokenToDelete).should('not.exist');
-    cy.makeSnapshot('deletes the token when clicking the Delete Button');
+    cy.makeSnapshot('deletes the token when clicking the inline Delete icon');
   });
+
+  deleteMultipleTokensData.forEach(
+    ({
+      listDataPath,
+      postDataPath,
+      description,
+      successfulDeletedToken,
+      failedDeletedTokens,
+      snackBarMsg,
+      alias
+    }) => {
+      it(`deletes multiple tokens when clicking on the Delete button, case: ${description}`, () => {
+        cy.waitForRequest('@getListTokens');
+
+        const deleteMultipleTokens = deleteMultipleTokensEndpoint();
+
+        cy.fixture(postDataPath).then((data) => {
+          cy.interceptAPIRequest({
+            alias: 'deleteMultipleTokens',
+            method: Method.POST,
+            path: `./api/latest${deleteMultipleTokens}**`,
+            response: data
+          });
+        });
+
+        interceptListTokens({
+          alias,
+          dataPath: listDataPath
+        });
+
+        cy.findAllByTestId('CheckBoxOutlineBlankIcon').eq(1).parent().click();
+        cy.findAllByTestId('CheckBoxOutlineBlankIcon').eq(1).parent().click();
+        cy.findAllByTestId('CheckBoxOutlineBlankIcon').eq(2).parent().click();
+
+        cy.findByTestId(labelDeleteSelectedTokens).should('be.enabled').click();
+        cy.findByTestId('deleteDialog').within(() => {
+          cy.contains(labelDeleteSelectedTokens);
+          cy.contains(labelMsgConfirmationDeletionTokens);
+
+          cy.contains(labelCancel).should('be.enabled');
+          cy.findByTestId('Confirm').should('be.enabled');
+
+          cy.findByTestId('Confirm').should('be.enabled').click();
+          cy.waitForRequest('@deleteMultipleTokens');
+          cy.getRequestCalls('@deleteMultipleTokens').then((calls) => {
+            expect(calls).to.have.length(1);
+          });
+        });
+        snackBarMsg.forEach(({ msg }) => {
+          cy.contains(msg);
+        });
+        cy.waitForRequest(`@${alias}`);
+        cy.findAllByTestId('deleteDialog').should('not.exist');
+        successfulDeletedToken.forEach((tokenToDeleteName) => {
+          cy.contains(tokenToDeleteName).should('not.exist');
+        });
+        failedDeletedTokens.forEach((tokenToDeleteName) => {
+          cy.contains(tokenToDeleteName).should('exist');
+        });
+        cy.makeSnapshot(
+          `deletes multiple tokens when clicking the Delete Button, case: ${description}`
+        );
+      });
+    }
+  );
 
   it('hides the modal when clicking on the Cancel button', () => {
     cy.waitForRequest('@getListTokens');
 
-    cy.findAllByTestId('DeleteIcon')
-      .eq(0)
-      .parent()
-      .should('be.enabled')
-      .click();
+    cy.findAllByTestId(labelDelete).eq(0).should('be.enabled').click();
     cy.findByTestId('deleteDialog').within(() => {
       cy.contains(labelDeleteToken);
       cy.contains(msgConfirmationDeletion);
