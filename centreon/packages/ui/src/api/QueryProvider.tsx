@@ -17,10 +17,13 @@ export const client = new QueryClient({
 
 interface Props {
   children: ReactNode;
+  queryClient?: QueryClient;
 }
 
-const QueryProvider = ({ children }: Props): JSX.Element => (
-  <QueryClientProvider client={client}>{children}</QueryClientProvider>
+const QueryProvider = ({ children, queryClient }: Props): JSX.Element => (
+  <QueryClientProvider client={queryClient || client}>
+    {children}
+  </QueryClientProvider>
 );
 
 export default QueryProvider;
