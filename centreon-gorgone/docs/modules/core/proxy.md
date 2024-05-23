@@ -20,19 +20,21 @@ A SSH client library make routing to non-gorgoned nodes possible.
 | ping                 | Time in seconds between two node pings                              | `60`          |
 | pong_discard_timeout | Time in seconds before a node is considered dead                    | `300`         |
 
-this part of the configuration is only used if some poller must connect with pullwss module.
+This part of the configuration is only used if some poller must connect with pullwss module.
+
 
 | Directive     | Description                                                                                    | Default value |
 |:--------------|:-----------------------------------------------------------------------------------------------|:--------------|
-| httpserver    | array containing all below configuration for pullwss connnection                               | no value.     |
-| enable        | boolean if http server should be enabled                                                       | `false`       |
-| ssl           | should connection be made over tls/ssl or not                                                  | `false`       |
+| httpserver    | Array containing all below configuration for pullwss connnection                               | no value.     |
+| enable        | Boolean if http server should be enabled                                                       | `false`       |
+| ssl           | Should connection be made over tls/ssl or not                                                  | `false`       |
 | ssl_cert_file | Path to a ssl certificate file. required if ssl: true                                          |               |
 | ssl_key_file  | Path to a ssl key file associated to the certificate already configured. required if ssl: true |               |
 | passphrase    | No idea, maybe an optionnal pasphrase for the ssl key.                                         |               |
 | token         | Allow to authenticate node. It is required to enable the http server.                          |               |
 | address       | Address to listen to. can be 0.0.0.0 to listen on all IPv4 address                             |               |
-| port          | tcp port to listen to.                                                                         |               |
+| port          | TCP port to listen to.                                                                         |               |
+
 
 #### Example
 
@@ -45,7 +47,7 @@ synchistory_time: 60
 synchistory_timeout: 30
 ping: 60
 pong_discard_timeout: 300
-httpserver:  # this is used only if you want to configure pullwss nodes. to work you have to add register module and configure a config file.
+httpserver:  # this is used only if you want to configure pullwss nodes. to make it work you have to add the register module and configure a configuration file for it.
   enable: true
   ssl: true
   ssl_cert_file: /etc/centreon-gorgone/keys/public.pem

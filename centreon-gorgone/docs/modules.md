@@ -100,6 +100,7 @@ module.pm parent class has an event() method, so it's not mandatory to implement
 
 ### action_*()
 
-Method called by event() when a ZMQ message is found.\
+Method called by event() when a ZMQ message is found.
+
 
 Method name is in the form `action_eventname` where eventname is the name of the event in lowercase, as defined by the constant in hook.pm  
