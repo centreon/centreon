@@ -40,7 +40,7 @@ get:
               result:
                 type: array
                 items:
-                  $ref: 'Schema/HostTemplate.yaml'
+                  $ref: 'Schema/FindHostTemplateResponse.yaml'
               meta:
                 $ref: '../../Common/Schema/Meta.yaml'
     '403':
