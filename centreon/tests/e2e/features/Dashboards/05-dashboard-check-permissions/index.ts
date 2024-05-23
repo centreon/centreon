@@ -474,17 +474,18 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    cy.get('div.MuiDialog-container input[aria-label="Name"]').type(
       `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
     );
 
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    cy.get('div.MuiDialog-container textarea[aria-label="Description"]').type(
       `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
     );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.getByLabel({ label: 'page header title' })
       .should(
         'contain.text',
