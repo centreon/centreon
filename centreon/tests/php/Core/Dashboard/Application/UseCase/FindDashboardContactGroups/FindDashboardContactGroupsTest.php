@@ -33,6 +33,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroups;
 use Core\Dashboard\Application\UseCase\FindDashboardContactGroups\FindDashboardContactGroupsResponse;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardContactGroupsPresenterStub();
@@ -40,7 +41,9 @@ beforeEach(function (): void {
         $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
-        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class)
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
+        $this->readAccessgroupRepository = $this->createMock(ReadAccessgroupRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 });
 
@@ -73,8 +76,8 @@ it(
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
 
-        $this->contact->expects($this->once())
-            ->method('isAdmin')
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
             ->willReturn(false);
 
         $this->readDashboardShareRepository

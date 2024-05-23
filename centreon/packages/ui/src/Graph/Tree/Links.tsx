@@ -1,5 +1,10 @@
-import { LinkHorizontal } from '@visx/shape';
+import {
+  LinkHorizontal,
+  LinkHorizontalStep,
+  LinkHorizontalLine
+} from '@visx/shape';
 import { HierarchyPointLink } from '@visx/hierarchy/lib/types';
+import { always, cond, equals, T } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
@@ -8,6 +13,12 @@ import { TreeProps, Node, BaseProp } from './models';
 interface Props<TData> extends Pick<TreeProps<TData>, 'treeLink'> {
   links: Array<HierarchyPointLink<Node<TData>>>;
 }
+
+const getLinkComponent = cond([
+  [equals('line'), always(LinkHorizontalLine)],
+  [equals('step'), always(LinkHorizontalStep)],
+  [T, always(LinkHorizontal)]
+]);
 
 const Links = <TData extends BaseProp>({
   links,
@@ -24,10 +35,12 @@ const Links = <TData extends BaseProp>({
       .descendants()
       .map((ancestor) => ancestor.data.data.id);
 
+    const LinkComponent = getLinkComponent(treeLink?.type);
+
     const key = `${link.source.data.data.id}-${link.source.data.data.name}-${ancestorIds}_${link.target.data.data.id}-${link.target.data.data.name}-${descendantIds}`;
 
     return (
-      <LinkHorizontal
+      <LinkComponent
         data={link}
         data-testid={`${link.source.data.data.id}_to_${link.target.data.data.id}`}
         fill="none"

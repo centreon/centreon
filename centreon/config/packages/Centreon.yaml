@@ -171,6 +171,10 @@ services:
     # Real time monitoring
     sqlRequestTranslator:
         class: Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator
+        shared: false
+
+    Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator:
+        alias: sqlRequestTranslator
 
     Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface:
         class: Centreon\Domain\Monitoring\MonitoringService
@@ -292,6 +296,17 @@ services:
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
 
+    Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository:
+        arguments:
+            $configurationFile: '%vault_conf_path%'
+
+    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository
+        public: true
+        arguments:
+            $configurationFile: '%vault_conf_path%'
+
+
     # Monitoring resources
     _instanceof:
         Core\Infrastructure\RealTime\Hypermedia\HypermediaProviderInterface:
@@ -314,6 +329,8 @@ services:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
             tags: ['configuration.notification.notifiable.resource.request.provider']
+        Core\Dashboard\Application\Repository\WidgetDataProviderInterface:
+            tags: ['dashboard.playlist.widget.data.providers']
         Symfony\Component\Console\Command\Command:
             tags: ['script.command']
 
@@ -461,12 +478,13 @@ services:
         class: Core\Infrastructure\Common\Repository\MultiReadSessionRepository
         public: true
 
-    Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
-        class: Core\Security\Vault\Infrastructure\Repository\DbReadVaultConfigurationRepository
-        public: true
 
     Utility\Interfaces\UUIDGeneratorInterface:
         class: Utility\UUIDGenerator
+        public: true
+
+    Utility\Interfaces\StringGeneratorInterface:
+        class: Utility\ULIDGenerator
         public: true
 
     Centreon\Domain\Repository\ImagesRepository:

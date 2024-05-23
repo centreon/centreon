@@ -1,12 +1,21 @@
+import { useAtomValue } from 'jotai';
+
 import { useFetchQuery } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { buildResourcesEndpoint } from '../api/endpoints';
-import { Resource, SortOrder } from '../../../models';
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { PanelOptions } from '../models';
+import { getWidgetEndpoint } from '../../../utils';
 
 import { formatRessources } from './utils';
 import { DisplayType, ResourceListing } from './models';
 
-interface LoadResourcesProps {
+interface LoadResourcesProps
+  extends Pick<
+    CommonWidgetProps<PanelOptions>,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   displayType: DisplayType;
   limit?: number;
   page: number | undefined;
@@ -34,23 +43,40 @@ const useLoadResources = ({
   page,
   limit,
   sortField,
-  sortOrder
+  sortOrder,
+  playlistHash,
+  dashboardId,
+  id,
+  widgetPrefixQuery
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+
   const { data, isLoading } = useFetchQuery<ResourceListing>({
-    getEndpoint: () => {
-      return buildResourcesEndpoint({
-        limit: limit || 10,
-        page: page || 1,
-        resources,
-        sort: sort || { status_severity_code: SortOrder.Desc },
-        states,
-        statuses,
-        type: displayType
-      });
-    },
+    getEndpoint: () =>
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildResourcesEndpoint({
+          limit: limit || 10,
+          page: page || 1,
+          resources,
+          sort: sort || { status_severity_code: SortOrder.Desc },
+          states,
+          statuses,
+          type: displayType
+        }),
+        extraQueryParameters: {
+          limit: limit || 10,
+          page: page || 1,
+          sort_by: sort || { status_severity_code: SortOrder.Desc }
+        },
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
+      }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'resourcestable',
       displayType,
       JSON.stringify(states),
@@ -65,7 +91,8 @@ const useLoadResources = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   return { data: formatRessources({ data, displayType }), isLoading };

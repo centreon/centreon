@@ -1,28 +1,42 @@
 import { head, pluck } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import useThresholds from '../../useThresholds';
-import { Data, GlobalRefreshInterval } from '../../models';
+import { CommonWidgetProps, Data } from '../../models';
 import NoResources from '../../NoResources';
-import { areResourcesFullfilled } from '../../utils';
+import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
 
 import { PanelOptions } from './models';
 import { graphEndpoint } from './api/endpoints';
 
-interface Props {
-  globalRefreshInterval: GlobalRefreshInterval;
+interface Props
+  extends Pick<
+    CommonWidgetProps<PanelOptions>,
+    | 'globalRefreshInterval'
+    | 'refreshCount'
+    | 'dashboardId'
+    | 'id'
+    | 'playlistHash'
+    | 'widgetPrefixQuery'
+  > {
   panelData: Data;
   panelOptions: PanelOptions;
-  refreshCount: number;
 }
 
 const WidgetLineChart = ({
   panelData,
   panelOptions,
   globalRefreshInterval,
-  refreshCount
+  refreshCount,
+  dashboardId,
+  playlistHash,
+  id,
+  widgetPrefixQuery
 }: Props): JSX.Element => {
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
     refreshInterval: panelOptions.refreshInterval,
@@ -35,8 +49,16 @@ const WidgetLineChart = ({
 
   const { graphData, start, end, isGraphLoading, isMetricsEmpty } =
     useGraphQuery({
-      baseEndpoint: graphEndpoint,
+      baseEndpoint: getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: graphEndpoint,
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
+      }),
+      bypassQueryParams: isOnPublicPage,
       metrics: panelData.metrics,
+      prefix: widgetPrefixQuery,
       refreshCount,
       refreshInterval: refreshIntervalToUse,
       resources: panelData.resources,
@@ -55,6 +77,7 @@ const WidgetLineChart = ({
 
   return (
     <LineChart
+      curve={panelOptions.curveType}
       data={graphData}
       end={end}
       height={null}

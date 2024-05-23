@@ -87,4 +87,12 @@ class DbWriteMetaServiceRepository extends AbstractRepositoryRDB implements Writ
 
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void
+    {
+        return;
+    }
 }

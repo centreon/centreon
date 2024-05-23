@@ -168,4 +168,28 @@ describe('Complex data tree', () => {
 
     cy.makeSnapshot();
   });
+
+  it('displays the tree with step links when a prop is set', () => {
+    initializeStandaloneTree({
+      treeLink: {
+        type: 'step'
+      }
+    });
+
+    cy.contains('T').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the tree with line links when a prop is set', () => {
+    initializeStandaloneTree({
+      treeLink: {
+        type: 'line'
+      }
+    });
+
+    cy.contains('T').should('be.visible');
+
+    cy.makeSnapshot();
+  });
 });

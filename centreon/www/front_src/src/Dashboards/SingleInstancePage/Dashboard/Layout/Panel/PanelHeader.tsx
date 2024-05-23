@@ -4,8 +4,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 import { Link } from 'react-router-dom';
+import { useIsFetching } from '@tanstack/react-query';
 
-import { CardHeader, Typography } from '@mui/material';
+import { CardHeader, CircularProgress, Typography } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import DvrIcon from '@mui/icons-material/Dvr';
 
@@ -16,7 +17,11 @@ import {
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
-import { labelMoreActions, labelSeeMore } from '../../translatedLabels';
+import {
+  labelMoreActions,
+  labelResourcesStatus,
+  labelSeeMore
+} from '../../translatedLabels';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
 import MorePanelActions from './MorePanelActions';
@@ -26,6 +31,7 @@ interface PanelHeaderProps {
   displayMoreActions: boolean;
   id: string;
   linkToResourceStatus?: string;
+  pageType: string | null;
   setRefreshCount?: (id) => void;
 }
 
@@ -34,7 +40,8 @@ const PanelHeader = ({
   setRefreshCount,
   linkToResourceStatus,
   displayMoreActions,
-  changeViewMode
+  changeViewMode,
+  pageType
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
 
@@ -47,6 +54,18 @@ const PanelHeader = ({
 
   const setIsEditing = useSetAtom(isEditingAtom);
 
+  const panel = useMemo(
+    () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
+    useDeepCompare([dashboard.layout])
+  );
+
+  const widgetPrefixQuery = useMemo(
+    () => `${panel?.panelConfiguration.path}_${id}`,
+    [panel?.panelConfiguration.path, id]
+  );
+
+  const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
+
   const duplicate = (event): void => {
     event.preventDefault();
     setIsEditing(() => true);
@@ -56,26 +75,24 @@ const PanelHeader = ({
   const openMoreActions = (event): void => setMoreActionsOpen(event.target);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
 
-  const panel = useMemo(
-    () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
-    useDeepCompare([dashboard.layout])
-  );
+  const page = t(pageType || labelResourcesStatus);
 
   return (
     <CardHeader
       action={
         displayMoreActions && (
           <div className={classes.panelActionsIcons}>
+            {!!isFetching && <CircularProgress size={20} />}
             {linkToResourceStatus && (
               <Link
-                data-testid={labelSeeMore}
+                data-testid={t(labelSeeMore, { page })}
                 style={{ all: 'unset' }}
                 target="_blank"
                 to={linkToResourceStatus as string}
               >
                 <IconButton
-                  ariaLabel={t(labelSeeMore)}
-                  title={t(labelSeeMore)}
+                  ariaLabel={t(labelSeeMore, { page })}
+                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
                 >
                   <DvrIcon fontSize="small" />

@@ -37,9 +37,6 @@ use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInter
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\HostGroupFilterType;
-use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -106,11 +103,28 @@ final class AddRule
                 // At least one ID must be provided for contact or contactgroup
                 $this->validator->assertContactsAndContactGroupsAreNotEmpty(
                     $request->contactIds,
-                    $request->contactGroupIds
+                    $request->contactGroupIds,
+                    $request->applyToAllContacts,
+                    $request->applyToAllContactGroups
                 );
 
-                $this->validator->assertContactIdsAreValid($request->contactIds);
-                $this->validator->assertContactGroupIdsAreValid($request->contactGroupIds);
+                /**
+                 * Contact and ContactGroup IDs need validation only if IDs are provided and that all property is not
+                 * set to true.
+                 */
+                if (
+                    ! $request->applyToAllContacts
+                    && $request->contactIds !== []
+                ) {
+                    $this->validator->assertContactIdsAreValid($request->contactIds);
+                }
+
+                if (
+                    ! $request->applyToAllContactGroups
+                    && $request->contactGroupIds !== []
+                ) {
+                    $this->validator->assertContactGroupIdsAreValid($request->contactGroupIds);
+                }
 
                 $datasetFilters = $this->validateAndCreateDatasetFiltersFromRequest($request);
 
@@ -269,9 +283,11 @@ final class AddRule
                 if ($parentApplicableFilter !== null) {
                     if ($this->shouldBothFiltersBeSaved($parentApplicableFilter, $applicableFilter)) {
                         if ($this->shouldUpdateDatasetAccesses($parentApplicableFilter)) {
-                            $this->updateDatasetAccesses(
+                            $this->writeRepository->updateDatasetAccess(
+                                ruleId: $ruleId,
                                 datasetId: $datasetId,
-                                resourceType: $parentApplicableFilter->getType()
+                                resourceType: $parentApplicableFilter->getType(),
+                                fullAccess: true
                             );
                         } else {
                             $this->writeRepository->linkResourcesToDataset(
@@ -285,9 +301,11 @@ final class AddRule
                 }
 
                 if ($this->shouldUpdateDatasetAccesses($applicableFilter)) {
-                    $this->updateDatasetAccesses(
+                    $this->writeRepository->updateDatasetAccess(
+                        ruleId: $ruleId,
                         datasetId: $datasetId,
-                        resourceType: $applicableFilter->getType()
+                        resourceType: $applicableFilter->getType(),
+                        fullAccess: true
                     );
                 } else {
                     $this->writeRepository->linkResourcesToDataset(
@@ -311,45 +329,7 @@ final class AddRule
     private function shouldUpdateDatasetAccesses(DatasetFilter $datasetFilter): bool
     {
         return $datasetFilter->getResourceIds() === []
-            && in_array(
-                $datasetFilter->getType(),
-                [
-                    HostGroupFilterType::TYPE_NAME,
-                    ServiceGroupFilterType::TYPE_NAME,
-                    HostFilterType::TYPE_NAME,
-                ], true
-            );
-    }
-
-    /**
-     * @param int $datasetId
-     * @param string $resourceType
-     */
-    private function updateDatasetAccesses(int $datasetId, string $resourceType): void
-    {
-        switch ($resourceType) {
-            case HostGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hostgroups',
-                    fullAccess: true
-                );
-                break;
-            case ServiceGroupFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'servicegroups',
-                    fullAccess: true
-                );
-                break;
-            case HostFilterType::TYPE_NAME:
-                $this->writeRepository->updateDatasetAccess(
-                    datasetId: $datasetId,
-                    resourceType: 'hosts',
-                    fullAccess: true
-                );
-                break;
-        }
+            && $this->datasetValidator->canResourceIdsBeEmpty($datasetFilter->getType());
     }
 
     /**
@@ -492,7 +472,9 @@ final class AddRule
         return new NewRule(
             name: $request->name,
             description: $request->description,
+            applyToAllContacts: $request->applyToAllContacts,
             linkedContactIds: $request->contactIds,
+            applyToAllContactGroups: $request->applyToAllContactGroups,
             linkedContactGroupIds: $request->contactGroupIds,
             datasetFilters: $datasets,
             isEnabled: $request->isEnabled
@@ -535,6 +517,8 @@ final class AddRule
         $response->isEnabled = $rule->isEnabled();
         $response->contactIds = $rule->getLinkedContactIds();
         $response->contactGroupIds = $rule->getLinkedContactGroupIds();
+        $response->applyToAllContacts = $rule->doesApplyToAllContacts();
+        $response->applyToAllContactGroups = $rule->doesApplyToAllContactGroups();
 
         foreach ($rule->getDatasetFilters() as $datasetFilter) {
             $response->datasetFilters[] = $datasetFilterToArray($datasetFilter);

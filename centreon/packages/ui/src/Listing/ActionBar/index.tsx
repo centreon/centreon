@@ -224,6 +224,7 @@ const MemoListingActionBar = ({
       ),
       columnConfiguration,
       customPaginationClassName,
+      visualizationActions,
       ...actionsBarMemoProps
     ]
   });

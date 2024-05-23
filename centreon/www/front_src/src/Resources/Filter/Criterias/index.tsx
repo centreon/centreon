@@ -45,9 +45,10 @@ interface Styles {
 
 const useStyles = makeStyles<Styles>()((theme, { display }) => ({
   container: {
+    alignItems: 'center',
     display: !display ? 'none' : 'flex',
     marginTop: theme.spacing(1),
-    padding: theme.spacing(2)
+    padding: theme.spacing(2, 2, 2, 3)
   },
   searchButton: {
     marginTop: theme.spacing(1)
@@ -142,7 +143,7 @@ const CriteriasContent = ({
         dataTestId={labelSearchOptions}
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-start"
+        popperPlacement="bottom-end"
         title={t(labelSearchOptions) as string}
         onClose={onClose}
         onOpen={open}
