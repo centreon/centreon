@@ -345,13 +345,13 @@ Then('the dashboard is updated with the new widget layout', () => {
     .eq(3)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(426px)');
+      expect(style).to.include('width: calc(422px)');
     });
   cy.get('.react-grid-item')
     .eq(4)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(426px)');
+      expect(style).to.include('width: calc(422px)');
     });
 });
 
