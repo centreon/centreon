@@ -21,25 +21,25 @@
 
 namespace Tests\Centreon\Application\Controller;
 
-use FOS\RestBundle\View\View;
-use PHPUnit\Framework\TestCase;
-use FOS\RestBundle\Context\Context;
+use Centreon\Application\Controller\PlatformTopologyController;
 use Centreon\Domain\Contact\Contact;
-use Psr\Container\ContainerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
+use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
 use Centreon\Domain\PlatformTopology\Model\PlatformRelation;
 use Centreon\Domain\PlatformTopology\PlatformTopologyService;
-use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
-use Centreon\Application\Controller\PlatformTopologyController;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Centreon\Domain\PlatformTopology\Exception\PlatformTopologyException;
 use Centreon\Infrastructure\PlatformTopology\Repository\Model\PlatformJsonGraph;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface;
+use FOS\RestBundle\Context\Context;
+use FOS\RestBundle\View\View;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class PlatformTopologyControllerTest extends TestCase
 {
@@ -313,11 +313,15 @@ class PlatformTopologyControllerTest extends TestCase
         $platformTopologyController = new PlatformTopologyController($this->platformTopologyService);
         $platformTopologyController->setContainer($this->container);
 
+        $this->platformTopologyService->expects($this->once())
+            ->method('isValidPlatform')
+            ->willReturn(true);
+
         $view = $platformTopologyController->deletePlatform($this->pollerPlatform->getId());
 
         $this->assertEquals(
+            View::create(null, Response::HTTP_NO_CONTENT),
             $view,
-            View::create(null, Response::HTTP_NO_CONTENT)
         );
     }
 }
