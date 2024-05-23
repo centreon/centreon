@@ -344,7 +344,9 @@ final class AddHostTemplate
         }
 
         return [
-            $this->retrieveMacrosVaultValues($inheritedMacros),
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
             $commandMacros,
         ];
     }

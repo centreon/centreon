@@ -483,7 +483,9 @@ final class AddServiceTemplate
         }
 
         return [
-            $this->retrieveMacrosVaultValues($inheritedMacros),
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
             $commandMacros,
         ];
     }

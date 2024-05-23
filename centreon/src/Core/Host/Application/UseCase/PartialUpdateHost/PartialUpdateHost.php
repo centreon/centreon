@@ -636,8 +636,12 @@ final class PartialUpdateHost
         }
 
         return [
-            $this->retrieveMacrosVaultValues($directMacros),
-            $this->retrieveMacrosVaultValues($inheritedMacros),
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($directMacros)
+                : $directMacros,
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
             $commandMacros,
         ];
     }
