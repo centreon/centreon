@@ -33,6 +33,7 @@ on:
 
 env:
   base_directory: centreon
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
 
 jobs:
   changes:

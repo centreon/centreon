@@ -180,7 +180,6 @@ jobs:
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
           echo "GH_ENV: $ENV"
-          echo "FORCE_JAVASCRIPT_ACTIONS_TO_NODE20=true" >> $GITHUB_OUTPUT
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
