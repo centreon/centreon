@@ -55,7 +55,7 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
     .copyToContainer({
       destination: `/tmp/`,
       source:
-        './fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
+        '../../../fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
     })
     .execInContainer({
