@@ -51,7 +51,7 @@ beforeEach(() => {
 
 Given('I am logged in as a user with limited access', () => {
   // install BAM and cloud extensions modules
-  cy.installBamModuleOnContainer();
+  // cy.installBamModuleOnContainer();
   cy.installCloudExtensionsOnContainer();
   // we should install cloud extension and anomaly detection
   cy.installBamModule();
