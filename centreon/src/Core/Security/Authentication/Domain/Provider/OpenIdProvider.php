@@ -366,11 +366,20 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
             $refreshTokenExpiration = (new \DateTimeImmutable())
                 ->add(new DateInterval('PT' . $expirationDelay . 'S'));
-            $this->refreshToken = new NewProviderToken(
-                $content['refresh_token'],
-                $creationDate,
-                $refreshTokenExpiration
-            );
+            if ($authenticationTokens->getProviderRefreshToken() instanceof ProviderToken) {
+                $this->refreshToken = new ProviderToken(
+                    $authenticationTokens->getProviderRefreshToken()->getId(),
+                    $content['refresh_token'],
+                    $creationDate,
+                    $refreshTokenExpiration
+                );
+            } else {
+                $this->refreshToken = new NewProviderToken(
+                    $content['refresh_token'],
+                    $creationDate,
+                    $refreshTokenExpiration
+                );
+            }
         }
 
         return new AuthenticationTokens(
