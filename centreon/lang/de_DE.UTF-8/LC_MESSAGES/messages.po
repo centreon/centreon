@@ -16876,5 +16876,5 @@ msgstr "Erweiterter Modus"
 # msgid "You are not allowed to partially update the token"
 # msgstr ""
 
-# msgid "Active / Revoked"
+# msgid "Active/Revoked"
 # msgstr ""
