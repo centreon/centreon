@@ -383,8 +383,7 @@ class CentreonDowntime
             WHERE h.host_activate = '1'
         SQL;
 
-        $statement = $this->db->prepare($request);
-        $statement->execute();
+        $statement = $this->db->query($request);
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $downtimes[] = $record;
         }
@@ -533,17 +532,17 @@ class CentreonDowntime
                    s.service_description,
                    s.service_register
             FROM downtime_period dtp
-            JOIN downtime dt 
+            INNER JOIN downtime dt 
                 ON dtp.dt_id = dt.dt_id
-            JOIN downtime_servicegroup_relation dtr 
+            INNER JOIN downtime_servicegroup_relation dtr 
                 ON dtp.dt_id = dtr.dt_id
-            JOIN servicegroup_relation sgr 
+            INNER JOIN servicegroup_relation sgr 
                 ON dtr.sg_sg_id = sgr.servicegroup_sg_id
-            JOIN service s 
+            INNER JOIN service s 
                 ON sgr.service_service_id = s.service_id
-            JOIN host h 
+            INNER JOIN host h 
                 ON sgr.host_host_id = h.host_id
-            JOIN servicegroup sg 
+            INNER JOIN servicegroup sg 
                 ON sgr.servicegroup_sg_id = sg.sg_id
             WHERE sg.sg_activate = '1'
             UNION DISTINCT
@@ -562,19 +561,19 @@ class CentreonDowntime
                        s.service_description,
                        s.service_register
                 FROM downtime_period dtp
-                JOIN downtime dt 
+                INNER JOIN downtime dt 
                     ON dtp.dt_id = dt.dt_id
-                JOIN downtime_servicegroup_relation dtr 
+                INNER JOIN downtime_servicegroup_relation dtr 
                     ON dtp.dt_id = dtr.dt_id
-                JOIN servicegroup_relation sgr 
+                INNER JOIN servicegroup_relation sgr 
                     ON dtr.sg_sg_id = sgr.servicegroup_sg_id
-                JOIN host_service_relation hsr 
+                INNER JOIN host_service_relation hsr 
                     ON sgr.hostgroup_hg_id = hsr.hostgroup_hg_id
-                JOIN hostgroup_relation hgr 
+                INNER JOIN hostgroup_relation hgr 
                     ON hsr.hostgroup_hg_id = hgr.hostgroup_hg_id
-                JOIN service s 
+                INNER JOIN service s 
                     ON hsr.service_service_id = s.service_id
-                JOIN host h 
+                INNER JOIN host h 
                     ON hgr.host_host_id = h.host_id
                 WHERE sgr.hostgroup_hg_id IS NOT NULL;
         SQL;
