@@ -69,12 +69,13 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
 });
 
 Cypress.Commands.add('installBamModule', () => {
-  cy.loginAsAdminViaApiV2();
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.visit(`/centreon/administration/extensions/manager`);
   cy.contains('.MuiCard-root', 'License Manager').within(() => {
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.get('button').contains(`${major_version}.${minor_version}`).click();
     });
+    // cy.get('button').contains(`24.05.0`).click();
   });
   cy.waitUntil(
     () => {
@@ -97,6 +98,7 @@ Cypress.Commands.add('installBamModule', () => {
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.get('button').contains(`${major_version}.${minor_version}`).click();
     });
+    // cy.get('button').contains(`24.05.0`).click();
   });
 });
 
@@ -105,17 +107,26 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.get('button').contains(`${major_version}.${minor_version}`).click();
     });
+    // cy.get('button').contains(`24.05.0`).click();
+  });
+
+  cy.contains('.MuiCard-root', 'Anomaly Detection').within(() => {
+    cy.get('[data-testid="CheckIcon"]').should('be.visible');
+  });
+  // cloud extensions is still under 24.04.0
+  cy.contains('.MuiCard-root', 'Cloud Extensions').within(() => {
+    // cy.getWebVersion().then(({ major_version, minor_version }) => {
+    //   cy.get('button').contains(`${major_version}.${minor_version}`).click();
+    // });
+    cy.get('button').contains(`24.04.0`).click();
   });
   cy.contains('.MuiCard-root', 'Cloud Extensions').within(() => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.get('button').contains(`${major_version}.${minor_version}`).click();
-    });
+    cy.get('[data-testid="CheckIcon"]').should('be.visible');
   });
-  cy.wait(30000);
   cy.logoutViaAPI();
 });
 
-Cypress.Commands.add('createSimpleUser', (userInformation) => {
+Cypress.Commands.add('addRightsForUser', (userInformation) => {
   cy.navigateTo({
     page: 'Contacts / Users',
     rootItemNumber: 3,
@@ -222,15 +233,15 @@ declare global {
   namespace Cypress {
     interface Chainable {
       addBvsAndBas: () => Cypress.Chainable;
+      addRightsForUser: () => Cypress.Chainable;
+      createMultipleResourceAccessRules: () => Cypress.Chainable;
       enableResourcesAccessManagementFeature: () => Cypress.Chainable;
+      grantBaAccessToUsers: () => Cypress.Chainable;
+      installBamModule: () => Cypress.Chainable;
+      installBamModuleOnContainer: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
-      createSimpleUser: () => Cypress.Chainable;
       reloadAcl: () => Cypress.Chainable;
-      installBamModuleOnContainer: () => Cypress.Chainable;
-      installBamModule: () => Cypress.Chainable;
-      createMultipleResourceAccessRules: () => Cypress.Chainable;
-      grantBaAccessToUsers: () => Cypress.Chainable;
     }
   }
 }

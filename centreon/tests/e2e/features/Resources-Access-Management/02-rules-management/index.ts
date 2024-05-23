@@ -7,7 +7,6 @@ import data_bv from '../../../fixtures/resources-access-management/bv-names.json
 import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
 import '../commands';
-import { forEach } from 'cypress/types/lodash';
 
 beforeEach(() => {
   cy.startContainers();
@@ -67,7 +66,7 @@ Given('I am logged in as a user with limited access', () => {
     password: data.password
   });
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.createSimpleUser(data);
+  cy.addRightsForUser(data);
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 Given('I have restricted visibility to resources', () => {
@@ -260,7 +259,8 @@ Given('a new user is created', () => {
     name: data2.login,
     password: data2.password
   });
-  cy.createSimpleUser(data2);
+  cy.addRightsForUser(data2);
+  cy.reloadAcl();
 });
 
 When('the user that was just created is logged in', () => {
