@@ -673,7 +673,7 @@ describe('Api-token', () => {
     cy.makeSnapshot();
   });
 
-  it('revokes an API token when Activate / Revoke token is clicked', () => {
+  it('revokes an API token when Activate/Revoke token is clicked', () => {
     cy.waitForRequest('@getListTokens');
     const patchToken = tokenEndpoint({
       tokenName: tokenToPatch,
