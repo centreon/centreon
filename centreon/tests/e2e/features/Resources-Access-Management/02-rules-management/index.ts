@@ -11,11 +11,11 @@ import '../commands';
 beforeEach(() => {
   cy.startContainers();
   // install BAM and cloud extensions modules
-  // cy.installBamModuleOnContainer();
-  // cy.installCloudExtensionsOnContainer();
-  // // we should install cloud extension and anomaly detection
-  // cy.installBamModule();
-  // cy.installCloudExtensionsModule();
+  cy.installBamModuleOnContainer();
+  cy.installCloudExtensionsOnContainer();
+  // we should install cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
   cy.enableResourcesAccessManagementFeature();
   cy.grantBaAccessToUsers();
   cy.intercept({

@@ -40,7 +40,7 @@ Cypress.Commands.add('installBamModuleOnContainer', () => {
     .copyToContainer({
       destination: `/tmp/`,
       source:
-        'features/Resources-Access-Management/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm',
+        './fixtures/modules/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm',
       type: CopyToContainerContentType.File
     })
     .execInContainer({
@@ -55,7 +55,7 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
     .copyToContainer({
       destination: `/tmp/`,
       source:
-        'features/Resources-Access-Management/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
+        './fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
     })
     .execInContainer({
