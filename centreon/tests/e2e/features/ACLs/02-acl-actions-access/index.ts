@@ -254,9 +254,7 @@ When('I check button-radio for a lot of actions', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody()
-    .find('input[name="acl_action_name"]')
-    .type(ACLAction.name);
+  cy.getIframeBody().find('input[name="acl_action_name"]').type(ACLAction.name);
   cy.getIframeBody()
     .find('input[name="acl_action_description"]')
     .type(ACLAction.description);
