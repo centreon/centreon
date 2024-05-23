@@ -157,7 +157,7 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    // cy.reloadAcl();
+    cy.applyAcl();
   }
 );
 
@@ -249,7 +249,7 @@ Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
   cy.wait('@getTopCounterpoller');
   cy.wait('@getTopCounterservice');
   cy.wait('@getTopCounterhosts');
-  cy.reloadAcl();
+  cy.applyAcl();
 });
 
 Given('a new user is created', () => {
@@ -261,7 +261,7 @@ Given('a new user is created', () => {
     password: data2.password
   });
   cy.addRightsForUser(data2);
-  cy.reloadAcl();
+  cy.applyAcl();
 });
 
 When('the user that was just created is logged in', () => {
