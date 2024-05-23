@@ -2,7 +2,7 @@ import { Column as ColumnTable } from '@centreon/ui';
 
 export enum Column {
   Actions = 'Actions',
-  Activate = 'Activate / Revoke',
+  Activate = 'Activate/Revoke',
   CreationDate = 'Creation Date',
   Creator = 'Creator',
   ExpirationDate = 'Expiration Date',
