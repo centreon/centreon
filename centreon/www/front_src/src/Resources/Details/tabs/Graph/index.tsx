@@ -11,13 +11,16 @@ import { TimePeriods } from '@centreon/ui';
 import { TabProps } from '..';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import ExportablePerformanceGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
+import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
-import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import PopoverCustomTimePeriodPickers from '../../../Graph/Performance/TimePeriods/PopoverCustomTimePeriodPicker';
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
-import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
+import {
+  customTimePeriodAtom,
+  graphQueryParametersDerivedAtom
+} from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
 
 import HostGraph from './HostGraph';
 
@@ -55,9 +58,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const equalsAnomalyDetection = equals(ResourceType.anomalyDetection);
   const updatedGraphInterval = useAtomValue(updatedGraphIntervalAtom);
 
-  // const customTimePeriod = useAtomValue(customTimePeriodAtom);
-  // const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
-
   const { loadDetails } = useLoadDetails();
 
   const isService =
@@ -72,32 +72,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     loadDetails();
   };
 
-  const modalData = {
-    data: details,
-    renderGraph: ({
-      interactWithGraph,
-      graphHeight,
-      renderAdditionalLines,
-      filterLines
-    }): JSX.Element => (
-      <ExportablePerformanceGraphWithTimeline
-        filterLines={filterLines}
-        graphHeight={graphHeight}
-        interactWithGraph={interactWithGraph}
-        renderAdditionalLines={renderAdditionalLines}
-        resource={details}
-      />
-    ),
-    renderTimePeriodPicker: (props): JSX.Element => {
-      return <PopoverCustomTimePeriodPickers {...props} />;
-    },
-    sendReloadGraphPerformance: reload,
-    timePeriodGroup: <TimePeriodButtonGroup />,
-    timePeriodPickerData: null
-
-    // timePeriodPickerData: { customTimePeriod, getGraphQueryParameters }
-  };
-
   const getTimePeriodsParameters = (data): void => {
     setGraphTimeParameters(data);
   };
@@ -106,11 +80,47 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     ? { end: updatedGraphInterval.end, start: updatedGraphInterval.start }
     : undefined;
 
+  const renderGraph = ({
+    interactWithGraph,
+    graphHeight,
+    renderAdditionalLines,
+    filterLines
+  }): JSX.Element => {
+    return (
+      <div>
+        {graphTimeParameters && (
+          <ExportablePerformanceGraphWithTimeline
+            filterLines={filterLines}
+            graphHeight={graphHeight}
+            graphTimeParameters={graphTimeParameters}
+            interactWithGraph={interactWithGraph}
+            renderAdditionalLines={renderAdditionalLines}
+            resource={details}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const modalData = {
+    data: details,
+    graphTimeParameters,
+    renderGraph,
+    renderTimePeriodPicker: PopoverCustomTimePeriodPickers,
+    sendReloadGraphPerformance: reload,
+    timePeriodGroup: (
+      <TimePeriods
+        adjustTimePeriodData={newGraphInterval}
+        getParameters={getTimePeriodsParameters}
+        renderExternalComponent={<GraphOptions />}
+      />
+    )
+  };
+
   return (
     <div className={classes.container}>
       {isService ? (
         <>
-          {/* <TimePeriodButtonGroup /> */}
           <TimePeriods
             adjustTimePeriodData={newGraphInterval}
             getParameters={getTimePeriodsParameters}
@@ -123,7 +133,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
               graphTimeParameters={graphTimeParameters}
               renderAdditionalGraphAction={
                 <FederatedComponent
-                  displayModal
                   modalData={modalData}
                   path="/anomaly-detection"
                   styleMenuSkeleton={{ height: 0, width: 0 }}
@@ -134,7 +143,6 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
                 resource
               }): JSX.Element => (
                 <FederatedComponent
-                  displayAdditionalLines
                   additionalLinesData={{ additionalLinesProps, resource }}
                   path="/anomaly-detection"
                 />

@@ -154,7 +154,6 @@ const GraphActions = ({
           </IconButton>
           <>
             <FederatedComponent
-              displayButtonConfiguration
               buttonConfigurationData={{ resource }}
               path="/anomaly-detection"
               styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
