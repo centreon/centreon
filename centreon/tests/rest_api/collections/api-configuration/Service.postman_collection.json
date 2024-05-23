@@ -9081,7 +9081,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"check_command_args\": [\"Holà\", \"Hello\"],\r\n    \"check_timeperiod_id\": 1,\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"max_check_attempts\": 7,\r\n    \"normal_check_interval\": 2,\r\n    \"retry_check_interval\": 1,\r\n    \"active_check_enabled\": 1,\r\n    \"passive_check_enabled\": 0,\r\n    \"volatility_enabled\": 0,\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false\r\n}",
+									"raw": "{\r\n    \"severity_id\": {{ServiceSeverity1Id}}\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -9089,14 +9089,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/services/{{Service6Id}}",
+									"raw": "{{baseUrl}}/configuration/services/{{Service1Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"services",
-										"{{Service6Id}}"
+										"{{Service1Id}}"
 									]
 								}
 							},
@@ -19362,7 +19362,6 @@
 											"        \"name\": pm.collectionVariables.get(\"Service9Name\"),\r",
 											"        \"service_template\": null,\r",
 											"        \"check_timeperiod\": null,\r",
-											"        \"severity\":null, \r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
 											"        \"is_activated\": true\r",
@@ -19379,6 +19378,10 @@
 											"        id: pm.collectionVariables.get(\"ServiceCategory2Id\"), \r",
 											"        name: pm.collectionVariables.get(\"ServiceCategory2Name\") \r",
 											"    }]);\r",
+											"    pm.expect(responseJson.result[2].severity).to.eql({ \r",
+											"        id: pm.collectionVariables.get(\"ServiceSeverity1Id\"), \r",
+											"        name: pm.collectionVariables.get(\"ServiceSeverity1Name\") \r",
+											"    });\r",
 											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});"
