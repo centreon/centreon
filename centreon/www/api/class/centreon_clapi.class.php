@@ -192,11 +192,6 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
                     $record[$headers_nr - 1] = implode(';', array_slice($record, $headers_nr - 1));
                     $record = array_slice($record, 0, $headers_nr);
                 }
-                foreach ($record as $field_name => &$field_value) {
-                    if (strpos($field_value, '|') !== false) {
-                        $field_value = explode('|', $field_value);
-                    }
-                }
             }
 
             csv_to_associative_array($result);
