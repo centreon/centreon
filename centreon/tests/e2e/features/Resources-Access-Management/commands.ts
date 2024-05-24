@@ -58,6 +58,9 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
         '../../../fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
     })
+    .then(() => {
+      cy.log('File copy operation completed.');
+    })
     .execInContainer({
       command: `[ -e /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm ] || { echo "Error: File not found"; exit 1; }`,
       name: 'web'
