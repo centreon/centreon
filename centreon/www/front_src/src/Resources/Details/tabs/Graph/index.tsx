@@ -17,10 +17,6 @@ import PopoverCustomTimePeriodPickers from '../../../Graph/Performance/TimePerio
 import useLoadDetails from '../../../Listing/useLoadResources/useLoadDetails';
 import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
-import {
-  customTimePeriodAtom,
-  graphQueryParametersDerivedAtom
-} from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
 
 import HostGraph from './HostGraph';
 
