@@ -58,6 +58,10 @@ Given('I am logged in as a user with limited access', () => {
     source:
       '../../../fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
     type: CopyToContainerContentType.File
+  }).then((result) => {
+    cy.wrap(result).then(() => {
+      cy.log('File copied successfully to /tmp');
+    });
   });
   cy.installCloudExtensionsOnContainer();
   // we should install cloud extension and anomaly detection
