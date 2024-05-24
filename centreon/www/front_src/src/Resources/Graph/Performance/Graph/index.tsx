@@ -43,13 +43,9 @@ import {
   labelActionNotPermitted,
   labelAddComment
 } from '../../../translatedLabels';
+import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 import Lines from '../Lines';
-import {
-  AdditionalLines,
-  AdjustTimePeriodProps,
-  Line as LineModel,
-  TimeValue
-} from '../models';
+import { AdditionalLines, Line as LineModel, TimeValue } from '../models';
 import {
   getDates,
   getLeftScale,
@@ -60,7 +56,6 @@ import {
   getXScale,
   getYScale
 } from '../timeSeries';
-import { updatedGraphIntervalAtom } from '../ExportableGraphWithTimeline/atoms';
 
 import AddCommentForm from './AddCommentForm';
 import Annotations from './Annotations';
@@ -75,10 +70,7 @@ import {
   MousePosition,
   mousePositionAtom
 } from './mouseTimeValueAtoms';
-import TimeShiftZones, {
-  TimeShiftContext,
-  TimeShiftDirection
-} from './TimeShiftZones';
+import TimeShiftZones, { TimeShiftContext } from './TimeShiftZones';
 
 interface BarProps {
   className?: string;
@@ -195,7 +187,6 @@ interface GraphContentProps {
   addCommentTooltipLeft?: number;
   addCommentTooltipOpen: boolean;
   addCommentTooltipTop?: number;
-  applyZoom?: (props: AdjustTimePeriodProps) => void;
   base: number;
   canAdjustTimePeriod: boolean;
   containsMetrics: boolean;
@@ -238,7 +229,6 @@ const GraphContent = ({
   hideAddCommentTooltip,
   showAddCommentTooltip,
   format,
-  // applyZoom,
   loading,
   canAdjustTimePeriod,
   displayEventAnnotations,
