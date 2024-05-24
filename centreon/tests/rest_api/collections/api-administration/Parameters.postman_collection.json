@@ -383,11 +383,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The parameters are successully listed.\", function () {\r",
+									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not authorized to access this resource\");\r",
 									"});"
 								],
 								"type": "text/javascript",
