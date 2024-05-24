@@ -1,14 +1,13 @@
 {
 	"info": {
-		"_postman_id": "f74b2f2b-198d-4632-a828-9f338e5717a7",
-		"name": "Platform Informations",
+		"_postman_id": "03b2a424-ff37-4d84-a4dc-75a5e315ede5",
+		"name": "Platform_Informations",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-f74b2f2b-198d-4632-a828-9f338e5717a7?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "16182525"
 	},
 	"item": [
 		{
-			"name": "1301 - Platform Informations By admin",
+			"name": "Platform Informations By admin",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -115,7 +114,7 @@
 			]
 		},
 		{
-			"name": "1302 - Platform Informations By User non-admin without rights",
+			"name": "Platform Informations By User non-admin without rights",
 			"item": [
 				{
 					"name": "Add user-non-admin (successful)",
@@ -146,8 +145,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -197,8 +195,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -248,8 +245,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -299,8 +295,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -350,8 +345,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -403,8 +397,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -454,13 +447,64 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;Action-non-admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload the ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been successfully reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -737,7 +781,7 @@
 			]
 		},
 		{
-			"name": "1303 - Platform Informations By User non-admin with R/W without action access",
+			"name": "Platform Informations By User non-admin with R/W without action access",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -818,8 +862,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -871,13 +914,64 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;Configuration\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload the ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been successfully reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1154,7 +1248,7 @@
 			]
 		},
 		{
-			"name": "1304 - Platform Informations By User non-admin with R/W and actions access",
+			"name": "Platform Informations By User non-admin with R/W and actions access",
 			"item": [
 				{
 					"name": "Login with admin user (successful)",
@@ -1233,8 +1327,7 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
@@ -1286,13 +1379,64 @@
 						"header": [
 							{
 								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
+								"value": "{{token}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"grant\",\r\n  \"object\": \"ACLACTION\",\r\n  \"values\": \"Action-non-admin;create_edit_poller_cfg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload the ACL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The ACL has been successfully reloaded.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1602,12 +1746,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }
