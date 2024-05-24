@@ -57,7 +57,7 @@ Given('I am logged in as a user with limited access', () => {
   cy.installBamModule();
   cy.installCloudExtensionsModule();
   cy.grantBaAccessToUsers();
-
+  cy.logoutViaAPI();
   // cy.setUserTokenApiV1();
   // user should have access to ba
   cy.addContact({
