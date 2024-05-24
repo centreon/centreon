@@ -9062,7 +9062,7 @@
 											"pm.test(\"The service was not updated because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
 											"    pm.response.to.have.status(404);\r",
 											"\r",
-											"    pm.expect(responseJson.message).to.eql('Service template not found');\r",
+											"    pm.expect(responseJson.message).to.eql('Service not found');\r",
 											"\r",
 											"});"
 										],
@@ -9089,14 +9089,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/configuration/services/{{Service1Id}}",
+									"raw": "{{baseUrl}}/configuration/services/{{Service3Id}}",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"configuration",
 										"services",
-										"{{Service1Id}}"
+										"{{Service3Id}}"
 									]
 								}
 							},
@@ -19399,8 +19399,7 @@
 								"header": [
 									{
 										"key": "centreon-auth-token",
-										"value": "{{token}}",
-										"type": "text"
+										"value": "{{token}}"
 									}
 								],
 								"body": {
