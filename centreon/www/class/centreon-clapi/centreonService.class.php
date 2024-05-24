@@ -669,7 +669,7 @@ class CentreonService extends CentreonObject
                     }
                 }
                 if (!isset($exportedFields[$paramSearch])) {
-                    $resultString .= $this->csv_escape($ret) . $this->delim;
+                    $resultString .= $this->csvEscape($ret) . $this->delim;
                     $exportedFields[$paramSearch] = 1;
                 }
             }
@@ -903,10 +903,10 @@ class CentreonService extends CentreonObject
             if ($macro["source"] == "fromTpl") {
                 $source = $macro["macroTpl"];
             }
-            echo $this->csv_escape($macro['svc_macro_name']) . $this->delim
-                . $this->csv_escape($macro['svc_macro_value']) . $this->delim
+            echo $this->csvEscape($macro['svc_macro_name']) . $this->delim
+                . $this->csvEscape($macro['svc_macro_value']) . $this->delim
                 . $macro['is_password'] . $this->delim
-                . $this->csv_escape($macro['description']) . $this->delim
+                . $this->csvEscape($macro['description']) . $this->delim
                 . $source . "\n";
         }
     }

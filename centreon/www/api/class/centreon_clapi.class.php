@@ -33,7 +33,7 @@
  *
  */
 
-require_once __DIR__ . '/../../include/common/common-Func.php';
+require_once __DIR__ . '/../../include/common/csvFunctions.php';
 require_once dirname(__FILE__) . "/webService.class.php";
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
@@ -174,27 +174,26 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         }
 
 
-        $delim_in_first_line = preg_match("/^.*;.*(?:\n|$)/", $contents);
-        if ($delim_in_first_line) {
+        if (preg_match("/^.*;.*(?:\n|$)/", $contents)) {
             $result = parse_csv($contents);
             if ($result === false) {
                 throw new RestInternalServerErrorException($contents);
             }
 
-            $last_record = end($result);
-            if ($last_record && strpos($last_record[0], 'Return code end :') === 0) {
+            $lastRecord = end($result);
+            if ($lastRecord && strpos($lastRecord[0], 'Return code end :') === 0) {
                 array_pop($result);
             }
 
-            $headers_nr = count($result[0]);
+            $headersNr = count($result[0]);
             foreach ($result as &$record) {
-                if (count($record) > $headers_nr) {
-                    $record[$headers_nr - 1] = implode(';', array_slice($record, $headers_nr - 1));
-                    $record = array_slice($record, 0, $headers_nr);
+                if (count($record) > $headersNr) {
+                    $record[$headersNr - 1] = implode(';', array_slice($record, $headersNr - 1));
+                    $record = array_slice($record, 0, $headersNr);
                 }
             }
 
-            csv_to_associative_array($result);
+            csvToAssociativeArray($result);
 
         } else {
             $result = array();

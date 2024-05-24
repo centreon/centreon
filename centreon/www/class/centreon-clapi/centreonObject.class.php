@@ -349,7 +349,7 @@ abstract class CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
         $p = $this->object->getParameters($params[0], $params[1]);
-        print $this->csv_escape($p[$params[1]]) . "\n";
+        print $this->csvEscape($p[$params[1]]) . "\n";
     }
 
     /**
@@ -670,7 +670,7 @@ abstract class CentreonObject
      * @param string $text The string to escape
      * @return string The string sanitized
      */
-    protected function csv_escape($text)
+    protected function csvEscape($text)
     {
         if ($text[0] === '"' || strpos($text, $this->delim) !== false || strpos($text, "\n") !== false) {
             $text = '"' . str_replace('"', '""', $text) . '"';
