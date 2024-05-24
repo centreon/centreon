@@ -44,7 +44,7 @@ Cypress.Commands.add('installBamModuleOnContainer', () => {
       type: CopyToContainerContentType.File
     })
     .execInContainer({
-      command: `dnf install /tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
+      command: `dnf install -y /tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
       name: 'web'
     });
 });
@@ -59,11 +59,11 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
       type: CopyToContainerContentType.File
     })
     .execInContainer({
-      command: `dnf install /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
+      command: `dnf install -y /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
       name: 'web'
     })
     .execInContainer({
-      command: `dnf install centreon-anomaly-detection`,
+      command: `dnf install -y centreon-anomaly-detection`,
       name: 'web'
     });
 });
