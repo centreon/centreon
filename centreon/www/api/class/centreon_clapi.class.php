@@ -177,7 +177,7 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         $delim_in_first_line = preg_match("/^.*;.*(?:\n|$)/", $contents);
         if ($delim_in_first_line) {
             $result = parse_csv($contents);
-            if ($result == false) {
+            if ($result === false) {
                 throw new RestInternalServerErrorException($contents);
             }
 
