@@ -53,7 +53,7 @@ Cypress.Commands.add('installBamModuleOnContainer', () => {
 Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
   return cy
     .copyToContainer({
-      destination: `/tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
+      destination: `/tmp/`,
       source:
         '../../../fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
@@ -62,9 +62,14 @@ Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
       command: `[ -e /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm ] || { echo "Error: File not found"; exit 1; }`,
       name: 'web'
     })
-    .execInContainer({
-      command: `dnf install -y /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
-      name: 'web'
+    .getWebVersion()
+    .then(() => {
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        return execInContainer({
+          command: `dnf install -y /tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
+          name: 'web'
+        });
+      }
     })
     .execInContainer({
       command: `dnf install -y centreon-anomaly-detection`,
@@ -243,3 +248,6 @@ declare global {
   }
 }
 export {};
+function execInContainer(arg0: { command: string; name: string }) {
+  throw new Error('Function not implemented.');
+}
