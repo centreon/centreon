@@ -1,19 +1,19 @@
 import { useState } from 'react';
 
-import { isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
 
-import { TimePeriods, useRequest } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
+import { TimePeriods, useRequest } from '@centreon/ui';
 
 import { TabProps } from '..';
-import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
+import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
+import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
+import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
 import InfiniteScroll from '../../InfiniteScroll';
 import ServiceGraphs from '../Services/Graphs';
 import LoadingSkeleton from '../Timeline/LoadingSkeleton';
-import { listResources } from '../../../Listing/api';
-import { updatedGraphIntervalAtom } from '../../../Graph/Performance/ExportableGraphWithTimeline/atoms';
 
 const HostGraph = ({ details }: TabProps): JSX.Element => {
   const [graphTimeParameters, setGraphTimeParameters] = useState();
@@ -64,7 +64,7 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
         <TimePeriods
           adjustTimePeriodData={newGraphInterval}
           getParameters={getTimePeriodsParameters}
-          renderExternalComponent={<div>swiitchoo</div>}
+          renderExternalComponent={<GraphOptions />}
         />
       }
       limit={limit}
