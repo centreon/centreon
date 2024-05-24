@@ -7,10 +7,16 @@ import data_bv from '../../../fixtures/resources-access-management/bv-names.json
 import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
 import '../commands';
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
 beforeEach(() => {
   cy.startContainers();
+  // install BAM modules
+  cy.installBamModuleOnContainer();
+  cy.installCloudExtensionsOnContainer();
+  // we should install cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
+  cy.grantBaAccessToUsers();
   cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
@@ -51,14 +57,6 @@ beforeEach(() => {
 });
 
 Given('I am logged in as a user with limited access', () => {
-  // install BAM and cloud extensions modules
-  // cy.installBamModuleOnContainer();
-  cy.installCloudExtensionsOnContainer();
-  // we should install cloud extension and anomaly detection
-  cy.installBamModule();
-  cy.installCloudExtensionsModule();
-  cy.grantBaAccessToUsers();
-
   cy.setUserTokenApiV1();
   // user should have access to ba
   cy.addContact({
