@@ -79,7 +79,6 @@ interface Props {
   onAddComment?: (commentParameters: CommentParameters) => void;
   renderAdditionalLines?: (args: AdditionalLines) => ReactNode;
   resource: Resource | ResourceDetails;
-  resourceDetailsUpdated?: boolean;
   start: string;
   timeline?: Array<TimelineEvent>;
   toggableLegend?: boolean;
