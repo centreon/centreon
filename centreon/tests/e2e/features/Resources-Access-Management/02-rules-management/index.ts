@@ -58,7 +58,7 @@ Given('I am logged in as a user with limited access', () => {
   cy.installCloudExtensionsModule();
   cy.grantBaAccessToUsers();
 
-  cy.setUserTokenApiV1();
+  // cy.setUserTokenApiV1();
   // user should have access to ba
   cy.addContact({
     admin: data.admin,
