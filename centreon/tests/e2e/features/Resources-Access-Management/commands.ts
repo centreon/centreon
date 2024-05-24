@@ -53,7 +53,7 @@ Cypress.Commands.add('installBamModuleOnContainer', () => {
 Cypress.Commands.add('installCloudExtensionsOnContainer', () => {
   return cy
     .copyToContainer({
-      destination: `/tmp/`,
+      destination: `/tmp/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm`,
       source:
         '../../../fixtures/modules/centreon-cloud-extensions-24.04.0-1712841285.82a1bda.el9.noarch.rpm',
       type: CopyToContainerContentType.File
