@@ -636,7 +636,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;user-test;user-test@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
@@ -673,7 +679,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"user-test;reach_api;1\"\r\n}",
@@ -710,7 +722,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;user-test\"\r\n}",
@@ -1100,7 +1118,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;RW\"\r\n}",
@@ -1137,10 +1161,16 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Administration;Parameters\"\r\n}",
+							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Administration;Authentication\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1174,7 +1204,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ALL;RW\"\r\n}",
@@ -1372,10 +1408,29 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The parameters are not listed, because the user does not have sufficient rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
+									"pm.test(\"The parameters are successully listed.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not authorized to access this resource\");\r",
+									"    pm.expect(responseJson).to.eql(\r",
+									"        {\r",
+									"            \"password_security_policy\": {\r",
+									"            \"password_min_length\": 12,\r",
+									"            \"has_uppercase\": true,\r",
+									"            \"has_lowercase\": true,\r",
+									"            \"has_number\": true,\r",
+									"            \"has_special_character\": true,\r",
+									"            \"attempts\": 5,\r",
+									"            \"blocking_duration\": 900,\r",
+									"            \"password_expiration\": {\r",
+									"                \"expiration_delay\": 15552000,\r",
+									"                \"excluded_users\": [\r",
+									"                    \"centreon-gorgone\"\r",
+									"                ]\r",
+									"            },\r",
+									"            \"can_reuse_passwords\": false,\r",
+									"            \"delay_before_new_password\": 3600\r",
+									"        }\r",
+									"    });\r",
 									"});"
 								],
 								"type": "text/javascript",
