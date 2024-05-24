@@ -7,7 +7,8 @@ export const dashboardsEndpoint = `${baseEndpoint}/configuration/dashboards`;
 export const getPublicDashboardEndpoint = ({
   playlistID,
   dashboardId
-}): string => `/dashboards/playlists/${playlistID}/dashboards/${dashboardId}`;
+}): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistID}/dashboards/${dashboardId}`;
 
 export const getDashboardEndpoint = (id?: NamedEntity['id']): string =>
   `${dashboardsEndpoint}/${id}`;

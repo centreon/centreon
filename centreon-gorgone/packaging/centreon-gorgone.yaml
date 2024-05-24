@@ -143,6 +143,11 @@ contents:
     file_info:
       mode: 0750
 
+  - src: "../contrib/gorgone_key_generation.pl"
+    dst: "/usr/local/bin/"
+    file_info:
+      mode: 0750
+
 scripts:
   preinstall: ./scripts/centreon-gorgone-preinstall.sh
   postinstall: ./scripts/centreon-gorgone-postinstall.sh
@@ -183,6 +188,7 @@ overrides:
       - perl(DateTime)
       - perl(Try::Tiny)
       - tar
+      - perl(JSON) # gorgone_key_thumbprint.pl needs the json module, even when json::xs is already installed
   deb:
     depends:   # those dependencies are taken from centreon-gorgone/packaging/debian/control
       - centreon-common
@@ -213,6 +219,7 @@ overrides:
       - libev-perl
       - libzmq-ffi-perl
       - libclone-choose-perl
+      - libjson-perl # gorgone_key_thumbprint.pl needs the json module, even when json::xs is already installed
 
 rpm:
   summary: Centreon gorgone daemon
