@@ -12,6 +12,7 @@ export interface FormTimePeriod {
 }
 
 export interface PanelOptions {
+  curveType: 'linear' | 'step' | 'natural';
   globalRefreshInterval?: number;
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;

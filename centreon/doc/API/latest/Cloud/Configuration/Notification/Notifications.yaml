@@ -16,15 +16,15 @@ post:
     '201':
       description: "OK"
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '409':
-      $ref: '../../../../Common/Response/Conflict.yaml'
+      $ref: '../../../Common/Response/Conflict.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 get:
   tags:
     - Notification
@@ -36,9 +36,9 @@ get:
 
     * name
   parameters:
-    - $ref: '../../../../Common/QueryParameter/Limit.yaml'
-    - $ref: '../../../../Common/QueryParameter/Page.yaml'
-    - $ref: '../../../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../../Common/QueryParameter/Search.yaml'
   responses:
     '200':
       description: "OK"
@@ -52,12 +52,12 @@ get:
                 items:
                   $ref: "Schema/Notification.Listing.yaml"
               meta:
-                $ref: '../../../../Common/Schema/Meta.yaml'
+                $ref: '../../../Common/Schema/Meta.yaml'
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'

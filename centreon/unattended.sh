@@ -428,8 +428,8 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_release" in
-	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+  case "$detected_os_release" in
+	oraclelinux-release* | redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
@@ -1173,7 +1173,7 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	if [[ "$version" =~ "24.0[1-9]" || "$version" =~ "24.1[0-2]" ]]; then
+	if [[ "$version" =~ ^24\.0[1-9]$ || "$version" =~ ^24\.1[0-2]$ ]]; then
 		if [[ $dbms == "MariaDB" ]]; then
 			CENTREON_DBMS_PKG="centreon-mariadb"
 		else
