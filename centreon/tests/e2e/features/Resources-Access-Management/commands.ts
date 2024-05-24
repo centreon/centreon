@@ -38,7 +38,7 @@ Cypress.Commands.add('installBamModuleOnContainer', () => {
       name: 'web'
     })
     .copyToContainer({
-      destination: `/tmp/`,
+      destination: `/tmp/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm`,
       source:
         './fixtures/modules/centreon-bam-server-24.05.0-1714994865.976635d.el9.noarch.rpm',
       type: CopyToContainerContentType.File
