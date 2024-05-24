@@ -31,15 +31,34 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 abstract class AbstractVaultRepository
 {
     use LoggerTrait;
-    private const DEFAULT_SCHEME = 'https';
+    protected const DEFAULT_SCHEME = 'https';
+    private const AVAILABLE_PATHS = [
+        'monitoring/hosts',
+        'monitoring/services',
+    ];
 
     protected ?VaultConfiguration $vaultConfiguration;
+
+    protected string $customPath = '';
 
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
         protected HttpClientInterface $httpClient
     ) {
         $this->vaultConfiguration = $configurationRepository->find();
+    }
+
+    public function isVaultConfigured(): bool
+    {
+        return $this->vaultConfiguration !== null;
+    }
+
+    public function setCustomPath(string $customPath): void
+    {
+        if (! in_array($customPath, self::AVAILABLE_PATHS, true)) {
+            // TODO throw exception invalid vault path
+        }
+        $this->customPath = $customPath;
     }
 
     /**
@@ -69,13 +88,14 @@ abstract class AbstractVaultRepository
             ];
             $this->info('Authenticating to Vault: ' . $url);
             $loginResponse = $this->httpClient->request('POST', $url, ['json' => $body]);
+
             $content = json_decode($loginResponse->getContent(), true);
         } catch (\Exception $ex) {
             $this->error($url . ' did not respond with a 2XX status');
 
             throw $ex;
         }
-
+        /** @var array{auth?:array{client_token?:string}} $content */
         if (! isset($content['auth']['client_token'])) {
             $this->error($url . ' Unable to retrieve client token from Vault');
 
@@ -83,5 +103,69 @@ abstract class AbstractVaultRepository
         }
 
         return $content['auth']['client_token'];
+    }
+
+    protected function buildUrl(string $uuid): string
+    {
+        if (! $this->vaultConfiguration) {
+            $this->error('VaultConfiguration is not defined');
+
+            throw new \LogicException();
+        }
+        $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
+            . '/v1/' . $this->vaultConfiguration->getRootPath() . '/data/' . $this->customPath . $uuid;
+
+        return sprintf('%s://%s', self::DEFAULT_SCHEME, $url);
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array<mixed> $data
+     *
+     * @throws \Exception
+     *
+     * @return null|string
+     */
+    protected function sendRequest(string $method, string $url, ?array $data = null): null|string
+    {
+        $clientToken = $this->getAuthenticationToken();
+
+        $this->info(
+            'Sending request to vault',
+            [
+                'method' => $method,
+                'url' => $url,
+                'data' => $data,
+            ]
+        );
+
+        $options = [
+            'headers' => ['X-Vault-Token' => $clientToken],
+        ];
+        if ($method === 'POST') {
+            $options['json'] = ['data' => $data];
+        }
+
+        $response = $this->httpClient->request(
+            $method,
+            $url,
+            $options
+        );
+
+        $this->info(
+            'Request succesfully send to vault',
+            [
+                'method' => $method,
+                'url' => $url,
+                'data' => $data,
+            ]
+        );
+
+        if ($method === 'POST') {
+            return $response->getContent();
+        }
+
+        return null;
     }
 }

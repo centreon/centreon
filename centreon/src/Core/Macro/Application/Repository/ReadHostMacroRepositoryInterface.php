@@ -48,4 +48,13 @@ interface ReadHostMacroRepositoryInterface
      * @return Macro[]
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find password macros.
+     *
+     * @throws \Throwable
+     *
+     * @return Macro[]
+     */
+    public function findPasswords(): array;
 }

@@ -19,31 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Macro\Application\Repository;
+namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-use Core\Macro\Domain\Model\Macro;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface ReadServiceMacroRepositoryInterface
+interface MigrateAllCredentialsPresenterInterface
 {
-    /**
-     * Find macros by service (or service template) IDs.
-     *
-     * @param int ...$serviceIds
-     *
-     * @throws \Throwable
-     *
-     * @return Macro[]
-     */
-    public function findByServiceIds(int ...$serviceIds): array;
-
-    /**
-     * Find password macros.
-     *
-     * @throws \Throwable
-     *
-     * @return Macro[]
-     */
-    public function findPasswords(): array;
+    public function presentResponse(MigrateAllCredentialsResponse|ResponseStatusInterface $response): void;
 }

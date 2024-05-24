@@ -205,4 +205,9 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
     {
         throw RepositoryException::notYetImplemented();
     }
+
+    public function findAll(): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
 }

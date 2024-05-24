@@ -21,29 +21,33 @@
 
 declare(strict_types=1);
 
-namespace Core\Macro\Application\Repository;
+namespace Core\Common\Application\Repository;
 
-use Core\Macro\Domain\Model\Macro;
-
-interface ReadServiceMacroRepositoryInterface
+interface WriteVaultRepositoryInterface
 {
-    /**
-     * Find macros by service (or service template) IDs.
-     *
-     * @param int ...$serviceIds
-     *
-     * @throws \Throwable
-     *
-     * @return Macro[]
-     */
-    public function findByServiceIds(int ...$serviceIds): array;
+    public function isVaultConfigured(): bool;
+
+    public function setCustomPath(string $customPath): void;
 
     /**
-     * Find password macros.
+     * Update or save secrets and return identifier.
+     *
+     * @param string|null $uuid
+     * @param array<string, int|string> $inserts
+     * @param array<string, int|string> $deletes
      *
      * @throws \Throwable
      *
-     * @return Macro[]
+     * @return string
      */
-    public function findPasswords(): array;
+    public function upsert(?string $uuid = null, array $inserts = [], array $deletes = []): string;
+
+    /**
+     * Delete secrets.
+     *
+     * @param string $uuid
+     *
+     * @throws \Throwable
+     */
+    public function delete(string $uuid): void;
 }

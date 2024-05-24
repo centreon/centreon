@@ -139,4 +139,14 @@ interface ReadHostTemplateRepositoryInterface
      * @return array<int,string>
      */
     public function findNamesByIds(array $templateIds): array;
+
+    /**
+     * Find all host templates.
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate[]
+     */
+    public function findAll(): array;
+
 }
