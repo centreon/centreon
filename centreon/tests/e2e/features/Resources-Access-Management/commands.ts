@@ -124,7 +124,7 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.contains('.MuiCard-root', 'Cloud Extensions').within(() => {
     cy.get('[data-testid="CheckIcon"]').should('be.visible');
   });
-  cy.logoutViaAPI();
+  // cy.logoutViaAPI();
 });
 
 Cypress.Commands.add('addRightsForUser', (userInformation) => {
