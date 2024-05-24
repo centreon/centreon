@@ -10,13 +10,9 @@ import '../commands';
 
 beforeEach(() => {
   cy.startContainers();
-  // install BAM modules
+  // install BAM and cloud extensions modules
   cy.installBamModuleOnContainer();
   cy.installCloudExtensionsOnContainer();
-  // we should install cloud extension and anomaly detection
-  cy.installBamModule();
-  cy.installCloudExtensionsModule();
-  cy.grantBaAccessToUsers();
   cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
@@ -57,6 +53,11 @@ beforeEach(() => {
 });
 
 Given('I am logged in as a user with limited access', () => {
+  // we should install bam, cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
+  cy.grantBaAccessToUsers();
+
   cy.setUserTokenApiV1();
   // user should have access to ba
   cy.addContact({
