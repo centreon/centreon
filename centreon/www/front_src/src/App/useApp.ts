@@ -50,6 +50,7 @@ const useApp = (): UseAppState => {
     request: getData
   });
   const { sendRequest: getParameters } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
   const { sendRequest: getAcl } = useRequest<Actions>({

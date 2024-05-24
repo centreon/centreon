@@ -4,3 +4,4 @@ Library             Examples
 Library             OperatingSystem
 Library             String
 Resource            resources.resource
+Library             DatabaseLibrary

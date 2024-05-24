@@ -7,6 +7,7 @@ use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
 
 class HostTemplateBasicsOperationsContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $hostCategory1 = array(
@@ -102,7 +103,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'name' => 'hostTemplateName_1',
         'alias' => 'hostTemplateAlias',
         'address' => 'hostTemplate@localhost',
-        'snmp_community' => 'snmp',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '2c',
         'location' => 'Europe/Paris',
         'templates' => array(
@@ -228,7 +229,7 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         'name' => 'hostTemplateNameChanged',
         'alias' => 'hostTemplateAliasChanged',
         'address' => 'hostTemplate@localhostChanged',
-        'snmp_community' => 'snmpChanged',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '3',
         'location' => 'Europe/Paris',
         'templates' => array(
