@@ -10,6 +10,7 @@ import { Resource } from '../../../models';
 import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
+export const hostsEndpoint = '/monitoring/resources/hosts';
 
 interface BuildResourcesEndpointProps {
   baseEndpoint: string;
