@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Domain\Model\HostSeverity;
@@ -36,7 +37,7 @@ use Utility\SqlConcatenator;
 
 class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements ReadHostSeverityRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -162,11 +163,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             return $this->exists($hostSeverityId);
         }
 
-        $bindValuesArray = [];
-        foreach ($accessGroupIds as $index => $accessGroupId) {
-            $bindValuesArray[':access_group_id_' . $index] = $accessGroupId;
-        }
-        $bindParamsAsString = implode(',', array_keys($bindValuesArray));
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id_');
 
         $request = $this->translateDbName(
             <<<SQL
@@ -182,13 +179,13 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
                     ON argr.acl_group_id = ag.acl_group_id
                 WHERE hc.hc_id = :host_severity_id
                     AND hc.level IS NOT NULL
-                    AND ag.acl_group_id IN ({$bindParamsAsString})
+                    AND ag.acl_group_id IN ({$bindQuery})
                 SQL
         );
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':host_severity_id', $hostSeverityId, \PDO::PARAM_INT);
-        foreach ($bindValuesArray as $bindParam => $bindValue) {
+        foreach ($bindValues as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
 
