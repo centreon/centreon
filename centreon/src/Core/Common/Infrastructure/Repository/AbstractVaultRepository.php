@@ -26,15 +26,18 @@ namespace Core\Common\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 abstract class AbstractVaultRepository
 {
     use LoggerTrait;
+    public const HOST_VAULT_PATH = 'monitoring/hosts';
+    public const SERVICE_VAULT_PATH = 'monitoring/services';
     protected const DEFAULT_SCHEME = 'https';
     private const AVAILABLE_PATHS = [
-        'monitoring/hosts',
-        'monitoring/services',
+        self::HOST_VAULT_PATH,
+        self::SERVICE_VAULT_PATH,
     ];
 
     protected ?VaultConfiguration $vaultConfiguration;
@@ -113,9 +116,21 @@ abstract class AbstractVaultRepository
             throw new \LogicException();
         }
         $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
-            . '/v1/' . $this->vaultConfiguration->getRootPath() . '/data/' . $this->customPath . $uuid;
+            . '/v1/' . $this->vaultConfiguration->getRootPath() . '/data/' . $this->customPath . '/' . $uuid;
 
         return sprintf('%s://%s', self::DEFAULT_SCHEME, $url);
+    }
+
+    protected function buildPath(string $uuid): string
+    {
+        if (! $this->vaultConfiguration) {
+            $this->error('VaultConfiguration is not defined');
+
+            throw new \LogicException();
+        }
+
+        return 'secret::'. $this->vaultConfiguration->getName() . '::' . $this->vaultConfiguration->getRootPath()
+            . '/data/' . $this->customPath . '/' . $uuid;
     }
 
     /**
@@ -125,9 +140,9 @@ abstract class AbstractVaultRepository
      *
      * @throws \Exception
      *
-     * @return null|string
+     * @return array<mixed>
      */
-    protected function sendRequest(string $method, string $url, ?array $data = null): null|string
+    protected function sendRequest(string $method, string $url, ?array $data = null): array
     {
         $clientToken = $this->getAuthenticationToken();
 
@@ -162,10 +177,19 @@ abstract class AbstractVaultRepository
             ]
         );
 
-        if ($method === 'POST') {
-            return $response->getContent();
+        if (
+            $response->getStatusCode() !== Response::HTTP_NO_CONTENT
+            && $response->getStatusCode() !== Response::HTTP_OK
+        ) {
+
+            throw new \Exception('Error ' . $response->getStatusCode());
         }
 
-        return null;
+        if ($method === 'DELETE') {
+
+            return [];
+        }
+
+        return $response->toArray();
     }
 }

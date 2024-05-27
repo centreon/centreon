@@ -47,7 +47,7 @@ final class MigrateAllCredentialsCommand extends Command
             ($this->useCase)(new MigrateAllCredentialsPresenter($output));
 
         } catch (\Throwable $ex) {
-            $output->writeln("<error>{$ex->getMessage()}</error>");
+            $output->writeln("<error>{(string) $ex}</error>");
 
             return self::FAILURE;
         }

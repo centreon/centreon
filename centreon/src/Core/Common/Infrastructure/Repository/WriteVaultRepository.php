@@ -24,13 +24,18 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure\Repository;
 
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 class WriteVaultRepository extends AbstractVaultRepository implements WriteVaultRepositoryInterface
 {
     public function __construct(
-        private UUIDGeneratorInterface $uuidGenerator,
+        private readonly UUIDGeneratorInterface $uuidGenerator,
+        protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
+        protected HttpClientInterface $httpClient
     ) {
+        parent::__construct($configurationRepository, $httpClient);
     }
 
     /**
@@ -42,18 +47,19 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
             throw new \LogicException('Vault not configured');
         }
 
+        $payload = [];
         if ($uuid === null) {
             $uuid = $this->uuidGenerator->generateV4();
-        }
+            $url = $this->buildUrl($uuid);
 
-        $url = $this->buildUrl($uuid);
+        } else {
+            $url = $this->buildUrl($uuid);
 
-        // Retrieve current vault data
-        $responseContent = $this->sendRequest('GET', $url);
-        $responseContent = json_decode($responseContent ?? '', true);
-        $payload = [];
-        if (is_array($responseContent) && isset($responseContent['data']['data'])) {
-            $payload = $responseContent['data']['data'];
+            // Retrieve current vault data
+            $responseContent = $this->sendRequest('GET', $url);
+            if (is_array($responseContent) && isset($responseContent['data']['data'])) {
+                $payload = $responseContent['data']['data'];
+            }
         }
 
         // Delete unwanted data
@@ -64,10 +70,9 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         foreach ($inserts as $insertKey => $insertValue) {
             $payload[$insertKey] = $insertValue;
         }
-
         $this->sendRequest('POST', $url, $payload);
 
-        return $uuid;
+        return $this->buildPath($uuid);
     }
 
     /**
@@ -80,7 +85,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         }
 
         $url = $this->vaultConfiguration->getAddress() . ':' . $this->vaultConfiguration->getPort()
-            . '/v1/' . $this->vaultConfiguration->getRootPath() . '/metadata/' . $this->customPath . $uuid;
+            . '/v1/' . $this->vaultConfiguration->getRootPath() . '/metadata/' . $this->customPath . '/' . $uuid;
         $url = sprintf('%s://%s', parent::DEFAULT_SCHEME, $url);
 
         $this->sendRequest('DELETE', $url);

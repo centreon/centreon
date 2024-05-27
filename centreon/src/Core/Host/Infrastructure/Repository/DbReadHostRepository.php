@@ -726,10 +726,12 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $statement->execute();
 
         $hosts = [];
+
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var _Host $result */
             $hosts[] = $this->createHostFromArray($result);
         }
+
 
         return $hosts;
     }
