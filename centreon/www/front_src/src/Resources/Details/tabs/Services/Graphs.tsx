@@ -6,9 +6,10 @@ import { makeStyles } from 'tss-react/mui';
 import { Resource } from '../../../models';
 import ExportableGraphWithTimeline from '../../../Graph/Performance/ExportableGraphWithTimeline';
 import { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
+import { GraphTimeParameters } from '../Graph/models';
 
 interface Props {
-  graphTimeParameters;
+  graphTimeParameters: GraphTimeParameters;
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
   services: Array<Resource>;
 }

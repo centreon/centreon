@@ -19,6 +19,7 @@ import memoizeComponent from '../../../memoizedComponent';
 import { ResourceType } from '../../../models';
 
 import HostGraph from './HostGraph';
+import { GraphTimeParameters } from './models';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   container: {
@@ -46,7 +47,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
 const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const [graphTimeParameters, setGraphTimeParameters] = useState();
+  const [graphTimeParameters, setGraphTimeParameters] =
+    useState<GraphTimeParameters>();
 
   const type = details?.type as ResourceType;
   const equalsService = equals(ResourceType.service);
@@ -68,7 +70,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     loadDetails();
   };
 
-  const getTimePeriodsParameters = (data): void => {
+  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
     setGraphTimeParameters(data);
   };
 
