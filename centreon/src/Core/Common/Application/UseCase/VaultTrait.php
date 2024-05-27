@@ -21,19 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates;
+namespace Core\Common\Application\UseCase;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesPresenterInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
-
-class FindHostTemplatesPresenterStub extends AbstractPresenter implements FindHostTemplatesPresenterInterface
+trait VaultTrait
 {
-    public ResponseStatusInterface|FindHostTemplatesResponse $response;
+    private string $vault_path_regex = '^secret::[^:]*::';
 
-    public function presentResponse(ResponseStatusInterface|FindHostTemplatesResponse $response): void
+    private ?string $uuid = null;
+
+    private function getUuidFromPath(string $value): ?string
     {
-        $this->response = $response;
+        if (preg_match('/' . $this->vault_path_regex . '/', $value)) {
+            $pathPart = explode('/', $value);
+
+            return end($pathPart);
+        }
+
+        return null;
+    }
+
+    private function isAVaultPath(string $value): bool
+    {
+        return (bool) (preg_match('/' . $this->vault_path_regex . '/', $value));
     }
 }

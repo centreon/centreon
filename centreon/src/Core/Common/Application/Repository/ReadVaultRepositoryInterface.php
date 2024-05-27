@@ -21,19 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates;
+namespace Core\Common\Application\Repository;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesPresenterInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
-
-class FindHostTemplatesPresenterStub extends AbstractPresenter implements FindHostTemplatesPresenterInterface
+interface ReadVaultRepositoryInterface
 {
-    public ResponseStatusInterface|FindHostTemplatesResponse $response;
+    public function isVaultConfigured(): bool;
 
-    public function presentResponse(ResponseStatusInterface|FindHostTemplatesResponse $response): void
-    {
-        $this->response = $response;
-    }
+    public function setCustomPath(string $customPath): void;
+
+    /**
+     * Get vaul content given path.
+     *
+     * @param string $path
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,string>
+     */
+    public function findFromPath(string $path): array;
 }

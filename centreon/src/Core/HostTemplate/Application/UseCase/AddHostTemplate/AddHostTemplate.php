@@ -37,6 +37,10 @@ use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -52,7 +56,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 
 final class AddHostTemplate
 {
-    use LoggerTrait;
+    use LoggerTrait,VaultTrait;
 
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
@@ -67,7 +71,10 @@ final class AddHostTemplate
         private readonly OptionService $optionService,
         private readonly ContactInterface $user,
         private readonly AddHostTemplateValidation $validation,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
 
     /**
@@ -152,6 +159,12 @@ final class AddHostTemplate
         $inheritanceMode = isset($inheritanceMode[0])
             ? (int) ($inheritanceMode[0])->getValue()
             : 0;
+
+        if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
+            $vaultPath = $this->writeVaultRepository->upsert(null, ['_HOSTSNMPCOMMUNITY' => $request->snmpCommunity], []);
+            $this->uuid ??= $this->getUuidFromPath($vaultPath);
+            $request->snmpCommunity = $vaultPath;
+        }
 
         $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
         $hostTemplateId = $this->writeHostTemplateRepository->add($newHostTemplate);
@@ -275,6 +288,19 @@ final class AddHostTemplate
                     : ''
                 );
             }
+
+            if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
+                $vaultPath = $this->writeVaultRepository->upsert(
+                    $this->uuid ?? null,
+                    ['_HOST' . $macro->getName() => $macro->getValue()],
+                );
+                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+                $inVaultMacro->setDescription($macro->getDescription());
+                $inVaultMacro->setIsPassword($macro->isPassword());
+                $inVaultMacro->setOrder($macro->getOrder());
+                $macro = $inVaultMacro;
+            }
+
             $this->writeHostMacroRepository->add($macro);
         }
 
@@ -317,7 +343,12 @@ final class AddHostTemplate
             $commandMacros = MacroManager::resolveInheritanceForCommandMacro($existingCommandMacros);
         }
 
-        return [$inheritedMacros, $commandMacros];
+        return [
+            $this->writeVaultRepository->isVaultConfigured()
+                ? $this->retrieveMacrosVaultValues($inheritedMacros)
+                : $inheritedMacros,
+            $commandMacros,
+        ];
     }
 
     /**
@@ -349,5 +380,36 @@ final class AddHostTemplate
         $macros = $this->readHostMacroRepository->findByHostId($hostTemplateId);
 
         return AddHostTemplateFactory::createResponse($hostTemplate, $hostCategories, $parentTemplates, $macros);
+    }
+
+    /**
+     * @param array<string,Macro> $macros
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,Macro>
+     */
+    private function retrieveMacrosVaultValues(array $macros): array
+    {
+        $updatedMacros = [];
+        foreach ($macros as $key => $macro) {
+            if (false === $macro->isPassword()) {
+                $updatedMacros[$key] = $macro;
+                continue;
+            }
+
+            $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
+            $vaultKey = '_HOST' . $macro->getName();
+            if (isset($vaultData[$vaultKey])) {
+                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro->setDescription($macro->getDescription());
+                $inVaultMacro->setIsPassword($macro->isPassword());
+                $inVaultMacro->setOrder($macro->getOrder());
+
+                $updatedMacros[$key] = $inVaultMacro;
+            }
+        }
+
+        return $updatedMacros;
     }
 }
