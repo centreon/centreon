@@ -328,7 +328,7 @@ Here is a diagram of how these modules interact:
 
 Dotted lines mean a ZMQ message is sent. Direct lines mean the function is called normally.
 
-Each column represents a Linux thread, as Gorgone is multi process.
+Each column represents a Linux thread, as Gorgone is multiprocess.
 
 For each ZMQ message, names are described in the [events section](#events) of each module,
 and for putlog the second part is the 'code' used by gorgone-autodiscovery

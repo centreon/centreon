@@ -32,7 +32,7 @@ This part of the configuration is only used if some poller must connect with pul
 | ssl_key_file  | Path to a ssl key file associated to the certificate already configured. required if ssl: true |               |
 | passphrase    | No idea, maybe an optionnal pasphrase for the ssl key.                                         |               |
 | token         | Allow to authenticate node. It is required to enable the http server.                          |               |
-| address       | Address to listen to. can be 0.0.0.0 to listen on all IPv4 address                             |               |
+| address       | Address to listen to. It can be 0.0.0.0 to listen on all IPv4 addresses.                             |               |
 | port          | TCP port to listen to.                                                                         |               |
 
 

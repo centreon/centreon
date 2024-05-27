@@ -64,7 +64,7 @@ Called by library::loadmodule to initialize the module. It should create a child
 ### create_child()
 
 Not strictly required, but present every time, used to instantiate a new child process by the init() function.\
-Inside the child process, a class.pm object is created and the class->run method is started. 
+Inside the child process, a class.pm object is created and the class->run method is started.
 
 ## class.pm
 
