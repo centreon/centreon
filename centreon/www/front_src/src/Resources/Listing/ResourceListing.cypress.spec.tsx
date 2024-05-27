@@ -412,7 +412,7 @@ describe('column sorting', () => {
       )
     });
 
-    cy.viewport(1200, 1000);
+    cy.adjustViewport();
   });
 
   columnToSort.forEach(({ label }) => {
