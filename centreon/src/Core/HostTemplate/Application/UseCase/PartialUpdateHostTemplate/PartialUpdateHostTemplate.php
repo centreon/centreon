@@ -114,7 +114,17 @@ final class PartialUpdateHostTemplate
                 return;
             }
 
-            if (! ($hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId))) {
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $hostTemplate = $this->readHostTemplateRepository->findByIdAndAccessGroups(
+                    $hostTemplateId,
+                     $this->accessGroups
+                );
+            } else {
+                $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
+            }
+
+            if ($hostTemplate === null) {
                 $this->error(
                     'Host template not found',
                     ['host_template_id' => $hostTemplateId]
