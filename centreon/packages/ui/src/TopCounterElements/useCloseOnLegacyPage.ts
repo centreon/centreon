@@ -21,14 +21,14 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
     }
 
     const closeSubMenuOnLegacyPage = (): void => {
-      iframe.contentWindow?.document?.addEventListener('click', closeSubMenu);
+      iframe?.contentWindow?.document?.addEventListener('click', closeSubMenu);
     };
 
-    iframe.addEventListener('load', closeSubMenuOnLegacyPage);
+    iframe?.addEventListener('load', closeSubMenuOnLegacyPage);
 
     return () => {
-      iframe.removeEventListener('load', closeSubMenuOnLegacyPage);
-      iframe.contentWindow?.document?.removeEventListener(
+      iframe?.removeEventListener('load', closeSubMenuOnLegacyPage);
+      iframe?.contentWindow?.document?.removeEventListener(
         'click',
         closeSubMenu
       );
