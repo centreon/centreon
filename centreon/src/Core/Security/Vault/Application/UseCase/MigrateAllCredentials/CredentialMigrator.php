@@ -19,8 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -31,8 +34,13 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 
+/**
+ * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
+ */
 class CredentialMigrator implements \IteratorAggregate, \Countable
 {
+    use LoggerTrait;
+
     /**
      * @param \Countable&\Traversable<CredentialDto> $credentials
      * @param WriteVaultRepositoryInterface $writeVaultRepository
@@ -55,14 +63,11 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
     ) {
     }
 
-    /**
-     * @return \Traversable
-     */
     public function getIterator(): \Traversable
     {
         $existingUuids = [
             'hosts' => [],
-            'services' => []
+            'services' => [],
         ];
         /**
          * @var CredentialDto $credential
@@ -71,7 +76,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             try {
                 if (
                     $credential->type === CredentialTypeEnum::TYPE_HOST
-                    || $credential->type == CredentialTypeEnum::TYPE_HOST_TEMPLATE
+                    || $credential->type === CredentialTypeEnum::TYPE_HOST_TEMPLATE
                 ) {
                     $recordInformation = $this->migrateHostAndHostTemplateCredentials(
                         $credential,
@@ -90,6 +95,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
                 yield $status;
             } catch (\Throwable $ex) {
+                $this->error($ex->getMessage(), ['trace' => (string) $ex]);
                 $status = new CredentialErrorDto();
                 $status->resourceId = $credential->resourceId;
                 $status->type = $credential->type;
@@ -129,7 +135,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
             [
                 $credential->name === '_HOSTSNMPCOMMUNITY'
                     ? $credential->name
-                    : "_HOST" . $credential->name => $credential->value
+                    : '_HOST' . $credential->name => $credential->value,
             ]
         );
         $vaultPathPart = explode('/', $vaultPath);
@@ -158,7 +164,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $existingUuids['hosts'][$credential->resourceId],
-            'path' => $vaultPath
+            'path' => $vaultPath,
         ];
     }
 
@@ -177,7 +183,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
         $vaultPath = $this->writeVaultRepository->upsert(
             $uuid,
-            ["_SERVICE" . $credential->name => $credential->value]
+            ['_SERVICE' . $credential->name => $credential->value]
         );
         $vaultPathPart = explode('/', $vaultPath);
         $existingUuids['services'][$credential->resourceId] = end($vaultPathPart);
@@ -187,7 +193,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
 
         return [
             'uuid' => $existingUuids['services'][$credential->resourceId],
-            'path' => $vaultPath
+            'path' => $vaultPath,
         ];
     }
 }

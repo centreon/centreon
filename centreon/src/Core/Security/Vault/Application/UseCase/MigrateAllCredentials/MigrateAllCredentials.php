@@ -26,7 +26,6 @@ namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -37,7 +36,6 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
-use Core\Macro\Domain\Model\Macro;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 final class MigrateAllCredentials
@@ -83,6 +81,10 @@ final class MigrateAllCredentials
             $hostTemplates = $this->readHostTemplateRepository->findAll();
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
+
+            /**
+             * @var \ArrayIterator<int, CredentialDto> $credentials
+             */
             $credentials = new \ArrayIterator([]);
 
             $resources = [
@@ -146,6 +148,7 @@ final class MigrateAllCredentials
         array $hosts,
         array $hostTemplates
     ): void {
+
         $response->results = new CredentialMigrator(
             $credentials,
             $this->writeVaultRepository,

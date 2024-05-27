@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
 class CredentialRecordedDto
@@ -32,5 +34,4 @@ class CredentialRecordedDto
     public CredentialTypeEnum $type = CredentialTypeEnum::TYPE_HOST;
 
     public string $credentialName = '';
-
 }
