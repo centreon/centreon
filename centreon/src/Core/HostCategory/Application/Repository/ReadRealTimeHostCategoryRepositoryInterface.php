@@ -21,25 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Infrastructure\Api\FindHostCategory;
+namespace Core\HostCategory\Application\Repository;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategory;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
-final class FindHostCategoryController extends AbstractController
+interface ReadRealTimeHostCategoryRepositoryInterface
 {
     /**
-     * @param FindHostCategory $useCase
-     * @param FindHostCategoryPresenter $presenter
+     * @param null|RequestParametersInterface $requestParameters
      *
-     * @return object
+     * @return Tag[]
      */
-    public function __invoke(FindHostCategory $useCase, FindHostCategoryPresenter $presenter): object
-    {
-        $this->denyAccessUnlessGrantedForApiRealtime();
+    public function findAll(?RequestParametersInterface $requestParameters): array;
 
-        $useCase($presenter);
-
-        return $presenter->show();
-    }
+    /**
+     * @param null|RequestParametersInterface $requestParameters
+     * @param int[] $accessGroupIds
+     *
+     * @return Tag[]
+     */
+    public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): array;
 }

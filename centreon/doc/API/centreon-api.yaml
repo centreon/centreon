@@ -3,20 +3,10 @@ info:
   title: Centreon Web RestAPI
   description: |
     # New features
-    + Added media endpoint (POST)
-    + Added metrics by service listing endpoint (GET)
-    + Added graph template endpoint (GET)
-    + Added connector endpoint (GET)
-    + Added host endpoint (PATCH)
-    + Added service enpdoint (PATCH)
-    + Added service severity configuration endpoint (PUT)
-    + Added hosts status count endpoint (GET)
     +
     # Updated features
-    + Added metrics by service listing endpoint to service resource type
-    + Handle new filters for the /configuration/hosts/groups endpoint
-    + Handle new filters for the /configuration/services/groups endpoint
-    +
+    + Added host_category filter to /monitoring/hostgroups endpoint
+    + Added new filters for the /monitoring/hosts/categories endpoint
     +
     # Information
     All dates are in **ISO 8601** format
@@ -2170,6 +2160,13 @@ paths:
       summary: "List all real-time host categories"
       description: |
         List of all host categories in real-time context
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * host_group.id
+        * host_group.name
       responses:
         "200":
           description: "OK"
@@ -2209,6 +2206,8 @@ paths:
         * poller.id
         * service.display_name
         * host_group.id
+        * host_category.id
+        * host_category.name
       parameters:
         - $ref: '#/components/parameters/ShowHost'
         - $ref: '#/components/parameters/ShowService'

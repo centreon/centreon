@@ -1,0 +1,3 @@
+name: config.yaml
+description: Configuration of centreon-gorgone. Use config.d directory to change configuration
+configuration: !include /etc/centreon-gorgone/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/config.d/*.yaml
