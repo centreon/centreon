@@ -85,7 +85,6 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                         'is_activated' => $response->isActivated,
                         'macros' => array_map(fn(MacroDto $macro): array => [
                             'name' => $macro->name,
-                            // Note: do not handle vault storage at the moment
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,

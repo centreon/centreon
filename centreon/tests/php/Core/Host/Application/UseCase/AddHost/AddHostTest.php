@@ -36,6 +36,8 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -85,6 +87,8 @@ beforeEach(function (): void {
         optionService: $this->optionService = $this->createMock(OptionService::class),
         user: $this->user = $this->createMock(ContactInterface::class),
         validation: $this->validation = $this->createMock(AddHostValidation::class),
+        writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
