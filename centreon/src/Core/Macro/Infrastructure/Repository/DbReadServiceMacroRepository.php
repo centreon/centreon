@@ -93,6 +93,9 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
         return $macros;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findPasswords(): array
     {
         $statement = $this->db->prepare($this->translateDbName(
