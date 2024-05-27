@@ -12,5 +12,4 @@ pip3.11 install robotframework robotframework-examples robotframework-databaseli
 
 
 dnf clean all
-
 EOF
