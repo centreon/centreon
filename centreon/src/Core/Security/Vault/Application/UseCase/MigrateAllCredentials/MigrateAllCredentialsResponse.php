@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class MigrateAllCredentialsResponse
+final class MigrateAllCredentialsResponse
 {
     /** @var \Traversable<CredentialRecordedDto|CredentialErrorDto> */
     public \Traversable $results;

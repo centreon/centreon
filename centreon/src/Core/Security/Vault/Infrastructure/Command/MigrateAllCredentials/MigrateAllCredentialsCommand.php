@@ -23,6 +23,7 @@ declare(strict_types = 1);
 
 namespace Core\Security\Vault\Infrastructure\Command\MigrateAllCredentials;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentials;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -35,6 +36,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 final class MigrateAllCredentialsCommand extends Command
 {
+    use LoggerTrait;
     public function __construct(
         readonly private MigrateAllCredentials $useCase,
     ) {
@@ -47,6 +49,7 @@ final class MigrateAllCredentialsCommand extends Command
             ($this->useCase)(new MigrateAllCredentialsPresenter($output));
 
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => (string) $ex]);
             $output->writeln("<error>{(string) {$ex}}</error>");
 
             return self::FAILURE;
