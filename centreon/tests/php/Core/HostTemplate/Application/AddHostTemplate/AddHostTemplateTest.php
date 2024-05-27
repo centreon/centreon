@@ -36,6 +36,8 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
@@ -75,6 +77,8 @@ beforeEach(function (): void {
         $this->optionService = $this->createMock(OptionService::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->validation = $this->createMock(AddHostTemplateValidation::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -112,7 +116,7 @@ beforeEach(function (): void {
     $this->request->highFlapThreshold = 5;
     $this->request->eventHandlerEnabled = 1;
     $this->request->eventHandlerCommandId = 2;
-    $this->request->eventHandlerCommandArgs = ["arg3", "  arg4"];
+    $this->request->eventHandlerCommandArgs = ['arg3', '  arg4'];
     $this->request->noteUrl = 'noteUrl-value';
     $this->request->note = 'note-value';
     $this->request->actionUrl = 'actionUrl-value';
@@ -183,7 +187,7 @@ beforeEach(function (): void {
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
-        $this->commandMacro->getName() => $this->commandMacro
+        $this->commandMacro->getName() => $this->commandMacro,
     ];
     $this->hostMacros = [
         $this->macroA->getName() => $this->macroA,
@@ -195,18 +199,17 @@ beforeEach(function (): void {
     ];
     $this->request->macros = [
         [
-            'name' =>   $this->macroA->getName(),
-            'value' =>  $this->macroA->getValue(),
-            'is_password' =>  $this->macroA->isPassword(),
-            'description' =>  $this->macroA->getDescription()
+            'name' => $this->macroA->getName(),
+            'value' => $this->macroA->getValue(),
+            'is_password' => $this->macroA->isPassword(),
+            'description' => $this->macroA->getDescription(),
         ],
         [
-            'name' =>   $this->macroB->getName(),
-            'value' =>  $this->macroB->getValue(),
-            'is_password' =>  $this->macroB->isPassword(),
-            'description' =>  $this->macroB->getDescription()
+            'name' => $this->macroB->getName(),
+            'value' => $this->macroB->getValue(),
+            'is_password' => $this->macroB->isPassword(),
+            'description' => $this->macroB->getDescription(),
         ],
-
     ];
 });
 
@@ -405,7 +408,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->method('findSelectedOptions')
         ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
 
-    $this->request->alias = "";
+    $this->request->alias = '';
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -595,8 +598,6 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe($this->hostTemplate->getAlias())
         ->and($response->snmpVersion)
         ->toBe($this->hostTemplate->getSnmpVersion()->value)
-        ->and($response->snmpCommunity)
-        ->toBe($this->hostTemplate->getSnmpCommunity())
         ->and($response->timezoneId)
         ->toBe($this->hostTemplate->getTimezoneId())
         ->and($response->severityId)
@@ -776,8 +777,6 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe($this->hostTemplate->getAlias())
         ->and($response->snmpVersion)
         ->toBe($this->hostTemplate->getSnmpVersion()->value)
-        ->and($response->snmpCommunity)
-        ->toBe($this->hostTemplate->getSnmpCommunity())
         ->and($response->timezoneId)
         ->toBe($this->hostTemplate->getTimezoneId())
         ->and($response->severityId)
@@ -851,7 +850,7 @@ it('should return created object on success (with non-admin user)', function ():
         ))
         ->and($response->templates)
         ->toBe($this->parentTemplates)
-                ->and($response->macros)
+        ->and($response->macros)
         ->toBe(array_map(
             (fn($macro) => [
                 'name' => $macro->getName(),
