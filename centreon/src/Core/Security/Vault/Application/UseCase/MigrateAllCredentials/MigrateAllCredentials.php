@@ -39,16 +39,26 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Utility\Interfaces\UUIDGeneratorInterface;
 
 final class MigrateAllCredentials
 {
     use LoggerTrait;
 
     private MigrateAllCredentialsResponse $response;
+
+    /**
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
+     * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
+     * @param ReadHostRepositoryInterface $readHostRepository
+     * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
+     * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
+     * @param ReadServiceMacroRepositoryInterface $readServiceMacroRepository
+     * @param WriteHostRepositoryInterface $writeHostRepository
+     * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
+     * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
+     * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
+     */
     public function __construct(
-        private readonly UUIDGeneratorInterface $UUIDGenerator,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -66,7 +76,7 @@ final class MigrateAllCredentials
     public function __invoke(MigrateAllCredentialsPresenterInterface $presenter): void
     {
         try {
-            if (($vaultConfiguration = $this->readVaultConfigurationRepository->find()) === null) {
+            if ($this->readVaultConfigurationRepository->find() === null) {
                 $presenter->presentResponse(new ErrorResponse('No Vault configured'));
             }
             $hosts = $this->readHostRepository->findAll();
@@ -74,53 +84,6 @@ final class MigrateAllCredentials
             $hostMacros = $this->readHostMacroRepository->findPasswords();
             $serviceMacros = $this->readServiceMacroRepository->findPasswords();
             $credentials = new \ArrayIterator([]);
-    //        foreach ($hosts as $host) {
-    //            if ($host->getSnmpCommunity() !== '' && ! str_starts_with('secret::', $host->getSnmpCommunity())) {
-    //                $credential = new CredentialDto();
-    //                $credential->resourceId = $host->getId();
-    //                $credential->type = CredentialTypeEnum::TYPE_HOST;
-    //                $credential->name = '_HOSTSNMPCOMMUNITY';
-    //                $credential->value = $host->getSnmpCommunity();
-    //
-    //                $credentials[] = $credential;
-    //            }
-    //        }
-    //        foreach ($hostTemplates as $hostTemplate) {
-    //            if (
-    //                $hostTemplate->getSnmpCommunity() !== ''
-    //                && ! str_starts_with('secret::', $host->getSnmpCommunity())
-    //            ) {
-    //                $credential = new CredentialDto();
-    //                $credential->resourceId = $hostTemplate->getId();
-    //                $credential->type = CredentialTypeEnum::TYPE_HOST_TEMPLATE;
-    //                $credential->name = '_HOSTSNMPCOMMUNITY';
-    //                $credential->value = $hostTemplate->getSnmpCommunity();
-    //
-    //                $credentials[] = $credential;
-    //            }
-    //        }
-    //        foreach ($hostMacros as $macro) {
-    //            if (! str_starts_with('secret::', $macro->getValue())) {
-    //                $credential = new CredentialDto();
-    //                $credential->resourceId = $macro->getOwnerId();
-    //                $credential->type = CredentialTypeEnum::TYPE_HOST;
-    //                $credential->name = $macro->getName();
-    //                $credential->value = $macro->getValue();
-    //
-    //                $credentials[] = $credential;
-    //            }
-    //        }
-    //        foreach ($serviceMacros as $macro) {
-    //            if (! str_starts_with('secret::', $macro->getValue())) {
-    //                $credential = new CredentialDto();
-    //                $credential->resourceId = $macro->getOwnerId();
-    //                $credential->type = CredentialTypeEnum::TYPE_SERVICE;
-    //                $credential->name = $macro->getName();
-    //                $credential->value = $macro->getValue();
-    //
-    //                $credentials[] = $credential;
-    //            }
-    //        }
 
             $resources = [
                 ['data' => $hosts,
@@ -163,7 +126,7 @@ final class MigrateAllCredentials
                 }
             }
 
-            $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates, $vaultConfiguration);
+            $this->migrateCredentials($credentials, $this->response, $hosts, $hostTemplates);
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
             $this->error((string) $ex);
@@ -176,171 +139,22 @@ final class MigrateAllCredentials
      * @param MigrateAllCredentialsResponse $response
      * @param Host[] $hosts
      * @param HostTemplate[] $hostTemplates
-     * @param VaultConfiguration $vaultConfiguration
      */
     public function migrateCredentials(
         \Traversable&\Countable $credentials,
         MigrateAllCredentialsResponse $response,
         array $hosts,
-        array $hostTemplates,
-        VaultConfiguration $vaultConfiguration
+        array $hostTemplates
     ): void {
-
-        $response->results = new class(
+        $response->results = new CredentialMigrator(
             $credentials,
             $this->writeVaultRepository,
             $this->writeHostRepository,
             $this->writeHostTemplateRepository,
             $this->writeHostMacroRepository,
             $this->writeServiceMacroRepository,
-            $this->UUIDGenerator,
             $hosts,
             $hostTemplates,
-            $vaultConfiguration
-        ) implements \IteratorAggregate, \Countable {
-            /**
-             * @param \Countable&\Traversable<CredentialDto> $credentials
-             * @param WriteVaultRepositoryInterface $writeVaultRepository
-             * @param WriteHostRepositoryInterface $writeHostRepository
-             * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
-             * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
-             * @param WriteServiceMacroRepositoryInterface $writeServiceMacroRepository
-             * @param UUIDGeneratorInterface $UUIDGenerator,
-             * @param Host[] $hosts,
-             * @param HostTemplate[] $hostTemplates,
-             * @param VaultConfiguration $vaultConfiguration
-             */
-            public function __construct(
-                private readonly \Traversable&\Countable $credentials,
-                private readonly WriteVaultRepositoryInterface $writeVaultRepository,
-                private readonly WriteHostRepositoryInterface $writeHostRepository,
-                private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
-                private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
-                private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
-                private readonly UUIDGeneratorInterface $UUIDGenerator,
-                private readonly array $hosts,
-                private readonly array $hostTemplates,
-                private readonly VaultConfiguration $vaultConfiguration
-            ) {
-            }
-
-            public function getIterator(): \Traversable
-            {
-                $existingUuids = [
-                    'hosts' => [],
-                    'services' => []
-                ];
-                /**
-                 * @var CredentialDto $credential
-                 */
-                foreach ($this->credentials as $credential) {
-                    try {
-                        if (
-                            $credential->type === CredentialTypeEnum::TYPE_HOST
-                            || $credential->type == CredentialTypeEnum::TYPE_HOST_TEMPLATE
-                        ) {
-                            $recordInformation = $this->migrateHostAndHostTemplateCredentials(
-                                $credential,
-                                $existingUuids
-                            );
-                        } else {
-                            $recordInformation = $this->migrateServiceCredentials($credential, $existingUuids);
-                        }
-
-                        $status = new CredentialRecordedDto();
-                        $status->uuid = $recordInformation['uuid'];
-                        $status->resourceId = $credential->resourceId;
-                        $status->vaultPath = $recordInformation['path'];
-                        $status->type = $credential->type;
-                        $status->credentialName = $credential->name;
-
-                        yield $status;
-                    } catch (\Throwable $ex) {
-                        $status = new CredentialErrorDto();
-                        $status->resourceId = $credential->resourceId;
-                        $status->type = $credential->type;
-                        $status->credentialName = $credential->name;
-                        $status->message = (string) $ex;
-
-                        yield $status;
-                    }
-                }
-            }
-
-            public function count(): int
-            {
-                return count($this->credentials);
-            }
-
-            private function migrateHostAndHostTemplateCredentials(
-                CredentialDto $credential,
-                array &$existingUuids
-            ): array {
-                $uuid = null;
-                if (array_key_exists($credential->resourceId, $existingUuids['hosts'])) {
-                    $uuid = $existingUuids['hosts'][$credential->resourceId];
-                }
-                $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
-                $vaultPath = $this->writeVaultRepository->upsert(
-                    $uuid,
-                    [
-                        $credential->name === '_HOSTSNMPCOMMUNITY'
-                            ? $credential->name
-                            : "_HOST" . $credential->name => $credential->value
-                    ]
-                );
-                $vaultPathPart = explode('/', $vaultPath);
-                $existingUuids['hosts'][$credential->resourceId] = end($vaultPathPart);
-                if ($credential->name === '_HOSTSNMPCOMMUNITY') {
-                    if ($credential->type === CredentialTypeEnum::TYPE_HOST) {
-                        foreach ($this->hosts as $host) {
-                            if ($host->getId() === $credential->resourceId) {
-                                $host->setSnmpCommunity($vaultPath);
-                                $this->writeHostRepository->update($host);
-                            }
-                        }
-                    } else {
-                        foreach ($this->hostTemplates as $hostTemplate) {
-                            if ($hostTemplate->getId() === $credential->resourceId) {
-                                $hostTemplate->setSnmpCommunity($vaultPath);
-                                $this->writeHostTemplateRepository->update($hostTemplate);
-                            }
-                        }
-                    }
-                } else {
-                    $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-                    $updatedMacro->setIsPassword(true);
-                    $this->writeHostMacroRepository->update($updatedMacro);
-                }
-
-                return [
-                    'uuid' => $existingUuids['hosts'][$credential->resourceId],
-                    'path' => $vaultPath
-                ];
-            }
-
-            private function migrateServiceCredentials(CredentialDto $credential, &$existingUuids): array
-            {
-                $uuid = null;
-                if (array_key_exists($credential->resourceId, $existingUuids['services'])) {
-                    $uuid = $existingUuids['services'][$credential->resourceId];
-                }
-                $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
-                $vaultPath = $this->writeVaultRepository->upsert(
-                    $uuid,
-                    ["_SERVICE" . $credential->name => $credential->value]
-                );
-                $vaultPathPart = explode('/', $vaultPath);
-                $existingUuids['services'][$credential->resourceId] = end($vaultPathPart);
-                $updatedMacro = new Macro($credential->resourceId, $credential->name, $vaultPath);
-                $updatedMacro->setIsPassword(true);
-                $this->writeServiceMacroRepository->update($updatedMacro);
-
-                return [
-                    'uuid' => $existingUuids['services'][$credential->resourceId],
-                    'path' => $vaultPath
-                ];
-            }
-        };
+        );
     }
 }
