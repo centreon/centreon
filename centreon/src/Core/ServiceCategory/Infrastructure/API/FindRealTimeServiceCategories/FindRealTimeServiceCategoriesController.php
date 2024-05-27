@@ -21,21 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Infrastructure\Api\FindServiceCategory;
+namespace Core\ServiceCategory\Infrastructure\API\FindRealTimeServiceCategories;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategory;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategories;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesPresenterInterface;
 
-final class FindServiceCategoryController extends AbstractController
+final class FindRealTimeServiceCategoriesController extends AbstractController
 {
     /**
-     * @param FindServiceCategory $useCase
-     * @param FindServiceCategoryPresenter $presenter
+     * @param FindRealTimeServiceCategories $useCase
+     * @param FindRealTimeServiceCategoriesPresenterInterface $presenter
      *
      * @return object
      */
-    public function __invoke(FindServiceCategory $useCase, FindServiceCategoryPresenter $presenter): object
-    {
+    public function __invoke(
+        FindRealTimeServiceCategories $useCase,
+        FindRealTimeServiceCategoriesPresenterInterface $presenter
+    ): object {
         /**
          * Access denied if no rights given to the realtime for the current user.
          */
