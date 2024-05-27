@@ -276,27 +276,81 @@ class CentreonServicegroups
     }
 
     /**
-     * @param $sgName
-     * @return array
+     * @param string $sgName
+     *
+     * @throws \Throwable
+     *
+     * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
      */
-    public function getServicesByServicegroupName($sgName)
+    public function getServicesByServicegroupName(string $sgName): array
     {
-        $serviceList = array();
-        $query = "SELECT service_description, service_id, host_name " .
-            "FROM servicegroup_relation sgr, service s, servicegroup sg, host h " .
-            "WHERE sgr.service_service_id = s.service_id " .
-            "AND sgr.servicegroup_sg_id = sg.sg_id " .
-            "AND s.service_activate = '1' " .
-            "AND sgr.host_host_id = h.host_id " .
-            "AND sg.sg_name = '" . $this->DB->escape($sgName) . "'";
-        $result = $this->DB->query($query);
-        while ($elem = $result->fetchrow()) {
-            $serviceList[] = array(
+        $serviceList = [];
+        $query = <<<'SQL'
+            SELECT service_description, service_id, host_name
+            FROM servicegroup_relation sgr, service s, servicegroup sg, host h
+            WHERE sgr.service_service_id = s.service_id
+                AND sgr.servicegroup_sg_id = sg.sg_id
+                AND s.service_activate = '1'
+                AND s.service_register = '1'
+                AND sgr.host_host_id = h.host_id
+                AND sg.sg_name = :sgName
+            SQL;
+        $statement = $this->DB->prepare($query);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), \PDO::PARAM_STR);
+        $statement->execute();
+        while ($elem = $statement->fetch()) {
+            /** @var array{service_description:string,service_id:int,host_name:string} $elem */
+            $serviceList[] = [
                 'service' => $elem['service_description'],
                 'service_id' => $elem['service_id'],
                 'host' => $elem['host_name'],
-                'sg_name' => $sgName
-            );
+                'sg_name' => $sgName,
+            ];
+        }
+        return $serviceList;
+    }
+
+    /**
+     * @param string $sgName
+     *
+     * @throws \Throwable
+     *
+     * @return array<array{service:string,service_id:int,host:string,sg_name:string}>
+     */
+    public function getServicesThroughtServiceTemplatesByServicegroupName(string $sgName): array
+    {
+        $serviceList = [];
+        $query = <<<'SQL'
+            SELECT s.service_description, s.service_id, h.host_name
+            FROM `servicegroup_relation` sgr
+            JOIN `servicegroup` sg
+                ON sg.sg_id = sgr.servicegroup_sg_id
+            JOIN `service` st
+                ON st.service_id = sgr.service_service_id
+                AND st.service_activate = '1'
+                AND st.service_register = '0'
+            JOIN `service` s
+                ON s.service_template_model_stm_id = st.service_id
+                AND s.service_activate = '1'
+                AND s.service_register = '1'
+            JOIN `host_service_relation` hsrel
+                ON hsrel.service_service_id = s.service_id
+            JOIN `host` h
+                ON h.host_id = hsrel.host_host_id
+            WHERE sg.sg_name = :sgName
+            SQL;
+
+        $statement = $this->DB->prepare($query);
+        $statement->bindValue(':sgName', $this->DB->escape($sgName), \PDO::PARAM_STR);
+        $statement->execute();
+        while ($elem = $statement->fetch()) {
+            /** @var array{service_description:string,service_id:int,host_name:string} $elem */
+            $serviceList[] = [
+                'service' => $elem['service_description'],
+                'service_id' => $elem['service_id'],
+                'host' => $elem['host_name'],
+                'sg_name' => $sgName,
+            ];
         }
         return $serviceList;
     }

@@ -51,9 +51,10 @@ runs:
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if base branch is master
-        ROOT_REPO_PATH="rpm-standard"
-        if [[ ${{ inputs.github_base_ref }} == "master" ]]; then
+        if [[ ${{ inputs.github_ref_name }} == "master" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
+        else
+          ROOT_REPO_PATH="rpm-standard"
         fi
 
         # Search for testing packages candidate for promote
@@ -106,15 +107,22 @@ runs:
 
       shell: bash
 
-    - name: Promote DEB package to stable
-      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
+    - name: Promote DEB packages to stable
+      if: ${{ contains(fromJSON('["bullseye", "bookworm"]') , inputs.distrib) }}
       run: |
+        set -eux
+
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
+        # Define ROOT_REPO_PATH for debian
+        # There is no cloud ROOT_REPO_PATH for debian, only onprem
+        # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
+        ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(jf rt s --include-dirs apt-standard-${{ inputs.major_version }}-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+        SRC_PATHS=$(jf rt search --include-dirs "$ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -126,7 +134,7 @@ runs:
         fi
 
         echo "[DEBUG] - Build target path."
-        TARGET_PATH="apt-standard-${{ inputs.major_version }}-${{ inputs.stability }}/pool/${{ inputs.module }}/"
+        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/${{ inputs.module }}/"
         echo "[DEBUG] - Target path: $TARGET_PATH"
 
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
@@ -135,7 +143,7 @@ runs:
           jf rt download $ARTIFACT --flat
         done
 
-        for ARTIFACT_DL in $(dir|grep -E "*.deb"); do
+        for ARTIFACT_DL in $(dir -1|grep -E ".+${{ inputs.distrib }}.+\.deb"); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
           jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${{ inputs.distrib }}/main/$ARCH" --flat

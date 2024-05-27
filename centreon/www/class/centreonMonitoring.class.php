@@ -84,15 +84,15 @@ class CentreonMonitoring
      */
     public function getServiceStatusCount($host_name, $objXMLBG, $o, $status, $obj)
     {
-            $rq = "SELECT count(distinct s.service_id) as count, 1 AS REALTIME "
-                . "FROM services s, hosts h " . (!$objXMLBG->is_admin ? ", centreon_acl " : "")
-                . "WHERE s.state = '" . $status . "' "
-                . "AND s.host_id = h.host_id "
-                . "AND s.enabled = '1' "
-                . "AND h.enabled = '1' "
-                . "AND h.name = '" . $host_name . "' ";
+        $rq = "SELECT count(distinct s.service_id) as count, 1 AS REALTIME "
+            . "FROM services s, hosts h " . (!$objXMLBG->is_admin ? ", centreon_acl " : "")
+            . "WHERE s.state = :status "
+            . "AND s.host_id = h.host_id "
+            . "AND s.enabled = '1' "
+            . "AND h.enabled = '1' "
+            . "AND h.name = :host_name ";
 
-            # Acknowledgement filter
+        # Acknowledgement filter
         if ($o == "svcSum_ack_0") {
             $rq .= "AND s.acknowledged = 0 AND s.state != 0 ";
         } elseif ($o == "svcSum_ack_1") {
@@ -104,17 +104,18 @@ class CentreonMonitoring
                 . "AND s.service_id = centreon_acl.service_id "
                 . "AND centreon_acl.group_id IN (" .  $obj->access->getAccessGroupsString() . ") ";
         }
+        $DBRESULT = $objXMLBG->DBC->prepare($rq);
+        $DBRESULT->bindValue(':status', $status);
+        $DBRESULT->bindValue(':host_name', $host_name);
+        $DBRESULT->execute();
 
-            $DBRESULT = $objXMLBG->DBC->query($rq);
-
-            $cpt = 0;
+        $cpt = 0;
         if ($DBRESULT->rowCount()) {
-            $row = $DBRESULT->fetchRow();
+            $row = $DBRESULT->fetch(PDO::FETCH_ASSOC);
             $cpt = $row['count'];
         }
-            $DBRESULT->closeCursor();
 
-            return $cpt;
+        return $cpt;
     }
 
     /**
@@ -152,7 +153,7 @@ class CentreonMonitoring
                 INNER JOIN centreon_acl
                     ON centreon_acl.host_id = h.host_id
                     AND centreon_acl.service_id = s.service_id
-                    AND centreon_acl.group_id IN ({$grouplistStr})
+                    AND centreon_acl.group_id IN (:grouplist)
                 SQL;
         }
         $rq .= <<<SQL
@@ -170,18 +171,27 @@ class CentreonMonitoring
             $rq .= " AND s.acknowledged = 1 ";
         }
 
-        $rq .= " AND h.name IN (" . $hostList . ") ";
+        $rq .= " AND h.name IN (:hostList)";
 
         # Instance filter
         if ($instance !== -1) {
-            $rq .=  " AND h.instance_id = " . $instance . " ";
+            $rq .= " AND h.instance_id = :instance";
         }
 
         $rq .= " ORDER BY tri ASC, service_name";
 
+        $DBRESULT = $objXMLBG->DBC->prepare($rq);
+
+        if (!$objXMLBG->is_admin) {
+            $DBRESULT->bindValue(':grouplist', $grouplistStr);
+        }
+        $DBRESULT->bindValue(':hostList', $hostList);
+        if ($instance !== -1) {
+            $DBRESULT->bindValue(':instance', $instance);
+        }
+        $DBRESULT->execute();
         $tab = [];
-        $DBRESULT = $objXMLBG->DBC->query($rq);
-        while ($svc = $DBRESULT->fetchRow()) {
+        while ($svc = $DBRESULT->fetch(PDO::FETCH_ASSOC)) {
             if (!isset($tab[$svc["name"]])) {
                 $tab[$svc["name"]] = [];
             }

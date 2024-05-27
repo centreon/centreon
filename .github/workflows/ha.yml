@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
@@ -18,9 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/veracode.json"
       - "!centreon-ha/.veracode-exclusions"
-    tags:
-      - centreon-ha-*
 
 env:
   module: ha
@@ -132,6 +132,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]

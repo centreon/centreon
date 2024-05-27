@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
   push:
     branches:
@@ -18,9 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/veracode.json"
       - "!centreon-awie/.veracode-exclusions"
-    tags:
-      - centreon-awie-*
 
 env:
   module: awie
@@ -151,6 +151,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]

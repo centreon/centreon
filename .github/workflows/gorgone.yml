@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
-      - "!centreon-gorgone/.veracode"
+      - "!centreon-gorgone/veracode.json"
       - "!centreon-gorgone/.veracode-exclusions"
   push:
     branches:
@@ -19,10 +19,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-gorgone/**"
-      - "!centreon-gorgone/.veracode"
+      - "!centreon-gorgone/veracode.json"
       - "!centreon-gorgone/.veracode-exclusions"
-    tags:
-      - centreon-gorgone-*
 
 env:
   base_directory: centreon-gorgone
@@ -152,6 +150,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]

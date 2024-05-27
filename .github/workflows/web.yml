@@ -8,8 +8,9 @@ on:
   pull_request:
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
       - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -18,8 +19,9 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/**"
-      - "!centreon/packages/**"
       - "!centreon/.veracode-exclusions"
+      - "!centreon/veracode.json"
+      - "!centreon/packages/**"
 
 env:
   base_directory: centreon
@@ -156,7 +158,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      - uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -332,7 +334,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ matrix.package_extension }} files
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ./*.${{ matrix.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
@@ -429,7 +431,7 @@ jobs:
         shell: bash
 
       - name: Store standard slim image in cache
-        uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ matrix.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
@@ -620,6 +622,8 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+          release_type: ${{ needs.get-version.outputs.release_type }}
+          release_cloud: ${{ needs.get-version.outputs.release_cloud }}
 
   promote:
     needs: [get-version]
