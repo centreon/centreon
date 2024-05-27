@@ -21,10 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Application\UseCase\FindServiceCategory;
+namespace Core\Common\Application\UseCase;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface FindServiceCategoryPresenterInterface extends PresenterInterface
+trait VaultTrait
 {
+    private string $vault_path_regex = '^secret::[^:]*::';
+
+    private ?string $uuid = null;
+
+    private function getUuidFromPath(string $value): ?string
+    {
+        if (preg_match('/' . $this->vault_path_regex . '/', $value)) {
+            $pathPart = explode('/', $value);
+
+            return end($pathPart);
+        }
+
+        return null;
+    }
+
+    private function isAVaultPath(string $value): bool
+    {
+        return (bool) (preg_match('/' . $this->vault_path_regex . '/', $value));
+    }
 }
