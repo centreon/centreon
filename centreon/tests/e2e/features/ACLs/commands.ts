@@ -141,8 +141,8 @@ Cypress.Commands.add(
 );
 
 interface LinkActionToGroupProps {
-  ACLGroupName: string;
   ACLActionName: string;
+  ACLGroupName: string;
 }
 
 Cypress.Commands.add(

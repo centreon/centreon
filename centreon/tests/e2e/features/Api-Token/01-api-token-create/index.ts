@@ -56,8 +56,8 @@ When('I fill in the following required fields', (dataTable: any) => {
 
     if (field === 'User') {
       cy.addContact({
-        name: value,
         email: 'email@centreon.com',
+        name: value,
         password: 'myPassword@1'
       });
 
