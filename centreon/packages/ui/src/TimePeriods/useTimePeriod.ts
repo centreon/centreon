@@ -9,14 +9,13 @@ import {
   errorTimePeriodAtom,
   adjustTimePeriodDerivedAtom
 } from './timePeriodsAtoms';
-
-import { Props } from '.';
+import { WrapperTimePeriodProps } from './models';
 
 const useTimePeriod = ({
   getParameters,
   getIsError,
   adjustTimePeriodData
-}: Omit<Props, 'extraTimePeriods' | 'disabled'>): void => {
+}: Omit<WrapperTimePeriodProps, 'extraTimePeriods' | 'disabled'>): void => {
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
