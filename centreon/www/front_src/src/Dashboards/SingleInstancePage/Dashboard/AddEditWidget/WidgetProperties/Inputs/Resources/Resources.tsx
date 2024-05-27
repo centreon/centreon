@@ -115,7 +115,6 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
-                  allowUniqOption
                   chipProps={{
                     color: 'primary'
                   }}
@@ -135,7 +134,6 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
-                  allowUniqOption
                   chipProps={{
                     color: 'primary',
                     onDelete: (_, option): void =>

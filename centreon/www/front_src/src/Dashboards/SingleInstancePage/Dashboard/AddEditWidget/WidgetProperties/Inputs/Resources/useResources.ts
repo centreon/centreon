@@ -86,7 +86,7 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/resources',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.service]: '/services/names',
   [WidgetResourceType.serviceCategory]: '/services/categories',
   [WidgetResourceType.serviceGroup]: '/servicegroups'
 };
@@ -276,20 +276,21 @@ const useResources = ({
     index: number,
     resourceType
   ): Array<QueryParameter> => {
-    const isOfTypeHostOrService = includes(resourceType, [
-      WidgetResourceType.service,
-      WidgetResourceType.host
+    const isOfTypeHost = equals(resourceType, WidgetResourceType.host);
+    const isOfTypeCategory = includes(resourceType, [
+      WidgetResourceType.hostCategory,
+      WidgetResourceType.serviceCategory
     ]);
 
     if (equals(index, 0)) {
-      return isOfTypeHostOrService
+      return isOfTypeHost
         ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
         : [];
     }
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!isOfTypeHostOrService) {
+    if (!isOfTypeHost && !isOfTypeCategory) {
       return [
         {
           name: 'search',
@@ -306,20 +307,6 @@ const useResources = ({
       resourceType,
       hasMetricInputType
     );
-
-    if (equals(searchParameter, WidgetResourceType.host)) {
-      return [
-        ...baseParams,
-        {
-          name: 'search',
-          value: {
-            parent_name: {
-              $in: searchValues
-            }
-          }
-        }
-      ];
-    }
 
     return [
       ...baseParams,
