@@ -128,32 +128,10 @@ jobs:
               echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
-            release* | hotfix*)
-              # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
-              GITHUB_RELEASE_BRANCH_BASE_REF_NAME="$(gh pr view $BRANCHNAME -q .baseRefName --json headRefName,baseRefName,state)"
-              echo "GITHUB_RELEASE_BRANCH_BASE_REF_NAME is: $GITHUB_RELEASE_BRANCH_BASE_REF_NAME"
-              GITHUB_RELEASE_BRANCH_PR_STATE="$(gh pr view $BRANCHNAME -q .state --json headRefName,baseRefName,state)"
-              echo "GITHUB_RELEASE_BRANCH_PR_STATE is: $GITHUB_RELEASE_BRANCH_PR_STATE"
-
-              # Check if the release context (cloud and hotfix or cloud and release)
-              if [[ "$GITHUB_RELEASE_BRANCH_BASE_REF_NAME" == "master" ]] && [[ "$GITHUB_RELEASE_BRANCH_PR_STATE" == "OPEN" ]]; then
-                # Get release pull request ID
-                GITHUB_RELEASE_BRANCH_PR_NUMBER="$(gh pr view $BRANCHNAME -q .[] --json number)"
-                # Set release cloud to 1 (0=not-cloud, 1=cloud)
-                GITHUB_RELEASE_CLOUD=1
-                # Debug
-                echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
-                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
-                echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
-                # Github ouputs
-                echo "release=`echo $GITHUB_RELEASE_BRANCH_PR_NUMBER`.`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-              else
-                echo "release=1" >> $GITHUB_OUTPUT
-                echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
-                echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
-              fi
+            develop)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              echo "release_cloud=1" >> $GITHUB_OUTPUT
+              echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
               ;;
             release* | hotfix*)
               # Handle workflow_dispatch run triggers and run a dispatch ONLY for cloud release
@@ -170,10 +148,10 @@ jobs:
                 GITHUB_RELEASE_CLOUD=1
                 # Debug
                 echo "GITHUB_RELEASE_TYPE is: $GITHUB_RELEASE_TYPE"
-                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER"
+                echo "GITHUB_RELEASE_BRANCH_PR_NUMBER is: $GITHUB_RELEASE_BRANCH_PR_NUMBER" # We do leave this here as a debug help.
                 echo "GITHUB_RELEASE_CLOUD is: $GITHUB_RELEASE_CLOUD"
                 # Github ouputs
-                echo "release=`echo $GITHUB_RELEASE_BRANCH_PR_NUMBER`.`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+                echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
                 echo "release_type=$GITHUB_RELEASE_TYPE" >> $GITHUB_OUTPUT
                 echo "release_cloud=$GITHUB_RELEASE_CLOUD" >> $GITHUB_OUTPUT
               else
