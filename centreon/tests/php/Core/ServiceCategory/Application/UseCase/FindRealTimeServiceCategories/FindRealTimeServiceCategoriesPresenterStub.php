@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,21 +18,20 @@
  * For more information : contact@centreon.com
  *
  */
-
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates;
+namespace Tests\Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesPresenterInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesPresenterInterface;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesResponse;
 
-class FindHostTemplatesPresenterStub extends AbstractPresenter implements FindHostTemplatesPresenterInterface
+class FindRealTimeServiceCategoriesPresenterStub extends AbstractPresenter implements FindRealTimeServiceCategoriesPresenterInterface
 {
-    public ResponseStatusInterface|FindHostTemplatesResponse $response;
+    public FindRealTimeServiceCategoriesResponse|ResponseStatusInterface $response;
 
-    public function presentResponse(ResponseStatusInterface|FindHostTemplatesResponse $response): void
+    public function presentResponse(FindRealTimeServiceCategoriesResponse|ResponseStatusInterface $response): void
     {
         $this->response = $response;
     }

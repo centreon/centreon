@@ -21,19 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates;
+namespace Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesPresenterInterface;
-use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 
-class FindHostTemplatesPresenterStub extends AbstractPresenter implements FindHostTemplatesPresenterInterface
+interface FindRealTimeServiceCategoriesPresenterInterface extends PresenterInterface
 {
-    public ResponseStatusInterface|FindHostTemplatesResponse $response;
-
-    public function presentResponse(ResponseStatusInterface|FindHostTemplatesResponse $response): void
-    {
-        $this->response = $response;
-    }
+    /**
+     * @param FindRealTimeServiceCategoriesResponse|ResponseStatusInterface $response
+     */
+    public function presentResponse(FindRealTimeServiceCategoriesResponse|ResponseStatusInterface $response): void;
 }
