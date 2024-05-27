@@ -612,7 +612,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         /** @var _HostTemplate $result */
         while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $hostTemplates[] = $this->createHostTemplateFromArray($result);
-        };
+        }
 
         return $hostTemplates;
     }

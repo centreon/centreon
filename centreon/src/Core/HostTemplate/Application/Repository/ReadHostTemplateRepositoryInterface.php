@@ -148,5 +148,4 @@ interface ReadHostTemplateRepositoryInterface
      * @return HostTemplate[]
      */
     public function findAll(): array;
-
 }

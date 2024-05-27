@@ -28,7 +28,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type _Macro array{
@@ -67,16 +66,16 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                    SELECT
-                        m.svc_macro_name,
-                        m.svc_macro_value,
-                        m.is_password,
-                        m.svc_svc_id,
-                        m.description,
-                        m.macro_order
-                    FROM `:db`.on_demand_macro_service m
-                    WHERE m.svc_svc_id IN ({$serviceIdsAsString})
-                    SQL
+                SELECT
+                    m.svc_macro_name,
+                    m.svc_macro_value,
+                    m.is_password,
+                    m.svc_svc_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_service m
+                WHERE m.svc_svc_id IN ({$serviceIdsAsString})
+                SQL
         ));
         foreach ($bindValues as $index => $serviceId) {
             $statement->bindValue($index, $serviceId, \PDO::PARAM_INT);
@@ -99,7 +98,7 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
     public function findPasswords(): array
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
+            <<<'SQL'
                 SELECT
                         m.svc_macro_name,
                         m.svc_macro_value,
@@ -110,7 +109,6 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
                 FROM `:db`.on_demand_macro_service m
                 WHERE m.is_password = 1
                 SQL
-
         ));
         $statement->execute();
 

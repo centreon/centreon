@@ -732,7 +732,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             $hosts[] = $this->createHostFromArray($result);
         }
 
-
         return $hosts;
     }
 

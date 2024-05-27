@@ -28,7 +28,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Utility\SqlConcatenator;
 
 class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHostMacroRepositoryInterface
 {
@@ -62,16 +61,16 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                    SELECT
-                        m.host_macro_name,
-                        m.host_macro_value,
-                        m.is_password,
-                        m.host_host_id,
-                        m.description,
-                        m.macro_order
-                    FROM `:db`.on_demand_macro_host m
-                    WHERE m.host_host_id IN ({$hostIdsAsString})
-                    SQL
+                SELECT
+                    m.host_macro_name,
+                    m.host_macro_value,
+                    m.is_password,
+                    m.host_host_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_host m
+                WHERE m.host_host_id IN ({$hostIdsAsString})
+                SQL
         ));
         foreach ($bindValues as $token => $hostId) {
             $statement->bindValue($token, $hostId, \PDO::PARAM_INT);
