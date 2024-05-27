@@ -13,12 +13,12 @@ patch:
           $ref: 'Schema/PartialUpdateServiceTemplate.yaml'
   responses:
     '204':
-      $ref: '../../../../Common/Response/NoContent.yaml'
+      $ref: '../../../Common/Response/NoContent.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '409':
-      $ref: '../../../../Common/Response/Conflict.yaml'
+      $ref: '../../../Common/Response/Conflict.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
