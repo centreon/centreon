@@ -112,6 +112,15 @@ const mockAcl = {
       forced_check: true,
       submit_status: true
     },
+    metaservice: {
+      acknowledgement: true,
+      check: true,
+      comment: true,
+      disacknowledgement: true,
+      downtime: true,
+      forced_check: true,
+      submit_status: true
+    },
     service: {
       acknowledgement: true,
       check: true,
@@ -220,7 +229,7 @@ const checkActionsButton = (): void => {
 };
 
 describe('Details', () => {
-  it.only('displays resource details information', () => {
+  it('displays resource details information', () => {
     const store = getStore();
     interceptDetailsRequest({
       alias: 'getDetails',
@@ -603,11 +612,14 @@ describe('Details', () => {
       resourceType: 'host'
     },
     {
-      fixtureDetails:
-        'resources/details/tabs/details/detailsByMetaServiceType.json',
+      fixtureDetails: 'resources/details/tabs/details/details.json',
       resourceType: 'service'
     },
-    { fixtureDetails: '', resourceType: 'meta-service' }
+    {
+      fixtureDetails:
+        'resources/details/tabs/details/detailsByMetaServiceType.json',
+      resourceType: 'meta-service'
+    }
   ].forEach(({ resourceType, fixtureDetails }) => {
     it(`submits the comment  for the resource of type ${resourceType} when the comment textfield is typed into and the corresponding button is clicked`, () => {
       initializeTimeLine({ fixtureDetails });

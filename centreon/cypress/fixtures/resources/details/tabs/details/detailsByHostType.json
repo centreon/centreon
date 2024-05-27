@@ -7,12 +7,10 @@
     "short_type": "h",
     "fqdn": "127.0.0.1",
     "alias": "Monitoring Server",
-    "status": {
-      "name": "UP",
-      "code": 0,
-      "severity_code": 5,
-      "type": 1
-    },
+    "status":{
+        "name":"Critical",
+        "severity_code":1
+     },
     "in_downtime": false,
     "acknowledged": false,
     "flapping": false,
