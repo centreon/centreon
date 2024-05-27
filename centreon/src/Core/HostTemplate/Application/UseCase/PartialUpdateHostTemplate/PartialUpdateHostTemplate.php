@@ -116,9 +116,10 @@ final class PartialUpdateHostTemplate
 
             if (! $this->user->isAdmin()) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $this->accessGroups;
                 $hostTemplate = $this->readHostTemplateRepository->findByIdAndAccessGroups(
                     $hostTemplateId,
-                     $this->accessGroups
+                    $this->accessGroups
                 );
             } else {
                 $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
@@ -144,11 +145,6 @@ final class PartialUpdateHostTemplate
                 );
 
                 return;
-            }
-
-            if (! $this->user->isAdmin()) {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $this->validation->accessGroups = $this->accessGroups;
             }
 
             $this->updatePropertiesInTransaction($request, $hostTemplate);
