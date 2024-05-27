@@ -260,7 +260,7 @@ contents:
     file_info:
       mode: 0664
 
-  - dst: "/usr/share/centreon/config/vault"
+  - dst: "/var/lib/centreon/vault"
     type: dir
     file_info:
       owner: "centreon"
