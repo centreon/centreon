@@ -1519,7 +1519,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
         $shouldJoinHostCategory = false;
         if (count(array_intersect($searchParameters, array_keys($hostCategoryConcordanceArray))) > 0) {
             $shouldJoinHostCategory = true;
-            $serviceCategoryConcordanceArray = array_merge($serviceGroupConcordanceArray, $serviceCategoryConcordanceArray);
+            $serviceGroupConcordanceArray = array_merge($serviceGroupConcordanceArray, $hostCategoryConcordanceArray);
         }
 
         $this->sqlRequestTranslator->setConcordanceArray($serviceGroupConcordanceArray);
