@@ -30,7 +30,7 @@ interface WriteVaultRepositoryInterface
     public function setCustomPath(string $customPath): void;
 
     /**
-     * Update or save secrets and return identifier.
+     * Update or save secrets and return vault path.
      *
      * @param string|null $uuid
      * @param array<string, int|string> $inserts

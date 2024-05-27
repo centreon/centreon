@@ -70,6 +70,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         foreach ($inserts as $insertKey => $insertValue) {
             $payload[$insertKey] = $insertValue;
         }
+
         $this->sendRequest('POST', $url, $payload);
 
         return $this->buildPath($uuid);

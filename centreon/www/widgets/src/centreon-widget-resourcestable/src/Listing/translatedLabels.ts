@@ -26,3 +26,9 @@ export const labelSticky = 'Sticky';
 export const labelSomethingWentWrong = 'Oops, something went wrong';
 export const labelYes = 'Yes';
 export const labelNo = 'No';
+
+export const labelDisplayView = 'Display view:';
+export const labelViewAllResources = 'View all resources';
+export const labelViewByHost = 'View by host';
+export const labelViewByService = 'View by service';
+export const labelAll = 'All';

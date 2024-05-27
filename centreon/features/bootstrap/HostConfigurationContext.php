@@ -9,6 +9,7 @@ use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
 class HostConfigurationContext extends CentreonContext
 {
+    public const PASSWORD_REPLACEMENT_VALUE = '**********';
     protected $currentPage;
 
     protected $host2 = array(
@@ -123,7 +124,7 @@ class HostConfigurationContext extends CentreonContext
         'name' => 'hostName_1',
         'alias' => 'hostAlias',
         'address' => 'host@localhost',
-        'snmp_community' => 'hostSnmpCommunity',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '1',
         'location' => 'America/Caracas',
         'templates' => array(
@@ -186,7 +187,7 @@ class HostConfigurationContext extends CentreonContext
         'name' => 'hostNameChanged',
         'alias' => 'hostAliasChanged',
         'address' => 'hostChanged@localhost',
-        'snmp_community' => 'hostSnmpCommunitychanged',
+        'snmp_community' => self::PASSWORD_REPLACEMENT_VALUE,
         'snmp_version' => '3',
         'macros' => array(
             'HOSTMACROCHANGED' => 5
@@ -299,6 +300,11 @@ class HostConfigurationContext extends CentreonContext
     public function itsPropertiesAreUpdated()
     {
         $this->currentPage = new HostConfigurationListingPage($this);
+        foreach ($this->updatedProperties as $key => $value) {
+            if ($key === "snmp_community") {
+                $value = self::PASSWORD_REPLACEMENT_VALUE;
+            }
+        }
         $this->currentPage = $this->currentPage->inspect($this->updatedProperties['name']);
         $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }

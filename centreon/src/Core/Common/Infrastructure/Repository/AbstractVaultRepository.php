@@ -59,7 +59,9 @@ abstract class AbstractVaultRepository
     public function setCustomPath(string $customPath): void
     {
         if (! in_array($customPath, self::AVAILABLE_PATHS, true)) {
-            // TODO throw exception invalid vault path
+            $this->error("Invalid custom vault path '{$customPath}'");
+
+            throw new \LogicException();
         }
         $this->customPath = $customPath;
     }
