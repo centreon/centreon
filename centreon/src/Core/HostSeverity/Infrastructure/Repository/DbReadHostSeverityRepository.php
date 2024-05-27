@@ -150,8 +150,6 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             return false;
         }
 
-        $concat = new SqlConcatenator();
-
         $accessGroupIds = array_map(
             fn($accessGroup) => $accessGroup->getId(),
             $accessGroups
@@ -164,8 +162,14 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
             return $this->exists($hostSeverityId);
         }
 
+        $bindValuesArray = [];
+        foreach ($accessGroupIds as $index => $accessGroupId) {
+            $bindValuesArray[':access_group_id_' . $index] = $accessGroupId;
+        }
+        $bindParamsAsString = implode(',', array_keys($bindValuesArray));
+
         $request = $this->translateDbName(
-            <<<'SQL'
+            <<<SQL
                 SELECT 1
                 FROM `:db`.hostcategories hc
                 INNER JOIN `:db`.acl_resources_hc_relations arhr
@@ -176,23 +180,17 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
                     ON res.acl_res_id = argr.acl_res_id
                 INNER JOIN `:db`.acl_groups ag
                     ON argr.acl_group_id = ag.acl_group_id
-                SQL
-        );
-        $concat->appendWhere(
-            <<<'SQL'
-                WHERE hc.hc_id = :hostSeverityId
-                  AND hc.level IS NOT NULL
+                WHERE hc.hc_id = :host_severity_id
+                    AND hc.level IS NOT NULL
+                    AND ag.acl_group_id IN ({$bindParamsAsString})
                 SQL
         );
 
-        $concat->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
-            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
-
-        $statement = $this->db->prepare($this->translateDbName($request . ' ' . $concat));
-        foreach ($concat->retrieveBindValues() as $param => [$value, $type]) {
-            $statement->bindValue($param, $value, $type);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':host_severity_id', $hostSeverityId, \PDO::PARAM_INT);
+        foreach ($bindValuesArray as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
-        $statement->bindValue(':hostSeverityId', $hostSeverityId, \PDO::PARAM_INT);
 
         $statement->execute();
 
