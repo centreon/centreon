@@ -37,6 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class MigrateAllCredentialsCommand extends Command
 {
     use LoggerTrait;
+
     public function __construct(
         readonly private MigrateAllCredentials $useCase,
     ) {
