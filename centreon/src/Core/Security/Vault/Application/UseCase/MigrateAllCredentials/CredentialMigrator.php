@@ -173,6 +173,8 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      * @param array{hosts: array<string>, services: array<string>} $existingUuids
      *
      * @return array{uuid: string, path: string}
+     *
+     * @throws \Throwable
      */
     private function migrateServiceCredentials(CredentialDto $credential, array &$existingUuids): array
     {
