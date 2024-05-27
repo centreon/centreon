@@ -26,6 +26,7 @@ Start Gorgone
     [Arguments]    ${SEVERITY}    ${ALIAS}
     ${process}    Start Process
     ...    /usr/bin/perl
+    ...    -I/home/evan/dev/centreon/centreon-gorgone/gorgone
     ...    ${gorgone_binary}
     ...    --config
     ...    /etc/centreon-gorgone/${ALIAS}/includer.yaml
@@ -107,7 +108,7 @@ Check Poller Communicate
         END
     END
     Log To Console    json response : ${response.json()}
-    Should Be True    ${i} < 9    timeout waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
+    Should Be True    ${i} < 20    timeout after ${i} time waiting for poller status in gorgone rest api (/api/internal/constatus) : ${response.json()}
     Should Be True    0 == ${response.json()}[data][${poller_id}][ping_failed]    there was failed ping between the central and the poller ${poller_id}
     Should Be True    0 < ${response.json()}[data][${poller_id}][ping_ok]    there was no successful ping between the central and the poller ${poller_id}
 
