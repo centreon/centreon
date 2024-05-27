@@ -100,7 +100,7 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                 $status->resourceId = $credential->resourceId;
                 $status->type = $credential->type;
                 $status->credentialName = $credential->name;
-                $status->message = (string) $ex;
+                $status->message = $ex->getMessage();
 
                 yield $status;
             }

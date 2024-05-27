@@ -76,6 +76,8 @@ final class MigrateAllCredentials
         try {
             if ($this->readVaultConfigurationRepository->find() === null) {
                 $presenter->presentResponse(new ErrorResponse('No Vault configured'));
+
+                return;
             }
             $hosts = $this->readHostRepository->findAll();
             $hostTemplates = $this->readHostTemplateRepository->findAll();
