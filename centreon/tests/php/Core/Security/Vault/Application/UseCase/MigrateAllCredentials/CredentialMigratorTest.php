@@ -1,8 +1,28 @@
 <?php
 
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
 namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -15,10 +35,8 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErro
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialTypeEnum;
-use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsPresenterInterface;
-use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsResponse;
 
-it('tests getIterator method with hosts, hostTemplates and service macros', function () {
+it('tests getIterator method with hosts, hostTemplates and service macros', function (): void {
     $credential1 = new CredentialDto();
     $credential1->resourceId = 1;
     $credential1->type = CredentialTypeEnum::TYPE_HOST;
@@ -76,7 +94,7 @@ it('tests getIterator method with hosts, hostTemplates and service macros', func
     }
 });
 
-it('tests getIterator method with exception', function () {
+it('tests getIterator method with exception', function (): void {
     $credential = new CredentialDto();
     $credential->resourceId = 1;
     $credential->type = CredentialTypeEnum::TYPE_HOST;

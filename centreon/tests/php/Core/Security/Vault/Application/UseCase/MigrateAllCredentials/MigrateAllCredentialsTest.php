@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCred
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->encryption = $this->createMock(EncryptionInterface::class);
     $this->useCase = new MigrateAllCredentials(
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
@@ -56,7 +56,7 @@ beforeEach(function () {
     );
 });
 
-it('should present an Error Response when no vault are configured', function () {
+it('should present an Error Response when no vault are configured', function (): void {
     $this->readVaultConfigurationRepository
         ->expects($this->once())
         ->method('find')
@@ -67,10 +67,9 @@ it('should present an Error Response when no vault are configured', function () 
 
     expect($presenter->response)->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->response->getMessage())->toBe('No Vault configured');
-
 });
 
-it('should present a MigrateAllCredentialsResponse when no error occurs', function () {
+it('should present a MigrateAllCredentialsResponse when no error occurs', function (): void {
     $vaultConfiguration = new VaultConfiguration(
         encryption: $this->encryption,
         name: 'vault',

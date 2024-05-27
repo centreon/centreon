@@ -71,6 +71,7 @@ final class MigrateAllCredentials
     {
         $this->response = new MigrateAllCredentialsResponse();
     }
+
     public function __invoke(MigrateAllCredentialsPresenterInterface $presenter): void
     {
         try {
@@ -94,26 +95,26 @@ final class MigrateAllCredentials
                     'type' => CredentialTypeEnum::TYPE_HOST,
                     'name' => '_HOSTSNMPCOMMUNITY',
                     'getter' => 'getSnmpCommunity',
-                    'idGetter' => 'getId'
+                    'idGetter' => 'getId',
                 ],
                 ['data' => $hostTemplates,
                     'type' => CredentialTypeEnum::TYPE_HOST_TEMPLATE,
                     'name' => '_HOSTSNMPCOMMUNITY',
                     'getter' => 'getSnmpCommunity',
-                    'idGetter' => 'getId'
+                    'idGetter' => 'getId',
                 ],
                 ['data' => $hostMacros,
                     'type' => CredentialTypeEnum::TYPE_HOST,
                     'name' => null,
                     'getter' => 'getValue',
-                    'idGetter' => 'getOwnerId'
+                    'idGetter' => 'getOwnerId',
                 ],
                 ['data' => $serviceMacros,
                     'type' => CredentialTypeEnum::TYPE_SERVICE,
                     'name' => null,
                     'getter' => 'getValue',
-                    'idGetter' => 'getOwnerId'
-                ]
+                    'idGetter' => 'getOwnerId',
+                ],
             ];
             foreach ($resources as $resource) {
                 foreach ($resource['data'] as $item) {
