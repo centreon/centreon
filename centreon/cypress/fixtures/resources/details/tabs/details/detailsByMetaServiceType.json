@@ -1,0 +1,54 @@
+{
+    "uuid": "m1",
+    "id": 1,
+    "name": "meta-service",
+    "type": "metaservice",
+    "short_type": "m",
+    "status": {
+      "name": "UNKNOWN",
+      "code": 3,
+      "severity_code": 3,
+      "type": 0
+    },
+    "in_downtime": false,
+    "acknowledged": false,
+    "flapping": false,
+    "performance_data": "",
+    "information": "UNKNOWN: Cannot find a metric_id in table meta_service_relation.\n",
+    "command_line": "/usr/lib/centreon/plugins/centreon_centreon_central.pl --plugin=apps::centreon::local::plugin --mode=metaservice --centreon-config=/etc/centreon/conf.pm --meta-id 1",
+    "notification_number": 0,
+    "latency": 0.264,
+    "percent_state_change": 0,
+    "passive_checks": false,
+    "execution_time": 0.157902,
+    "active_checks": true,
+    "groups": [],
+    "parent": null,
+    "monitoring_server_name": "Central",
+    "calculation_type": "average",
+    "acknowledgement": null,
+    "downtimes": [],
+    "duration": "58m 57s",
+    "next_check": "2024-05-27T17:45:11+02:00",
+    "last_check": "2024-05-27T17:44:11+02:00",
+    "last_time_with_no_issue": null,
+    "last_status_change": "2024-05-27T16:45:46+02:00",
+    "last_notification": null,
+    "tries": "60/90(S)",
+    "links": {
+      "endpoints": {
+        "notification_policy": "/centreon/api/latest/configuration/metaservices/1/notification-policy",
+        "timeline": "/centreon/api/latest/monitoring/metaservice/1/timeline",
+        "timeline_download": "/centreon/api/latest/monitoring/metaservice/1/timeline/download",
+        "status_graph": "/centreon/api/latest/monitoring/metaservices/1/metrics/status",
+        "performance_graph": null,
+        "metrics": "/centreon/api/latest/monitoring/metaservices/1/metrics",
+        "details": "/centreon/api/latest/monitoring/resources/metaservices/1"
+      },
+      "uris": {
+        "configuration": "/centreon/main.php?p=60204&o=c&meta_id=1",
+        "logs": "/centreon/main.php?p=20301&svc=15_27",
+        "reporting": null
+      }
+    }
+  }

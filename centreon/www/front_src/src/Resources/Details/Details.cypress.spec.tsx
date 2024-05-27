@@ -187,11 +187,14 @@ const initialize = (store): void => {
   });
 };
 
-const initializeTimeLine = (): void => {
+const initializeTimeLine = ({
+  fixtureDetails = 'resources/details/tabs/details/details.json'
+}): void => {
   const store = getStore();
+
   interceptDetailsRequest({
     alias: 'getDetails',
-    dataPath: 'resources/details/tabs/details/details.json',
+    dataPath: fixtureDetails,
     store
   });
 
@@ -575,7 +578,7 @@ describe('Details', () => {
   });
 
   it('displays the comment area when the corresponding button is clicked', () => {
-    initializeTimeLine();
+    initializeTimeLine({});
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
     cy.waitForRequest('@getTimeLine');
@@ -594,46 +597,59 @@ describe('Details', () => {
     cy.makeSnapshot();
   });
 
-  it('submits the comment when the comment textfield is typed into and the corresponding button is clicked', () => {
-    initializeTimeLine();
-    cy.interceptAPIRequest({
-      alias: 'sendsCommentRequest',
-      method: Method.POST,
-      path: commentEndpoint,
-      statusCode: 204
+  [
+    {
+      fixtureDetails: 'resources/details/tabs/details/detailsByHostType.json',
+      resourceType: 'host'
+    },
+    {
+      fixtureDetails:
+        'resources/details/tabs/details/detailsByMetaServiceType.json',
+      resourceType: 'service'
+    },
+    { fixtureDetails: '', resourceType: 'meta-service' }
+  ].forEach(({ resourceType, fixtureDetails }) => {
+    it(`submits the comment  for the resource of type ${resourceType} when the comment textfield is typed into and the corresponding button is clicked`, () => {
+      initializeTimeLine({ fixtureDetails });
+      cy.interceptAPIRequest({
+        alias: 'sendsCommentRequest',
+        method: Method.POST,
+        path: commentEndpoint,
+        statusCode: 204
+      });
+      cy.waitForRequest('@getDetails');
+      cy.findByTestId(2).click();
+
+      cy.waitForRequest('@getTimeLine');
+      cy.contains('Critical').should('be.visible');
+
+      cy.findByTestId('addComment')
+        .should('be.visible')
+        .should('be.enabled')
+        .click();
+
+      cy.findByTestId('commentArea').type('comment from centreon web');
+      cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
+      cy.findByTestId(labelSave)
+        .should('be.visible')
+        .should('be.enabled')
+        .click();
+
+      cy.waitForRequest('@sendsCommentRequest');
+
+      cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
+        expect(calls).to.have.length(1);
+      });
+
+      cy.contains(labelYourCommentSent);
+      cy.findByTestId('headerWrapper').scrollIntoView();
+
+      cy.makeSnapshot();
     });
-    cy.waitForRequest('@getDetails');
-    cy.findByTestId(2).click();
-
-    cy.waitForRequest('@getTimeLine');
-    cy.contains('Critical').should('be.visible');
-
-    cy.findByTestId('addComment')
-      .should('be.visible')
-      .should('be.enabled')
-      .click();
-
-    cy.findByTestId('commentArea').type('comment from centreon web');
-    cy.findByTestId(labelCancel).should('be.visible').should('be.enabled');
-    cy.findByTestId(labelSave)
-      .should('be.visible')
-      .should('be.enabled')
-      .click();
-
-    cy.waitForRequest('@sendsCommentRequest');
-
-    cy.getRequestCalls('@sendsCommentRequest').then((calls) => {
-      expect(calls).to.have.length(1);
-    });
-
-    cy.contains(labelYourCommentSent);
-    cy.findByTestId('headerWrapper').scrollIntoView();
-
-    cy.makeSnapshot();
   });
 
   it('hides the comment area when the cancel button is clicked', () => {
-    initializeTimeLine();
+    initializeTimeLine({});
     cy.waitForRequest('@getDetails');
     cy.findByTestId(2).click();
 
