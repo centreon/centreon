@@ -21,15 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Infrastructure\Api\FindHostCategory;
+namespace Core\HostCategory\Infrastructure\API\FindRealTimeHostCategories;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategoryPresenterInterface;
-use Core\Category\RealTime\Application\UseCase\FindHostCategory\FindHostCategoryResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostCategory\Application\UseCase\FindRealTimeHostCategories\FindRealTimeHostCategoriesPresenterInterface;
+use Core\HostCategory\Application\UseCase\FindRealTimeHostCategories\FindRealTimeHostCategoriesResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
-class FindHostCategoryPresenter extends AbstractPresenter implements FindHostCategoryPresenterInterface
+class FindRealTimeHostCategoriesPresenter extends AbstractPresenter implements FindRealTimeHostCategoriesPresenterInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters
@@ -41,16 +42,15 @@ class FindHostCategoryPresenter extends AbstractPresenter implements FindHostCat
     ) {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param FindHostCategoryResponse $data
-     */
-    public function present(mixed $data): void
+    public function presentResponse(FindRealTimeHostCategoriesResponse|ResponseStatusInterface $response): void
     {
-        parent::present([
-            'result' => $data->tags,
-            'meta' => $this->requestParameters->toArray(),
-        ]);
+        if ($response instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($response);
+        } else {
+            parent::present([
+                'result' => $response->tags,
+                'meta' => $this->requestParameters->toArray(),
+            ]);
+        }
     }
 }
