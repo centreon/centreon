@@ -64,7 +64,6 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
             CredentialTypeEnum::TYPE_HOST => 'host',
             CredentialTypeEnum::TYPE_SERVICE => 'service',
             CredentialTypeEnum::TYPE_HOST_TEMPLATE => 'host_template',
-            default => throw new \LogicException('Unhandled value')
         };
     }
 
