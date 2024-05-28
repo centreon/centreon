@@ -292,7 +292,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $request .= str_replace('WHERE', 'AND', $search);
         }
 
-        $request .= <<<SQL
+        $request .= <<<'SQL'
                 GROUP BY h.host_id
             SQL;
 
