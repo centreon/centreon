@@ -197,7 +197,7 @@ Given('a dashboard that includes a configured Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -231,7 +231,7 @@ Given('a dashboard configuring Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -371,7 +371,7 @@ Given('a dashboard with a configured Status Grid widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -410,7 +410,7 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).realClick();
     cy.wait('@resourceRequest');
   }
