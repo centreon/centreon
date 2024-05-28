@@ -137,11 +137,13 @@ When(
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.contains(`${data.login}`).click();
+    cy.getByLabel({ label: 'Save', tag: 'button' }).should('not.be.disabled');
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
+    cy.applyAcl();
   }
 );
 
