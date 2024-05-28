@@ -33,6 +33,7 @@
  *
  */
 
+require_once __DIR__ . '/../../include/common/csvFunctions.php';
 require_once dirname(__FILE__) . "/webService.class.php";
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
@@ -173,47 +174,38 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         }
 
 
+        if (preg_match("/^.*;.*(?:\n|$)/", $contents)) {
+            $result = parseCsv($contents);
+            if ($result === false) {
+                throw new RestInternalServerErrorException($contents);
+            }
+
+            $lastRecord = end($result);
+            if ($lastRecord && strpos($lastRecord[0], 'Return code end :') === 0) {
+                array_pop($result);
+            }
+
+            $headersNr = count($result[0]);
+            foreach ($result as &$record) {
+                if (count($record) > $headersNr) {
+                    $record[$headersNr - 1] = implode(';', array_slice($record, $headersNr - 1));
+                    $record = array_slice($record, 0, $headersNr);
+                }
+            }
+
+            csvToAssociativeArray($result);
+
+        } else {
+            $result = array();
+            foreach (explode("\n", $contents) as &$line) {
+                if (trim($line) !== '' && strpos($line, 'Return code end :') !== 0) {
+                    $result[] = $line;
+                }
+            }
+        }
+
         $return = array();
-        $tmpLines = explode("\n", $contents);
-        $lines = array();
-
-        /* Get object attribute name */
-        $headers = explode(';', $tmpLines[0]);
-
-        /* Remove empty lines and Return end line */
-        for ($i = 1; $i < count($tmpLines); $i++) {
-            if (trim($tmpLines[$i]) !== '' && strpos($tmpLines[$i], 'Return code end :') !== 0) {
-                $lines[] = $tmpLines[$i];
-            }
-        }
-
-        $return['result'] = array();
-        for ($i = 0; $i < count($lines); $i++) {
-            if (strpos($lines[$i], ';') !== false) {
-                $tmpLine = explode(';', $lines[$i]);
-
-                if (count($tmpLine) > count($headers)) {
-                    /* Handle ; in variable (more values than headers) */
-                    $tmpLine[count($headers) - 1] = implode(';', array_slice($tmpLine, count($headers) - 1));
-                    $tmpLine = array_slice($tmpLine, 0, count($headers));
-                }
-
-                foreach ($tmpLine as &$line) {
-                    if (strpos($line, "|") !== false) {
-                        $line = explode("|", $line);
-                    }
-                }
-                $return['result'][] = array_combine($headers, $tmpLine);
-            } elseif (strpos($lines[$i], "\t") !== false) {
-                $return['result'][] = array_combine($headers, explode("\t", $lines[$i]));
-            } else {
-                $return['result'][] = $lines[$i];
-            }
-        }
-
-        if (is_array($return['result'])) {
-            array_walk($return['result'], [$this, 'clearCarriageReturns']);
-        }
+        $return['result'] = $result;
 
         return $return;
     }

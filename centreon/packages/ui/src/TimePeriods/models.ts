@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import dayjs from 'dayjs';
 
 import {
@@ -94,4 +96,17 @@ export interface GraphQueryParametersProps {
 export interface EndStartInterval {
   end: string;
   start: string;
+}
+
+interface Parameters extends EndStartInterval {
+  timelineEventsLimit: number;
+}
+
+export interface WrapperTimePeriodProps {
+  adjustTimePeriodData?: Omit<CustomTimePeriod, 'timelineEventsLimit'>;
+  disabled?: boolean;
+  extraTimePeriods?: Array<Omit<TimePeriod, 'timelineEventsLimit'>>;
+  getIsError?: (value: boolean) => void;
+  getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
+  renderExternalComponent?: ReactNode;
 }
