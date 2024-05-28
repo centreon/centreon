@@ -55,6 +55,7 @@ const RegularLine = ({
   if (filled) {
     return (
       <Shape.AreaClosed<TimeValue>
+        data-metric={metric_id}
         fill={getFillColor({ areaColor, transparency })}
         fillRule="nonzero"
         key={metric_id}
@@ -65,7 +66,7 @@ const RegularLine = ({
     );
   }
 
-  return <Shape.LinePath<TimeValue> {...props} />;
+  return <Shape.LinePath<TimeValue> data-metric={metric_id} {...props} />;
 };
 
 export default memo(RegularLine, (prevProps, nextProps) => {
