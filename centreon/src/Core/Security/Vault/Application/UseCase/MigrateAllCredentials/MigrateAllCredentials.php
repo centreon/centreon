@@ -36,6 +36,7 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 final class MigrateAllCredentials
@@ -76,7 +77,7 @@ final class MigrateAllCredentials
     {
         try {
             if ($this->readVaultConfigurationRepository->find() === null) {
-                $presenter->presentResponse(new ErrorResponse('No Vault configured'));
+                $presenter->presentResponse(new ErrorResponse(VaultException::noVaultConfigured()));
 
                 return;
             }
@@ -135,7 +136,7 @@ final class MigrateAllCredentials
             $presenter->presentResponse($this->response);
         } catch (\Throwable $ex) {
             $this->error((string) $ex);
-            $presenter->presentResponse(new ErrorResponse((string) $ex));
+            $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
     }
 

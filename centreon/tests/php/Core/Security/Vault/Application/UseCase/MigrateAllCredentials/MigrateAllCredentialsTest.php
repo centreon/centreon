@@ -33,6 +33,7 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentials;
@@ -66,7 +67,7 @@ it('should present an Error Response when no vault are configured', function ():
     ($this->useCase)($presenter);
 
     expect($presenter->response)->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->response->getMessage())->toBe('No Vault configured');
+        ->and($presenter->response->getMessage())->toBe(VaultException::noVaultConfigured());
 });
 
 it('should present a MigrateAllCredentialsResponse when no error occurs', function (): void {
