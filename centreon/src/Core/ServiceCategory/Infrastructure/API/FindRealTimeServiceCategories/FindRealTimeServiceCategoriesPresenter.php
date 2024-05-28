@@ -21,15 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Infrastructure\Api\FindServiceCategory;
+namespace Core\ServiceCategory\Infrastructure\API\FindRealTimeServiceCategories;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategoryPresenterInterface;
-use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategoryResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesPresenterInterface;
+use Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories\FindRealTimeServiceCategoriesResponse;
 
-class FindServiceCategoryPresenter extends AbstractPresenter implements FindServiceCategoryPresenterInterface
+class FindRealTimeServiceCategoriesPresenter extends AbstractPresenter implements FindRealTimeServiceCategoriesPresenterInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters
@@ -41,16 +42,16 @@ class FindServiceCategoryPresenter extends AbstractPresenter implements FindServ
     ) {
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param FindServiceCategoryResponse $data
-     */
-    public function present(mixed $data): void
+    public function presentResponse(FindRealTimeServiceCategoriesResponse|ResponseStatusInterface $response): void
     {
-        parent::present([
-            'result' => $data->tags,
-            'meta' => $this->requestParameters->toArray(),
-        ]);
+        if ($response instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($response);
+        } else {
+            parent::present([
+                'result' => $response->tags,
+                'meta' => $this->requestParameters->toArray(),
+            ]);
+        }
     }
 }
+
