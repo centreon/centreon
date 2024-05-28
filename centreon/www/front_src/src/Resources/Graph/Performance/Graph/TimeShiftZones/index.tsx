@@ -18,12 +18,13 @@ export enum TimeShiftDirection {
 
 interface TimeShiftContextProps {
   canAdjustTimePeriod: boolean;
+  end: string;
   graphHeight: number;
   graphWidth: number;
   loading: boolean;
   marginLeft: number;
   marginTop: number;
-  shiftTime?: (direction: TimeShiftDirection) => void;
+  start: string;
 }
 
 export const TimeShiftContext = createContext<

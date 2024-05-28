@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { RichTextEditor, useMemoComponent } from '@centreon/ui';
+import { client, RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import {
   dashboardRefreshIntervalAtom,
@@ -60,6 +62,11 @@ const Panel = ({
 
   const panelConfigurations = getPanelConfigurations(id);
 
+  const widgetPrefixQuery = useMemo(
+    () => `${panelConfigurations.path}_${id}`,
+    [panelConfigurations.path, id]
+  );
+
   const changePanelOptions = (partialOptions: object): void => {
     switchPanelsEditionMode(true);
     searchParams.set('edit', 'true');
@@ -112,9 +119,11 @@ const Panel = ({
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
               playlistHash={playlistHash}
+              queryClient={client}
               refreshCount={refreshCount}
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
+              widgetPrefixQuery={widgetPrefixQuery}
             />
           </div>
         )}

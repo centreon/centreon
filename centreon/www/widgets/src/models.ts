@@ -1,4 +1,5 @@
 import { createStore } from 'jotai';
+import { QueryClient } from '@tanstack/react-query';
 
 import { SelectEntry } from '@centreon/ui';
 
@@ -82,9 +83,11 @@ export interface CommonWidgetProps<T extends object> {
   id: string;
   isFromPreview?: boolean;
   playlistHash?: string;
+  queryClient: QueryClient;
   refreshCount: number;
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   store: ReturnType<typeof createStore>;
+  widgetPrefixQuery: string;
 }
 
 export type StatusDetail = {
