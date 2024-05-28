@@ -145,7 +145,6 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
   );
-
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
     `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
   );
