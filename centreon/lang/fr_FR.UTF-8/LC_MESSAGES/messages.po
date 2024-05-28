@@ -16873,8 +16873,8 @@ msgstr "Se connecter avec"
 msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
-msgid "Impossible to get contact templates from data storage"
-msgstr "Impossible d'obtenir les modèles de contact depuis le stockage de données"
+msgid "Error while searching for contact templates"
+msgstr "Erreur lors de la recherche des modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
@@ -18541,3 +18541,6 @@ msgstr "Nom de page invalide. Les noms de page valident sont: %s"
 
 msgid "You are not allowed to access the Resources Status page"
 msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
+
+msgid "You are not allowed to list contact templates"
+msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
