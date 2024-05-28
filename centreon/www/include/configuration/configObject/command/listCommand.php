@@ -154,16 +154,18 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
     $selectedElements = $form->addElement('checkbox', "select[" . $cmd['command_id'] . "]");
 
     if ($cmd["command_activate"]) {
-        $moptions = "<a href='main.php?p=" . $p . "&command_id=" . $cmd['command_id'] . "&o=di&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search .  "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' " .
-            "class='ico-14 margin_right' border='0' alt='" . _("Disabled") . "'></a>";
+        $optionO = 'di';
+        $altText =  _("Disabled");
+        $iconValue = "disabled.png";
     } else {
-        $moptions = "<a href='main.php?p=" . $p . "&command_id=" . $cmd['command_id'] . "&o=en&limit=" . $limit .
-            "&num=" . $num . "&search=" . $search .  "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' " .
-            "class='ico-14 margin_right' border='0' alt='" . _("Enabled") . "'></a>";
+        $optionO = 'en';
+        $altText =  _("Enabled");
+        $iconValue = "enabled.png";
     }
+    $moptions = "<a href='main.php?p=" . $p . "&command_id=" . $cmd['command_id'] . "&o=" . $optionO .
+        "&limit=" . $limit . "&num=" . $num . "&search=" . $search .  "&centreon_token=" . $centreonToken .
+        "'><img src='img/icons/" . $iconValue . "' " .
+        "class='ico-14 margin_right' border='0' alt='" . $altText . "'></a>";
 
     if (isset($lockedElements[$cmd['command_id']])) {
         $selectedElements->setAttribute('disabled', 'disabled');
