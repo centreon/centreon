@@ -37,9 +37,10 @@ use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
+use Core\Security\Vault\Application\Interfaces\CredentialMigrationUseCaseInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
-final class MigrateAllCredentials
+final class MigrateAllCredentials implements CredentialMigrationUseCaseInterface
 {
     use LoggerTrait;
 
@@ -146,7 +147,7 @@ final class MigrateAllCredentials
      * @param Host[] $hosts
      * @param HostTemplate[] $hostTemplates
      */
-    public function migrateCredentials(
+    private function migrateCredentials(
         \Traversable&\Countable $credentials,
         MigrateAllCredentialsResponse $response,
         array $hosts,

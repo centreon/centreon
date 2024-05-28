@@ -25,6 +25,9 @@ namespace Core\Macro\Application\Repository;
 
 use Core\Macro\Domain\Model\Macro;
 
+/**
+ * This Interface is designed to read macros for both hosts and host templates.
+ */
 interface ReadHostMacroRepositoryInterface
 {
     /**

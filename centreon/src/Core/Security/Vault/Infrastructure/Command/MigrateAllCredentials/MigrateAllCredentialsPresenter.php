@@ -59,6 +59,13 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
         }
     }
 
+    /**
+     * Convert the enum into a string.
+     *
+     * @param CredentialTypeEnum $type
+     *
+     * @return string
+     */
     private function convertTypeToString(CredentialTypeEnum $type): string {
         return match ($type) {
             CredentialTypeEnum::TYPE_HOST => 'host',
@@ -67,6 +74,13 @@ class MigrateAllCredentialsPresenter extends CliAbstractPresenter implements Mig
         };
     }
 
+    /**
+     * Prefix the macro with _HOST or _SERVICE depending of the type.
+     *
+     * @param CredentialRecordedDto|CredentialErrorDto $dto
+     *
+     * @return string
+     */
     private function prefixMacroName(CredentialRecordedDto|CredentialErrorDto $dto): string
     {
         if ($dto->credentialName === '_HOSTSNMPCOMMUNITY') {

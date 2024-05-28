@@ -83,7 +83,10 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
                         $existingUuids
                     );
                 } else {
-                    $recordInformation = $this->migrateServiceCredentials($credential, $existingUuids);
+                    $recordInformation = $this->migrateServiceAndServiceTemplateCredentials(
+                        $credential,
+                        $existingUuids
+                    );
                 }
 
                 $status = new CredentialRecordedDto();
@@ -176,8 +179,10 @@ class CredentialMigrator implements \IteratorAggregate, \Countable
      *
      * @return array{uuid: string, path: string}
      */
-    private function migrateServiceCredentials(CredentialDto $credential, array &$existingUuids): array
-    {
+    private function migrateServiceAndServiceTemplateCredentials(
+        CredentialDto $credential,
+        array &$existingUuids
+    ): array {
         $uuid = null;
         if (array_key_exists($credential->resourceId, $existingUuids['services'])) {
             $uuid = $existingUuids['services'][$credential->resourceId];
