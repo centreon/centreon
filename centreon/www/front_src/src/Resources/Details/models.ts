@@ -57,6 +57,7 @@ export interface ResourceDetails extends NamedEntity {
   percent_state_change: number;
   performance_data?: string;
   sensitivity?: Sensitivity;
+  service_id?: number;
   severity: Severity;
   severity_level: number;
   status: Status;
