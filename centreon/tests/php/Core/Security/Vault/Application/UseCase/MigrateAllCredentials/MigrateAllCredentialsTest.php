@@ -67,7 +67,7 @@ it('should present an Error Response when no vault are configured', function ():
     ($this->useCase)($presenter);
 
     expect($presenter->response)->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->response->getMessage())->toBe(VaultException::noVaultConfigured());
+        ->and($presenter->response->getMessage())->toBe(VaultException::noVaultConfigured()->getMessage());
 });
 
 it('should present a MigrateAllCredentialsResponse when no error occurs', function (): void {
