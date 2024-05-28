@@ -34,8 +34,9 @@ Feature: Resource Access Management
 
   Scenario: Adding access rule for all host groups
     Given an Administrator is logged in on the platform
-    When the Administrator is redirected to the "Resource Access Management" page
-    Then the Administrator clicks on the "Add" button
+    When a new host is created
+    Then the Administrator is redirected to the "Resource Access Management" page
+    And the Administrator clicks on the "Add" button
     When the form is displayed
     Then the Administrator selects "Host" as the resource and fills in the required fields
     And the Administrator selects "All hosts"
