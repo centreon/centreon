@@ -7,6 +7,7 @@ interface Props {
 }
 const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
   const { pathname, search } = useLocation();
+  const iframe = document.getElementById('main-content') as HTMLIFrameElement;
   const isLegacyRoute = pathname.includes('main.php');
 
   const closeSubMenu = (): void => {
@@ -14,8 +15,6 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
   };
 
   useEffect(() => {
-    const iframe = document.getElementById('main-content') as HTMLIFrameElement;
-
     if (!isLegacyRoute) {
       return () => undefined;
     }
