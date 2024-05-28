@@ -54,7 +54,7 @@ Given('I am logged in as a user with limited access', () => {
   cy.installCloudExtensionsModule();
   cy.grantBaAccessToUsers();
   cy.logoutViaAPI();
-  // cy.setUserTokenApiV1();
+  cy.setUserTokenApiV1();
   // user should have access to ba
   cy.addContact({
     admin: data.admin,
@@ -149,22 +149,21 @@ When(
         interval: 500,
         timeout: 10000
       }
-    );
-    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+    ).then(() => {
+      cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+    });
+    cy.contains('div', 'The resource access rule was successfully created');
     // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    cy.applyAcl();
-    cy.wait(4000);
   }
 );
 
 Then('the Administrator logs out', () => {
-  cy.logoutViaAPI();
-  cy.wait(4000);
   cy.applyAcl();
+  cy.logoutViaAPI();
 });
 
 Given('the selected user is logged in', () => {
