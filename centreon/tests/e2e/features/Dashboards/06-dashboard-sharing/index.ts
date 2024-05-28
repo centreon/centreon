@@ -194,6 +194,7 @@ Given(
     });
 
     cy.visit('/centreon/home/dashboards/library');
+    cy.wait('@listAllDashboards');
   }
 );
 
@@ -201,7 +202,7 @@ When(
   'the dashboard administrator user sets another user as a second editor on a dashboard',
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Share with contacts', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');

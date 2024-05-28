@@ -248,8 +248,8 @@ Then('only the contents of the other widget are displayed', () => {
 When(
   'the dashboard administrator user hides the description of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).trigger('click');
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
+    cy.getByLabel({ label: 'MoreHorizIcon' }).click();
+    cy.getByLabel({ label: 'Edit widget' }).click();
     cy.getByLabel({ label: 'Show description' }).click({ force: true });
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();

@@ -366,7 +366,7 @@ When(
       tag: 'button'
     }).click();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).realClick();
   }
 );
 

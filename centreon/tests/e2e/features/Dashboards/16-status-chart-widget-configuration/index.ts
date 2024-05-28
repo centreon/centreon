@@ -332,7 +332,7 @@ Given('a dashboard that includes a configured Status Chart widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
