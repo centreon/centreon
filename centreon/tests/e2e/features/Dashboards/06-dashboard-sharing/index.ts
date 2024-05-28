@@ -22,7 +22,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
@@ -72,6 +72,7 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     page: 'Dashboards',
     rootItemNumber: 0
   });
+  cy.wait('@listAllDashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {

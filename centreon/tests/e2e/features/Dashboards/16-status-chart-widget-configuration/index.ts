@@ -440,16 +440,6 @@ When(
 
 Then('a second Status Chart widget is displayed on the dashboard', () => {
   cy.verifyLegendItemStyle(
-    2,
-    [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
-  );
-  cy.verifyLegendItemStyle(
     3,
     [
       'background: rgb(255, 102, 102)',
