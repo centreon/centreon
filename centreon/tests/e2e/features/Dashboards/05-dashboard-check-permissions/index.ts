@@ -139,7 +139,7 @@ Then(
 
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  cy.getByLabel({ label: 'close', tag: 'button' }).click();
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
