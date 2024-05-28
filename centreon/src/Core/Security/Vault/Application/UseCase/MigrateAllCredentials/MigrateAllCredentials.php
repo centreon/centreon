@@ -37,7 +37,6 @@ use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
-use Core\Security\Vault\Application\Interfaces\CredentialMigrationUseCaseInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 final class MigrateAllCredentials
