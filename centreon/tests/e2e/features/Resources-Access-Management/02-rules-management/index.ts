@@ -46,10 +46,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topcounter&action=hosts_status'
   }).as('getTopCounterhosts');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/administration/resource-access/rules'
-  }).as('getRules');
 });
 
 Given('I am logged in as a user with limited access', () => {
@@ -109,7 +105,7 @@ Then(
       bodyContent: {
         action: 'DEL',
         object: 'ACLRESOURCE',
-        values: 'ALL RESOURCES'
+        values: 'All Resources'
       }
     });
     cy.visit(`centreon/administration/resource-access/rules`);
