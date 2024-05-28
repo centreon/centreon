@@ -149,6 +149,7 @@ When(
 
 Then('the Administrator logs out', () => {
   cy.logoutViaAPI();
+  cy.applyAcl();
 });
 
 Given('the selected user is logged in', () => {
