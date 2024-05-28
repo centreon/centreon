@@ -138,25 +138,37 @@ When(
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.contains(`${data.login}`).click();
-    cy.getByLabel({ label: 'Save', tag: 'button' })
-      .should('not.be.disabled')
-      .click();
+    cy.waitUntil(
+      () => {
+        return cy
+          .getByLabel({ label: 'Save', tag: 'button' })
+          .then((button) => {
+            return !button.prop('disabled');
+          });
+      },
+      {
+        interval: 500,
+        timeout: 10000
+      }
+    );
+    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
     cy.applyAcl();
+    cy.wait(4000);
   }
 );
 
 Then('the Administrator logs out', () => {
   cy.logoutViaAPI();
+  cy.wait(4000);
   cy.applyAcl();
 });
 
 Given('the selected user is logged in', () => {
-  cy.applyAcl();
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
