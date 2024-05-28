@@ -142,7 +142,6 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    cy.applyAcl();
   }
 );
 
