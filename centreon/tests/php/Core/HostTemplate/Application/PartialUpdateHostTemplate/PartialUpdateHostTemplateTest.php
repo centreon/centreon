@@ -252,6 +252,12 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -270,9 +276,15 @@ it('should present a NotFoundResponse when the host template does not exist', fu
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn(null);
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
@@ -289,6 +301,12 @@ it('should present a InvalidArgumentResponse when the host template is locked', 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -309,6 +327,12 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -342,9 +366,15 @@ it('should present a ConflictResponse when host severity ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation
@@ -367,6 +397,12 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -392,9 +428,15 @@ it('should present a ConflictResponse when a timeperiod ID is not valid', functi
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation
@@ -425,6 +467,12 @@ it('should present a ConflictResponse when a command ID is not valid', function 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -458,9 +506,15 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findById')
+        ->method('findByIdAndAccessGroups')
         ->willReturn($this->originalHostTemplate);
 
     $this->validation

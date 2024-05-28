@@ -25,6 +25,7 @@ namespace Core\HostTemplate\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostTemplateRepositoryInterface
 {
@@ -49,6 +50,18 @@ interface ReadHostTemplateRepositoryInterface
      * @return ?HostTemplate
      */
     public function findById(int $hostTemplateId): ?HostTemplate;
+
+    /**
+     * Find a host template by id and access groups.
+     *
+     * @param int $hostTemplateId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate|null
+     */
+    public function findByIdAndAccessGroups(int $hostTemplateId, array $accessGroups): ?HostTemplate;
 
     /**
      * Find a host template by its id.
