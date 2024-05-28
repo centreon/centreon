@@ -40,7 +40,7 @@ use Core\Security\Vault\Application\Exceptions\VaultException;
 use Core\Security\Vault\Application\Interfaces\CredentialMigrationUseCaseInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
-final class MigrateAllCredentials implements CredentialMigrationUseCaseInterface
+final class MigrateAllCredentials
 {
     use LoggerTrait;
 
