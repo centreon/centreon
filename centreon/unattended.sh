@@ -268,11 +268,11 @@ function get_os_information() {
 	case "${OS_NAME}" in
 		AlmaLinux*)
 			detected_os_release="almalinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			detected_mariadb_version="mariadb-10.11"
 			;;
 		CentOS*)
 			detected_os_release="centos-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			detected_mariadb_version="mariadb-10.11"
 			;;
 		Debian*)
 			detected_os_release="debian-release-${OS_VERSIONID}"
@@ -290,15 +290,15 @@ function get_os_information() {
 			;;
 		Oracle*)
 			detected_os_release="oraclelinux-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			detected_mariadb_version="mariadb-10.11"
 			;;
 		"Red Hat"*)
 			detected_os_release="redhat-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			detected_mariadb_version="mariadb-10.11"
 			;;
 		Rocky*)
 			detected_os_release="rocky-release-${OS_VERSIONID}"
-			detected_mariadb_version="mariadb-10.5"
+			detected_mariadb_version="mariadb-10.11"
 			;;
 		*)
 			log "ERROR" "Unsupported distribution ${OS_NAME} detected"
