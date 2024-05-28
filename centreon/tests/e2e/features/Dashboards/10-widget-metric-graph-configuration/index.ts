@@ -183,6 +183,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@performanceData');
+  cy.getByTestId({ testId: '1_move_panel' }).should('be.visible');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
@@ -270,6 +271,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
+    cy.getByTestId({ testId: '1_move_panel' }).should('be.visible');
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
@@ -295,6 +297,7 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+  cy.getByTestId({ testId: '1_move_panel' }).should('be.visible');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.wait('@performanceData');
 });
@@ -330,6 +333,7 @@ Given('a dashboard featuring a configured Metrics Graph widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+  cy.getByTestId({ testId: '1_move_panel' }).should('be.visible');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
@@ -381,6 +385,7 @@ Given('a dashboard with a configured Metrics Graph widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+  cy.getByTestId({ testId: '1_move_panel' }).should('be.visible');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',

@@ -194,7 +194,6 @@ Given(
     });
 
     cy.visit('/centreon/home/dashboards/library');
-    cy.wait('@listAllDashboards');
   }
 );
 
