@@ -81,7 +81,11 @@ Given('an admin user is logged in on a platform with dashboards', () => {
 });
 
 When('the admin user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -167,7 +171,11 @@ Given('an admin user on the dashboards library', () => {
 });
 
 When('the admin user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -207,7 +215,11 @@ Given('an admin user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -243,7 +255,11 @@ Given(
 );
 
 When('the dashboard administrator user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -337,7 +353,11 @@ Given(
 );
 
 When('the dashboard administrator user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -376,8 +396,11 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
-
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
@@ -415,7 +438,11 @@ Given(
 );
 
 When('the dashboard editor user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -509,7 +536,11 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -549,7 +580,11 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -581,7 +616,11 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
@@ -658,7 +697,11 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then('the option to create a new dashboard is not displayed', () => {

@@ -68,7 +68,11 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {
@@ -103,7 +107,11 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the editor user sets another user as a viewer on the dashboard', () => {
@@ -192,8 +200,11 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
   }
 );
 
@@ -284,8 +295,11 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -376,8 +390,11 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -470,8 +487,11 @@ Given(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
