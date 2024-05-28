@@ -14,11 +14,11 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
   };
 
   useEffect(() => {
-    const iframe = document.getElementById('main-content') as HTMLIFrameElement;
-
     if (!isLegacyRoute) {
       return () => undefined;
     }
+
+    const iframe = document.getElementById('main-content') as HTMLIFrameElement;
 
     const closeSubMenuOnLegacyPage = (): void => {
       iframe?.contentWindow?.document?.addEventListener('click', closeSubMenu);

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
-import { FormControlLabel, FormGroup, Switch } from '@mui/material';
+import { FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -69,7 +69,7 @@ const Options = (): JSX.Element => {
             }
             data-testid={label}
             key={label}
-            label={t(label) as string}
+            label={<Typography variant="body2">{t(label)}</Typography>}
             labelPlacement="bottom"
           />
         ))}
