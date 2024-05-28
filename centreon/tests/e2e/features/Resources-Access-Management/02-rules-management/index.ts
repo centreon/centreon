@@ -104,24 +104,13 @@ Then(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
     // all resources should be deleted first
-    cy.navigateTo({
-      page: 'Resources Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLRESOURCE',
+        values: 'ALL RESOURCES'
+      }
     });
-    cy.on('window:confirm', (text) => {
-      expect(text).to.equal('Do you confirm the deletion ?');
-
-      return true;
-    });
-    cy.getIframeBody()
-      .find('td.ListColPicker input[type="checkbox"]')
-      .parent()
-      .click();
-    cy.getIframeBody()
-      .find('table.ToolbarTable.table')
-      .find('select[name="o2"]')
-      .select('Delete');
     cy.visit(`centreon/administration/resource-access/rules`);
   }
 );
