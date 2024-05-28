@@ -169,7 +169,11 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -266,7 +270,11 @@ When('the second editor user logs in on the platform', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -361,7 +369,11 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -375,7 +387,11 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -456,7 +472,11 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -470,7 +490,11 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -566,7 +590,11 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -586,7 +614,11 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);

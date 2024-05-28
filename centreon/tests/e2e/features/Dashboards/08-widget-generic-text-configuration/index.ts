@@ -143,8 +143,8 @@ Given('a dashboard featuring a single Generic text widget', () => {
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
-  cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
+  cy.getByLabel({ label: 'More actions' }).eq(0).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(0).click();
   cy.get('*[class^="react-grid-layout"]')
     .should('exist')
     .children()
