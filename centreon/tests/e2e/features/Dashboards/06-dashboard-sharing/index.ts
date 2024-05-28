@@ -72,7 +72,6 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     page: 'Dashboards',
     rootItemNumber: 0
   });
-  cy.wait('@listAllDashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {

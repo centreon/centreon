@@ -375,7 +375,7 @@ When(
       tag: 'button'
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).realClick();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
 
