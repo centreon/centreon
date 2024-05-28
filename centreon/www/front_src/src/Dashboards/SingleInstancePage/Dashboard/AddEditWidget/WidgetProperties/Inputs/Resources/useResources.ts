@@ -14,7 +14,9 @@ import {
   isNotNil,
   find,
   last,
-  filter
+  filter,
+  pick,
+  map
 } from 'ramda';
 import { useAtomValue } from 'jotai';
 
@@ -227,12 +229,21 @@ const useResources = ({
 
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
-      setFieldValue(`data.${propertyName}.${index}.resources`, resources);
+      const selectedResources = map(pick(['id', 'name']), resources || []);
+
+      setFieldValue(
+        `data.${propertyName}.${index}.resources`,
+        selectedResources
+      );
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
   const changeResource = (index: number) => (_, resource: SelectEntry) => {
-    setFieldValue(`data.${propertyName}.${index}.resources`, [resource]);
+    const selectedResource = resource ? pick(['id', 'name'], resource) : {};
+
+    setFieldValue(`data.${propertyName}.${index}.resources`, [
+      selectedResource
+    ]);
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 

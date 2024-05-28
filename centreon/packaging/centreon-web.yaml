@@ -260,13 +260,6 @@ contents:
     file_info:
       mode: 0664
 
-  - dst: "/usr/share/centreon/config/vault"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
   - src: "../cron"
     dst: "/usr/share/centreon/cron"
     file_info:
@@ -339,6 +332,14 @@ contents:
     file_info:
       owner: "centreon-broker"
       group: "centreon-broker"
+
+
+  - dst: "/var/lib/centreon/vault"
+    type: dir
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0775
 
   - dst: "/var/lib/centreon/installs"
     type: dir
