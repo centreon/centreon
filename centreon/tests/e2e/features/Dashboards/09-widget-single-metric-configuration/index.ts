@@ -194,7 +194,8 @@ Given(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByLabel({ label: 'Save' }).should('be.disabled');
+    cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'
@@ -232,6 +233,7 @@ Given('a dashboard containing a Single Metric widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+  cy.getByLabel({ label: 'Save' }).should('be.disabled');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
 });
@@ -284,6 +286,7 @@ Given('a dashboard featuring a Single Metric widget', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+  cy.getByLabel({ label: 'Save' }).should('be.disabled');
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').realClick();
 });
@@ -325,7 +328,8 @@ Given('a dashboard featuring two Single Metric widgets', () => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
+  cy.getByLabel({ label: 'Save' }).should('be.disabled');
+  cy.getByTestId({ testId: 'More actions' }).click();
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
