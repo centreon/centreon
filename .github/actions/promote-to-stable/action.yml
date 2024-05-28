@@ -136,8 +136,10 @@ runs:
         case "${{ inputs.major_version }}" in
           "22.10"|"23.04"|"23.10")
             SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*.deb | jq -r '.[].path')
+            ;;
           *)
             SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.distrib }}*.deb | jq -r '.[].path')
+            ;;
         esac
 
         if [[ ${SRC_PATHS[@]} ]]; then
@@ -162,8 +164,10 @@ runs:
         case "${{ inputs.major_version }}" in
           "22.10"|"23.04"|"23.10")
             ARTIFACT_SEARCH_PATTERN=".+\.deb"
+            ;;
           *)
             ARTIFACT_SEARCH_PATTERN=".+${{ inputs.distrib }}.+\.deb"
+            ;;
         esac
 
         for ARTIFACT_DL in $(dir -1|grep -E $ARTIFACT_SEARCH_PATTERN); do
