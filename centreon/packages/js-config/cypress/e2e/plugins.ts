@@ -28,6 +28,7 @@ export default (
       // force screen to be non-retina and just use our given resolution
       launchOptions.args.push('--force-device-scale-factor=1');
     }
+    launchOptions.args.push(`--window-size=${width},${height}`);
 
     return launchOptions;
   });

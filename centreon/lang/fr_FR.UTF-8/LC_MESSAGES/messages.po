@@ -16841,8 +16841,8 @@ msgstr "Se connecter avec"
 msgid "Can't resolve username from login claim using configured regular expression"
 msgstr "Impossible de résoudre le nom d'utilisateur à partir de la déclaration de connexion en utilisant l'expression régulière configurée"
 
-msgid "Impossible to get contact templates from data storage"
-msgstr "Impossible d'obtenir les modèles de contact depuis le stockage de données"
+msgid "Error while searching for contact templates"
+msgstr "Erreur lors de la recherche des modèles de contact"
 
 msgid "Enable auto import"
 msgstr "Activer l'importation automatique"
@@ -18634,7 +18634,6 @@ msgstr "Utilisateur supprimé"
 msgid "You are going to delete <strong>{{name}}</strong> from the user list. This user will no longer be able to access the dashboard."
 msgstr "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
 
-
 msgid "Your comment has been saved."
 msgstr "Votre commentaire a été enregistré."
 
@@ -18916,3 +18915,6 @@ msgstr "Standard"
 
 msgid "Condensed"
 msgstr "Condensé"
+
+msgid "You are not allowed to list contact templates"
+msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
