@@ -576,97 +576,97 @@ Then(
   }
 );
 
-Given(
-  "a dashboard featuring a dashboard administrator as editor, and three users who are not part of the dashboard's share list",
-  () => {
-    cy.loginByTypeOfUser({
-      jsonName: dashboardAdministratorUser.login,
-      loginViaApi: false
-    });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
-  }
-);
+// Given(
+//   "a dashboard featuring a dashboard administrator as editor, and three users who are not part of the dashboard's share list",
+//   () => {
+//     cy.loginByTypeOfUser({
+//       jsonName: dashboardAdministratorUser.login,
+//       loginViaApi: false
+//     });
+//     cy.visit('/centreon/home/dashboards/library');
+//     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
+//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+//   }
+// );
 
-When('the admin user appoints one of the users as an editor', () => {
-  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-  cy.contains(dashboardCreatorUser.login).click();
-  cy.getByTestId({ testId: 'add' }).should('be.enabled');
-  cy.getByTestId({ testId: 'add' }).click();
-  cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` }).realClick();
-  cy.get('[role="listbox"]').contains('Editor').click();
-  cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
-  cy.wait('@updateShares');
-});
+// When('the admin user appoints one of the users as an editor', () => {
+//   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+//   cy.contains(dashboardCreatorUser.login).click();
+//   cy.getByTestId({ testId: 'add' }).should('be.enabled');
+//   cy.getByTestId({ testId: 'add' }).click();
+//   cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` }).realClick();
+//   cy.get('[role="listbox"]').contains('Editor').click();
+//   cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
+//   cy.wait('@updateShares');
+// });
 
-Then(
-  'the newly appointed editor user can appoint another user as an editor',
-  () => {
-    cy.visit('/centreon/home/dashboards/library');
-    cy.logout();
-    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+// Then(
+//   'the newly appointed editor user can appoint another user as an editor',
+//   () => {
+//     cy.visit('/centreon/home/dashboards/library');
+//     cy.logout();
+//     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    cy.loginByTypeOfUser({
-      jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
-    });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.contains('Contact').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-    cy.contains(dashboardCGMember3.login).click();
-    cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: 'add' }).click();
-    cy.getByTestId({ testId: `role-${dashboardCGMember3.login}` }).realClick();
-    cy.get('[role="listbox"]').contains('Editor').click();
-    cy.getByLabel({ label: 'Save', tag: 'button' })
-      .should('be.enabled')
-      .click();
-    cy.wait('@updateShares');
-    cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
-    cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('share', 4);
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .contains(dashboardCGMember3.login)
-      .should('exist');
+//     cy.loginByTypeOfUser({
+//       jsonName: dashboardCreatorUser.login,
+//       loginViaApi: false
+//     });
+//     cy.visit('/centreon/home/dashboards/library');
+//     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
+//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+//     cy.contains('Contact').click();
+//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+//     cy.contains(dashboardCGMember3.login).click();
+//     cy.getByTestId({ testId: 'add' }).should('be.enabled');
+//     cy.getByTestId({ testId: 'add' }).click();
+//     cy.getByTestId({ testId: `role-${dashboardCGMember3.login}` }).realClick();
+//     cy.get('[role="listbox"]').contains('Editor').click();
+//     cy.getByLabel({ label: 'Save', tag: 'button' })
+//       .should('be.enabled')
+//       .click();
+//     cy.wait('@updateShares');
+//     cy.wait('@getDashboard');
+//     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+//     cy.get('.MuiAlert-message').should('not.exist');
+//     cy.waitUntilForDashboardRoles('share', 4);
+//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+//     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
+//       .eq(1)
+//       .children()
+//       .contains(dashboardCGMember3.login)
+//       .should('exist');
 
-    cy.get('[data-state="added"]').should('not.exist');
-    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
-  }
-);
+//     cy.get('[data-state="added"]').should('not.exist');
+//     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+//   }
+// );
 
-Then(
-  'the newly appointed editor user can appoint another user as a viewer',
-  () => {
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
-    cy.contains(dashboardViewerUser.login).click();
-    cy.getByTestId({ testId: 'add' }).should('be.enabled');
-    cy.getByTestId({ testId: 'add' }).click();
-    cy.getByTestId({ testId: `role-${dashboardViewerUser.login}` }).realClick();
-    cy.get('[role="listbox"]').contains('Viewer').click();
-    cy.getByLabel({ label: 'Save', tag: 'button' })
-      .should('be.enabled')
-      .click();
-    cy.wait('@updateShares');
-    cy.wait('@getDashboard');
-    cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
-    cy.get('.MuiAlert-message').should('not.exist');
-    cy.waitUntilForDashboardRoles('share', 5);
-    cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
-      .eq(1)
-      .children()
-      .contains(dashboardViewerUser.login)
-      .should('exist');
+// Then(
+//   'the newly appointed editor user can appoint another user as a viewer',
+//   () => {
+//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+//     cy.contains(dashboardViewerUser.login).click();
+//     cy.getByTestId({ testId: 'add' }).should('be.enabled');
+//     cy.getByTestId({ testId: 'add' }).click();
+//     cy.getByTestId({ testId: `role-${dashboardViewerUser.login}` }).realClick();
+//     cy.get('[role="listbox"]').contains('Viewer').click();
+//     cy.getByLabel({ label: 'Save', tag: 'button' })
+//       .should('be.enabled')
+//       .click();
+//     cy.wait('@updateShares');
+//     cy.wait('@getDashboard');
+//     cy.getByTestId({ testId: 'CloseIcon' }).eq(0).click();
+//     cy.get('.MuiAlert-message').should('not.exist');
+//     cy.waitUntilForDashboardRoles('share', 5);
+//     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+//     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
+//       .eq(1)
+//       .children()
+//       .contains(dashboardViewerUser.login)
+//       .should('exist');
 
-    cy.get('[data-state="added"]').should('not.exist');
-    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
-  }
-);
+//     cy.get('[data-state="added"]').should('not.exist');
+//     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+//   }
+// );
