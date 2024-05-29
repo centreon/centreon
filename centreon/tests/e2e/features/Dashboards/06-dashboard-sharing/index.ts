@@ -294,7 +294,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-viewer').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -386,7 +386,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -475,7 +475,7 @@ Given(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
