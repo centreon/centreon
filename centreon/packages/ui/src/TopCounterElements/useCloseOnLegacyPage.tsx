@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
+import { isNil } from 'ramda';
 import { useLocation } from 'react-router-dom';
 
 interface Props {
@@ -18,7 +19,7 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
       'main-content'
     ) as HTMLIFrameElement | null;
 
-    if (!isLegacyRoute) {
+    if (!isLegacyRoute || isNil(iframe)) {
       return () => undefined;
     }
 
