@@ -227,7 +227,7 @@ When(
         timeout: 10000
       }
     );
-    cy.getByLabel({ label: 'Save', tag: 'button' }).realClick();
+    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
     });
