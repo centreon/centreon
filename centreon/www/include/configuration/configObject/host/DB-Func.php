@@ -41,6 +41,7 @@ if (!isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 /**
  * Quickform rule that checks whether or not monitoring server can be set
@@ -357,7 +358,18 @@ function deleteHostInDB($hosts = array())
 {
     global $pearDB, $centreon;
 
-    foreach (array_keys($hosts) as $hostId) {
+    $hostIds = array_keys($hosts);
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration !== null) {
+        deleteResourceSecretsInVault($vaultConfiguration, $logger, $hostIds, []);
+    }
+    foreach ($hostIds as $hostId) {
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
 
         removeRelationLastHostDependency((int) $hostId);
@@ -411,7 +423,20 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
 {
     global $pearDB, $path, $centreon, $is_admin;
 
-    $hostAcl = array();
+    $hostAcl = [];
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration !== null) {
+        $httpClient = new CentreonRestHttp();
+        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    }
     foreach ($hosts as $key => $value) {
         $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int)$key . "' LIMIT 1");
         $row = $dbResult->fetch();
@@ -673,6 +698,7 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                                    VALUES (:host_host_id, :host_macro_name, :host_macro_value,
                                            :is_password)";
                     $statement = $pearDB->prepare($mTpRq2);
+                    $macroPasswords = [];
                     while ($hst = $dbResult3->fetch()) {
                         $macName = str_replace("\$", "", $hst["host_macro_name"]);
                         $macVal = $hst['host_macro_value'];
@@ -685,6 +711,13 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                         $statement->bindValue(':is_password', (int) $hst["is_password"], \PDO::PARAM_INT);
                         $statement->execute();
                         $fields["_" . strtoupper($macName) . "_"] = $macVal;
+                        if ($hst['is_password'] === 1) {
+                            $maxIdStatement = $pearDB->query(
+                                "SELECT MAX(host_macro_id) from on_demand_macro_host WHERE is_password = 1"
+                            );
+                            $resultMacro = $maxIdStatement->fetch();
+                            $macroPasswords[$resultMacro['MAX(host_macro_id)']] = $macVal;
+                        }
                     }
 
                     /*
@@ -698,6 +731,34 @@ function multipleHostInDB($hosts = array(), $nbrDup = array())
                     $statement->bindValue(':max_host_id', (int) $maxId["MAX(host_id)"], \PDO::PARAM_INT);
                     $statement->bindValue(':host_id', (int) $key, \PDO::PARAM_INT);
                     $statement->execute();
+
+                    /**
+                     * The value should be duplicated in vault if it's a password and is already in vault
+                     * The regex /^secret::[^:]*::/ define that the value is store in vault.
+                     */
+                    if (
+                        ! empty($row['host_snmp_community'])
+                        && preg_match('/' . VAULT_PATH_REGEX . '/', $row['host_snmp_community'])
+                        || ! empty($macroPasswords)
+                    ) {
+                        if ($vaultConfiguration !== null) {
+                            try {
+                                duplicateHostSecretsInVault(
+                                    $vaultConfiguration,
+                                    $logger,
+                                    $uuidGenerator,
+                                    $httpClient,
+                                    $row['host_snmp_community'],
+                                    $macroPasswords,
+                                    $key,
+                                    $clientToken,
+                                    (int) $maxId["MAX(host_id)"]
+                                );
+                            } catch (\Throwable $ex) {
+                                error_log((string) $ex);
+                            }
+                        }
+                    }
 
                     signalConfigurationChange('host', (int) $maxId["MAX(host_id)"]);
                     $centreon->CentreonLogAction->insertLog("host", $maxId["MAX(host_id)"], $hostName, "a", $fields);
@@ -1273,6 +1334,31 @@ function insertHost($ret, $macro_on_demand = null, $server_id = null)
         );
     }
 
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration !== null) {
+        try {
+            insertHostSecretsInVault(
+                $vaultConfiguration,
+                $uuidGenerator,
+                $logger,
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR],
+                $hostObj->getFormattedMacros(),
+                (int) $host_id['MAX(host_id)']
+            );
+        } catch (\Throwable $ex) {
+            $logger->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($ret['criticality_id'])) {
         setHostCriticality($host_id['MAX(host_id)'], $ret['criticality_id']);
     }
@@ -1559,6 +1645,22 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         $ret = $configuration;
     }
 
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
+    }
+
     if (! $isCloudPlatform) {
         if (! isset($ret['contact_additive_inheritance'])) {
             $ret['contact_additive_inheritance'] = '0';
@@ -1590,6 +1692,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     $ret["host_name"] = $host->checkIllegalChar($ret["host_name"], $server_id);
+    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        unset($ret['host_snmp_community']);
+    }
     $bindParams = sanitizeFormHostParameters($ret);
 
     if ($isCloudPlatform) {
@@ -1700,6 +1805,23 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         setHostCriticality($hostId, $ret['criticality_id']);
     }
 
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            updateHostSecretsInVault(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                $uuid,
+                (int) $hostId,
+                $hostObj->getFormattedMacros(),
+                $bindParams[':host_snmp_community'][\PDO::PARAM_STR]
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     /*
      *  Logs
      */
@@ -1717,6 +1839,22 @@ function updateHost_MC($hostId = null)
 
     if (! $hostId) {
         return;
+    }
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveHostUuidFromDatabase($pearDB, $hostId, $vaultConfiguration->getName());
     }
 
     $submittedValues = [];
@@ -1817,6 +1955,23 @@ function updateHost_MC($hostId = null)
 
     if (isset($submittedValues['criticality_id']) && $submittedValues['criticality_id']) {
         setHostCriticality($hostId, $submittedValues['criticality_id']);
+    }
+
+    // If there is a vault configuration write into vault.
+    if ($vaultConfiguration !== null) {
+        try {
+            updateHostSecretsInVaultFromMC(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                $uuid,
+                $hostId,
+                $hostObj->getFormattedMacros(),
+                $submittedValues['host_snmp_community']
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $hostId . "' LIMIT 1");

@@ -8,7 +8,9 @@ import {
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
@@ -302,6 +304,15 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     },
     useDeepCompare([servicesMetrics, resources])
   );
+
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue(`data.services`, services);
+  }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,
