@@ -43,6 +43,43 @@ properties:
               type: string
               description: color of the line
               example: "#666600"
+            ds_color_area:
+              type: string
+              description: color of the area
+              example: "#666600"
+              nullable: true
+            ds_filled:
+              type: bool
+              description: enables area filling
+              example: true
+            ds_invert:
+              type: bool
+              description: indicates if the curve should be inverted
+              example: true
+            ds_legend:
+              type: string
+              description: legend associated to the curve
+              example: "#666600"
+              nullable: true
+            ds_stack:
+              type: bool
+              description: enable graph stacking
+              example: false
+            ds_order:
+              type: int
+              description: display order
+              example: 2
+              nullable: true
+            ds_transparency:
+              type: float
+              description: Curve transparency. Used to export the chart
+              example: 30
+              nullable: true
+            ds_color_line_mode:
+              type: int
+              description: curve line color mode. Random or manual
+              example: 1
+              nullable: true
         legend:
           type: string
           description: metric name in legend

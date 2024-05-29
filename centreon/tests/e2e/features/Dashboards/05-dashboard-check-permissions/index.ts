@@ -78,6 +78,11 @@ Given('an admin user is logged in on a platform with dashboards', () => {
     jsonName: adminUser.login,
     loginViaApi: false
   });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
 });
 
 When('the admin user accesses the dashboards library', () => {
@@ -139,7 +144,7 @@ Then(
 
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
-  cy.getByLabel({ label: 'close', tag: 'button' }).click();
+  cy.get('body').type('{esc}');
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -168,6 +173,11 @@ Given('an admin user on the dashboards library', () => {
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
     loginViaApi: false
+  });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
   });
 });
 
@@ -215,7 +225,11 @@ Given('an admin user who has just created a dashboard', () => {
     jsonName: adminUser.login,
     loginViaApi: false
   });
-
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
   cy.navigateTo({
     page: 'Dashboards',
     rootItemNumber: 0
@@ -251,6 +265,11 @@ Given(
     cy.loginByTypeOfUser({
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
+    });
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
     });
   }
 );
@@ -350,6 +369,11 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
   }
 );
 
@@ -396,7 +420,11 @@ Given('a dashboard administrator user who has just created a dashboard', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
   cy.navigateTo({
     page: 'Dashboards',
     rootItemNumber: 0
@@ -434,6 +462,11 @@ Given(
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
+    });
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
     });
   }
 );
@@ -534,6 +567,11 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
@@ -580,7 +618,11 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
   cy.navigateTo({
     page: 'Dashboards',
     rootItemNumber: 0
@@ -695,6 +737,11 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
@@ -713,6 +760,11 @@ Given('a dashboard viewer user who could not create a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
+  });
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
   });
 
   cy.visit('/centreon/home/dashboards');
