@@ -221,7 +221,7 @@ When(
             const isDisabled = button.prop('disabled');
             cy.log(`Button disabled state: ${isDisabled}`);
 
-            return !isDisabled;
+            return cy.wrap(!isDisabled);
           });
       },
       {
