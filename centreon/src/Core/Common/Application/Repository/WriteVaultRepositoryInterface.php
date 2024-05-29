@@ -51,5 +51,10 @@ interface WriteVaultRepositoryInterface
      */
     public function delete(string $uuid): void;
 
+    /**
+     * Add a path to the list of available paths.
+     *
+     * @param string $path
+     */
     public function addAvailablePath(string $path): void;
 }
