@@ -1,4 +1,8 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
+
+import { Typography } from '@mui/material';
 
 import { labelDisplayAs } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
@@ -10,7 +14,8 @@ import { useStyles } from './DisplayType.styles';
 
 const DisplayType = ({
   options,
-  propertyName
+  propertyName,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
 
@@ -18,9 +23,11 @@ const DisplayType = ({
 
   const { value, changeType } = useDisplayType({ propertyName });
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div>
-      <Subtitle>{t(labelDisplayAs)}</Subtitle>
+      <Label>{t(labelDisplayAs)}</Label>
       <div className={classes.displayTypeContainer}>
         {options?.map(({ id, icon, label }) => (
           <Option

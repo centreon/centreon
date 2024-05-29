@@ -81,19 +81,21 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  categories?: {
+    [category: string]: {
+      elements: {
+        [key: string]: FederatedWidgetOption & {
+          group?: string;
+        };
+      };
+      groups: Array<SelectEntry>;
+    };
+  };
   customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
   description: string;
-  generalProperties?: {
-    elements: {
-      [key: string]: FederatedWidgetOption & {
-        group?: string;
-      };
-    };
-    groups: Array<SelectEntry>;
-  };
   icon?: string;
   moduleName: string;
   options: {

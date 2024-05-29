@@ -1,6 +1,18 @@
 import { ChangeEvent, useState } from 'react';
 
-import { equals, filter, find, has, isNil, map, propEq, reduce } from 'ramda';
+import {
+  equals,
+  filter,
+  find,
+  has,
+  isEmpty,
+  isNil,
+  map,
+  path,
+  propEq,
+  reduce,
+  toPairs
+} from 'ramda';
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -134,10 +146,17 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       false
     );
 
+    const inputCategories = selectedWidgetProperties?.categories || [];
+
     const options = getDefaultValues(selectedWidgetProperties.options);
-    const properties = getDefaultValues(
-      selectedWidgetProperties.generalProperties?.elements
-    );
+    const properties = toPairs(inputCategories).reduce((acc, [, value]) => {
+      const hasGroups = !isEmpty(value?.groups);
+
+      return {
+        ...acc,
+        ...getDefaultValues(hasGroups ? value.elements : value)
+      };
+    }, {});
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
       (acc, [key, value]) => ({

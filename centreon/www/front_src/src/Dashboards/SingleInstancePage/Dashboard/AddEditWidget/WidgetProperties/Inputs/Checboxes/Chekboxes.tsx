@@ -1,7 +1,14 @@
+import { useMemo } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNotNil } from 'ramda';
 
-import { FormControlLabel, FormGroup, Checkbox } from '@mui/material';
+import {
+  FormControlLabel,
+  FormGroup,
+  Checkbox,
+  Typography
+} from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
@@ -18,7 +25,8 @@ const WidgetCheckboxes = ({
   label,
   defaultValue,
   secondaryLabel,
-  keepOneOptionSelected
+  keepOneOptionSelected,
+  isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -38,9 +46,11 @@ const WidgetCheckboxes = ({
     propertyName
   });
 
+  const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
+
   return (
     <div>
-      <Subtitle secondaryLabel={secondaryLabel}>{t(label)}</Subtitle>
+      <Label secondaryLabel={secondaryLabel}>{t(label)}</Label>
       {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
         <Button
           disabled={!canEditField}

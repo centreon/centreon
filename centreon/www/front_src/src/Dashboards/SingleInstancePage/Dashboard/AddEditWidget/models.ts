@@ -24,6 +24,7 @@ export interface WidgetPropertyProps {
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
+  isInGroup: boolean;
   keepOneOptionSelected?: boolean;
   label: string;
   options?: Array<SelectEntry>;

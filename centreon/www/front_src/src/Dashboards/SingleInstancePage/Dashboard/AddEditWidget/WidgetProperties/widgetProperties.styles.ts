@@ -10,7 +10,7 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     marginBottom: theme.spacing(1)
   },
   groupTitle: {
-    fontSize: '1.15rem'
+    fontWeight: theme.typography.fontWeightBold
   },
   previewDescription: {
     marginTop: theme.spacing(1)
