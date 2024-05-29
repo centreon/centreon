@@ -114,7 +114,17 @@ const getYupValidatorType = ({
               })
               .optional()
           )
-          .min(1, t(labelPleaseSelectAMetric) as string)
+          .when('resources', ([resources], schema) => {
+            const hasMetaService = resources.some(({ resourceType }) =>
+              equals(resourceType, WidgetResourceType.metaService)
+            );
+
+            if (hasMetaService) {
+              return schema;
+            }
+
+            return schema.min(1, t(labelPleaseSelectAMetric) as string);
+          })
       )
     ],
     [

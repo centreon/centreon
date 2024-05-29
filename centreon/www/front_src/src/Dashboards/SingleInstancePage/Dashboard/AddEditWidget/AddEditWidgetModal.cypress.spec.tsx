@@ -38,7 +38,8 @@ import {
   labelCancel,
   labelEditWidget,
   labelAddFilter,
-  labelAddMetric
+  labelAddMetric,
+  labelMetrics
 } from '../translatedLabels';
 import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
@@ -529,7 +530,22 @@ describe('AddEditWidgetModal', () => {
           alias: 'getHosts',
           method: Method.GET,
           path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+          query: {
+            name: 'types',
+            value: '["host"]'
+          },
           response: generateResources('Host')
+        });
+
+        cy.interceptAPIRequest({
+          alias: 'getMetaService',
+          method: Method.GET,
+          path: `**${resourceTypeBaseEndpoints[WidgetResourceType.metaService]}**`,
+          query: {
+            name: 'types',
+            value: '["metaservice"]'
+          },
+          response: generateResources('Meta service')
         });
 
         cy.fixture('Dashboards/Dashboard/serviceMetrics.json').then(
@@ -812,6 +828,23 @@ describe('AddEditWidgetModal', () => {
           'data-checked',
           'true'
         );
+      });
+
+      it('hides metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data for single metric (example)').click();
+
+        cy.contains(labelMetrics).should('be.visible');
+
+        cy.findByTestId(labelResourceType).parent().click();
+        cy.contains(/^Meta service$/).click();
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getMetaService');
+        cy.contains('Meta service 0').click();
+
+        cy.contains(labelMetrics).should('not.exist');
+
+        cy.makeSnapshot();
       });
     });
 
