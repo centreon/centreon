@@ -2200,16 +2200,16 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v4.4.1",
+            "version": "v4.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "f4152e9b814ae2369b6e4935c05e1e0c3654318d"
+                "reference": "9fc96a13dbaf546c3d7bcf95466726578cd4e0fa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/f4152e9b814ae2369b6e4935c05e1e0c3654318d",
-                "reference": "f4152e9b814ae2369b6e4935c05e1e0c3654318d",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/9fc96a13dbaf546c3d7bcf95466726578cd4e0fa",
+                "reference": "9fc96a13dbaf546c3d7bcf95466726578cd4e0fa",
                 "shasum": ""
             },
             "require": {
@@ -2260,9 +2260,9 @@
             "support": {
                 "forum": "https://github.com/smarty-php/smarty/discussions",
                 "issues": "https://github.com/smarty-php/smarty/issues",
-                "source": "https://github.com/smarty-php/smarty/tree/v4.4.1"
+                "source": "https://github.com/smarty-php/smarty/tree/v4.5.3"
             },
-            "time": "2024-02-26T13:58:37+00:00"
+            "time": "2024-05-28T21:46:01+00:00"
         },
         {
             "name": "symfony/cache",
