@@ -52,7 +52,7 @@ const resultsToSubmit = [
 ];
 
 beforeEach(() => {
-  // cy.startContainers();
+  cy.startContainers();
   // // install BAM and cloud extensions modules
   // cy.installBamModuleOnContainer();
   // cy.installCloudExtensionsOnContainer();
