@@ -659,11 +659,6 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
-        cy.get('.MuiAlert-message').should('not.be.visible');
-      }
-    });
     cy.navigateTo({
       page: 'Dashboards',
       rootItemNumber: 0
