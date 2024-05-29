@@ -21,17 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class VaultException extends \Exception
+class CredentialErrorDto
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
+    public int $resourceId = 0;
 
-    public static function noVaultConfigured(): self
-    {
-        return new self(_('No vault configured'));
-    }
+    public CredentialTypeEnum $type = CredentialTypeEnum::TYPE_HOST;
+
+    public string $message = '';
+
+    public string $credentialName = '';
 }
