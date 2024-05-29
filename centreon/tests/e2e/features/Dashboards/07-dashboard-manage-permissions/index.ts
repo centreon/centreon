@@ -31,11 +31,11 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.visitDashboards();
 });
 
 after(() => {
-  cy.visit('/centreon/home/dashboards/library');
+  cy.visitDashboards();
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -95,8 +95,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -138,10 +137,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
-    cy.contains(dashboards.fromDashboardAdministratorUser.name)
-      .should('exist')
-      .click();
+    cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -183,7 +179,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.visitDashboards();
     // FIXME
     cy.contains('Dashboards').should('not.exist');
   }
@@ -192,7 +188,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
-    cy.visit('/centreon/home/dashboards/library');
+    cy.visitDashboards();
     cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
@@ -243,10 +239,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
-  cy.contains(dashboards.fromDashboardAdministratorUser.name)
-    .should('exist')
-    .click();
+  cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
   cy.url().should('match', /\/dashboards\/library\/\d+$/);
   cy.getByTestId({ testId: 'edit' }).should('not.exist');
   cy.getByTestId({ testId: 'share' }).should('not.exist');

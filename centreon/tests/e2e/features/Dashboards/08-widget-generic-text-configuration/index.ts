@@ -53,7 +53,7 @@ beforeEach(() => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 after(() => {
@@ -68,7 +68,7 @@ after(() => {
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -171,9 +171,7 @@ Then(
 );
 
 Given('a dashboard featuring two Generic text widgets', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
+  cy.editDashboard(dashboards.default.name);
 
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
 });

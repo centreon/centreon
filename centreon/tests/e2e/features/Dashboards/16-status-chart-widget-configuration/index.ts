@@ -203,12 +203,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -328,16 +323,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
@@ -409,21 +395,12 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
 });
 
 When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
+    cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).should('not.exist');
@@ -448,16 +425,7 @@ Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
+    cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByLabel({
       label: 'Edit widget',

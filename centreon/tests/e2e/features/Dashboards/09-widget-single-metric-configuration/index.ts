@@ -139,10 +139,7 @@ Then('the information about the selected metric is displayed', () => {
 
 Given('a dashboard featuring a single Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visitDashboards();
   cy.contains(dashboards.default.name).click();
 });
 
