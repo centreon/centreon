@@ -11,16 +11,16 @@
  */
 
 if (typeof QFAMS === "undefined" || !QFAMS) {
-  /**
-   * The QFAMS global namespace object.  If QFAMS is already defined, the
-   * existing QFAMS object will not be overwritten so that defined
-   * namespaces are preserved.
-   * @class   QFAMS
-   * @static
-   * @public
-   * @since   1.5.0
-   */
-  var QFAMS = {};
+    /**
+     * The QFAMS global namespace object.  If QFAMS is already defined, the
+     * existing QFAMS object will not be overwritten so that defined
+     * namespaces are preserved.
+     * @class   QFAMS
+     * @static
+     * @public
+     * @since   1.5.0
+     */
+    var QFAMS = {};
 }
 
 /**
@@ -31,22 +31,22 @@ if (typeof QFAMS === "undefined" || !QFAMS) {
  * @static
  */
 QFAMS.env = QFAMS.env || {
-  /**
-   * Keeps the persistant selection preference when items are selected or unselected
-   *
-   * @property persistantSelection
-   * @type     Boolean
-   */
-  persistantSelection: false,
+        /**
+         * Keeps the persistant selection preference when items are selected or unselected
+         *
+         * @property persistantSelection
+         * @type     Boolean
+         */
+        persistantSelection: false,
 
-  /**
-   * Keeps the persistant selection preference when items are moved up or down
-   *
-   * @property persistantMove
-   * @type     Boolean
-   */
-  persistantMove: true
-};
+        /**
+         * Keeps the persistant selection preference when items are moved up or down
+         *
+         * @property persistantMove
+         * @type     Boolean
+         */
+        persistantMove: true
+    };
 
 /**
  * Uses QFAMS.updateCounter as a
@@ -61,21 +61,21 @@ QFAMS.env = QFAMS.env || {
  * @public
  * @since      1.5.0
  */
-QFAMS.updateCounter = function(c, v) {
-  var i;
-  var nodeText = null;
+QFAMS.updateCounter = function (c, v) {
+    var i;
+    var nodeText = null;
 
-  if (c !== null) {
-    // remove all previous child nodes of 'c' element
-    if (c.childNodes) {
-      for (i = 0; i < c.childNodes.length; i++) {
-        c.removeChild(c.childNodes[i]);
-      }
+    if (c !== null) {
+        // remove all previous child nodes of 'c' element
+        if (c.childNodes) {
+            for (i = 0; i < c.childNodes.length; i++) {
+                c.removeChild(c.childNodes[i]);
+            }
+        }
+        // add new text value 'v'
+        nodeText = document.createTextNode(v);
+        c.appendChild(nodeText);
     }
-    // add new text value 'v'
-    nodeText = document.createTextNode(v);
-    c.appendChild(nodeText);
-  }
 };
 
 /**
@@ -89,23 +89,23 @@ QFAMS.updateCounter = function(c, v) {
  * @private
  * @since      1.5.0
  */
-QFAMS.updateLiveCounter = function() {
-  var lbl = this.parentNode;
-  var selectedCount = 0;
+QFAMS.updateLiveCounter =  function () {
+    var lbl           = this.parentNode;
+    var selectedCount = 0;
 
-  // Find all the checkboxes...
-  var div = lbl.parentNode;
-  var inputs = div.getElementsByTagName('input');
-  for (var i = 0; i < inputs.length; i++) {
-    if (inputs[i].checked == 1) {
-      selectedCount++;
+    // Find all the checkboxes...
+    var div    = lbl.parentNode;
+    var inputs = div.getElementsByTagName('input');
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].checked == 1) {
+            selectedCount++;
+        }
     }
-  }
-  var e = div.id;
-  var qfamsName = e.substring(e.indexOf('_', 0) + 1, e.length);
-  // updates item count
-  var span = document.getElementById(qfamsName + '_selected');
-  QFAMS.updateCounter(span, selectedCount + '/' + inputs.length);
+    var e         = div.id;
+    var qfamsName = e.substring(e.indexOf('_', 0) + 1, e.length);
+    // updates item count
+    var span = document.getElementById(qfamsName + '_selected');
+    QFAMS.updateCounter(span, selectedCount + '/' + inputs.length);
 };
 
 /**
@@ -121,35 +121,35 @@ QFAMS.updateLiveCounter = function() {
  * @public
  * @since      1.5.0
  */
-QFAMS.editSelection = function(qfamsName, selectMode) {
-  if (selectMode !== 0 && selectMode !== 1 && selectMode !== 2) {
-    return;
-  }
-  var selectedCount = 0;
-
-  // Find all the checkboxes...
-  var ams = document.getElementById('qfams_' + qfamsName);
-  var inputs = ams.getElementsByTagName('input');
-
-  // Loop through all checkboxes (input element)
-  for (var i = 0; i < inputs.length; i++) {
-    if (selectMode === 2) {
-      if (inputs[i].checked == 0) {
-        inputs[i].checked = 1;
-      } else if (inputs[i].checked == 1) {
-        inputs[i].checked = 0;
-      }
-    } else {
-      inputs[i].checked = selectMode;
+QFAMS.editSelection = function (qfamsName, selectMode) {
+    if (selectMode !== 0 && selectMode !== 1 && selectMode !== 2) {
+        return;
     }
-    if (inputs[i].checked == 1) {
-      selectedCount++;
-    }
-  }
+    var selectedCount = 0;
 
-  // updates selected item count
-  var span = document.getElementById(qfamsName + '_selected');
-  QFAMS.updateCounter(span, selectedCount + '/' + inputs.length);
+    // Find all the checkboxes...
+    var ams    = document.getElementById('qfams_' + qfamsName);
+    var inputs = ams.getElementsByTagName('input');
+
+    // Loop through all checkboxes (input element)
+    for (var i = 0; i < inputs.length; i++) {
+        if (selectMode === 2) {
+            if (inputs[i].checked == 0) {
+                inputs[i].checked = 1;
+            } else if (inputs[i].checked == 1) {
+                inputs[i].checked = 0;
+            }
+        } else {
+            inputs[i].checked = selectMode;
+        }
+        if (inputs[i].checked == 1) {
+            selectedCount++;
+        }
+    }
+
+    // updates selected item count
+    var span = document.getElementById(qfamsName + '_selected');
+    QFAMS.updateCounter(span, selectedCount + '/' + inputs.length);
 };
 
 /**
@@ -170,106 +170,106 @@ QFAMS.editSelection = function(qfamsName, selectMode) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveSelection = function(qfamsName, selectLeft, selectRight, selectHidden, action, arrange) {
-  var isIE = /*@cc_on!@*/false; //IE detector
-  var source = null;
-  var target = null;
-  var option;
-  var c = null;
-  var s = null;
-  var i;
-  var maxFrom, maxTo;
+QFAMS.moveSelection = function (qfamsName, selectLeft, selectRight, selectHidden, action, arrange) {
+    var isIE = /*@cc_on!@*/false; //IE detector
+    var source = null;
+    var target = null;
+    var option;
+    var c      = null;
+    var s      = null;
+    var i;
+    var maxFrom, maxTo;
 
-  if (action === 'add' || action === 'all' || action === 'toggle') {
-    source = selectLeft;
-    target = selectRight;
-  } else {
-    source = selectRight;
-    target = selectLeft;
-  }
-  // Don't do anything if nothing selected. Otherwise we throw javascript errors.
-  if (source.selectedIndex === -1 && (action === 'add' || action === 'remove')) {
-    return;
-  }
-  maxFrom = source.options.length;
-  maxTo = target.options.length;
-
-  // check if target list is empty and remove fake empty option (tip to be XHTML compliant)
-  if (maxTo > 0 && target.options[0].value === "") {
-    target.removeAttribute("disabled");
-    target.options[0] = null;
-  }
-
-  // Add items to the 'TO' list.
-  for (i = (maxFrom - 1); i >= 0; i--) {
-    if (action === 'all' || action === 'none' || action === 'toggle' || source.options[i].selected === true) {
-      if (source.options[i].disabled === false) {
-        if (isIE) {
-          option = source.options[i].removeNode(true);
-          option.selected = QFAMS.env.persistantSelection;
-          target.appendChild(option);
-        } else {
-          option = source.options[i].cloneNode(true);
-          option.selected = QFAMS.env.persistantSelection;
-          target.options[target.options.length] = option;
-        }
-      }
+    if (action === 'add' || action === 'all' || action === 'toggle') {
+        source = selectLeft;
+        target = selectRight;
+    } else {
+        source = selectRight;
+        target = selectLeft;
     }
-  }
+    // Don't do anything if nothing selected. Otherwise we throw javascript errors.
+    if (source.selectedIndex === -1 && (action === 'add' || action === 'remove')) {
+        return;
+    }
+    maxFrom = source.options.length;
+    maxTo   = target.options.length;
 
-  // Remove items from the 'FROM' list.
-  if (!isIE) {
+    // check if target list is empty and remove fake empty option (tip to be XHTML compliant)
+    if (maxTo > 0 && target.options[0].value === "") {
+        target.removeAttribute("disabled");
+        target.options[0] = null;
+    }
+
+    // Add items to the 'TO' list.
     for (i = (maxFrom - 1); i >= 0; i--) {
-      if (action === 'all' || action === 'none' || action === 'toggle' || source.options[i].selected === true) {
-        if (source.options[i].disabled === false) {
-          source.options[i] = null;
+        if (action === 'all' || action === 'none' || action === 'toggle' || source.options[i].selected === true) {
+            if (source.options[i].disabled === false) {
+                if (isIE) {
+                    option = source.options[i].removeNode(true);
+                    option.selected = QFAMS.env.persistantSelection;
+                    target.appendChild(option);
+                } else {
+                    option = source.options[i].cloneNode(true);
+                    option.selected = QFAMS.env.persistantSelection;
+                    target.options[target.options.length] = option;
+                }
+            }
         }
-      }
     }
-  }
 
-  // Add items to the 'FROM' list for toggle function
-  if (action === 'toggle') {
-    for (i = (maxTo - 1); i >= 0; i--) {
-      if (target.options[i].disabled === false) {
-        if (isIE) {
-          option = target.options[i].removeNode(true);
-          option.selected = QFAMS.env.persistantSelection;
-          source.appendChild(option);
-        } else {
-          option = target.options[i].cloneNode(true);
-          option.selected = QFAMS.env.persistantSelection;
-          source.options[source.options.length] = option;
-        }
-      }
-    }
+    // Remove items from the 'FROM' list.
     if (!isIE) {
-      for (i = (maxTo - 1); i >= 0; i--) {
-        if (target.options[i].disabled === false) {
-          target.options[i] = null;
+        for (i = (maxFrom - 1); i >= 0; i--) {
+            if (action === 'all' || action === 'none' || action === 'toggle' || source.options[i].selected === true) {
+                if (source.options[i].disabled === false) {
+                    source.options[i] = null;
+                }
+            }
         }
-      }
     }
-  }
 
-  // updates unselected item count
-  c = document.getElementById(qfamsName + '_unselected');
-  s = document.getElementById(qfamsName + '-f');
-  QFAMS.updateCounter(c, s.length);
+    // Add items to the 'FROM' list for toggle function
+    if (action === 'toggle') {
+        for (i = (maxTo - 1); i >= 0; i--) {
+            if (target.options[i].disabled === false) {
+                if (isIE) {
+                    option = target.options[i].removeNode(true);
+                    option.selected = QFAMS.env.persistantSelection;
+                    source.appendChild(option);
+                } else {
+                    option = target.options[i].cloneNode(true);
+                    option.selected = QFAMS.env.persistantSelection;
+                    source.options[source.options.length] = option;
+                }
+            }
+        }
+        if (!isIE) {
+            for (i = (maxTo - 1); i >= 0; i--) {
+                if (target.options[i].disabled === false) {
+                    target.options[i] = null;
+                }
+            }
+        }
+    }
 
-  // updates selected item count
-  c = document.getElementById(qfamsName + '_selected');
-  s = document.getElementById(qfamsName + '-t');
-  QFAMS.updateCounter(c, s.length);
+    // updates unselected item count
+    c = document.getElementById(qfamsName + '_unselected');
+    s = document.getElementById(qfamsName + '-f');
+    QFAMS.updateCounter(c, s.length);
 
-  // Sort list if required
-  if (arrange !== 'none') {
-    QFAMS.sortList(target, QFAMS.compareText, arrange);
-  }
+    // updates selected item count
+    c = document.getElementById(qfamsName + '_selected');
+    s = document.getElementById(qfamsName + '-t');
+    QFAMS.updateCounter(c, s.length);
 
-  // Set the appropriate items as 'selected in the hidden select.
-  // These are the values that will actually be posted with the form.
-  QFAMS.updateHidden(selectHidden, selectRight);
+    // Sort list if required
+    if (arrange !== 'none') {
+        QFAMS.sortList(target, QFAMS.compareText, arrange);
+    }
+
+    // Set the appropriate items as 'selected in the hidden select.
+    // These are the values that will actually be posted with the form.
+    QFAMS.updateHidden(selectHidden, selectRight);
 };
 
 /**
@@ -286,24 +286,25 @@ QFAMS.moveSelection = function(qfamsName, selectLeft, selectRight, selectHidden,
  * @private
  * @since      1.5.0
  */
-QFAMS.sortList = function(list, compareFunction, arrange) {
-  var i;
-  var options = new Array(list.options.length);
+QFAMS.sortList = function (list, compareFunction, arrange)
+{
+    var i;
+    var options = new Array(list.options.length);
 
-  for (i = 0; i < options.length; i++) {
-    options[i] = new Option(list.options[i].text,
-      list.options[i].value,
-      list.options[i].defaultSelected,
-      list.options[i].selected);
-  }
-  options.sort(compareFunction);
-  if (arrange === 'desc') {
-    options.reverse();
-  }
-  list.options.length = 0;
-  for (i = 0; i < options.length; i++) {
-    list.options[i] = options[i];
-  }
+    for (i = 0; i < options.length; i++) {
+        options[i] = new Option(list.options[i].text,
+            list.options[i].value,
+            list.options[i].defaultSelected,
+            list.options[i].selected);
+    }
+    options.sort(compareFunction);
+    if (arrange === 'desc') {
+        options.reverse();
+    }
+    list.options.length = 0;
+    for (i = 0; i < options.length; i++) {
+        list.options[i] = options[i];
+    }
 };
 
 /**
@@ -321,11 +322,11 @@ QFAMS.sortList = function(list, compareFunction, arrange) {
  * @private
  * @since      1.5.0
  */
-QFAMS.compareText = function(option1, option2) {
-  if (option1.text === option2.text) {
-    return 0;
-  }
-  return option1.text < option2.text ? -1 : 1;
+QFAMS.compareText = function (option1, option2) {
+    if (option1.text === option2.text) {
+        return 0;
+    }
+    return option1.text < option2.text ? -1 : 1;
 };
 
 /**
@@ -341,17 +342,17 @@ QFAMS.compareText = function(option1, option2) {
  * @private
  * @since      1.5.0
  */
-QFAMS.updateHidden = function(h, r) {
-  var i;
+QFAMS.updateHidden = function (h, r) {
+    var i;
 
-  for (i = 0; i < h.length; i++) {
-    h.options[i].selected = false;
-  }
+    for (i = 0; i < h.length; i++) {
+        h.options[i].selected = false;
+    }
 
-  for (i = 0; i < r.length; i++) {
-    h.options[h.length] = new Option(r.options[i].text, r.options[i].value);
-    h.options[h.length - 1].selected = true;
-  }
+    for (i = 0; i < r.length; i++) {
+        h.options[h.length] = new Option(r.options[i].text, r.options[i].value);
+        h.options[h.length - 1].selected = true;
+    }
 };
 
 /**
@@ -367,15 +368,15 @@ QFAMS.updateHidden = function(h, r) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveUp = function(l, h) {
-  var indice = l.selectedIndex;
-  if (indice < 0) {
-    return;
-  }
-  if (indice > 0) {
-    QFAMS.moveSwap(l, indice, indice - 1);
-    QFAMS.updateHidden(h, l);
-  }
+QFAMS.moveUp = function (l, h) {
+    var indice = l.selectedIndex;
+    if (indice < 0) {
+        return;
+    }
+    if (indice > 0) {
+        QFAMS.moveSwap(l, indice, indice - 1);
+        QFAMS.updateHidden(h, l);
+    }
 };
 
 /**
@@ -391,15 +392,15 @@ QFAMS.moveUp = function(l, h) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveDown = function(l, h) {
-  var indice = l.selectedIndex;
-  if (indice < 0) {
-    return;
-  }
-  if (indice < l.options.length - 1) {
-    QFAMS.moveSwap(l, indice, indice + 1);
-    QFAMS.updateHidden(h, l);
-  }
+QFAMS.moveDown = function (l, h) {
+    var indice = l.selectedIndex;
+    if (indice < 0) {
+        return;
+    }
+    if (indice < l.options.length - 1) {
+        QFAMS.moveSwap(l, indice, indice + 1);
+        QFAMS.updateHidden(h, l);
+    }
 };
 
 /**
@@ -415,16 +416,16 @@ QFAMS.moveDown = function(l, h) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveTop = function(l, h) {
-  var indice = l.selectedIndex;
-  if (indice < 0) {
-    return;
-  }
-  while (indice > 0) {
-    QFAMS.moveSwap(l, indice, indice - 1);
-    QFAMS.updateHidden(h, l);
-    indice--;
-  }
+QFAMS.moveTop = function (l, h) {
+    var indice = l.selectedIndex;
+    if (indice < 0) {
+        return;
+    }
+    while (indice > 0) {
+        QFAMS.moveSwap(l, indice, indice - 1);
+        QFAMS.updateHidden(h, l);
+        indice--;
+    }
 };
 
 /**
@@ -440,16 +441,16 @@ QFAMS.moveTop = function(l, h) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveBottom = function(l, h) {
-  var indice = l.selectedIndex;
-  if (indice < 0) {
-    return;
-  }
-  while (indice < l.options.length - 1) {
-    QFAMS.moveSwap(l, indice, indice + 1);
-    QFAMS.updateHidden(h, l);
-    indice++;
-  }
+QFAMS.moveBottom = function (l, h) {
+    var indice = l.selectedIndex;
+    if (indice < 0) {
+        return;
+    }
+    while (indice < l.options.length - 1) {
+        QFAMS.moveSwap(l, indice, indice + 1);
+        QFAMS.updateHidden(h, l);
+        indice++;
+    }
 };
 
 /**
@@ -466,21 +467,21 @@ QFAMS.moveBottom = function(l, h) {
  * @public
  * @since      1.5.0
  */
-QFAMS.moveSwap = function(l, i, j) {
-  var node;
+QFAMS.moveSwap = function (l, i, j) {
+    var node;
 
-  node = l.replaceChild(l.options[i], l.options[j]);
-  if (i > j) {
-    l.insertBefore(node, l.options[j].nextSibling);
-  } else {
-    l.insertBefore(node, l.options[i]);
-  }
+    node = l.replaceChild(l.options[i], l.options[j]);
+    if (i > j) {
+        l.insertBefore(node, l.options[j].nextSibling);
+    } else {
+        l.insertBefore(node, l.options[i]);
+    }
 
-  if (QFAMS.env.persistantMove) {
-    l.selectedIndex = j;
-  } else {
-    l.selectedIndex = -1;
-  }
+    if (QFAMS.env.persistantMove) {
+        l.selectedIndex = j;
+    } else {
+        l.selectedIndex = -1;
+    }
 };
 
 /**
@@ -494,19 +495,20 @@ QFAMS.moveSwap = function(l, i, j) {
  * @public
  * @since      1.5.0
  */
-QFAMS.init = function(elm) {
-  var e, i;
+QFAMS.init = function (elm)
+{
+    var e, i;
 
-  for (e = 0; e < elm.length; e++) {
-    var div = document.getElementById('qfams_' + elm[e]);
-    if (div !== null) {
-      var inputs = div.getElementsByTagName('input');
-      if (inputs !== null) {
-        for (i = 0; i < inputs.length; i++) {
-          inputs[i].onclick = QFAMS.updateLiveCounter;
+    for (e = 0; e < elm.length; e++) {
+        var div = document.getElementById('qfams_' + elm[e]);
+        if (div !== null) {
+            var inputs = div.getElementsByTagName('input');
+            if (inputs !== null) {
+                for (i = 0; i < inputs.length; i++) {
+                    inputs[i].onclick = QFAMS.updateLiveCounter;
+                }
+            }
         }
-      }
     }
-  }
 };
 
