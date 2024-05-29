@@ -86,8 +86,6 @@ sub new {
     if (defined($connector->{logger}) && $connector->{logger}->is_debug()) {
         $connector->{logger}->writeLogDebug('[core] JWK thumbprint = ' . $connector->{client_pubkey}->export_key_jwk_thumbprint('SHA256'));
     }
-    
-    $connector->{connect_loop} = EV::Loop->new();
 
     $connectors->{ $options{identity} } = $connector;
     bless $connector, $class;
@@ -403,7 +401,7 @@ sub send_message {
     my ($self, %options) = @_;
 
     if ($self->{handshake} == 0) {
-        $self->{logger}->writeLogDebug("[clientzmq] fd value = " . $sockets->{ $self->{identity} }->get_fd());
+        $self->{connect_loop} = EV::Loop->new();
 
         if (!defined($self->{server_pubkey})) {
             $self->{logger}->writeLogDebug("[clientzmq] $self->{identity} - get_server_pubkey sent [1]");
