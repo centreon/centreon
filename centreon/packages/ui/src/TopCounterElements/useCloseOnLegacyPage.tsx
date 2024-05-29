@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import { isNil } from 'ramda';
 import { useLocation } from 'react-router-dom';
 
 interface Props {
