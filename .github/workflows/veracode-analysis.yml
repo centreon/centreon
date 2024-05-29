@@ -39,6 +39,10 @@ jobs:
   build:
     name: Binary preparation
     runs-on: ubuntu-22.04
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number != null &&
+      github.event.pull_request.draft == false
     outputs:
       fail_build: ${{ steps.routing-mode.outputs.fail_build }}
       development_stage: ${{ steps.routing-mode.outputs.development_stage }}
@@ -163,10 +167,11 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
+          use_upgraded_version: 'true'
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: needs.build.outputs.enable_qg == 'false' || (failure() && github.event.pull_request.draft == false)
+        if: needs.build.outputs.enable_qg == 'false' || failure()
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -222,7 +227,7 @@ jobs:
 
       - name: Create jira ticket
         # In case of QG failure, a ticket must be created
-        if: needs.build.outputs.enable_qg == 'false' || (failure() && github.event.pull_request.draft == false)
+        if: needs.build.outputs.enable_qg == 'false' || failure()
         uses: ./.github/actions/veracode-create-jira-ticket
         with:
           jira_base_url: ${{ secrets.jira_base_url }}
