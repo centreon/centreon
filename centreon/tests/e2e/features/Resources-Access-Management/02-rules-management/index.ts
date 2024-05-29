@@ -217,11 +217,16 @@ When(
         return cy
           .getByLabel({ label: 'Save', tag: 'button' })
           .then((button) => {
-            return !button.prop('disabled');
+            const isDisabled = button.prop('disabled');
+            cy.log(`Button disabled state: ${isDisabled}`);
+
+            return !isDisabled;
           });
       },
       {
-        interval: 500,
+        errorMsg:
+          'The Save button did not become enabled within the specified timeout',
+        interval: 3000,
         timeout: 10000
       }
     ).then(() => {
