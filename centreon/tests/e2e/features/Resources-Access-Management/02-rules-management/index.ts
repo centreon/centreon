@@ -53,10 +53,10 @@ const resultsToSubmit = [
 
 beforeEach(() => {
   cy.startContainers();
-  // // install BAM and cloud extensions modules
-  // cy.installBamModuleOnContainer();
-  // cy.installCloudExtensionsOnContainer();
-  // cy.enableResourcesAccessManagementFeature();
+  // install BAM and cloud extensions modules
+  cy.installBamModuleOnContainer();
+  cy.installCloudExtensionsOnContainer();
+  cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -202,7 +202,8 @@ Then(
     cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
     cy.getByLabel({ label: 'Host', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
-    cy.contains('Centreon-Database').click();
+    // cy.contains('Centreon-Database').click();
+    cy.contains('service2').click();
   }
 );
 
@@ -249,7 +250,8 @@ When('the user is redirected to monitoring "Resources" page', () => {
 });
 
 Then('the user can see the Host selected by the Administrator', () => {
-  cy.contains('Centreon-Database').should('be.visible');
+  // cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('service2').should('be.visible');
 });
 
 When(
