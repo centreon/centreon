@@ -171,7 +171,7 @@ When('a new host is created', () => {
   cy.submitResults(resultsToSubmit);
   checkServicesAreMonitored([{ name: services.serviceOk.name, status: 'ok' }]);
   cy.visit(`centreon/monitoring/resources`);
-  cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('service_test_ok').should('be.visible');
 });
 
 Then(
