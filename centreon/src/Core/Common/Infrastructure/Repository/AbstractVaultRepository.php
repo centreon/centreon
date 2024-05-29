@@ -35,7 +35,9 @@ abstract class AbstractVaultRepository
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const SERVICE_VAULT_PATH = 'monitoring/services';
     protected const DEFAULT_SCHEME = 'https';
-    private const AVAILABLE_PATHS = [
+
+    /** @var string[] */
+    protected array $availablePaths = [
         self::HOST_VAULT_PATH,
         self::SERVICE_VAULT_PATH,
     ];
@@ -58,12 +60,17 @@ abstract class AbstractVaultRepository
 
     public function setCustomPath(string $customPath): void
     {
-        if (! in_array($customPath, self::AVAILABLE_PATHS, true)) {
+        if (! in_array($customPath, $this->availablePaths, true)) {
             $this->error("Invalid custom vault path '{$customPath}'");
 
             throw new \LogicException();
         }
         $this->customPath = $customPath;
+    }
+
+    public function addAvailablePath(string $path): void
+    {
+        $this->availablePaths[] = $path;
     }
 
     /**
