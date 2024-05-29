@@ -95,6 +95,8 @@ When('a new host is created', () => {
     template: 'generic-host'
   });
   cy.applyPollerConfiguration();
+  cy.visit(`centreon/monitoring/resources`);
+  cy.contains('Centreon-Database').should('be.visible');
 });
 
 Then(
