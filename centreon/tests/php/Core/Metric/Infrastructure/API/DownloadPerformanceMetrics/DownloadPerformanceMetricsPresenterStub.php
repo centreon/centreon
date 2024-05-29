@@ -21,27 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\Exception;
+namespace Tests\Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
 
-class MetricException extends \Exception
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
+use Core\Service\Application\UseCase\AddService\AddServiceResponse;
+
+class DownloadPerformanceMetricsPresenterStub extends AbstractPresenter implements DownloadPerformanceMetricPresenterInterface
 {
-    public static function missingPropertyInMetricInformation(string $property): self
-    {
-        return new self(sprintf(_('Missing property in the metric information: %s'), $property));
-    }
+    public ResponseStatusInterface|AddServiceResponse $response;
 
-    public static function metricsNotFound(): self
+    public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
     {
-        return new self(_('Metrics not found'));
-    }
-
-    public static function invalidMetricFormat(): self
-    {
-        return new self (_('Invalid metric format'));
-    }
-
-    public static function downloadNotAllowed(): self
-    {
-        return new self (_('Downloading the performance metrics is not allowed'));
+        $this->response = $response;
     }
 }
