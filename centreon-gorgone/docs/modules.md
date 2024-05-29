@@ -22,9 +22,6 @@ List of the available modules:
 
 # Module implementation
 
-Work in progress, may not be complete nor true.
-
-
 Each module should have a hook.pm and a class.pm file with some mandatory function implemented.
 
 ## hook.pm
