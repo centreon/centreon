@@ -41,6 +41,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class PartialUpdateContactGroupDashboardShare
 {
@@ -52,7 +54,8 @@ final class PartialUpdateContactGroupDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -163,6 +166,16 @@ final class PartialUpdateContactGroupDashboardShare
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
+        }
+
+        // Check first that the current user is part of the contactgroup being shared.
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        if (! $this->readContactGroupRepository->existsInAccessGroups($group->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact Group');
         }
 
         if (! ($request->role instanceof NoValue)) {

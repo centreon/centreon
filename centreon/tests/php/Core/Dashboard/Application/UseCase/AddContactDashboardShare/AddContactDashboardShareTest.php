@@ -36,6 +36,7 @@ use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
@@ -44,6 +45,8 @@ use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface
 use Core\Dashboard\Application\UseCase\AddContactDashboardShare\AddContactDashboardShare;
 use Core\Dashboard\Application\UseCase\AddContactDashboardShare\AddContactDashboardShareRequest;
 use Core\Dashboard\Application\UseCase\AddContactDashboardShare\AddContactDashboardShareResponse;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->presenter = new AddContactDashboardSharePresenterStub();
@@ -54,6 +57,8 @@ beforeEach(function (): void {
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -210,6 +215,14 @@ it(
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())
             ->method('findById')->willReturn($this->testedContact);
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'aGName', 'aGAlias')]);
+        $this->readContactRepository
+            ->expects($this->once())
+            ->method('existInAccessGroups')
+            ->willReturn(true);
         $this->readDashboardShareRepository->expects($this->exactly(2))
             ->method('getOneSharingRoles')->willReturn(
                 new DashboardSharingRoles(

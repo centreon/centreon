@@ -28,12 +28,13 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\Model\ContactGroup;
 
 class DbReadContactGroupRepository extends AbstractRepositoryDRB implements ReadContactGroupRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -54,6 +55,36 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             'id' => 'cg_id',
             'name' => 'cg_name',
         ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool
+    {
+        if ($accessGroupIds === []) {
+            return false;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT 1
+                FROM `:db`.contactgroup cg
+                     INNER JOIN `:db`.acl_group_contactgroups_relations gcgr
+                               ON cg.cg_id = gcgr.cg_cg_id
+                WHERE cg.cg_id = :contactGroupId
+                    AND gcgr.acl_group_id IN ({$bindQuery})
+                SQL
+        ));
+        $statement->bindValue(':contactGroupId', $contactGroupId,\PDO::PARAM_INT);
+        foreach ($bindValues as $token => $accessGroupId) {
+            $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**

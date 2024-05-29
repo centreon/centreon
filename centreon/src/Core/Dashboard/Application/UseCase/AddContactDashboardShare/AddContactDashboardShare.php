@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -39,6 +40,8 @@ use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class AddContactDashboardShare
 {
@@ -50,7 +53,9 @@ final class AddContactDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository
     )
     {
     }
@@ -149,6 +154,16 @@ final class AddContactDashboardShare
         }
 
         $contact = $this->getContactById($request->id);
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        // Only share with contact that are in the same Access Group that the current user
+        if (! $this->readContactRepository->existInAccessGroups($contact->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact');
+        }
 
         $this->writeDashboardShareRepository->upsertShareWithContact(
             $contact->getId(),

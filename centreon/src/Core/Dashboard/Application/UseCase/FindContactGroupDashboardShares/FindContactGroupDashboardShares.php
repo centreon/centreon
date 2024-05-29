@@ -38,6 +38,8 @@ use Core\Dashboard\Application\UseCase\FindContactGroupDashboardShares\Response\
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindContactGroupDashboardShares
 {
@@ -48,7 +50,8 @@ final class FindContactGroupDashboardShares
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -125,8 +128,17 @@ final class FindContactGroupDashboardShares
             );
         }
 
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
         $shares = $this->readDashboardShareRepository
-            ->findDashboardContactGroupSharesByRequestParameter($dashboard, $this->requestParameters);
+            ->findDashboardContactGroupSharesByRequestParameterAndAccessGroups(
+                $dashboard,
+                $this->requestParameters,
+                $accessGroupIds
+            );
 
         return $this->createResponse(...$shares);
     }

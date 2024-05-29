@@ -39,6 +39,8 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class AddContactGroupDashboardShare
 {
@@ -50,7 +52,8 @@ final class AddContactGroupDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
     ) {
     }
 
@@ -152,6 +155,16 @@ final class AddContactGroupDashboardShare
         }
 
         $contactGroup = $this->getContactGroupById($request->id);
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $this->accessGroupRepository->findByContact($this->contact)
+        );
+
+        // Only share to contact groups that are in the same Access Groups that the current user
+        if (! $this->readContactGroupRepository->existsInAccessGroups($contactGroup->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact Group');
+        }
 
         $this->writeDashboardShareRepository->upsertShareWithContactGroup(
             $contactGroup->getId(),

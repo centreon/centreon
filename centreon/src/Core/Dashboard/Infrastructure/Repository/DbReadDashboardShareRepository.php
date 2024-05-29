@@ -31,6 +31,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
@@ -47,7 +48,7 @@ use Utility\SqlConcatenator;
 
 class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements ReadDashboardShareRepositoryInterface
 {
-    use LoggerTrait;
+    use LoggerTrait, SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -57,6 +58,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $this->db = $db;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findDashboardContactSharesByRequestParameter(
         Dashboard $dashboard,
         RequestParametersInterface $requestParameters
@@ -133,6 +137,162 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         return $shares;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function findDashboardContactSharesByRequestParameterAndAccessGroups(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters,
+        array $accessGroupIds
+    ): array {
+        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'c.contact_id',
+            'name' => 'c.contact_name',
+            'email' => 'c.contact_email',
+        ]);
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $request = <<<'SQL'
+                SELECT
+                    c.`contact_id`,
+                    c.`contact_name`,
+                    c.`contact_email`,
+                    dcr.`role`
+                FROM `:db`.`dashboard_contact_relation` dcr
+                INNER JOIN `:db`.`contact` c
+                    ON c.`contact_id` = dcr.`contact_id`
+                LEFT JOIN `:db`.acl_group_contacts_relations agcr
+                    ON c.contact_id = agcr.contact_contact_id
+            SQL;
+
+        /** Handle search */
+        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $search !== null ? ' AND ' : ' WHERE ';
+        $request .= "dcr.`dashboard_id` = :dashboard_id AND (gcr.acl_group_id IN ({$bindQuery})";
+
+        /** Handle sort */
+        $sort = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sort !== null ? $sort : 'ORDER BY c.`contact_name` ASC';
+
+        /** Handle pagination */
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+
+        $statement->bindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT);
+
+        foreach ($bindValues as $token => $value) {
+            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+
+        $sqlTranslator->bindSearchValues($statement);
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     contact_id: int,
+             *     contact_name: string,
+             *     contact_email: string,
+             *     role: string
+             * } $result
+             */
+            $shares[] = new DashboardContactShare(
+                $dashboard,
+                $result['contact_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findDashboardContactGroupSharesByRequestParameterAndAccessGroups(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters,
+        array $accessGroupIds
+    ): array {
+        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'cg.cg_id',
+            'name' => 'cg.cg_name',
+        ]);
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $request = <<<'SQL'
+                SELECT DISTINCT
+                    cg.`cg_id`,
+                    cg.`cg_name`,
+                    dcgr.`role`
+                FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                INNER JOIN `:db`.`contactgroup` cg
+                    ON cg.`cg_id` = dcgr.`contactgroup_id`
+                INNER JOIN `:db`.`contactgroup_contact_relation` cgcr
+                    ON cg.`cg_id`=cgcr.`contactgroup_cg_id`
+                INNER JOIN `:db`.acl_group_contactgroups_relations agcgr
+                    ON cgcr.`contactgroup_cg_id` = agcgr.cg_cg_id
+            SQL;
+
+        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $request .= $search !== null ? ' AND ' : ' WHERE ';
+        $request .= "dcgr.`dashboard_id` = :dashboard_id AND agcgr.acl_group_id IN ({$bindQuery})";
+
+        $sort = $sqlTranslator->translateSortParameterToSql();
+        $request .= $sort !== null ? $sort : 'ORDER BY cg.`cg_name` ASC';
+
+        $request .= $sqlTranslator->translatePaginationToSql();
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT);
+
+        foreach ($bindValues as $token => $value) {
+            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+
+        $sqlTranslator->bindSearchValues($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     cg_id: int,
+             *     cg_name: string,
+             *     role: string
+             * } $result
+             */
+            $shares[] = new DashboardContactGroupShare(
+                $dashboard,
+                $result['cg_id'],
+                $result['cg_name'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findDashboardContactGroupSharesByRequestParameter(
         Dashboard $dashboard,
         RequestParametersInterface $requestParameters

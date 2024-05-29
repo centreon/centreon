@@ -40,6 +40,8 @@ use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactGroupDashboardSharePresenterStub();
@@ -50,6 +52,7 @@ beforeEach(closure: function (): void {
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -172,6 +175,14 @@ it(
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->readContactGroupRepository->expects($this->once())->method('find')
             ->willReturn($this->testedContactGroup);
+        $this->accessGroupRepository
+            ->expects($this->once())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'name', 'alias')]);
+        $this->readContactGroupRepository
+            ->expects($this->once())
+            ->method('existsInAccessGroups')
+            ->willReturn(true);
         $this->writeDashboardShareRepository->expects($this->once())->method('deleteContactGroupShare')
             ->willReturn(true);
 
