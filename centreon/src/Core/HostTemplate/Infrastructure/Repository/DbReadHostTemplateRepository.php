@@ -202,7 +202,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     ): array {
         $this->info('Getting all host templates');
         if ($accessGroups === []) {
-            return $this->findByRequestParameter($requestParameters);
+            return [];
         }
 
         $accessGroupIds = array_map(
