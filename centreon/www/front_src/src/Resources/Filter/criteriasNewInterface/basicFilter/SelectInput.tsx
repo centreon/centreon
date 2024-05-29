@@ -4,22 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { MultiConnectedAutocompleteField, SelectEntry } from '@centreon/ui';
 
 import { buildResourcesEndpoint } from '../../../Listing/api/endpoint';
+import { labelHost, labelService } from '../../../translatedLabels';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
-import {
-  ChangedCriteriaParams,
-  DeactivateProps,
-  ExtendedCriteriaResourceType,
-  SectionType
-} from '../model';
+import { ChangedCriteriaParams, DeactivateProps, SectionType } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-import {
-  labelHost,
-  labelMetaService,
-  labelService
-} from '../../../translatedLabels';
 
 import useSectionsData from './sections/useSections';
+import { useStyles } from './sections/sections.style';
 
 interface Props {
   changeCriteria: (data: ChangedCriteriaParams) => void;
@@ -30,8 +22,7 @@ interface Props {
 
 const label = {
   [SectionType.host]: labelHost,
-  [SectionType.service]: labelService,
-  [ExtendedCriteriaResourceType.metaservice]: labelMetaService
+  [SectionType.service]: labelService
 };
 
 const SelectInput = ({
@@ -41,6 +32,7 @@ const SelectInput = ({
   changeCriteria,
   isDeactivated
 }: Props & DeactivateProps): JSX.Element | null => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { sectionData } = useSectionsData({ data, sectionType: resourceType });
   const { dataByFilterName } = useInputData({
@@ -71,21 +63,29 @@ const SelectInput = ({
         filterName: 'resource_types',
         updatedValue: reject(propEq('id', resourceType), resourceTypesCriteria)
       });
+
+      return;
     }
 
     if (find(propEq('id', resourceType), resourceTypesCriteria)) {
       return;
     }
 
+    const updatedValues = [
+      ...resourceTypesCriteria,
+      {
+        id: resourceType,
+        name: resourceType
+      }
+    ];
+
+    const uniqUpdatedValues = [
+      ...new Map(updatedValues.map((item) => [item.id, item]))
+    ].map(([, item]) => item);
+
     changeCriteria({
       filterName: 'resource_types',
-      updatedValue: [
-        ...resourceTypesCriteria,
-        {
-          id: resourceType,
-          name: resourceType
-        }
-      ]
+      updatedValue: uniqUpdatedValues
     });
   };
 
@@ -155,9 +155,11 @@ const SelectInput = ({
       chipProps={{
         onDelete
       }}
+      className={classes.input}
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
+      inputProps={{ dataTestId: resourceType }}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label[resourceType]) as string}
       placeholder={t(label[resourceType]) as string}
