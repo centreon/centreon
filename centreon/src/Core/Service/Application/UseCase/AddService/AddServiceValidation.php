@@ -71,10 +71,16 @@ class AddServiceValidation
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
-        if ($severityId !== null && ! $this->serviceSeverityRepository->exists($severityId)) {
-            $this->error('Service severity does not exist', ['severity_id' => $severityId]);
+        if ($severityId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->serviceSeverityRepository->exists($severityId)
+                : $this->serviceSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
-            throw ServiceException::idDoesNotExist('severity_id', $severityId);
+            if (! $exists) {
+                $this->error('Service severity does not exist', ['severity_id' => $severityId]);
+
+                throw ServiceException::idDoesNotExist('severity_id', $severityId);
+            }
         }
     }
 
