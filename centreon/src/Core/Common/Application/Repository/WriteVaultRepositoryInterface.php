@@ -50,4 +50,6 @@ interface WriteVaultRepositoryInterface
      * @throws \Throwable
      */
     public function delete(string $uuid): void;
+
+    public function addAvailablePath(string $path): void;
 }
