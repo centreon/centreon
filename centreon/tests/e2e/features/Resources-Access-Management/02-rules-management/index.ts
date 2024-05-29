@@ -225,14 +225,11 @@ When(
           });
       },
       {
-        errorMsg:
-          'The Save button did not become enabled within the specified timeout',
         interval: 3000,
         timeout: 10000
       }
-    ).then(() => {
-      cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-    });
+    );
+    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created');
     // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
