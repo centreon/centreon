@@ -237,6 +237,8 @@ When(
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('body').type('{esc}');
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
