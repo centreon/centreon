@@ -122,7 +122,6 @@ sub cleanup {
 sub close {
     my ($self, %options) = @_;
     
-    $self->{logger}->writeLogDebug('[clientzmq] CLOSE');
     $sockets->{ $self->{identity} }->close() if (defined($sockets->{ $self->{identity} }));
     $self->{core_watcher}->stop() if (defined($self->{core_watcher}));
     delete $self->{core_watcher};
@@ -140,7 +139,7 @@ sub get_server_pubkey {
     $sockets->{ $self->{identity} }->send('[GETPUBKEY]', ZMQ_DONTWAIT);
     $self->event(identity => $self->{identity});
 
-   my $w1 = $self->{connect_loop}->io(
+    my $w1 = $self->{connect_loop}->io(
             $sockets->{ $self->{identity} }->get_fd(),
             EV::READ,
             sub {
@@ -295,7 +294,9 @@ sub ping {
         time() - $self->{ping_timeout_time} > $self->{ping_timeout}) {
         $self->{logger}->writeLogError("[clientzmq] No ping response") if (defined($self->{logger}));
         $self->{ping_progress} = 0;
-	$self->close();
+        $self->close();
+        # new identity for a new handshake (for module pull)
+        $self->{extra_identity} = gorgone::standard::library::generate_token(length => 12);
         $self->init();
         $status = 1;
     }
