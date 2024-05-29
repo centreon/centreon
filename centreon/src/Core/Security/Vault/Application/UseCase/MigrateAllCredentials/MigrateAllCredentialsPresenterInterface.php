@@ -19,19 +19,13 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class VaultException extends \Exception
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface MigrateAllCredentialsPresenterInterface
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
-
-    public static function noVaultConfigured(): self
-    {
-        return new self(_('No vault configured'));
-    }
+    public function presentResponse(MigrateAllCredentialsResponse|ResponseStatusInterface $response): void;
 }

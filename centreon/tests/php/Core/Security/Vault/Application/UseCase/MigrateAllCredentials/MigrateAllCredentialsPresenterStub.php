@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Tests\Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class VaultException extends \Exception
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsPresenterInterface;
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsResponse;
+
+class MigrateAllCredentialsPresenterStub implements MigrateAllCredentialsPresenterInterface
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
+    public ResponseStatusInterface|MigrateAllCredentialsResponse $response;
 
-    public static function noVaultConfigured(): self
+    public function presentResponse(ResponseStatusInterface|MigrateAllCredentialsResponse $response): void
     {
-        return new self(_('No vault configured'));
+        $this->response = $response;
     }
 }
