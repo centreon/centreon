@@ -16502,3 +16502,6 @@ msgstr "Erweiterter Modus"
 
 # msgid "You are not allowed to list contact templates"
 # msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
