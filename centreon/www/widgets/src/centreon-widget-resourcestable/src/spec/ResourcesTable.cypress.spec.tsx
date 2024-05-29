@@ -266,7 +266,7 @@ describe('View by all', () => {
     });
 
     cy.waitForRequestAndVerifyQueries({
-      queries: [{ key: 'types', value: '["host","service"]' }],
+      queries: [{ key: 'types', value: '["host","service","metaservice"]' }],
       requestAlias: 'getResources'
     });
 
