@@ -114,9 +114,12 @@ final class PartialUpdateServiceTemplate
 
             if (! $this->user->isAdmin()) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $serviceTemplate = $this->readRepository->findByIdAndAccessGroups($request->id, $this->accessGroups);
+                $serviceTemplate = $this->readServiceTemplateRepository->findByIdAndAccessGroups(
+                    $request->id,
+                    $this->accessGroups
+                );
             } else {
-                $serviceTemplate = $this->readRepository->findById($request->id);
+                $serviceTemplate = $this->readServiceTemplateRepository->findById($request->id);
             }
 
             if ($serviceTemplate === null) {
