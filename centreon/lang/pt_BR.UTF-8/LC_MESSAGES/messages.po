@@ -17660,7 +17660,7 @@ msgstr ""
 # msgid "You are not allowed to list contact templates"
 # msgstr ""
 
-# msgid "Graph style"
+# msgid "Graph styles"
 # msgstr ""
 
 # msgid "Curve type"
