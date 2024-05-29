@@ -229,9 +229,9 @@ Then(
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
-  cy.getByTestId({ testId: 'More actions' }).click({ force: true });
+  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
   cy.getByLabel({ label: 'Delete widget' }).trigger('click');
   cy.getByLabel({ label: 'Delete' }).trigger('click');
   cy.getByTestId({ testId: 'save_dashboard' }).click();
