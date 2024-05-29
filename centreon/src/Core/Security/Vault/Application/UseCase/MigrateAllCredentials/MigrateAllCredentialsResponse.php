@@ -21,17 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class VaultException extends \Exception
+final class MigrateAllCredentialsResponse
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
+    /** @var \Traversable<CredentialRecordedDto|CredentialErrorDto> */
+    public \Traversable $results;
 
-    public static function noVaultConfigured(): self
+    public function __construct()
     {
-        return new self(_('No vault configured'));
+        $this->results = new \ArrayIterator([]);
     }
 }

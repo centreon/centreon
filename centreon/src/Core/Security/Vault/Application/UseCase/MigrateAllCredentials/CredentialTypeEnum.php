@@ -21,17 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\MigrateAllCredentials;
 
-class VaultException extends \Exception
+enum CredentialTypeEnum
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
-
-    public static function noVaultConfigured(): self
-    {
-        return new self(_('No vault configured'));
-    }
+    case TYPE_HOST;
+    case TYPE_HOST_TEMPLATE;
+    case TYPE_SERVICE;
 }
