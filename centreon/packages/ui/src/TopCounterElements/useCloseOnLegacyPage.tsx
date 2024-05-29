@@ -19,7 +19,7 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
       'main-content'
     ) as HTMLIFrameElement | null;
 
-    if (!isLegacyRoute || isNil(iframe)) {
+    if (!isLegacyRoute) {
       return () => undefined;
     }
 
