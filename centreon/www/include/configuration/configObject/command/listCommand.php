@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -117,6 +117,25 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 /*
+ * Main buttons
+ */
+$duplicateBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+"onclick=\"javascript:if (confirm('" . _("Do you confirm the duplication ?") . "')) {setO('m'); submit();}\">" .
+"<img src='img/icons/content_copy.png' " . "class='ico-22 margin_right' alt='" . _("Duplicate") . "'></button>";
+
+$deleteBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+    "onclick=\"javascript: if (confirm('" . _("Do you confirm the deletion ?") . "')) {setO('d'); submit();}\">" .
+    "<img src='img/icons/delete_new.png' " . "class='ico-22 margin_right' alt='" . _("Delete") . "'></button>";
+
+$disableBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+    "onclick=\"javascript: setO('md'); submit();\"><img src='img/icons/visibility_off.png' " .
+    "class='ico-22 margin_right' alt='" . _("Disable") . "'></button>";
+
+$enableBtn = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 22px; width: 22px;' " .
+    "onclick=\"javascript: setO('me'); submit();\"><img src='img/icons/visibility_on.png' " .
+    "class='ico-22 margin_right' alt='" . _("Enable") . "'></button>";
+
+/*
  * start header menu
  */
 $tpl->assign("headerMenu_name", _("Name"));
@@ -124,7 +143,7 @@ $tpl->assign("headerMenu_desc", _("Command Line"));
 $tpl->assign("headerMenu_type", _("Type"));
 $tpl->assign("headerMenu_huse", _("Host Uses"));
 $tpl->assign("headerMenu_suse", _("Services Uses"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign("headerMenu_options", _("Actions"));
 
 $form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
 
@@ -155,26 +174,30 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
 
     if ($cmd["command_activate"]) {
         $optionO = 'di';
-        $altText =  _("Disabled");
-        $iconValue = "disabled.png";
+        $altText =  _("Enabled");
+        $iconValue = "visibility_on.png";
     } else {
         $optionO = 'en';
-        $altText =  _("Enabled");
-        $iconValue = "enabled.png";
+        $altText =  _("Disabled");
+        $iconValue = "visibility_off.png";
     }
-    $moptions = "<a href='main.php?p=" . $p . "&command_id=" . $cmd['command_id'] . "&o=" . $optionO .
-        "&limit=" . $limit . "&num=" . $num . "&search=" . $search .  "&centreon_token=" . $centreonToken .
-        "'><img src='img/icons/" . $iconValue . "' " .
-        "class='ico-14 margin_right' border='0' alt='" . $altText . "'></a>";
+    $state = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 16px; width: 16px;' " .
+    "onclick=\"javascript: setO('" . $optionO . "'); setCmdId(" . $cmd['command_id'] . "); submit();\">" .
+    "<img src='img/icons/" . $iconValue . "' " . "class='ico-16 margin_right' alt='" . $altText . "'></button>";
+    
+    $duplicate = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 16px; width: 16px;' " .
+    "onclick=\"javascript: setO('m'); setCmdId(" . $cmd['command_id'] . "); submit();\">" .
+    "<img src='img/icons/content_copy.png' " . "class='ico-16 margin_right' alt='" . _("Duplicate") . "'></button>";
+
+    $delete = "<button style='cursor: pointer; background-color: transparent; border: 0; height: 16px; width: 16px;' " .
+    "onclick=\"javascript: setO('d'); setCmdId(" . $cmd['command_id'] . "); submit();\">" .
+    "<img src='img/icons/delete_new.png' " . "class='ico-16 margin_right' alt='" . _("Delete") . "'></button>";
 
     if (isset($lockedElements[$cmd['command_id']])) {
         $selectedElements->setAttribute('disabled', 'disabled');
-    } else {
-        $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) "
-            . "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) "
-            . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-            . $cmd['command_id'] . "]' />";
+        $delete = "";
     }
+
     $decodedCommand = myDecodeCommand($cmd["command_line"]);
     $elemArr[$i] = array(
         "MenuClass" => "list_" . $style,
@@ -190,9 +213,9 @@ for ($i = 0; $cmd = $statement->fetch(\PDO::FETCH_ASSOC); $i++) {
             getHostNumberUse($cmd['command_id']) . " (" . getHostTPLNumberUse($cmd['command_id']) . ")</a>",
         "RowMenu_suse" => "<a name='#' title='" . _("Service links (service template links)") . "'>" .
             getServiceNumberUse($cmd['command_id']) . " (" . getServiceTPLNumberUse($cmd['command_id']) . ")</a>",
-        "RowMenu_status" => $cmd["command_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $cmd["command_activate"] ? "service_ok" : "service_critical",
-        "RowMenu_options" => $moptions
+        "RowMenu_state" => $state,
+        "RowMenu_duplicate" => $duplicate,
+        "RowMenu_delete" => $delete,
     );
     $style != "two" ? $style = "two" : $style = "one";
 }
@@ -209,56 +232,21 @@ $tpl->assign(
     'msg',
     array(
         "addL" => "main.php?p=" . $p . "&o=a&type=" . $type,
-        "addT" => _("Add"),
-        "delConfirm" => _("Do you confirm the deletion ?")
+        "addT" => "+ " . _("ADD")
     )
 );
 
 $redirectType = $form->addElement('hidden', 'type');
 $redirectType->setValue($type);
 
-// Toolbar select
-foreach (array('o1', 'o2') as $option) {
-    $attrs1 = array(
-        'onchange' => "javascript: " .
-            "var bChecked = isChecked(); " .
-            "if (this.form.elements['$option'].selectedIndex != 0 && !bChecked) {" .
-            "   alert('" . _("Please select one or more items") . "'); return false;} " .
-            "if (this.form.elements['$option'].selectedIndex == 1 && confirm('" .
-            _("Do you confirm the duplication ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 2 && confirm('" .
-            _("Do you confirm the deletion ?") . "')) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 3) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "else if (this.form.elements['$option'].selectedIndex == 4) {" .
-            "   setO(this.form.elements['$option'].value); submit();} " .
-            "this.form.elements['$option'].selectedIndex = 0"
-    );
-    $form->addElement(
-        'select',
-        $option,
-        null,
-        array(
-            null => _("More actions..."),
-            "m" => _("Duplicate"),
-            "d" => _("Delete"),
-            "me" => _("Enable"),
-            "md" => _("Disable")
-        ),
-        $attrs1
-    );
-    $form->setDefaults(array($option => null));
-    $o1 = $form->getElement($option);
-    $o1->setValue(null);
-    $o1->setSelected(null);
-}
-
 ?>
 <script type="text/javascript">
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
+    }
+
+    function setCmdId(_i) {
+        document.forms['form'].elements['command_id'].value = _i;
     }
 </script>
 <?php
@@ -271,4 +259,8 @@ $tpl->assign('limit', $limit);
 $tpl->assign('type', $type);
 $tpl->assign('searchC', $search);
 $tpl->assign("displayLocked", $displayLocked);
+$tpl->assign("duplicateBtn", $duplicateBtn);
+$tpl->assign("deleteBtn", $deleteBtn);
+$tpl->assign("disableBtn", $disableBtn);
+$tpl->assign("enableBtn", $enableBtn);
 $tpl->display("listCommand.ihtml");

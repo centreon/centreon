@@ -24,7 +24,11 @@
 		<tr class="ToolbarTR">
 			{if $mode_access=='w'}
 				<td>
-					{$form.o1.html}<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
+					<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>&nbsp;
+					{$duplicateBtn}&nbsp;&nbsp;
+					{$deleteBtn}&nbsp;&nbsp;
+					{$disableBtn}&nbsp;&nbsp;
+					{$enableBtn}
 				</td>
 			{else}
 				<td>&nbsp;</td>
@@ -47,7 +51,7 @@
 				<td class="ListColHeaderCenter">{$headerMenu_huse}</td>
 				<td class="ListColHeaderCenter">{$headerMenu_suse}</td>
 			{/if}
-			<td class="ListColHeaderCenter">{t}Status{/t}</td>
+			<td class="ListColHeaderCenter">{t}State{/t}</td>
 			<td class="ListColHeaderRight">{$headerMenu_options}</td>
 		</tr>
 		{section name=elem loop=$elemArr}
@@ -63,30 +67,20 @@
 					<td class="ListColCenter">{$elemArr[elem].RowMenu_suse}</td>
 				{/if}
 				<td class="ListColCenter">
-					<span class="badge {$elemArr[elem].RowMenu_badge}">{$elemArr[elem].RowMenu_status}</span>
+					{if $mode_access == 'w'}
+						{$elemArr[elem].RowMenu_state}
+					{/if}
 				</td>
 				<td class="ListColRight" align="right">
 					{if $mode_access == 'w'}
-						{$elemArr[elem].RowMenu_options}
-					{else}&nbsp;
+						{$elemArr[elem].RowMenu_duplicate}&nbsp;{$elemArr[elem].RowMenu_delete}
 					{/if}
 				</td>
 			</tr>
 		{/section}
 	</table>
-	<table class="ToolbarTable table">
-		<tr class="ToolbarTR">
-			{if $mode_access == 'w'}
-				<td>
-					{$form.o2.html}<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-				</td>
-			{else}
-				<td>&nbsp;</td>
-			{/if}
-			{pagination}
-		</tr>
-	</table>
 	<input type='hidden' name='o' id='o' value='42'>
+	<input type='hidden' name='command_id' id='command_id' value=''>
 	<input type='hidden' id='limit' name='limit' value='{$limit}'>
 	{$form.hidden}
 </form>
