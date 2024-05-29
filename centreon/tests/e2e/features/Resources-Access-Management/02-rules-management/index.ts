@@ -7,13 +7,56 @@ import data_bv from '../../../fixtures/resources-access-management/bv-names.json
 import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
 import '../commands';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+
+const hostGroupName = 'Linux-Servers';
+
+const services = {
+  serviceCritical: {
+    host: 'host3',
+    name: 'service3',
+    template: 'SNMP-Linux-Load-Average'
+  },
+  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceWarning: {
+    host: 'host2',
+    name: 'service2',
+    template: 'SNMP-Linux-Memory'
+  }
+};
+const resultsToSubmit = [
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceCritical.name,
+    status: 'critical'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceWarning.name,
+    status: 'warning'
+  },
+  {
+    host: services.serviceWarning.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  },
+  {
+    host: services.serviceCritical.host,
+    output: 'submit_status_2',
+    service: services.serviceOk.name,
+    status: 'ok'
+  }
+];
 
 beforeEach(() => {
-  cy.startContainers();
-  // install BAM and cloud extensions modules
-  cy.installBamModuleOnContainer();
-  cy.installCloudExtensionsOnContainer();
-  cy.enableResourcesAccessManagementFeature();
+  // cy.startContainers();
+  // // install BAM and cloud extensions modules
+  // cy.installBamModuleOnContainer();
+  // cy.installCloudExtensionsOnContainer();
+  // cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -85,15 +128,47 @@ Given('an Administrator is logged in on the platform', () => {
 });
 
 When('a new host is created', () => {
+  // cy.addHost({
+  //   activeCheckEnabled: false,
+  //   address: host_data.adress,
+  //   checkCommand: 'check_centreon_cpu',
+  //   hostGroup: host_data.hostGroups.hostGroup1.name,
+  //   name: host_data.hosts.host1.name,
+  //   template: 'generic-host'
+  // });
   cy.addHost({
-    activeCheckEnabled: false,
-    address: host_data.adress,
-    checkCommand: 'check_centreon_cpu',
-    hostGroup: host_data.hostGroups.hostGroup1.name,
-    name: host_data.hosts.host1.name,
+    hostGroup: 'Linux-Servers',
+    name: services.serviceOk.host,
     template: 'generic-host'
-  });
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceOk.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    });
   cy.applyPollerConfiguration();
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  cy.submitResults(resultsToSubmit);
+  checkServicesAreMonitored([{ name: services.serviceOk.name, status: 'ok' }]);
   cy.visit(`centreon/monitoring/resources`);
   cy.contains('Centreon-Database').should('be.visible');
 });
