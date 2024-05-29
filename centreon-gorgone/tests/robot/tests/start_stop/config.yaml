@@ -1,0 +1,34 @@
+gorgone:
+  gorgonecore:
+    internal_com_type: ipc
+    internal_com_path: /etc/centreon-gorgone/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/routing.ipc
+    external_com_type: tcp
+
+    gorgone_db_type: SQLite
+    gorgone_db_name: dbname=/etc/centreon-gorgone/@UNIQ_ID_FROM_ROBOT_TESTING_CONFIG_FILE@/history.sdb
+    id: 1
+    privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+    pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+  modules:
+    - name: httpserver
+      package: "gorgone::modules::core::httpserver::hooks"
+      enable: true
+      address: "0.0.0.0"
+      port: "8085"
+      ssl: false
+      auth:
+        enabled: false
+      allowed_hosts:
+        enabled: true
+        subnets:
+          - 127.0.0.1/32
+centreon:
+  database:
+    db_configuration:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=@DBNAME@"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"
+    db_realtime:
+      dsn: "mysql:host=@DBHOST@:port=3306;dbname=centreon_storage"
+      username: "@DBUSER@"
+      password: "@DBPASSWORD@"

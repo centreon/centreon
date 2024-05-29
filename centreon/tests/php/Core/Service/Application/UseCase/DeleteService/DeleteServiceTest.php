@@ -29,8 +29,10 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
@@ -47,7 +49,9 @@ beforeEach(closure: function (): void {
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->storageEngine = $this->createMock(DataStorageEngineInterface::class),
-        $this->user = $this->createMock(ContactInterface::class)
+        $this->user = $this->createMock(ContactInterface::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
+        $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
     );
 });
 

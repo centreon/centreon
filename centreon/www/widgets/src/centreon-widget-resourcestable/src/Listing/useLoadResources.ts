@@ -14,7 +14,7 @@ import { DisplayType, ResourceListing } from './models';
 interface LoadResourcesProps
   extends Pick<
     CommonWidgetProps<PanelOptions>,
-    'dashboardId' | 'id' | 'playlistHash'
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   displayType: DisplayType;
   limit?: number;
@@ -46,7 +46,8 @@ const useLoadResources = ({
   sortOrder,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -75,6 +76,7 @@ const useLoadResources = ({
         widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'resourcestable',
       displayType,
       JSON.stringify(states),

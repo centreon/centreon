@@ -41,7 +41,6 @@ use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
-
     $this->validation = new PartialUpdateHostValidation(
         readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         readMonitoringServerRepository: $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
@@ -193,10 +192,10 @@ it('throws an exception when category ID does not exist with admin user', functi
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertAreValidCategories([1,3]);
+    $this->validation->assertAreValidCategories([1, 3]);
 })->throws(
     HostException::class,
-    HostException::idsDoNotExist('categories', [1,3])->getMessage()
+    HostException::idsDoNotExist('categories', [1, 3])->getMessage()
 );
 
 it('throws an exception when category ID does not exist with non-admin user', function (): void {
@@ -209,10 +208,10 @@ it('throws an exception when category ID does not exist with non-admin user', fu
         ->method('existByAccessGroups')
         ->willReturn([]);
 
-    $this->validation->assertAreValidCategories([1,3]);
+    $this->validation->assertAreValidCategories([1, 3]);
 })->throws(
     HostException::class,
-    HostException::idsDoNotExist('categories', [1,3])->getMessage()
+    HostException::idsDoNotExist('categories', [1, 3])->getMessage()
 );
 
 it('throws an exception when group ID does not exist with admin user', function (): void {
@@ -225,10 +224,10 @@ it('throws an exception when group ID does not exist with admin user', function 
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertAreValidGroups([1,3]);
+    $this->validation->assertAreValidGroups([1, 3]);
 })->throws(
     HostException::class,
-    HostException::idsDoNotExist('groups', [1,3])->getMessage()
+    HostException::idsDoNotExist('groups', [1, 3])->getMessage()
 );
 
 it('throws an exception when group ID does not exist with non-admin user', function (): void {
@@ -241,12 +240,11 @@ it('throws an exception when group ID does not exist with non-admin user', funct
         ->method('existByAccessGroups')
         ->willReturn([]);
 
-    $this->validation->assertAreValidGroups([1,3]);
+    $this->validation->assertAreValidGroups([1, 3]);
 })->throws(
     HostException::class,
-    HostException::idsDoNotExist('groups', [1,3])->getMessage()
+    HostException::idsDoNotExist('groups', [1, 3])->getMessage()
 );
-
 
 it('throws an exception when parent template ID does not exist', function (): void {
     $this->readHostTemplateRepository
@@ -254,10 +252,10 @@ it('throws an exception when parent template ID does not exist', function (): vo
         ->method('exist')
         ->willReturn([]);
 
-    $this->validation->assertAreValidTemplates([1,3], 4);
+    $this->validation->assertAreValidTemplates([1, 3], 4);
 })->throws(
     HostException::class,
-    HostException::idsDoNotExist('templates', [1,3])->getMessage()
+    HostException::idsDoNotExist('templates', [1, 3])->getMessage()
 );
 
 it('throws an exception when parent template ID creates a circular inheritance', function (): void {
@@ -266,7 +264,7 @@ it('throws an exception when parent template ID creates a circular inheritance',
         ->method('exist')
         ->willReturn([1, 3]);
 
-    $this->validation->assertAreValidTemplates([1,3], 3);
+    $this->validation->assertAreValidTemplates([1, 3], 3);
 })->throws(
     HostException::class,
     HostException::circularTemplateInheritance()->getMessage()
