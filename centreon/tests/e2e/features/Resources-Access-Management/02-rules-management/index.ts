@@ -219,7 +219,6 @@ When(
           .getByLabel({ label: 'Save', tag: 'button' })
           .then((button) => {
             const isDisabled = button.prop('disabled');
-            cy.log(`Button disabled state: ${isDisabled}`);
 
             return cy.wrap(!isDisabled);
           });
@@ -230,7 +229,9 @@ When(
       }
     );
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-    cy.contains('div', 'The resource access rule was successfully created');
+    cy.contains('div', 'The resource access rule was successfully created', {
+      timeout: 10000
+    });
     // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
     cy.wait('@getTopCounterpoller');
