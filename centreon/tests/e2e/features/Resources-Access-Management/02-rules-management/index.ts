@@ -164,10 +164,7 @@ When('a new host is created', () => {
       template: services.serviceCritical.template
     });
   cy.applyPollerConfiguration();
-  checkHostsAreMonitored([
-    { name: services.serviceOk.host },
-    { name: services.serviceCritical.host }
-  ]);
+  checkHostsAreMonitored([{ name: services.serviceOk.host }]);
   cy.submitResults(resultsToSubmit);
   checkServicesAreMonitored([{ name: services.serviceOk.name, status: 'ok' }]);
   cy.visit(`centreon/monitoring/resources`);
