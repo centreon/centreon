@@ -112,16 +112,21 @@ final class PartialUpdateServiceTemplate
                 return;
             }
 
-            $serviceTemplate = $this->readServiceTemplateRepository->findById($request->id);
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $serviceTemplate = $this->readServiceTemplateRepository->findByIdAndAccessGroups(
+                    $request->id,
+                    $this->accessGroups
+                );
+            } else {
+                $serviceTemplate = $this->readServiceTemplateRepository->findById($request->id);
+            }
+
             if ($serviceTemplate === null) {
                 $this->error('Service template not found', ['service_template_id' => $request->id]);
                 $presenter->setResponseStatus(new NotFoundResponse('Service template'));
 
                 return;
-            }
-
-            if (! $this->user->isAdmin()) {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             }
 
             $this->updatePropertiesInTransaction($request, $serviceTemplate);
