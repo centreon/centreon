@@ -16,6 +16,43 @@ Cypress.Commands.add('enableDashboardFeature', () => {
   });
 });
 
+Cypress.Commands.add('visitDashboards', () => {
+  cy.intercept({
+    method: 'GET',
+    times: 1,
+    url: '/centreon/api/latest/configuration/dashboards*'
+  }).as('listAllDashboards');
+
+  cy.url().then((url) => {
+    if (url.includes('/home/dashboards')) {
+      // only refresh dashboard page by clicking on breadcrumb
+      cy.get('nav[aria-label="Breadcrumb"]').contains('Dashboards').click();
+    } else {
+      cy.navigateTo({
+        page: 'Dashboards',
+        rootItemNumber: 0
+      });
+    }
+  });
+
+  cy.wait('@listAllDashboards');
+});
+
+Cypress.Commands.add('visitDashboard', (name) => {
+  cy.visitDashboards();
+
+  cy.contains(name).click();
+});
+
+Cypress.Commands.add('editDashboard', (name) => {
+  cy.visitDashboard(name);
+
+  cy.getByLabel({
+    label: 'Edit dashboard',
+    tag: 'button'
+  }).click();
+});
+
 Cypress.Commands.add(
   'waitUntilForDashboardRoles',
   (accessRightsTestId, expectedElementCount) => {
@@ -261,6 +298,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       applyAcl: () => Cypress.Chainable;
+      editDashboard: (name: string) => Cypress.Chainable;
       enableDashboardFeature: () => Cypress.Chainable;
       getCellContent: (rowIndex: number, colIndex: number) => Cypress.Chainable;
       insertDashboardWithWidget: (
@@ -274,6 +312,8 @@ declare global {
         expectedColors: Array<string>,
         expectedValue: Array<string>
       ) => Cypress.Chainable;
+      visitDashboard: (name: string) => Cypress.Chainable;
+      visitDashboards: () => Cypress.Chainable;
       waitUntilForDashboardRoles: (
         accessRightsTestId: string,
         expectedElementCount: number

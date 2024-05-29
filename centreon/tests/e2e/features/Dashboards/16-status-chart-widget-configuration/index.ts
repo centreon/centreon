@@ -368,16 +368,7 @@ Then('the unit of the resources already displayed should be updated', () => {
 
 Given('a dashboard featuring two Status Chart widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@getDashboard');
   cy.wait('@getServiceStatus');
   cy.wait('@getHostStatus');
