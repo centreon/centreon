@@ -109,7 +109,7 @@ Given('a non-admin user who has update rights on a dashboard', () => {
 When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({ label: 'share', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
   cy.getByTestId({ testId: `add_role` }).parent().click();
@@ -202,7 +202,7 @@ When(
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
@@ -294,7 +294,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-viewer').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -386,7 +386,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -475,7 +475,7 @@ Given(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
@@ -510,7 +510,7 @@ When(
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains(dashboardCGMember3.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: `add_role` }).parent().click();
@@ -590,7 +590,7 @@ Then(
 // );
 
 // When('the admin user appoints one of the users as an editor', () => {
-//   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //   cy.contains(dashboardCreatorUser.login).click();
 //   cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //   cy.getByTestId({ testId: 'add' }).click();
@@ -615,7 +615,7 @@ Then(
 //     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
 //     cy.contains('Contact').click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //     cy.contains(dashboardCGMember3.login).click();
 //     cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //     cy.getByTestId({ testId: 'add' }).click();
@@ -645,7 +645,7 @@ Then(
 //   'the newly appointed editor user can appoint another user as a viewer',
 //   () => {
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //     cy.contains(dashboardViewerUser.login).click();
 //     cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //     cy.getByTestId({ testId: 'add' }).click();
