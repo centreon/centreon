@@ -204,7 +204,7 @@ Then(
     cy.getByLabel({ label: 'Host', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
     // cy.contains('Centreon-Database').click();
-    cy.contains('service2').click();
+    cy.contains('host2').click();
   }
 );
 
