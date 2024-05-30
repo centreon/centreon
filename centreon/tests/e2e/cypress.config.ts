@@ -5,5 +5,9 @@ export default configuration({
     OPENID_IMAGE_URL: 'http://localhost:8080'
   },
   envFile: `${__dirname}/../../../.version`,
-  specPattern: 'features/**/*.feature'
+  specPattern: 'features/**/*.feature',
+  retries: {
+    runMode: 2,
+    openMode: 2
+  }
 });
