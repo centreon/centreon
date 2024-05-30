@@ -51,56 +51,12 @@ const resultsToSubmit = [
   }
 ];
 
-before(() => {
+beforeEach(() => {
   cy.startContainers();
   // install BAM and cloud extensions modules
   cy.installBamModuleOnContainer();
   cy.installCloudExtensionsOnContainer();
   cy.enableResourcesAccessManagementFeature();
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?*'
-  }).as('getContactFrame');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_bam_top_counter&action=getBamTopCounterData'
-  }).as('getTopCounter');
-  // we should install bam, cloud extension and anomaly detection
-  cy.installBamModule();
-  cy.installCloudExtensionsModule();
-  cy.grantBaAccessToUsers();
-  cy.logoutViaAPI();
-  cy.setUserTokenApiV1();
-  // user should have access to ba
-  cy.addContact({
-    admin: data.admin,
-    email: data.email,
-    name: data.login,
-    password: data.password
-  });
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.addRightsForUser(data);
-  cy.logoutViaAPI();
-});
-
-beforeEach(() => {
-  // cy.startContainers();
-  // // install BAM and cloud extensions modules
-  // cy.installBamModuleOnContainer();
-  // cy.installCloudExtensionsOnContainer();
-  // cy.enableResourcesAccessManagementFeature();
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -136,6 +92,22 @@ beforeEach(() => {
 });
 
 Given('I am logged in as a user with limited access', () => {
+  // we should install bam, cloud extension and anomaly detection
+  cy.installBamModule();
+  cy.installCloudExtensionsModule();
+  cy.grantBaAccessToUsers();
+  cy.logoutViaAPI();
+  cy.setUserTokenApiV1();
+  // user should have access to ba
+  cy.addContact({
+    admin: data.admin,
+    email: data.email,
+    name: data.login,
+    password: data.password
+  });
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.addRightsForUser(data);
+  cy.logoutViaAPI();
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 Given('I have restricted visibility to resources', () => {
