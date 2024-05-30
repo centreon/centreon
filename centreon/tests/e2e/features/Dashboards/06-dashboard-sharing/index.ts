@@ -22,7 +22,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
@@ -68,7 +68,11 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {
@@ -103,7 +107,11 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the editor user sets another user as a viewer on the dashboard', () => {
@@ -161,7 +169,11 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -193,7 +205,11 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   }
 );
 
@@ -201,6 +217,8 @@ When(
   'the dashboard administrator user sets another user as a second editor on a dashboard',
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('body').type('{esc}');
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
@@ -255,7 +273,11 @@ When('the second editor user logs in on the platform', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -285,7 +307,11 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -347,7 +373,11 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -361,7 +391,11 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -377,7 +411,11 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -439,7 +477,11 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -453,7 +495,11 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -471,7 +517,11 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
@@ -546,7 +596,11 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -566,7 +620,11 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+      cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -583,7 +641,11 @@ Then(
 //       jsonName: dashboardAdministratorUser.login,
 //       loginViaApi: false
 //     });
-//     cy.visit('/centreon/home/dashboards/library');
+//       cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 //     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
 //   }
@@ -603,7 +665,11 @@ Then(
 // Then(
 //   'the newly appointed editor user can appoint another user as an editor',
 //   () => {
-//     cy.visit('/centreon/home/dashboards/library');
+//       cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 //     cy.logout();
 //     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -611,7 +677,11 @@ Then(
 //       jsonName: dashboardCreatorUser.login,
 //       loginViaApi: false
 //     });
-//     cy.visit('/centreon/home/dashboards/library');
+//       cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 //     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
 //     cy.contains('Contact').click();
