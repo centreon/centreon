@@ -799,7 +799,7 @@ declare global {
         patch: PatchDashboardBody
       ) => Cypress.Chainable;
       loginAsAdminViaApiV2: () => Cypress.Chainable;
-      <loginByTypeOfUser>: ({
+      loginByTypeOfUser: ({
         jsonName,
         loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;

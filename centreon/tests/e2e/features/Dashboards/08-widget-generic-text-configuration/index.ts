@@ -190,7 +190,7 @@ When(
     );
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
-      .trigger('click', { force: true });
+      .click();
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });
@@ -266,8 +266,8 @@ Then('the description is hidden and only the title is displayed', () => {
     .should('not.contain.text', `${genericTextWidget.default.description}`);
 
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
-  cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
+  cy.getByLabel({ label: 'More actions' }).click();
+  cy.getByLabel({ label: 'Edit widget' }).click();
   cy.getByLabel({ label: 'Show description' }).click({ force: true });
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -277,8 +277,8 @@ Then('the description is hidden and only the title is displayed', () => {
 When(
   'the dashboard administrator user adds a clickable link in the contents of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).trigger('click', { force: true });
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click', { force: true });
+    cy.getByLabel({ label: 'More actions' }).click();
+    cy.getByLabel({ label: 'Edit widget' }).click();
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .clear({ force: true });
