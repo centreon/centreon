@@ -61,6 +61,22 @@ before(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?*'
+  }).as('getContactFrame');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_bam_top_counter&action=getBamTopCounterData'
+  }).as('getTopCounter');
   // we should install bam, cloud extension and anomaly detection
   cy.installBamModule();
   cy.installCloudExtensionsModule();
