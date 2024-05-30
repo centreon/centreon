@@ -88,6 +88,8 @@ jobs:
             DISPLAY_SUMMARY="true"
           fi
 
+          DEVELOPMENT_STAGE="Testing"
+
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
           SKIP_ANALYSIS="true"
           if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
@@ -95,7 +97,7 @@ jobs:
           fi
 
           echo "fail_build=$FAIL_BUILD" >> $GITHUB_OUTPUT
-          echo "development_stage=Testing" >> $GITHUB_OUTPUT
+          echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
           echo "display_summary=$DISPLAY_SUMMARY" >> $GITHUB_OUTPUT
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
