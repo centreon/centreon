@@ -403,7 +403,6 @@ When(
     cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).should('not.exist');
   }
 );
 

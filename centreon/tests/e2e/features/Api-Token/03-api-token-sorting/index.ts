@@ -58,10 +58,7 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.visit('/centreon/administration/api-token');
-  cy.wait('@getTokens');
-  cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
-  cy.wait('@getTokens');
+  cy.visitApiTokens();
 });
 
 When('I click on the {string} column header', (columnHeader: string) => {

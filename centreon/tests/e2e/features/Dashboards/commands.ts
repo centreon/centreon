@@ -20,13 +20,12 @@ Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
     method: 'GET',
     times: 1,
-    url: '/centreon/api/latest/configuration/dashboards*'
+    url: `${Cypress.config().baseUrl}/api/latest/configuration/dashboards*`
   }).as('listAllDashboards');
 
   cy.url().then((url) => {
     if (url.includes('/home/dashboards/library')) {
-      // only refresh dashboard page by clicking on breadcrumb
-      cy.get('nav[aria-label="Breadcrumb"]').contains('Dashboards').click();
+      cy.visit(`${Cypress.config().baseUrl}/home/dashboards/library`);
     } else {
       cy.navigateTo({
         page: 'Dashboards',

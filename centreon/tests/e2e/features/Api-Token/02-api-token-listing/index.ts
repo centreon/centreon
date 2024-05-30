@@ -64,10 +64,7 @@ Given('I am logged in as an administrator', () => {
 // });
 //
 // When('I navigate to API tokens page', () => {
-//   cy.visit('/centreon/administration/api-token');
-//   cy.wait('@getTokens');
-//   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
-//   cy.wait('@getTokens');
+//   cy.visitApiTokens();
 // });
 //
 // Then(

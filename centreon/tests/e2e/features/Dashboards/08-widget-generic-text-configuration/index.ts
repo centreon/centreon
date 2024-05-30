@@ -53,7 +53,6 @@ beforeEach(() => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visitDashboards();
 });
 
 after(() => {
@@ -134,7 +133,7 @@ Then('its title and description are displayed', () => {
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
   cy.contains(dashboards.default.name).click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidget.default.title).should('exist');
