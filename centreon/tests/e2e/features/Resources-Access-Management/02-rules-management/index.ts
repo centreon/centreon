@@ -162,8 +162,9 @@ When('a new host is created', () => {
       maxCheckAttempts: 1,
       name: services.serviceCritical.name,
       template: services.serviceCritical.template
-    });
-  cy.applyPollerConfiguration();
+    })
+    .applyPollerConfiguration();
+
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceCritical.host,
@@ -189,8 +190,8 @@ When('a new host is created', () => {
       maxCheckAttempts: 1,
       name: services.serviceCritical.name,
       template: services.serviceCritical.template
-    });
-  cy.applyPollerConfiguration();
+    })
+    .applyPollerConfiguration();
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
@@ -204,6 +205,7 @@ When('a new host is created', () => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
+
   cy.applyAcl();
   cy.visit(`centreon/monitoring/resources`);
   cy.contains('host2').should('be.visible');
