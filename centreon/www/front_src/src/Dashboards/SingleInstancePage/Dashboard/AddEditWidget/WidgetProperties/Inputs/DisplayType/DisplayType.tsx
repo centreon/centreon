@@ -7,6 +7,7 @@ import { Typography } from '@mui/material';
 import { labelDisplayAs } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
+import { useResourceStyles } from '../Inputs.styles';
 
 import useDisplayType from './useDisplayType';
 import Option from './Option';
@@ -18,6 +19,7 @@ const DisplayType = ({
   isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useStyles();
+  const { classes: resourcesClasses } = useResourceStyles();
 
   const { t } = useTranslation();
 
@@ -27,7 +29,7 @@ const DisplayType = ({
 
   return (
     <div>
-      <Label>{t(labelDisplayAs)}</Label>
+      <Label className={resourcesClasses.subtitle}>{t(labelDisplayAs)}</Label>
       <div className={classes.displayTypeContainer}>
         {options?.map(({ id, icon, label }) => (
           <Option

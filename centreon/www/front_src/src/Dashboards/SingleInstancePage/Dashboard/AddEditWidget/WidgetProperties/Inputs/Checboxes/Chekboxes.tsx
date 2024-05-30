@@ -15,6 +15,7 @@ import { Button } from '@centreon/ui/components';
 import { WidgetPropertyProps } from '../../../models';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import Subtitle from '../../../../components/Subtitle';
+import { useResourceStyles } from '../Inputs.styles';
 
 import { useCheckboxes } from './useCheckboxes';
 import { labelSelectAll, labelUnselectAll } from './translatedLabels';
@@ -29,6 +30,7 @@ const WidgetCheckboxes = ({
   isInGroup
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useResourceStyles();
 
   const { canEditField } = useCanEditProperties();
 
@@ -50,7 +52,9 @@ const WidgetCheckboxes = ({
 
   return (
     <div>
-      <Label secondaryLabel={secondaryLabel}>{t(label)}</Label>
+      <Label className={classes.subtitle} secondaryLabel={secondaryLabel}>
+        {t(label)}
+      </Label>
       {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
         <Button
           disabled={!canEditField}

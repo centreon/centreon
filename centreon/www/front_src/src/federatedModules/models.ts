@@ -77,6 +77,14 @@ export interface FederatedWidgetOption {
       };
   required?: boolean;
   secondaryLabel: string;
+  subInputs?: Array<{
+    displayValue: unknown;
+    input: Omit<
+      FederatedWidgetOption,
+      'group' | 'hiddenCondition' | 'subInputs'
+    >;
+    direction?: 'row' | 'column'
+  }>;
   type: FederatedWidgetOptionType;
 }
 
