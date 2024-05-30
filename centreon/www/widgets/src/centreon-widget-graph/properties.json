@@ -45,6 +45,14 @@
         {
           "id": "graphStyles",
           "name": "Graph styles"
+        },
+        {
+          "id": "legend",
+          "name": "Legend"
+        },
+        {
+          "id": "tooltip",
+          "name": "Tooltip"
         }
       ],
       "elements": {
@@ -65,6 +73,88 @@
             {
               "id": "step",
               "name": "Step"
+            }
+          ]
+        },
+        "tooltipMode": {
+          "group": "tooltip",
+          "type": "button-group",
+          "label": "Tooltip mode",
+          "default": "all",
+          "options": [
+            {
+              "id": "all",
+              "name": "All"
+            },
+            {
+              "id": "single",
+              "name": "Single"
+            },
+            {
+              "id": "hidden",
+              "name": "Hidden"
+            }
+          ]
+        },
+        "tooltipSortOrder": {
+          "group": "tooltip",
+          "type": "button-group",
+          "label": "Value sort order",
+          "default": "name",
+          "options": [
+            {
+              "id": "name",
+              "name": "ByName"
+            },
+            {
+              "id": "ascending",
+              "name": "Ascending"
+            },
+            {
+              "id": "descending",
+              "name": "Descending"
+            }
+          ]
+        },
+        "showLegend": {
+          "group": "legend",
+          "type": "switch",
+          "label": "ShowLegend",
+          "default": true
+        },
+        "legendDisplayMode": {
+          "group": "legend",
+          "type": "button-group",
+          "label": "Display mode",
+          "default": "grid",
+          "options": [
+            {
+              "id": "grid",
+              "name": "Grid"
+            },
+            {
+              "id": "list",
+              "name": "List"
+            }
+          ]
+        },
+        "legendPlacement": {
+          "group": "legend",
+          "type": "button-group",
+          "label": "Placement",
+          "default": "bottom",
+          "options": [
+            {
+              "id": "left",
+              "name": "Left"
+            },
+            {
+              "id": "bottom",
+              "name": "Bottom"
+            },
+            {
+              "id": "right",
+              "name": "Right"
             }
           ]
         }
