@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
 
 import { filter, intersection, isNil, map, pipe, toUpper } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { StatusGridProps } from '../StatusGridStandard/models';
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
   formatStatus,
   getStatusNameByStatusSeverityandResourceType,
+  getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
@@ -33,14 +36,27 @@ export const useStatusGridCondensed = ({
   panelOptions,
   panelData,
   refreshCount,
-  globalRefreshInterval
+  globalRefreshInterval,
+  playlistHash,
+  dashboardId,
+  id,
+  widgetPrefixQuery
 }: Pick<
   StatusGridProps,
-  'panelOptions' | 'panelData' | 'refreshCount' | 'globalRefreshInterval'
+  | 'panelOptions'
+  | 'panelData'
+  | 'refreshCount'
+  | 'globalRefreshInterval'
+  | 'dashboardId'
+  | 'id'
+  | 'playlistHash'
+  | 'widgetPrefixQuery'
 >): UseStatusGridCondensedState => {
   const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
     panelOptions;
   const { resources } = panelData;
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -58,13 +74,20 @@ export const useStatusGridCondensed = ({
 
   const { data, isLoading } = useFetchQuery<StatusType>({
     getEndpoint: () =>
-      buildResourcesEndpoint({
-        baseEndpoint: getStatusesEndpoint(resourceType),
-        page: 0,
-        resources,
-        statuses: statusesToUse
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildResourcesEndpoint({
+          baseEndpoint: getStatusesEndpoint(resourceType),
+          page: 0,
+          resources,
+          statuses: statusesToUse
+        }),
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       'condensed',
       resourceType,
@@ -75,7 +98,8 @@ export const useStatusGridCondensed = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const statusesToDisplay = useMemo(

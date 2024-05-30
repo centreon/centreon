@@ -18,10 +18,10 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexGrow: 1,
     gap: theme.spacing(2),
-    maxWidth: '520px',
     overflow: 'hidden',
     paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(1)
+    paddingTop: theme.spacing(1),
+    width: '100%'
   },
   secondary: {
     alignItems: 'center',

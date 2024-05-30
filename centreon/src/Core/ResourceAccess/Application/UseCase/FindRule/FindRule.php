@@ -55,6 +55,7 @@ final class FindRule
      * @param ReadContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param \Traversable<DatasetProviderInterface> $repositoryProviders
+     * @param DatasetFilterValidator $datasetFilterValidator
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -62,6 +63,7 @@ final class FindRule
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private readonly DatasetFilterValidator $datasetFilterValidator,
         \Traversable $repositoryProviders
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
@@ -126,6 +128,8 @@ final class FindRule
         $response->name = $rule->getName();
         $response->description = $rule->getDescription();
         $response->isEnabled = $rule->isEnabled();
+        $response->applyToAllContacts = $rule->doesApplyToAllContacts();
+        $response->applyToAllContactGroups = $rule->doesApplyToAllContactGroups();
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
@@ -142,29 +146,35 @@ final class FindRule
         {
             $data['type'] = $datasetFilter->getType();
 
-            // special 'ALL' type dataset_filter type case
-            if ($data['type'] === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+            if (
+                $datasetFilter->getResourceIds() === []
+                && $this->datasetFilterValidator->canResourceIdsBeEmpty($data['type'])
+            ) {
                 $data['resources'] = [];
-                $data['dataset_filter'] = null;
 
-                return $data;
-            }
+                // special 'ALL' type dataset_filter type case
+                if ($data['type'] === DatasetFilterValidator::ALL_RESOURCES_FILTER) {
+                    $data['dataset_filter'] = null;
 
-            $resourcesNamesById = null;
-            foreach ($this->repositoryProviders as $provider) {
-                if ($provider->isValidFor($data['type'])) {
-                    $resourcesNamesById = $provider->findResourceNamesByIds($datasetFilter->getResourceIds());
+                    return $data;
                 }
-            }
+            } else {
+                $resourcesNamesById = null;
+                foreach ($this->repositoryProviders as $provider) {
+                    if ($provider->isValidFor($data['type'])) {
+                        $resourcesNamesById = $provider->findResourceNamesByIds($datasetFilter->getResourceIds());
+                    }
+                }
 
-            if ($resourcesNamesById === null) {
-                throw new \InvalidArgumentException('No repository providers found');
-            }
+                if ($resourcesNamesById === null) {
+                    throw new \InvalidArgumentException('No repository providers found');
+                }
 
-            $data['resources'] = array_map(
-                static fn (int $resourceId): array => ['id' => $resourceId, 'name' => $resourcesNamesById->getName($resourceId)],
-                $datasetFilter->getResourceIds()
-            );
+                $data['resources'] = array_map(
+                    static fn (int $resourceId): array => ['id' => $resourceId, 'name' => $resourcesNamesById->getName($resourceId)],
+                    $datasetFilter->getResourceIds()
+                );
+            }
 
             $data['dataset_filter'] = null;
 

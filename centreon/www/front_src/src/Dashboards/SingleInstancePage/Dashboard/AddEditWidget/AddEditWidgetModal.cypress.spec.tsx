@@ -20,18 +20,15 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,
   labelShowDescription,
   labelSelectMetric,
   labelTitle,
-  labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
   labelResourceType,
   labelSelectAResource,
@@ -129,8 +126,7 @@ const initialFormDataEdit = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./text'],
@@ -177,8 +173,7 @@ const initialFormData = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./data'],
@@ -264,7 +259,6 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
         cy.findByLabelText(labelShowDescription).should('be.checked');
-        cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
@@ -459,6 +453,16 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays general properties when a widget is selected', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Group name').should('be.visible');
+      cy.contains('Select field').should('be.visible');
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {
@@ -507,7 +511,6 @@ describe('AddEditWidgetModal', () => {
         .eq(0)
         .should('have.attr', 'contenteditable', 'false');
       cy.findByLabelText(labelShowDescription).should('be.disabled');
-      cy.findByLabelText(labelOpenLinksInNewTab).should('be.disabled');
     });
   });
 

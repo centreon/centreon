@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
-import { Resource, SortOrder } from '../../../models';
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
+import { PanelOptions } from '../models';
 
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
 import { DisplayType, ResourceListing } from './models';
@@ -25,7 +26,11 @@ interface UseListingState {
   selectColumns: (updatedColumnIds: Array<string>) => void;
 }
 
-interface UseListingProps {
+interface UseListingProps
+  extends Pick<
+    CommonWidgetProps<PanelOptions>,
+    'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
+  > {
   changeViewMode?: (displayType) => void;
   displayType: DisplayType;
   isFromPreview?: boolean;
@@ -52,7 +57,11 @@ const useListing = ({
   sortField,
   sortOrder,
   changeViewMode,
-  isFromPreview
+  isFromPreview,
+  id,
+  dashboardId,
+  playlistHash,
+  widgetPrefixQuery
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -60,16 +69,20 @@ const useListing = ({
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = useLoadResources({
+    dashboardId,
     displayType,
+    id,
     limit,
     page,
+    playlistHash,
     refreshCount,
     refreshIntervalToUse,
     resources,
     sortField,
     sortOrder,
     states,
-    statuses
+    statuses,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {

@@ -44,6 +44,14 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
+     * @param ContactInterface $contact
+     */
+    public function setContact(ContactInterface $contact): void
+    {
+        $this->contact = $contact;
+    }
+
+    /**
      * @param array<string, mixed> $parameters
      *
      * @return array<string, string|null>

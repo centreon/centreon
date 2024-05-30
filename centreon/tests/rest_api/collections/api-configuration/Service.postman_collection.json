@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "0480d171-5d7d-40ef-b162-c1e5d60b41a2",
+		"_postman_id": "f7584db6-3e8e-40af-ac78-807ad18b9070",
 		"name": "Service",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-v2-configuration.postman.co/workspace/API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-0480d171-5d7d-40ef-b162-c1e5d60b41a2?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-f7584db6-3e8e-40af-ac78-807ad18b9070?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -2735,7 +2735,6 @@
 									"        \"name\": pm.collectionVariables.get(\"HostTemplate1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"HostTemplate1Alias\"),\r",
 									"        \"snmp_version\": \"2c\",\r",
-									"        \"snmp_community\": \"snmpCommunity-test\",\r",
 									"        \"timezone_id\": 1,\r",
 									"        \"severity_id\": null,\r",
 									"        \"check_command_id\": parseInt(pm.collectionVariables.get(\"CommandId\")),\r",
@@ -2854,7 +2853,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": \"2c\",\r",
-									"        \"snmp_community\": \"snmpCommunity-test\",\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
@@ -2985,7 +2983,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": \"2c\",\r",
-									"        \"snmp_community\": \"snmpCommunity-test\",\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
@@ -3113,7 +3110,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": \"2c\",\r",
-									"        \"snmp_community\": \"snmpCommunity-test\",\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
@@ -8989,6 +8985,114 @@
 									],
 									"path": [
 										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add a new service with a severity (error)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"console.log(responseJson);\r",
+											"pm.test(\"The service was not created because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
+											"    pm.response.to.have.status(409);\r",
+											"\r",
+											"    pm.expect(responseJson.message).to.eql(\"The severity_id with value '\" + pm.collectionVariables.get(\"ServiceSeverity1Id\") +\"' does not exist\");\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Service6.5\",\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"host_id\": {{Host1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5\r\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/services",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"services"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update a service with a severity (error)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"console.log(responseJson);\r",
+											"pm.test(\"The service was not updated because the user does not have sufficient rights for the severity which is not recognized.\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"\r",
+											"    pm.expect(responseJson.message).to.eql('Service not found');\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "centreon-auth-token",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"severity_id\": {{ServiceSeverity1Id}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/configuration/services/{{Service3Id}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"configuration",
+										"services",
+										"{{Service3Id}}"
 									]
 								}
 							},
@@ -14871,7 +14975,7 @@
 											"        \"icon_id\": null,\r",
 											"        \"icon_alternative\": null,\r",
 											"        \"geo_coords\": null,\r",
-											"        \"severity_id\": null,\r",
+											"        \"severity_id\": pm.collectionVariables.get(\"ServiceSeverity1Id\"),\r",
 											"        \"is_activated\": true\r",
 											"    });\r",
 											"\r",
@@ -14896,13 +15000,12 @@
 								"header": [
 									{
 										"key": "centreon-auth-token",
-										"value": "{{token}}",
-										"type": "text"
+										"value": "{{token}}"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"{{Service9Name}}\",\r\n    \"host_id\": {{Host2Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory2Id}} ]\r\n}"
+									"raw": "{\r\n    \"name\": \"{{Service9Name}}\",\r\n    \"host_id\": {{Host2Id}},\r\n    \"severity_id\": {{ServiceSeverity1Id}},\r\n    \"check_command_id\": {{CommandId}},\r\n    \"notification_enabled\": 2,\r\n    \"is_contact_additive_inheritance\": false,\r\n    \"is_contact_group_additive_inheritance\": false,\r\n    \"notification_interval\": 9,\r\n    \"notification_timeperiod_id\": 3,\r\n    \"notification_type\": 36,\r\n    \"first_notification_delay\": 4,\r\n    \"recovery_notification_delay\": 5,\r\n    \"service_categories\": [ {{ServiceCategory2Id}} ]\r\n}"
 								},
 								"url": {
 									"raw": "{{baseUrl}}/configuration/services",
@@ -19255,7 +19358,6 @@
 											"        \"name\": pm.collectionVariables.get(\"Service9Name\"),\r",
 											"        \"service_template\": null,\r",
 											"        \"check_timeperiod\": null,\r",
-											"        \"severity\":null, \r",
 											"        \"normal_check_interval\": null,\r",
 											"        \"retry_check_interval\": null,\r",
 											"        \"is_activated\": true\r",
@@ -19272,6 +19374,10 @@
 											"        id: pm.collectionVariables.get(\"ServiceCategory2Id\"), \r",
 											"        name: pm.collectionVariables.get(\"ServiceCategory2Name\") \r",
 											"    }]);\r",
+											"    pm.expect(responseJson.result[2].severity).to.eql({ \r",
+											"        id: pm.collectionVariables.get(\"ServiceSeverity1Id\"), \r",
+											"        name: pm.collectionVariables.get(\"ServiceSeverity1Name\") \r",
+											"    });\r",
 											"    pm.expect(responseJson.result[2].groups).to.be.an('Array').that.is.empty;\r",
 											"\r",
 											"});"
@@ -19289,8 +19395,7 @@
 								"header": [
 									{
 										"key": "centreon-auth-token",
-										"value": "{{token}}",
-										"type": "text"
+										"value": "{{token}}"
 									}
 								],
 								"body": {

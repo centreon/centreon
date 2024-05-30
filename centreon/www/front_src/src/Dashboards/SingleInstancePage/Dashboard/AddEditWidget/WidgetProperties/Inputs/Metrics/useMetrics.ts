@@ -8,7 +8,9 @@ import {
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
@@ -231,13 +233,13 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
 
   const metricWithSeveralResources = useMemo(
     () =>
-      widgetProperties?.singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       value?.some(
         ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
       ) &&
       getFirstUsedResourceForMetric(value[0].name),
     useDeepCompare([
-      widgetProperties?.singleHostPerMetric,
+      widgetProperties?.singleResourceSelection,
       value,
       getNumberOfResourcesRelatedToTheMetric,
       getFirstUsedResourceForMetric
@@ -302,6 +304,15 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     },
     useDeepCompare([servicesMetrics, resources])
   );
+
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue(`data.services`, services);
+  }, [values?.data?.[propertyName]]);
 
   return {
     changeMetric,

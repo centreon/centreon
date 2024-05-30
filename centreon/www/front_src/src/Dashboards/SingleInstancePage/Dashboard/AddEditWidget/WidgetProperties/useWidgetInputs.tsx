@@ -13,7 +13,7 @@ import {
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -33,7 +33,8 @@ import {
   WidgetCheckboxes,
   WidgetTiles,
   WidgetDisplayType,
-  WidgetSwitch
+  WidgetSwitch,
+  WidgetSelect
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -56,7 +57,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
   [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
-  [FederatedWidgetOptionType.switch]: WidgetSwitch
+  [FederatedWidgetOptionType.switch]: WidgetSwitch,
+  [FederatedWidgetOptionType.select]: WidgetSelect
 };
 
 const DefaultComponent = (): JSX.Element => (
@@ -74,7 +76,7 @@ export const useWidgetInputs = (
   );
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
@@ -84,7 +86,7 @@ export const useWidgetInputs = (
 
   const selectedWidgetProperties: {
     [key: string]: FederatedWidgetOption;
-  } | null = selectedWidget?.[widgetKey] || null;
+  } | null = path(widgetKey.split('.'), selectedWidget) || null;
 
   const inputs = useMemo(
     () =>
@@ -106,6 +108,7 @@ export const useWidgetInputs = (
 
               return {
                 Component,
+                group: value.group,
                 key,
                 props: {
                   ...(value as Omit<
@@ -135,7 +138,7 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])

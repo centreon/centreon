@@ -2,6 +2,8 @@ import { equals } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
+import { margin } from '../common';
+
 interface Props {
   hideTooltip: () => void;
   label: string;
@@ -28,7 +30,7 @@ export const ThresholdLine = ({
   const onMouseEnter = (): void =>
     showTooltip({
       tooltipData: label,
-      tooltipLeft: 0,
+      tooltipLeft: -(margin.left + margin.right),
       tooltipTop: scaledValue
     });
 

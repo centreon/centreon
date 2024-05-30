@@ -57,6 +57,7 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.logoutViaAPI();
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -142,8 +143,10 @@ Given('a dashboard featuring a single Generic text widget', () => {
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(0).trigger('click');
-  cy.getByLabel({ label: 'Duplicate' }).eq(0).trigger('click');
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click({ force: true });
+  cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   cy.get('*[class^="react-grid-layout"]')
     .should('exist')
     .children()
@@ -226,7 +229,9 @@ Then(
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
+  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
   cy.getByLabel({ label: 'Delete widget' }).trigger('click');
   cy.getByLabel({ label: 'Delete' }).trigger('click');
   cy.getByTestId({ testId: 'save_dashboard' }).click();
@@ -247,8 +252,8 @@ Then('only the contents of the other widget are displayed', () => {
 When(
   'the dashboard administrator user hides the description of the widget',
   () => {
-    cy.getByLabel({ label: 'More actions' }).trigger('click');
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
+    cy.getByLabel({ label: 'More actions' }).click();
+    cy.getByLabel({ label: 'Edit widget' }).click();
     cy.getByLabel({ label: 'Show description' }).click({ force: true });
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();

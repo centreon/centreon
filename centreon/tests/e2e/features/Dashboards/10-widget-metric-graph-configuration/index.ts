@@ -91,7 +91,11 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
 );
@@ -175,7 +179,10 @@ Then('the information about the selected metric is displayed', () => {
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -183,7 +190,7 @@ Given('a dashboard featuring having Metrics Graph widget', () => {
     tag: 'button'
   }).click();
   cy.wait('@performanceData');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -257,7 +264,10 @@ Then(
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
 });
@@ -270,7 +280,7 @@ When(
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -323,14 +333,17 @@ Then(
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -358,7 +371,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss (%)').should('exist');
+    cy.contains('Centreon-Server: Packet Loss').should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
@@ -374,21 +387,23 @@ Then('the thresholds are automatically hidden', () => {
 
 Given('a dashboard with a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
   }).realClick();
   cy.wait('@performanceData');
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-
 });
 
 When('the dashboard administrator selects more than two metric units', () => {

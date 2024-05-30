@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
-import { RichTextEditor, useMemoComponent } from '@centreon/ui';
+import { client, RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import {
   dashboardRefreshIntervalAtom,
@@ -20,11 +22,18 @@ import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface Props {
+  dashboardId: number | string;
   id: string;
+  playlistHash?: string;
   refreshCount?: number;
 }
 
-const Panel = ({ id, refreshCount }: Props): JSX.Element => {
+const Panel = ({
+  id,
+  refreshCount,
+  playlistHash,
+  dashboardId
+}: Props): JSX.Element => {
   const { classes, cx } = usePanelHeaderStyles();
 
   const { changeViewMode } = useLinkToResourceStatus();
@@ -52,6 +61,11 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
   const panelOptionsAndData = getPanelOptionsAndData(id);
 
   const panelConfigurations = getPanelConfigurations(id);
+
+  const widgetPrefixQuery = useMemo(
+    () => `${panelConfigurations.path}_${id}`,
+    [panelConfigurations.path, id]
+  );
 
   const changePanelOptions = (partialOptions: object): void => {
     switchPanelsEditionMode(true);
@@ -97,15 +111,19 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
               isFederatedWidget
               canEdit={canEditField}
               changeViewMode={changeViewMode}
+              dashboardId={dashboardId}
               globalRefreshInterval={refreshInterval}
               id={id}
               isEditingDashboard={isEditing}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
+              playlistHash={playlistHash}
+              queryClient={client}
               refreshCount={refreshCount}
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
+              widgetPrefixQuery={widgetPrefixQuery}
             />
           </div>
         )}
@@ -117,7 +135,9 @@ const Panel = ({ id, refreshCount }: Props): JSX.Element => {
       refreshCount,
       isEditing,
       refreshInterval,
-      canEditField
+      canEditField,
+      playlistHash,
+      dashboardId
     ]
   });
 };

@@ -1,6 +1,6 @@
 import { ChangeEvent, useMemo } from 'react';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useFormikContext } from 'formik';
 import {
   T,
@@ -8,6 +8,7 @@ import {
   cond,
   equals,
   flatten,
+  has,
   includes,
   isEmpty,
   isNil,
@@ -26,18 +27,26 @@ import {
 
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
 import {
+  labelAllBusinessViewsSelected,
+  labelAllHostGroupsSelected,
+  labelAllHostsSelected,
   labelAllResources,
+  labelAllResourcesSelected,
+  labelAllServiceGroupsSelected,
+  labelBusinessView,
   labelHost,
   labelHostCategory,
   labelHostGroup,
   labelMetaService,
   labelPleaseSelectAResource,
+  labelSelectResource,
   labelService,
   labelServiceCategory,
   labelServiceGroup
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
+import { platformVersionsAtom } from '../../../../Main/atoms/platformVersionsAtom';
 
 type UseDatasetFilterState = {
   addResource: () => void;
@@ -48,9 +57,12 @@ type UseDatasetFilterState = {
   changeResources: (
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
+  deleteButtonHidden: boolean;
   deleteResource: (index: number) => () => void;
   deleteResourceItem: ({ index, option, resources }) => void;
+  displayAllOfResourceTypeCheckbox: (resourceType: ResourceTypeEnum) => boolean;
   error: string | null;
+  getLabelForSelectedResources: (index: number) => string;
   getResourceBaseEndpoint: (
     index: number,
     resourceType: ResourceTypeEnum
@@ -65,6 +77,11 @@ const resourceTypeOptions = [
     availableResourceTypeOptions: [],
     id: ResourceTypeEnum.All,
     name: labelAllResources
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.BusinessView,
+    name: labelBusinessView
   },
   {
     availableResourceTypeOptions: [
@@ -126,6 +143,7 @@ const resourceTypeOptions = [
 ];
 
 export const resourceTypeBaseEndpoints = {
+  [ResourceTypeEnum.BusinessView]: '/configuration/business-views',
   [ResourceTypeEnum.Host]: '/configuration/hosts',
   [ResourceTypeEnum.HostCategory]: '/configuration/hosts/categories',
   [ResourceTypeEnum.HostGroup]: '/configuration/hosts/groups',
@@ -167,6 +185,13 @@ const searchParametersBySelectedResourceType = {
   }
 };
 
+const labelsForSelectedResources = {
+  [ResourceTypeEnum.Host]: labelAllHostsSelected,
+  [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
+  [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected,
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected
+};
+
 const useDatasetFilter = (
   datasetFilter: Array<Dataset>,
   datasetFilterIndex: number
@@ -192,18 +217,28 @@ const useDatasetFilter = (
     ]
   );
 
+  const platform = useAtomValue(platformVersionsAtom);
+  const isBamInstalled = has('centreon-bam-server', platform?.modules);
+
   const lowestResourceTypeReached = (): boolean =>
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
-    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService);
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService) ||
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.BusinessView);
 
   const getResourceTypeOptions = (index: number): Array<SelectEntry> => {
+    const prefilteredResourceTypeOptions = isBamInstalled
+      ? resourceTypeOptions
+      : resourceTypeOptions.filter(
+          (option) => !equals(option.id, ResourceTypeEnum.BusinessView)
+        );
+
     if (isNil(value)) {
-      return resourceTypeOptions;
+      return prefilteredResourceTypeOptions;
     }
 
     const filteredResourceTypeOptions = flatten(
       pluck('availableResourceTypeOptions')(
-        resourceTypeOptions.filter((option) =>
+        prefilteredResourceTypeOptions.filter((option) =>
           equals(option.id, value[index - 1]?.resourceType)
         )
       )
@@ -223,7 +258,7 @@ const useDatasetFilter = (
     );
 
     return isEmpty(remainingResourceTypeOptions)
-      ? resourceTypeOptions
+      ? prefilteredResourceTypeOptions
       : remainingResourceTypeOptions;
   };
 
@@ -239,10 +274,33 @@ const useDatasetFilter = (
   const errorToDisplay =
     isTouched && isEmpty(datasetFilter) ? labelPleaseSelectAResource : null;
 
+  const deleteButtonHidden = datasetFilter.length <= 1;
+
+  const displayAllOfResourceTypeCheckbox = (
+    resourceType: ResourceTypeEnum
+  ): boolean =>
+    equals(resourceType, ResourceTypeEnum.HostGroup) ||
+    equals(resourceType, ResourceTypeEnum.Host) ||
+    equals(resourceType, ResourceTypeEnum.ServiceGroup) ||
+    equals(resourceType, ResourceTypeEnum.BusinessView);
+
+  const getLabelForSelectedResources = (index: number): string => {
+    if (datasetFilter[index]?.allOfResourceType) {
+      return labelsForSelectedResources[datasetFilter[index].resourceType];
+    }
+
+    if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
+      return labelAllResourcesSelected;
+    }
+
+    return labelSelectResource;
+  };
+
   const addResource = (): void => {
     setFieldValue(`datasetFilters.${datasetFilterIndex}`, [
       ...(datasetFilter || []),
       {
+        allOfResourceType: false,
         resourceType: ResourceTypeEnum.Empty,
         resources: []
       }
@@ -254,6 +312,7 @@ const useDatasetFilter = (
           return [
             ...selectedDatasetFilters[indexFilter],
             {
+              allOfResourceType: false,
               ids: [],
               type: ResourceTypeEnum.Empty
             }
@@ -277,6 +336,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 ids: [...dataset.ids, resource.id as number],
                 type: dataset.type
               };
@@ -304,6 +364,7 @@ const useDatasetFilter = (
             return selectedDatasetFilters[indexFilter].map((dataset, i) => {
               if (equals(i, index)) {
                 return {
+                  allOfResourceType: false,
                   ids: pluck('id', resources) as Array<number>,
                   type: dataset.type
                 };
@@ -330,6 +391,7 @@ const useDatasetFilter = (
 
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 resourceType: e.target.value,
                 resources: []
               };
@@ -350,12 +412,17 @@ const useDatasetFilter = (
                 }
 
                 if (equals(i, index)) {
-                  return { ids: [], type: e.target.value as ResourceTypeEnum };
+                  return {
+                    allOfResourceType: false,
+                    ids: [],
+                    type: e.target.value as ResourceTypeEnum
+                  };
                 }
 
                 return dataset;
               })
               .filter((dataset) => dataset) as Array<{
+              allOfResourceType: boolean;
               ids: Array<number>;
               type: ResourceTypeEnum;
             }>;
@@ -399,6 +466,7 @@ const useDatasetFilter = (
           return selectedDatasetFilters[indexFilter].map((dataset, i) => {
             if (equals(i, index)) {
               return {
+                allOfResourceType: false,
                 ids: dataset.ids.filter((id) => !equals(id, option.id)),
                 type: dataset.type
               };
@@ -417,7 +485,7 @@ const useDatasetFilter = (
     index: number
   ): Array<QueryParameter> | undefined => {
     const subSlice = selectedDatasetFilters[datasetFilterIndex].slice(0, index);
-    if (isEmpty(subSlice)) {
+    if (isEmpty(subSlice) || last(subSlice)?.allOfResourceType) {
       return undefined;
     }
 
@@ -442,7 +510,9 @@ const useDatasetFilter = (
     (index: number, resourceType: ResourceTypeEnum) =>
     (parameters): string => {
       return buildListingEndpoint({
-        baseEndpoint: `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
+        baseEndpoint: equals(resourceType, ResourceTypeEnum.BusinessView)
+          ? `${baseEndpoint}/bam${resourceTypeBaseEndpoints[ResourceTypeEnum.BusinessView]}`
+          : `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
         customQueryParameters: buildSearchParameters(index),
         parameters: {
           ...parameters,
@@ -462,9 +532,12 @@ const useDatasetFilter = (
     changeResource,
     changeResourceType,
     changeResources,
+    deleteButtonHidden,
     deleteResource,
     deleteResourceItem,
+    displayAllOfResourceTypeCheckbox,
     error: errorToDisplay,
+    getLabelForSelectedResources,
     getResourceBaseEndpoint,
     getResourceTypeOptions,
     getSearchField,

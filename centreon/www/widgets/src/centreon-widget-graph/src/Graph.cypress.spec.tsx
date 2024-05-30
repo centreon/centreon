@@ -1,13 +1,14 @@
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
-import { Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+import { getPublicWidgetEndpoint } from '../../utils';
 
 import { Data, FormThreshold, FormTimePeriod } from './models';
 import { graphEndpoint } from './api/endpoints';
-
-import Widget from '.';
+import WidgetLineChart from './LineChart';
 
 const serviceMetrics: Data = {
   metrics: [
@@ -83,7 +84,9 @@ const customTimePeriod: FormTimePeriod = {
 };
 
 interface InitializeComponentProps {
+  curveType?: 'linear' | 'step' | 'natural';
   data?: Data;
+  isPublic?: boolean;
   threshold?: FormThreshold;
   timePeriod?: FormTimePeriod;
 }
@@ -91,9 +94,12 @@ interface InitializeComponentProps {
 const initializeComponent = ({
   data = serviceMetrics,
   threshold = defaultThreshold,
-  timePeriod = defaultTimePeriod
+  timePeriod = defaultTimePeriod,
+  isPublic = false,
+  curveType
 }: InitializeComponentProps): void => {
   const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.viewport('macbook-13');
 
@@ -104,30 +110,56 @@ const initializeComponent = ({
       path: `${graphEndpoint}**`,
       response: lineChart
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
+      response: lineChart
+    });
   });
 
   cy.mount({
     Component: (
-      <div style={{ height: '400px', width: '100%' }}>
-        <Widget
-          globalRefreshInterval={{
-            interval: null,
-            type: 'global' as const
-          }}
-          panelData={data}
-          panelOptions={{
-            globalRefreshInterval: 30,
-            refreshInterval: 'manual',
-            threshold,
-            timeperiod: timePeriod
-          }}
-          refreshCount={0}
-          store={store}
-        />
-      </div>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <div style={{ height: '400px', width: '100%' }}>
+            <WidgetLineChart
+              dashboardId={1}
+              globalRefreshInterval={{
+                interval: null,
+                type: 'global' as const
+              }}
+              id="1"
+              panelData={data}
+              panelOptions={{
+                curveType,
+                globalRefreshInterval: 30,
+                refreshInterval: 'manual',
+                threshold,
+                timeperiod: timePeriod
+              }}
+              playlistHash="hash"
+              refreshCount={0}
+            />
+          </div>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 };
+
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    initializeComponent({ isPublic: true });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
 
 describe('Graph Widget', () => {
   it('displays a message when the widget has no metric', () => {
@@ -170,6 +202,8 @@ describe('Graph Widget', () => {
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
 
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
     cy.findByTestId('warning-line-65').should('not.exist');
     cy.findByTestId('warning-line-70').should('not.exist');
     cy.findByTestId('critical-line-85').should('not.exist');
@@ -208,5 +242,27 @@ describe('Graph Widget', () => {
       expect(request.url.search).to.include('start=2021-09-01T00:00:00.000Z');
       expect(request.url.search).to.include('end=2021-09-02T00:00:00.000Z');
     });
+  });
+
+  it('displays the line chart with a natural curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'natural' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the line chart with a step curve when the corresponding prop is set', () => {
+    initializeComponent({ curveType: 'step' });
+
+    cy.waitForRequest('@getLineChart');
+
+    cy.contains('cpu (%)').should('be.visible');
+    cy.contains('cpu AVG (%)').should('be.visible');
+
+    cy.makeSnapshot();
   });
 });

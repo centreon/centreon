@@ -3,18 +3,21 @@ import {
   ForwardedRef,
   forwardRef,
   MouseEvent,
-  ReactElement
+  ReactElement,
+  useEffect
 } from 'react';
 
 import { isNil, prop } from 'ramda';
 
 import { Card, useTheme } from '@mui/material';
 
-import { useMemoComponent } from '../utils';
+import { useMemoComponent, useViewportIntersection } from '../utils';
+import LoadingSkeleton from '../LoadingSkeleton';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
+  additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
   children: ReactElement;
   className?: string;
@@ -39,10 +42,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       onTouchEnd,
       id,
       disablePadding = false,
-      canMove = false
+      canMove = false,
+      additionalMemoProps = []
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
+    const { isInViewport, setElement } = useViewportIntersection({
+      rootMargin: '140px 0px 140px 0px'
+    });
     const hasHeader = !isNil(header);
 
     const { classes, cx } = useDashboardItemStyles({ hasHeader });
@@ -55,6 +62,14 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
     };
 
     const cardContainerListeners = !hasHeader ? listeners : {};
+
+    useEffect(() => {
+      if (isNil(ref)) {
+        return;
+      }
+
+      setElement(ref.current);
+    }, [ref]);
 
     return useMemoComponent({
       Component: (
@@ -87,12 +102,31 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                 !disablePadding && classes.widgetPadding
               )}
             >
-              {children}
+              {!isInViewport ? (
+                <LoadingSkeleton
+                  animation={false}
+                  data-widget-skeleton={id}
+                  height="100%"
+                  width="100%"
+                />
+              ) : (
+                children
+              )}
             </div>
           </Card>
         </div>
       ),
-      memoProps: [style, className, header, theme.palette.mode, canMove]
+      memoProps: isInViewport
+        ? [
+            style,
+            className,
+            header,
+            theme.palette.mode,
+            canMove,
+            isInViewport,
+            ...additionalMemoProps
+          ]
+        : [isInViewport, theme.palette.mode, style]
     });
   }
 );

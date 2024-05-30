@@ -43,10 +43,13 @@ use Core\Dashboard\Domain\Model\NewDashboard;
 use Core\Dashboard\Domain\Model\NewDashboardPanel;
 use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class AddDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -57,6 +60,8 @@ final class AddDashboard
         private readonly ContactInterface $contact,
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -65,7 +70,7 @@ final class AddDashboard
         AddDashboardPresenterInterface $presenter
     ): void {
         try {
-            if (! $this->rights->hasCreatorRole()) {
+            if (! $this->isAuthorized()) {
                 $this->error(
                     "User doesn't have sufficient rights to add dashboards",
                     ['user_id' => $this->contact->getId()]
@@ -225,5 +230,20 @@ final class AddDashboard
             $panelsResponse,
             $refreshResponse
         );
+    }
+
+    private function isAuthorized(): bool
+    {
+        if ($this->rights->hasCreatorRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

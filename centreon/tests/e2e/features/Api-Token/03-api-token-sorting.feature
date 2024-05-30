@@ -16,7 +16,6 @@ Feature: Sorting API Tokens List
     Then the tokens are sorted by '<order_by>' in descending order
     Examples:
       | order_by        |
-      | Status          |
       | Name            |
       | Creator         |
       | User            |

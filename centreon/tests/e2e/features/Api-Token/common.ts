@@ -24,17 +24,9 @@ const durationMap = {
   '1 year': 365
 };
 
-const columns = [
-  'Status',
-  'Name',
-  'Creation Date',
-  'Expiration Date',
-  'User',
-  'Creator'
-];
+const columns = ['Name', 'Creation Date', 'Expiration Date', 'User', 'Creator'];
 
 const columnsFromLabels = [
-  'Status',
   'Name',
   'Creation date',
   'Expiration date',

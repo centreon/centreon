@@ -65,6 +65,7 @@ const DescendantNodes = <TData extends BaseProp>({
       <Group key={key} left={left} top={top}>
         <foreignObject
           height={nodeSize.height}
+          style={{ userSelect: 'none' }}
           width={nodeSize.width}
           x={-nodeSize.width / 2}
           y={-nodeSize.height / 2}
