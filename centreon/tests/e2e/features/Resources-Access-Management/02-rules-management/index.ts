@@ -211,22 +211,12 @@ When(
   'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
+    cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
-    cy.waitUntil(
-      () => {
-        return cy
-          .getByLabel({ label: 'Save', tag: 'button' })
-          .then((button) => {
-            const isDisabled = button.prop('disabled');
+    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type('User');
 
-            return cy.wrap(!isDisabled);
-          });
-      },
-      {
-        interval: 3000,
-        timeout: 10000
-      }
-    );
+    // cy.contains('User').click();
+    cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
