@@ -721,9 +721,9 @@ class CentreonDowntime
      * @param string $name The downtime name
      * @param string $desc The downtime description
      * @param int $activate If the downtime is activated (0 Downtime is deactivated, 1 Downtime is activated)
-     * @return int The id of downtime or false if in error
+     * @return int|false The id of downtime or false if in error
      */
-    public function add($name, $desc, $activate)
+    public function add($name, $desc, $activate): int|false
     {
         if ($desc == "") {
             $desc = $name;
@@ -791,69 +791,60 @@ class CentreonDowntime
      *  )
      * </code>
      *
-     * @param $id The downtime id
+     * @param int $id Downtime id
      * @param array $infos The information for a downtime period
      */
-    public function addPeriod($id, $infos)
+    public function addPeriod(int $id, array $infos): void
     {
-        if (trim($infos['duration']) == '') {
-            $infos['duration'] = 'NULL';
+        if (trim($infos['duration']) !== '') {
+
+            $infos['duration'] = match (trim($infos['scale'])) {
+                'm' => $infos['duration'] * 60,
+                'h' => $infos['duration'] * 60 * 60,
+                'd' => $infos['duration'] * 60 * 60 * 24,
+                default => (int) $infos['duration'],
+            };
         } else {
-            if (trim($infos['scale']) == '') {
-                $scale = 's';
-            } else {
-                $scale = trim($infos['scale']);
-            }
-
-            switch ($scale) {
-                default:
-                case 's':
-                    $infos['duration'] = $infos['duration'];
-                    break;
-
-                case 'm':
-                    $infos['duration'] = $infos['duration'] * 60;
-                    break;
-
-                case 'h':
-                    $infos['duration'] = $infos['duration'] * 60 * 60;
-                    break;
-
-                case 'd':
-                    $infos['duration'] = $infos['duration'] * 60 * 60 * 24;
-                    break;
-            }
-            $infos['duration'] = "'" . $infos['duration'] . "'";
+            $infos['duration'] = null;
         }
+
         if (!isset($infos['days'])) {
-            $infos['days'] = array();
+            $infos['days'] = [];
         }
 
+    $query = <<<'SQL'
+        INSERT INTO downtime_period (
+             dt_id, dtp_start_time, dtp_end_time, dtp_day_of_week, dtp_month_cycle, dtp_day_of_month, dtp_fixed, dtp_duration
+        ) VALUES (
+            :id, :start_time, :end_time, :days, :month_cycle, :day_of_month, :fixed, :duration
+        )
+        SQL;
+
+        $statement = $this->db->prepare($query);
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->bindValue(':start_time', $infos['start_period'], \PDO::PARAM_STR);
+        $statement->bindValue(':end_time', $infos['end_period'], \PDO::PARAM_STR);
+        $statement->bindValue(':fixed', $infos['fixed'], \PDO::PARAM_STR);
+        $statement->bindValue(':duration', $infos['duration'], \PDO::PARAM_INT);
 
         switch ($infos['period_type']) {
             case 'weekly_basis':
-                $query = "INSERT INTO downtime_period (dt_id, dtp_day_of_week, dtp_month_cycle, dtp_start_time,
-                    dtp_end_time, dtp_fixed, dtp_duration)
-					VALUES (" . $id . ", '" . join(',', $infos['days']) . "', 'all', '" .
-                    $infos['start_period'] . "', '" . $infos['end_period'] . "', '" . $infos['fixed'] . "', " .
-                    $infos['duration'] . ")";
+                $statement->bindValue(':days', implode(',', $infos['days']), \PDO::PARAM_STR);
+                $statement->bindValue(':month_cycle', 'all', \PDO::PARAM_STR);
+                $statement->bindValue(':day_of_month', null, \PDO::PARAM_NULL);
                 break;
             case 'monthly_basis':
-                $query = "INSERT INTO downtime_period (dt_id, dtp_day_of_month, dtp_month_cycle, dtp_start_time,
-                    dtp_end_time, dtp_fixed, dtp_duration)
-					VALUES (" . $id . ", '" . join(',', $infos['days']) . "', 'none', '" .
-                    $infos['start_period'] . "', '" . $infos['end_period'] . "', '" . $infos['fixed'] . "', " .
-                    $infos['duration'] . ")";
+                $statement->bindValue(':days', null, \PDO::PARAM_STR);
+                $statement->bindValue(':month_cycle', 'none', \PDO::PARAM_STR);
+                $statement->bindValue(':day_of_month', implode(',', $infos['days']), \PDO::PARAM_STR);
                 break;
             case 'specific_date':
-                $query = "INSERT INTO downtime_period (dt_id, dtp_day_of_week, dtp_month_cycle, dtp_start_time,
-                    dtp_end_time, dtp_fixed, dtp_duration)
-					VALUES (" . $id . ", '" . $infos['days'] . "', '" . $infos['month_cycle'] . "', '" .
-                    $infos['start_period'] . "', '" . $infos['end_period'] . "', '" . $infos['fixed'] . "', " .
-                    $infos['duration'] . ")";
+                $statement->bindValue(':days', $infos['days'], \PDO::PARAM_STR);
+                $statement->bindValue(':month_cycle', $infos['month_cycle'], \PDO::PARAM_STR);
+                $statement->bindValue(':day_of_month', null, \PDO::PARAM_NULL);
                 break;
         }
-        $this->db->query($query);
+        $statement->execute();
     }
 
     /**
