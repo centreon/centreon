@@ -57,6 +57,10 @@ before(() => {
   cy.installBamModuleOnContainer();
   cy.installCloudExtensionsOnContainer();
   cy.enableResourcesAccessManagementFeature();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   // we should install bam, cloud extension and anomaly detection
   cy.installBamModule();
   cy.installCloudExtensionsModule();
