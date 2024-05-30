@@ -15,7 +15,9 @@ info:
     # Updated features
     + Added metrics by service listing endpoint to service resource type
     + Added new filters for the /monitoring/services/categories endpoint
-    +
+    + Added new filters for the /monitoring/hosts/categories endpoint
+    + Added new filters to the /monitoring/servicegroups endpoint
+    + Added host_category filter to /monitoring/hostgroups endpoint
     +
     # Information
     All dates are in **ISO 8601** format
@@ -2184,6 +2186,11 @@ paths:
       summary: "List all real-time host categories"
       description: |
         List of all host categories in real-time context
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * host_group.id
+        * host_group.name
       responses:
         "200":
           description: "OK"
@@ -2223,6 +2230,8 @@ paths:
         * poller.id
         * service.display_name
         * host_group.id
+        * host_category.id
+        * host_category.name
       parameters:
         - $ref: '#/components/parameters/ShowHost'
         - $ref: '#/components/parameters/ShowService'
@@ -2268,8 +2277,13 @@ paths:
         * host.display_name
         * host.state
         * poller.id
+        * service.id
+        * service.name
         * service.display_name
         * host_group.id
+        * host_group.name
+        * host_categories.id
+        * host_categories.name
 
       parameters:
         - $ref: '#/components/parameters/ShowService'

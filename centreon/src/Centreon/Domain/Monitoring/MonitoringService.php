@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
@@ -41,48 +43,27 @@ use Centreon\Domain\ServiceConfiguration\Exception\ServiceCommandException;
  */
 class MonitoringService extends AbstractCentreonService implements MonitoringServiceInterface
 {
-    use CommandLineTrait;
-
-    /**
-     * @var MonitoringRepositoryInterface
-     */
-    private $monitoringRepository;
-
-    /**
-     * @var ReadAccessGroupRepositoryInterface
-     */
-    private $accessGroupRepository;
-
-    /**
-     * @var ServiceConfigurationServiceInterface
-     */
-    private $serviceConfiguration;
-    /**
-     * @var HostConfigurationServiceInterface
-     */
-    private $hostConfiguration;
+    use CommandLineTrait, LoggerTrait;
 
     /**
      * @param MonitoringRepositoryInterface $monitoringRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param ServiceConfigurationServiceInterface $serviceConfigurationService
-     * @param HostConfigurationServiceInterface $hostConfigurationService
+     * @param ServiceConfigurationServiceInterface $serviceConfiguration
+     * @param HostConfigurationServiceInterface $hostConfiguration
      */
     public function __construct(
-        MonitoringRepositoryInterface $monitoringRepository,
-        ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        ServiceConfigurationServiceInterface $serviceConfigurationService,
-        HostConfigurationServiceInterface $hostConfigurationService,
+        private readonly MonitoringRepositoryInterface $monitoringRepository,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ServiceConfigurationServiceInterface $serviceConfiguration,
+        private readonly HostConfigurationServiceInterface $hostConfiguration,
     ) {
-        $this->monitoringRepository = $monitoringRepository;
-        $this->accessGroupRepository = $accessGroupRepository;
-        $this->serviceConfiguration = $serviceConfigurationService;
-        $this->hostConfiguration = $hostConfigurationService;
     }
 
     /**
      * {@inheritDoc}
      * @param Contact $contact
+     *
+     * @throws \Throwable
      * @return self
      */
     public function filterByContact($contact): self
@@ -191,6 +172,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
 
     /**
      * @inheritDoc
+     * @throws \Throwable
      */
     public function findOneService(int $hostId, int $serviceId): ?Service
     {
@@ -234,9 +216,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
 
                 // First, we will sort services by service groups and hosts
                 $servicesByServiceGroupAndHost = [];
-                /**
-                 * @var Service[] $services
-                 */
+
                 foreach ($servicesByServiceGroup as $serviceGroupId => $services) {
                     foreach ($services as $service) {
                         $hostId = $service->getHost()->getId();
@@ -245,9 +225,6 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
                 }
 
                 // Next, we will linked services to host
-                /**
-                 * @var ServiceGroup $serviceGroup
-                 */
                 foreach ($serviceGroups as $serviceGroup) {
                     foreach ($serviceGroup->getHosts() as $host) {
                         if (
@@ -276,6 +253,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
 
     /**
      * @inheritDoc
+     * @throws \Throwable
      */
     public function isServiceExists(int $hostId, int $serviceId): bool
     {
@@ -293,8 +271,8 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
     /**
      * Completes hosts with their services.
      *
-     * @param array<mixed> $hosts Host list for which we want to complete with their services
-     * @return array<mixed> Returns the host list with their services
+     * @param Host[] $hosts Host list for which we want to complete with their services
+     * @return Host[] Returns the host list with their services
      * @throws \Exception
      */
     private function completeHostsWithTheirServices(array $hosts): array
@@ -327,7 +305,7 @@ class MonitoringService extends AbstractCentreonService implements MonitoringSer
             return $service->getCommandLine();
         } catch (MonitoringServiceException $ex) {
             throw $ex;
-        } catch (\Throwable $ex) {
+        } catch (\Throwable) {
             throw new MonitoringServiceException('Error when getting the command line');
         }
     }

@@ -85,8 +85,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
 });
 
 afterEach(() => {
@@ -104,7 +102,10 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -166,7 +167,10 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 
 Given('a dashboard configured with a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -228,7 +232,10 @@ Then(
 
 Given('a dashboard having a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
 });
@@ -257,7 +264,10 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
     dashboards.default,
     dashbboardWithTwoTopBottomWidgets
   );
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -283,7 +293,10 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard with a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -315,7 +328,10 @@ Then(
 
 Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -354,7 +370,10 @@ Then(
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({

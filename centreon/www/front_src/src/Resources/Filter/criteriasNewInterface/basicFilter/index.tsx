@@ -6,9 +6,15 @@ interface BasicFilter {
   poller: JSX.Element;
   sections: JSX.Element;
   state: JSX.Element;
+  types: JSX.Element;
 }
 
-const BasicFilter = ({ sections, poller, state }: BasicFilter): JSX.Element => {
+const BasicFilter = ({
+  sections,
+  poller,
+  state,
+  types
+}: BasicFilter): JSX.Element => {
   const { classes } = useStyles();
 
   return (
@@ -16,6 +22,8 @@ const BasicFilter = ({ sections, poller, state }: BasicFilter): JSX.Element => {
       {sections}
       {poller}
       <Divider className={classes.divider} />
+      {types}
+      <div className={classes.div} />
       {state}
     </div>
   );
