@@ -14,6 +14,7 @@ info:
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
+    + Added host_category filter to /monitoring/hostgroups endpoint
     +
     +
     # Information
@@ -2211,6 +2212,8 @@ paths:
         * poller.id
         * service.display_name
         * host_group.id
+        * host_category.id
+        * host_category.name
       parameters:
         - $ref: '#/components/parameters/ShowHost'
         - $ref: '#/components/parameters/ShowService'
