@@ -205,9 +205,13 @@ When('a new host is created', () => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-
-  cy.applyAcl();
   cy.visit(`centreon/monitoring/resources`);
+  // click on all
+  cy.get('#Hosts-button').click();
+  cy.get('#Hosts-menu').within(() => {
+    cy.contains('All').click();
+  });
+  cy.wait(2000);
   cy.contains('host2').should('be.visible');
   cy.contains('host3').should('be.visible');
 });
