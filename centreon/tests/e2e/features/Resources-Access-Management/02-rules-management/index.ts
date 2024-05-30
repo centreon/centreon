@@ -277,7 +277,7 @@ Given('the selected user is logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'simple-user', loginViaApi: true });
 });
 
-When('the user is redirected to monitoring "Resources" page', () => {
+When('the user is redirected to the monitoring "Resources" page', () => {
   cy.visit('centreon/monitoring/resources');
 });
 
@@ -360,7 +360,6 @@ Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
 });
 
 Given('a new user is created', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.addContact({
     admin: data2.admin,
     email: data2.email,
