@@ -69,6 +69,10 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_keepalive&action=keepAlive'
+  }).as('getKeepAlive');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?*'
   }).as('getContactFrame');
   cy.intercept({

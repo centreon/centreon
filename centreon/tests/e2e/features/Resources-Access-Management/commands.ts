@@ -75,7 +75,6 @@ Cypress.Commands.add('installBamModule', () => {
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.get('button').contains(`${major_version}.${minor_version}`).click();
     });
-    // cy.get('button').contains(`24.05.0`).click();
   });
   cy.waitUntil(
     () => {
@@ -98,7 +97,6 @@ Cypress.Commands.add('installBamModule', () => {
     cy.getWebVersion().then(({ major_version, minor_version }) => {
       cy.get('button').contains(`${major_version}.${minor_version}`).click();
     });
-    // cy.get('button').contains(`24.05.0`).click();
   });
 });
 
@@ -108,7 +106,6 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
       // cy.get('button').contains(`${major_version}.${minor_version}`).click();
       cy.get('button').contains(`24.04.0`).click();
     });
-    // cy.get('button').contains(`24.05.0`).click();
   });
 
   cy.contains('.MuiCard-root', 'Anomaly Detection').within(() => {
@@ -124,7 +121,6 @@ Cypress.Commands.add('installCloudExtensionsModule', () => {
   cy.contains('.MuiCard-root', 'Cloud Extensions').within(() => {
     cy.get('[data-testid="CheckIcon"]').should('be.visible');
   });
-  // cy.logoutViaAPI();
 });
 
 Cypress.Commands.add('addRightsForUser', (userInformation) => {
@@ -179,10 +175,15 @@ Cypress.Commands.add('grantBaAccessToUsers', () => {
     rootItemNumber: 4,
     subMenu: 'ACL'
   });
-  cy.wait(4000);
+  cy.wait('@getTimeZone');
+  cy.wait('@getKeepAlive');
   cy.getIframeBody().contains('customer_user_menu_access').click();
   // after waiting for timeZone and topCounter requests it still can't find the elment, so we were forced to wait for 4s
-  cy.wait(4000);
+  cy.wait('@getTimeZone');
+  cy.wait('@getTopCounteruser');
+  cy.wait('@getTopCounterpoller');
+  cy.wait('@getTopCounterservice');
+  cy.wait('@getTopCounterhosts');
   cy.getIframeBody().find('img#img_1').click();
   cy.getIframeBody().find('input#i1_4').parent().click();
   cy.getIframeBody()
