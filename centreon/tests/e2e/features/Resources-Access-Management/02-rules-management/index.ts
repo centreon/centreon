@@ -163,9 +163,46 @@ When('a new host is created', () => {
       template: services.serviceCritical.template
     });
   cy.applyPollerConfiguration();
-  checkHostsAreMonitored([{ name: services.serviceOk.host }]);
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: services.serviceCritical.host,
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceOk.name,
+      template: services.serviceOk.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: 'service2',
+      template: services.serviceWarning.template
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: services.serviceCritical.host,
+      maxCheckAttempts: 1,
+      name: services.serviceCritical.name,
+      template: services.serviceCritical.template
+    })
+    .applyPollerConfiguration();
+  checkHostsAreMonitored([
+    { name: services.serviceOk.host },
+    { name: services.serviceCritical.host }
+  ]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name },
+    { name: services.serviceOk.name }
+  ]);
   cy.submitResults(resultsToSubmit);
-  checkServicesAreMonitored([{ name: services.serviceOk.name, status: 'ok' }]);
+  checkServicesAreMonitored([
+    { name: services.serviceCritical.name, status: 'critical' },
+    { name: services.serviceOk.name, status: 'ok' }
+  ]);
   cy.visit(`centreon/monitoring/resources`);
   cy.contains('service2').should('be.visible');
 });
@@ -244,7 +281,7 @@ When('the user is redirected to monitoring "Resources" page', () => {
 
 Then('the user can see the Host selected by the Administrator', () => {
   // cy.contains('Centreon-Database').should('be.visible');
-  cy.contains('service2').should('be.visible');
+  cy.contains('host2').should('be.visible');
 });
 
 When(
@@ -287,8 +324,8 @@ Then('the Administrator selects "All hosts"', () => {
 
 Then('the user can see all hosts', () => {
   // cy.contains('Centreon-Database').should('be.visible');
-  cy.contains('service2').should('be.visible');
-  cy.contains('Centreon-Server').should('be.visible');
+  cy.contains('host2').should('be.visible');
+  cy.contains('host3').should('be.visible');
   // we should add a counter or verify a certain length ..
 });
 
