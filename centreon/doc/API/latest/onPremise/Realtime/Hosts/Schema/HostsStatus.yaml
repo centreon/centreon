@@ -4,21 +4,21 @@ properties:
     type: object
     properties:
       total:
-        type: int
+        type: integer
   down:
     type: object
     properties:
       total:
-        type: int
+        type: integer
   unreachable:
     type: object
     properties:
       total:
-        type: int
+        type: integer
   pending:
     type: object
     properties:
       total:
-        type: int
+        type: integer
   total:
-    type: int
+    type: integer
