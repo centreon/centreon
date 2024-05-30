@@ -4,7 +4,7 @@ import { equals, groupBy, isEmpty, isNil, path, toPairs } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Divider } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 
 import { CollapsibleItem } from '@centreon/ui/components';
 
@@ -82,14 +82,14 @@ const CollapsibleWidgetProperties = ({
               {groupName && <Subtitle>{t(groupName)}</Subtitle>}
               <div className={classes.groupContent}>
                 {inputs?.map(({ Component, key, props }) => (
-                  <div key={key}>
+                  <Stack direction="column" key={key}>
                     <ShowInputWrapper {...props}>
                       <Component
                         {...props}
                         isInGroup={!isEmpty(groupName) && !isNil(groupName)}
                       />
                     </ShowInputWrapper>
-                  </div>
+                  </Stack>
                 ))}
               </div>
             </div>

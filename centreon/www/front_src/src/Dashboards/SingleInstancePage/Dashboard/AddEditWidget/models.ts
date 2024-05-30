@@ -3,7 +3,10 @@ import { ReactNode } from 'react';
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration, WidgetOptions } from '../models';
-import { FederatedWidgetOption } from '../../../../federatedModules/models';
+import {
+  FederatedWidgetOption,
+  SubInput
+} from '../../../../federatedModules/models';
 
 export interface Widget {
   data: object | null;
@@ -36,6 +39,7 @@ export interface WidgetPropertyProps {
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
+  subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
     multiline?: boolean;
@@ -45,14 +49,6 @@ export interface WidgetPropertyProps {
   };
   type: string;
   useAdditionalResources?: boolean;
-  subInputs?: Array<{
-    displayValue: unknown;
-    input: Omit<
-      FederatedWidgetOption,
-      'group' | 'hiddenCondition' | 'subInputs'
-    >;
-    direction?: 'row' | 'column'
-  }>;
 }
 
 export interface WidgetDataResource {

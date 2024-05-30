@@ -32,6 +32,7 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  buttonGroup = 'button-group',
   checkbox = 'checkbox',
   displayType = 'displayType',
   metrics = 'metrics',
@@ -53,6 +54,13 @@ export enum FederatedWidgetOptionType {
 interface WidgetHiddenCondition {
   matches: unknown;
   when: string;
+}
+
+export interface SubInput {
+  direction?: 'row' | 'column';
+  displayValue: unknown;
+  input: Omit<FederatedWidgetOption, 'group' | 'hiddenCondition' | 'subInputs'>;
+  name: string;
 }
 
 export interface FederatedWidgetOption {
@@ -77,14 +85,7 @@ export interface FederatedWidgetOption {
       };
   required?: boolean;
   secondaryLabel: string;
-  subInputs?: Array<{
-    displayValue: unknown;
-    input: Omit<
-      FederatedWidgetOption,
-      'group' | 'hiddenCondition' | 'subInputs'
-    >;
-    direction?: 'row' | 'column'
-  }>;
+  subInputs?: Array<SubInput>;
   type: FederatedWidgetOptionType;
 }
 

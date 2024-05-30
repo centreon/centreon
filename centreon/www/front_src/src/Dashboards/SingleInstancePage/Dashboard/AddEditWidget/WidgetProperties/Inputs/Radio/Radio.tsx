@@ -2,6 +2,7 @@ import { ChangeEvent, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
 
 import { RadioGroup, FormControlLabel, Radio, Typography } from '@mui/material';
 
@@ -40,6 +41,8 @@ const WidgetRadio = ({
       <RadioGroup value={value} onChange={change}>
         {(options || []).map(({ id, name }) => (
           <FormControlLabel
+            aria-label={t(name)}
+            checked={equals(id, value)}
             control={<Radio />}
             disabled={!canEditField}
             key={id}

@@ -34,7 +34,8 @@ import {
   WidgetTiles,
   WidgetDisplayType,
   WidgetSwitch,
-  WidgetSelect
+  WidgetSelect,
+  WidgetButtonGroup
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -58,7 +59,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
   [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
   [FederatedWidgetOptionType.switch]: WidgetSwitch,
-  [FederatedWidgetOptionType.select]: WidgetSelect
+  [FederatedWidgetOptionType.select]: WidgetSelect,
+  [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup
 };
 
 const DefaultComponent = (): JSX.Element => (

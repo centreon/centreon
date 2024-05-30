@@ -5,6 +5,8 @@ import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import ButtonGroup from './ButtonGroup';
 
+import { FederatedWidgetOptionType } from 'www/front_src/src/federatedModules/models';
+
 const buttons = [
   {
     id: 'button1',
@@ -17,6 +19,10 @@ const buttons = [
   {
     id: 'button3',
     name: 'Button 3'
+  },
+  {
+    id: 'button4',
+    name: 'Button 4'
   }
 ];
 
@@ -43,6 +49,45 @@ const initialize = ({ isInGroup = false, canEdit = true }): void => {
             label="Buttons"
             options={buttons}
             propertyName="test"
+            subInputs={[
+              {
+                displayValue: 'button3',
+                input: {
+                  defaultValue: 'sample',
+                  label: 'Sub input 1',
+                  type: FederatedWidgetOptionType.textfield
+                },
+                name: 'sub1'
+              },
+              {
+                displayValue: 'button3',
+                input: {
+                  defaultValue: 'text',
+                  label: 'Sub input 2',
+                  type: FederatedWidgetOptionType.textfield
+                },
+                name: 'sub2'
+              },
+              {
+                displayValue: 'button4',
+                input: {
+                  defaultValue: 'radio1',
+                  label: 'Sub input 3',
+                  options: [
+                    {
+                      id: 'radio1',
+                      name: 'Radio 1'
+                    },
+                    {
+                      id: 'radio2',
+                      name: 'Radio 2'
+                    }
+                  ],
+                  type: FederatedWidgetOptionType.radio
+                },
+                name: 'sub3'
+              }
+            ]}
             type=""
           />
         </Formik>
@@ -72,6 +117,74 @@ describe('Button group', () => {
     initialize({ isInGroup: true });
 
     cy.contains('Buttons').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('changes the selected button when a button is clicked', () => {
+    initialize({});
+
+    cy.findByLabelText('Button 1')
+      .should('have.attr', 'data-selected')
+      .and('equal', 'true');
+    cy.findByLabelText('Button 2')
+      .should('have.attr', 'data-selected')
+      .and('equal', 'false');
+
+    cy.findByLabelText('Button 2').click();
+
+    cy.findByLabelText('Button 1')
+      .should('have.attr', 'data-selected')
+      .and('equal', 'false');
+    cy.findByLabelText('Button 2')
+      .should('have.attr', 'data-selected')
+      .and('equal', 'true');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays sub-inputs when a button is clicked', () => {
+    initialize({});
+
+    cy.findByLabelText('Button 3').click();
+
+    cy.findAllByLabelText('Sub input 1').should('have.value', 'sample');
+    cy.findAllByLabelText('Sub input 2').should('have.value', 'text');
+
+    cy.findByLabelText('Button 4').click();
+
+    cy.findAllByLabelText('Radio 1')
+      .eq(0)
+      .parent()
+      .should('have.class', 'Mui-checked');
+
+    cy.makeSnapshot();
+  });
+
+  it('keeps a sub-input value when a sub-input is displayed and its value is changed', () => {
+    initialize({});
+
+    cy.findByLabelText('Button 3').click();
+
+    cy.findAllByLabelText('Sub input 1').should('have.value', 'sample');
+    cy.findAllByLabelText('Sub input 1').clear().type('updated value');
+
+    cy.findByLabelText('Button 2').click();
+    cy.findByLabelText('Button 3').click();
+
+    cy.findAllByLabelText('Sub input 1').should('have.value', 'updated value');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Button group disabled', () => {
+  it('displays button group as disabled', () => {
+    initialize({ canEdit: false });
+
+    cy.findByLabelText('Button 1').should('be.disabled');
+    cy.findByLabelText('Button 2').should('be.disabled');
+    cy.findByLabelText('Button 3').should('be.disabled');
 
     cy.makeSnapshot();
   });

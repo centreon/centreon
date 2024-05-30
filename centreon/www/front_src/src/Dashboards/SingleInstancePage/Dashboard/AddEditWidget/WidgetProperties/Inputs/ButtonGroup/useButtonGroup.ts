@@ -9,6 +9,7 @@ import { getProperty } from '../utils';
 interface UseButtonGroupState {
   isButtonSelected: (id) => boolean;
   selectOption: (id) => () => void;
+  value?: string;
 }
 
 export const useButtonGroup = ({
@@ -35,6 +36,7 @@ export const useButtonGroup = ({
 
   return {
     isButtonSelected,
-    selectOption
+    selectOption,
+    value
   };
 };

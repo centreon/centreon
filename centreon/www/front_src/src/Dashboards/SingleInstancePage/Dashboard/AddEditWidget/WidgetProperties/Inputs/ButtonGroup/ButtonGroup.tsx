@@ -12,14 +12,15 @@ import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { useResourceStyles } from '../Inputs.styles';
+import SubInputs from '../../SubInputs';
 
 import { useButtonGroup } from './useButtonGroup';
 
 const ButtonGroup = ({
   propertyName,
-  subInputs,
   options,
   isInGroup,
+  subInputs,
   label
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
@@ -27,28 +28,32 @@ const ButtonGroup = ({
 
   const { canEditField } = useCanEditProperties();
 
-  const { isButtonSelected, selectOption } = useButtonGroup({ propertyName });
+  const { isButtonSelected, selectOption, value } = useButtonGroup({
+    propertyName
+  });
 
   const Label = useMemo(() => (isInGroup ? Typography : Subtitle), [isInGroup]);
 
   return (
-    <div>
-      <Label className={classes.subtitle}>{t(label)}</Label>
-      <MuiButtonGroup disabled={!canEditField} size="small">
-        {options?.map(({ id, name }) => (
-          <Button
-            aria-label={t(name)}
-            data-selected={isButtonSelected(id)}
-            data-testId={id}
-            key={id}
-            variant={isButtonSelected(id) ? 'contained' : 'outlined'}
-            onClick={selectOption(id)}
-          >
-            {t(name)}
-          </Button>
-        ))}
-      </MuiButtonGroup>
-    </div>
+    <SubInputs subInputs={subInputs} value={value}>
+      <div>
+        <Label className={classes.subtitle}>{t(label)}</Label>
+        <MuiButtonGroup disabled={!canEditField} size="small">
+          {options?.map(({ id, name }) => (
+            <Button
+              aria-label={t(name)}
+              data-selected={isButtonSelected(id)}
+              data-testId={id}
+              key={id}
+              variant={isButtonSelected(id) ? 'contained' : 'outlined'}
+              onClick={selectOption(id)}
+            >
+              {t(name)}
+            </Button>
+          ))}
+        </MuiButtonGroup>
+      </div>
+    </SubInputs>
   );
 };
 
