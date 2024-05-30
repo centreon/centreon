@@ -103,13 +103,3 @@ runs:
           exit 1
         fi
       shell: bash
-      continue-on-error: true
-
-    - name: Fail if report was not found
-      run: |
-        report_path="${{ inputs.module }}/tests/e2e/results/cucumber-logs/report.json"
-        if [ ! -f "$report_path" ]; then
-          echo "Report file not found: $report_path"
-          exit 1
-        fi
-      shell: bash
