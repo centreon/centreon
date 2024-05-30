@@ -178,7 +178,6 @@ Cypress.Commands.add('grantBaAccessToUsers', () => {
   cy.wait('@getTimeZone');
   cy.wait('@getKeepAlive');
   cy.getIframeBody().contains('customer_user_menu_access').click();
-  // after waiting for timeZone and topCounter requests it still can't find the elment, so we were forced to wait for 4s
   cy.wait('@getTimeZone');
   cy.wait('@getTopCounteruser');
   cy.wait('@getTopCounterpoller');
@@ -241,6 +240,3 @@ declare global {
   }
 }
 export {};
-function execInContainer(arg0: { command: string; name: string }) {
-  throw new Error('Function not implemented.');
-}
