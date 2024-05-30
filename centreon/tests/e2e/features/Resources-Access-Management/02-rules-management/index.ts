@@ -9,17 +9,19 @@ import data_ba from '../../../fixtures/resources-access-management/ba-names.json
 import '../commands';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
-const hostGroupName = 'Linux-Servers';
-
 const services = {
   serviceCritical: {
-    host: 'host3',
+    host: 'Centreon-Database',
     name: 'service3',
     template: 'SNMP-Linux-Load-Average'
   },
-  serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' },
+  serviceOk: {
+    host: 'Centreon-Database',
+    name: 'service_test_ok',
+    template: 'Ping-LAN'
+  },
   serviceWarning: {
-    host: 'host2',
+    host: 'Centreon-New',
     name: 'service2',
     template: 'SNMP-Linux-Memory'
   }
@@ -89,6 +91,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topcounter&action=hosts_status'
   }).as('getTopCounterhosts');
+  cy.intercept({
+    method: 'GET',
+    url: ' /centreon/api/latest/monitoring/resources?*'
+  }).as('getAllResourcesStatus');
 });
 
 Given('I am logged in as a user with limited access', () => {
@@ -129,14 +135,6 @@ Given('an Administrator is logged in on the platform', () => {
 });
 
 When('a new host is created', () => {
-  // cy.addHost({
-  //   activeCheckEnabled: false,
-  //   address: host_data.adress,
-  //   checkCommand: 'check_centreon_cpu',
-  //   hostGroup: host_data.hostGroups.hostGroup1.name,
-  //   name: host_data.hosts.host1.name,
-  //   template: 'generic-host'
-  // });
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
@@ -206,14 +204,13 @@ When('a new host is created', () => {
     { name: services.serviceOk.name, status: 'ok' }
   ]);
   cy.visit(`centreon/monitoring/resources`);
-  // click on all
   cy.get('#Hosts-button').click();
   cy.get('#Hosts-menu').within(() => {
     cy.contains('All').click();
   });
-  cy.wait(2000);
-  cy.contains('host2').should('be.visible');
-  cy.contains('host3').should('be.visible');
+  cy.wait('@getAllResourcesStatus');
+  cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('Centreon-New').should('be.visible');
 });
 
 Then(
@@ -248,8 +245,7 @@ Then(
     cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
     cy.getByLabel({ label: 'Host', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
-    // cy.contains('Centreon-Database').click();
-    cy.contains('host2').click();
+    cy.contains('Centreon-Database').click();
   }
 );
 
@@ -259,15 +255,11 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
-    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type('User');
-
-    // cy.contains('User').click();
     cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
     });
-    // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.wait('@getTopCounteruser');
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
@@ -289,8 +281,7 @@ When('the user is redirected to monitoring "Resources" page', () => {
 });
 
 Then('the user can see the Host selected by the Administrator', () => {
-  // cy.contains('Centreon-Database').should('be.visible');
-  cy.contains('host2').should('be.visible');
+  cy.contains('Centreon-Database').should('be.visible');
 });
 
 When(
@@ -332,10 +323,8 @@ Then('the Administrator selects "All hosts"', () => {
 });
 
 Then('the user can see all hosts', () => {
-  // cy.contains('Centreon-Database').should('be.visible');
-  cy.contains('host2').should('be.visible');
-  cy.contains('host3').should('be.visible');
-  // we should add a counter or verify a certain length ..
+  cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('Centreon-New').should('be.visible');
 });
 
 Then('the Administrator selects "All Business views"', () => {
