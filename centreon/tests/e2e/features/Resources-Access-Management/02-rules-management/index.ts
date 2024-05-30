@@ -11,7 +11,7 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
 
 const services = {
   serviceCritical: {
-    host: 'Centreon-Database',
+    host: 'Centreon-New',
     name: 'service3',
     template: 'SNMP-Linux-Load-Average'
   },
@@ -21,7 +21,7 @@ const services = {
     template: 'Ping-LAN'
   },
   serviceWarning: {
-    host: 'Centreon-New',
+    host: 'Centreon-Database',
     name: 'service2',
     template: 'SNMP-Linux-Memory'
   }
