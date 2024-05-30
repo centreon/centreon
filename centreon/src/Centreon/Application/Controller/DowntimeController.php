@@ -143,7 +143,7 @@ class DowntimeController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_ADD_HOST_DOWNTIME)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_ADD_SERVICE_DOWNTIME)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 

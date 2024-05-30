@@ -23,13 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
+use Core\Metric\Application\Exception\MetricException;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 
 class DownloadPerformanceMetrics
 {
@@ -39,11 +46,17 @@ class DownloadPerformanceMetrics
      * @param ReadIndexDataRepositoryInterface $indexDataRepository
      * @param ReadMetricRepositoryInterface $metricRepository
      * @param ReadPerformanceDataRepositoryInterface $performanceDataRepository
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadServiceRepositoryInterface $readServiceRepository
+     * @param ContactInterface $user
      */
     public function __construct(
-        private ReadIndexDataRepositoryInterface $indexDataRepository,
-        private ReadMetricRepositoryInterface $metricRepository,
-        private ReadPerformanceDataRepositoryInterface $performanceDataRepository
+        readonly private ReadIndexDataRepositoryInterface $indexDataRepository,
+        readonly private ReadMetricRepositoryInterface $metricRepository,
+        readonly private ReadPerformanceDataRepositoryInterface $performanceDataRepository,
+        readonly private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        readonly private ReadServiceRepositoryInterface $readServiceRepository,
+        readonly private ContactInterface $user,
     ) {
     }
 
@@ -56,7 +69,25 @@ class DownloadPerformanceMetrics
         PresenterInterface $presenter
     ): void {
         try {
-            $this->debug(
+            if (
+                ! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_PERFORMANCES_RW)
+                && ! $this->user->hasTopologyRole(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
+            ) {
+                $this->error(
+                    "User doesn't have sufficient rights to download the performance metrics",
+                    [
+                        'user_id' => $this->user->getId(),
+                        'host_id' => $request->hostId,
+                        'service_id' => $request->serviceId]
+                );
+                $presenter->setResponseStatus(
+                    new ForbiddenResponse(MetricException::downloadNotAllowed())
+                );
+
+                return;
+            }
+
+            $this->info(
                 'Retrieve performance metrics',
                 [
                     'host_id' => $request->hostId,
@@ -64,6 +95,23 @@ class DownloadPerformanceMetrics
                 ]
             );
 
+            if (! $this->user->isAdmin()) {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->debug('Filtering by access groups', ['access_groups' => $accessGroups]);
+                $isServiceExists = $this->readServiceRepository->existsByAccessGroups(
+                    $request->serviceId,
+                    $accessGroups
+                );
+                if (! $isServiceExists) {
+                    $this->error(
+                        'Service not found',
+                        ['host_id' => $request->hostId, 'service_id' => $request->serviceId]
+                    );
+                    $presenter->present(new NotFoundResponse('Service'));
+
+                    return;
+                }
+            }
             $index = $this->indexDataRepository->findIndexByHostIdAndServiceId($request->hostId, $request->serviceId);
             $metrics = $this->metricRepository->findMetricsByIndexId($index);
 
