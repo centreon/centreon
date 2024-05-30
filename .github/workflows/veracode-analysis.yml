@@ -90,8 +90,7 @@ jobs:
 
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
           SKIP_ANALYSIS="true"
-          if [[ ${{ github.event_name == 'pull_request' }} && -n ${{ github.event.pull_request.number }} && ${{ github.event.pull_request.draft }} == "false" }} ]] ||
-            [[ $DEVELOPMENT_STAGE == "Testing" || $DEVELOPMENT_STAGE == "Release" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" && -n ${{ github.event.pull_request.number }} && "${{ github.event.pull_request.draft }}" == "false" }} ]] || [[ "$DEVELOPMENT_STAGE" == "Testing" || "$DEVELOPMENT_STAGE" == "Release" ]]; then
             SKIP_ANALYSIS="false"
           fi
 
