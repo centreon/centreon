@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
@@ -69,7 +70,7 @@ export default ({
     requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
+    video: true,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`
   });
