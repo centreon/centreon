@@ -31,11 +31,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
 });
 
 after(() => {
@@ -54,6 +49,11 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
       .click();
@@ -175,6 +175,7 @@ Given(
       page: 'Dashboards',
       rootItemNumber: 0
     });
+    cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
       .click();
@@ -224,6 +225,7 @@ Given(
       page: 'Dashboards',
       rootItemNumber: 0
     });
+    cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
       .click();
@@ -280,6 +282,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     page: 'Dashboards',
     rootItemNumber: 0
   });
+  cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();

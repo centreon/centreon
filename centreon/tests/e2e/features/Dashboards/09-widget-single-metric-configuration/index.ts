@@ -65,11 +65,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
 });
 
 afterEach(() => {
@@ -87,10 +82,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit('/centreon/home/dashboards/library');
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -198,10 +190,7 @@ Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit('/centreon/home/dashboards/library');
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
     cy.getByLabel({
@@ -239,10 +228,7 @@ Then(
 
 Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -294,10 +280,7 @@ Then(
 
 Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -338,10 +321,7 @@ Then(
 
 Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit('/centreon/home/dashboards/library');
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({

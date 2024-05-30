@@ -69,11 +69,7 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visit('/centreon/home/dashboards/library');
   cy.logout();
 });
 
