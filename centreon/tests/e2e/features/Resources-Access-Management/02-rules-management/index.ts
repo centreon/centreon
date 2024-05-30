@@ -2,7 +2,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/users/simple-user.json';
 import data2 from '../../../fixtures/users/new-simple-user.json';
-import host_data from '../../../fixtures/resources-access-management/new-host.json';
 import data_bv from '../../../fixtures/resources-access-management/bv-names.json';
 import data_ba from '../../../fixtures/resources-access-management/ba-names.json';
 
@@ -97,8 +96,12 @@ beforeEach(() => {
   }).as('getTopCounterhosts');
   cy.intercept({
     method: 'GET',
-    url: ' /centreon/api/latest/monitoring/resources?*'
+    url: '/centreon/api/latest/monitoring/resources?*'
   }).as('getAllResourcesStatus');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/users?*'
+  }).as('getUsersRam');
 });
 
 Given('I am logged in as a user with limited access', () => {
@@ -259,7 +262,7 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
-    cy.wait(3000);
+    cy.wait('@getUsersRam');
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
