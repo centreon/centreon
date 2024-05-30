@@ -24,7 +24,7 @@ Cypress.Commands.add('visitDashboards', () => {
   }).as('listAllDashboards');
 
   cy.url().then((url) => {
-    if (url.includes('/home/dashboards')) {
+    if (url.includes('/home/dashboards/library')) {
       // only refresh dashboard page by clicking on breadcrumb
       cy.get('nav[aria-label="Breadcrumb"]').contains('Dashboards').click();
     } else {
@@ -42,6 +42,8 @@ Cypress.Commands.add('visitDashboard', (name) => {
   cy.visitDashboards();
 
   cy.contains(name).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+$/);
 });
 
 Cypress.Commands.add('editDashboard', (name) => {

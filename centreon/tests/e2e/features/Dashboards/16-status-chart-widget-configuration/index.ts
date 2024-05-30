@@ -402,14 +402,8 @@ When(
   () => {
     cy.editDashboard(dashboards.default.name);
     cy.getByTestId({ testId: 'More actions' }).click();
-<<<<<<< HEAD
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).should('not.exist');
-=======
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'More actions' }).click({ force: true });
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
->>>>>>> develop
   }
 );
 

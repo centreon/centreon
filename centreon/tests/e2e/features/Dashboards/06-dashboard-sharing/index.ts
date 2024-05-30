@@ -354,7 +354,6 @@ Then(
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -367,7 +366,6 @@ Then(
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -444,7 +442,6 @@ Then(
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -456,7 +453,6 @@ Then(
       loginViaApi: false
     });
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -547,7 +543,6 @@ Then(
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -566,7 +561,6 @@ Then(
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
-    cy.url().should('match', /\/dashboards\/library\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
