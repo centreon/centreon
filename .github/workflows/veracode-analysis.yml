@@ -36,17 +36,6 @@ on:
         required: true
 
 jobs:
-  debug:
-    name: debugMe
-    runs-on: ubuntu-22.04
-    steps:
-      - name: debugStep
-        run: |
-          echo "github.event_name = ${{ github.event_name }}"
-          echo "github.event.pull_request.number = ${{ github.event.pull_request.number }}"
-          echo "github.event.pull_request.draft == ${{ github.event.pull_request.draft }}"
-          echo "condition result = ${{ github.event_name == 'pull_request' && github.event.pull_request.number != null && github.event.pull_request.draft == false }}"
-
   build:
     name: Binary preparation
     runs-on: ubuntu-22.04
@@ -87,8 +76,6 @@ jobs:
             DEVELOPMENT_STAGE="Development"
             DISPLAY_SUMMARY="true"
           fi
-
-          DEVELOPMENT_STAGE="Testing"
 
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
           SKIP_ANALYSIS="true"
