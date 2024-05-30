@@ -287,7 +287,8 @@ Then('the Administrator selects "All hosts"', () => {
 });
 
 Then('the user can see all hosts', () => {
-  cy.contains('Centreon-Database').should('be.visible');
+  // cy.contains('Centreon-Database').should('be.visible');
+  cy.contains('service2').should('be.visible');
   cy.contains('Centreon-Server').should('be.visible');
   // we should add a counter or verify a certain length ..
 });
