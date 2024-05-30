@@ -79,6 +79,10 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
         CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.saml_image_version }}
 
+    - name: Ensure logs directory exists
+      run: mkdir -p ${{ inputs.module }}/tests/e2e/results/cucumber-logs/
+      shell: bash
+
     - name: Rename JSON report
       if: ${{ always() }}
       run: |
