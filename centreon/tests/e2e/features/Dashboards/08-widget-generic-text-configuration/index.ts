@@ -18,7 +18,7 @@ before(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -39,7 +39,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
@@ -142,10 +142,8 @@ Given('a dashboard featuring a single Generic text widget', () => {
 });
 
 When('the dashboard administrator user duplicates the widget', () => {
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByTestId({ testId: 'RefreshIcon' }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  cy.getByLabel({ label: 'More actions' }).eq(0).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(0).click();
   cy.get('*[class^="react-grid-layout"]')
     .should('exist')
     .children()

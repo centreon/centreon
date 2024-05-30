@@ -95,6 +95,7 @@ Given(
       page: 'Dashboards',
       rootItemNumber: 0
     });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
 );

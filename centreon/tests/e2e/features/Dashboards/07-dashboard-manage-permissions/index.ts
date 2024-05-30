@@ -17,7 +17,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PUT',
@@ -35,6 +35,7 @@ beforeEach(() => {
     page: 'Dashboards',
     rootItemNumber: 0
   });
+  cy.wait('@listAllDashboards');
 });
 
 after(() => {
@@ -60,6 +61,7 @@ Given(
     cy.getByTestId({ testId: `role-${dashboardCreatorUser.login}` })
       .eq(0)
       .realClick();
+    cy.get('input#Addacontact').closest('div.MuiInputBase-root').click();
     cy.get('[role="listbox"]').contains('Viewer').click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
