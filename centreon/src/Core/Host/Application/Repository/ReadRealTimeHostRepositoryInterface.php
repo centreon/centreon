@@ -21,46 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Host\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Service\Domain\Model\ServiceStatusesCount;
+use Core\Host\Domain\Model\HostStatusesCount;
 
-interface ReadRealTimeServiceRepositoryInterface
+interface ReadRealTimeHostRepositoryInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters
      *
-     * @return string[]
+     * @return HostStatusesCount
      */
-    public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function findStatusesByRequestParameters(RequestParametersInterface $requestParameters): HostStatusesCount;
 
     /**
      * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
      *
-     * @return string[]
-     */
-    public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
-        RequestParametersInterface $requestParameters,
-        array $accessGroupIds
-    ): array;
-
-    /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return ServiceStatusesCount
-     */
-    public function findStatusesByRequestParameters(RequestParametersInterface $requestParameters): ServiceStatusesCount;
-
-    /**
-     * @param RequestParametersInterface $requestParameters
-     * @param int[] $accessGroupIds
-     *
-     * @return ServiceStatusesCount
+     * @return HostStatusesCount
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
         array $accessGroupIds
-    ): ServiceStatusesCount;
+    ): HostStatusesCount;
 }
