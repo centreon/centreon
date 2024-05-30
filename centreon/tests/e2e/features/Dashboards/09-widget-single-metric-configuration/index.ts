@@ -65,7 +65,10 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
 });
 
 afterEach(() => {
@@ -83,7 +86,10 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.contains(dashboards.default.name).click();
   }
 );
@@ -148,7 +154,10 @@ Then('the information about the selected metric is displayed', () => {
 
 // Given('a dashboard featuring a single Single Metric widget', () => {
 //   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
-//   cy.visit('/centreon/home/dashboards');
+//  cy.navigateTo({
+//     page: 'Dashboards',
+//     rootItemNumber: 0
+// });;
 //   cy.contains(dashboards.default.name).click();
 // });
 
@@ -187,7 +196,10 @@ Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
     cy.getByLabel({
@@ -225,7 +237,10 @@ Then(
 
 Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -277,7 +292,10 @@ Then(
 
 Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -318,7 +336,10 @@ Then(
 
 Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
