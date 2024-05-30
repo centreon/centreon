@@ -47,6 +47,16 @@ runs:
 
         FILES="*.rpm"
 
+        if [ -z "${{ inputs.module_name }}" ]; then
+          echo "module name is required"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.distrib }}" ]; then
+          echo "distrib is required"
+          exit 1
+        fi
+
         # DEBUG
         echo "[DEBUG] - Version: ${{ inputs.version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
@@ -76,9 +86,13 @@ runs:
         done
 
         # Build upload target path based on release_cloud and release_type values
-        # if cloud, deliver to testing-<release_type>
-        # if non-cloud, delivery to testing as usual
-        if [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_cloud }} -eq 1 && ${{ inputs.release_type }} == "release" ]];then
+        # if cloud + hotfix or cloud + release, deliver to internal testing-<release_type>
+        # if cloud + develop, delivery to internal unstable
+        # if non-cloud, delivery to onprem testing or unstable
+
+        # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
+        if [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_type }} == "release" ]]); then
+          echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
           ROOT_REPO_PATHS="rpm-standard-internal"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
 
@@ -93,6 +107,8 @@ runs:
           echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
           ROOT_REPO_PATHS="rpm-standard"
           UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+
+        # ANYTHING ELSE
         else
           echo "::error:: Invalid combination of release_type [${{ inputs.release_type }}] and release_cloud [${{ inputs.release_cloud }}]"
           exit 1
