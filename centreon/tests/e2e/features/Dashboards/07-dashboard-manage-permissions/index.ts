@@ -120,6 +120,11 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
       .click();
