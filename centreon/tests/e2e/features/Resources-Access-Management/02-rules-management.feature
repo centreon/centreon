@@ -56,7 +56,7 @@ Feature: Resource Access Management
     When the Administrator selects a simple user from the contacts and clicks on "Save"
     Then the Administrator logs out
     Given the selected user is logged in
-    When the user is redirected to monitoring "business activity" page
+    When the user is redirected to the monitoring "Business Activity" page
     Then the user can access all the business views
 
   # Scenario: Adding access rule for all Contacts
