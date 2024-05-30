@@ -15,6 +15,7 @@ info:
     # Updated features
     + Added metrics by service listing endpoint to service resource type
     + Added new filters to the /monitoring/servicegroups endpoint
+    + Added host_category filter to /monitoring/hostgroups endpoint
     +
     # Information
     All dates are in **ISO 8601** format
@@ -2211,6 +2212,8 @@ paths:
         * poller.id
         * service.display_name
         * host_group.id
+        * host_category.id
+        * host_category.name
       parameters:
         - $ref: '#/components/parameters/ShowHost'
         - $ref: '#/components/parameters/ShowService'
