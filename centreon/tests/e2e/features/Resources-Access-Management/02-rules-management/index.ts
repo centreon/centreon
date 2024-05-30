@@ -204,7 +204,8 @@ When('a new host is created', () => {
     { name: services.serviceOk.name, status: 'ok' }
   ]);
   cy.visit(`centreon/monitoring/resources`);
-  cy.contains('service2').should('be.visible');
+  cy.contains('host2').should('be.visible');
+  cy.contains('host3').should('be.visible');
 });
 
 Then(
