@@ -20,12 +20,12 @@ Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
     method: 'GET',
     times: 1,
-    url: `${Cypress.config().baseUrl}/api/latest/configuration/dashboards*`
+    url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
   cy.url().then((url) => {
     if (url.includes('/home/dashboards/library')) {
-      cy.visit(`${Cypress.config().baseUrl}/home/dashboards/library`);
+      cy.visit('/centreon/home/dashboards/library');
     } else {
       cy.navigateTo({
         page: 'Dashboards',
