@@ -135,7 +135,7 @@ Then(
 
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
-  cy.getByLabel({ label: 'close', tag: 'button' }).click();
+  cy.get('body').type('{esc}');
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -553,12 +553,7 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -590,12 +585,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
@@ -688,7 +678,7 @@ Given('a dashboard viewer user who could not create a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When('the dashboard viewer user tries to delete a dashboard', () => {

@@ -384,8 +384,9 @@ When(
       tag: 'button'
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).realClick();
-    cy.wait('@resourceRequest');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click({ force: true });
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
 

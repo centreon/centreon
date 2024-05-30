@@ -34,11 +34,6 @@ after(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
 });
 
 // Given('API tokens with the following details are created', (dataTable: any) => {
