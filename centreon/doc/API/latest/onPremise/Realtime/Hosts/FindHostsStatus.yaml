@@ -1,6 +1,6 @@
 get:
   tags:
-    - Resource
+    - Host
   summary: "Count hosts by status"
   description: |
     Count hosts by their status (UP/DOWN/UNREACHABLE/PENDING)
@@ -8,10 +8,17 @@ get:
     The available parameters to **search** / **sort_by** are:
 
     * name
-
-  parameters:
-    - $ref: 'QueryParameter/FilterHostgroupName.yaml'
-    - $ref: 'QueryParameter/FilterHostCategoryName.yaml'
+    * status
+    * service.name
+    * service.id
+    * host_category.name
+    * host_category.id
+    * host_group.name
+    * host_group.id
+    * service_group.name
+    * service_group.id
+    * service_category.name
+    * service_category.id
   responses:
     '200':
       description: "OK"
