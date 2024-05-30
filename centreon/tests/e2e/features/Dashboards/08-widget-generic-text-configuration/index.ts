@@ -183,8 +183,8 @@ Given('a dashboard featuring two Generic text widgets', () => {
 When(
   'the dashboard administrator user updates the contents of one of these widgets',
   () => {
-    cy.getByLabel({ label: 'More actions' }).eq(1).trigger('click');
-    cy.getByLabel({ label: 'Edit widget' }).trigger('click');
+    cy.getByLabel({ label: 'More actions' }).eq(1).click();
+    cy.getByLabel({ label: 'Edit widget' }).click();
     cy.getByLabel({ label: 'Title' }).clear();
     cy.getByLabel({ label: 'Title' }).type(
       `${genericTextWidget.default.title}-edited`
@@ -229,11 +229,11 @@ Then(
 );
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
+  cy.getByTestId({ testId: 'More actions' }).eq(1).click();
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
-  cy.getByTestId({ testId: 'More actions' }).eq(1).trigger('click');
-  cy.getByLabel({ label: 'Delete widget' }).trigger('click');
-  cy.getByLabel({ label: 'Delete' }).trigger('click');
+  cy.getByTestId({ testId: 'More actions' }).eq(1).click();
+  cy.getByLabel({ label: 'Delete widget' }).click();
+  cy.getByLabel({ label: 'Delete' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
 });
