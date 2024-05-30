@@ -95,7 +95,8 @@ jobs:
           fi
 
           echo "fail_build=$FAIL_BUILD" >> $GITHUB_OUTPUT
-          echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
+          #echo "development_stage=$DEVELOPMENT_STAGE" >> $GITHUB_OUTPUT
+          echo "development_stage=Release" >> $GITHUB_OUTPUT
           echo "display_summary=$DISPLAY_SUMMARY" >> $GITHUB_OUTPUT
           echo "enable_qg=$ENABLE_QG" >> $GITHUB_OUTPUT
           echo "skip_analysis=$SKIP_ANALYSIS" >> $GITHUB_OUTPUT
