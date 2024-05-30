@@ -69,7 +69,7 @@ export default ({
     requestTimeout: 10000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
+    video: true,
     videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`
   });
