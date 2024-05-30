@@ -1,0 +1,65 @@
+name: Integrate e2e tests to Xray
+
+on:
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  synchronize-jira-xray:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          version: 7
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          pnpm install axios@1.5.1
+          pnpm install form-data@4.0.0
+          pnpm install @actions/core
+
+      - name: Get the latest commit hash
+        run: |
+          latest_commit=$(git log -1 --format="%H")
+          echo "LATEST_COMMIT=$latest_commit" >> $GITHUB_ENV
+
+      - name: Find Changed Feature Files
+        id: find_changed_files
+        run: |
+          mapfile -t CHANGED_FILES <<< "$(git show --name-only $LATEST_COMMIT | grep '\.feature$')"
+          echo "CHANGED_FILES=${CHANGED_FILES[@]}" >> $GITHUB_ENV
+          echo "Changed .feature files: ${CHANGED_FILES[@]}"
+
+      - name: Run Script on Changed Feature Files
+        if: env.CHANGED_FILES != ''
+        run: |
+          echo "The target version for this script is : ${{ needs.get-version.outputs.major_version }}"
+          for file in $CHANGED_FILES; do
+            echo "Running script for $file on branch ${{ github.ref_name }}"
+            node .github/scripts/synchronize_jira_xray.js "$file" ${{ github.ref_name }} ${{ needs.get-version.outputs.major_version }}
+          done
+        env:
+          XRAY_JIRA_USER_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          XRAY_JIRA_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+          XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
