@@ -733,16 +733,7 @@ Feature:
     """
     { "id": 1, "role": "viewer" }
     """
-    Then the response code should be "201"
-    And the JSON should be equal to:
-    """
-    {
-      "id": 1,
-      "name": "admin admin",
-      "email": "admin@centreon.com",
-      "role": "viewer"
-    }
-    """
+    Then the response code should be "404"
 
     When I send a GET request to '/api/latest/configuration/dashboards/<dashboardId>/access_rights/contacts'
     Then the response code should be "200"
@@ -1201,15 +1192,7 @@ Feature:
     """
     { "id": 3, "role": "viewer" }
     """
-    Then the response code should be "201"
-    And the JSON should be equal to:
-    """
-    {
-      "id": 3,
-      "name": "Guest",
-      "role": "viewer"
-    }
-    """
+    Then the response code should be "404"
 
     When I send a GET request to '/api/latest/configuration/dashboards/<dashboardId>/access_rights/contactgroups'
     Then the response code should be "200"

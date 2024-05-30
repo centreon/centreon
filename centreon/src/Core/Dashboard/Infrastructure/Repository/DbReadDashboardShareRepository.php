@@ -171,7 +171,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         /** Handle search */
         $request .= $search = $sqlTranslator->translateSearchParameterToSql();
         $request .= $search !== null ? ' AND ' : ' WHERE ';
-        $request .= "dcr.`dashboard_id` = :dashboard_id AND (gcr.acl_group_id IN ({$bindQuery})";
+        $request .= "dcr.`dashboard_id` = :dashboard_id AND agcr.acl_group_id IN ({$bindQuery})";
 
         /** Handle sort */
         $sort = $sqlTranslator->translateSortParameterToSql();
