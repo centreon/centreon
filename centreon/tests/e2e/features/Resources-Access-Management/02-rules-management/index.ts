@@ -188,8 +188,8 @@ When('a new host is created', () => {
       maxCheckAttempts: 1,
       name: services.serviceCritical.name,
       template: services.serviceCritical.template
-    })
-    .applyPollerConfiguration();
+    });
+  cy.applyPollerConfiguration();
   checkHostsAreMonitored([
     { name: services.serviceOk.host },
     { name: services.serviceCritical.host }
