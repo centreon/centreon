@@ -77,8 +77,6 @@ jobs:
             DISPLAY_SUMMARY="true"
           fi
 
-          DEVELOPMENT_STAGE="Testing"
-
           # skip analysis of draft PR and analysis on development branches using workflow dispatch
           SKIP_ANALYSIS="true"
           if [[ "${{ github.event_name }}" == "pull_request" && -n "${{ github.event.pull_request.number }}" && -n "${{ github.event.pull_request.draft }}" && "${{ github.event.pull_request.draft }}" == "false" ]] || [[ "$DEVELOPMENT_STAGE" != "Development" ]]; then
