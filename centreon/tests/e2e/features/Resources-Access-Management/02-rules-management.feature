@@ -46,18 +46,18 @@ Feature: Resource Access Management
   #   When the user is redirected to monitoring "Resources" page
   #   Then the user can see all hosts
 
-  # Scenario: Adding access rule for all Business views
-  #   Given an Administrator is logged in on the platform
-  #   When the Administrator is redirected to the "Resource Access Management" page
-  #   Then the Administrator clicks on the "Add" button
-  #   When the form is displayed
-  #   Then the Administrator selects "Business view" as the resource and fills in the required fields
-  #   And the Administrator selects "All Business views"
-  #   When the Administrator selects a simple user from the contacts and clicks on "Save"
-  #   Then the Administrator logs out
-  #   Given the selected user is logged in
-  #   When the user is redirected to monitoring "business activity" page
-  #   Then the user can access all the business views
+  Scenario: Adding access rule for all Business views
+    Given an Administrator is logged in on the platform
+    When the Administrator is redirected to the "Resource Access Management" page
+    Then the Administrator clicks on the "Add" button
+    When the form is displayed
+    Then the Administrator selects "Business view" as the resource and fills in the required fields
+    And the Administrator selects "All Business views"
+    When the Administrator selects a simple user from the contacts and clicks on "Save"
+    Then the Administrator logs out
+    Given the selected user is logged in
+    When the user is redirected to monitoring "business activity" page
+    Then the user can access all the business views
 
   # Scenario: Adding access rule for all Contacts
   #   Given an Administrator is logged in on the platform
