@@ -264,7 +264,8 @@ When(
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
     cy.wait('@getUsersRam');
-    cy.wait(3000);
+    cy.contains('span', `${data.login}`);
+    // cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
