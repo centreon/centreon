@@ -357,7 +357,8 @@
 									"pm.collectionVariables.set(\"Host1Name\", \"host_1\");\r",
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -378,7 +379,6 @@
 									"        \"address\": \"999.99.99.99\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
-									"        \"snmp_community\": null,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
@@ -432,7 +432,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],

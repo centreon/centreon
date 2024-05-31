@@ -4,7 +4,7 @@
 		"name": "Comment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-ff51eb75-3109-4d36-b1fb-aff3c592251d?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -290,7 +290,8 @@
 									"pm.collectionVariables.set(\"Host1Name\", \"host_1\");\r",
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -311,7 +312,6 @@
 									"        \"address\": \"127.0.0.1\",\r",
 									"        \"monitoring_server_id\": 1,\r",
 									"        \"snmp_version\": null,\r",
-									"        \"snmp_community\": null,\r",
 									"        \"geo_coords\": null,\r",
 									"        \"note_url\": null,\r",
 									"        \"note\": null,\r",
@@ -360,7 +360,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
