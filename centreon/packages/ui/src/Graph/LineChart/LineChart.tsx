@@ -11,7 +11,12 @@ import {
   useTheme
 } from '@mui/material';
 
-import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
+import {
+  getLeftScale,
+  getRightScale,
+  getUnits,
+  getXScale
+} from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
@@ -92,26 +97,6 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
-  const legendBoundingHeight =
-    !equals(legend?.display, false) &&
-    (isNil(legend?.placement) || equals(legend?.placement, 'bottom'))
-      ? legendRef.current?.getBoundingClientRect().height || 0
-      : 0;
-  const legendBoundingWidth =
-    !equals(legend?.display, false) &&
-    (equals(legend?.placement, 'left') || equals(legend?.placement, 'right'))
-      ? legendRef.current?.getBoundingClientRect().width || 0
-      : 0;
-
-  const graphWidth =
-    width > 0
-      ? width - margin.left - margin.right - extraMargin - legendBoundingWidth
-      : 0;
-  const graphHeight =
-    (height || 0) > 0
-      ? (height || 0) - margin.top - 5 - legendBoundingHeight
-      : 0;
-
   const { title, timeSeries, baseAxis, lines } = graphData;
 
   const thresholdValues = flatten([
@@ -125,6 +110,32 @@ const LineChart = ({
     linesGraph,
     setLinesGraph
   });
+
+  const legendBoundingHeight =
+    !equals(legend?.display, false) &&
+    (isNil(legend?.placement) || equals(legend?.placement, 'bottom'))
+      ? legendRef.current?.getBoundingClientRect().height || 0
+      : 0;
+  const legendBoundingWidth =
+    !equals(legend?.display, false) &&
+    (equals(legend?.placement, 'left') || equals(legend?.placement, 'right'))
+      ? legendRef.current?.getBoundingClientRect().width || 0
+      : 0;
+
+  const [, secondUnit] = getUnits(displayedLines);
+
+  const graphWidth =
+    width > 0
+      ? width -
+        margin.left -
+        (secondUnit ? margin.right : 8) -
+        extraMargin -
+        legendBoundingWidth
+      : 0;
+  const graphHeight =
+    (height || 0) > 0
+      ? (height || 0) - margin.top - 5 - legendBoundingHeight
+      : 0;
 
   const xScale = useMemo(
     () =>
