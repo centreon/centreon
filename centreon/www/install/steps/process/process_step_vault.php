@@ -97,7 +97,6 @@ try {
     $err['connection_error'] = $e->getMessage();
 } catch (\Throwable $e) {
     $err['connection_error'] = "Unable to create vault configuration";
-    $writeVaultConfigurationRepository->delete();
 }
 
 if (!count($err['required'])  && trim($err['connection_error']) == '') {

@@ -83,13 +83,13 @@ try {
     if ($parameters['root_user'] == "") {
         $parameters['root_user'] = "root";
     }
-//    $link = new \PDO(
-//        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
-//        $parameters['root_user'],
-//        $parameters['root_password']
-//    );
-//    checkMariaDBPrerequisite($link);
-//    $link = null;
+    $link = new \PDO(
+        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
+        $parameters['root_user'],
+        $parameters['root_password']
+    );
+    checkMariaDBPrerequisite($link);
+    $link = null;
 } catch (\Exception $e) {
     if ($e instanceof \PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
         $err['connection'] =
