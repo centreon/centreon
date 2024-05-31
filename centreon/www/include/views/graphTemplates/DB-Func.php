@@ -137,13 +137,15 @@ function noDefaultOreonGraph()
     $pearDB->query($rq);
 }
 
-
-function updateGraphTemplateInDB($graph_id = null)
+/**
+ * @param $graph_id
+ */
+function updateGraphTemplateInDB($graph_id = null): void
 {
-    if (!$graph_id) {
+    if (! $graph_id) {
         return;
     }
-    updateGraphTemplate($graph_id);
+    updateGraphTemplate((int) $graph_id);
 }
 
 function insertGraphTemplateInDB()
@@ -152,124 +154,152 @@ function insertGraphTemplateInDB()
     return ($graph_id);
 }
 
-function insertGraphTemplate()
-{
-    global $form;
-    global $pearDB;
-    $ret = array();
-    $ret = $form->getSubmitValues();
-    if (isset($ret["default_tpl1"]) && $ret["default_tpl1"]) {
-        noDefaultOreonGraph();
-    }
-    $rq = <<<SQL
-        INSERT INTO `giv_graphs_template` ( `graph_id` , `name` ,
-        `vertical_label` , `width` , `height` , `base` , `lower_limit`, `upper_limit` , `size_to_max`,
-        `default_tpl1` , `split_component` , `scaled`, `stacked` , `comment`)
-        VALUES (
-        NULL,
-        SQL;
-    isset($ret["name"]) && $ret["name"] != null
-        ? $rq .= "'" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["vertical_label"]) && $ret["vertical_label"] != null
-        ? $rq .= "'" . htmlentities($ret["vertical_label"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["width"]) && $ret["width"] != null
-        ? $rq .= "'" . htmlentities($ret["width"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["height"]) && $ret["height"] != null
-        ? $rq .= "'" . htmlentities($ret["height"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["base"]) && $ret["base"] != null
-        ? $rq .= "'" . htmlentities($ret["base"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["lower_limit"]) && $ret["lower_limit"] != null
-        ? $rq .= "'" . htmlentities($ret["lower_limit"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["upper_limit"]) && $ret["upper_limit"] != null
-        ? $rq .= "'" . htmlentities($ret["upper_limit"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["size_to_max"]) && $ret["size_to_max"] != null
-        ? $rq .= "'" . htmlentities($ret["size_to_max"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "0, ";
-    isset($ret["default_tpl1"]) && $ret["default_tpl1"] != null
-        ? $rq .= "'" . htmlentities($ret["default_tpl1"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    $rq .= "NULL, "; // Column split chart (removed options)
-    isset($ret["scaled"]) && $ret["scaled"] != null ? htmlentities($ret["scaled"], ENT_QUOTES, "UTF-8") . "', " : $rq .= "'0', ";
-    isset($ret["stacked"]) && $ret["stacked"] != null
-        ? $rq .= "'" . htmlentities($ret["stacked"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["comment"]) && $ret["comment"] != null
-        ? $rq .= "'" . htmlentities($ret["comment"], ENT_QUOTES, "UTF-8") . "'"
-        : $rq .= "NULL";
-    $rq .= ")";
-    $statement = $pearDB->prepare($rq);
-    $dbResult = $statement->execute();
-    defaultOreonGraph();
-    $res = $pearDB->query("SELECT MAX(graph_id) FROM giv_graphs_template");
-    $graph_id = $res->fetch();
-    return ($graph_id["MAX(graph_id)"]);
-}
-
-function updateGraphTemplate($graph_id = null)
+function insertGraphTemplate(): int
 {
     global $form, $pearDB;
 
-    if (!$graph_id) {
-        return;
-    }
-    $ret = array();
     $ret = $form->getSubmitValues();
-    if (isset($ret["default_tpl1"]) && $ret["default_tpl1"]) {
+    if (isset($ret["default_tpl1"]) && ((int) $ret["default_tpl1"]) === 1) { // === 1 means that the checkbox is checked
         noDefaultOreonGraph();
     }
-    $rq = "UPDATE giv_graphs_template ";
-    $rq .= "SET name = ";
-    isset($ret["name"]) && $ret["name"] != null
-        ? $rq .= "'" . htmlentities($ret["name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    $rq .= "vertical_label = ";
-    isset($ret["vertical_label"]) && $ret["vertical_label"] != null
-        ? $rq .= "'" . htmlentities($ret["vertical_label"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    $rq .= "width = ";
-    isset($ret["width"]) && $ret["width"] != null ? $rq .= "'" . $ret["width"] . "', " : $rq .= "NULL, ";
-    $rq .= "height = ";
-    isset($ret["height"]) && $ret["height"] != null ? $rq .= "'" . $ret["height"] . "', " : $rq .= "NULL, ";
-    $rq .= "base = ";
-    isset($ret["base"]) && $ret["base"] != null ? $rq .= "'" . $ret["base"] . "', " : $rq .= "NULL, ";
-    $rq .= "lower_limit = ";
-    isset($ret["lower_limit"]) && $ret["lower_limit"] != null
-        ? $rq .= "'" . $ret["lower_limit"] . "', "
-        : $rq .= "NULL, ";
-    $rq .= "upper_limit = ";
-    isset($ret["upper_limit"]) && $ret["upper_limit"] != null
-        ? $rq .= "'" . $ret["upper_limit"] . "', "
-        : $rq .= "NULL, ";
-    $rq .= "size_to_max = ";
-    isset($ret["size_to_max"]) && $ret["size_to_max"] != null
-        ? $rq .= "'" . $ret["size_to_max"] . "', "
-        : $rq .= "0, ";
-    $rq .= "default_tpl1 = ";
-    isset($ret["default_tpl1"]) && $ret["default_tpl1"] != null
-        ? $rq .= "'" . $ret["default_tpl1"] . "', "
-        : $rq .= "NULL, ";
-    $rq .= "split_component = ";
-    isset($ret["split_component"]) && $ret["split_component"] != null
-        ? $rq .= "'" . $ret["split_component"] . "', "
-        : $rq .= "NULL, ";
-    $rq .= "scaled = ";
-    isset($ret["scaled"]) && $ret["scaled"] != null ? $rq .= "'" . $ret["scaled"] . "', " : $rq .= "'0', ";
-    $rq .= "stacked = ";
-    isset($ret["stacked"]) && $ret["stacked"] != null
-        ? $rq .= "'" . $ret["stacked"] . "', "
-        : $rq .= "NULL, ";
-    $rq .= "comment = ";
-    isset($ret["comment"]) && $ret["comment"] != null
-        ? $rq .= "'" . htmlentities($ret["comment"], ENT_QUOTES, "UTF-8") . "' "
-        : $rq .= "NULL ";
-    $rq .= "WHERE graph_id = '" . $graph_id . "'";
-    $pearDB->query($rq);
+    $rq = <<<'SQL'
+        INSERT INTO `giv_graphs_template` (
+            `name`, `vertical_label`, `width`,
+            `height`, `base`, `lower_limit`,
+            `upper_limit`, `size_to_max`, `default_tpl1`,
+            `scaled`, `stacked` , `comment`,
+            `split_component`
+        ) VALUES (
+            :name, :vertical_label, :width, :height, :base, :lower_limit, :upper_limit, :size_to_max, :default_tpl1, 
+            :scaled, :stacked, :comment, null
+        )
+        SQL;
+
+    $bindValues = getBindValues($ret);
+
+    $stmt = $pearDB->prepare($rq);
+    foreach ($bindValues as $key => [$type, $value]) {
+        $stmt->bindValue($key, $value, $type);
+    }
+    $stmt->execute();
+    $graphId = $pearDB->lastInsertId();
     defaultOreonGraph();
+
+    return $graphId;
+}
+
+/**
+ * @param int|null $graph_id
+ */
+function updateGraphTemplate(int $graph_id = null): void
+{
+    global $form, $pearDB;
+
+    if (! $graph_id) {
+        return;
+    }
+    $ret = $form->getSubmitValues();
+    if (isset($ret["default_tpl1"]) && ((int) $ret["default_tpl1"]) === 1) { // === 1 means that the checkbox is checked
+        noDefaultOreonGraph();
+    }
+    $rq = <<<'SQL'
+        UPDATE giv_graphs_template
+        SET name = :name,
+            vertical_label = :vertical_label,
+            width = :width,
+            height = :height,
+            base = :base,
+            lower_limit = :lower_limit,
+            upper_limit = :upper_limit,
+            size_to_max = :size_to_max,
+            default_tpl1 = :default_tpl1,
+            split_component = null,
+            scaled = :scaled,
+            stacked = :stacked,
+            comment = :comment
+        WHERE graph_id = :graph_id
+        SQL;
+
+    $bindValues = getBindValues($ret);
+    $bindValues[':graph_id'] = [\PDO::PARAM_INT, $graph_id];
+
+    $stmt = $pearDB->prepare($rq);
+    foreach ($bindValues as $key => [$type, $value]) {
+        $stmt->bindValue($key, $value, $type);
+    }
+
+    $stmt->execute();
+    defaultOreonGraph();
+}
+
+/**
+ * @param array{
+ *     name: string,
+ *     vertical_label: string,
+ *     width: int,
+ *     height: int,
+ *     base: int,
+ *     lower_limit: int,
+ *     upper_limit: int,
+ *     size_to_max: int,
+ *     default_tpl1: int,
+ *     stacked: int,
+ *     scaled: int,
+ *     comment: string
+ * } $data
+ *
+ * @return array{string, array{int, mixed}
+ */
+function getBindValues(array $data): array
+{
+    $bindValues = [];
+    $bindValues[':name'] = isset($data['name']) && $data['name'] !== ''
+        ? [\PDO::PARAM_STR, htmlentities($data['name'], ENT_QUOTES, 'UTF-8')]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':vertical_label'] = isset($data['vertical_label']) && $data['vertical_label'] !== ''
+        ? [\PDO::PARAM_STR, htmlentities($data['vertical_label'], ENT_QUOTES, 'UTF-8')]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':width'] = isset($data['width']) && $data['width'] !== ''
+        ? [\PDO::PARAM_INT, $data["width"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':height'] = isset($data['height']) && $data['height'] !== ''
+        ? [\PDO::PARAM_INT, $data["height"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':base'] = isset($data['base']) && $data['base'] !== ''
+        ? [\PDO::PARAM_INT, $data["base"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':lower_limit'] = isset($data['lower_limit']) && $data['lower_limit'] !== ''
+        ? [\PDO::PARAM_INT, $data["lower_limit"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':upper_limit'] = isset($data['upper_limit']) && $data['upper_limit'] !== ''
+        ? [\PDO::PARAM_INT, $data["upper_limit"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':size_to_max'] = isset($data['size_to_max']) && $data['size_to_max'] !== ''
+        ? [\PDO::PARAM_INT, $data["size_to_max"]]
+        : [\PDO::PARAM_INT, 0];
+
+    $bindValues[':default_tpl1'] = isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
+        ? [\PDO::PARAM_STR, (int) $data["default_tpl1"]]
+        : [\PDO::PARAM_STR, 0];
+
+    $bindValues[':stacked'] = isset($data['stacked']) && $data['stacked'] !== ''
+        ? [\PDO::PARAM_STR, (int) $data["stacked"]]
+        : [\PDO::PARAM_NULL, null];
+
+    $bindValues[':scaled'] = isset($data['scaled']) && $data['scaled'] !== ''
+        ? [\PDO::PARAM_STR, (int) $data["scaled"]]
+        : [\PDO::PARAM_STR, 0];
+
+    $bindValues[':comment'] = isset($data['comment']) && $data['comment'] !== ''
+        ? [\PDO::PARAM_STR, htmlentities($data['comment'], ENT_QUOTES, 'UTF-8')]
+        : [\PDO::PARAM_NULL, null];
+
+    return $bindValues;
 }

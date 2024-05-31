@@ -16,6 +16,9 @@ inputs:
   jira_webhook_url:
     description: "Jira release webhook"
     required: true
+  jira_base_url:
+    description: "Jira base url"
+    required: true
 
 runs:
   using: "composite"
@@ -25,7 +28,7 @@ runs:
 
     - name: Get released versions for components
       run: |
-        set -eu
+        set -eux
 
         # Variables
         COMPONENTS_OSS=("centreon-awie" "centreon-dsm" "centreon-gorgone" "centreon-ha" "centreon-open-tickets" "centreon-web")
@@ -35,14 +38,17 @@ runs:
         declare -a PREVIOUS_STABLE_TAGS=()
         SCOPE_VERSION="OSS"
         MINOR_VERSION_FILE_PATH=".version"
+        RELEASE_CLOUD=0
 
         # Get current stable branch name
         # If MASTER, use root .version
         # Else use branch name
         if [[ "${{ inputs.github_ref_name }}" == "master" ]]; then
           CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
+          RELEASE_CLOUD=1
         else
           CURRENT_STABLE_BRANCH_MAJOR_VERSION=$(echo ${{ inputs.github_ref_name }} | cut -d '.' -f1,2)
+          RELEASE_CLOUD=0
         fi
         echo "Current stable branch major version: $CURRENT_STABLE_BRANCH_MAJOR_VERSION"
 
@@ -56,10 +62,15 @@ runs:
           MAJOR_VERSION=$(grep -E "MAJOR" .version | cut -d '=' -f2)
           MINOR_VERSION=$(grep -E "MINOR" $COMPONENT_DIR/.version | cut -d '=' -f2)
           # Previous stable tags array
-          PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION*" | head -n 1))
+          if [[ $RELEASE_CLOUD -eq 1 ]]; then
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*-*" | head -n 1))
+          else
+            PREVIOUS_STABLE_TAGS+=($(git tag -l --sort=-version:refname "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.*" | grep -E "$component-$CURRENT_STABLE_BRANCH_MAJOR_VERSION.[0-9]+$" | head -n 1))
+          fi
           # New stable tags array
           TMP_STABLE_TAGS+=("$component-$MAJOR_VERSION.$MINOR_VERSION")
         done
+
         echo "Previous releases were: ${PREVIOUS_STABLE_TAGS[*]}"
         echo "Temporary new releases are: ${TMP_STABLE_TAGS[*]}"
 
@@ -93,6 +104,7 @@ runs:
     - name: Add new release tags to stable branch
       run: |
         set -eux
+
         # Add new stable tags to stable branch
         echo "Configuring git."
         git config --global user.email "release@centreon.com"
@@ -104,9 +116,10 @@ runs:
         # done
 
         # Create release tags on git for each release components
+        # Abort if no tags or existing tag
         echo "Creating release tags."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          if [ -z $(git tag --list "$TAG" | head -n 1) ]; then
+          if [ -z $(git tag --list "$TAG" | head -n 1) ] && [ -n $TAG ]; then
             git tag -a "$TAG" -m "$TAG"
             git push --follow-tags
             echo "::notice::Tagging stable branch with $TAG."
@@ -120,6 +133,7 @@ runs:
     - name: Create GITHUB releases from new release tags
       run: |
         set -eux
+
         # Install gh cli
         echo "Installing GH CLI."
         if ! command -v gh &> /dev/null; then
@@ -140,10 +154,16 @@ runs:
         # done
 
         # Create GITHUB release for each release components
+        # Abort if no tags
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          echo "Creating GITHUB release with title $TAG for tag $TAG."
-          gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
+          if [ -n $TAG ]; then
+            echo "Creating GITHUB release with title $TAG for tag $TAG."
+            gh release create $TAG --target "${{ inputs.github_ref_name }}" --title "$TAG" --verify-tag
+          else
+            echo "::error::Release tag $TAG was empty, exiting."
+            exit 1
+          fi
         done
       shell: bash
       env:
@@ -158,9 +178,9 @@ runs:
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
-        # for i in ${NEW_STABLE_TAGS[@]}; do
-        #   NEW_RELEASE_TAGS+=("$i")
-        # done
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          NEW_RELEASE_TAGS+=("$i")
+        done
 
         # Create new JIRA versions (old way of doing it)
         # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
@@ -176,42 +196,53 @@ runs:
         # Create JIRA version for each released component
         echo "Creating JIRA releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
-          echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
-          # Build JSON with release information for JIRA API
-          JIRA_RELEASE_DATA=$(jq -nc \
-            --arg archived "$JIRA_RELEASE_ARCHIVED" \
-            --arg description "$TAG" \
-            --arg releaseDate "$JIRA_RELEASE_DATE" \
-            --arg name "$TAG" \
-            --arg projectId "$JIRA_PROJECT_ID" \
-            --arg released "$JIRA_RELEASE_RELEASED" \
-            '$ARGS.named' )
-          # Send to JIRA API release
-          echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
-          curl --fail --request POST \
-            --url 'https://centreon.atlassian.net/rest/api/3/version' \
-            --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
-            --header 'Accept: application/json' \
-            --header 'Content-Type: application/json' \
-            --data "$JIRA_RELEASE_DATA"
+          if [ -n $TAG ]; then
+            echo "::notice::Creating JIRA release $TAG based on git release tag $TAG."
+            # Build JSON with release information for JIRA API
+            JIRA_RELEASE_DATA=$(jq -nc \
+              --arg archived "$JIRA_RELEASE_ARCHIVED" \
+              --arg description "$TAG" \
+              --arg releaseDate "$JIRA_RELEASE_DATE" \
+              --arg name "$TAG" \
+              --arg projectId "$JIRA_PROJECT_ID" \
+              --arg released "$JIRA_RELEASE_RELEASED" \
+              '$ARGS.named' )
+            # Send to JIRA API release
+            echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
+            curl --fail --request POST \
+              --url 'https://${{ inputs.jira_base_url }}/rest/api/3/version' \
+              --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
+              --header 'Accept: application/json' \
+              --header 'Content-Type: application/json' \
+              --data "$JIRA_RELEASE_DATA"
+          else
+            echo "::error::Release tag $TAG was empty, exiting."
+            exit 1
+          fi
         done
       shell: bash
 
     - name: Trigger release communication for new releases
       run: |
-        set -eu
+        set -eux
+
         MAJOR_VERSION=$CURRENT_STABLE_BRANCH_MAJOR_VERSION
 
         # Webhook url
         JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
-        # Rebuild NEW_STABLE_TAGS as an array
-        # for i in ${NEW_STABLE_TAGS[@]}; do
-        #   NEW_RELEASE_TAGS+=("$i")
-        # done
+        # Rebuild NEW_STABLE_TAGS as an array (required to build a proper json)
+        for i in ${NEW_STABLE_TAGS[@]}; do
+          if [ -n "$i" ]; then
+            NEW_RELEASE_TAGS+=("$i")
+          else
+            echo "::error::Release tag $i was empty, exiting."
+            exit 1
+          fi
+        done
 
         # Build JSON structure with released versions
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_STABLE_TAGS[@]}")
+        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
         JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
         RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
 
