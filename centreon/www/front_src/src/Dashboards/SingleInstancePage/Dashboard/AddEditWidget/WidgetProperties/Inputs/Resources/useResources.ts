@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import {
@@ -37,6 +37,7 @@ import {
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelMetaService,
   labelPleaseSelectAResource,
   labelService,
   labelServiceCategory,
@@ -88,10 +89,17 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.hostGroup]: '/hostgroups',
   [WidgetResourceType.service]: '/resources',
   [WidgetResourceType.serviceCategory]: '/services/categories',
-  [WidgetResourceType.serviceGroup]: '/servicegroups'
+  [WidgetResourceType.serviceGroup]: '/servicegroups',
+  [WidgetResourceType.metaService]: '/resources'
 };
 
-export const resourceTypeOptions = [
+interface ResourceTypeOption {
+  availableResourceTypeOptions: Array<{ id: WidgetResourceType; name: string }>;
+  id: WidgetResourceType;
+  name: string;
+}
+
+export const resourceTypeOptions: Array<ResourceTypeOption> = [
   {
     availableResourceTypeOptions: [
       { id: WidgetResourceType.serviceGroup, name: labelServiceGroup },
@@ -143,6 +151,11 @@ export const resourceTypeOptions = [
     ],
     id: WidgetResourceType.serviceGroup,
     name: labelServiceGroup
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: WidgetResourceType.metaService,
+    name: labelMetaService
   }
 ];
 
@@ -152,7 +165,7 @@ const getAdditionalQueryParameters = (
 ): Array<{ name: string; value: unknown }> => [
   {
     name: 'types',
-    value: [resourceType]
+    value: [resourceType.replace(/-/g, '')]
   },
   {
     name: 'only_with_performance_data',
@@ -170,11 +183,13 @@ const useResources = ({
   propertyName,
   restrictedResourceTypes,
   required,
-  useAdditionalResources
+  useAdditionalResources,
+  excludedResourceTypes
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
   | 'restrictedResourceTypes'
+  | 'excludedResourceTypes'
   | 'required'
   | 'useAdditionalResources'
 >): UseResourcesState => {
@@ -276,20 +291,21 @@ const useResources = ({
     index: number,
     resourceType
   ): Array<QueryParameter> => {
-    const isOfTypeHostOrService = includes(resourceType, [
+    const usesResourcesEndpoint = includes(resourceType, [
       WidgetResourceType.service,
-      WidgetResourceType.host
+      WidgetResourceType.host,
+      WidgetResourceType.metaService
     ]);
 
     if (equals(index, 0)) {
-      return isOfTypeHostOrService
+      return usesResourcesEndpoint
         ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
         : [];
     }
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!isOfTypeHostOrService) {
+    if (!usesResourcesEndpoint) {
       return [
         {
           name: 'search',
@@ -385,41 +401,47 @@ const useResources = ({
 
   const resourcetypesIds = pluck('resourceType', value || []);
 
-  const getResourceTypeOptions = (
-    index,
-    resource
-  ): Array<ResourceTypeOption> => {
-    const additionalResourceTypeOptions = useAdditionalResources
-      ? additionalResources.map(({ resourceType, label }) => ({
-          id: resourceType,
-          name: label
-        }))
-      : [];
+  const getResourceTypeOptions = useCallback(
+    (index, resource): Array<ResourceTypeOption> => {
+      const additionalResourceTypeOptions = useAdditionalResources
+        ? additionalResources.map(({ resourceType, label }) => ({
+            id: resourceType,
+            name: label
+          }))
+        : [];
 
-    const allResourceTypeOptions = [
-      ...resourceTypeOptions,
-      ...additionalResourceTypeOptions
-    ];
+      const availableResourceTypes = [
+        ...(index < 1
+          ? resourceTypeOptions
+          : resourceTypeOptions.find(
+              ({ id }) => id === value?.[index - 1].resourceType
+            )?.availableResourceTypeOptions || []),
+        ...additionalResourceTypeOptions
+      ];
 
-    const availableResourceTypes =
-      index < 1
-        ? resourceTypeOptions
-        : resourceTypeOptions.find(
-            ({ id }) => id === value?.[index - 1].resourceType
-          )?.availableResourceTypeOptions;
+      const filteredResourceTypeOptions = filter(({ id }) => {
+        if (hasRestrictedTypes) {
+          return includes(id, restrictedResourceTypes || []);
+        }
 
-    const newResourceTypeOptions = filter(
-      ({ id }) =>
-        hasRestrictedTypes
-          ? includes(id, restrictedResourceTypes || [])
-          : (includes(id, pluck('id', availableResourceTypes)) &&
-              !includes(id, resourcetypesIds)) ||
-            equals(id, resource.resourceType),
-      allResourceTypeOptions
-    );
+        return (
+          (!includes(id, excludedResourceTypes || []) &&
+            includes(id, pluck('id', availableResourceTypes)) &&
+            !includes(id, resourcetypesIds)) ||
+          equals(id, resource.resourceType)
+        );
+      }, availableResourceTypes);
 
-    return newResourceTypeOptions;
-  };
+      return filteredResourceTypeOptions;
+    },
+    [
+      additionalResources,
+      useAdditionalResources,
+      hasRestrictedTypes,
+      excludedResourceTypes,
+      value
+    ]
+  );
 
   useEffect(() => {
     if (!isEmpty(value)) {
@@ -452,9 +474,9 @@ const useResources = ({
     ]);
   }, [values.moduleName]);
 
-  const isLastResourceInTree = equals(
-    last(resourcetypesIds),
-    WidgetResourceType.service
+  const isLastResourceInTree = isEmpty(
+    resourceTypeOptions.find(({ id }) => equals(id, last(resourcetypesIds)))
+      ?.availableResourceTypeOptions
   );
 
   return {
