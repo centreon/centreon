@@ -260,6 +260,10 @@ When(
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
     cy.contains('span', `${data.login}`).should('be.visible');
+    cy.wait('@getTopCounteruser');
+    cy.wait('@getTopCounterpoller');
+    cy.wait('@getTopCounterservice');
+    cy.wait('@getTopCounterhosts');
     // cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
