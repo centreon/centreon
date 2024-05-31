@@ -43,9 +43,9 @@ describe('Line chart', () => {
 
       cy.contains('06/18/2023').should('be.visible');
 
-      cy.contains('0.59 s').should('be.visible');
-      cy.contains('74.73%').should('be.visible');
-      cy.contains('0.72 s').should('be.visible');
+      cy.contains('0.45 s').should('be.visible');
+      cy.contains('75.93%').should('be.visible');
+      cy.contains('0.43 s').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -62,7 +62,7 @@ describe('Line chart', () => {
         'data-highlight',
         'false'
       );
-      cy.get('[data-metric="hitratio"]').should(
+      cy.get('[data-metric="connTime"]').should(
         'have.attr',
         'data-highlight',
         'true'
@@ -88,7 +88,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1180, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1162, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('not.exist');
@@ -103,12 +103,12 @@ describe('Line chart', () => {
 
       cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
 
-      cy.get('[data-metric="hitratio"]').should(
+      cy.get('[data-metric="connTime"]').should(
         'have.attr',
         'data-highlight',
         'true'
       );
-      cy.get('[data-metric="querytime"]').should('not.exist');
+      cy.get('[data-metric="hitratio"]').should('not.exist');
 
       cy.makeSnapshot();
     });
