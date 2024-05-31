@@ -32,6 +32,7 @@ const Resources = ({
   propertyName,
   singleResourceType,
   restrictedResourceTypes,
+  excludedResourceTypes,
   required,
   useAdditionalResources
 }: WidgetPropertyProps): JSX.Element => {
@@ -56,6 +57,7 @@ const Resources = ({
     isLastResourceInTree,
     changeIdValue
   } = useResources({
+    excludedResourceTypes,
     propertyName,
     required,
     restrictedResourceTypes,
