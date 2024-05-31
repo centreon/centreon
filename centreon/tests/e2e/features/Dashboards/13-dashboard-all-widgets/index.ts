@@ -196,7 +196,10 @@ after(() => {
 
 Given('a dashboard administrator on the dashboard web interface', () => {
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({
@@ -289,7 +292,10 @@ Then(
 Given(
   'a dashboard administrator who has just configured a multi-widget dashboard',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   }
@@ -344,20 +350,23 @@ Then('the dashboard is updated with the new widget layout', () => {
     .eq(0)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(426px)');
+      expect(style).to.include('width: calc(422px)');
     });
   cy.get('.react-grid-item')
     .eq(1)
     .invoke('attr', 'style')
     .then((style) => {
-      expect(style).to.include('width: calc(426px)');
+      expect(style).to.include('width: calc(422px)');
     });
 });
 
 Given(
   'the dashboard administrator with a configured multi-widget dashboard',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   }

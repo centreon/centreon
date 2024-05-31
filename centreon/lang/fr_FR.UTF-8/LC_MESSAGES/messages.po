@@ -18766,6 +18766,9 @@ msgstr "Le widget sera définitivement supprimé."
 msgid "The {{name}} dashboard will be permanently deleted."
 msgstr "Le tableau de bord {{name}} sera définitivement supprimé."
 
+msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
+msgstr "Le tableau de bord {{name}} fait partie d'une ou plusieurs listes de diffusion. Il sera définitivement supprimé des listes de diffusion auxquelles il appartient."
+
 msgid "No Data Available"
 msgstr "Pas de données disponibles"
 
@@ -18979,8 +18982,29 @@ msgstr "Toutes les vues métier sont sélectionnées"
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
 
+msgid "Graph style"
+msgstr "Style du graphe"
+
+msgid "Curve type"
+msgstr "Type de courbe"
+
+msgid "Linear"
+msgstr "Linéaire"
+
+msgid "Natural"
+msgstr "Naturel"
+
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
 
 msgid "You are not allowed to partially update the token"
 msgstr "Vous n'êtes pas autorisé à mettre à jour partiellement le jeton"
+
+msgid "Active/Revoked"
+msgstr "Actif/Révoqué"
+
+msgid "Unable to migrate passwords"
+msgstr "Impossible de migrer les mots de passe"
+
+msgid "No vault configured"
+msgstr "Aucun coffre configuré"
