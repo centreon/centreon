@@ -34,7 +34,7 @@ export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
 const namedEntitySchema = Yup.object().shape({
-  id: Yup.number().required(),
+  id: Yup.number(),
   name: Yup.string().required()
 });
 
