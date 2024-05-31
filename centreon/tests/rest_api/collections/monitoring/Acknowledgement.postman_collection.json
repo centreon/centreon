@@ -3557,7 +3557,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result[1].deletion_time == null) && (responseJson.result[0].deletion_time == null) && (responseJson.result.length != 3) && (responseJson.result[0].deletion_time == null) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result[0].deletion_time == null) && (responseJson.result[1].deletion_time == null) && (responseJson.result[2].deletion_time == null) && (responseJson.result.length != 3) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
