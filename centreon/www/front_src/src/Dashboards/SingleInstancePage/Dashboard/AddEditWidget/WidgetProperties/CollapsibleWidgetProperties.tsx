@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { equals, groupBy, isEmpty, isNil, path, toPairs } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useFormikContext } from 'formik';
 
 import { Divider, Stack } from '@mui/material';
 
@@ -11,10 +12,13 @@ import { CollapsibleItem } from '@centreon/ui/components';
 import { widgetPropertiesAtom } from '../atoms';
 import { labelValueSettings } from '../../translatedLabels';
 import Subtitle from '../../components/Subtitle';
+import { Widget } from '../models';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 import ShowInputWrapper from './ShowInputWrapper';
 import { useWidgetInputs, WidgetPropertiesRenderer } from './useWidgetInputs';
+import SubInputs from './SubInputs';
+import { getProperty } from './Inputs/utils';
 
 interface CollapsibleWidgetPropertiesProps {
   hasGroups: boolean;
@@ -27,6 +31,8 @@ const CollapsibleWidgetProperties = ({
 }: CollapsibleWidgetPropertiesProps): JSX.Element | false => {
   const { t } = useTranslation();
   const { classes } = useWidgetPropertiesStyles();
+
+  const { values } = useFormikContext<Widget>();
 
   const isDefaultOptions = useMemo(
     () => equals(propertyKey, 'options'),
@@ -84,10 +90,18 @@ const CollapsibleWidgetProperties = ({
                 {inputs?.map(({ Component, key, props }) => (
                   <Stack direction="column" key={key}>
                     <ShowInputWrapper {...props}>
-                      <Component
-                        {...props}
-                        isInGroup={!isEmpty(groupName) && !isNil(groupName)}
-                      />
+                      <SubInputs
+                        subInputs={props.subInputs}
+                        value={getProperty({
+                          obj: values,
+                          propertyName: props.propertyName
+                        })}
+                      >
+                        <Component
+                          {...props}
+                          isInGroup={!isEmpty(groupName) && !isNil(groupName)}
+                        />
+                      </SubInputs>
                     </ShowInputWrapper>
                   </Stack>
                 ))}

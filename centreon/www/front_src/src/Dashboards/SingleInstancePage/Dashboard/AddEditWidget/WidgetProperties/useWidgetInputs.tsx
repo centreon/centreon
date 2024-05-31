@@ -63,7 +63,7 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup
 };
 
-const DefaultComponent = (): JSX.Element => (
+export const DefaultComponent = (): JSX.Element => (
   <div data-testid="unknown widget property" />
 );
 

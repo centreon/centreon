@@ -8,7 +8,7 @@ import { Stack } from '@mui/material';
 import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
 
-import { propertiesInputType } from './useWidgetInputs';
+import { DefaultComponent, propertiesInputType } from './useWidgetInputs';
 
 interface SubInputsProps {
   children: JSX.Element;
@@ -49,7 +49,7 @@ const SubInputs = ({
     <Stack direction={hasRowDirection ? 'row' : 'column'} gap={1.5}>
       {children}
       {subInputsToDisplay?.map(({ input, name }) => {
-        const Component = propertiesInputType[input.type];
+        const Component = propertiesInputType[input.type] || DefaultComponent;
 
         return <Component key={input.label} propertyName={name} {...input} />;
       })}

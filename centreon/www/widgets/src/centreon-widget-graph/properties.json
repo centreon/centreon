@@ -80,7 +80,7 @@
           "group": "tooltip",
           "type": "button-group",
           "label": "Tooltip mode",
-          "default": "all",
+          "defaultValue": "all",
           "options": [
             {
               "id": "all",
@@ -100,7 +100,7 @@
           "group": "tooltip",
           "type": "button-group",
           "label": "Value sort order",
-          "default": "name",
+          "defaultValue": "name",
           "options": [
             {
               "id": "name",
@@ -120,13 +120,13 @@
           "group": "legend",
           "type": "switch",
           "label": "ShowLegend",
-          "default": true
+          "defaultValue": true
         },
         "legendDisplayMode": {
           "group": "legend",
           "type": "button-group",
           "label": "Display mode",
-          "default": "grid",
+          "defaultValue": "grid",
           "options": [
             {
               "id": "grid",
@@ -142,7 +142,7 @@
           "group": "legend",
           "type": "button-group",
           "label": "Placement",
-          "default": "bottom",
+          "defaultValue": "bottom",
           "options": [
             {
               "id": "left",

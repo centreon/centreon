@@ -142,40 +142,6 @@ describe('Button group', () => {
 
     cy.makeSnapshot();
   });
-
-  it('displays sub-inputs when a button is clicked', () => {
-    initialize({});
-
-    cy.findByLabelText('Button 3').click();
-
-    cy.findAllByLabelText('Sub input 1').should('have.value', 'sample');
-    cy.findAllByLabelText('Sub input 2').should('have.value', 'text');
-
-    cy.findByLabelText('Button 4').click();
-
-    cy.findAllByLabelText('Radio 1')
-      .eq(0)
-      .parent()
-      .should('have.class', 'Mui-checked');
-
-    cy.makeSnapshot();
-  });
-
-  it('keeps a sub-input value when a sub-input is displayed and its value is changed', () => {
-    initialize({});
-
-    cy.findByLabelText('Button 3').click();
-
-    cy.findAllByLabelText('Sub input 1').should('have.value', 'sample');
-    cy.findAllByLabelText('Sub input 1').clear().type('updated value');
-
-    cy.findByLabelText('Button 2').click();
-    cy.findByLabelText('Button 3').click();
-
-    cy.findAllByLabelText('Sub input 1').should('have.value', 'updated value');
-
-    cy.makeSnapshot();
-  });
 });
 
 describe('Button group disabled', () => {

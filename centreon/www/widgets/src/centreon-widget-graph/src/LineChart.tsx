@@ -81,13 +81,21 @@ const WidgetLineChart = ({
       data={graphData}
       end={end}
       height={null}
-      legend={{ display: true }}
+      legend={{
+        display: panelOptions.showLegend,
+        mode: panelOptions.legendDisplayMode,
+        placement: panelOptions.legendPlacement
+      }}
       loading={isGraphLoading}
       start={start}
       thresholdUnit={panelData.metrics[0]?.unit}
       thresholds={formattedThresholds}
       timeShiftZones={{
         enable: false
+      }}
+      tooltip={{
+        mode: panelOptions.tooltipMode,
+        sortOrder: panelOptions.tooltipSortOrder
       }}
       zoomPreview={{
         enable: false

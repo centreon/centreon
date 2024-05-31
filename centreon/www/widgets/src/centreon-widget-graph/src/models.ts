@@ -14,10 +14,15 @@ export interface FormTimePeriod {
 export interface PanelOptions {
   curveType: 'linear' | 'step' | 'natural';
   globalRefreshInterval?: number;
+  legendDisplayMode: 'grid' | 'list';
+  legendPlacement: 'right' | 'bottom' | 'left';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
+  showLegend: boolean;
   threshold: FormThreshold;
   timeperiod: FormTimePeriod;
+  tooltipMode: 'all' | 'single' | 'hidden';
+  tooltipSortOrder: 'name' | 'ascending' | 'descending';
 }
 
 export interface FormThreshold {
