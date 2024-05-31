@@ -98,10 +98,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/monitoring/resources?*'
   }).as('getAllResourcesStatus');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/users?*'
-  }).as('getUsersRam');
 });
 
 Given('I am logged in as a user with limited access', () => {
@@ -223,7 +219,7 @@ When('a new host is created', () => {
 Then(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
-    // all resources should be deleted first
+    // Access to all resources should be deleted first
     cy.executeActionViaClapi({
       bodyContent: {
         action: 'DEL',
@@ -262,8 +258,7 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
-    cy.wait('@getUsersRam');
-    cy.contains('span', `${data.login}`);
+    cy.contains('span', `${data.login}`).should('be.visible');
     // cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
@@ -273,11 +268,11 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
+    cy.applyAcl();
   }
 );
 
 Then('the Administrator logs out', () => {
-  cy.applyAcl();
   cy.logoutViaAPI();
 });
 
@@ -301,7 +296,7 @@ When(
     cy.getByLabel({ label: 'Select resource type', tag: 'div' }).click();
     cy.getByLabel({ label: 'Business view', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
-    cy.contains('BV1').click();
+    cy.contains(`${data_bv[0].Bv}`).click();
   }
 );
 
@@ -320,7 +315,7 @@ Then('the user can access the selected business view', () => {
   cy.getIframeBody()
     .find('span[aria-labelledby$="-bv_filter-container"]')
     .click();
-  cy.getIframeBody().contains('BV1').click();
+  cy.getIframeBody().contains(`${data_bv[0].Bv}`).click();
 });
 
 Then('the Administrator selects "All hosts"', () => {
