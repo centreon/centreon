@@ -80,7 +80,7 @@ interface ResourceTypeOption {
 }
 
 export const resourceTypeBaseEndpoints = {
-  [WidgetResourceType.host]: '/hosts',
+  [WidgetResourceType.host]: '/resources',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
   [WidgetResourceType.service]: '/resources',
@@ -143,16 +143,19 @@ export const resourceTypeOptions = [
   }
 ];
 
-const getServiceQueryParameters = (
+const getAdditionalQueryParameters = (
+  resourceType: WidgetResourceType,
   onlyWithPerformanceData = false
 ): Array<{ name: string; value: unknown }> => [
   {
     name: 'types',
-    value: ['service']
+    value: [resourceType]
   },
   {
     name: 'only_with_performance_data',
-    value: onlyWithPerformanceData
+    value: equals(resourceType, WidgetResourceType.host)
+      ? false
+      : onlyWithPerformanceData
   },
   {
     name: 'limit',
@@ -256,15 +259,21 @@ const useResources = ({
     index: number,
     resourceType
   ): Array<QueryParameter> => {
+    const isOfTypeHostOrService = includes(resourceType, [
+      WidgetResourceType.service,
+      WidgetResourceType.host
+    ]);
+
     if (equals(index, 0)) {
-      return equals(resourceType, WidgetResourceType.service)
-        ? getServiceQueryParameters(hasMetricInputType)
+      return isOfTypeHostOrService
+        ? getAdditionalQueryParameters(resourceType, hasMetricInputType)
         : [];
     }
+
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!equals(resourceType, WidgetResourceType.service)) {
+    if (!isOfTypeHostOrService) {
       return [
         {
           name: 'search',
@@ -277,7 +286,10 @@ const useResources = ({
       ];
     }
 
-    const baseParams = getServiceQueryParameters(hasMetricInputType);
+    const baseParams = getAdditionalQueryParameters(
+      resourceType,
+      hasMetricInputType
+    );
 
     if (equals(searchParameter, WidgetResourceType.host)) {
       return [
