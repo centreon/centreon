@@ -57,7 +57,6 @@ beforeEach(() => {
     page: 'Dashboards',
     rootItemNumber: 0
   });
-  cy.wait('@listAllDashboards');
 });
 
 after(() => {
