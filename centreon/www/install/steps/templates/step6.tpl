@@ -69,6 +69,12 @@
                 <label class='field_msg'></label>
             </td>
         </tr>
+        <tr>
+            <td class='formlabel'>{t}Use vault to store sensitive data{/t}</td>
+            <td class='formvalue'>
+                <input type='checkbox' name='use_vault' value="{$parameters.use_vault}"/>
+            </td>
+        </tr>
         </tbody>
     </table>
 </form>
@@ -87,7 +93,11 @@
             success: (data) => {
                 var result = JSON.parse(data);
                 if (!result.required.length && result.password && result.connection == '') {
-                    loadStep("nextStep");
+                    if (result.use_vault) {
+                        loadStep("vaultStep");
+                    } else {
+                        loadStep("nextStep");
+                    }
                 } else {
                     result.required.forEach(function (element) {
                         jQuery("input[name=" + element + "]").next().html("Parameter is required");

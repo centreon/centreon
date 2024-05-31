@@ -41,70 +41,68 @@ require_once __DIR__ . '/../functions.php';
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 
 $requiredParameters = [
-    'db_configuration',
-    'db_storage',
-    'db_user',
-    'db_password',
-    'db_password_confirm',
+    'address',
+    'port',
+    'root_path',
+    'role_id',
+    'secret_id',
 ];
 
 $err = [
-    'required' => array(),
-    'password' => true,
-    'connection' => '',
-    'use_vault' => false,
+    'required' => [],
+    'connection_error' => '',
 ];
 
 $parameters = filter_input_array(INPUT_POST);
 
-foreach ($parameters as $name => $value) {
-    if (in_array($name, $requiredParameters) && trim($value) == '') {
+foreach (array_keys($parameters) as $fieldName) {
+    if (in_array($fieldName, $requiredParameters) && trim($value) === '') {
         $err['required'][] = $name;
     }
 }
 
-if (array_key_exists('use_vault', $parameters)) {
-    $err['use_vault'] = true;
-}
-
-if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&
-    $parameters['db_password'] != $parameters['db_password_confirm']
-) {
-    $err['password'] = false;
-}
-
 try {
-    if ($parameters['address'] == "") {
-        $parameters['address'] = "localhost";
+    $url = $parameters['address'] . ':' . $parameters['port'] . '/v1/auth/approle/login';
+    $url = sprintf('%s://%s', 'https', $url);
+    $body = [
+        'role_id' => $parameters['role_id'],
+        'secret_id' => $parameters['secret_id'],
+    ];
+
+    $httpClient = new \Symfony\Component\HttpClient\CurlHttpClient();
+    $loginResponse = $httpClient->request('POST', $url, ['json' => $body]);
+    $content = json_decode($loginResponse->getContent(), true);
+    if (! isset($content['auth']['client_token'])) {
+        throw new \Exception('Unable to authenticate to Vault');
     }
-    if ($parameters['port'] == "") {
-        $parameters['port'] = "3306";
-    }
-    if ($parameters['root_user'] == "") {
-        $parameters['root_user'] = "root";
-    }
-//    $link = new \PDO(
-//        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
-//        $parameters['root_user'],
-//        $parameters['root_password']
-//    );
-//    checkMariaDBPrerequisite($link);
-//    $link = null;
-} catch (\Exception $e) {
-    if ($e instanceof \PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
-        $err['connection'] =
-            'Please check the root database username and password. '
-            . 'If the problem persists, check that you have properly '
-            . '<a target="_blank" href="https://docs.centreon.com/docs/installation'
-            . '/installation-of-a-central-server/using-packages/#secure-the-database">secured your DBMS</a>';
-    } else {
-        $err['connection'] = $e->getMessage();
-    }
+
+    $kernel = \App\Kernel::createForWeb();
+    /**
+     * @var \Security\Interfaces\EncryptionInterface $encryption
+     */
+    $encryption = $kernel->getContainer()->get(\Security\Interfaces\EncryptionInterface::class);
+    $writeVaultConfigurationRepository = $kernel->getContainer()->get(\Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface::class);
+    $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(
+        $encryption,
+        'hashicorp_vault',
+        $parameters['address'],
+        (int) $parameters['port'],
+        $parameters['root_path'],
+        $parameters['role_id'],
+        $parameters['secret_id']
+    );
+    $writeVaultConfigurationRepository->create($vaultConfiguration);
+
+} catch (\Symfony\Component\HttpClient\Exception\TransportException $e) {
+    $err['connection_error'] = $e->getMessage();
+} catch (\Throwable $e) {
+    $err['connection_error'] = "Unable to create vault configuration";
+    $writeVaultConfigurationRepository->delete();
 }
 
-if (!count($err['required']) && $err['password'] && trim($err['connection']) == '') {
-    $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
-    $step->setDatabaseConfiguration($parameters);
+if (!count($err['required'])  && trim($err['connection_error']) == '') {
+    $step = new \CentreonLegacy\Core\Install\Step\Step6Vault($dependencyInjector);
+    $step->setVaultConfiguration($parameters);
 }
 
 echo json_encode($err);
