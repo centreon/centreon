@@ -82,6 +82,8 @@ CREATE TABLE `acl_groups` (
   `acl_group_activate` enum('0','1','2') DEFAULT NULL,
   `cloud_description` TEXT DEFAULT NULL,
   `cloud_specific` boolean NOT NULL DEFAULT 0,
+  `all_contacts` TINYINT DEFAULT 0 NOT NULL,
+  `all_contact_groups` TINYINT DEFAULT 0 NOT NULL,
   PRIMARY KEY (`acl_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -120,10 +122,10 @@ CREATE TABLE `acl_resources` (
 CREATE TABLE `dataset_filters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) DEFAULT NULL,
-  `type` enum('host', 'hostgroup', 'host_category', 'servicegroup', 'service_category', 'meta_service', 'service') DEFAULT NULL,
+  `type` VARCHAR(255) DEFAULT NULL,
   `acl_resource_id` int(11) DEFAULT NULL,
   `acl_group_id` int(11) DEFAULT NULL,
-  `resource_ids` varchar(255) DEFAULT NULL,
+  `resource_ids` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `acl_resources_dataset_relations` FOREIGN KEY (`acl_resource_id`) REFERENCES `acl_resources` (`acl_res_id`) ON DELETE CASCADE,
   CONSTRAINT `acl_groups_dataset_relations` FOREIGN KEY (`acl_group_id`) REFERENCES `acl_groups` (`acl_group_id`) ON DELETE CASCADE
@@ -583,7 +585,7 @@ CREATE TABLE `cfg_nagios` (
   `cfg_file` varchar(255) NOT NULL DEFAULT 'centengine.cfg',
   `log_pid` enum('0','1') DEFAULT '1',
   `enable_macros_filter` enum('0', '1') DEFAULT '0',
-  `macros_filter` TEXT DEFAULT '',
+  `macros_filter` TEXT DEFAULT (''),
   `logger_version` enum('log_v2_enabled', 'log_legacy_enabled') DEFAULT 'log_v2_enabled',
   PRIMARY KEY (`nagios_id`),
   KEY `cmd1_index` (`global_host_event_handler`),
@@ -2322,7 +2324,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `status` VARCHAR(40) NOT NULL,
   `parent_id` INT(11) NULL,
   `params` BLOB NULL,
-  `created_at` TIMESTAMP NOT NULL
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create user_filter table
@@ -2475,31 +2477,6 @@ CREATE TABLE `security_provider_contact_group_relation` (
   CONSTRAINT `security_provider_configuration_provider_id`
     FOREIGN KEY (`provider_configuration_id`)
     REFERENCES `provider_configuration` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `vault` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `vault` (`name`) VALUES ('hashicorp');
-
-CREATE TABLE IF NOT EXISTS `vault_configuration` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(50) NOT NULL,
-  `vault_id` INT UNSIGNED NOT NULL,
-  `url` VARCHAR(1024) NOT NULL,
-  `port` SMALLINT UNSIGNED NOT NULL,
-  `root_path` VARCHAR(50) NOT NULL,
-  `role_id` VARCHAR(255) NOT NULL,
-  `secret_id` VARCHAR(255) NOT NULL,
-  `salt` CHAR(128) NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `vault_configuration_vault_id`
-    FOREIGN KEY (`vault_id`)
-    REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `notification` (

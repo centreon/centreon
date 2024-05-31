@@ -6,14 +6,16 @@ import {
   ClickAwayListener,
   Paper,
   Popper,
-  PopperPlacementType,
-  useTheme
+  PopperPlacementType
 } from '@mui/material';
 import { PopperProps } from '@mui/material/Popper';
 
 import { IconButton } from '..';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
+  popover: {
+    zIndex: theme.zIndex.tooltip
+  },
   popoverIconButton: {
     padding: 0,
     width: '100%'
@@ -52,7 +54,6 @@ const PopoverMenu = ({
   getPopoverData,
   popperProps
 }: Props): JSX.Element => {
-  const theme = useTheme();
   const { classes, cx } = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
   const isOpen = Boolean(anchorEl);
@@ -105,9 +106,9 @@ const PopoverMenu = ({
           <Popper
             open
             anchorEl={anchorEl}
+            className={classes.popover}
             nonce={undefined}
             placement={popperPlacement}
-            style={{ zIndex: theme.zIndex.tooltip }}
             onResize={(): undefined => undefined}
             onResizeCapture={(): undefined => undefined}
             {...popperProps}

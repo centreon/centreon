@@ -111,19 +111,6 @@
 		        <td class="FormRowField"><img class="helpTooltip" name="snmp_options"> {$form.host_snmp_community.label} & {$form.host_snmp_version.label}</td>
 		        <td class="FormRowValue">{$form.host_snmp_community.html}&nbsp;&nbsp;{$form.host_snmp_version.html}</td>
 		    </tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="macro"> {$custom_macro_label} <br>
-					<div class="macro_legend">
-						<p><span class="state_badge"
-								style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}
-						</p>
-						<p><span class="state_badge"
-								style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}
-						</p>
-					</div>
-				</td>
-				<td class="FormRowValue">{include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}</td>
-			</tr>
 			<tr class="list_two">
 				<td class="FormRowField"><img class="helpTooltip" name="check_period"> {$form.timeperiod_tp_id.label}</td>
 				<td class="FormRowValue">{$form.timeperiod_tp_id.html} </td>
@@ -133,6 +120,38 @@
 				<td class="FormRowValue">{$form.host_location.html}</td>
 			</tr>
 
+			<tr class="list_lvl_1">
+			    <td class="ListColLvl1_name" colspan="2"><h4>{t}Host check options{/t}</h4></td>
+			</tr>
+		 	<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip" name="check_command"> {$form.command_command_id.label}</td>
+				<td class="FormRowValue">
+					{$form.command_command_id.html}
+					{if $o == "a" || $o == "c"}
+					<span style="cursor:help; margin-left: 4px;">
+						<img src='./img/icons/info.png' class='ico-14' style='vertical-align:middle;' onclick="window.open('main.php?p=60801&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&o=w&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=200');">
+					</span>
+					{/if}
+				</td>
+			</tr>
+			<tr class="list_two">
+				<td class="FormRowField"><img class="helpTooltip" name="check_command_args"> {$form.command_command_id_arg1.label}</td>
+				<td class="FormRowValue">
+					{$form.command_command_id_arg1.html}
+					{if $o == "a" || $o == "c"}
+						<img src="./img/icons/arrow-left.png" style='cursor:pointer;margin: 0 6px;vertical-align: middle;' alt="*" class="ico-14" onclick="set_arg('example1','command_command_id_arg1');"><input type="text" name="example1" disabled>
+					{/if}
+				</td>
+			</tr>
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip" name="macro"> {$custom_macro_label} <br>
+					<div class="macro_legend">
+						<p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
+						<p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
+					</div>
+				</td>
+				<td class="FormRowValue">{include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}</td>
+			</tr>
 			<tr class="list_lvl_1">
 			    <td class="ListColLvl1_name" colspan="2"><h4>{t}Scheduling options{/t}</h4></td>
 			</tr>

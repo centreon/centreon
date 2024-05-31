@@ -189,6 +189,9 @@ class OpenIdProvider implements OpenIdProviderInterface
             $this->userInformations[$customConfiguration->getUserNameBindAttribute()],
             $this->userInformations[$customConfiguration->getEmailBindAttribute()],
         );
+        if ($user->canReachFrontend()) {
+            $user->setCanReachRealtimeApi(true);
+        }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
         $this->info('Auto import complete', [
@@ -363,11 +366,20 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
             $refreshTokenExpiration = (new \DateTimeImmutable())
                 ->add(new DateInterval('PT' . $expirationDelay . 'S'));
-            $this->refreshToken = new NewProviderToken(
-                $content['refresh_token'],
-                $creationDate,
-                $refreshTokenExpiration
-            );
+            if ($authenticationTokens->getProviderRefreshToken() instanceof ProviderToken) {
+                $this->refreshToken = new ProviderToken(
+                    $authenticationTokens->getProviderRefreshToken()->getId(),
+                    $content['refresh_token'],
+                    $creationDate,
+                    $refreshTokenExpiration
+                );
+            } else {
+                $this->refreshToken = new NewProviderToken(
+                    $content['refresh_token'],
+                    $creationDate,
+                    $refreshTokenExpiration
+                );
+            }
         }
 
         return new AuthenticationTokens(
@@ -974,7 +986,7 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Log Exception in login.log file.
      *
      * @param string $message
-     * @param \Exception $exception
+     * @param Exception $exception
      */
     private function logExceptionInLoginLogFile(string $message, Exception $exception): void
     {

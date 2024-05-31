@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardContactRole;
 use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
@@ -97,6 +98,18 @@ interface ReadDashboardShareRepositoryInterface
     public function findDashboardsContactShares(Dashboard ...$dashboards): array;
 
     /**
+     * Retrieve all the contacts shares for several dashboards based on contact IDs.
+     *
+     * @param int[] $contactIds
+     * @param Dashboard ...$dashboards
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<DashboardContactShare>>
+     */
+    public function findDashboardsContactSharesByContactIds(array $contactIds, Dashboard ...$dashboards): array;
+
+    /**
      * Retrieve all the contact groups shares for several dashboards.
      *
      * @param Dashboard ...$dashboards
@@ -123,14 +136,27 @@ interface ReadDashboardShareRepositoryInterface
      * Find users with Topology ACLs on dashboards.
      *
      * @param RequestParametersInterface $requestParameters
+     * @param bool $isCloudPlatform
      *
      * @throws \Throwable|\UnexpectedValueException
      *
      * @return DashboardContactRole[]
      */
     public function findContactsWithAccessRightByRequestParameters(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
+        bool $isCloudPlatform
     ): array;
+
+    /**
+     * Find users with Topology ACLs on dashboards based on given contact IDs.
+     *
+     * @param int[] $contactIds
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactRole[]
+     */
+    public function findContactsWithAccessRightByContactIds(array $contactIds): array;
 
     /**
      * Find users with Topology ACLs on dashboards by current user ACLs.
@@ -146,4 +172,55 @@ interface ReadDashboardShareRepositoryInterface
         RequestParametersInterface $requestParameters,
         array $aclGroupIds
     ): array;
+
+    /**
+     * Find contact groups with Topology ACLs on dashboards.
+     *
+     * @param RequestParametersInterface $requestParameters
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsWithAccessRightByRequestParameters(
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find contact groups with Topology ACLs on dashboards based on given contact group IDs.
+     *
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsWithAccessRightByContactGroupIds(array $contactGroupIds): array;
+
+    /**
+     * Find contact groups with Topology ACLs on dashboards by current user ACLs.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param int $contactId
+     *
+     * @throws \Throwable|\UnexpectedValueException
+     *
+     * @return DashboardContactGroupRole[]
+     */
+    public function findContactGroupsWithAccessRightByUserAndRequestParameters(
+        RequestParametersInterface $requestParameters,
+        int $contactId
+    ): array;
+
+    /**
+     * Check if a user is editor on a dashboard.
+     *
+     * @param int $dashboardId
+     * @param ContactInterface $contact
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsAsEditor(int $dashboardId, ContactInterface $contact): bool;
 }

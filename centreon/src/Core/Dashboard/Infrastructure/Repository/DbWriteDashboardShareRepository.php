@@ -149,9 +149,137 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteDashboardShares(int $dashboardId): void
+    {
+        $deleteContactSharesStatement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM dashboard_contact_relation WHERE dashboard_id = :dashboardId
+                SQL
+        ));
+        $deleteContactSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $deleteContactSharesStatement->execute();
+
+        $deleteContactGroupSharesStatement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM dashboard_contactgroup_relation WHERE dashboard_id = :dashboardId
+                SQL
+        ));
+        $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        $deleteContactGroupSharesStatement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteDashboardSharesByContactGroupIds(int $dashboardId, array $contactGroupIds): void
+    {
+        $bind = [];
+        foreach ($contactGroupIds as $key => $contactGroupId) {
+            $bind[':contact_group' . $key] = $contactGroupId;
+        }
+
+        if ([] === $bind) {
+            return;
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $deleteContactGroupSharesStatement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                DELETE FROM dashboard_contactgroup_relation
+                    WHERE dashboard_id = :dashboardId
+                    AND contactgroup_id IN ({$bindTokenAsString})
+                SQL
+        ));
+        $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        foreach ($bind as $token => $contactGroupId) {
+            $deleteContactGroupSharesStatement->bindValue($token, $contactGroupId, \PDO::PARAM_INT);
+        }
+        $deleteContactGroupSharesStatement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteDashboardSharesByContactIds(int $dashboardId, array $contactIds): void
+    {
+        $bind = [];
+        foreach ($contactIds as $key => $contactId) {
+            $bind[':contact' . $key] = $contactId;
+        }
+
+        if ([] === $bind) {
+            return;
+        }
+
+        $bindTokenAsString = implode(', ', array_keys($bind));
+
+        $deleteContactGroupSharesStatement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                DELETE FROM dashboard_contact_relation
+                    WHERE dashboard_id = :dashboardId
+                    AND contact_id IN ({$bindTokenAsString})
+                SQL
+        ));
+        $deleteContactGroupSharesStatement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        foreach ($bind as $token => $contactId) {
+            $deleteContactGroupSharesStatement->bindValue($token, $contactId, \PDO::PARAM_INT);
+        }
+        $deleteContactGroupSharesStatement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addDashboardContactShares(int $dashboardId, array $contactRoles): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    INSERT INTO dashboard_contact_relation (`dashboard_id`,`contact_id`,`role`)
+                    VALUES (:dashboardId,:contactId,:role)
+                SQL
+        ));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        foreach ($contactRoles as $contactRole) {
+            $statement->bindValue(':contactId', $contactRole->getId());
+            $statement->bindValue(
+                ':role',
+                DashboardSharingRoleConverter::toString($contactRole->getRole()),
+                \PDO::PARAM_STR
+            );
+            $statement->execute();
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addDashboardContactGroupShares(int $dashboardId, array $contactGroupRoles): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    INSERT INTO dashboard_contactgroup_relation (`dashboard_id`,`contactgroup_id`,`role`)
+                    VALUES (:dashboardId,:contactGroupId,:role)
+                SQL
+        ));
+        $statement->bindValue(':dashboardId', $dashboardId, \PDO::PARAM_INT);
+        foreach ($contactGroupRoles as $contactGroupRole) {
+            $statement->bindValue(':contactGroupId', $contactGroupRole->getId());
+            $statement->bindValue(
+                ':role',
+                DashboardSharingRoleConverter::toString($contactGroupRole->getRole()),
+                \PDO::PARAM_STR
+            );
+            $statement->execute();
+        }
+    }
+
+    /**
      * We want to make the conversion between a role and its string table representation here.
      *
-     * @param \Core\Dashboard\Domain\Model\Role\DashboardSharingRole $role
+     * @param DashboardSharingRole $role
      *
      * @return string
      */

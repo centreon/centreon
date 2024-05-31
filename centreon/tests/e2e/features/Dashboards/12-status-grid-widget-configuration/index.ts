@@ -62,7 +62,7 @@ before(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
-  cy.startWebContainer();
+  cy.startContainers();
   cy.enableDashboardFeature();
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-metrics-graph.json'
@@ -142,13 +142,7 @@ before(() => {
   ]);
 
   cy.logoutViaAPI();
-  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
-    ? 'apache'
-    : 'www-data';
-  cy.execInContainer({
-    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
-    name: Cypress.env('dockerName')
-  });
+  cy.applyAcl();
 });
 
 beforeEach(() => {
@@ -190,25 +184,23 @@ afterEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });
 
 Given('a dashboard that includes a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -219,7 +211,7 @@ When(
   'the dashboard administrator user selects a particular status in the displayed resource status list',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -234,20 +226,18 @@ Then(
 
 Given('a dashboard configuring Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -258,7 +248,7 @@ When(
   'the dashboard administrator user updates the displayed resource type of the widget',
   () => {
     cy.get('input[value="service"]').click();
-    cy.get('input[name="ok"]').click();
+    cy.get('input[name="success"]').click();
     cy.wait('@resourceRequest');
   }
 );
@@ -267,8 +257,8 @@ Then(
   'the list of available statuses to display is updated in the configuration properties',
   () => {
     cy.get('input[name="warning"]').should('exist');
-    cy.get('input[name="critical"]').should('exist');
-    cy.get('input[name="unknown"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
   }
 );
@@ -283,14 +273,12 @@ Then(
 
 Given('a dashboard featuring two Status Grid widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatusGridWidgets);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
@@ -303,7 +291,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
-    tag: 'li'
+    tag: 'button'
   }).realClick();
 });
 
@@ -317,13 +305,12 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.default.name)
-      .click();
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
+    cy.contains(dashboards.default.name).click();
   }
 );
 
@@ -332,7 +319,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
   }
 );
 
@@ -348,12 +335,10 @@ Then(
     cy.getByLabel({ label: 'Title' }).should('exist');
     cy.get('input[value="host"]').should('exist');
     cy.get('input[value="service"]').should('exist');
-    cy.get('input[name="up"]').should('exist');
-    cy.get('input[name="down"]').should('exist');
-    cy.get('input[name="unreachable"]').should('exist');
+    cy.get('input[name="success"]').should('exist');
+    cy.get('input[name="problem"]').should('exist');
+    cy.get('input[name="undefined"]').should('exist');
     cy.get('input[name="pending"]').should('exist');
-    cy.get('input[name="acknowledged"]').should('exist');
-    cy.get('input[name="in_downtime"]').should('exist');
     cy.get('input[value="status_severity_code"]').should('exist');
     cy.get('input[value="name"]').should('exist');
   }
@@ -370,6 +355,7 @@ When(
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
+    cy.get('input[name="success"]').click();
   }
 );
 
@@ -390,20 +376,18 @@ Then("the Status Grid widget is added in the dashboard's layout", () => {
 
 Given('a dashboard with a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
   cy.getByLabel({
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -430,14 +414,12 @@ Then('the Status Grid widget displays up to that number of tiles', () => {
 
 Given('a dashboard having a configured Status Grid widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statusGridWidget);
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
-  cy.getByLabel({
-    label: 'view',
-    tag: 'button'
-  })
-    .contains(dashboards.default.name)
-    .click();
+  cy.contains(dashboards.default.name).click();
 });
 
 When(
@@ -447,9 +429,10 @@ When(
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-    cy.wait('@resourceRequest');
   }
 );
 

@@ -12,7 +12,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup PHP
-      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+      uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
       with:
         php-version: 8.1
       env:
@@ -24,7 +24,7 @@ runs:
       shell: bash
 
     - name: Cache vendor directory
-      uses: actions/cache/save@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ${{ inputs.base_directory }}/vendor
         key: ${{ inputs.cache_key }}

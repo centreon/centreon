@@ -1,0 +1,21 @@
+get:
+  tags:
+    - Notification
+  summary: "List methods and contacts by notification id"
+  description: |
+    Return a list of notification methods/channels and contacts by notification id.
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: "Schema/NotifiableRule.yaml"
+    '304':
+      $ref: "../../../Common/Response/NotModified.yaml"
+    '400':
+      $ref: "../../../Common/Response/BadRequest.yaml"
+    '403':
+      $ref: "../../../Common/Response/Forbidden.yaml"
+    '500':
+      $ref: "../../../Common/Response/InternalServerError.yaml"

@@ -1,5 +1,5 @@
 name: "rpm-delivery"
-description: "Package RPM Centreon"
+description: "Deliver rpm packages"
 inputs:
   module_name:
     description: "The package module name"
@@ -8,7 +8,7 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   version:
-    description: "Centreon packaged version"
+    description: "Centreon packaged major version"
     required: true
   cache_key:
     description: "The cached package key"
@@ -19,28 +19,33 @@ inputs:
   artifactory_token:
     description: "Artifactory token"
     required: true
+  release_type:
+    description: "Type of release (hotfix, release)"
+    required: true
+  release_cloud:
+    description: "Release context (cloud or not cloud)"
+    required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache RPM files
-      uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@0f30b43d62ccad81fba40748d2c671c4665b2d27 # v3.5.3
+    - uses: jfrog/setup-jfrog-cli@26da2259ee7690e63b5410d7451b2938d08ce1f9 # v4.0.0
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish RPMs
       run: |
-        FILES="*.rpm"
+        set -eux
 
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        FILES="*.rpm"
 
         if [ -z "${{ inputs.module_name }}" ]; then
           echo "module name is required"
@@ -52,8 +57,24 @@ runs:
           exit 1
         fi
 
+        # DEBUG
+        echo "[DEBUG] - Version: ${{ inputs.version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
+        echo "[DEBUG] - release_cloud: ${{ inputs.release_cloud }}"
+        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
+        echo "[DEBUG] - stability: ${{ inputs.stability }}"
+
+        # Make sure all required inputs are NOT empty
+        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z ${{ inputs.release_cloud }} || -z ${{ inputs.release_type }} ]]; then
+          echo "Some mandatory inputs are empty, please check the logs."
+          exit 1
+        fi
+
+        # Create ARCH dirs
         mkdir noarch x86_64
 
+        # Get ARCH target for files to deliver and regroupe them by ARCH
         for FILE in $FILES; do
           echo "[DEBUG] - File: $FILE"
 
@@ -64,21 +85,48 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        if [ "${{ inputs.stability }}" == "pkgtest" ]; then
-          ROOT_REPO_PATH="installers"
-          jf rt upload "*.deb" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/" --flat
-          exit 0
+        # Build upload target path based on release_cloud and release_type values
+        # if cloud + hotfix or cloud + release, deliver to internal testing-<release_type>
+        # if cloud + develop, delivery to internal unstable
+        # if non-cloud, delivery to onprem testing or unstable
+
+        # CLOUD + HOTFIX + REPO STANDARD INTERNAL OR CLOUD + RELEASE + REPO STANDARD INTERNAL
+        if [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} == "hotfix" ]] || [[ ${{ inputs.release_type }} == "release" ]]); then
+          echo "[DEBUG] : Release cloud + ${{ inputs.release_type }}, using rpm-standard-internal."
+          ROOT_REPO_PATHS="rpm-standard-internal"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
+
+        # CLOUD + NOT HOTFIX OR CLOUD + NOT RELEASE + REPO STANDARD INTERNAL
+        elif [[ ${{ inputs.release_cloud }} -eq 1 ]] && ([[ ${{ inputs.release_type }} != "hotfix" ]] || [[ ${{ inputs.release_type }} != "release" ]]); then
+          echo "[DEBUG] : Release cloud + NOT ${{ inputs.release_type }}, using rpm-standard-internal."
+          ROOT_REPO_PATHS="rpm-standard-internal"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
+
+        # NON-CLOUD + (HOTFIX OR RELEASE) + REPO STANDARD
+        elif [[ ${{ inputs.release_cloud }} -eq 0 ]]; then
+          echo "[DEBUG] : NOT Release cloud + ${{ inputs.release_type }}, using rpm-standard."
+          ROOT_REPO_PATHS="rpm-standard"
+          UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
+
+        # ANYTHING ELSE
+        else
+          echo "::error:: Invalid combination of release_type [${{ inputs.release_type }}] and release_cloud [${{ inputs.release_cloud }}]"
+          exit 1
         fi
 
-        for ROOT_REPO_PATH in "rpm-standard" "rpm-standard-internal"; do
+        # Deliver based on inputs
+        for ROOT_REPO_PATH in "$ROOT_REPO_PATHS"; do
           for ARCH in "noarch" "x86_64"; do
             if [ "$(ls -A $ARCH)" ]; then
               if [ "${{ inputs.stability }}" == "stable" ]; then
-                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/${{ inputs.module_name }}/" --flat
+                echo "[DEBUG] - Stability is ${{ inputs.stability }}, not delivering."
+              elif [ "${{ inputs.stability }}" == "testing" ]; then
+                jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat
               else
                 jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --sync-deletes="$ROOT_REPO_PATH/${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/" --flat
               fi
             fi
           done
         done
+
       shell: bash

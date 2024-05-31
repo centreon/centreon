@@ -531,7 +531,8 @@ class CentreonHostGroupService extends CentreonObject
         );
         echo "macro name;macro value\n";
         foreach ($macroList as $macro) {
-            echo $macro['svc_macro_name'] . $this->delim . $macro['svc_macro_value'] . "\n";
+            echo $this->csvEscape($macro['svc_macro_name']) . $this->delim
+                . $this->csvEscape($macro['svc_macro_value']) . "\n";
         }
     }
 

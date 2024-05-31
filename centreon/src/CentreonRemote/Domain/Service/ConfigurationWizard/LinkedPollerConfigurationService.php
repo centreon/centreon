@@ -87,7 +87,7 @@ class LinkedPollerConfigurationService
      *
      * @param PollerInteractionService $pollerInteractionService the poller interaction service
      */
-    public function setPollerInteractionService(pollerInteractionService $pollerInteractionService): void
+    public function setPollerInteractionService(PollerInteractionService $pollerInteractionService): void
     {
         $this->pollerInteractionService = $pollerInteractionService;
     }

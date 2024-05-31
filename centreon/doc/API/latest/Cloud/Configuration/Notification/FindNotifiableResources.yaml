@@ -1,0 +1,30 @@
+get:
+  tags:
+    - Notification
+  summary: "List all resources and events triggering a notification rule"
+  description: |
+    Return all resources: hosts, services, business activities and configured events
+    triggering a notification rule.
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              uid:
+                type: string
+                example: "547a4e6270e51d63b23b982097aa8386"
+              result:
+                type: array
+                items:
+                  $ref: "Schema/NotifiableResources.Listing.yaml"
+    '304':
+      $ref: "../../../Common/Response/NotModified.yaml"
+    '400':
+      $ref: "../../../Common/Response/BadRequest.yaml"
+    '403':
+      $ref: "../../../Common/Response/Forbidden.yaml"
+    '500':
+      $ref: "../../../Common/Response/InternalServerError.yaml"

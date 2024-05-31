@@ -1,0 +1,36 @@
+type: object
+required:
+  - contacts
+  - contact_groups
+
+properties:
+
+  contacts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: int
+          description: "Contact ID"
+          example: 1
+        role:
+          type: string
+          enum: [ viewer, editor ]
+          description: "The role of the contact for this dashboard."
+          example: "viewer"
+
+  contact_groups:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: int
+          description: "Contact ID"
+          example: 1
+        role:
+          type: string
+          enum: [ viewer, editor ]
+          description: "The role of the contact for this dashboard."
+          example: "viewer"

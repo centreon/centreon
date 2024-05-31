@@ -27,7 +27,6 @@ use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Security\Domain\Authentication\Exceptions\ProviderException;
@@ -42,7 +41,6 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @param AuthenticationRepositoryInterface $authenticationRepository
      * @param SessionRepositoryInterface $sessionRepository
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
      * @param ReadConfigurationRepositoryInterface $readConfigurationFactory
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      * @param ReadTokenRepositoryInterface $readTokenRepository
@@ -50,7 +48,6 @@ class AuthenticationService implements AuthenticationServiceInterface
     public function __construct(
         private AuthenticationRepositoryInterface $authenticationRepository,
         private SessionRepositoryInterface $sessionRepository,
-        private WriteTokenRepositoryInterface $writeTokenRepository,
         private ReadConfigurationRepositoryInterface $readConfigurationFactory,
         private ProviderAuthenticationFactoryInterface $providerFactory,
         private ReadTokenRepositoryInterface $readTokenRepository
@@ -113,18 +110,6 @@ class AuthenticationService implements AuthenticationServiceInterface
             $this->sessionRepository->deleteSession($sessionToken);
         } catch (\Exception $ex) {
             throw AuthenticationException::deleteSession($ex);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function deleteExpiredSecurityTokens(): void
-    {
-        try {
-            $this->writeTokenRepository->deleteExpiredSecurityTokens();
-        } catch (\Exception $ex) {
-            throw AuthenticationException::deleteExpireToken($ex);
         }
     }
 

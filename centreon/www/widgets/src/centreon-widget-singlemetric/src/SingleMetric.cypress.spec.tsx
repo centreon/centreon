@@ -1,14 +1,15 @@
-import { createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
-import { Method } from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { Data } from '../../models';
+import { getPublicWidgetEndpoint } from '../../utils';
 
 import { FormThreshold, ValueFormat } from './models';
 import { graphEndpoint } from './api/endpoints';
-
-import Widget from '.';
+import Graph from './Graph';
 
 const panelData: Data = {
   metrics: [
@@ -108,10 +109,11 @@ const emptyServiceMetrics: Data = {
 interface Props {
   data?: Data;
   fixture?: string;
+  isPublic?: boolean;
   options?: {
+    displayType: 'text' | 'gauge' | 'bar';
     refreshInterval: 'default' | 'custom';
     refreshIntervalCustom?: number;
-    singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
     valueFormat: ValueFormat;
   };
@@ -120,14 +122,16 @@ interface Props {
 const initializeComponent = ({
   data = panelData,
   options = {
+    displayType: 'text',
     refreshInterval: 'default',
-    singleMetricGraphType: 'text',
     threshold: defaultThreshold,
     valueFormat: 'human'
   },
-  fixture = 'Widgets/Graph/lineChart.json'
+  fixture = 'Widgets/Graph/lineChart.json',
+  isPublic = false
 }: Props): void => {
   const store = createStore();
+  store.set(isOnPublicPageAtom, isPublic);
 
   cy.viewport('macbook-11');
 
@@ -138,36 +142,71 @@ const initializeComponent = ({
       path: `${graphEndpoint}**`,
       response: lineChart
     });
+
+    cy.interceptAPIRequest({
+      alias: 'getPublicWidget',
+      method: Method.GET,
+      path: `./api/latest${getPublicWidgetEndpoint({
+        dashboardId: 1,
+        playlistHash: 'hash',
+        widgetId: '1'
+      })}`,
+      response: lineChart
+    });
   });
+
+  const panelOptions = {
+    ...options,
+    refreshInterval: 'default',
+    refreshIntervalCustom: 15
+  };
 
   cy.mount({
     Component: (
-      <div style={{ height: '400px', width: '100%' }}>
-        <Widget
-          globalRefreshInterval={{
-            interval: null,
-            type: 'global'
-          }}
-          panelData={data}
-          panelOptions={{
-            ...options,
-            refreshInterval: 'default',
-            refreshIntervalCustom: 15
-          }}
-          refreshCount={0}
-          store={store}
-        />
-      </div>
+      <TestQueryProvider>
+        <Provider store={store}>
+          <div style={{ height: '400px', width: '100%' }}>
+            <Graph
+              globalRefreshInterval={{
+                interval: null,
+                type: 'global'
+              }}
+              refreshCount={0}
+              {...data}
+              {...panelOptions}
+              dashboardId={1}
+              id="1"
+              isFromPreview={false}
+              playlistHash="hash"
+            />
+          </div>
+        </Provider>
+      </TestQueryProvider>
     )
   });
 };
+
+describe('Public widget', () => {
+  it('sends a request to the public API when the widget is displayed in a public page', () => {
+    initializeComponent({
+      isPublic: true,
+      options: {
+        displayType: 'text',
+        threshold: defaultThreshold,
+        valueFormat: 'human'
+      }
+    });
+
+    cy.waitForRequest('@getPublicWidget');
+  });
+});
 
 describe('Single metric Widget', () => {
   it('displays a message when the widget has no metric', () => {
     initializeComponent({
       data: emptyServiceMetrics,
       options: {
-        singleMetricGraphType: 'text',
+        displayType: 'text',
         threshold: disabledThreshold
       }
     });
@@ -180,7 +219,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as success and thresholds when thresholds are enabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: defaultThreshold,
           valueFormat: 'human'
         }
@@ -204,7 +243,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value with the default color when thresholds are disabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: disabledThreshold,
           valueFormat: 'human'
         }
@@ -220,7 +259,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as warning when the warning threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: warningThreshold,
           valueFormat: 'human'
         }
@@ -234,7 +273,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as critical when the critical threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: criticalThreshold,
           valueFormat: 'human'
         }
@@ -250,7 +289,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as critical when the critical threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: criticalThreshold,
           valueFormat: 'human'
         }
@@ -268,7 +307,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: defaultThreshold,
           valueFormat: 'human'
         }
@@ -282,7 +321,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'text',
+          displayType: 'text',
           threshold: defaultThreshold,
           valueFormat: 'raw'
         }
@@ -296,7 +335,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value with the default color and thresholds when thresholds are enabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: defaultThreshold
         }
       });
@@ -330,7 +369,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value with the default color when thresholds are disabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: disabledThreshold
         }
       });
@@ -347,7 +386,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as warning when the warning threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: warningThreshold
         }
       });
@@ -366,7 +405,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as critical when the critical threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: criticalThreshold
         }
       });
@@ -389,7 +428,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: defaultThreshold,
           valueFormat: 'human'
         }
@@ -403,7 +442,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'bar',
+          displayType: 'bar',
           threshold: defaultThreshold,
           valueFormat: 'raw'
         }
@@ -417,7 +456,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as success and thresholds when thresholds are enabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: defaultThreshold
         }
       });
@@ -450,7 +489,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value with the default color when thresholds are disabled', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: disabledThreshold
         }
       });
@@ -466,7 +505,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as warning when the warning threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: warningThreshold
         }
       });
@@ -480,7 +519,7 @@ describe('Single metric Widget', () => {
     it('displays the metric value as critical when the critical threshold is customized', () => {
       initializeComponent({
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: criticalThreshold
         }
       });
@@ -499,7 +538,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: defaultThreshold,
           valueFormat: 'human'
         }
@@ -513,7 +552,7 @@ describe('Single metric Widget', () => {
         data: diskUsedMetricData,
         fixture: 'Widgets/Graph/chartWithBytes.json',
         options: {
-          singleMetricGraphType: 'gauge',
+          displayType: 'gauge',
           threshold: defaultThreshold,
           valueFormat: 'raw'
         }

@@ -7,8 +7,8 @@ export const useFormInputStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   contactsAndContactGroupsDivider: {
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1)
+    marginBottom: theme.spacing(3),
+    marginTop: theme.spacing(3)
   },
   resourceSelection: {
     display: 'flex',

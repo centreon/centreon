@@ -5,19 +5,24 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import { dashboardsEndpoint } from '../../../api/endpoints';
+import {
+  dashboardsEndpoint,
+  getPublicDashboardEndpoint
+} from '../../../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../../../api/models';
-import { dashboardDecoder } from '../../../api/decoders';
+import {
+  dashboardDecoder,
+  publicDashboardDecoder
+} from '../../../api/decoders';
 import { FederatedModule } from '../../../../federatedModules/models';
-import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 import { useDashboardUserPermissions } from '../../../components/DashboardLibrary/DashboardUserPermissions/useDashboardUserPermissions';
 import { Panel, PanelConfiguration } from '../models';
 import {
   dashboardAtom,
   dashboardRefreshIntervalAtom,
   hasEditPermissionAtom,
-  isEditingAtom,
   panelsLengthAtom
 } from '../atoms';
 
@@ -69,27 +74,36 @@ export const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
 
 type UseDashboardDetailsProps = {
   dashboardId: string | number | null;
+  isOnPublicPage: boolean;
+  playlistHash?: string;
   suspense?: false;
   viewOnly?: boolean;
 };
 
 const useDashboardDetails = ({
   dashboardId,
-  viewOnly
+  viewOnly,
+  isOnPublicPage,
+  playlistHash
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
   const setPanelsLength = useSetAtom(panelsLengthAtom);
   const setHasEditPermission = useSetAtom(hasEditPermissionAtom);
   const setDashboardRefreshInterval = useSetAtom(dashboardRefreshIntervalAtom);
-  const setIsEditing = useSetAtom(isEditingAtom);
+
+  const decoder = isOnPublicPage ? publicDashboardDecoder : dashboardDecoder;
+  const endpoint =
+    isOnPublicPage && playlistHash
+      ? getPublicDashboardEndpoint({ dashboardId, playlistID: playlistHash })
+      : `${dashboardsEndpoint}/${dashboardId}`;
 
   const { data: dashboard } = useFetchQuery({
-    decoder: dashboardDecoder,
-    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
+    decoder,
+    getEndpoint: () => endpoint,
     getQueryKey: () => [resource.dashboard, dashboardId],
     queryOptions: {
-      enabled: !!dashboardId
+      enabled: !!(playlistHash || dashboardId)
     }
   });
 
@@ -119,7 +133,6 @@ const useDashboardDetails = ({
 
   useEffect(() => {
     return () => {
-      setIsEditing(false);
       setDashboardRefreshInterval(undefined);
     };
   }, []);

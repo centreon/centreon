@@ -27,10 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
-use Core\Security\Vault\Application\Repository\{
-    ReadVaultConfigurationRepositoryInterface,
-    ReadVaultRepositoryInterface
-};
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class FindVaultConfiguration
@@ -39,23 +36,19 @@ final class FindVaultConfiguration
 
     /**
      * @param ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository
-     * @param ReadVaultRepositoryInterface $readVaultRepository
      * @param ContactInterface $user
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ContactInterface $user
     ) {
     }
 
     /**
      * @param PresenterInterface $presenter
-     * @param FindVaultConfigurationRequest $findVaultConfigurationRequest
      */
     public function __invoke(
         PresenterInterface $presenter,
-        FindVaultConfigurationRequest $findVaultConfigurationRequest
     ): void {
         try {
             if (! $this->user->isAdmin()) {
@@ -67,26 +60,8 @@ final class FindVaultConfiguration
                 return;
             }
 
-            if (! $this->readVaultRepository->exists($findVaultConfigurationRequest->vaultId)) {
-                $this->error('Vault provider not found', ['id' => $findVaultConfigurationRequest->vaultId]);
-                $presenter->setResponseStatus(
-                    new NotFoundResponse('Vault provider')
-                );
-
-                return;
-            }
-
-            if (
-                ! $this->readVaultConfigurationRepository->exists(
-                    $findVaultConfigurationRequest->vaultConfigurationId
-                )
-            ) {
-                $this->error(
-                    'Vault configuration not found',
-                    [
-                        'id' => $findVaultConfigurationRequest->vaultConfigurationId,
-                    ]
-                );
+            if (! $this->readVaultConfigurationRepository->exists()) {
+                $this->error('Vault configuration not found');
                 $presenter->setResponseStatus(
                     new NotFoundResponse('Vault configuration')
                 );
@@ -95,9 +70,7 @@ final class FindVaultConfiguration
             }
 
             /** @var VaultConfiguration $vaultConfiguration */
-            $vaultConfiguration = $this->readVaultConfigurationRepository->findById(
-                $findVaultConfigurationRequest->vaultConfigurationId
-            );
+            $vaultConfiguration = $this->readVaultConfigurationRepository->find();
 
             $presenter->present($this->createResponse($vaultConfiguration));
         } catch (\Throwable $ex) {
@@ -119,9 +92,7 @@ final class FindVaultConfiguration
     private function createResponse(VaultConfiguration $vaultConfiguration): FindVaultConfigurationResponse
     {
         $findVaultConfigurationResponse = new FindVaultConfigurationResponse();
-        $findVaultConfigurationResponse->vaultConfiguration['id'] = $vaultConfiguration->getId();
         $findVaultConfigurationResponse->vaultConfiguration['name'] = $vaultConfiguration->getName();
-        $findVaultConfigurationResponse->vaultConfiguration['vault_id'] = $vaultConfiguration->getVault()->getId();
         $findVaultConfigurationResponse->vaultConfiguration['url'] = $vaultConfiguration->getAddress();
         $findVaultConfigurationResponse->vaultConfiguration['port'] = $vaultConfiguration->getPort();
         $findVaultConfigurationResponse->vaultConfiguration['root_path'] = $vaultConfiguration->getRootPath();

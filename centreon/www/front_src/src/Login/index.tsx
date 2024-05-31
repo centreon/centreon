@@ -8,7 +8,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Typography } from '@mui/material';
 
-import { LoadingSkeleton, WallpaperPage } from '@centreon/ui';
+import { FallbackPage, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
@@ -18,6 +18,7 @@ import useValidationSchema from './validationSchema';
 import { LoginFormValues } from './models';
 import useLogin from './useLogin';
 import {
+  labelAnErrorOccurredDuringAuthentication,
   labelCentreonWallpaper,
   labelLogin,
   labelPoweredByCentreon
@@ -71,14 +72,28 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
-  const { submitLoginForm, providersConfiguration, loginPageCustomisation } =
-    useLogin();
+  const {
+    submitLoginForm,
+    providersConfiguration,
+    loginPageCustomisation,
+    authenticationError,
+    hasForcedProvider
+  } = useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
 
   if (areUserParametersLoaded || isNil(areUserParametersLoaded)) {
     return <MainLoaderWithoutTranslation />;
+  }
+
+  if (authenticationError && hasForcedProvider) {
+    return (
+      <FallbackPage
+        message={authenticationError}
+        title={t(labelAnErrorOccurredDuringAuthentication)}
+      />
+    );
   }
 
   const hasProvidersConfiguration = !isNil(providersConfiguration);

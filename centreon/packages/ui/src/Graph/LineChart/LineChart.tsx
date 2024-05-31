@@ -8,17 +8,16 @@ import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 import { Thresholds as ThresholdsModel } from '../common/models';
+import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
 import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
-import LoadingProgress from './BasicComponents/LoadingProgress';
 import useFilterLines from './BasicComponents/useFilterLines';
 import { useStyles } from './LineChart.styles';
 import Header from './Header';
 import InteractionWithGraph from './InteractiveComponents';
-import TooltipAnchorPoint from './InteractiveComponents/AnchorPoint/TooltipAnchorPoint';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
@@ -31,20 +30,19 @@ import {
   LegendModel
 } from './models';
 import { useIntersection } from './useLineChartIntersection';
-import { CurveType } from './BasicComponents/Lines/models';
 import Thresholds from './BasicComponents/Thresholds';
 import { legendWidth } from './Legend/Legend.styles';
+import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 
 const extraMargin = 10;
 
 interface Props extends LineChartProps {
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
   limitLegend?: false | number;
-  marginBottom: number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
   thresholds?: ThresholdsModel;
@@ -62,7 +60,6 @@ const LineChart = ({
   shapeLines,
   axis,
   displayAnchor,
-  loading,
   zoomPreview,
   graphInterval,
   timeShiftZones,
@@ -72,7 +69,6 @@ const LineChart = ({
   graphRef,
   header,
   curve,
-  marginBottom,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -103,8 +99,7 @@ const LineChart = ({
     (height || 0) > 0
       ? (height || 0) -
         margin.top -
-        margin.bottom -
-        marginBottom -
+        5 -
         (legendRef.current?.getBoundingClientRect().height || 0)
       : 0;
 
@@ -185,131 +180,122 @@ const LineChart = ({
 
   return (
     <>
-      <Header
-        displayTimeTick={displayAnchor?.displayGuidingLines ?? true}
-        header={header}
-        timeSeries={timeSeries}
-        title={title}
-        xScale={xScale}
-      />
+      <Header header={header} title={title} />
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
-        <div className={classes.container}>
-          <LoadingProgress
-            display={loading}
-            height={graphHeight}
-            width={width}
-          />
-          <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
-            <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
-              <Grids
-                height={graphHeight - margin.top}
-                leftScale={leftScale}
-                width={graphWidth}
-                xScale={xScale}
-              />
-              <Axes
-                data={{
-                  baseAxis,
-                  lines: displayedLines,
-                  timeSeries,
-                  ...axis
-                }}
-                graphInterval={graphInterval}
-                height={graphHeight - margin.top}
-                leftScale={leftScale}
-                rightScale={rightScale}
-                width={graphWidth}
-                xScale={xScale}
-              />
-
-              <Lines
-                curve={curve}
-                displayAnchor={displayAnchor}
-                displayedLines={displayedLines}
-                graphSvgRef={graphSvgRef}
-                height={graphHeight - margin.top}
-                leftScale={leftScale}
-                rightScale={rightScale}
-                timeSeries={timeSeries}
-                width={graphWidth}
-                xScale={xScale}
-                {...shapeLines}
-              />
-
-              <InteractionWithGraph
-                annotationData={{ ...annotationEvent }}
-                commonData={{
-                  graphHeight,
-                  graphSvgRef,
-                  graphWidth,
-                  timeSeries,
-                  xScale
-                }}
-                timeShiftZonesData={{
-                  ...timeShiftZones,
-                  graphInterval,
-                  loading
-                }}
-                zoomData={{ ...zoomPreview }}
-              />
-
-              {thresholds?.enabled && (
-                <Thresholds
-                  displayedLines={displayedLines}
-                  hideTooltip={hideThresholdTooltip}
+        <MuiTooltip
+          classes={{
+            tooltip: classes.graphValueTooltip
+          }}
+          placement="top-start"
+          title={<GraphValueTooltip base={baseAxis} />}
+        >
+          <div className={classes.container}>
+            <svg
+              height={graphHeight + margin.top}
+              ref={graphSvgRef}
+              width="100%"
+            >
+              <Group.Group
+                left={margin.left + extraMargin / 2}
+                top={margin.top}
+              >
+                <Grids
+                  height={graphHeight - margin.top}
+                  leftScale={leftScale}
+                  width={graphWidth}
+                  xScale={xScale}
+                />
+                <Axes
+                  data={{
+                    baseAxis,
+                    lines: displayedLines,
+                    timeSeries,
+                    ...axis
+                  }}
+                  graphInterval={graphInterval}
+                  height={graphHeight - margin.top}
                   leftScale={leftScale}
                   rightScale={rightScale}
-                  showTooltip={showThresholdTooltip}
-                  thresholdUnit={thresholdUnit}
-                  thresholds={thresholds as ThresholdsModel}
                   width={graphWidth}
+                  xScale={xScale}
                 />
-              )}
-            </Group.Group>
-          </svg>
-          {displayTooltip && (
-            <GraphTooltip {...tooltip} {...graphTooltipData} />
-          )}
-          {(displayAnchor?.displayTooltipsGuidingLines ?? true) && (
-            <TooltipAnchorPoint
-              baseAxis={baseAxis}
-              graphHeight={graphHeight - 35}
-              graphWidth={graphWidth}
-              leftScale={leftScale}
-              lines={displayedLines}
-              rightScale={rightScale}
-              timeSeries={timeSeries}
-              xScale={xScale}
-            />
-          )}
-          <Fade in={thresholdTooltipOpen}>
-            <Tooltip.Tooltip
-              left={thresholdTooltipLeft}
-              style={{
-                ...baseStyles,
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.text.primary,
-                transform: `translate(${graphWidth / 2}px, -10px)`
-              }}
-              top={thresholdTooltipTop}
-            >
-              {thresholdTooltipData}
-            </Tooltip.Tooltip>
-          </Fade>
-        </div>
+
+                <Lines
+                  curve={curve}
+                  displayAnchor={displayAnchor}
+                  displayedLines={displayedLines}
+                  graphSvgRef={graphSvgRef}
+                  height={graphHeight - margin.top}
+                  leftScale={leftScale}
+                  rightScale={rightScale}
+                  timeSeries={timeSeries}
+                  width={graphWidth}
+                  xScale={xScale}
+                  {...shapeLines}
+                />
+
+                <InteractionWithGraph
+                  annotationData={{ ...annotationEvent }}
+                  commonData={{
+                    graphHeight,
+                    graphSvgRef,
+                    graphWidth,
+                    leftScale,
+                    lines: displayedLines,
+                    rightScale,
+                    timeSeries,
+                    xScale
+                  }}
+                  timeShiftZonesData={{
+                    ...timeShiftZones,
+                    graphInterval
+                  }}
+                  zoomData={{ ...zoomPreview }}
+                />
+
+                {thresholds?.enabled && (
+                  <Thresholds
+                    displayedLines={displayedLines}
+                    hideTooltip={hideThresholdTooltip}
+                    leftScale={leftScale}
+                    rightScale={rightScale}
+                    showTooltip={showThresholdTooltip}
+                    thresholdUnit={thresholdUnit}
+                    thresholds={thresholds as ThresholdsModel}
+                    width={graphWidth}
+                  />
+                )}
+              </Group.Group>
+            </svg>
+            {displayTooltip && (
+              <GraphTooltip {...tooltip} {...graphTooltipData} />
+            )}
+            <Fade in={thresholdTooltipOpen}>
+              <Tooltip.Tooltip
+                left={thresholdTooltipLeft}
+                style={{
+                  ...baseStyles,
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  transform: `translate(${graphWidth / 2}px, -10px)`
+                }}
+                top={thresholdTooltipTop}
+              >
+                {thresholdTooltipData}
+              </Tooltip.Tooltip>
+            </Fade>
+          </div>
+        </MuiTooltip>
       </ClickAwayListener>
       {displayLegend && (
         <div ref={legendRef}>
           <Legend
             base={baseAxis}
-            displayAnchor={displayAnchor?.displayGuidingLines ?? true}
             limitLegend={limitLegend}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
-            timeSeries={timeSeries}
-            xScale={xScale}
           />
         </div>
       )}

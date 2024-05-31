@@ -4,6 +4,7 @@ const defaultUser: User = {
   alias: '',
   default_page: '/monitoring/resources',
   id: undefined,
+  isAdmin: undefined,
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',

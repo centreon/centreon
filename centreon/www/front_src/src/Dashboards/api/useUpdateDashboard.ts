@@ -39,7 +39,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       _meta: {
         id: variables.id
       },
-      ...pick(['name', 'description', 'refresh'], variables)
+      payload: pick(['name', 'description', 'refresh'], variables)
     });
 
   return {

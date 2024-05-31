@@ -39,6 +39,7 @@ use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardPresenterStub();
@@ -48,13 +49,14 @@ beforeEach(function (): void {
         $this->readDashboardRelationRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->contact = $this->createMock(ContactInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->isCloudPlatform = false
     );
 
     $this->testedDashboard = new Dashboard(
         $this->testedDashboardId = random_int(1, 1_000_000),
         $this->testedDashboardName = uniqid('name', true),
-        $this->testedDashboardDescription = uniqid('description', true),
         $this->testedDashboardCreatedBy = random_int(1, 1_000_000),
         $this->testedDashboardUpdatedBy = random_int(1, 1_000_000),
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
@@ -163,7 +165,7 @@ it(
             ->and($dashboard->createdBy->name)->toBe($creator)
             ->and($dashboard->updatedBy->id)->toBe($this->testedDashboardUpdatedBy)
             ->and($dashboard->updatedBy->name)->toBe($updater)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
@@ -185,7 +187,7 @@ it(
         expect($dashboard)->toBeInstanceOf(FindDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
@@ -209,7 +211,7 @@ it(
         expect($dashboard)->toBeInstanceOf(FindDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
-            ->and($dashboard->description)->toBe($this->testedDashboardDescription)
+            ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }

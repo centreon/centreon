@@ -1,0 +1,104 @@
+{
+    "result": [
+        {
+            "name": "test",
+            "user": {
+                "id": 18,
+                "name": "User"
+            },
+            "creator": {
+                "id": 1,
+                "name": "paul"
+            },
+            "creation_date": "2024-02-20T15:04:33+01:00",
+            "expiration_date": "2024-03-28T15:04:33+01:00",
+            "is_revoked": false
+        },
+        {
+            "name": "token1",
+            "user": {
+                "id": 17,
+                "name": "Guest"
+            },
+            "creator": {
+                "id": 1,
+                "name": "paul"
+            },
+            "creation_date": "2024-02-20T15:04:33+01:00",
+            "expiration_date": "2024-03-28T15:04:33+01:00",
+            "is_revoked": false
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+            "$and": [
+                {
+                    "$or": [
+                        {
+                            "creator.id": {
+                                "$rg": "1"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "$or": [
+                        {
+                            "creator.name": {
+                                "$rg": "admin\\s+admin"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "$or": [
+                        {
+                            "token_name": {
+                                "$rg": "test"
+                            }
+                        },
+                        {
+                            "token_name": {
+                                "$rg": "token1"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "$or": [
+                        {
+                            "user.id": {
+                                "$rg": "18"
+                            }
+                        },
+                        {
+                            "user.id": {
+                                "$rg": "17"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "$or": [
+                        {
+                            "user.name": {
+                                "$rg": "User"
+                            }
+                        },
+                        {
+                            "user.name": {
+                                "$rg": "Guest"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "sort_by": {
+            "token_name": "ASC"
+        },
+        "total": 2
+    }
+}

@@ -5382,7 +5382,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}&fields=service_id",
+									"raw": "http://{{url}}/centreon/api/index.php?action=list&object=centreon_realtime_services&limit={{my_limit}}&fields=service_id&sortType=service_id",
 									"protocol": "http",
 									"host": [
 										"{{url}}"
@@ -5407,6 +5407,10 @@
 										},
 										{
 											"key": "fields",
+											"value": "service_id"
+										},
+										{
+											"key": "sortType",
 											"value": "service_id"
 										}
 									]

@@ -24,11 +24,8 @@ import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-import {
-  singleHostPerMetricAtom,
-  singleMetricSelectionAtom
-} from '../../../atoms';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { widgetPropertiesAtom } from '../../../atoms';
 
 import useMetrics from './useMetrics';
 import { useMetricsStyles } from './Metrics.styles';
@@ -55,12 +52,12 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     hasReachedTheLimitOfUnits,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
-    renderOptionsForMultipleMetricsAndResources
+    renderOptionsForMultipleMetricsAndResources,
+    getMetricOptionDisabled
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
-  const singleMetricSelection = useAtomValue(singleMetricSelectionAtom);
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
 
   const canDisplayMetricsSelection =
     areResourcesFullfilled(resources) && !hasTooManyMetrics;
@@ -72,14 +69,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const warningMessages = [
     error && isTouched && error,
-    hasReachedTheLimitOfUnits && (
-      <>
-        <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
-        <br />
-        <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
-      </>
-    ),
-    singleMetricSelection && metricWithSeveralResources && (
+    widgetProperties?.singleMetricSelection && metricWithSeveralResources && (
       <>
         <strong>{metricWithSeveralResources}</strong>{' '}
         {t(labelIsTheSelectedResource)}
@@ -101,7 +91,8 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <div className={classes.resourcesContainer}>
       {header}
       <div className={classes.resourceComposition}>
-        {singleMetricSelection && singleHostPerMetric ? (
+        {widgetProperties?.singleMetricSelection &&
+        widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
             className={classes.resources}
             disabled={
@@ -131,13 +122,14 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
+            getOptionDisabled={getMetricOptionDisabled}
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
             label={t(labelSelectMetric)}
             options={metrics}
             renderOption={
-              singleMetricSelection
+              widgetProperties?.singleMetricSelection
                 ? renderOptionsForSingleMetric
                 : renderOptionsForMultipleMetricsAndResources
             }
@@ -164,6 +156,13 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             {content}
           </Typography>
         ))}
+        {hasReachedTheLimitOfUnits && (
+          <div>
+            <span>{t(labelYouCanSelectUpToTwoMetricUnits)}</span>
+            <br />
+            <span>{t(labelThresholdsAreAutomaticallyHidden)}</span>
+          </div>
+        )}
       </div>
     </div>
   );

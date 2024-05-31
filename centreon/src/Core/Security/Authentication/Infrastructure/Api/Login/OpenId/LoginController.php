@@ -33,13 +33,8 @@ use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
-use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\Exception\ConflictingHeadersException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class LoginController extends AbstractController
 {
@@ -49,19 +44,14 @@ final class LoginController extends AbstractController
      * @param Request $request
      * @param Login $useCase
      * @param LoginPresenter $presenter
-     * @param SessionInterface $session
      *
-     * @throws AuthenticationException
-     * @throws ConflictingHeadersException
-     *
-     * @return View|Response|null
+     * @return View
      */
     public function __invoke(
         Request $request,
         Login $useCase,
         LoginPresenter $presenter,
-        SessionInterface $session
-    ): null|View|Response {
+    ): View {
         $loginRequest = LoginRequest::createForOpenId(
             $request->getClientIp() ?: '',
             (string) $request->query->get('code', '')
@@ -88,18 +78,8 @@ final class LoginController extends AbstractController
                 );
 
             case $response instanceof LoginResponse:
-                if ($response->redirectIsReact()) {
-                    $cookie = Cookie::create('PHPSESSID', $session->getId());
-
-                    return View::createRedirect(
-                        $this->getBaseUrl() . $response->getRedirectUri(),
-                        headers: ['Set-Cookie' => (string) $cookie]
-                    );
-                }
-
                 return View::createRedirect(
-                    $this->getBaseUrl() . '/login',
-                    headers: ['Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri() . ';Max-Age=10']
+                    $this->getBaseUrl() . $response->getRedirectUri(),
                 );
 
             default:

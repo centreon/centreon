@@ -46,7 +46,8 @@ const useUser = (): (() => null | Promise<void>) => {
           use_deprecated_pages: useDeprecatedPages,
           default_page: defaultPage,
           user_interface_density,
-          dashboard
+          dashboard,
+          isAdmin
         } = retrievedUser as User;
 
         setUser({
@@ -54,6 +55,7 @@ const useUser = (): (() => null | Promise<void>) => {
           dashboard,
           default_page: defaultPage || '/monitoring/resources',
           id,
+          isAdmin,
           isExportButtonEnabled,
           locale: locale || 'en',
           name,

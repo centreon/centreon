@@ -10,6 +10,9 @@ Feature:
   Scenario: User filters
     Given I am logged in
 
+    When I send a GET request to '/api/v21.10/users/filters/unknown-page'
+    Then the response code should be "500"
+
     When I send a GET request to '/api/v21.10/users/filters/events-view'
     Then the response code should be "200"
     And the json node "result" should have 0 elements

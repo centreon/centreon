@@ -633,28 +633,29 @@ class CentreonRtDowntime extends CentreonObject
     }
 
     /**
-     * @param $resource
-     * @param $start
-     * @param $end
-     * @param $fixed
-     * @param $duration
-     * @param $comment
+     * @param string $resource
+     * @param string $start
+     * @param string $end
+     * @param int $fixed
+     * @param ?int $duration
+     * @param string $comment
+     *
      * @throws CentreonClapiException
      */
     private function addSgDowntime(
-        $resource,
-        $start,
-        $end,
-        $fixed,
-        $duration,
-        $comment
-    ) {
-        if ($resource === "") {
+        string $resource,
+        string $start,
+        string $end,
+        int $fixed,
+        ?int $duration,
+        string $comment
+    ): void {
+        if ($resource === '') {
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        $existingSg = array();
-        $unknownSg = array();
+        $existingSg = [];
+        $unknownSg = [];
         $listSg = explode('|', $resource);
 
         // check if service exist
@@ -668,7 +669,10 @@ class CentreonRtDowntime extends CentreonObject
 
         if (count($existingSg)) {
             foreach ($existingSg as $sg) {
-                $serviceList = $this->sgObject->getServicesByServicegroupName($sg);
+                $serviceList = [
+                    ...$this->sgObject->getServicesByServicegroupName($sg),
+                    ...$this->sgObject->getServicesThroughtServiceTemplatesByServicegroupName($sg),
+                ];
                 foreach ($serviceList as $service) {
                     $this->externalCmdObj->addSvcDowntime(
                         $service['host'],

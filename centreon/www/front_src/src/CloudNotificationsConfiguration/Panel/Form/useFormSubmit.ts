@@ -63,7 +63,7 @@ const useForm = (): UseFormState => {
       messages: { ...values.messages, formattedMessage: htmlEmailBody }
     });
 
-    return mutateAsync(payload)
+    return mutateAsync({ payload })
       .then((response) => {
         const { isError } = response as ResponseError;
         if (isError) {

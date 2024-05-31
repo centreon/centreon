@@ -1,0 +1,19 @@
+post:
+  tags:
+    - Notification
+  summary: 'Delete multiple notification configurations'
+  description: |
+    Delete multiple notification configurations
+
+    This endpoint is accessible for SaaS platforms only
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "Schema/Notifications.Delete.yaml"
+  responses:
+    '207': { $ref: '../../../Common/Response/MultiStatus.yaml' }
+    '400': { $ref: '../../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }

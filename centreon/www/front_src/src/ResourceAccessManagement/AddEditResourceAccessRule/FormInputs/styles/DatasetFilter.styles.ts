@@ -18,8 +18,14 @@ export const useDatasetFilterStyles = makeStyles()((theme) => ({
     display: 'flex'
   },
   resourceCompositionItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%'
+  },
+  resourceDataset: {
     display: 'grid',
-    gridTemplateColumns: `${theme.spacing(25)} 1fr`
+    gridTemplateColumns: `${theme.spacing(25)} 1fr`,
+    marginBottom: theme.spacing(0.5)
   },
   resourceType: {
     borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`

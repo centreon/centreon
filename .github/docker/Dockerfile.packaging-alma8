@@ -2,6 +2,10 @@ FROM almalinux:8
 
 RUN bash -e <<EOF
 
+dnf module reset -y ruby
+dnf module enable -y ruby:3.0
+dnf install -y ruby
+
 echo '[goreleaser]
 name=GoReleaser
 baseurl=https://repo.goreleaser.com/yum/

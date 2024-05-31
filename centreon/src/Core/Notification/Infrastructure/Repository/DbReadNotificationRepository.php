@@ -164,6 +164,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 FROM `:db`.notification_user_relation
                 JOIN contact ON user_id = contact_id
                 WHERE notification_id = :notificationId
+                ORDER BY contact.contact_name ASC
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -203,6 +204,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             INNER JOIN `:db`.contactgroup cg ON cg.cg_id=cgcr.contactgroup_cg_id
             INNER JOIN `:db`.contact c ON c.contact_id=cgcr.contact_contact_id
             WHERE cg.cg_id IN (:contact_group_ids)
+            ORDER BY c.contact_name ASC
             SQL;
 
         $concatenator = (new SqlConcatenator())
@@ -244,6 +246,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 FROM `:db`.notification_contactgroup_relation
                 JOIN `:db`.contactgroup ON cg_id = contactgroup_id
                 WHERE notification_id = :notificationId
+                ORDER BY contactgroup.cg_name ASC
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -280,7 +283,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         SELECT cg_rel.notification_id, contactgroup_id as user
                         FROM notification_contactgroup_relation cg_rel
                         WHERE cg_rel.notification_id IN ({$bindToken})
-                    ) as subquery GROUP BY notification_id;
+                    ) as subquery GROUP BY notification_id
                     SQL
             )
         );
@@ -309,7 +312,8 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         ON ncr.contactgroup_id = cg.cg_id
                     WHERE ccr.contact_contact_id = :userId
                     AND ncr.notification_id = :notificationId
-                    AND cg_activate = '1';
+                    AND cg_activate = '1'
+                    ORDER BY cg_name ASC
                     SQL
             )
         );

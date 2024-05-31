@@ -16679,55 +16679,10 @@ msgstr ""
 # msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
-# msgstr ""
-
 # msgid "Start"
 # msgstr ""
 
 # msgid "End"
-# msgstr ""
-
-# msgid "Custom value"
-# msgstr ""
-
-# msgid "Last hour"
-# msgstr ""
-
-# msgid "Last 24 hours"
-# msgstr ""
-
-# msgid "Last 7 days"
-# msgstr ""
-
-# msgid "Last 30 days"
-# msgstr ""
-
-# msgid "Last 3 months"
-# msgstr ""
-
-# msgid "Last 6 months"
-# msgstr ""
-
-# msgid "Last 12 months"
 # msgstr ""
 
 # msgid "Start"
@@ -16775,7 +16730,7 @@ msgstr ""
 # msgid "Widget type"
 # msgstr ""
 
-# msgid "Display type"
+# msgid "Display as"
 # msgstr ""
 
 # msgid "Text"
@@ -16886,7 +16841,22 @@ msgstr ""
 # msgid "View widget properties"
 # msgstr ""
 
-# msgid "Dashboard library"
+# msgid "Create dashboard"
+# msgstr ""
+
+# msgid "Create a dashboard"
+# msgstr ""
+
+# msgid "Update dashboard"
+# msgstr ""
+
+# msgid "Dashboard updated"
+# msgstr ""
+
+# msgid "Manage access rights"
+# msgstr ""
+
+# msgid "Select a widget type to activate the preview."
 # msgstr ""
 
 # msgid "Welcome to the Dashboards interface!"
@@ -16938,7 +16908,16 @@ msgstr ""
 # msgid "Time period"
 # msgstr ""
 
-# msgid "Last hour (default)"
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 3 hours"
+# msgstr ""
+
+# msgid "Last 6 hours"
+# msgstr ""
+
+# msgid "Last 12 hours"
 # msgstr ""
 
 # msgid "Last 24 hours"
@@ -16951,6 +16930,9 @@ msgstr ""
 # msgstr ""
 
 # msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
 # msgstr ""
 
 # msgid "Last 12 months"
@@ -17075,10 +17057,10 @@ msgstr ""
 # msgid "Status grid"
 # msgstr ""
 
-# msgid "Displays a status overview for selected resources."
+# msgid "Displays a status overview for selected resources, grouped by hosts or by services."
 # msgstr ""
 
-# msgid "Display with this resource type"
+# msgid "Display resources with this type"
 # msgstr ""
 
 # msgid "Display resources with this status"
@@ -17240,6 +17222,18 @@ msgstr ""
 # msgid "Token has been created"
 # msgstr ""
 
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
+# msgid "You are about to delete the token <b> {{tokenName}}</b>. This action <br> cannot be undone. If you proceed, all requests made using this token will be <br> rejected. Do you want to delete the token?"
+# msgstr ""
+
+# msgid "Delete token"
+# msgstr ""
+
 # msgid "Failed to copy link"
 # msgstr ""
 
@@ -17335,5 +17329,354 @@ msgstr ""
 
 # msgid "Select resource type"
 # msgstr ""
+
 # msgid "Your comment has been saved."
+# msgstr ""
+
+# msgid "Displays data on resource status and events, centralized in a table."
+# msgstr ""
+
+# msgid "Problem (Down/Critical)"
+# msgstr ""
+
+# msgid "Undefined (Unreachable/Unknown)"
+# msgstr ""
+
+# msgid "Add columns"
+# msgstr ""
+
+# msgid "Resource table"
+# msgstr ""
+
+# msgid "Fullscreen (F)"
+# msgstr ""
+
+# msgid "Displays a detailed view of the current status for selected resources as a chart."
+# msgstr ""
+
+# msgid "Status chart"
+# msgstr ""
+
+# msgid "Show value on chart"
+# msgstr ""
+
+# msgid "Number"
+# msgstr ""
+
+# msgid "Show legend"
+# msgstr ""
+
+# msgid "Percentage"
+# msgstr ""
+
+# msgid  "Horizontal bar chart"
+# msgstr ""
+
+# msgid  "Vertical bar chart"
+# msgstr ""
+
+# msgid  "Pie chart"
+# msgstr ""
+
+# msgid  "Donut chart"
+# msgstr ""
+
+# msgid "are working fine"
+# msgstr ""
+
+# msgid "No {{resourcesType}} found with this status"
+# msgstr ""
+
+# msgid "No host found"
+# msgstr ""
+
+# msgid "No service found"
+# msgstr ""
+
+# msgid "are working fine."
+# msgstr ""
+
+# msgid "down"
+# msgstr ""
+
+# msgid "pending"
+# msgstr ""
+
+# msgid "warning"
+# msgstr ""
+
+# msgid "critical"
+# msgstr ""
+
+# msgid "unknown"
+# msgstr ""
+
+# msgid "up"
+# msgstr ""
+
+# msgid "unreachable"
+# msgstr ""
+
+# msgid "Expiration date"
+# msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
+# msgid "The {{name}} widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The widget will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard will be permanently deleted."
+# msgstr ""
+
+# msgid "The {{name}} dashboard is part of one or several playlists. It will be permanently deleted from any playlists it belongs to."
+# msgstr ""
+
+#  msgid "Invalid page name. Valid page names are: %s"
+#  msgstr ""
+
+#  msgid "You are not allowed to access the Resources Status page"
+#  msgstr ""
+
+# msgid "Clear"
+# msgstr ""
+
+# msgid "Fullscreen (Alt+F)"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "Display resources with this unit"
+# msgstr ""
+
+# msgid "Delete rule"
+# msgstr ""
+
+# msgid "is used to allow users to access resources."
+# msgstr ""
+
+# msgid "It will be permanently deleted and users will no longer have this permission"
+# msgstr ""
+
+# msgid "Failed to delete resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule was successfully deleted"
+# msgstr ""
+
+#  msgid "Error while adding a broker output"
+#  msgstr ""
+
+#  msgid "You are not allowed to edit a broker configuration"
+#  msgstr ""
+
+#  msgid "Broker configuration #%d not found"
+#  msgstr ""
+
+#  msgid "Missing output parameter: %s"
+#  msgstr ""
+
+#  msgid "Parameter '%s' (%s) is invalid"
+#  msgstr ""
+
+#  msgid "Parameter '%s' of type %s is invalid"
+#  msgstr ""
+
+#  msgid "Output #%d not found for broker configuration #%d"
+#  msgstr ""
+
+# msgid "Rules are used to allow users to access resources."
+# msgstr ""
+
+# msgid "They will be permanently deleted and users will no longer have these permissions."
+# msgstr ""
+
+# msgid "Delete rules"
+# msgstr ""
+
+# msgid "Delete multiple resource access rules"
+# msgstr ""
+
+# msgid "Failed to delete the selected resource access rules"
+# msgstr ""
+
+# msgid "The selected resource access rules have been deleted successfully"
+# msgstr ""
+
+# msgid "Failed to duplicate the resource access rule"
+# msgstr ""
+
+# msgid "The resource access rule has been successfully duplicated"
+# msgstr ""
+
+# msgid "Resource access rule name"
+# msgstr ""
+
+# msgid "Please enter a name for the resource access rule to duplicate"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "Duplicate dashboard"
+# msgstr ""
+
+# msgid "Delete dashboard"
+# msgstr ""
+
+# msgid "Dashboard deleted"
+# msgstr
+
+# msgid "Dashboard duplicated"
+# msgstr ""
+
+# msgid "Share with contacts"
+# msgstr ""
+
+# msgid "Failed to duplicate the dashboard"
+# msgstr ""
+
+# msgid "All resources"
+# msgstr ""
+
+# msgid "All resources selected"
+# msgstr ""
+
+#  msgid "Error while updating a broker output"
+#  msgstr ""
+
+#  msgid "Action not permitted for output of type '%s'"
+#  msgstr ""
+
+#  msgid "Content is not a valid JSON string"
+#  msgstr ""
+
+#  msgid "An error occurred while creating the file '%s'"
+#  msgstr ""
+
+#  msgid "An error occurred while deleting the file '%s'"
+#  msgstr ""
+
+# msgid "Until"
+# msgstr ""
+
+#  msgid "Displays the distribution of current statuses on selected groups of resources, as a table."
+#  msgstr ""
+
+#  msgid "Group monitoring"
+#  msgstr ""
+
+#  msgid "Display with this view"
+#  msgstr ""
+
+#  msgid "Standard"
+#  msgstr ""
+
+#  msgid "Condensed"
+#  msgstr ""
+
+#  msgid "Success (OK/Up)"
+#  msgstr ""
+
+# msgid "Business Activity Diagram"
+# msgstr ""
+
+# msgid "Displays graphically a business activity hierarchy of KPIs and lets you navigate through it."
+# msgstr ""
+
+# msgid "Display the diagram with this status"
+# msgstr ""
+
+# msgid "Problem (Critical)"
+# msgstr ""
+
+# msgid "Warning"
+# msgstr ""
+
+# msgid "Success (OK)"
+# msgstr ""
+
+# msgid "Link types"
+# msgstr ""
+
+# msgid "Curve"
+# msgstr ""
+
+# msgid "Line"
+# msgstr ""
+
+# msgid "Step"
+# msgstr ""
+
+# msgid "An error occurred during authentication"
+# msgstr ""
+
+# msgid "All hosts selected"
+# msgstr ""
+
+# msgid "All host groups selected"
+# msgstr ""
+
+# msgid "All service groups selected"
+# msgstr ""
+
+# msgid "All hosts"
+# msgstr ""
+
+# msgid "All host groups"
+# msgstr ""
+
+# msgid "All service groups"
+# msgstr ""
+
+# msgid "All contacts"
+# msgstr ""
+
+# msgid "All contacts selected"
+# msgstr ""
+
+# msgid "All contact groups"
+# msgstr ""
+
+# msgid "All contact groups selected"
+# msgstr ""
+
+# msgid "Downloading the performance metrics is not allowed"
+# msgstr ""
+
+# msgid "Business view"
+# msgstr ""
+
+# msgid "All business views"
+# msgstr ""
+
+# msgid "All business views selected"
+# msgstr ""
+
+# msgid "You are not allowed to list contact templates"
+# msgstr ""
+
+# msgid "Graph style"
+# msgstr ""
+
+# msgid "Curve type"
+# msgstr ""
+
+# msgid "Linear"
+# msgstr ""
+
+# msgid "Natural"
+# msgstr ""
+
+# msgid "Error while partially updating the token"
+# msgstr ""
+
+# msgid "You are not allowed to partially update the token"
+# msgstr ""
+
+# msgid "Active/Revoked"
 # msgstr ""

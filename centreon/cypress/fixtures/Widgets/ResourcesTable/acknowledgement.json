@@ -1,0 +1,26 @@
+{
+    "result": [
+        {
+            "id": 1,
+            "host_id": 14,
+            "service_id": 24,
+            "author_id": 1,
+            "author_name": "admin",
+            "comment": "Acknowledged by admin",
+            "deletion_time": null,
+            "entry_time": "2024-01-22T12:02:31+01:00",
+            "is_notify_contacts": false,
+            "is_persistent_comment": true,
+            "is_sticky": true,
+            "state": 3,
+            "type": 1
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "limit": 1,
+        "search": {},
+        "sort_by": {},
+        "total": 1
+    }
+}

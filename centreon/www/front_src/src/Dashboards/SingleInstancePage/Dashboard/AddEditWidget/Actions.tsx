@@ -13,7 +13,7 @@ interface Props {
 const Actions = ({ closeModal }: Props): JSX.Element | null => {
   const { t } = useTranslation();
 
-  const { handleSubmit, isValid, dirty } = useFormikContext();
+  const { handleSubmit, isValid, dirty, isSubmitting } = useFormikContext();
 
   const { canEdit, canEditField } = useCanEditProperties();
 
@@ -21,7 +21,7 @@ const Actions = ({ closeModal }: Props): JSX.Element | null => {
     return null;
   }
 
-  const isDisabled = !dirty || !isValid;
+  const isDisabled = isSubmitting || !dirty || !isValid;
 
   return (
     <Modal.Actions

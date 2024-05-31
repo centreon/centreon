@@ -4,20 +4,32 @@ import { number, object, string } from 'yup';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
+import useRefetch from '../useRefetch';
 
 import FormCreation from './Form';
+import { CreatedToken } from './models';
 import useCreateToken from './useCreateToken';
 
-const TokenCreationDialog = (): JSX.Element => {
+interface Props {
+  closeDialog: () => void;
+  isDialogOpened: boolean;
+}
+
+const TokenCreationDialog = ({
+  closeDialog,
+  isDialogOpened
+}: Props): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
+  const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
+
   const msgError = t(labelFieldRequired);
 
   const validationForm = object({
     duration: object({
       id: string().required(),
       name: string().required()
-    }).required({ msgError }),
+    }).required(msgError),
     tokenName: string().required(),
     user: object().shape({
       id: number().required(),
@@ -42,7 +54,13 @@ const TokenCreationDialog = (): JSX.Element => {
       validationSchema={validationForm}
       onSubmit={submit}
     >
-      <FormCreation data={data} isMutating={isMutating} />
+      <FormCreation
+        closeDialog={closeDialog}
+        data={data}
+        isDialogOpened={isDialogOpened}
+        isMutating={isMutating}
+        isRefetching={isRefetching}
+      />
     </Formik>
   );
 };

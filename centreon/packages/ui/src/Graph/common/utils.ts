@@ -11,8 +11,9 @@ import {
   lte,
   pluck
 } from 'ramda';
+import numeral from 'numeral';
 
-import { Theme } from '@mui/material';
+import { darken, getLuminance, lighten, Theme } from '@mui/material';
 
 import { Thresholds } from './models';
 
@@ -72,4 +73,70 @@ export const getColorFromDataAndTresholds = ({
     [gt(criticalValue), always(theme.palette.warning.main)],
     [T, always(theme.palette.error.main)]
   ])(data);
+};
+
+interface ValueByUnitProps {
+  total: number;
+  unit: 'percentage' | 'number';
+  value: number;
+}
+
+export const getValueByUnit = ({
+  unit,
+  value,
+  total
+}: ValueByUnitProps): string => {
+  if (equals(unit, 'number')) {
+    return numeral(value).format('0a').toUpperCase();
+  }
+
+  return `${((value * 100) / total).toFixed(1)}%`;
+};
+
+interface NormalizeLevelProps {
+  factor: number;
+  level: number;
+}
+
+const normalizeLevel = ({ level, factor }: NormalizeLevelProps): number =>
+  (level * factor) / 10;
+
+interface EmphasizeCurveColorProps {
+  color: string;
+  index: number;
+}
+
+export const emphasizeCurveColor = ({
+  color,
+  index
+}: EmphasizeCurveColorProps): string => {
+  const totalLevels = 5;
+  const levels = [...Array(totalLevels).keys()];
+  const factor = 10 / totalLevels;
+
+  if (gte(getLuminance(color), 0.5)) {
+    if (gte(index, totalLevels * 2)) {
+      return darken(color, normalizeLevel({ factor, level: last(levels) }));
+    }
+    if (gte(index, totalLevels)) {
+      return darken(
+        color,
+        normalizeLevel({ factor, level: levels[totalLevels + 1 - index] })
+      );
+    }
+
+    return lighten(color, normalizeLevel({ factor, level: levels[index] }));
+  }
+
+  if (gte(index, totalLevels * 2)) {
+    return lighten(color, normalizeLevel({ factor, level: last(levels) }));
+  }
+  if (gte(index, totalLevels)) {
+    return lighten(
+      color,
+      normalizeLevel({ factor, level: levels[totalLevels + 1 - index] })
+    );
+  }
+
+  return darken(color, normalizeLevel({ factor, level: levels[index] }));
 };

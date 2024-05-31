@@ -36,10 +36,13 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindDashboard
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
@@ -47,7 +50,9 @@ final class FindDashboard
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -58,7 +63,7 @@ final class FindDashboard
     public function __invoke(int $dashboardId, FindDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 $response = $this->findDashboardAsAdmin($dashboardId);
             } elseif ($this->rights->canAccess()) {
                 $response = $this->findDashboardAsViewer($dashboardId);
@@ -117,7 +122,7 @@ final class FindDashboard
             return new NotFoundResponse('Dashboard');
         }
 
-        return $this->createResponse($dashboard, DashboardSharingRole::Viewer);
+        return $this->createResponseAsNonAdmin($dashboard, DashboardSharingRole::Viewer);
     }
 
     /**
@@ -145,6 +150,43 @@ final class FindDashboard
 
     /**
      * @param Dashboard $dashboard
+     * @param DashboardSharingRole $defaultRole
+     *
+     * @throws \Throwable
+     *
+     * @return FindDashboardResponse
+     */
+    private function createResponseAsNonAdmin(Dashboard $dashboard, DashboardSharingRole $defaultRole): FindDashboardResponse
+    {
+        $editorIds = $this->extractAllContactIdsFromDashboard($dashboard);
+
+        $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupsIds = array_map(
+            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $userAccessGroups
+        );
+
+        $userInCurrentUserAccessGroups = $this->readContactRepository->findContactIdsByAccessGroups($accessGroupsIds);
+
+        return FindDashboardFactory::createResponse(
+            $dashboard,
+            $this->readContactRepository->findNamesByIds(...$editorIds),
+            $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
+            $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
+            $this->readDashboardShareRepository->findDashboardsContactSharesByContactIds(
+                $userInCurrentUserAccessGroups,
+                $dashboard
+            ),
+            $this->readDashboardShareRepository->findDashboardsContactGroupSharesByContact(
+                $this->contact,
+                $dashboard
+            ),
+            $defaultRole
+        );
+    }
+
+    /**
+     * @param Dashboard $dashboard
      *
      * @return int[]
      */
@@ -159,5 +201,25 @@ final class FindDashboard
         }
 
         return $contactIds;
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

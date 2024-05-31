@@ -34,7 +34,7 @@ class DashboardContactGroupShare
      * @param Dashboard $dashboard
      * @param int $contactGroupId
      * @param string $contactGroupName
-     * @param \Core\Dashboard\Domain\Model\Role\DashboardSharingRole $role
+     * @param DashboardSharingRole $role
      *
      * @throws AssertionFailedException
      */

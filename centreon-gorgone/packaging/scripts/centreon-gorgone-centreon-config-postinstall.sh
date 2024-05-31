@@ -8,6 +8,15 @@ installConfigurationFile() {
   fi
 }
 
+fixConfigurationFileRights() {
+  # force update of configuration file rights since they are not updated automatically by nfpm
+  chmod 0640 /etc/centreon-gorgone/config.d/30-centreon.yaml
+  chmod 0640 /etc/centreon-gorgone/config.d/31-centreon-api.yaml
+  chmod 0640 /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
+  chmod 0770 /etc/centreon-gorgone/config.d
+  chmod 0770 /etc/centreon-gorgone/config.d/cron.d
+}
+
 manageUserGroups() {
   if getent passwd centreon  > /dev/null 2>&1; then
     usermod -a -G centreon-gorgone centreon 2> /dev/null
@@ -52,6 +61,7 @@ case "$action" in
   "2" | "upgrade")
     manageUserGroups
     installConfigurationFile
+    fixConfigurationFileRights
     addGorgoneSshKeys
     ;;
   *)

@@ -31,7 +31,9 @@ import {
   last,
   cond,
   always,
-  T
+  T,
+  includes,
+  split
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
@@ -204,6 +206,17 @@ const getLineForMetric = ({
   metric_id
 }: LineForMetricProps): Line | undefined =>
   find(propEq(metric_id, 'metric_id'), lines);
+
+interface LinesForMetricsProps {
+  lines: Array<Line>;
+  metricIds: Array<number>;
+}
+
+export const getLinesForMetrics = ({
+  lines,
+  metricIds
+}: LinesForMetricsProps): Array<Line> =>
+  filter(({ metric_id }) => metricIds.includes(metric_id), lines);
 
 interface LinesTimeSeries {
   lines: Array<Line>;
@@ -476,15 +489,7 @@ const registerMsUnitToNumeral = (): null => {
 
 registerMsUnitToNumeral();
 
-const formatMetricValue = ({
-  value,
-  unit,
-  base = 1000
-}: FormatMetricValueProps): string | null => {
-  if (isNil(value)) {
-    return null;
-  }
-
+const getBase1024 = ({ unit, base }): boolean => {
   const base2Units = [
     'B',
     'bytes',
@@ -497,7 +502,19 @@ const formatMetricValue = ({
     'b'
   ];
 
-  const base1024 = base2Units.includes(unit) || Number(base) === 1024;
+  return base2Units.includes(unit) || Number(base) === 1024;
+};
+
+const formatMetricValue = ({
+  value,
+  unit,
+  base = 1000
+}: FormatMetricValueProps): string | null => {
+  if (isNil(value)) {
+    return null;
+  }
+
+  const base1024 = getBase1024({ base, unit });
 
   const formatSuffix = cond([
     [equals('ms'), always(' ms')],
@@ -525,6 +542,8 @@ const formatMetricValueWithUnit = ({
     return null;
   }
 
+  const base1024 = getBase1024({ base, unit });
+
   if (isRaw) {
     const unitText = equals('%', unit) ? unit : ` ${unit}`;
 
@@ -537,7 +556,9 @@ const formatMetricValueWithUnit = ({
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return formattedMetricValue;
+  return base1024 || !unit || equals(unit, 'ms')
+    ? formattedMetricValue
+    : `${formattedMetricValue} ${unit}`;
 };
 
 const getStackedYScale = ({
@@ -591,6 +612,23 @@ const getMetricWithLatestData = (
     ...metric,
     data: lastData ? [lastData] : []
   };
+};
+
+interface FormatMetricNameProps {
+  legend: string | null;
+  name: string;
+}
+
+export const formatMetricName = ({
+  legend,
+  name
+}: FormatMetricNameProps): string => {
+  const legendName = legend || name;
+  const metricName = includes('#', legendName)
+    ? split('#')(legendName)[1]
+    : legendName;
+
+  return metricName;
 };
 
 export {

@@ -174,14 +174,15 @@ const MemoListingActionBar = ({
               </IconButton>
             )}
           <div className={classes.ModeViewer} />
-          {columnConfiguration?.selectedColumnIds && (
-            <ColumnMultiSelect
-              columnConfiguration={columnConfiguration}
-              columns={columns}
-              onResetColumns={onResetColumns}
-              onSelectColumns={onSelectColumns}
-            />
-          )}
+          {columnConfiguration?.selectedColumnIds &&
+            columnConfiguration?.sortable && (
+              <ColumnMultiSelect
+                columnConfiguration={columnConfiguration}
+                columns={columns}
+                onResetColumns={onResetColumns}
+                onSelectColumns={onSelectColumns}
+              />
+            )}
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
@@ -223,6 +224,7 @@ const MemoListingActionBar = ({
       ),
       columnConfiguration,
       customPaginationClassName,
+      visualizationActions,
       ...actionsBarMemoProps
     ]
   });

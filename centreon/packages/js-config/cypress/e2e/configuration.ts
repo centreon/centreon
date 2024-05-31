@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/extensions */
 /* eslint-disable import/no-unresolved */
 
@@ -13,7 +14,6 @@ import tasks from './tasks';
 
 interface ConfigurationOptions {
   cypressFolder?: string;
-  dockerName?: string;
   env?: Record<string, unknown>;
   envFile?: string;
   isDevelopment?: boolean;
@@ -24,7 +24,6 @@ export default ({
   specPattern,
   cypressFolder,
   isDevelopment,
-  dockerName,
   env,
   envFile
 }: ConfigurationOptions): Cypress.ConfigOptions => {
@@ -40,7 +39,8 @@ export default ({
 
   return defineConfig({
     chromeWebSecurity: false,
-    defaultCommandTimeout: 6000,
+    defaultCommandTimeout: 20000,
+    downloadsFolder: `${resultsFolder}/downloads`,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
       fixturesFolder: 'fixtures',
@@ -60,13 +60,14 @@ export default ({
     },
     env: {
       ...env,
+      DATABASE_IMAGE: 'bitnami/mariadb:10.11',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
+      SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       WEB_IMAGE_OS: 'alma9',
-      WEB_IMAGE_VERSION: webImageVersion,
-      dockerName: dockerName || 'centreon-dev'
+      WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
-    requestTimeout: 10000,
+    requestTimeout: 20000,
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,

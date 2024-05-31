@@ -33,7 +33,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use TypeError;
 
-final class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomConfigurationInterface
+class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomConfigurationInterface
 {
     public const DEFAULT_LOGIN_CLAIM = 'preferred_username';
     public const AUTHENTICATION_POST = 'client_secret_post';
@@ -606,11 +606,42 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
      *
      * @return CustomConfiguration
      */
-    private function setACLConditions(ACLConditions $aclConditions): self
+    public function setACLConditions(ACLConditions $aclConditions): self
     {
         $this->aclConditions = $aclConditions;
 
         return $this;
+    }
+
+    /**
+     * @throws ConfigurationException
+     *
+     * @return array<string,mixed> $json
+     */
+    public function toArray(): array
+    {
+        return [
+            'client_id' => $this->getClientId(),
+            'auto_import' => $this->isAutoImportEnabled(),
+            'client_secret' => $this->getClientSecret(),
+            'base_url' => $this->getBaseUrl(),
+            'authorization_endpoint' => $this->getAuthorizationEndpoint(),
+            'token_endpoint' => $this->getTokenEndpoint(),
+            'introspection_token_endpoint' => $this->getIntrospectionTokenEndpoint(),
+            'userinfo_endpoint' => $this->getUserInformationEndpoint(),
+            'contact_template' => $this->getContactTemplate(),
+            'email_bind_attribute' => $this->getEmailBindAttribute(),
+            'fullname_bind_attribute' => $this->getUserNameBindAttribute(),
+            'endsession_endpoint' => $this->getEndSessionEndpoint(),
+            'connection_scopes' => $this->getConnectionScopes(),
+            'login_claim' => $this->getLoginClaim(),
+            'authentication_type' => $this->getAuthenticationType(),
+            'verify_peer' => $this->verifyPeer(),
+            'authentication_conditions' => $this->getAuthenticationConditions(),
+            'roles_mapping' => $this->getACLConditions(),
+            'groups_mapping' => $this->getGroupsMapping(),
+            'redirect_url' => $this->getRedirectUrl(),
+        ];
     }
 
     /**

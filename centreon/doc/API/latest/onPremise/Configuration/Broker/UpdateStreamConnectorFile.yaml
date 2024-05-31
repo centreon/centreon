@@ -1,0 +1,41 @@
+put:
+  tags:
+    - Broker
+  summary: "Update a broker stream connector output file"
+  description: |
+    Create a configuration file with provided JSON content and update the output configuration accordingly
+  parameters:
+    - $ref: 'QueryParameter/BrokerId.yaml'
+    - $ref: 'QueryParameter/OutputId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: ['file_content']
+          properties:
+            file_content:
+              type: string
+              description: Content of the file to be created. Must be a valid JSON encoded string.
+              example: "{\"test\": \"hello world\"}"
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              path:
+                type: string
+                description: Path of the created file
+                example: '/some/path/my-new-file.json'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

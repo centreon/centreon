@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { or } from 'ramda';
+import { equals, isNil } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,14 +24,17 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import { WidgetPropertyProps } from '../../../models';
 
 import useResources from './useResources';
 
-interface Props {
-  propertyName: string;
-}
-
-const Resources = ({ propertyName }: Props): JSX.Element => {
+const Resources = ({
+  propertyName,
+  singleResourceType,
+  restrictedResourceTypes,
+  required,
+  useAdditionalResources
+}: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
@@ -49,13 +52,25 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     deleteResourceItem,
     getResourceStatic,
     changeResource,
-    singleMetricSelection,
-    singleHostPerMetric
-  } = useResources(propertyName);
+    singleResourceSelection,
+    isLastResourceInTree
+  } = useResources({
+    propertyName,
+    required,
+    restrictedResourceTypes,
+    useAdditionalResources
+  });
 
   const { canEditField } = useCanEditProperties();
 
-  const deleteButtonHidden = or(!canEditField, value.length <= 1);
+  const deleteButtonHidden =
+    !canEditField ||
+    (value.length <= 1 && (required || isNil(required))) ||
+    equals(value.length, 1);
+
+  const isAddButtonHidden = !canEditField || singleResourceType;
+  const isAddButtonDisabled =
+    !areResourcesFullfilled(value) || isLastResourceInTree;
 
   return (
     <div className={classes.resourcesContainer}>
@@ -70,9 +85,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
+          displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={!canEditField}
-          addbuttonDisabled={!areResourcesFullfilled(value)}
+          addButtonHidden={isAddButtonHidden}
+          addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
           onAddItem={addResource}
         >
@@ -93,28 +109,24 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                   !canEditField || getResourceStatic(resource.resourceType)
                 }
                 label={t(labelSelectResourceType) as string}
-                options={getResourceTypeOptions(resource)}
+                options={getResourceTypeOptions(index, resource)}
                 selectedOptionId={resource.resourceType}
                 onChange={changeResourceType(index)}
               />
-              {singleMetricSelection && singleHostPerMetric ? (
+              {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
                   allowUniqOption
                   chipProps={{
-                    color: 'primary',
-                    onDelete: (_, option): void =>
-                      deleteResourceItem({
-                        index,
-                        option,
-                        resources: resource.resources
-                      })
+                    color: 'primary'
                   }}
                   className={classes.resources}
+                  disableClearable={false}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
                   queryKey={`${resource.resourceType}-${index}`}
@@ -136,11 +148,13 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                   className={classes.resources}
                   disabled={!canEditField || !resource.resourceType}
                   field={getSearchField(resource.resourceType)}
-                  getEndpoint={getResourceResourceBaseEndpoint(
-                    resource.resourceType
-                  )}
+                  getEndpoint={getResourceResourceBaseEndpoint({
+                    index,
+                    resourceType: resource.resourceType
+                  })}
                   label={t(labelSelectAResource)}
                   limitTags={2}
+                  placeholder=""
                   queryKey={`${resource.resourceType}-${index}`}
                   value={resource.resources || []}
                   onChange={changeResources(index)}

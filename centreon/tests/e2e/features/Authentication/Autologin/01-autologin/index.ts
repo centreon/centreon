@@ -3,8 +3,9 @@ import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import { initializeConfigACLAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.startWebContainer();
-  initializeConfigACLAndGetLoginPage();
+  cy.startContainers().then(() => {
+    return initializeConfigACLAndGetLoginPage();
+  });
 });
 
 beforeEach(() => {
@@ -192,5 +193,5 @@ Then('the page is reached without manual login', () => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

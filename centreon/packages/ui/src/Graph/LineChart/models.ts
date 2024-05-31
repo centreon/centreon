@@ -88,7 +88,6 @@ export interface LineChartProps {
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
-  loading: boolean;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
@@ -143,4 +142,16 @@ export interface GetDate {
   positionX: number;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
+}
+
+export interface GraphTooltipData {
+  date: string;
+  highlightedMetricId: number | null;
+  metrics: Array<{
+    color: string;
+    id: number;
+    name: string;
+    unit: string;
+    value: number;
+  }>;
 }

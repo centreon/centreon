@@ -20,18 +20,15 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
-import {
-  federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,
   labelShowDescription,
   labelSelectMetric,
   labelTitle,
-  labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
   labelResourceType,
   labelSelectAResource,
@@ -129,8 +126,7 @@ const initialFormDataEdit = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./text'],
@@ -177,8 +173,7 @@ const initialFormData = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./data'],
@@ -264,7 +259,6 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
         cy.findByLabelText(labelShowDescription).should('be.checked');
-        cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
@@ -446,6 +440,29 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('hides a property when an option value matches the condition', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Sort by').should('exist');
+
+      cy.findByLabelText('Show thresholds').click();
+
+      cy.contains('Sort by').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays general properties when a widget is selected', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('Group name').should('be.visible');
+      cy.contains('Select field').should('be.visible');
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {
@@ -494,7 +511,6 @@ describe('AddEditWidgetModal', () => {
         .eq(0)
         .should('have.attr', 'contenteditable', 'false');
       cy.findByLabelText(labelShowDescription).should('be.disabled');
-      cy.findByLabelText(labelOpenLinksInNewTab).should('be.disabled');
     });
   });
 
@@ -904,6 +920,77 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText(labelSelectMetric).should('be.disabled');
       cy.contains(labelAddFilter).should('not.exist');
       cy.contains(labelAddMetric).should('not.exist');
+    });
+  });
+
+  describe('No widgets', () => {
+    beforeEach(() => {
+      const jotaiStore = createStore();
+      jotaiStore.set(federatedWidgetsAtom, []);
+      jotaiStore.set(federatedWidgetsPropertiesAtom, null);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display widgets when any widgets are registered', () => {
+      cy.findByTestId(labelWidgetType).click();
+
+      cy.contains('No options').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Unrecognized widget property', () => {
+    beforeEach(() => {
+      const jotaiStore = initializeWidgets();
+      jotaiStore.set(federatedWidgetsPropertiesAtom, [
+        {
+          description: 'This is the description of the data widget',
+          moduleName: 'centreon-widget-data',
+          options: {
+            threshold: {
+              defaultValue: '',
+              label: 'threshold',
+              type: 'unknown'
+            }
+          },
+          title: 'Generic data (example)'
+        }
+      ]);
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+      jotaiStore.set(hasEditPermissionAtom, true);
+      jotaiStore.set(isEditingAtom, true);
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('does not display the widget property when it is not recognized', () => {
+      cy.findByTestId(labelWidgetType).click();
+      cy.contains('Generic data').click();
+
+      cy.findByTestId('unknown widget property').should('exist');
+
+      cy.makeSnapshot();
     });
   });
 });

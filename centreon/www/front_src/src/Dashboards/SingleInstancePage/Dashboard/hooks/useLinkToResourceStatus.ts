@@ -1,39 +1,101 @@
-import { includes } from 'ramda';
+import { all, equals, has, isNil, pluck } from 'ramda';
+import { useSetAtom } from 'jotai';
 
+import { getResourcesUrlForMetricsWidgets } from '../utils';
+import { selectedVisualizationAtom } from '../../../../Resources/Actions/actionsAtoms';
+import { Visualization } from '../../../../Resources/models';
+import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import {
-  getResourcesUrlForMetricsWidgets,
-  getUrlForResourcesOnlyWidgets,
-  resourceBasedWidgets
-} from '../utils';
+  defaultSelectedColumnIdsforViewByHost,
+  defaultSelectedColumnIds
+} from '../../../../Resources/Listing/columns';
+import {
+  labelBusinessActivity,
+  labelResourcesStatus
+} from '../translatedLabels';
 
 interface UseLinkToResourceStatus {
-  getLinkToResourceStatusPage: (data, name, options) => string;
+  changeViewMode: (options) => void;
+  getLinkToResourceStatusPage: (data, name) => string;
+  getPageType: (data) => string | null;
 }
 
 const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
-  const getLinkToResourceStatusPage = (data, name, options): string => {
-    if (!includes(name, resourceBasedWidgets)) {
+  const selectedVisualization = useSetAtom(selectedVisualizationAtom);
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
+
+  const getLinkToResourceStatusPage = (data, name): string => {
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
       return '';
     }
 
-    if (options?.statuses && options?.states && data?.resources) {
-      const { resourceType: type, statuses, states } = options;
-      const { resources } = data;
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
 
-      const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
-        resources,
-        states,
-        statuses,
-        type
-      });
-
-      return linkToResourceStatus;
+    if (hasOnlyBA) {
+      return `/main.php?p=20701&o=d&ba_id=${resources[0].resources[0].id}`;
     }
 
     return getResourcesUrlForMetricsWidgets({ data, widgetName: name });
   };
 
-  return { getLinkToResourceStatusPage };
+  const getPageType = (data): string | null => {
+    if (isNil(data)) {
+      return null;
+    }
+    const resourcesInput = Object.entries(data).find(
+      ([, value]) =>
+        has('resourceType', value?.[0]) && has('resources', value?.[0])
+    );
+    const resourcesInputKey = resourcesInput?.[0];
+    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+      return null;
+    }
+
+    const resources = data[resourcesInputKey];
+    // TO FIX when Resources Status will handle BA/BV properly
+    const resourceTypes = pluck('resourceType', resources);
+    const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+
+    if (hasOnlyBA) {
+      return labelBusinessActivity;
+    }
+
+    return labelResourcesStatus;
+  };
+
+  const changeViewMode = (displayType): void => {
+    if (!displayType) {
+      return;
+    }
+
+    if (equals(displayType, 'all')) {
+      selectedVisualization(Visualization.All);
+
+      setSelectedColumnIds(defaultSelectedColumnIds);
+    }
+
+    if (equals(displayType, 'service')) {
+      selectedVisualization(Visualization.Service);
+
+      setSelectedColumnIds(defaultSelectedColumnIds);
+    }
+
+    if (equals(displayType, 'host')) {
+      setSelectedColumnIds(defaultSelectedColumnIdsforViewByHost);
+
+      selectedVisualization(Visualization.Host);
+    }
+  };
+
+  return { changeViewMode, getLinkToResourceStatusPage, getPageType };
 };
 
 export default useLinkToResourceStatus;

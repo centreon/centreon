@@ -11,7 +11,7 @@ export default (
     const width = 1920;
     const height = 1080;
 
-    if (browser.family === 'chromium') {
+    if (browser.family === 'chromium' && browser.name !== 'electron') {
       if (browser.isHeadless) {
         launchOptions.args.push('--headless=new');
       }
@@ -23,11 +23,11 @@ export default (
       launchOptions.args.push('--hide-scrollbars');
       launchOptions.args.push('--mute-audio');
 
-      launchOptions.args.push(`--window-size=${width},${height}`);
-
       // force screen to be non-retina and just use our given resolution
       launchOptions.args.push('--force-device-scale-factor=1');
     }
+
+    launchOptions.args.push(`--window-size=${width},${height}`);
 
     return launchOptions;
   });

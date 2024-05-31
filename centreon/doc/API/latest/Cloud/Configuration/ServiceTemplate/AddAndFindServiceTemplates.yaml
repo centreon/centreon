@@ -1,0 +1,65 @@
+get:
+  tags:
+    - Service template
+  summary: "Find all service template"
+  description: |
+    Return all service template configurations.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * alias
+    * is_locked
+  parameters:
+    - $ref: '../../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/ServiceTemplate.yaml'
+              meta:
+                $ref: '../../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+post:
+  tags:
+    - Service template
+  summary: "Add a service template"
+  description: "Add a service template configuration"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+            - required: ["name", "alias"]
+            - $ref: 'Schema/NewServiceTemplate.yaml'
+  responses:
+    '201':
+      allOf:
+        - $ref: '../../../Common/Response/Created.yaml'
+        - content:
+            application/json:
+              schema:
+                $ref: 'Schema/AddServiceTemplateResponse.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

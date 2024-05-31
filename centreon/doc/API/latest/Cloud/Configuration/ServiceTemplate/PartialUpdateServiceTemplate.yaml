@@ -1,0 +1,24 @@
+patch:
+  tags:
+    - Service template
+  summary: "Partial update of a service template"
+  description: "Partial update of a service template configuration"
+  parameters:
+    - $ref: 'QueryParameter/ServiceTemplateId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/PartialUpdateServiceTemplate.yaml'
+  responses:
+    '204':
+      $ref: '../../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

@@ -67,7 +67,7 @@ abstract class AbstractObject
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
         $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
-        $vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
+        $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
             $this->isVaultEnabled = true;
         }
@@ -172,7 +172,9 @@ abstract class AbstractObject
             throw new Exception("Cannot open file (writing permission) '" . $filePath . "'");
         }
 
-        chmod($filePath, 0660);
+        if (posix_getuid() === fileowner($filePath)) {
+            chmod($filePath, 0660);
+        }
 
         if (! $alreadyExists) {
             $this->setHeader();

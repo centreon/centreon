@@ -56,3 +56,18 @@ export const createdTokenDecoder = JsonDecoder.object<CreatedToken>(
     isRevoked: 'is_revoked'
   }
 );
+
+const PersonalInformation = JsonDecoder.object<PersonalInformation>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string
+  },
+  'PersonalInformation'
+);
+
+export const PersonalInformationDecoder =
+  buildListingDecoder<PersonalInformation>({
+    entityDecoder: PersonalInformation,
+    entityDecoderName: 'PersonalInformationn',
+    listingDecoderName: 'listPersonalInformation'
+  });

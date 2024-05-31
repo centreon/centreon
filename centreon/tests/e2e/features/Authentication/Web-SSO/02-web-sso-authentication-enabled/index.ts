@@ -3,7 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { initializeWebSSOUserAndGetLoginPage } from '../common';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startContainers();
 
   initializeWebSSOUserAndGetLoginPage();
 });
@@ -77,5 +77,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer();
+  cy.stopContainers();
 });

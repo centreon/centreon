@@ -194,6 +194,9 @@ if (($o === HOST_TEMPLATE_MODIFY || $o === HOST_TEMPLATE_WATCH) && isset($hostId
     // Set base value
     if ($statement->rowCount()) {
         $host = array_map('myDecode', $statement->fetch());
+        if (! empty($host['host_snmp_community'])) {
+            $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
+        }
         $cmdId = $host['command_command_id'];
         // Set Host Notification Options
         $tmp = explode(',', $host['host_notification_options']);
@@ -350,7 +353,17 @@ if (! $isCloudPlatform) {
 }
 
 $form->addElement('select', 'host_snmp_version', _('Version'), [null => null, 1 => '1', '2c' => '2c', 3 => '3']);
-$form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText);
+switch ($o) {
+    case HOST_TEMPLATE_ADD:
+    case HOST_TEMPLATE_MASSIVE_CHANGE:
+        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        break;
+    default:
+        $snmpAttribute = $attrsText;
+        $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
+        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        break;
+}
 
 $form->addElement('select2', 'host_location', _('Timezone'), [], $attributes['timezones']);
 
@@ -432,18 +445,18 @@ $cloneSetMacro = [
     ),
 ];
 
+$form->addElement('header', 'check', _('Host Check Properties'));
+
+$checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
+$checkCommandSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
+);
+
+$form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
+
 // Check information
 if (! $isCloudPlatform) {
-    $form->addElement('header', 'check', _('Host Check Properties'));
-
-    $checkCommandSelect = $form->addElement('select2', 'command_command_id', _('Check Command'), [], $attributes['check_commands']);
-    $checkCommandSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id","example1");'
-    );
-
-    $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
-
     $hostEHE = [
         $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1'),
         $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0'),

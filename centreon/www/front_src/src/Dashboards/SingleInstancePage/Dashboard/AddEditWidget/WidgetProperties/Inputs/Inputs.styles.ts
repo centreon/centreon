@@ -2,13 +2,6 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
   resourceComposition: {
-    [theme.breakpoints.down('xl')]: {
-      height: '21vh'
-    },
-    [theme.breakpoints.down('lg')]: {
-      height: '20vh'
-    },
-    height: '27vh',
     overflow: 'auto',
     paddingTop: theme.spacing(1),
     width: '100%'
@@ -27,8 +20,7 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resources: {
     '& .MuiInputBase-root': {
       borderRadius: `0px ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px`
-    },
-    marginTop: theme.spacing(1)
+    }
   },
   resourcesContainer: {
     display: 'flex',

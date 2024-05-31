@@ -7,6 +7,9 @@ on:
       module_name:
         required: true
         type: string
+      database_image:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -62,14 +65,14 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.2.29
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         with:
           php-version: 8.1
           coverage: none
@@ -83,7 +86,7 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           node-version: 20
 
@@ -93,7 +96,7 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         continue-on-error: true
         timeout-minutes: 6
         with:
@@ -112,17 +115,14 @@ jobs:
       - name: Behat acceptance testing
         env:
           PANTHER_CHROME_BINARY: /usr/bin/google-chrome
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          MYSQL_IMAGE: ${{ inputs.database_image }}
         run: |
-          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
-          sed \
-            -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}#g" \
-            ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
@@ -133,19 +133,19 @@ jobs:
         run: find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
         shell: bash
 
-      - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         if: failure()
         name: Upload acceptance test logs
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs-${{ matrix.feature }}
           path: acceptance-logs
           retention-days: 1
 
       - name: Upload Test Results
         if: failure()
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ matrix.feature }}
           path: xunit-reports
           retention-days: 1
 
@@ -158,12 +158,35 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Download Artifacts
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-test-reports-*
           path: ${{ inputs.name }}-xunit-reports
+          merge-multiple: true
 
       - uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-tests-report
-          path: "${{ inputs.name }}-xunit-reports/**/*.xml"
+          path: '${{ inputs.name }}-xunit-reports/**/*.xml'
+
+  regroup-artifacts:
+    needs: [behat-test-run, behat-test-report]
+    if: always()
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type_of_report: [test-logs, test-reports]
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
+        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
+        with:
+          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          source_paths: |
+            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
+            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
+          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -52,6 +52,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
               ? t(labels.autocompleteContactGroup)
               : t(labels.autocompleteContact)
           )}
+          queryKey={isContactGroup ? labels.contactGroup : labels.contact}
           renderOption={renderOption}
           value={selectedContact}
           onChange={selectContact}
@@ -67,6 +68,7 @@ const ShareInput = ({ labels, endpoints, roles }: Props): JSX.Element => {
           data-testid="add"
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
+          size="small"
           onClick={add}
         />
       </div>

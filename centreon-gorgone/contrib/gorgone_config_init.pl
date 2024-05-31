@@ -94,7 +94,7 @@ configuration:
         dsn: "mysql:host=$centreon_config->{db_host}${db_port};dbname=$centreon_config->{centstorage_db}"
         username: "$centreon_config->{db_user}"
         password: "$centreon_config->{db_passwd}"
-  gorgone:      
+  gorgone:
     gorgonecore:
       hostname:
       id:
@@ -121,6 +121,20 @@ configuration:
       - name: action
         package: gorgone::modules::core::action::hooks
         enable: true
+        command_timeout: 30
+        whitelist_cmds: true
+        allowed_cmds:
+          - ^sudo\s+(/bin/)?systemctl\s+(reload|restart)\s+(centengine|centreontrapd|cbd)\s*$
+          - ^(sudo\s+)?(/usr/bin/)?service\s+(centengine|centreontrapd|cbd|cbd-sql)\s+(reload|restart)\s*$
+          - ^/usr/sbin/centenginestats\s+-c\s+/etc/centreon-engine/centengine\.cfg\s*$
+          - ^cat\s+/var/lib/centreon-engine/[a-zA-Z0-9\-]+-stats\.json\s*$
+          - ^/usr/lib/centreon/plugins/.*$
+          - ^/bin/perl /usr/share/centreon/bin/anomaly_detection --seasonality >> /var/log/centreon/anomaly_detection\.log 2>&1\s*$
+          - ^/usr/bin/php -q /usr/share/centreon/cron/centreon-helios\.php >> /var/log/centreon-helios\.log 2>&1\s*$
+          - ^centreon
+          - ^mkdir
+          - ^/usr/share/centreon/www/modules/centreon-autodiscovery-server/script/run_save_discovered_host
+          - ^/usr/share/centreon/bin/centreon -u \"centreon-gorgone\" -p \S+ -w -o CentreonWorker -a processQueue$
 
       - name: proxy
         package: gorgone::modules::core::proxy::hooks

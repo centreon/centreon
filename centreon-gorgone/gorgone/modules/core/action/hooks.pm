@@ -67,7 +67,7 @@ sub routing {
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
             token => $options{token},
-            data => { msg => 'gorgoneaction: still no ready' },
+            data => { msg => 'gorgoneaction: still not ready' },
             json_encode => 1
         });
         return undef;

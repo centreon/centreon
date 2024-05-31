@@ -338,7 +338,7 @@ class CentreonServiceTemplate extends CentreonObject
                             break;
                     }
                     if (!isset($exportedFields[$paramSearch])) {
-                        $resultString .= $ret . $this->delim;
+                        $resultString .= $this->csvEscape($ret) . $this->delim;
                         $exportedFields[$paramSearch] = 1;
                     }
                 }
@@ -665,9 +665,9 @@ class CentreonServiceTemplate extends CentreonObject
         echo "macro name;macro value;description;is_password\n";
         foreach ($macroList as $macro) {
             $password = !empty($macro['is_password']) ? (int)$macro['is_password'] : 0;
-            echo $this->extractMacroName($macro['svc_macro_name']) . $this->delim
-            . $macro['svc_macro_value'] . $this->delim
-            . $macro['description'] . $this->delim
+            echo $this->csvEscape($this->extractMacroName($macro['svc_macro_name'])) . $this->delim
+            . $this->csvEscape($macro['svc_macro_value']) . $this->delim
+            . $this->csvEscape($macro['description']) . $this->delim
             . $password . "\n";
         }
     }
@@ -1033,7 +1033,6 @@ class CentreonServiceTemplate extends CentreonObject
                     $tmp = $this->object->getParameters($element[$param], 'service_description');
                     if (isset($tmp) && isset($tmp['service_description']) && $tmp['service_description']) {
                         $element[$param] = $tmp['service_description'];
-                        CentreonServiceTemplate::getInstance()->export($tmp['service_description']);
                     }
                     if (!$element[$param]) {
                         $element[$param] = "";
@@ -1256,8 +1255,8 @@ class CentreonServiceTemplate extends CentreonObject
             array('service_description'),
             -1,
             0,
-            null,
-            null,
+            'service_description,host_name',
+            'ASC',
             $filters_hostRel,
             "AND"
         );

@@ -38,6 +38,8 @@ if (!isset($centreon)) {
     exit();
 }
 
+require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
+
 /**
  * For ACL
  *
@@ -274,32 +276,48 @@ function testServiceExistence($name = null, $hPars = array(), $hgPars = array(),
 
     $escapeName = CentreonDB::escape($centreon->checkIllegalChar($name));
 
-    foreach ($hPars as $host) {
-        $query = "SELECT service_id FROM service, host_service_relation hsr " .
-            "WHERE hsr.host_host_id = '" . $host . "' AND hsr.service_service_id = service_id " .
-            "AND service.service_description = '" . $escapeName . "'";
-        $dbResult = $pearDB->query($query);
-        $service = $dbResult->fetch();
-        #Duplicate entry
-        if ($dbResult->rowCount() >= 1 && $service["service_id"] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
-        }
-        $dbResult->closeCursor();
-    }
-    $query = "SELECT service_id FROM service, host_service_relation hsr " .
-             "WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id AND hsr.service_service_id = service_id " .
-             "AND service.service_description = :service_description";
-    $statement = $pearDB->prepare($query);
-    foreach ($hgPars as $hostgroup) {
-        $statement->bindValue(':hostgroup_hg_id', (int) $hostgroup, \PDO::PARAM_INT);
-        $statement->bindValue(':service_description', $centreon->checkIllegalChar($name), \PDO::PARAM_STR);
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+                SELECT service.service_id
+                FROM service
+                INNER JOIN host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND service.service_description = :service_description
+                SQL
+    );
+    foreach ($hPars as $hostId) {
+        $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
         $service = $statement->fetch(\PDO::FETCH_ASSOC);
         #Duplicate entry
         if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
             return (false == $returnId) ? false : $service['service_id'];
         }
-        $statement->closeCursor();
     }
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT service_id
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service_id
+            WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id
+                AND service.service_description = :service_description
+            SQL
+    );
+    foreach ($hgPars as $hostGroupId) {
+        $statement->bindValue(':hostgroup_hg_id', (int) $hostGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':service_description', $escapeName);
+        $statement->execute();
+        $service = $statement->fetch(\PDO::FETCH_ASSOC);
+        #Duplicate entry
+        if ($statement->rowCount() >= 1 && $service["service_id"] != $id) {
+            return (false == $returnId) ? false : $service['service_id'];
+        }
+    }
+
     return (false == $returnId) ? true : 0;
 }
 
@@ -399,9 +417,21 @@ function deleteServiceInDB($services = array())
 {
     global $pearDB, $centreon;
 
+    $serviceIds = array_keys($services);
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    if ($vaultConfiguration !== null) {
+        deleteResourceSecretsInVault($vaultConfiguration, $logger, [], $serviceIds);
+    }
+
     $query = 'UPDATE service SET service_template_model_stm_id = NULL WHERE service_id = :service_id';
     $statement = $pearDB->prepare($query);
-    foreach (array_keys($services) as $serviceId) {
+    foreach ($serviceIds as $serviceId) {
         $previousPollerIds = getPollersForConfigChangeFlagFromServiceId($serviceId);
         removeRelationLastServiceDependency((int)$serviceId);
         $query = "SELECT service_id FROM service WHERE service_template_model_stm_id = '" . $serviceId . "'";
@@ -574,6 +604,22 @@ function multipleServiceInDB(
      duplication. If 0, we don't have to, beacause we duplicate services for an Host duplication */
     // Foreach Service
     $maxId["MAX(service_id)"] = null;
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+
+    //Authenticate to Vault to avoid multiple authentication for each duplicated services
+    if ($vaultConfiguration !== null) {
+        $httpClient = new CentreonRestHttp();
+        $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    }
 
     foreach ($services as $key => $value) {
         // Get all information about it
@@ -836,6 +882,7 @@ function multipleServiceInDB(
                          */
                         $mTpRq1 = "SELECT * FROM `on_demand_macro_service` WHERE `svc_svc_id` ='" . $key . "'";
                         $dbResult3 = $pearDB->query($mTpRq1);
+                        $macroPasswords = [];
                         while ($sv = $dbResult3->fetch()) {
                             $macName = str_replace("\$", "", $sv["svc_macro_name"]);
                             $macVal = $sv['svc_macro_value'];
@@ -852,6 +899,29 @@ function multipleServiceInDB(
                             $statement->bindValue(':is_password', $sv["is_password"]);
                             $statement->execute();
                             $fields["_" . strtoupper($macName) . "_"] = $sv['svc_macro_value'];
+                            if ($sv['is_password'] === 1) {
+                                $maxIdStatement = $pearDB->query(
+                                    "SELECT MAX(svc_macro_id) from on_demand_macro_service WHERE is_password = 1"
+                                );
+                                $resultMacro = $maxIdStatement->fetch();
+                                $macroPasswords[$resultMacro['MAX(svc_macro_id)']] = $macVal;
+                            }
+                        }
+
+                        if (! empty($macroPasswords) && $vaultConfiguration !== null) {
+                            try {
+                                duplicateServiceSecretsInVault(
+                                    $vaultConfiguration,
+                                    $logger,
+                                    $httpClient,
+                                    $uuidGenerator,
+                                    $key,
+                                    $macroPasswords,
+                                    $clientToken
+                                );
+                            } catch (\Throwable $ex) {
+                                error_log((string) $ex);
+                            }
                         }
 
                         /*
@@ -927,6 +997,22 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $ret = $form->getSubmitValues();
     }
 
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
+    }
+
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
 
     $rq = "UPDATE service SET ";
@@ -934,7 +1020,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     isset($ret["service_template_model_stm_id"]) && $ret["service_template_model_stm_id"] != null
         ? $rq .= "'" . $ret["service_template_model_stm_id"] . "', "
         : $rq .= "NULL, ";
-    $rq .= "command_command_id = null, ";
+
+    $rq .= "command_command_id = ";
+    isset($ret["command_command_id"]) && $ret["command_command_id"] != null
+        ? $rq .= "'" . $ret["command_command_id"] . "', "
+        : $rq .= "NULL, ";
         $rq .= "timeperiod_tp_id = ";
     isset($ret["timeperiod_tp_id"]) && $ret["timeperiod_tp_id"] != null
         ? $rq .= "'" . $ret["timeperiod_tp_id"] . "', "
@@ -1015,6 +1105,21 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $pearDB->query($query);
     }
 
+    if ($vaultConfiguration !== null) {
+        try {
+            updateServiceSecretsInVault(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                (int) $service_id,
+                $service->getFormattedMacros(),
+                $uuid
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($ret['criticality_id'])) {
         setServiceCriticality($serviceId, $ret['criticality_id']);
     }
@@ -1046,6 +1151,21 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $ret = $parameters;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
     }
 
     if (isset($ret["sg_name"])) {
@@ -1134,6 +1254,22 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     }
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setServiceCriticality($serviceId, $ret['criticality_id']);
+    }
+
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            updateServiceSecretsInVaultFromMC(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                $uuid,
+                (int) $service_id,
+                $service->getFormattedMacros()
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     /* Prepare value for changelog */
@@ -1640,7 +1776,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     isset($submittedValues["service_template_model_stm_id"]) && $submittedValues["service_template_model_stm_id"] != null
         ? $request .= "'" . $submittedValues["service_template_model_stm_id"] . "', "
         : $request .= "NULL, ";
-    $request .= "null, "; // command_command_id => null
+
+    isset($submittedValues["command_command_id"]) && $submittedValues["command_command_id"] != null
+        ? $request .= "'" . $submittedValues["command_command_id"] . "', "
+        : $request .= "NULL, ";
 
     isset($submittedValues["timeperiod_tp_id"]) && $submittedValues["timeperiod_tp_id"] != null
         ? $request .= "'" . $submittedValues["timeperiod_tp_id"] . "', "
@@ -1752,6 +1891,25 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
             $macroDescription,
             false
         );
+    }
+
+    $macros = $service->getFormattedMacros();
+    $kernel = \App\Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //If there is a vault configuration  and macros write into vault
+    if ($vaultConfiguration !== null && ! empty($macros)) {
+        try {
+            /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+            $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+            /** @var \Centreon\Domain\Log\Logger $logger */
+            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+            insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     if (isset($submittedValues['criticality_id'])) {
@@ -1981,6 +2139,29 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         );
     }
 
+    $macros = $service->getFormattedMacros();
+    $kernel = \App\Kernel::createForWeb();
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //If there is a vault configuration  and macros write into vault
+    if ($vaultConfiguration !== null && ! empty($macros)) {
+        try {
+            /**
+             * @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator
+             */
+            $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+            /**
+             * @var \Centreon\Domain\Log\Logger $logger
+             */
+            $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+            insertServiceSecretsInVault($vaultConfiguration,$uuidGenerator, $logger, $macros);
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($submittedValues['criticality_id'])) {
         setServiceCriticality($service_id['MAX(service_id)'], $submittedValues['criticality_id']);
     }
@@ -2068,6 +2249,21 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         $ret = $params;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
     }
 
     $ret["service_description"] = $service->checkIllegalChar($ret["service_description"]);
@@ -2260,6 +2456,21 @@ function updateService($service_id = null, $from_MC = false, $params = array())
         $pearDB->query($query);
     }
 
+    if ($vaultConfiguration !== null) {
+        try {
+            updateServiceSecretsInVault(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                (int) $service_id,
+                $service->getFormattedMacros(),
+                $uuid
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
+    }
+
     if (isset($ret['criticality_id'])) {
         setServiceCriticality($service_id, $ret['criticality_id']);
     }
@@ -2291,6 +2502,21 @@ function updateService_MC($service_id = null, $params = array())
         $ret = $params;
     } else {
         $ret = $form->getSubmitValues();
+    }
+
+    $kernel = \App\Kernel::createForWeb();
+    /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
+    $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
+    /** @var \Centreon\Domain\Log\Logger $logger */
+    $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
+    $readVaultConfigurationRepository = $kernel->getContainer()->get(
+        Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
+    );
+    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    //Retrieve UUID for vault path before updating values in database.
+    $uuid = null;
+    if ($vaultConfiguration !== null ){
+        $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $service_id, $vaultConfiguration->getName());
     }
 
     if (isset($ret["sg_name"])) {
@@ -2463,6 +2689,22 @@ function updateService_MC($service_id = null, $params = array())
     }
     if (isset($ret['criticality_id']) && $ret['criticality_id']) {
         setServiceCriticality($service_id, $ret['criticality_id']);
+    }
+
+    //If there is a vault configuration write into vault
+    if ($vaultConfiguration !== null) {
+        try {
+            updateServiceSecretsInVaultFromMC(
+                $vaultConfiguration,
+                $logger,
+                $uuidGenerator,
+                $uuid,
+                (int) $service_id,
+                $service->getFormattedMacros()
+            );
+        } catch (\Throwable $ex) {
+            error_log((string) $ex);
+        }
     }
 
     /* Prepare value for changelog */
@@ -2974,9 +3216,9 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     /*
      * Get actual config
      */
-    $rq = "SELECT host_host_id FROM escalation_service_relation " .
-        " WHERE service_service_id = :service_id";
-    $statement = $pearDB->prepare($rq);
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id FROM escalation_service_relation WHERE service_service_id = :service_id'
+    );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
     $cacheEsc = array();
@@ -2987,9 +3229,9 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     /*
      * Get actual config
      */
-    $rq = "SELECT host_host_id FROM host_service_relation " .
-        " WHERE service_service_id = :service_id ";
-    $statement = $pearDB->prepare($rq);
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id FROM host_service_relation WHERE service_service_id = :service_id'
+    );
     $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
     $statement->execute();
     $cache = array();
@@ -3000,10 +3242,13 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     if (count($ret1) == 1) {
         foreach ($cache as $host_id => $flag) {
             if (!isset($cacheEsc[$host_id]) && count($cacheEsc)) {
-                $query = "UPDATE escalation_service_relation
-                          SET host_host_id = :host_host_id
-                          WHERE service_service_id = :service_id";
-                $statement = $pearDB->prepare($query);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        UPDATE escalation_service_relation
+                        SET host_host_id = :host_host_id
+                        WHERE service_service_id = :service_id
+                        SQL
+                );
                 $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
                 $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
                 $statement->execute();
@@ -3012,9 +3257,13 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     } else {
         foreach ($cache as $host_id) {
             if (!isset($cache[$host_id]) && count($cacheEsc)) {
-                $query = "DELETE FROM escalation_service_relation
-                    WHERE host_host_id = :host_host_id AND service_service_id = :service_id";
-                $statement = $pearDB->prepare($query);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                    DELETE FROM escalation_service_relation
+                    WHERE host_host_id = :host_host_id
+                      AND service_service_id = :service_id
+                    SQL
+                );
                 $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
                 $statement->bindValue(':host_host_id', (int) $ret1[0], \PDO::PARAM_INT);
                 $statement->execute();
@@ -3023,27 +3272,33 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
     }
 
     if (!$from_MC) {
-        $rq = "DELETE FROM host_service_relation "
-            . "WHERE service_service_id = :service_id ";
-        $statement = $pearDB->prepare($rq);
+        $statement = $pearDB->prepare(
+            'DELETE FROM host_service_relation WHERE service_service_id = :service_id'
+        );
         $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
         $statement->execute();
     } else {
         # Purge service to host relations
         if (count($ret1)) {
-            $rq = "DELETE FROM host_service_relation "
-                . "WHERE service_service_id = :service_id "
-                . "AND host_host_id IS NOT NULL ";
-            $statement = $pearDB->prepare($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    DELETE FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                    AND host_host_id IS NOT NULL
+                    SQL
+            );
             $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
             $statement->execute();
         }
         # Purge service to hostgroup relations
         if (count($ret2)) {
-            $rq = "DELETE FROM host_service_relation "
-                . "WHERE service_service_id = :service_id "
-                . "AND hostgroup_hg_id IS NOT NULL ";
-            $statement = $pearDB->prepare($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    DELETE FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                    AND hostgroup_hg_id IS NOT NULL
+                    SQL
+            );
             $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
             $statement->execute();
         }
@@ -3051,20 +3306,30 @@ function updateServiceHost($service_id = null, $ret = array(), $from_MC = false)
 
     if (count($ret2)) {
         for ($i = 0; $i < count($ret2); $i++) {
-            $rq = "INSERT INTO host_service_relation ";
-            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-            $rq .= "VALUES ";
-            $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $service_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                    VALUES (:host_group_id, NULL, NULL, :service_id)
+                    SQL
+            );
+            $statement->bindValue(':host_group_id', (int) $ret2[$i], \PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+            $statement->execute();
             setHostChangeFlag($pearDB, null, $ret2[$i]);
         }
     } elseif (count($ret1)) {
         for ($i = 0; $i < count($ret1); $i++) {
-            $rq = "INSERT INTO host_service_relation ";
-            $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-            $rq .= "VALUES ";
-            $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $service_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement = $pearDB->prepare(
+                <<<'SQL'
+                    INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                    VALUES (NULL, :host_id, NULL, :service_id)
+                    SQL
+            );
+            $statement->bindValue(':host_id', (int) $ret1[$i], \PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+            $statement->execute();
             setHostChangeFlag($pearDB, $ret1[$i], null);
         }
     }
@@ -3079,12 +3344,18 @@ function updateServiceHost_MC($service_id = null)
         return;
     }
 
-    $rq = "SELECT * FROM host_service_relation ";
-    $rq .= "WHERE service_service_id = '" . $service_id . "'";
-    $dbResult = $pearDB->query($rq);
-    $hsvs = array();
-    $hgsvs = array();
-    while ($arr = $dbResult->fetch()) {
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT * FROM host_service_relation WHERE service_service_id = :service_id
+        SQL
+    );
+    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+
+    $statement->execute();
+    $hsvs = [];
+    $hgsvs = [];
+
+    while ($arr = $statement->fetch()) {
         if ($arr["host_host_id"]) {
             $hsvs[$arr["host_host_id"]] = $arr["host_host_id"];
         }
@@ -3092,35 +3363,60 @@ function updateServiceHost_MC($service_id = null)
             $hgsvs[$arr["hostgroup_hg_id"]] = $arr["hostgroup_hg_id"];
         }
     }
-    $ret1 = array();
-    $ret2 = array();
+
     $ret1 = $form->getSubmitValue("service_hPars");
     $ret2 = $form->getSubmitValue("service_hgPars");
     if (is_array($ret2)) {
         for ($i = 0; $i < count($ret2); $i++) {
             if (!isset($hgsvs[$ret2[$i]])) {
-                $rq = "DELETE FROM host_service_relation ";
-                $rq .= "WHERE service_service_id = '" . $service_id . "' AND host_host_id IS NOT NULL";
-                $dbResult = $pearDB->query($rq);
-                $rq = "INSERT INTO host_service_relation ";
-                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-                $rq .= "VALUES ";
-                $rq .= "('" . $ret2[$i] . "', NULL, NULL, '" . $service_id . "')";
-                $dbResult = $pearDB->query($rq);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        DELETE FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                        AND host_host_id IS NOT NULL
+                        SQL
+                );
+                $statement->bindValue(':service_id',(int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                        VALUES (:host_group_id, NULL, NULL, :service_id)
+                        SQL
+                );
+                $statement->bindValue(':host_group_id', (int) $ret2[$i], \PDO::PARAM_INT);
+                $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
                 setHostChangeFlag($pearDB, null, $ret2[$i]);
             }
         }
     } elseif (is_array($ret1)) {
         for ($i = 0; $i < count($ret1); $i++) {
             if (!isset($hsvs[$ret1[$i]])) {
-                $rq = "DELETE FROM host_service_relation ";
-                $rq .= "WHERE service_service_id = '" . $service_id . "' AND hostgroup_hg_id IS NOT NULL";
-                $pearDB->query($rq);
-                $rq = "INSERT INTO host_service_relation ";
-                $rq .= "(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ";
-                $rq .= "VALUES ";
-                $rq .= "(NULL, '" . $ret1[$i] . "', NULL, '" . $service_id . "')";
-                $pearDB->query($rq);
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        DELETE FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                        AND hostgroup_hg_id IS NOT NULL
+                        SQL
+                );
+                $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        INSERT INTO host_service_relation
+                        (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+                        VALUES (NULL, :host_id, NULL, :service_id)
+                    SQL
+                );
+                $statement->bindValue(':host_id', (int) $ret1[$i], \PDO::PARAM_INT);
+                $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+                $statement->execute();
+
                 setHostChangeFlag($pearDB, $ret1[$i], null);
             }
         }

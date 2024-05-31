@@ -4,16 +4,16 @@ description: Create Jira ticket on Veracode QG failure
 inputs:
   jira_base_url:
     required: true
-    type: string
+    description: jira base url
   jira_user_email:
     required: true
-    type: string
+    description: jira user email
   jira_api_token:
     required: true
-    type: string
+    description: jira api token
   module_name:
     required: true
-    type: string
+    description: module name
 
 runs:
   using: "composite"
@@ -21,6 +21,7 @@ runs:
     - name: Check if ticket exists already
       id: check_ticket
       run: |
+        # Checking if an incident ticket already exists
         check_if_ticket_exists=$( curl --request POST \
           --url '${{ inputs.jira_base_url }}/rest/api/3/search' \
           --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
@@ -28,7 +29,7 @@ runs:
           --header 'Content-Type: application/json' \
           --data '{
             "fields": ["summary"],
-            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}\" AND resolution = unresolved",
+            "jql": "project = MON AND parentEpic = AT-268 AND issueType = Technical AND summary ~ \"PR-${{ github.event.pull_request.number }} incident\" AND component = \"${{ inputs.module_name }}\" AND resolution = unresolved ORDER BY key ASC",
             "maxResults": 1
         }' | jq .issues[0].key )
 
@@ -41,19 +42,32 @@ runs:
     - name: Create Jira Issue
       if: ${{ env.abort_ticket_creation != 'true' }}
       run: |
-        title="PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}"
-        description="This ticket relates to:\n${{ github.event.pull_request.title }}/n${{ github.event.pull_request.html_url }}\n\nThe PR-${{ github.event.pull_request.number }} targets following branch:\n${{ github.base_ref || github.ref_name }}\n"
+        # Creating a new incident ticket on Jira
         DATA=$( cat <<-EOF
-        {"fields": {
-          "summary": "${title}",
-          "project": {"key": "MON"},
-          "issuetype": {"id": "10209"},
-          "parent": {"id": "83818", "key": "AT-268"},
-          "labels": ["Veracode", "Pipeline"],
-          "components":[{"name": "${{ inputs.module_name }}"}],
-          "customfield_10902": {"id": "10524", "value": "DevSecOps"},
-          "customfield_10005": 1.0,
-          "description": {"content": [{"content": [{"text": "${description}","type": "text"}],"type": "paragraph"}],"type": "doc","version": 1}}}
+        {
+          "fields": {
+            "summary": "PR-${{ github.event.pull_request.number }} incident on ${{ inputs.module_name }}",
+            "project": {"key": "MON"},
+            "issuetype": {"id": "10209"},
+            "parent": {"id": "83818", "key": "AT-268"},
+            "labels": ["Veracode", "Pipeline"],
+            "components":[{"name": "${{ inputs.module_name }}"}],
+            "customfield_10902": {"id": "10524", "value": "DevSecOps"},
+            "customfield_10005": 1.0,
+            "description": {"version": 1,"type": "doc","content": [
+              {"type": "paragraph","content": [{"type": "text","text": "This incident ticket relates to:"}]},
+              {"type": "bulletList","content": [
+                {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Ref: "},{"type": "text","text": "PR-${{ github.event.pull_request.number }}","marks": [{"type": "link","attrs": {"href": "${{ github.event.pull_request.html_url }}"}}]}]}]}
+              ]},
+              {"type": "paragraph","content": []},
+              {"type": "bulletList","content": [
+                {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Target: "},{"type": "text","text": "${{ github.base_ref || github.ref_name }}","marks": [{"type": "strong"}]}]}]},
+                {"type": "listItem","content": [{"type": "paragraph","content": [{"type": "text","text": "Link to the job","marks": [{"type": "link","attrs": {"href": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}}]}]}]}
+              ]},
+              {"type": "paragraph","content": []}
+            ]}
+          }
+        }
         EOF
         )
 
@@ -63,5 +77,6 @@ runs:
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json' \
           --data "$DATA" | jq .key )
-        echo "::warning::Incident ticket created as $create_ticket_ang_get_id"
+
+        echo "::error::Incident ticket created as $create_ticket_ang_get_id"
       shell: bash

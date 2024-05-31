@@ -23,10 +23,9 @@ import {
   canDisplayThreshold,
   requiredNumberLinesThreshold
 } from './Threshold/models';
-import { CurveType } from './models';
 
 interface Props extends GlobalAreaLines {
-  curve: CurveType;
+  curve: 'linear' | 'step' | 'natural';
   displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;

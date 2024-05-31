@@ -1,0 +1,73 @@
+get:
+  tags:
+    - Host group
+  summary: "List all host groups"
+  description: |
+    Return all host group configurations.
+
+    The available parameters to **search** / **sort_by** are:
+
+    * id
+    * name
+    * alias
+    * is_activated
+    * hostcategory.id
+    * hostcategory.name
+  parameters:
+    - $ref: '../../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: 'Schema/FindHostGroupsResponse.yaml'
+              meta:
+                $ref: '../../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+post:
+  tags:
+    - Host group
+  summary: "Add a host group"
+  description: |
+    Add a new host group configuration.
+
+    Mandatory body properties are:
+
+    * name
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/AddHostGroupRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: 'Schema/AddHostGroupResponse.yaml'
+    '400':
+      $ref: '../../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
+

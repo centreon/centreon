@@ -28,7 +28,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\SAML\LogoutFromIdp;
 use OneLogin\Saml2\Error;
-use Symfony\Component\HttpFoundation\Request;
 
 final class SLSController extends AbstractController
 {
@@ -36,12 +35,11 @@ final class SLSController extends AbstractController
     use LoggerTrait;
 
     /**
-     * @param Request $request
      * @param LogoutFromIdp $usecase
      *
      * @throws Error
      */
-    public function __invoke(Request $request, LogoutFromIdp $usecase): void
+    public function __invoke(LogoutFromIdp $usecase): void
     {
         $this->info('SAML SLS invoked');
         $usecase();

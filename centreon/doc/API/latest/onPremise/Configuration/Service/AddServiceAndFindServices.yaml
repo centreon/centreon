@@ -1,0 +1,83 @@
+post:
+  tags:
+    - Service
+  summary: "Add a service"
+  description: |
+    Add a service configuration
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+            - required: ["name", "host_id"]
+            - $ref: 'Schema/AddServiceRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: 'Schema/AddServiceResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'
+get:
+  tags:
+    - Service
+  summary: "Find all services"
+  description: |
+    Return all service configurations.
+
+    The available parameters to **search** by are:
+
+    * name
+    * host.id
+    * host.name
+    * category.id
+    * category.name
+    * severity.id
+    * severity.name
+    * group.id
+    * group.name
+    * hostgroup.id
+    * hostgroup.name
+    * hostcategory.id
+    * hostcategory.name
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: array
+                items:
+                  $ref: './Schema/FindServicesResponse.yaml'
+              meta:
+                $ref: '../../Common/Schema/Meta.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

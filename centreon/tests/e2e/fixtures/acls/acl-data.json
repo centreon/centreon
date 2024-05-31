@@ -1,0 +1,55 @@
+{
+  "contactGroups": {
+    "contactGroup1": {
+      "name": "contact_group_1"
+    }
+  },
+  "contacts": {
+    "contact1": {
+      "admin": false,
+      "email": "contact1@localhost",
+      "name": "contact_1",
+      "password": "myPassword@1"
+    },
+    "contact2": {
+      "admin": false,
+      "email": "contact2@localhost",
+      "name": "contact_2",
+      "password": "myPassword@2"
+    },
+    "contact3": {
+      "admin": true,
+      "email": "contact3@localhost",
+      "name": "contact_3",
+      "password": "myPassword@3"
+    }
+  },
+  "ACLGroups": {
+    "ACLGroup1": {
+      "name": "ACL_group_1",
+      "alias": "ACL group 1"
+    },
+    "ACLGroup2": {
+      "name": "ACL_group_2",
+      "alias": "ACL group 2"
+    },
+    "ACLGroup3": {
+      "name": "ACL_group_3",
+      "alias": "ACL group 3"
+    }
+  },
+  "ACLMenu": {
+    "name": "ACL_Menu",
+    "alias": "ACL Menu",
+    "comment": "This is just a comment"
+  },
+  "ACLAction": {
+    "name": "ACL_Action_1",
+    "description": "This is just a description"
+  },
+  "ACLResource": {
+    "name": "ACL_Resources_1",
+    "description": "This is just a description",
+    "comment": "This is just a comment"
+  }
+}

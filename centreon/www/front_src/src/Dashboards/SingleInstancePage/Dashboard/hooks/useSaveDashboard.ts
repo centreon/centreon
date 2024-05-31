@@ -38,7 +38,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       },
       name: name || '',
       widget_settings: {
-        data: data || null,
+        data,
         options
       },
       widget_type: panelConfiguration.path
@@ -68,7 +68,9 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   });
 
   const saveDashboard = (): void => {
-    mutateAsync({ panels: formatPanelsToAPI(dashboard.layout) }).then(() => {
+    mutateAsync({
+      payload: { panels: formatPanelsToAPI(dashboard.layout) }
+    }).then(() => {
       showSuccessMessage(t(labelYourDashboardHasBeenSaved));
       switchPanelsEditionMode(false);
       queryClient.invalidateQueries({

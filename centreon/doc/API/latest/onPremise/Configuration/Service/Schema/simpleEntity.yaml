@@ -1,0 +1,8 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 12
+  name:
+    type: string
+    example: "entity-name"

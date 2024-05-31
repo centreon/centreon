@@ -51,6 +51,7 @@ contents:
 
   - src: ./src/conf.pm
     dst: /etc/centreon/conf.pm
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
@@ -58,10 +59,11 @@ contents:
 
   - src: ./src/centreontrapd.pm
     dst: /etc/centreon/centreontrapd.pm
+    type: config|noreplace
     file_info:
       owner: "centreon"
       group: "centreon"
-      mode: 0664
+      mode: 0640
 
   - src: ./src/sudoersCentreon
     dst: /etc/sudoers.d/centreon

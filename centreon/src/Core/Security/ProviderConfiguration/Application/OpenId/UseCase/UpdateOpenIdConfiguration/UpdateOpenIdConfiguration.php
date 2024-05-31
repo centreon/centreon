@@ -26,7 +26,6 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateO
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -60,7 +59,6 @@ class UpdateOpenIdConfiguration
      * @param ReadContactTemplateRepositoryInterface $contactTemplateRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param DataStorageEngineInterface $dataStorageEngine
      * @param ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
      */
     public function __construct(
@@ -68,7 +66,6 @@ class UpdateOpenIdConfiguration
         private ReadContactTemplateRepositoryInterface $contactTemplateRepository,
         private ReadContactGroupRepositoryInterface $contactGroupRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private DataStorageEngineInterface $dataStorageEngine,
         private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory
     ) {
     }
@@ -85,6 +82,9 @@ class UpdateOpenIdConfiguration
         $this->info('Updating OpenID Provider');
         try {
             $provider = $this->providerAuthenticationFactory->create(Provider::OPENID);
+            /**
+             * @var Configuration $configuration
+             */
             $configuration = $provider->getConfiguration();
             $configuration->update($request->isActive, $request->isForced);
             $requestArray = $request->toArray();
@@ -101,7 +101,9 @@ class UpdateOpenIdConfiguration
             $requestArray['is_active'] = $request->isActive;
 
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
-            $this->updateConfiguration($configuration);
+
+            $this->info('Updating OpenID Provider');
+            $this->repository->updateConfiguration($configuration);
         } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
@@ -262,34 +264,6 @@ class UpdateOpenIdConfiguration
         }
 
         return array_unique($accessGroupIds);
-    }
-
-    /**
-     * Update OpenId Provider.
-     *
-     * @param Configuration $configuration
-     *
-     * @throws \Throwable
-     */
-    private function updateConfiguration(Configuration $configuration): void
-    {
-        $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
-        try {
-            if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->startTransaction();
-            }
-            $this->info('Updating OpenID Provider');
-            $this->repository->updateConfiguration($configuration);
-            if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->commitTransaction();
-            }
-        } catch (\Throwable $ex) {
-            if (! $isAlreadyInTransaction) {
-                $this->dataStorageEngine->rollbackTransaction();
-
-                throw $ex;
-            }
-        }
     }
 
     /**

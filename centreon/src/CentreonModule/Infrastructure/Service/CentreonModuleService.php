@@ -33,7 +33,7 @@ class CentreonModuleService
     /**
      * Construct.
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @param ContainerInterface $services
      */
     public function __construct(ContainerInterface $services)
     {

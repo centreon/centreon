@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
-final class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
+class Configuration extends \Core\Security\ProviderConfiguration\Domain\Model\Configuration implements ProviderConfigurationInterface
 {
     /**
      * @return CustomConfiguration

@@ -48,7 +48,7 @@ const WebSSOForm = ({
     values: WebSSOConfiguration,
     { setSubmitting }
   ): Promise<void> => {
-    return mutateAsync(adaptWebSSOConfigurationToAPI(values))
+    return mutateAsync({ payload: adaptWebSSOConfigurationToAPI(values) })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: [Provider.WebSSO] });
         loadWebSSOonfiguration();

@@ -7,12 +7,15 @@ import {
   flatten,
   groupBy,
   identity,
-  includes
+  includes,
+  pipe,
+  map,
+  toPairs
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
+import { SeverityCode, centreonBaseURL } from '@centreon/ui';
 
-import { Resource } from './models';
+import { Resource, SeverityStatus } from './models';
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -20,13 +23,9 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources)
+      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
   );
 
-const hostCriterias = {
-  name: 'resource_types',
-  value: [{ id: 'host', name: 'Host' }]
-};
 const serviceCriteria = {
   name: 'resource_types',
   value: [{ id: 'service', name: 'Service' }]
@@ -35,18 +34,19 @@ const serviceCriteria = {
 interface GetResourcesUrlProps {
   allResources: Array<Resource>;
   isForOneResource: boolean;
-  resource;
+  resource?;
   states: Array<string>;
   statuses: Array<string>;
   type: string;
 }
 
 export const getDetailsPanelQueriers = ({ resource, type }): object => {
-  const { id, parentId, uuid } = resource;
+  const { id, parentId, uuid, type: resourceType } = resource;
 
-  const resourcesDetailsEndpoint = equals(type, 'host')
-    ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
-    : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
+  const resourcesDetailsEndpoint =
+    equals(type, 'host') || equals(resourceType, 'host')
+      ? `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${id}`
+      : `${centreonBaseURL}/api/latest/monitoring/resources/hosts/${parentId}/services/${id}`;
 
   const queryParameters = {
     id,
@@ -68,12 +68,31 @@ export const getResourcesUrl = ({
   isForOneResource,
   resource
 }: GetResourcesUrlProps): string => {
-  const formattedStatuses = statuses.map((status) => {
-    return {
-      id: status.toLocaleUpperCase(),
-      name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
-    };
-  });
+  const resourcesCriterias = equals(type, 'all')
+    ? {
+        name: 'resource_types',
+        value: [
+          { id: 'service', name: 'Service' },
+          { id: 'host', name: 'Host' }
+        ]
+      }
+    : {
+        name: 'resource_types',
+        value: [
+          { id: type, name: `${type.charAt(0).toUpperCase()}${type.slice(1)}` }
+        ]
+      };
+
+  const formattedStatuses = pipe(
+    map((status) => formatStatusFilter(status)),
+    flatten,
+    map((status: string) => {
+      return {
+        id: status.toLocaleUpperCase(),
+        name: `${status.charAt(0).toUpperCase()}${status.slice(1)}`
+      };
+    })
+  )(statuses);
 
   const formattedStates = states.map((state) => {
     return {
@@ -113,7 +132,7 @@ export const getResourcesUrl = ({
 
   const filterQueryParameter = {
     criterias: [
-      equals(type, 'host') ? hostCriterias : serviceCriteria,
+      resourcesCriterias,
       { name: 'statuses', value: formattedStatuses },
       { name: 'states', value: formattedStates },
       ...resourcesFilters,
@@ -130,6 +149,7 @@ export const getResourcesUrl = ({
   }
 
   const detailsPanelQueriers = getDetailsPanelQueriers({ resource, type });
+
   const encodedDetailsParams = encodeURIComponent(
     JSON.stringify(detailsPanelQueriers)
   );
@@ -192,4 +212,114 @@ export const getResourcesUrlForMetricsWidgets = (data): string => {
   );
 
   return `/monitoring/resources?details=${encodedDetailsParams}&filter=${encodedFilterParams}&fromTopCounter=true`;
+};
+
+export const formatStatusFilter = cond([
+  [equals(SeverityStatus.Success), always(['ok', 'up'])],
+  [equals(SeverityStatus.Warning), always(['warning'])],
+  [equals(SeverityStatus.Problem), always(['down', 'critical'])],
+  [equals(SeverityStatus.Undefined), always(['unreachable', 'unknown'])],
+  [equals(SeverityStatus.Pending), always(['pending'])],
+  [T, identity]
+]) as (b: SeverityStatus) => Array<string>;
+
+export const formatStatus = pipe(
+  map(formatStatusFilter),
+  flatten,
+  map((status) => status.toLocaleUpperCase())
+);
+
+export const goToUrl = (url) => (): void => {
+  window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
+};
+
+const isTypeHost = equals('host');
+
+interface GetStatusNameByStatusSeverityandResourceTypeProps {
+  resourceType: string;
+  status: SeverityStatus;
+}
+
+export const getStatusNameByStatusSeverityandResourceType = ({
+  resourceType,
+  status
+}: GetStatusNameByStatusSeverityandResourceTypeProps): string =>
+  cond([
+    [
+      equals(SeverityStatus.Success),
+      always(isTypeHost(resourceType) ? 'up' : 'ok')
+    ],
+    [equals(SeverityStatus.Warning), always('warning')],
+    [
+      equals(SeverityStatus.Problem),
+      always(isTypeHost(resourceType) ? 'down' : 'critical')
+    ],
+    [
+      equals(SeverityStatus.Undefined),
+      always(isTypeHost(resourceType) ? 'unreachable' : 'unknown')
+    ],
+    [equals(SeverityStatus.Pending), always('pending')]
+  ])(status);
+
+export const severityCodeBySeverityStatus = {
+  [SeverityStatus.Problem]: SeverityCode.High,
+  [SeverityStatus.Warning]: SeverityCode.Medium,
+  [SeverityStatus.Success]: SeverityCode.OK,
+  [SeverityStatus.Undefined]: SeverityCode.None,
+  [SeverityStatus.Pending]: SeverityCode.Pending
+};
+
+export const severityStatusBySeverityCode = {
+  [SeverityCode.High]: SeverityStatus.Problem,
+  [SeverityCode.Medium]: SeverityStatus.Warning,
+  [SeverityCode.OK]: SeverityStatus.Success,
+  [SeverityCode.None]: SeverityStatus.Undefined,
+  [SeverityCode.Pending]: SeverityStatus.Pending
+};
+
+interface GetPublicWidgetEndpointProps {
+  dashboardId: number | string;
+  extraQueryParameters?: string;
+  playlistHash?: string;
+  widgetId: string;
+}
+
+export const getPublicWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  extraQueryParameters = ''
+}: GetPublicWidgetEndpointProps): string =>
+  `/it-edition-extensions/monitoring/dashboards/playlists/${playlistHash}/dashboards/${dashboardId}/widgets/${widgetId}${extraQueryParameters}`;
+
+export const getWidgetEndpoint = ({
+  playlistHash,
+  dashboardId,
+  widgetId,
+  isOnPublicPage,
+  defaultEndpoint,
+  extraQueryParameters
+}: Omit<GetPublicWidgetEndpointProps, 'extraQueryParameters'> & {
+  defaultEndpoint: string;
+  extraQueryParameters?: Record<string, string | number | object>;
+  isOnPublicPage: boolean;
+}): string => {
+  if (isOnPublicPage && playlistHash) {
+    const extraqueryParametersStringified = extraQueryParameters
+      ? toPairs(extraQueryParameters).reduce(
+          (acc, [key, value]) =>
+            `${acc}&${key as string}=${encodeURIComponent(JSON.stringify(value))}`,
+          '?'
+        )
+      : '';
+
+    return getPublicWidgetEndpoint({
+      dashboardId,
+      extraQueryParameters: extraqueryParametersStringified,
+      playlistHash,
+      widgetId
+    });
+  }
+
+  return defaultEndpoint;
 };

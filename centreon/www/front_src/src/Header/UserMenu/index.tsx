@@ -21,12 +21,14 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 import {
   MenuSkeleton,
   getData,
   useRequest,
-  useLocaleDateTimeFormat
+  useLocaleDateTimeFormat,
+  useFullscreen
 } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
@@ -39,6 +41,7 @@ import SwitchMode from './SwitchThemeMode';
 import {
   labelCopyAutologinLink,
   labelEditProfile,
+  labelFullscreen,
   labelLogout,
   labelPasswordWillExpireIn,
   labelProfile
@@ -163,10 +166,15 @@ interface Props {
   headerRef?: RefObject<HTMLElement>;
 }
 
+export const testUtils = {
+  useNavigate,
+  useNavigation
+};
+
 const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
-  const { allowedPages } = useNavigation();
+  const { allowedPages } = testUtils.useNavigation();
 
   const [copied, setCopied] = useState(false);
   const [data, setData] = useState<UserData | null>(null);
@@ -181,8 +189,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
     request: getData
   });
 
-  const navigate = useNavigate();
+  const navigate = testUtils.useNavigate();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
+  const { toggleFullscreen } = useFullscreen();
 
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })
@@ -308,6 +317,11 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
 
   const primaryTypographyProps = {
     className: classes.text
+  };
+
+  const changeFullscreen = (): void => {
+    setAnchorEl(null);
+    toggleFullscreen(document.querySelector('body'));
   };
 
   return (
@@ -436,7 +450,22 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                   <ListItem className={classes.listItem}>
                     <SwitchMode />
                   </ListItem>
-
+                  <ListItem className={classes.listItem}>
+                    <ListItemButton
+                      className={classes.listItemButton}
+                      onClick={changeFullscreen}
+                    >
+                      <FullscreenIcon
+                        className={classes.icon}
+                        fontSize="small"
+                      />
+                      <ListItemText
+                        primaryTypographyProps={primaryTypographyProps}
+                      >
+                        {t(labelFullscreen)}
+                      </ListItemText>
+                    </ListItemButton>
+                  </ListItem>
                   <ListItem className={classes.listItem}>
                     <ListItemButton
                       className={classes.listItemButton}

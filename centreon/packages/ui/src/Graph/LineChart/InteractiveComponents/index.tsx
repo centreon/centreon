@@ -3,7 +3,21 @@ import { MutableRefObject } from 'react';
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
+import {
+  all,
+  equals,
+  find,
+  isEmpty,
+  isNil,
+  keys,
+  map,
+  pick,
+  pipe,
+  pluck,
+  reduce,
+  toPairs,
+  values
+} from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -12,8 +26,16 @@ import {
   InteractedZone,
   InteractedZone as ZoomPreviewModel
 } from '../models';
-import { getTimeValue } from '../../common/timeSeries';
-import { TimeValue } from '../../common/timeSeries/models';
+import {
+  formatMetricName,
+  getLineForMetric,
+  getLinesForMetrics,
+  getTimeValue,
+  getUnits,
+  getYScale
+} from '../../common/timeSeries';
+import { Line, TimeValue } from '../../common/timeSeries/models';
+import { margin } from '../common';
 
 import Annotations from './Annotations';
 import { TimelineEvent } from './Annotations/models';
@@ -22,10 +44,11 @@ import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
 import {
   MousePosition,
-  changeMousePositionAndTimeValueDerivedAtom,
+  changeMousePositionDerivedAtom,
   eventMouseDownAtom,
   eventMouseLeaveAtom,
-  eventMouseUpAtom
+  eventMouseUpAtom,
+  graphTooltipDataAtom
 } from './interactionWithGraphAtoms';
 
 const useStyles = makeStyles()(() => ({
@@ -38,13 +61,15 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
+  leftScale;
+  lines;
+  rightScale;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
 }
 
 interface TimeShiftZonesData extends InteractedZone {
   graphInterval: GraphInterval;
-  loading: boolean;
 }
 
 interface Props {
@@ -65,13 +90,19 @@ const InteractionWithGraph = ({
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
+  const changeMousePosition = useSetAtom(changeMousePositionDerivedAtom);
+  const setGraphTooltipData = useSetAtom(graphTooltipDataAtom);
 
-  const changeMousePositionAndTimeValue = useSetAtom(
-    changeMousePositionAndTimeValueDerivedAtom
-  );
-
-  const { graphHeight, graphWidth, graphSvgRef, xScale, timeSeries } =
-    commonData;
+  const {
+    graphHeight,
+    graphWidth,
+    graphSvgRef,
+    xScale,
+    timeSeries,
+    leftScale,
+    rightScale,
+    lines
+  } = commonData;
 
   const displayZoomPreview = zoomData?.enable ?? true;
 
@@ -83,6 +114,7 @@ const InteractionWithGraph = ({
     setEventMouseLeave(event);
     setEventMouseDown(null);
     updateMousePosition(null);
+    setGraphTooltipData(null);
   };
 
   const mouseUp = (event): void => {
@@ -107,10 +139,10 @@ const InteractionWithGraph = ({
 
   const updateMousePosition = (pointPosition: MousePosition): void => {
     if (isNil(pointPosition)) {
-      changeMousePositionAndTimeValue({
-        position: null,
-        timeValue: null
+      changeMousePosition({
+        position: null
       });
+      setGraphTooltipData(null);
 
       return;
     }
@@ -120,7 +152,89 @@ const InteractionWithGraph = ({
       xScale
     });
 
-    changeMousePositionAndTimeValue({ position: pointPosition, timeValue });
+    if (isNil(timeValue)) {
+      changeMousePosition({
+        position: null
+      });
+      setGraphTooltipData(null);
+
+      return;
+    }
+
+    const date = timeValue.timeTick;
+    const displayedMetricIds = pluck('metric_id', lines);
+    const filteredMetricsValue = pick(displayedMetricIds, timeValue);
+    const [, secondUnit, thirdUnit] = getUnits(lines as Array<Line>);
+    const areAllValuesEmpty = pipe(values, all(isNil))(filteredMetricsValue);
+
+    const linesData = getLinesForMetrics({
+      lines,
+      metricIds: keys(filteredMetricsValue).map(Number)
+    });
+
+    if (areAllValuesEmpty) {
+      changeMousePosition({ position: pointPosition });
+      setGraphTooltipData(null);
+
+      return;
+    }
+
+    const distanceWithPointPositionPerMetric = reduce(
+      (acc, [metricId, value]) => {
+        if (isNil(value)) {
+          return acc;
+        }
+
+        const lineData = getLineForMetric({
+          lines,
+          metric_id: Number(metricId)
+        });
+        const yScale = getYScale({
+          hasMoreThanTwoUnits: Boolean(thirdUnit),
+          invert: (lineData as Line).invert,
+          leftScale,
+          rightScale,
+          secondUnit,
+          unit: (lineData as Line).unit
+        });
+
+        const y0 = yScale(value);
+
+        const diffBetweenY0AndPointPosition = Math.abs(
+          y0 + margin.top - pointPosition[1]
+        );
+
+        return {
+          ...acc,
+          [metricId]: diffBetweenY0AndPointPosition
+        };
+      },
+      {},
+      Object.entries(filteredMetricsValue)
+    );
+
+    const nearestY0 = Math.min(...values(distanceWithPointPositionPerMetric));
+
+    const nearestLine = pipe(
+      toPairs,
+      find(([, y0]) => equals(y0, nearestY0)) as () => [string, number]
+    )(distanceWithPointPositionPerMetric);
+
+    changeMousePosition({ position: pointPosition });
+    setGraphTooltipData({
+      date,
+      highlightedMetricId: Number(nearestLine[0]),
+      metrics: map(
+        ({ metric_id, color, unit, legend, name }) => ({
+          color,
+          id: metric_id,
+          name: formatMetricName({ legend, name }),
+          unit,
+          value: timeValue?.[metric_id]
+        }),
+        linesData
+      ).filter(({ value }) => !isNil(value))
+    });
   };
 
   return (
@@ -151,8 +265,9 @@ const InteractionWithGraph = ({
       )}
       <Bar
         className={classes.overlay}
+        data-testid="graph-interaction-zone"
         fill="transparent"
-        height={graphHeight}
+        height={graphHeight - margin.bottom}
         width={graphWidth}
         x={0}
         y={0}

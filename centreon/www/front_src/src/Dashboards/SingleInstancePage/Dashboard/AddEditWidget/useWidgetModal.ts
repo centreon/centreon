@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, find, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { Panel, PanelConfiguration } from '../models';
 import {
@@ -17,15 +18,17 @@ import {
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
 } from './atoms';
 import { Widget } from './models';
+import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 
 interface useWidgetModalState {
   addWidget: (values: Widget) => void;
@@ -50,34 +53,62 @@ const useWidgetModal = (): useWidgetModalState => {
     widgetFormInitialDataAtom
   );
 
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
+  const federatedWidgetsProperties = useAtomValue(
+    federatedWidgetsPropertiesAtom
+  );
   const addPanel = useSetAtom(addPanelDerivedAtom);
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
-  const openModal = (widget: Panel | null): void =>
+  const openModal = (widget: Panel | null): void => {
+    const selectedWidget = find(
+      propEq(widget?.name, 'moduleName'),
+      federatedWidgets || []
+    );
+
+    const selectedWidgetProperties = find(
+      propEq(widget?.name, 'moduleName'),
+      federatedWidgetsProperties || []
+    );
+
+    const defaultOptions =
+      selectedWidget && selectedWidgetProperties
+        ? {
+            ...getDefaultValues(selectedWidgetProperties.options),
+            ...getDefaultValues(
+              selectedWidgetProperties.generalProperties?.elements
+            )
+          }
+        : {};
+
     startTransition(() =>
       setWidgetFormInitialDataAtom({
         data: widget?.data || {},
         id: widget?.i || null,
         moduleName: widget?.name || null,
-        options: widget?.options || {},
+        options: {
+          ...defaultOptions,
+          ...(widget?.options || {})
+        },
         panelConfiguration: widget?.panelConfiguration || null
       })
     );
+  };
 
   const closeModal = (): void =>
     startTransition(() => {
       setWidgetFormInitialDataAtom(null);
-      setWidgetProperties(null);
+      setWidgetProperties(undefined);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
-      setSingleHostPerMetric(undefined);
+      setSingleResourceSelection(undefined);
       setCustomBaseColor(undefined);
     });
 

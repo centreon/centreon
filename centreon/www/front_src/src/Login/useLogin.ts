@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
 import { useCookies } from 'react-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +51,8 @@ import usePostLogin from './usePostLogin';
 import useWallpaper from './useWallpaper';
 
 interface UseLoginState {
+  authenticationError: string | null;
+  hasForcedProvider: boolean;
   loginPageCustomisation: LoginPageCustomisation;
   platformInstallationStatus: PlatformInstallationStatus | null;
   providersConfiguration: Array<ProviderConfiguration> | null;
@@ -84,12 +86,14 @@ const defaultLoginPageCustomisation: LoginPageCustomisation = {
 };
 
 export const router = {
-  useNavigate
+  useNavigate,
+  useSearchParams
 };
 
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
   const { sendLogin } = usePostLogin();
+  const [searchParams] = router.useSearchParams();
 
   const [cookies] = useCookies(['REDIRECT_URI']);
 
@@ -109,7 +113,7 @@ const useLogin = (): UseLoginState => {
       decoder: loginPageCustomisationDecoder,
       getEndpoint: () => loginPageCustomisationEndpoint,
       getQueryKey: () => ['loginPageCustomisation'],
-      httpCodesBypassErrorSnackbar: [404],
+      httpCodesBypassErrorSnackbar: [404, 401],
       queryOptions: {
         enabled: !!path(
           ['modules', 'centreon-it-edition-extensions'],
@@ -162,8 +166,10 @@ const useLogin = (): UseLoginState => {
     { setSubmitting }
   ): void => {
     sendLogin({
-      login: values.alias,
-      password: values.password
+      payload: {
+        login: values.alias,
+        password: values.password
+      }
     })
       .then((response) => {
         if ((response as ResponseError).isError) {
@@ -176,11 +182,10 @@ const useLogin = (): UseLoginState => {
           return;
         }
         showSuccessMessage(t(labelLoginSucceeded));
-        getInternalTranslation().then(
-          () =>
-            loadUser()?.then(() =>
-              navigate(prop('redirectUri', response as Redirect))
-            )
+        getInternalTranslation().then(() =>
+          loadUser()?.then(() =>
+            navigate(prop('redirectUri', response as Redirect))
+          )
         );
       })
       .catch((error) =>
@@ -191,8 +196,8 @@ const useLogin = (): UseLoginState => {
   const getBrowserLocale = (): string => navigator.language.slice(0, 2);
 
   useEffect(() => {
-    getExternalTranslation().then(
-      () => i18n.changeLanguage?.(getBrowserLocale())
+    getExternalTranslation().then(() =>
+      i18n.changeLanguage?.(getBrowserLocale())
     );
   }, []);
 
@@ -203,6 +208,8 @@ const useLogin = (): UseLoginState => {
   const activeProviders = getActiveProviders(externalProviders || []);
 
   const wallpaper = useWallpaper();
+
+  const authenticationError = searchParams.get('authenticationError');
 
   const loginPageCustomisation = isFetching
     ? defaultLoginPageCustomisation
@@ -230,14 +237,16 @@ const useLogin = (): UseLoginState => {
   }, [cookies]);
 
   useEffect(() => {
-    if (isEmpty(forcedProviders)) {
+    if (isEmpty(forcedProviders) || authenticationError) {
       return;
     }
 
     window.location.replace(forcedProviders[0].authenticationUri);
-  }, [forcedProviders]);
+  }, [forcedProviders, authenticationError]);
 
   return {
+    authenticationError,
+    hasForcedProvider: !!forcedProviders,
     loginPageCustomisation,
     platformInstallationStatus,
     providersConfiguration: activeProviders,

@@ -25,6 +25,9 @@ namespace Core\Dashboard\Application\Exception;
 
 class DashboardException extends \Exception
 {
+    public const CODE_NOT_FOUND = 1;
+    public const CODE_FORBIDDEN = 2;
+
     /**
      * @return self
      */
@@ -75,7 +78,8 @@ class DashboardException extends \Exception
             sprintf(
                 _('You are not allowed to edit access rights on the dashboard #%d'),
                 $dashboardId
-            )
+            ),
+            self::CODE_FORBIDDEN
         );
     }
 
@@ -128,30 +132,113 @@ class DashboardException extends \Exception
     }
 
     /**
-     * @return self
-     */
-    public static function errorWhileRetrievingJustCreatedShare(): self
-    {
-        return new self(_('Error while retrieving the new dashboard share'));
-    }
-
-    /**
-     * @param int $contactGroupId
+     * @param int $dashboardId
      *
      * @return self
      */
-    public static function theContactGroupDoesNotExist(int $contactGroupId): self
+    public static function theDashboardDoesNotExist(int $dashboardId): self
     {
-        return new self(sprintf(_("The contact group id #%d doesn't exist"), $contactGroupId));
+        return new self(sprintf(_('The dashboard [%d] does not exist'), $dashboardId), self::CODE_NOT_FOUND);
     }
 
     /**
-     * @param int $contactId
+     * @param int[] $contactIds
      *
      * @return self
      */
-    public static function theContactDoesNotExist(int $contactId): self
+    public static function theContactsDoNotExist(array $contactIds): self
     {
-        return new self(sprintf(_('The contact ID #%d does not exist'), $contactId));
+        return new self(sprintf(_('The contacts [%s] do not exist'), implode(', ', $contactIds)));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoNotExist(array $contactGroupIds): self
+    {
+        return new self(sprintf(_('The contact groups [%s] do not exist'), implode(', ', $contactGroupIds)));
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function theContactsDoesNotHaveDashboardAccessRights(array $contactIds): self
+    {
+        return new self (
+            sprintf(_('The contacts [%s] do not have any dashboard Access rights'), implode(', ', $contactIds))
+        );
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function theContactGroupsDoesNotHaveDashboardAccessRights(array $contactGroupIds): self
+    {
+        return new self (
+            sprintf(
+                _('The contact groups [%s] do not have any dashboard Access rights'),
+                implode(', ', $contactGroupIds)
+            )
+        );
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact several times'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function contactGroupForShareShouldBeUnique(): self
+    {
+        return new self(_('You cannot share the same dashboard to a contact group several times'));
+    }
+
+    public static function notSufficientAccessRightForUser(int $contactId, string $role): self
+    {
+        return new self(sprintf(_('No sufficient access rights to user [%d] to give role [%s]'), $contactId, $role));
+    }
+
+    public static function notSufficientAccessRightForContactGroup(int $contactGroupId, string $role): self
+    {
+        return new self(
+            sprintf(_('No sufficient access rights to contact group [%d] to give role [%s]'), $contactGroupId, $role)
+        );
+    }
+
+    /**
+     * @param int[] $contactIds
+     *
+     * @return self
+     */
+    public static function userAreNotInAccessGroups(array $contactIds): self
+    {
+        return new self(sprintf(
+            _('The users [%s] are not in your access groups'),
+            implode(', ', $contactIds)
+        ));
+    }
+
+    /**
+     * @param int[] $contactGroupIds
+     *
+     * @return self
+     */
+    public static function contactGroupIsNotInUserContactGroups(array $contactGroupIds): self
+    {
+        return new self(sprintf(
+            _('The contact groups [%s] are not in your contact groups'),
+            implode(', ', $contactGroupIds)
+        ));
     }
 }

@@ -25,6 +25,7 @@ namespace Core\ResourceAccess\Application\Repository;
 
 use Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilter;
 use Core\ResourceAccess\Domain\Model\NewRule;
+use Core\ResourceAccess\Domain\Model\Rule;
 
 interface WriteResourceAccessRepositoryInterface
 {
@@ -36,10 +37,20 @@ interface WriteResourceAccessRepositoryInterface
     public function add(NewRule $rule): int;
 
     /**
+     * @param Rule $rule
+     */
+    public function update(Rule $rule): void;
+
+    /**
      * @param int $ruleId
      * @param int[] $contactIds
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function deleteContactRuleRelations(int $ruleId): void;
 
     /**
      * @param int $ruleId
@@ -48,11 +59,32 @@ interface WriteResourceAccessRepositoryInterface
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void;
 
     /**
+     * @param int $ruleId
+     */
+    public function deleteContactGroupRuleRelations(int $ruleId): void;
+
+    /**
      * @param string $name
+     * @param bool $accessAllHosts
+     * @param bool $accessAllHostGroups
+     * @param bool $accessAllServiceGroups
      *
      * @return int
      */
-    public function addDataset(string $name): int;
+    public function addDataset(
+        string $name,
+        bool $accessAllHosts,
+        bool $accessAllHostGroups,
+        bool $accessAllServiceGroups
+    ): int;
+
+    /**
+     * @param int $ruleId
+     * @param int $datasetId
+     * @param string $resourceType (possible values: hostgroups, servicegroups, hosts)
+     * @param bool $fullAccess
+     */
+    public function updateDatasetAccess(int $ruleId, int $datasetId, string $resourceType, bool $fullAccess): void;
 
     /**
      * @param int $ruleId
@@ -77,5 +109,15 @@ interface WriteResourceAccessRepositoryInterface
      * @param int $ruleId
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, string $resourceType, array $resourceIds): void;
+
+    /**
+     * @param int $ruleId
+     */
+    public function deleteRuleAndDatasets(int $ruleId): void;
+
+    /**
+     * @param int[] $ids
+     */
+    public function deleteDatasets(array $ids): void;
 }
 

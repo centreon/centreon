@@ -1,18 +1,25 @@
-import { equals, flatten, includes, pluck } from 'ramda';
+import { equals, flatten, includes, isEmpty, pluck, toUpper } from 'ramda';
 
-import { buildListingEndpoint } from '@centreon/ui';
+import {
+  ListingParameters,
+  QueryParameter,
+  buildListingEndpoint
+} from '@centreon/ui';
 
 import { Resource } from '../../../models';
+import { formatStatus } from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 
 interface BuildResourcesEndpointProps {
-  limit: number;
+  baseEndpoint: string;
+  limit?: number;
+  page?: number;
   resources: Array<Resource>;
-  sortBy: string;
-  states: Array<string>;
-  statuses: Array<string>;
-  type: string;
+  sortBy?: string;
+  states?: Array<string>;
+  statuses?: Array<string>;
+  type?: string;
 }
 
 const resourceTypesCustomParameters = [
@@ -23,24 +30,62 @@ const resourceTypesCustomParameters = [
 ];
 const resourceTypesSearchParameters = ['host', 'service'];
 
+const categories = ['host-category', 'service-category'];
+
 const resourcesSearchMapping = {
   host: 'parent_name',
   service: 'name'
 };
 
-export const buildResourcesEndpoint = ({
-  type,
+interface GetCustomQueryParametersProps {
+  resources: Array<Resource>;
+  states?: Array<string>;
+  statuses?: Array<string>;
+  types?: Array<string>;
+}
+
+export const getListingCustomQueryParameters = ({
+  types,
   statuses,
   states,
-  sortBy,
-  limit,
   resources
-}: BuildResourcesEndpointProps): string => {
-  const formattedStatuses = statuses.map((state) => state.toLocaleUpperCase());
-
+}: GetCustomQueryParametersProps): Array<QueryParameter> => {
   const resourcesToApplyToCustomParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
   );
+
+  return [
+    ...(types && !isEmpty(types) ? [{ name: 'types', value: types }] : []),
+    ...(statuses && !isEmpty(statuses)
+      ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+      : []),
+    ...(states && !isEmpty(states) ? [{ name: 'states', value: states }] : []),
+    ...resourcesToApplyToCustomParameters.map(
+      ({ resourceType, resources: resourcesToApply }) => ({
+        name: includes(resourceType, categories)
+          ? `${resourceType.replace('-', '_')}_names`
+          : `${resourceType.replace('-', '')}_names`,
+        value: pluck('name', resourcesToApply)
+      })
+    )
+  ];
+};
+
+interface GetListingQueryParametersProps {
+  limit?: number;
+  page?: number;
+  resources: Array<Resource>;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+export const getListingQueryParameters = ({
+  resources,
+  sortBy,
+  sortOrder,
+  limit,
+  page
+}: GetListingQueryParametersProps): ListingParameters => {
   const resourcesToApplyToSearchParameters = resources.filter(
     ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
   );
@@ -56,61 +101,55 @@ export const buildResourcesEndpoint = ({
     }
   );
 
+  const search = isEmpty(flatten(searchConditions))
+    ? {}
+    : {
+        search: {
+          conditions: flatten(searchConditions)
+        }
+      };
+
+  return {
+    limit,
+    page: page || undefined,
+    ...search,
+    sort:
+      sortBy && sortOrder
+        ? {
+            [sortBy]: sortOrder
+          }
+        : undefined
+  };
+};
+
+export const buildResourcesEndpoint = ({
+  type,
+  statuses,
+  states,
+  sortBy,
+  limit,
+  resources,
+  baseEndpoint,
+  page = 1
+}: BuildResourcesEndpointProps): string => {
+  const formattedStatuses = formatStatus(statuses || []);
+
   const sortOrder = equals(sortBy, 'status_severity_code') ? 'DESC' : 'ASC';
 
   return buildListingEndpoint({
-    baseEndpoint: resourcesEndpoint,
-    customQueryParameters: [
-      { name: 'types', value: [type] },
-      { name: 'statuses', value: formattedStatuses },
-      { name: 'states', value: states },
-      ...resourcesToApplyToCustomParameters.map(
-        ({ resourceType, resources: resourcesToApply }) => ({
-          name: `${resourceType.replace('-', '')}_names`,
-          value: pluck('name', resourcesToApply)
-        })
-      )
-    ],
-    parameters: {
+    baseEndpoint,
+    customQueryParameters: getListingCustomQueryParameters({
+      resources,
+      states,
+      statuses: formattedStatuses,
+      types: type ? [type] : undefined
+    }),
+    parameters: getListingQueryParameters({
       limit,
-      page: 1,
-      search: {
-        conditions: flatten(searchConditions)
-      },
-      sort: {
-        [sortBy]: sortOrder
-      }
-    }
-  });
-};
-
-interface BuildServicesEndpointProps {
-  page?: number;
-  parentName: string;
-}
-
-export const buildServicesEndpoint = ({
-  parentName,
-  page
-}: BuildServicesEndpointProps): string => {
-  return buildListingEndpoint({
-    baseEndpoint: resourcesEndpoint,
-    parameters: {
-      limit: 10,
       page,
-      search: {
-        conditions: [
-          {
-            field: 'parent_name',
-            values: {
-              $rg: `^${parentName}$`
-            }
-          }
-        ]
-      },
-      sort: {
-        status: 'DESC'
-      }
-    }
+      resources,
+      sortBy,
+      sortOrder
+    })
   });
 };

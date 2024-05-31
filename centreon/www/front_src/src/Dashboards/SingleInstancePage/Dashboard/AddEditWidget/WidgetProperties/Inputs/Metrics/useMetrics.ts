@@ -4,10 +4,13 @@ import { useFormikContext } from 'formik';
 import {
   equals,
   identity,
+  includes,
   innerJoin,
   isEmpty,
   isNil,
+  map,
   omit,
+  pick,
   pluck,
   propEq,
   reject
@@ -24,7 +27,10 @@ import {
   WidgetDataResource
 } from '../../../models';
 import { getDataProperty } from '../utils';
-import { singleHostPerMetricAtom } from '../../../atoms';
+import {
+  resourcesInputKeyDerivedAtom,
+  widgetPropertiesAtom
+} from '../../../atoms';
 
 import { useListMetrics } from './useListMetrics';
 import { useRenderOptions } from './useRenderOptions';
@@ -34,6 +40,7 @@ interface UseMetricsOnlyState {
   changeMetrics: (_, newMetrics: Array<SelectEntry> | null) => void;
   deleteMetricItem: (index) => void;
   error?: string;
+  getMetricOptionDisabled: (metricOption) => boolean;
   getOptionLabel: (metric: FormMetric) => string;
   getTagLabel: (metric: FormMetric) => string;
   hasNoResources: () => boolean;
@@ -57,9 +64,12 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<Widget>();
 
-  const singleHostPerMetric = useAtomValue(singleHostPerMetricAtom);
+  const widgetProperties = useAtomValue(widgetPropertiesAtom);
+  const resourcesInputKey = useAtomValue(resourcesInputKeyDerivedAtom);
 
-  const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
+  const resources = (
+    resourcesInputKey ? values.data?.[resourcesInputKey] : []
+  ) as Array<WidgetDataResource>;
 
   const value = useMemo<Array<FormMetric> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -82,7 +92,8 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     isLoadingMetrics,
     metrics,
     metricCount,
-    servicesMetrics
+    servicesMetrics,
+    unitsFromSelectedMetrics
   } = useListMetrics({ resources, selectedMetrics: value });
 
   const getResourcesByMetricName = (
@@ -212,15 +223,23 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     useDeepCompare([servicesMetrics])
   );
 
+  const getMetricOptionDisabled = (metricOption): boolean => {
+    if (!hasReachedTheLimitOfUnits) {
+      return false;
+    }
+
+    return !includes(metricOption.unit, unitsFromSelectedMetrics);
+  };
+
   const metricWithSeveralResources = useMemo(
     () =>
-      singleHostPerMetric &&
+      widgetProperties?.singleResourceSelection &&
       value?.some(
         ({ name }) => getNumberOfResourcesRelatedToTheMetric(name) > 1
       ) &&
       getFirstUsedResourceForMetric(value[0].name),
     useDeepCompare([
-      singleHostPerMetric,
+      widgetProperties?.singleResourceSelection,
       value,
       getNumberOfResourcesRelatedToTheMetric,
       getFirstUsedResourceForMetric
@@ -286,11 +305,21 @@ const useMetrics = (propertyName: string): UseMetricsOnlyState => {
     useDeepCompare([servicesMetrics, resources])
   );
 
+  useEffect(() => {
+    const services = map(
+      pick(['uuid', 'id', 'name', 'parentName']),
+      servicesMetrics?.result || []
+    );
+
+    setFieldValue(`data.services`, services);
+  }, [values?.data?.[propertyName]]);
+
   return {
     changeMetric,
     changeMetrics,
     deleteMetricItem,
     error,
+    getMetricOptionDisabled,
     getOptionLabel,
     getTagLabel,
     hasNoResources,

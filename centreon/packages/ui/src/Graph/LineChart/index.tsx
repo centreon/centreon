@@ -1,6 +1,5 @@
 import { MutableRefObject, useRef } from 'react';
 
-import { Curve } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -17,20 +16,18 @@ import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
 import { GlobalAreaLines, LineChartProps, LegendModel } from './models';
 import useLineChartData from './useLineChartData';
-import { CurveType } from './BasicComponents/Lines/models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  curve?: CurveType;
+  curve?: 'linear' | 'step' | 'natural';
   data?: LineChartData;
   end: string;
   legend: LegendModel;
   limitLegend?: false | number;
   loading: boolean;
-  marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
   thresholdUnit?: string;
@@ -53,8 +50,7 @@ const WrapperLineChart = ({
   annotationEvent,
   legend,
   header,
-  curve = Curve.curveLinear,
-  marginBottom = 0,
+  curve = 'linear',
   thresholds,
   thresholdUnit,
   limitLegend
@@ -65,7 +61,7 @@ const WrapperLineChart = ({
   if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
-        displayTitleSkeleton={header?.displayTitle ?? true}
+        displayTitleSkeleton={header?.displayTitle ?? false}
         graphHeight={height || 200}
       />
     );
@@ -78,7 +74,7 @@ const WrapperLineChart = ({
   return (
     <div
       ref={lineChartRef as MutableRefObject<HTMLDivElement>}
-      style={{ height: '100%', width: '100%' }}
+      style={{ height: '100%', overflow: 'hidden', width: '100%' }}
     >
       <ParentSize>
         {({
@@ -98,8 +94,6 @@ const WrapperLineChart = ({
               height={height || responsiveHeight}
               legend={legend}
               limitLegend={limitLegend}
-              loading={loading}
-              marginBottom={marginBottom}
               shapeLines={shapeLines}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}
