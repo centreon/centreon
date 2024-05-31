@@ -297,7 +297,7 @@ const useResources = ({
         ? [
             {
               name: 'only_with_performance_data',
-              value: true
+              value: hasMetricInputType
             }
           ]
         : [];
