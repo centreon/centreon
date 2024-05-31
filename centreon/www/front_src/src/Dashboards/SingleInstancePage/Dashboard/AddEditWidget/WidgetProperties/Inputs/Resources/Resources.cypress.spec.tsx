@@ -71,6 +71,10 @@ const initialize = ({
     alias: 'getHosts',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+    query: {
+      name: 'types',
+      value: '["host"]'
+    },
     response: generateResources('Host')
   });
 
@@ -78,6 +82,10 @@ const initialize = ({
     alias: 'getServices',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.service]}**`,
+    query: {
+      name: 'types',
+      value: '["service"]'
+    },
     response: generateResources('Service')
   });
 
