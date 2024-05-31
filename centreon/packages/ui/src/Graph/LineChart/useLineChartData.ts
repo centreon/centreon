@@ -1,8 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
-import { compose, prop, sortBy, toLower } from 'ramda';
+import {
+  compose,
+  flatten,
+  groupBy,
+  isNil,
+  lensPath,
+  pipe,
+  prop,
+  set,
+  sortBy,
+  toLower
+} from 'ramda';
 
 import { LineChartData } from '../common/models';
+import { emphasizeCurveColor } from '../common/utils';
 
 import { adjustGraphData } from './helpers';
 import { Data } from './models';
@@ -18,32 +30,59 @@ interface Props {
 }
 
 const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
-  const [adjustedData, setAdjustedData] = useState<Data>();
+  const adjustedDataRef = useRef<Data>();
 
-  const prepareData = (dataToAdjust: LineChartData): void => {
-    const { timeSeries } = adjustGraphData(dataToAdjust);
-    const baseAxis = dataToAdjust.global.base;
-    const { title } = dataToAdjust.global;
+  const dataWithAdjustedMetricsColor = useMemo(() => {
+    if (isNil(data)) {
+      return data;
+    }
+    const metricsGroupedByColor = groupBy(
+      (metric) => metric.ds_data.ds_color_line
+    )(data?.metrics || []);
 
-    const newLineData = adjustGraphData(dataToAdjust).lines;
+    const newMetrics = Object.entries(metricsGroupedByColor).map(
+      ([color, value]) => {
+        return value?.map((metric, index) =>
+          set(
+            lensPath(['ds_data', 'ds_color_line']),
+            emphasizeCurveColor({ color, index }),
+            metric
+          )
+        );
+      }
+    );
+
+    const sortedMetrics = pipe(flatten, sortBy(prop('metric')))(newMetrics);
+
+    return {
+      ...data,
+      metrics: sortedMetrics
+    };
+  }, [data]);
+
+  const prepareData = useCallback((): void => {
+    if (isNil(dataWithAdjustedMetricsColor)) {
+      return;
+    }
+
+    const { timeSeries } = adjustGraphData(dataWithAdjustedMetricsColor);
+    const baseAxis = dataWithAdjustedMetricsColor.global.base;
+    const { title } = dataWithAdjustedMetricsColor.global;
+
+    const newLineData = adjustGraphData(dataWithAdjustedMetricsColor).lines;
     const sortedLines = sortBy(compose(toLower, prop('name')), newLineData);
 
-    setAdjustedData({
+    adjustedDataRef.current = {
       baseAxis,
       lines: sortedLines,
       timeSeries,
       title
-    });
-  };
+    };
+  }, [dataWithAdjustedMetricsColor, end, start]);
 
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-    prepareData(data);
-  }, [end, start, data]);
+  prepareData();
 
-  return { adjustedData };
+  return { adjustedData: adjustedDataRef.current };
 };
 
 export default useGraphData;
