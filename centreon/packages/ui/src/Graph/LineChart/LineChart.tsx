@@ -1,9 +1,15 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
-import { flatten, gt, isNil, lte, pluck, reduce } from 'ramda';
+import { equals, flatten, gt, isNil, lte, pluck, reduce } from 'ramda';
 
-import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
+import {
+  ClickAwayListener,
+  Fade,
+  Skeleton,
+  Stack,
+  useTheme
+} from '@mui/material';
 
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
@@ -22,13 +28,7 @@ import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
 import { margin } from './common';
-import {
-  Data,
-  GlobalAreaLines,
-  GraphInterval,
-  LineChartProps,
-  LegendModel
-} from './models';
+import { Data, GlobalAreaLines, GraphInterval, LineChartProps } from './models';
 import { useIntersection } from './useLineChartIntersection';
 import Thresholds from './BasicComponents/Thresholds';
 import { legendWidth } from './Legend/Legend.styles';
@@ -41,7 +41,6 @@ interface Props extends LineChartProps {
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
-  legend?: LegendModel;
   limitLegend?: false | number;
   shapeLines?: GlobalAreaLines;
   thresholdUnit?: string;
@@ -93,14 +92,24 @@ const LineChart = ({
     showTooltip: showThresholdTooltip
   } = Tooltip.useTooltip();
 
+  const legendBoundingHeight =
+    !equals(legend?.display, false) &&
+    (isNil(legend?.placement) || equals(legend?.placement, 'bottom'))
+      ? legendRef.current?.getBoundingClientRect().height || 0
+      : 0;
+  const legendBoundingWidth =
+    !equals(legend?.display, false) &&
+    (equals(legend?.placement, 'left') || equals(legend?.placement, 'right'))
+      ? legendRef.current?.getBoundingClientRect().width || 0
+      : 0;
+
   const graphWidth =
-    width > 0 ? width - margin.left - margin.right - extraMargin : 0;
+    width > 0
+      ? width - margin.left - margin.right - extraMargin - legendBoundingWidth
+      : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) -
-        margin.top -
-        5 -
-        (legendRef.current?.getBoundingClientRect().height || 0)
+      ? (height || 0) - margin.top - 5 - legendBoundingHeight
       : 0;
 
   const { title, timeSeries, baseAxis, lines } = graphData;
@@ -165,8 +174,13 @@ const LineChart = ({
     displayedLines
   );
 
+  const displayLegendInBottom =
+    isNil(legend?.placement) || equals(legend?.placement, 'bottom');
+
   const shouldDisplayLegendInCompactMode =
-    lte(graphWidth, 808) && gt(legendItemsWidth, graphWidth);
+    lte(graphWidth, 808) &&
+    gt(legendItemsWidth, graphWidth) &&
+    displayLegendInBottom;
 
   if (!isInViewport) {
     return (
@@ -187,86 +201,120 @@ const LineChart = ({
             tooltip: classes.graphValueTooltip
           }}
           placement="top-start"
-          title={<GraphValueTooltip base={baseAxis} />}
+          title={
+            equals('hidden', tooltip?.mode) ? null : (
+              <GraphValueTooltip
+                base={baseAxis}
+                isSingleMode={equals('single', tooltip?.mode)}
+                sortOrder={tooltip?.sortOrder}
+              />
+            )
+          }
         >
           <div className={classes.container}>
-            <svg
-              height={graphHeight + margin.top}
-              ref={graphSvgRef}
-              width="100%"
+            <Stack
+              direction={
+                equals(legend?.placement, 'left') ? 'row' : 'row-reverse'
+              }
             >
-              <Group.Group
-                left={margin.left + extraMargin / 2}
-                top={margin.top}
+              {displayLegend &&
+                (equals(legend?.placement, 'left') ||
+                  equals(legend?.placement, 'right')) && (
+                  <div ref={legendRef} style={{ maxWidth: '40%' }}>
+                    <Legend
+                      base={baseAxis}
+                      height={height}
+                      limitLegend={limitLegend}
+                      lines={newLines}
+                      mode={legend?.mode}
+                      placement="left"
+                      renderExtraComponent={legend?.renderExtraComponent}
+                      setLinesGraph={setLinesGraph}
+                      shouldDisplayLegendInCompactMode={
+                        shouldDisplayLegendInCompactMode
+                      }
+                      width={width}
+                    />
+                  </div>
+                )}
+              <svg
+                height={graphHeight + margin.top}
+                ref={graphSvgRef}
+                width="100%"
               >
-                <Grids
-                  height={graphHeight - margin.top}
-                  leftScale={leftScale}
-                  width={graphWidth}
-                  xScale={xScale}
-                />
-                <Axes
-                  data={{
-                    baseAxis,
-                    lines: displayedLines,
-                    timeSeries,
-                    ...axis
-                  }}
-                  graphInterval={graphInterval}
-                  height={graphHeight - margin.top}
-                  leftScale={leftScale}
-                  rightScale={rightScale}
-                  width={graphWidth}
-                  xScale={xScale}
-                />
-
-                <Lines
-                  curve={curve}
-                  displayAnchor={displayAnchor}
-                  displayedLines={displayedLines}
-                  graphSvgRef={graphSvgRef}
-                  height={graphHeight - margin.top}
-                  leftScale={leftScale}
-                  rightScale={rightScale}
-                  timeSeries={timeSeries}
-                  width={graphWidth}
-                  xScale={xScale}
-                  {...shapeLines}
-                />
-
-                <InteractionWithGraph
-                  annotationData={{ ...annotationEvent }}
-                  commonData={{
-                    graphHeight,
-                    graphSvgRef,
-                    graphWidth,
-                    leftScale,
-                    lines: displayedLines,
-                    rightScale,
-                    timeSeries,
-                    xScale
-                  }}
-                  timeShiftZonesData={{
-                    ...timeShiftZones,
-                    graphInterval
-                  }}
-                  zoomData={{ ...zoomPreview }}
-                />
-
-                {thresholds?.enabled && (
-                  <Thresholds
-                    displayedLines={displayedLines}
-                    hideTooltip={hideThresholdTooltip}
+                <Group.Group
+                  left={margin.left + extraMargin / 2}
+                  top={margin.top}
+                >
+                  <Grids
+                    height={graphHeight - margin.top}
+                    leftScale={leftScale}
+                    width={graphWidth}
+                    xScale={xScale}
+                  />
+                  <Axes
+                    data={{
+                      baseAxis,
+                      lines: displayedLines,
+                      timeSeries,
+                      ...axis
+                    }}
+                    graphInterval={graphInterval}
+                    height={graphHeight - margin.top}
                     leftScale={leftScale}
                     rightScale={rightScale}
-                    showTooltip={showThresholdTooltip}
-                    thresholdUnit={thresholdUnit}
-                    thresholds={thresholds as ThresholdsModel}
                     width={graphWidth}
+                    xScale={xScale}
                   />
-                )}
-              </Group.Group>
-            </svg>
+
+                  <Lines
+                    curve={curve}
+                    displayAnchor={displayAnchor}
+                    displayedLines={displayedLines}
+                    graphSvgRef={graphSvgRef}
+                    height={graphHeight - margin.top}
+                    leftScale={leftScale}
+                    rightScale={rightScale}
+                    timeSeries={timeSeries}
+                    width={graphWidth}
+                    xScale={xScale}
+                    {...shapeLines}
+                  />
+
+                  <InteractionWithGraph
+                    annotationData={{ ...annotationEvent }}
+                    commonData={{
+                      graphHeight,
+                      graphSvgRef,
+                      graphWidth,
+                      leftScale,
+                      lines: displayedLines,
+                      rightScale,
+                      timeSeries,
+                      xScale
+                    }}
+                    timeShiftZonesData={{
+                      ...timeShiftZones,
+                      graphInterval
+                    }}
+                    zoomData={{ ...zoomPreview }}
+                  />
+
+                  {thresholds?.enabled && (
+                    <Thresholds
+                      displayedLines={displayedLines}
+                      hideTooltip={hideThresholdTooltip}
+                      leftScale={leftScale}
+                      rightScale={rightScale}
+                      showTooltip={showThresholdTooltip}
+                      thresholdUnit={thresholdUnit}
+                      thresholds={thresholds as ThresholdsModel}
+                      width={graphWidth}
+                    />
+                  )}
+                </Group.Group>
+              </svg>
+            </Stack>
             {displayTooltip && (
               <GraphTooltip {...tooltip} {...graphTooltipData} />
             )}
@@ -287,15 +335,19 @@ const LineChart = ({
           </div>
         </MuiTooltip>
       </ClickAwayListener>
-      {displayLegend && (
+      {displayLegend && displayLegendInBottom && (
         <div ref={legendRef}>
           <Legend
             base={baseAxis}
+            height={height}
             limitLegend={limitLegend}
             lines={newLines}
+            mode={legend?.mode}
+            placement="bottom"
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
+            width={width}
           />
         </div>
       )}

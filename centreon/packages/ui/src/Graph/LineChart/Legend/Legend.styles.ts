@@ -18,7 +18,15 @@ export const useStyles = makeStyles<MakeStylesProps>()(
     item: {
       minWidth: theme.spacing(legendWidth)
     },
+    itemList: {
+      width: 'max-content'
+    },
     items: {
+      '&[data-is-list="true"]': {
+        display: 'flex',
+        flexDirection: 'column',
+        width: 'fit-content'
+      },
       '&[data-mode="compact"]': {
         gridAutoRows: theme.spacing(legendItemHeightCompact),
         height: limitLegendRows
@@ -38,9 +46,16 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       width: '100%'
     },
     legend: {
-      marginLeft: margin.left,
-      marginRight: margin.right,
-      overflow: 'hidden'
+      '&[data-display-side="false"]': {
+        marginLeft: margin.left,
+        marginRight: margin.right,
+        overflow: 'hidden'
+      },
+      '&[data-display-side="true"]': {
+        height: '100%',
+        minWidth: theme.spacing(legendWidth),
+        overflow: 'auto'
+      }
     },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),
@@ -65,6 +80,9 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
   (theme, { color }) => ({
     container: {
       width: '100%'
+    },
+    containerList: {
+      width: 'fit-content'
     },
     disabled: {
       color: theme.palette.text.disabled
@@ -95,6 +113,10 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
       fontSize: '0.75rem',
       fontWeight: theme.typography.fontWeightMedium,
       lineHeight: 1
+    },
+    textList: {
+      fontSize: '0.75rem',
+      fontWeight: theme.typography.fontWeightMedium
     }
   })
 );

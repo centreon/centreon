@@ -1,6 +1,6 @@
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react';
 
-import { prop, slice, sortBy } from 'ramda';
+import { equals, prop, slice, sortBy } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
 
@@ -9,21 +9,24 @@ import { useMemoComponent } from '@centreon/ui';
 import { formatMetricValue } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
+import { LegendModel } from '../models';
 
-import { useStyles } from './Legend.styles';
+import { legendWidth, useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
 import LegendContent from './LegendContent';
 
-interface Props {
+interface Props extends Pick<LegendModel, 'placement' | 'mode'> {
   base: number;
+  height: number | null;
   limitLegend?: false | number;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
   shouldDisplayLegendInCompactMode: boolean;
   toggable?: boolean;
+  width: number;
 }
 
 const MainLegend = ({
@@ -33,7 +36,11 @@ const MainLegend = ({
   limitLegend = false,
   renderExtraComponent,
   setLinesGraph,
-  shouldDisplayLegendInCompactMode
+  shouldDisplayLegendInCompactMode,
+  placement,
+  width,
+  height,
+  mode
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows: Boolean(limitLegend) });
   const theme = useTheme();
@@ -42,6 +49,8 @@ const MainLegend = ({
     useLegend({ lines, setLinesGraph });
 
   const sortedData = sortBy(prop('metric_id'), lines);
+
+  const isListMode = useMemo(() => equals(mode, 'list'), [mode]);
 
   const displayedLines = limitLegend
     ? slice(0, limitLegend, sortedData)
@@ -68,13 +77,26 @@ const MainLegend = ({
     selectMetricLine(metric_id);
   };
 
-  const mode = shouldDisplayLegendInCompactMode
-    ? LegendDisplayMode.Compact
-    : LegendDisplayMode.Normal;
+  const itemMode =
+    !isListMode && shouldDisplayLegendInCompactMode
+      ? LegendDisplayMode.Compact
+      : LegendDisplayMode.Normal;
 
   return (
-    <div className={classes.legend}>
-      <div className={classes.items} data-mode={mode}>
+    <div
+      className={classes.legend}
+      data-display-side={!equals(placement, 'bottom')}
+      style={{
+        height: !equals(placement, 'bottom') ? height : undefined,
+        width:
+          !isListMode && !equals(placement, 'bottom') ? width * 0.25 : undefined
+      }}
+    >
+      <div
+        className={classes.items}
+        data-is-list={isListMode}
+        data-mode={itemMode}
+      >
         {displayedLines.map((line) => {
           const { color, display, highlight, metric_id } = line;
 
@@ -100,7 +122,7 @@ const MainLegend = ({
           return (
             <Box
               className={cx(
-                classes.item,
+                isListMode ? classes.itemList : classes.item,
                 highlight ? classes.highlight : classes.normal,
                 toggable && classes.toggable
               )}
@@ -112,12 +134,14 @@ const MainLegend = ({
               <LegendHeader
                 color={markerColor}
                 disabled={!display}
+                isDisplayedOnSide={!equals(placement, 'bottom')}
+                isListMode={isListMode}
                 line={line}
                 minMaxAvg={
                   shouldDisplayLegendInCompactMode ? minMaxAvg : undefined
                 }
               />
-              {!shouldDisplayLegendInCompactMode && (
+              {!shouldDisplayLegendInCompactMode && !isListMode && (
                 <div>
                   <div className={classes.minMaxAvgContainer}>
                     {minMaxAvg.map(({ label, value }) => (
@@ -145,7 +169,11 @@ const Legend = (props: Props): JSX.Element => {
     limitLegend,
     lines,
     base,
-    shouldDisplayLegendInCompactMode
+    shouldDisplayLegendInCompactMode,
+    placement,
+    width,
+    height,
+    mode
   } = props;
 
   return useMemoComponent({
@@ -155,7 +183,11 @@ const Legend = (props: Props): JSX.Element => {
       base,
       toggable,
       limitLegend,
-      shouldDisplayLegendInCompactMode
+      shouldDisplayLegendInCompactMode,
+      placement,
+      width,
+      height,
+      mode
     ]
   });
 };

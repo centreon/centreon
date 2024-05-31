@@ -65,7 +65,9 @@ export interface TooltipData {
   tooltipOpen: boolean;
 }
 export interface Tooltip {
+  mode: 'all' | 'single' | 'hidden';
   renderComponent?: (args: TooltipData) => ReactNode;
+  sortOrder: 'name' | 'ascending' | 'descending';
 }
 
 export interface AnnotationEvent {
@@ -88,6 +90,7 @@ export interface LineChartProps {
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
+  legend?: LegendModel;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
@@ -135,6 +138,8 @@ export interface GlobalAreaLines {
 }
 export interface LegendModel {
   display?: boolean;
+  mode: 'grid' | 'list';
+  placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
 }
 
