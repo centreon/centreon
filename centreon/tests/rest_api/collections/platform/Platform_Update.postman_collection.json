@@ -59,7 +59,7 @@
 					"response": []
 				},
 				{
-					"name": "Update a platform (error)",
+					"name": "Update a platform",
 					"event": [
 						{
 							"listen": "test",
@@ -168,26 +168,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "2150b028-4a5a-42e7-a0ee-1695a98e563d"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "41930b50-b2ec-4575-84e0-9b9b4c34482e"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "0ed5197b-54f5-4945-ad88-015b9a43d66c"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "12392aba-8535-451f-b42b-f75dd512bd59"
+									"description": "Version of the API"
 								}
 							]
 						},

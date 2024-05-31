@@ -290,7 +290,8 @@
 									"pm.collectionVariables.set(\"Host1Name\", \"host_1\");\r",
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -298,6 +299,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host1Name\") + \"' and alias '\" + pm.collectionVariables.get(\"Host1Alias\") + \"'.\", function () {\r",
 									"    pm.response.to.have.status(201);\r",
 									"\r",
@@ -360,7 +362,8 @@
 									"\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -549,7 +552,7 @@
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
 									"pm.collectionVariables.set(\"maxNumberOfTries\", 20);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 3000);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 5000);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
@@ -1169,8 +1172,58 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "344ef206-2bab-4ddc-b7bd-fb3afe02b6e8"
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUriCentreonCLAPI}}",
+							"host": [
+								"{{baseUriCentreonCLAPI}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add user-non-admin (successful) Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user has been successfully created.\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"api_login_user_non_admin\", \"user-non-admin\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1227,8 +1280,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "29e58696-22fe-440d-b6e1-bf56360eebfe"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1279,8 +1331,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "2484a232-b4d9-4262-a9ef-29cd4c451444"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1331,8 +1382,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "56df824d-af62-40ab-a769-4f5acdebe55b"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1383,8 +1433,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "34bd9776-2c12-4678-949e-7e3859468267"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1460,26 +1509,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "dc3a13ab-40ce-4cef-ad5d-03f7fa79ddd8"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "2b92201a-bee0-4bb8-8f7a-7cfba163c9ab"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "2b2a6085-8614-4d8e-a025-425468b6bbbf"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "c3dbd41e-b8ca-451f-8135-81a02a488736"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -1738,26 +1783,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "9eb04cef-7542-49f4-9757-6b2e0fa401ee"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "ffebed2d-5d63-4b22-bab1-2177c93be1ee"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "9c097466-474b-427b-8dd2-0ec178ac0f0f"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "a06a5100-c345-4cfe-a6fd-8479845d580c"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -1848,8 +1889,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "66dcb37d-d2ec-41ef-a6f9-3fd1b91506c1"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1900,8 +1940,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "0c720048-6a3e-42de-844e-ebd6f90fbc60"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1952,8 +1991,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "61398305-3cfa-4046-8059-7151c91e6514"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2004,8 +2042,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "804538c7-b7f1-478d-bfce-f1a01657abe7"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2056,8 +2093,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "8f662520-7ddd-4f8a-a979-9777a32194ba"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2108,8 +2144,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "2c4de600-3b89-49b8-83b7-cc9c196b5879"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2160,8 +2195,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "c04d4d65-6612-4f8b-ad7d-28c8d696117d"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2212,8 +2246,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "6745a810-3485-4f91-b3c2-9b0b52510f79"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2289,26 +2322,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "c2e1e5ff-6857-4f30-a2e3-7d9dcbab6159"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "5becd574-301a-4c5a-aa38-161ce655793a"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "762efd51-4c14-40d1-9c95-529562369351"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "e2bdb792-e9e0-4e2a-9143-89bddc5a1c8f"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -2567,26 +2596,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "5915f71f-596d-4f22-8b56-aae376d46e09"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "70fb7572-7da2-46db-996c-6b06b562df72"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "e73fa407-bf65-4118-8551-54e875dd1ee3"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "2eb07118-d5e4-439a-8499-c0d7a0c423b6"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -2677,8 +2702,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "af5bf84d-761b-4b82-8fc2-1b8b8f9a3f34"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2729,8 +2753,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "8cc8bdea-340e-4515-89ee-85a00b92ea68"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -2806,26 +2829,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "bb303884-6e5a-4026-aa32-86cfaff89053"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "f2ce92d5-6451-40bd-ab78-840d831a1940"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "43066ef2-29fd-4773-98d9-8ffb05ec0b81"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "01f6ab07-d427-498b-8c19-942c61cdf22e"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -3083,26 +3102,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "442b3535-6a3d-4ca2-abe3-62f53c7e42e9"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "df08a208-a451-4ebe-940f-a2ebe2df8dc6"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "c32fa3c2-8780-43d4-8b7e-22f9e59dd5eb"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "896066bd-379e-4f9e-b07e-a880066d8160"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -3193,8 +3208,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "40216283-0ed4-4dca-9160-25c7582ef743"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3245,8 +3259,7 @@
 							{
 								"key": "centreon-auth-token",
 								"value": "{{token}}",
-								"type": "text",
-								"uuid": "7e556082-35f3-4aef-b8ba-75e7d6fe4fa4"
+								"type": "text"
 							}
 						],
 						"body": {
@@ -3322,26 +3335,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "ce3bbc6a-7611-413e-af1f-df4d9e62b887"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "f740c063-adcc-4e7b-8b68-fa03defbcc0b"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "1a303f7d-64c7-4fe8-be85-decca638267d"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "80d144ad-f810-40f7-83a4-985539a8f2b1"
+									"description": "Version of the API"
 								}
 							]
 						},
@@ -3796,26 +3805,22 @@
 								{
 									"key": "protocol",
 									"value": "{{protocol}}",
-									"description": "HTTP schema (This can only be one of http,https)",
-									"uuid": "a16984aa-634a-469c-bbeb-02358233ad03"
+									"description": "HTTP schema (This can only be one of http,https)"
 								},
 								{
 									"key": "server",
 									"value": "{{server}}",
-									"description": "IP address or hostname of Centreon server",
-									"uuid": "343e72f0-32c8-4f53-b020-9512b03f39a2"
+									"description": "IP address or hostname of Centreon server"
 								},
 								{
 									"key": "port",
 									"value": "{{port}}",
-									"description": "Port used by HTTP server",
-									"uuid": "4f56a894-4cb2-4f95-b592-dea7dee23bc2"
+									"description": "Port used by HTTP server"
 								},
 								{
 									"key": "version",
 									"value": "{{version}}",
-									"description": "Version of the API",
-									"uuid": "0dfb1be7-fcc5-4b52-a4b4-3d29e4a56d9c"
+									"description": "Version of the API"
 								}
 							]
 						},
