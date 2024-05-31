@@ -16,15 +16,13 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       color: theme.typography.body1.color
     },
     item: {
-      minWidth: theme.spacing(legendWidth)
-    },
-    itemList: {
       width: 'max-content'
     },
     items: {
-      '&[data-is-list="true"]': {
+      '&[data-as-list="true"]': {
         display: 'flex',
         flexDirection: 'column',
+        height: '100%',
         width: 'fit-content'
       },
       '&[data-mode="compact"]': {
@@ -53,8 +51,8 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       },
       '&[data-display-side="true"]': {
         height: '100%',
-        minWidth: theme.spacing(legendWidth),
-        overflow: 'auto'
+        marginTop: `${margin.top / 2}px`,
+        overflowY: 'auto'
       }
     },
     minMaxAvgContainer: {

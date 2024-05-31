@@ -9,7 +9,7 @@ const commonTickLabelProps = {
   textAnchor: 'middle'
 };
 
-const margin = { bottom: 30, left: 55, right: 55, top: 30 };
+const margin = { bottom: 30, left: 40, right: 40, top: 30 };
 
 interface FillColor {
   areaColor: string;

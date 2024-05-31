@@ -10,6 +10,7 @@ import { formatMetricValue } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 import { LegendModel } from '../models';
+import { margin } from '../common';
 
 import { legendWidth, useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeader';
@@ -87,14 +88,14 @@ const MainLegend = ({
       className={classes.legend}
       data-display-side={!equals(placement, 'bottom')}
       style={{
-        height: !equals(placement, 'bottom') ? height : undefined,
-        width:
-          !isListMode && !equals(placement, 'bottom') ? width * 0.25 : undefined
+        height: !equals(placement, 'bottom')
+          ? height - margin.top / 2
+          : undefined
       }}
     >
       <div
         className={classes.items}
-        data-is-list={isListMode}
+        data-as-list={isListMode || !equals(placement, 'bottom')}
         data-mode={itemMode}
       >
         {displayedLines.map((line) => {
@@ -122,7 +123,7 @@ const MainLegend = ({
           return (
             <Box
               className={cx(
-                isListMode ? classes.itemList : classes.item,
+                classes.item,
                 highlight ? classes.highlight : classes.normal,
                 toggable && classes.toggable
               )}
