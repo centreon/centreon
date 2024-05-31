@@ -3,7 +3,7 @@
 import { Formik } from 'formik';
 import { createStore, Provider } from 'jotai';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
-import { difference, equals, omit, pluck, reject } from 'ramda';
+import { difference, includes, omit, pluck, reject } from 'ramda';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -40,6 +40,7 @@ const generateResources = (resourceLabel: string): object => ({
 
 interface InitializeProps {
   emptyData?: boolean;
+  excludedResourceTypes?: Array<string>;
   hasEditPermission?: boolean;
   isEditing?: boolean;
   properties?: FederatedWidgetProperties;
@@ -54,6 +55,7 @@ const initialize = ({
   hasEditPermission = true,
   singleResourceType = false,
   restrictedResourceTypes = [],
+  excludedResourceTypes = [],
   singleResourceSelection = false,
   singleMetricSelection = false,
   emptyData = false,
@@ -118,6 +120,17 @@ const initialize = ({
     response: generateResources('Service Category')
   });
 
+  cy.interceptAPIRequest({
+    alias: 'getMetaService',
+    method: Method.GET,
+    path: `**${resourceTypeBaseEndpoints[WidgetResourceType.metaService]}**`,
+    query: {
+      name: 'types',
+      value: '["metaservice"]'
+    },
+    response: generateResources('Meta service')
+  });
+
   cy.mount({
     Component: (
       <TestQueryProvider>
@@ -135,6 +148,7 @@ const initialize = ({
             onSubmit={cy.stub()}
           >
             <Resources
+              excludedResourceTypes={excludedResourceTypes}
               label=""
               propertyName="resources"
               restrictedResourceTypes={restrictedResourceTypes}
@@ -284,6 +298,16 @@ describe('Resources', () => {
 
     cy.contains('Host 0').should('not.exist');
   });
+
+  it('does not displays resource types when they are excluded fromn selection', () => {
+    initialize({ excludedResourceTypes: ['meta-service', 'host'] });
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(/^Meta service$/).should('not.exist');
+    cy.contains(/^Host$/).should('not.exist');
+
+    cy.makeSnapshot();
+  });
 });
 
 describe('Resources disabled', () => {
@@ -331,7 +355,11 @@ describe('Resources tree', () => {
   });
 
   reject(
-    ({ id }) => equals(id, WidgetResourceType.service),
+    ({ id }) =>
+      includes(id, [
+        WidgetResourceType.service,
+        WidgetResourceType.metaService
+      ]),
     resourceTypeOptions
   ).forEach(({ availableResourceTypeOptions, name }) => {
     it(`displays only the available resource types depending on the previous dataset : ${name}`, () => {
@@ -393,6 +421,20 @@ describe('Resources tree', () => {
     cy.contains(labelServiceGroup).click();
 
     cy.findAllByTestId(labelResourceType).should('have.length', 2);
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the Add filter button when a meta service is selected', () => {
+    initialize({});
+
+    cy.findByTestId(labelResourceType).parent().click();
+    cy.contains(/^Meta service$/).click();
+    cy.findByTestId(labelSelectAResource).click();
+    cy.waitForRequest('@getMetaService');
+    cy.contains('Meta service 0').click();
+
+    cy.contains(labelAddFilter).should('be.disabled');
 
     cy.makeSnapshot();
   });
