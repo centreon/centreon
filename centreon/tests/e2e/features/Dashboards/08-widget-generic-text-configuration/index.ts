@@ -175,8 +175,15 @@ Then(
 Given('a dashboard featuring two Generic text widgets', () => {
   cy.visit('/centreon/home/dashboards');
   cy.contains(dashboards.default.name).click();
+  cy.wait('@listAllDashboards');
+  cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should('contain.text', `${genericTextWidget.default.title}`)
+    .should('contain.text', `${genericTextWidget.default.description}`);
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
 });
 
