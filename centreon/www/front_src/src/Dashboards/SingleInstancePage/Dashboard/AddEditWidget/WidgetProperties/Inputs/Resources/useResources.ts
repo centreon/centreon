@@ -52,6 +52,7 @@ import {
 interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
+  changeIdValue: (resourceType) => (({ name }) => string) | undefined;
   changeResource: (index: number) => (_, resources: SelectEntry) => void;
   changeResourceType: (
     index: number
@@ -277,6 +278,7 @@ const useResources = ({
     resourceType
   ): Array<QueryParameter> => {
     const isOfTypeHost = equals(resourceType, WidgetResourceType.host);
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
     const isOfTypeCategory = includes(resourceType, [
       WidgetResourceType.hostCategory,
       WidgetResourceType.serviceCategory
@@ -291,6 +293,15 @@ const useResources = ({
     const searchValues = pluck('name', value?.[index - 1].resources);
 
     if (!isOfTypeHost && !isOfTypeCategory) {
+      const serviceParameters = isOfTypeService
+        ? [
+            {
+              name: 'only_with_performance_data',
+              value: true
+            }
+          ]
+        : [];
+
       return [
         {
           name: 'search',
@@ -299,7 +310,8 @@ const useResources = ({
               $in: searchValues
             }
           }
-        }
+        },
+        ...serviceParameters
       ];
     }
 
@@ -444,8 +456,19 @@ const useResources = ({
     WidgetResourceType.service
   );
 
+  const changeIdValue = (resourceType): (({ name }) => string) | undefined => {
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
+
+    if (!isOfTypeService) {
+      return undefined;
+    }
+
+    return ({ name }) => name;
+  };
+
   return {
     addResource,
+    changeIdValue,
     changeResource,
     changeResourceType,
     changeResources,

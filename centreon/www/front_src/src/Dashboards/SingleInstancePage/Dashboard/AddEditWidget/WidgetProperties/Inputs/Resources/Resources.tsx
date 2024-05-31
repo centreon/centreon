@@ -53,7 +53,8 @@ const Resources = ({
     getResourceStatic,
     changeResource,
     singleResourceSelection,
-    isLastResourceInTree
+    isLastResourceInTree,
+    changeIdValue
   } = useResources({
     propertyName,
     required,
@@ -115,6 +116,7 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
                   }}
@@ -134,6 +136,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
                     onDelete: (_, option): void =>
