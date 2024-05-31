@@ -27,7 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Notification\Application\UseCase\FindNotification\FindNotification;
 use Symfony\Component\HttpFoundation\Response;
 
-final class FindNotificationController extends AbstractController
+final class FindTimePeriodController extends AbstractController
 {
     /**
      * @param int $notificationId

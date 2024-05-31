@@ -40,6 +40,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/users?page=1*'
   }).as('getUsers');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/timeperiods*'
+  }).as('getTimeperiods');
 
   globalResourceType = '';
   globalContactSettings = '';
@@ -176,6 +180,12 @@ When(
     }
   }
 );
+
+When('the user defines a time period', () => {
+  cy.getByLabel({ label: 'Select time period' }).click();
+  cy.wait('@getTimeperiods');
+  cy.contains(data.timeperiod.name).click();
+});
 
 When('the user selects the {string}', (contactSettings: string) => {
   switch (contactSettings) {

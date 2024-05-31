@@ -50,6 +50,7 @@ use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 
 final class AddNotification
 {
@@ -64,6 +65,8 @@ final class AddNotification
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
+        private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
+        private readonly NotificationValidator $validator
     ) {
     }
 
@@ -89,8 +92,22 @@ final class AddNotification
             }
             $this->info('Add notification', ['request' => $request]);
 
+            $this->validator->validateUsersAndContactGroups(
+                $request->users,
+                $request->contactGroups,
+                $this->contactRepository,
+                $this->contactGroupRepository,
+                $this->user,
+            );
+
+            $this->validator->validateTimePeriod($request->timeperiodId, $this->readTimePeriodRepository);
+
             $notificationFactory = new NewNotificationFactory($this->readNotificationRepository);
-            $newNotification = $notificationFactory->create($request->name, $request->isActivated);
+            $newNotification = $notificationFactory->create(
+                $request->name,
+                $request->isActivated,
+                $request->timeperiodId
+            );
 
             $newMessages = NotificationMessageFactory::createMultipleMessage($request->messages);
 
@@ -100,15 +117,6 @@ final class AddNotification
                 $this->user
             );
             $newResources = $notificationResourceFactory->createMultipleResource($request->resources);
-
-            $validator = new NotificationValidator();
-            $validator->validateUsersAndContactGroups(
-                $request->users,
-                $request->contactGroups,
-                $this->contactRepository,
-                $this->contactGroupRepository,
-                $this->user
-            );
 
             try {
                 $this->dataStorageEngine->startTransaction();
