@@ -1,14 +1,14 @@
 {
 	"info": {
 		"_postman_id": "7db37a35-c0bd-42d9-81e8-267a6a9693f7",
-		"name": "07 - NEED FIXES - Acknowledgement",
+		"name": "Acknowledgement",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
 		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-7db37a35-c0bd-42d9-81e8-267a6a9693f7?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
-			"name": "0701 - By admin",
+			"name": "0101 - By admin",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -1114,7 +1114,7 @@
 			]
 		},
 		{
-			"name": "0702 - Acknowledgement by user without ACL Group",
+			"name": "0102 - Acknowledgement by user without ACL Group",
 			"item": [
 				{
 					"name": "Add user-non-admin (successful)",
@@ -1732,7 +1732,7 @@
 			]
 		},
 		{
-			"name": "0703 - Acknowledgement by user without access to Actions and Ressources",
+			"name": "0103 - Acknowledgement by user without access to Actions and Ressources",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -2545,7 +2545,7 @@
 			]
 		},
 		{
-			"name": "0704 - Acknowledgement by user-non-admin with access to Actions but without access to Resources",
+			"name": "0104 - Acknowledgement by user-non-admin with access to Actions but without access to Resources",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -3051,7 +3051,7 @@
 			]
 		},
 		{
-			"name": "0705 - Acknowledgement by user-non-admin with access to resources and actions",
+			"name": "0105 - Acknowledgement by user-non-admin with access to resources and actions",
 			"item": [
 				{
 					"name": "Login with admin user",
@@ -3575,8 +3575,8 @@
 									"            \"is_notify_contacts\": false,\r",
 									"            \"is_persistent_comment\": false,\r",
 									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
+									"            \"state\": 1,\r",
+									"            \"type\": 0\r",
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
