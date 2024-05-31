@@ -21,10 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Application\UseCase\FindHostCategory;
+namespace Core\HostCategory\Application\UseCase\FindRealTimeHostCategories;
 
-use Core\Tag\RealTime\Application\UseCase\FindTag\FindTagResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-final class FindHostCategoryResponse extends FindTagResponse
+interface FindRealTimeHostCategoriesPresenterInterface extends PresenterInterface
 {
+    /**
+     * @param FindRealTimeHostCategoriesResponse|ResponseStatusInterface $response
+     */
+    public function presentResponse(FindRealTimeHostCategoriesResponse|ResponseStatusInterface $response): void;
 }
