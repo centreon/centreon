@@ -2051,6 +2051,54 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/services/names:
+    get:
+      tags:
+        - Service
+      summary: "List all services unique names"
+      description: |
+        List all the services in real-time monitoring.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * name
+        * host.id
+        * host.name
+        * host_group.id
+        * host_group.name
+        * host_category.id
+        * host_category.name
+        * service_group.id
+        * service_group.name
+        * service_category.id
+        * service_category.name
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: 'Cpu'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/{host_id}/services:
     get:
       tags:
