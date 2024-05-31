@@ -845,56 +845,6 @@
 					"response": []
 				},
 				{
-					"name": "Acknowledge services by admin",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The acknowledgement has successfully been submitted.\", function () {\r",
-									"    pm.response.to.have.status(204);\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"comment\": \"Acknowledged by admin\",\r\n    \"is_notify_contacts\": false,\r\n    \"is_persistent_comment\": true,\r\n    \"is_sticky\": true\r\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}/acknowledgements",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"monitoring",
-								"hosts",
-								"{{Host1Id}}",
-								"services",
-								"{{Service1Id}}",
-								"acknowledgements"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Acknowledge hosts by admin",
 					"event": [
 						{
@@ -966,7 +916,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result.length != 1) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -990,20 +940,6 @@
 									"            \"is_sticky\": false,\r",
 									"            \"state\": 1,\r",
 									"            \"type\": 0\r",
-									"        });\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": true,\r",
-									"            \"is_sticky\": true,\r",
-									"            \"state\": 2,\r",
-									"            \"type\": 1\r",
 									"        });\r",
 									"\r",
 									"    });\r",
@@ -1112,7 +1048,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null) && (responseJson.result[1].deletion_time == null)) {\r",
+									"if ((pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")) && (responseJson.result[0].deletion_time == null)) {\r",
 									"    console.log(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
@@ -1137,21 +1073,6 @@
 									"            \"type\": 0\r",
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            //\"deletion_time\": null,\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": true,\r",
-									"            \"is_sticky\": true,\r",
-									"            \"state\": 2,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
 									"\r",
 									"    });\r",
 									"}"
@@ -3476,7 +3397,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result.length != 4) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result.length != 3) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -3503,20 +3424,6 @@
 									"\r",
 									"        pm.expect(responseJson.result[1]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[2]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": 0,\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
 									"            \"author_name\": pm.collectionVariables.get('api_login_user_non_admin'),\r",
@@ -3529,7 +3436,7 @@
 									"            \"type\": 0\r",
 									"        });\r",
 									"\r",
-									"        pm.expect(responseJson.result[3]).to.include({\r",
+									"        pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
 									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
 									"            \"author_id\": parseInt(pm.collectionVariables.get('user_Id')),\r",
@@ -3648,7 +3555,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if ((responseJson.result[2].deletion_time == null) && (responseJson.result[0].deletion_time == null) && (responseJson.result.length != 4) && (responseJson.result[0].deletion_time == null) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
+									"if ((responseJson.result[1].deletion_time == null) && (responseJson.result[0].deletion_time == null) && (responseJson.result.length != 3) && (responseJson.result[0].deletion_time == null) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -3672,20 +3579,6 @@
 									"            \"type\": 1\r",
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
-									"\r",
-									"        pm.expect(responseJson.result[1]).to.include({\r",
-									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
-									"            \"service_id\": pm.collectionVariables.get('Service1Id'),\r",
-									"            \"author_id\": 1,\r",
-									"            \"author_name\": \"admin\",\r",
-									"            \"comment\": \"Acknowledged by admin\",\r",
-									"            \"is_notify_contacts\": false,\r",
-									"            \"is_persistent_comment\": false,\r",
-									"            \"is_sticky\": false,\r",
-									"            \"state\": 3,\r",
-									"            \"type\": 1\r",
-									"        });\r",
-									"        pm.expect(responseJson.result[1].deletion_time).not.to.equal(null);\r",
 									"\r",
 									"        pm.expect(responseJson.result[2]).to.include({\r",
 									"            \"host_id\": pm.collectionVariables.get('Host1Id'),\r",
@@ -3866,72 +3759,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Service1Name",
-			"value": ""
-		},
-		{
-			"key": "Service1Id",
-			"value": ""
-		},
-		{
-			"key": "expectedHttpStatus",
-			"value": ""
-		},
-		{
-			"key": "maxNumberOfTries",
-			"value": ""
-		},
-		{
-			"key": "sleepBetweenTries",
-			"value": ""
 		}
 	]
 }
