@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\MonitoringServer\MonitoringServer;
@@ -34,26 +37,17 @@ use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
  */
 class FindRealTimeMonitoringServersTest extends TestCase
 {
-    /**
-     * @var RealTimeMonitoringServerRepositoryRDB&\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $realTimeMonitoringServerRepository;
-
-    /**
-     * @var \Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServer
-     */
-    private $realTimeMonitoringServer;
-
-    /**
-     * @var MonitoringServer
-     */
-    private $monitoringServer;
+    private RealTimeMonitoringServerRepositoryRDB&MockObject $realTimeMonitoringServerRepository;
+    private RealTimeMonitoringServer $realTimeMonitoringServer;
+    private MonitoringServer $monitoringServer;
+    private ContactInterface|MockObject $contact;
 
     protected function setUp(): void
     {
         $this->realTimeMonitoringServerRepository = $this->createMock(RealTimeMonitoringServerRepositoryRDB::class);
         $this->realTimeMonitoringServer = RealTimeMonitoringServerTest::createEntity();
         $this->monitoringServer = (new MonitoringServer())->setId(1);
+        $this->contact = $this->createMock(ContactInterface::class);
     }
 
     /**
@@ -66,11 +60,21 @@ class FindRealTimeMonitoringServersTest extends TestCase
             ->method('findAll')
             ->willReturn([$this->realTimeMonitoringServer]);
 
+        $this->contact
+            ->expects($this->once())
+            ->method('hasTopologyRole')
+            ->with(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
+            ->willReturn(true);
+        $this->contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
         $contact = new Contact();
         $contact->setAdmin(true);
         $findRealTimeMonitoringServers = new FindRealTimeMonitoringServers(
             $this->realTimeMonitoringServerRepository,
-            $contact
+            $this->contact
         );
         $response = $findRealTimeMonitoringServers->execute();
         $this->assertCount(1, $response->getRealTimeMonitoringServers());
@@ -91,11 +95,21 @@ class FindRealTimeMonitoringServersTest extends TestCase
             ->method('findByIds')
             ->willReturn([$this->realTimeMonitoringServer]);
 
+        $this->contact
+            ->expects($this->once())
+            ->method('hasTopologyRole')
+            ->with(Contact::ROLE_MONITORING_RESOURCES_STATUS_RW)
+            ->willReturn(true);
+        $this->contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(false);
+
         $contact = new Contact();
         $contact->setAdmin(false);
         $findRealTimeMonitoringServers = new FindRealTimeMonitoringServers(
             $this->realTimeMonitoringServerRepository,
-            $contact
+            $this->contact
         );
         $response = $findRealTimeMonitoringServers->execute();
         $this->assertCount(1, $response->getRealTimeMonitoringServers());
