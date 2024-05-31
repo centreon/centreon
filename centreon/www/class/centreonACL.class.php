@@ -216,7 +216,7 @@ class CentreonACL
     {
         $bindValues = [];
         foreach ($list as $index => $id) {
-            $bindValues[$prefix . $index] = $id;
+            $bindValues[$prefix . $index] = trim($id, '"\'');
         }
 
         return [$bindValues, implode(', ', array_keys($bindValues))];
