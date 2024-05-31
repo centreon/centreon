@@ -22,7 +22,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
@@ -68,7 +68,16 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {
@@ -103,13 +112,22 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({ label: 'share', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
   cy.getByTestId({ testId: `add_role` }).parent().click();
@@ -161,7 +179,16 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -192,8 +219,16 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
   }
 );
 
@@ -202,7 +237,9 @@ When(
   () => {
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.get('body').type('{esc}');
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
@@ -254,8 +291,16 @@ When('the second editor user logs in on the platform', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 Then(
@@ -284,8 +329,16 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -294,7 +347,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-viewer').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -347,7 +400,16 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -361,7 +423,16 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -376,8 +447,16 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-
-  cy.visit('/centreon/home/dashboards/library');
+  cy.get('.MuiAlert-message').then(($snackbar) => {
+    if ($snackbar.text().includes('Login succeeded')) {
+      cy.get('.MuiAlert-message').should('not.be.visible');
+    }
+  });
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
 });
 
 When(
@@ -386,7 +465,7 @@ When(
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add_role' }).parent().click();
@@ -439,7 +518,16 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -453,7 +541,11 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -470,12 +562,20 @@ Given(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact group').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact group', tag: 'input' }).click();
     cy.contains('dashboard-contact-group-creator').click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: 'add' }).click();
@@ -510,7 +610,7 @@ When(
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.contains('Contact').click();
-    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
     cy.contains(dashboardCGMember3.login).click();
     cy.getByTestId({ testId: 'add' }).should('be.enabled');
     cy.getByTestId({ testId: `add_role` }).parent().click();
@@ -546,7 +646,16 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -566,7 +675,16 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.get('.MuiAlert-message').then(($snackbar) => {
+      if ($snackbar.text().includes('Login succeeded')) {
+        cy.get('.MuiAlert-message').should('not.be.visible');
+      }
+    });
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
@@ -590,7 +708,7 @@ Then(
 // );
 
 // When('the admin user appoints one of the users as an editor', () => {
-//   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //   cy.contains(dashboardCreatorUser.login).click();
 //   cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //   cy.getByTestId({ testId: 'add' }).click();
@@ -615,7 +733,7 @@ Then(
 //     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
 //     cy.contains('Contact').click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //     cy.contains(dashboardCGMember3.login).click();
 //     cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //     cy.getByTestId({ testId: 'add' }).click();
@@ -645,7 +763,7 @@ Then(
 //   'the newly appointed editor user can appoint another user as a viewer',
 //   () => {
 //     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-//     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+// cy.getByLabel({ label: 'Add a contact', tag: 'input' }).click();
 //     cy.contains(dashboardViewerUser.login).click();
 //     cy.getByTestId({ testId: 'add' }).should('be.enabled');
 //     cy.getByTestId({ testId: 'add' }).click();
