@@ -173,9 +173,8 @@ Then(
 );
 
 Given('a dashboard featuring two Generic text widgets', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.contains(dashboards.default.name).click();
   cy.wait('@listAllDashboards');
+  cy.contains(dashboards.default.name).click();
   cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
