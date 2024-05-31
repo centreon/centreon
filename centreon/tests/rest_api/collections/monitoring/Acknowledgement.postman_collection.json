@@ -3392,6 +3392,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
@@ -3418,7 +3419,7 @@
 									"            \"is_persistent_comment\": false,\r",
 									"            \"is_sticky\": false,\r",
 									"            \"state\": 1,\r",
-									"            \"type\": 1\r",
+									"            \"type\": 0\r",
 									"        });\r",
 									"        pm.expect(responseJson.result[0].deletion_time).not.to.equal(null);\r",
 									"\r",
@@ -3550,6 +3551,7 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
