@@ -4,7 +4,7 @@
 		"name": "Monitoring_Server_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%22behat%22-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-86cd07a5-c439-480f-9384-efd58d6b1e51?action=share&source=collection_link&creator=16182525"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Migration-of-%2522behat%2522-tests~e335ae07-f9ab-4b8d-bc6c-19b9f0078df4/collection/16182525-86cd07a5-c439-480f-9384-efd58d6b1e51?action=share&source=collection_link&creator=16182525"
 	},
 	"item": [
 		{
@@ -1623,7 +1623,7 @@
 			]
 		},
 		{
-			"name": "0103 - Monitoring Server Configuration by user without access to Ressources or actions",
+			"name": "0103 - Monitoring Server Configuration by user without access to Resources or Actions",
 			"item": [
 				{
 					"name": "Login with user-non-admin user",

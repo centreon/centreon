@@ -483,7 +483,7 @@
 					"response": []
 				},
 				{
-					"name": "Export the configuration",
+					"name": "Generate the configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -491,7 +491,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -504,7 +505,8 @@
 									"\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -519,14 +521,66 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/configuration/monitoring-servers/generate-and-reload",
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/generate",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"configuration",
 								"monitoring-servers",
-								"generate-and-reload"
+								"generate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reload the configuration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The configuration has successfully been reloaded.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/monitoring-servers/reload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"monitoring-servers",
+								"reload"
 							]
 						}
 					},
@@ -551,7 +605,7 @@
 								"exec": [
 									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
 									"pm.collectionVariables.set(\"maxNumberOfTries\", 20);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 5000);\r",
+									"pm.collectionVariables.set(\"sleepBetweenTries\", 2000);\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
@@ -971,7 +1025,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -982,7 +1036,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
+									"value": "{\"id\":\"DESC\"}"
 								}
 							]
 						}
@@ -1118,7 +1172,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/acknowledgements?sort_by={\"id\":\"DESC\"}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1129,7 +1183,7 @@
 							"query": [
 								{
 									"key": "sort_by",
-									"value": "{\"id\":\"ASC\"}"
+									"value": "{\"id\":\"DESC\"}"
 								}
 							]
 						}
@@ -1143,57 +1197,6 @@
 			"item": [
 				{
 					"name": "Add user-non-admin (successful)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_non_admin\", \"user-non-admin\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add user-non-admin (successful) Copy",
 					"event": [
 						{
 							"listen": "test",
@@ -3863,6 +3866,72 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "Host1Name",
+			"value": ""
+		},
+		{
+			"key": "Host1Alias",
+			"value": ""
+		},
+		{
+			"key": "Host1Id",
+			"value": ""
+		},
+		{
+			"key": "Service1Name",
+			"value": ""
+		},
+		{
+			"key": "Service1Id",
+			"value": ""
+		},
+		{
+			"key": "expectedHttpStatus",
+			"value": ""
+		},
+		{
+			"key": "maxNumberOfTries",
+			"value": ""
+		},
+		{
+			"key": "sleepBetweenTries",
+			"value": ""
 		}
 	]
 }
