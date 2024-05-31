@@ -5,8 +5,6 @@ import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 
 import ButtonGroup from './ButtonGroup';
 
-import { FederatedWidgetOptionType } from 'www/front_src/src/federatedModules/models';
-
 const buttons = [
   {
     id: 'button1',
@@ -49,45 +47,6 @@ const initialize = ({ isInGroup = false, canEdit = true }): void => {
             label="Buttons"
             options={buttons}
             propertyName="test"
-            subInputs={[
-              {
-                displayValue: 'button3',
-                input: {
-                  defaultValue: 'sample',
-                  label: 'Sub input 1',
-                  type: FederatedWidgetOptionType.textfield
-                },
-                name: 'sub1'
-              },
-              {
-                displayValue: 'button3',
-                input: {
-                  defaultValue: 'text',
-                  label: 'Sub input 2',
-                  type: FederatedWidgetOptionType.textfield
-                },
-                name: 'sub2'
-              },
-              {
-                displayValue: 'button4',
-                input: {
-                  defaultValue: 'radio1',
-                  label: 'Sub input 3',
-                  options: [
-                    {
-                      id: 'radio1',
-                      name: 'Radio 1'
-                    },
-                    {
-                      id: 'radio2',
-                      name: 'Radio 2'
-                    }
-                  ],
-                  type: FederatedWidgetOptionType.radio
-                },
-                name: 'sub3'
-              }
-            ]}
             type=""
           />
         </Formik>
