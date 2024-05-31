@@ -53,7 +53,10 @@ beforeEach(() => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.wait('@listAllDashboards');
 });
 
@@ -135,7 +138,6 @@ Then('its title and description are displayed', () => {
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
-  cy.visit('/centreon/home/dashboards');
   cy.contains(dashboards.default.name).click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidget.default.title).should('exist');
@@ -174,6 +176,8 @@ Then(
 );
 
 Given('a dashboard featuring two Generic text widgets', () => {
+  cy.visit('/centreon/home/dashboards');
+  cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
