@@ -2,16 +2,16 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
 
-import admin from '../../../fixtures/users/admin.json';
+import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 before(() => {
-  // cy.startContainers();
-  // cy.enableDashboardFeature();
-  // cy.executeCommandsViaClapi(
-  //   'resources/clapi/config-ACL/dashboard-configuration-creator.json'
-  // );
+  cy.startContainers();
+  cy.enableDashboardFeature();
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -25,7 +25,7 @@ before(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.loginByTypeOfUser({
-    jsonName: admin.login,
+    jsonName: dashboardCreatorUser.login,
     loginViaApi: true
   });
   cy.insertDashboard({ ...dashboards.default });
@@ -50,10 +50,13 @@ beforeEach(() => {
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.loginByTypeOfUser({
-    jsonName: admin.login,
+    jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
 });
 
 after(() => {
@@ -133,7 +136,6 @@ Then('its title and description are displayed', () => {
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
-  cy.visit('/centreon/home/dashboards');
   cy.contains(dashboards.default.name).click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidget.default.title).should('exist');
