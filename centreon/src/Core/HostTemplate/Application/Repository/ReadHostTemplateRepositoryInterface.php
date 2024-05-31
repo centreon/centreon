@@ -41,6 +41,18 @@ interface ReadHostTemplateRepositoryInterface
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 
     /**
+     * Find all host templates by access groups.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate[]
+     */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
+
+    /**
      * Find a host template by its id.
      *
      * @param int $hostTemplateId
