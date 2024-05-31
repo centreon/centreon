@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Category\RealTime\Application\UseCase\FindServiceCategory;
+namespace Core\ServiceCategory\Application\UseCase\FindRealTimeServiceCategories;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Tag\RealTime\Application\UseCase\FindTag\FindTagResponse;
 
-interface FindServiceCategoryPresenterInterface extends PresenterInterface
+final class FindRealTimeServiceCategoriesResponse extends FindTagResponse
 {
 }

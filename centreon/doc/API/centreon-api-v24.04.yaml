@@ -14,6 +14,7 @@ info:
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
+    + Added new filters for the /monitoring/services/categories endpoint
     + Added new filters for the /monitoring/hosts/categories endpoint
     + Added new filters to the /monitoring/servicegroups endpoint
     + Added host_category filter to /monitoring/hostgroups endpoint
@@ -494,6 +495,17 @@ paths:
       summary: "List all real-time service categories"
       description: |
         List of all service categories in real-time context
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * host.id
+        * host.name
+        * host_group.id
+        * host_group.name
+        * host_category.id
+        * host_category.name
+        * service_group.id
+        * service_group.name
       responses:
         "200":
           description: "OK"
