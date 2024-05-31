@@ -1,15 +1,11 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-
-import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
+import { CollapsibleItem } from '@centreon/ui/components';
 
 import {
   labelDescription,
   labelShowDescription,
-  labelOpenLinksInNewTab,
-  labelOpenLinksInNewTabTooltip,
   labelWidgetProperties,
   labelValueSettings,
   labelTitle
@@ -48,19 +44,6 @@ const WidgetProperties = (): JSX.Element => {
               <WidgetSwitch
                 label={labelShowDescription}
                 propertyName="description.enabled"
-              />
-              <WidgetSwitch
-                endAdornment={
-                  <Tooltip
-                    followCursor={false}
-                    label={t(labelOpenLinksInNewTabTooltip)}
-                    position="right"
-                  >
-                    <InfoOutlinedIcon color="primary" fontSize="small" />
-                  </Tooltip>
-                }
-                label={labelOpenLinksInNewTab}
-                propertyName="openLinksInNewTab"
               />
             </div>
           </div>
