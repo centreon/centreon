@@ -76,12 +76,17 @@ try {
         throw new \Exception('Unable to authenticate to Vault');
     }
 
-    $kernel = \App\Kernel::createForWeb();
     /**
      * @var \Security\Interfaces\EncryptionInterface $encryption
      */
-    $encryption = $kernel->getContainer()->get(\Security\Interfaces\EncryptionInterface::class);
-    $writeVaultConfigurationRepository = $kernel->getContainer()->get(\Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface::class);
+    $encryption = new \Security\Encryption();
+    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
+    $encryption->setFirstKey($_ENV["APP_SECRET"]);
+    $writeVaultConfigurationRepository =
+        new \Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository(
+            '/var/lib/centreon/vault/vault.yaml',
+            new \Symfony\Component\Filesystem\Filesystem()
+        );
     $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(
         $encryption,
         'hashicorp_vault',
