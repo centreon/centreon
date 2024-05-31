@@ -293,7 +293,7 @@ const useResources = ({
     resourceType
   ): Array<QueryParameter> => {
     const usesResourcesEndpoint = includes(resourceType, [
-      WidgetResourceType.service,
+      WidgetResourceType.host,
       WidgetResourceType.metaService
     ]);
     const isOfTypeService = equals(resourceType, WidgetResourceType.service);
