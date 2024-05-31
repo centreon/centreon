@@ -243,13 +243,13 @@ Given('a dashboard having a configured Top Bottom widget', () => {
 When(
   'the dashboard administrator user duplicates the Top Bottom widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );

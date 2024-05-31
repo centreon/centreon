@@ -2,7 +2,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
 
-import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
@@ -25,8 +25,8 @@ before(() => {
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.loginByTypeOfUser({
-    jsonName: dashboardCreatorUser.login,
-    loginViaApi: true
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
   });
   cy.insertDashboard({ ...dashboards.default });
   cy.logoutViaAPI();
@@ -50,7 +50,7 @@ beforeEach(() => {
     url: `/centreon/api/latest/configuration/dashboards/*`
   }).as('updateDashboard');
   cy.loginByTypeOfUser({
-    jsonName: dashboardCreatorUser.login,
+    jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
   cy.visit('/centreon/home/dashboards');
@@ -172,8 +172,15 @@ Then(
 Given('a dashboard featuring two Generic text widgets', () => {
   cy.visit('/centreon/home/dashboards');
   cy.contains(dashboards.default.name).click();
+  cy.wait('@listAllDashboards');
+  cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+  cy.getByTestId({ testId: 'RefreshIcon' }).click();
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
-
+  cy.get('*[class^="react-grid-layout"]')
+    .children()
+    .eq(0)
+    .should('contain.text', `${genericTextWidget.default.title}`)
+    .should('contain.text', `${genericTextWidget.default.description}`);
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
 });
 
