@@ -39,6 +39,11 @@ export interface WidgetPropertyProps {
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
+  slider?: {
+    max: number;
+    min: number;
+    unit?: string;
+  };
   subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
