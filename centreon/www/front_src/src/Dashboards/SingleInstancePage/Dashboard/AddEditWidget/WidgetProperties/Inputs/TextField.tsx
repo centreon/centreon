@@ -2,7 +2,8 @@ import { ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
+import { clamp, equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { TextField } from '@centreon/ui';
 
@@ -10,6 +11,15 @@ import { Widget, WidgetPropertyProps } from '../../models';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
+
+const useStyles = makeStyles()((theme) => ({
+  compactInput: {
+    width: theme.spacing(9)
+  },
+  compactInputContainer: {
+    width: 'auto'
+  }
+}));
 
 const WidgetTextField = ({
   propertyName,
@@ -47,19 +57,22 @@ const WidgetTextField = ({
     if (equals(text?.type, 'number')) {
       setFieldValue(
         `options.${propertyName}`,
-        equals(event.target.value, '') ? '' : Number(event.target.value)
+        equals(event.target.value, '')
+          ? ''
+          : clamp(text?.min, text?.max, Number(event.target.value))
       );
+
+      return;
     }
     const newText = event.target.value;
     setFieldValue(`options.${propertyName}`, newText);
   };
 
-  const isCompact = equals(text?.size, 'compact');
-
   return (
     <TextField
       fullWidth
       autoSize={text?.autoSize}
+      autoSizeDefaultWidth={8}
       className={className}
       dataTestId={label}
       disabled={!canEditField || disabled}
@@ -69,7 +82,7 @@ const WidgetTextField = ({
         'aria-label': t(label) as string,
         step: text?.step || '1'
       }}
-      label={isCompact ? null : t(label) || ''}
+      label={t(label) || ''}
       multiline={text?.multiline || false}
       required={required}
       size={text?.size || 'small'}

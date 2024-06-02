@@ -47,6 +47,8 @@ export interface WidgetPropertyProps {
   subInputs?: Array<SubInput>;
   text?: {
     autoSize?: boolean;
+    max?: number;
+    min?: number;
     multiline?: boolean;
     size?: string;
     step?: string;
