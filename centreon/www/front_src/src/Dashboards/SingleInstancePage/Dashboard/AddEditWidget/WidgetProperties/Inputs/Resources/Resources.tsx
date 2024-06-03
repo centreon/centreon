@@ -32,6 +32,7 @@ const Resources = ({
   propertyName,
   singleResourceType,
   restrictedResourceTypes,
+  excludedResourceTypes,
   required,
   useAdditionalResources
 }: WidgetPropertyProps): JSX.Element => {
@@ -53,8 +54,10 @@ const Resources = ({
     getResourceStatic,
     changeResource,
     singleResourceSelection,
-    isLastResourceInTree
+    isLastResourceInTree,
+    changeIdValue
   } = useResources({
+    excludedResourceTypes,
     propertyName,
     required,
     restrictedResourceTypes,
@@ -115,7 +118,7 @@ const Resources = ({
               />
               {singleResourceSelection ? (
                 <SingleConnectedAutocompleteField
-                  allowUniqOption
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
                   }}
@@ -135,7 +138,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
-                  allowUniqOption
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
                     onDelete: (_, option): void =>
