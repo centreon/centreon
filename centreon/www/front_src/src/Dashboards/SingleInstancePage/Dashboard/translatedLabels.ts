@@ -37,6 +37,7 @@ export const labelServiceGroup = 'Service Group';
 export const labelServiceCategory = 'Service Category';
 export const labelHost = 'Host';
 export const labelService = 'Service';
+export const labelMetaService = 'Meta service';
 export const labelDelete = 'Delete';
 export const labelResourceType = 'Resource type';
 export const labelSelectAResource = 'Select resource';
