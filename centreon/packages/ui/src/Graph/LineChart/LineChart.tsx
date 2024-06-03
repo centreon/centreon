@@ -42,7 +42,6 @@ import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphVa
 const extraMargin = 10;
 
 interface Props extends LineChartProps {
-  curve: 'linear' | 'step' | 'natural';
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
@@ -72,7 +71,7 @@ const LineChart = ({
   legend,
   graphRef,
   header,
-  curve,
+  lineStyle,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -308,13 +307,16 @@ const LineChart = ({
                   />
 
                   <Lines
-                    curve={curve}
+                    areaTransparency={lineStyle?.areaTransparency}
+                    curve={lineStyle?.curve || 'linear'}
                     displayAnchor={displayAnchor}
                     displayedLines={displayedLines}
                     graphSvgRef={graphSvgRef}
                     height={graphHeight - margin.top}
                     leftScale={leftScale}
                     rightScale={rightScale}
+                    showArea={lineStyle?.showArea}
+                    showPoints={lineStyle?.showPoints}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}

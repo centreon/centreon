@@ -91,6 +91,18 @@ export interface DisplayAnchor {
   displayTooltipsGuidingLines?: boolean;
 }
 
+export interface LineStyle {
+  areaTransparency?: number;
+  curve?: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
+  lineWidth?: number;
+  pathStyle?: 'solid' | 'dash' | 'dotted';
+  showArea?: boolean;
+  showPoints?: boolean;
+}
+
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
   axis?: LineChartAxis;
@@ -98,6 +110,7 @@ export interface LineChartProps {
   header?: LineChartHeader;
   height?: number | null;
   legend?: LegendModel;
+  lineStyle?: LineStyle;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;

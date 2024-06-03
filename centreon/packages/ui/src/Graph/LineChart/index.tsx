@@ -22,7 +22,6 @@ dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<LineChartProps> {
-  curve?: 'linear' | 'step' | 'natural';
   data?: LineChartData;
   end: string;
   limitLegend?: false | number;
@@ -56,7 +55,7 @@ const WrapperLineChart = ({
     placement: 'bottom'
   },
   header,
-  curve = 'linear',
+  lineStyle,
   thresholds,
   thresholdUnit,
   limitLegend
@@ -91,7 +90,6 @@ const WrapperLineChart = ({
             <LineChart
               annotationEvent={annotationEvent}
               axis={axis}
-              curve={curve}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
@@ -100,6 +98,7 @@ const WrapperLineChart = ({
               height={height || responsiveHeight}
               legend={legend}
               limitLegend={limitLegend}
+              lineStyle={lineStyle}
               shapeLines={shapeLines}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}

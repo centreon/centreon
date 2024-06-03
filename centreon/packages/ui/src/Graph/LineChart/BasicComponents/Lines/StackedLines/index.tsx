@@ -2,16 +2,22 @@ import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
-import StackedAnchorPoint from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
+import StackedAnchorPoint, {
+  getYAnchorPoint
+} from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import { getCurveFactory, getFillColor } from '../../../common';
-import { getTime } from '../../../../common/timeSeries';
+import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
+import Point from '../Point';
 
 interface Props {
+  areaTransparency?: number;
   curve: 'linear' | 'step' | 'natural';
   displayAnchor: boolean;
   lines: Array<Line>;
+  showArea?: boolean;
+  showPoints?: boolean;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
@@ -23,7 +29,10 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  curve
+  curve,
+  showPoints,
+  showArea,
+  areaTransparency
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(curve);
 
@@ -49,6 +58,10 @@ const StackLines = ({
           const { areaColor, transparency, lineColor, highlight, metric_id } =
             nth(index, lines) as Line;
 
+          const formattedTransparency = isNil(areaTransparency)
+            ? transparency || 80
+            : areaTransparency;
+
           return (
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
@@ -62,10 +75,30 @@ const StackLines = ({
                   yScale={yScale}
                 />
               )}
+              {showPoints &&
+                getDates(timeSeries).map((timeTick) => (
+                  <Point
+                    key={timeTick.toString()}
+                    lineColor={lineColor}
+                    metric_id={metric_id}
+                    timeSeries={timeSeries}
+                    timeTick={timeTick}
+                    xScale={xScale}
+                    yPoint={getYAnchorPoint({
+                      stackValues: stack as unknown as Array<StackValue>,
+                      timeTick,
+                      yScale
+                    })}
+                    yScale={yScale}
+                  />
+                ))}
               <path
                 d={linePath(stack) || ''}
                 data-metric={metric_id}
-                fill={getFillColor({ areaColor, transparency })}
+                fill={getFillColor({
+                  areaColor: areaColor || lineColor,
+                  transparency: formattedTransparency
+                })}
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeWidth={highlight ? 2 : 1}

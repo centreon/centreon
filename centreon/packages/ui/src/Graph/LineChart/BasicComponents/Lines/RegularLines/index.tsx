@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { equals, isNil, prop } from 'ramda';
+import { equals, isNil, pick, prop } from 'ramda';
 
 import { getTime } from '../../../../common/timeSeries';
 import { TimeValue } from '../../../../common/timeSeries/models';
@@ -69,22 +69,28 @@ const RegularLine = ({
   return <Shape.LinePath<TimeValue> data-metric={metric_id} {...props} />;
 };
 
+const memoizedProps = [
+  'curve',
+  'lineColor',
+  'areaColor',
+  'filled',
+  'transparency'
+];
+
 export default memo(RegularLine, (prevProps, nextProps) => {
   const {
     timeSeries: prevTimeSeries,
     graphHeight: prevGraphHeight,
     highlight: prevHighlight,
     xScale: prevXScale,
-    yScale: prevYScale,
-    curve: prevCurve
+    yScale: prevYScale
   } = prevProps;
   const {
     timeSeries: nextTimeSeries,
     graphHeight: nextGraphHeight,
     highlight: nextHighlight,
     xScale: nextXScale,
-    yScale: nextYScale,
-    curve: nextCurve
+    yScale: nextYScale
   } = nextProps;
 
   const prevXScaleRange = prevXScale.range();
@@ -98,6 +104,6 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     equals(prevHighlight, nextHighlight) &&
     equals(prevXScaleRange, nextXScaleRange) &&
     equals(prevYScaleDomain, nextYScaleDomain) &&
-    equals(prevCurve, nextCurve)
+    equals(pick(memoizedProps, prevProps), pick(memoizedProps, nextProps))
   );
 });

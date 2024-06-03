@@ -4,10 +4,13 @@ import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
-import RegularAnchorPoint from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
+import RegularAnchorPoint, {
+  getYAnchorPoint
+} from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
 import { DisplayAnchor, GlobalAreaLines } from '../../models';
 import {
+  getDates,
   getStackedYScale,
   getUnits,
   getYScale
@@ -23,8 +26,10 @@ import {
   canDisplayThreshold,
   requiredNumberLinesThreshold
 } from './Threshold/models';
+import Point from './Point';
 
 interface Props extends GlobalAreaLines {
+  areaTransparency?: number;
   curve: 'linear' | 'step' | 'natural';
   displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
@@ -32,25 +37,30 @@ interface Props extends GlobalAreaLines {
   height: number;
   leftScale: ScaleLinear<number, number>;
   rightScale: ScaleLinear<number, number>;
+  showArea?: boolean;
+  showPoints?: boolean;
   timeSeries: Array<TimeValue>;
   width: number;
   xScale: ScaleLinear<number, number>;
 }
 
 const Lines = ({
+  areaTransparency,
   height,
   graphSvgRef,
   width,
   displayAnchor,
   leftScale,
   rightScale,
+  curve,
   xScale,
   timeSeries,
   displayedLines,
   areaThresholdLines,
   areaStackedLines,
   areaRegularLines,
-  curve
+  showArea,
+  showPoints
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -73,11 +83,14 @@ const Lines = ({
 
   const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
+    areaTransparency,
     curve,
     displayAnchor: displayGuidingLines,
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
+    showArea,
+    showPoints,
     xScale,
     yScale: stackedYScale
   };
@@ -153,7 +166,7 @@ const Lines = ({
                 <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
-                      areaColor={areaColor}
+                      areaColor={areaColor || lineColor}
                       lineColor={lineColor}
                       metric_id={metric_id}
                       timeSeries={timeSeries}
@@ -162,16 +175,38 @@ const Lines = ({
                       yScale={yScale}
                     />
                   )}
+                  {showPoints &&
+                    getDates(timeSeries).map((timeTick) => (
+                      <Point
+                        key={timeTick.toString()}
+                        lineColor={lineColor}
+                        metric_id={metric_id}
+                        timeSeries={timeSeries}
+                        timeTick={timeTick}
+                        xScale={xScale}
+                        yPoint={getYAnchorPoint({
+                          metric_id,
+                          timeSeries,
+                          timeTick,
+                          yScale
+                        })}
+                        yScale={yScale}
+                      />
+                    ))}
                   <RegularLine
-                    areaColor={areaColor}
+                    areaColor={areaColor || lineColor}
                     curve={curve}
-                    filled={filled}
+                    filled={isNil(showArea) ? filled : showArea}
                     graphHeight={height}
                     highlight={highlight}
                     lineColor={lineColor}
                     metric_id={metric_id}
                     timeSeries={timeSeries}
-                    transparency={transparency}
+                    transparency={
+                      isNil(areaTransparency)
+                        ? transparency || 80
+                        : areaTransparency
+                    }
                     unit={unit}
                     xScale={xScale}
                     yScale={yScale}

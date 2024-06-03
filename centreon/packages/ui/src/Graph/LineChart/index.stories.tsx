@@ -334,7 +334,14 @@ const LineChartWithCLS: Story = {
 export const LineChart: Story = {
   ...Template,
   argTypes,
-  args: argumentsData
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      areaTransparency: 10,
+      showArea: true,
+      showPoints: false
+    }
+  }
 };
 
 export const LineChartWithStepCurve: Story = {
@@ -482,7 +489,14 @@ export const thresholdsRange: Story = {
 export const LineChartWithSameColorCurves: Story = {
   ...Template,
   argTypes,
-  args: argumentsData,
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      areaTransparency: 10,
+      showArea: true,
+      showPoints: true
+    }
+  },
   render: (args) => (
     <WrapperLineChart
       {...args}
