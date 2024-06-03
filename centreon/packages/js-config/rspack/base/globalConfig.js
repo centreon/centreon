@@ -35,11 +35,13 @@ module.exports = {
         }
       },
       {
+        resourceQuery: /component/,
         test: /\.icon.svg$/,
         use: ['@svgr/webpack']
       },
       {
         exclude: excludeNodeModulesExceptCentreonUi,
+        resourceQuery: { not: [/component/] },
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
         type: 'asset/inline'
       },
