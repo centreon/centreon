@@ -186,7 +186,7 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 });
 

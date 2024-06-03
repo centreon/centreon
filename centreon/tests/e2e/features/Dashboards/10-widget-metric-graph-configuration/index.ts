@@ -256,6 +256,8 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user duplicates the Metrics Graph widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
