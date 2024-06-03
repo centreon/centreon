@@ -67,10 +67,17 @@ foreach ($parameters as $name => $value) {
 
 // If the vault checkbox is checked, validate that the feature is enabled
 if (array_key_exists('use_vault', $parameters)) {
-    $err['use_vault'] = is_enabled_feature_flag('vault');
+    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
+    $isCloudPlatform = false;
+    if (array_key_exists("IS_CLOUD_PLATFORM", $_ENV) && $_ENV["IS_CLOUD_PLATFORM"]) {
+        $isCloudPlatform = true;
+    }
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../../config/features.json');
+    $featureFlagManager = new \Core\Common\Infrastructure\FeatureFlags($isCloudPlatform, $featuresFileContent);
+    $err['use_vault'] = in_array('vault', $featureFlagManager->getEnabled());
     if (! $err['use_vault']) {
         $err['vault_error'] = 'Vault feature is disabled';
-    }
+
 }
 
 if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&
