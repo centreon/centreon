@@ -23,7 +23,6 @@ const totalFailures = report.stats.failures;
 const duration = report.stats.duration / 1000;
 const passPercent = report.stats.passPercent;
 
-
 const summary = `<h1>Cypress Test summary</h1>
 <ul>
   <li>:file_folder: Suites: ${totalSuites}</li>

@@ -392,7 +392,6 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   }).realClick();
 });
 
-
 Then('only the contents of the other widget are displayed', () => {
   cy.verifyLegendItemStyle(
     1,
