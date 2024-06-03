@@ -69,35 +69,46 @@ When('I click on the {string} column header', (columnHeader: string) => {
 Then(
   'the tokens are sorted by {string} in descending order',
   (orderBy: string) => {
-    cy.waitUntil(() => {
-      let previousValue: string | null = null;
-      let isOrdered = true;
-      cy.get('.MuiTableBody-root .MuiTableRow-root').each((row) => {
-        cy.wrap(row)
-          .find('.MuiTableCell-body')
-          .eq(columns.indexOf(orderBy))
-          .invoke('text')
-          .then((value) => {
-            const nextValue = value.trim();
+    let errorMessage = 'Wrong order';
 
-            if (previousValue !== null) {
-              if (orderBy.toLowerCase().includes('date')) {
-                isOrdered =
-                  new Date(previousValue).getTime() >=
-                  new Date(nextValue).getTime();
-              } else {
-                isOrdered =
-                  [previousValue, nextValue].sort().reverse().pop() ===
-                  nextValue;
-              }
-              isOrdered = false;
-            }
+    cy.waitUntil(
+      () => {
+        let previousValue: string | null = null;
+        let isOrdered = true;
 
-            previousValue = nextValue;
-          });
-      });
+        // eslint-disable-next-line cypress/unsafe-to-chain-command
+        return cy
+          .get('.MuiTableBody-root .MuiTableRow-root')
+          .each((row) => {
+            cy.wrap(row)
+              .find('.MuiTableCell-body')
+              .eq(columns.indexOf(orderBy))
+              .invoke('text')
+              .then((value) => {
+                const nextValue = value.trim();
 
-      return isOrdered;
-    });
+                errorMessage = `${nextValue} should be listed before ${previousValue}`;
+
+                if (previousValue !== null) {
+                  if (orderBy.toLowerCase().includes('date')) {
+                    isOrdered =
+                      new Date(previousValue).getTime() >=
+                      new Date(nextValue).getTime();
+                  } else {
+                    isOrdered =
+                      [previousValue, nextValue].sort().reverse().pop() ===
+                      nextValue;
+                  }
+                }
+
+                previousValue = nextValue;
+              });
+          })
+          .then(() => isOrdered);
+      },
+      {
+        errorMsg: () => errorMessage
+      }
+    );
   }
 );
