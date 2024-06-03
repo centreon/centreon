@@ -263,7 +263,7 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
-    cy.get('div[class$="-textfield-textField"]').within(() => {
+    cy.contains('div[class$="-textfield-textField"]', 'Contacts').within(() => {
       cy.get(
         'div.MuiChip-deletableColorPrimary.MuiChip-filledPrimary.MuiAutocomplete-tag'
       ).contains(`${data.login}`);
