@@ -37,6 +37,7 @@
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
+require __DIR__ . '/../../../include/common/common-Func.php';
 
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 
@@ -49,10 +50,11 @@ $requiredParameters = [
 ];
 
 $err = [
-    'required' => array(),
+    'required' => [],
     'password' => true,
     'connection' => '',
     'use_vault' => false,
+    'vault_error' => '',
 ];
 
 $parameters = filter_input_array(INPUT_POST);
@@ -64,7 +66,10 @@ foreach ($parameters as $name => $value) {
 }
 
 if (array_key_exists('use_vault', $parameters)) {
-    $err['use_vault'] = true;
+    $err['use_vault'] = is_enabled_feature_flag('vault');
+    if (! $err['use_vault']) {
+        $err['vault_error'] = 'Vault feature is disabled';
+    }
 }
 
 if (!in_array('db_password', $err['required']) && !in_array('db_password_confirm', $err['required']) &&
@@ -83,13 +88,13 @@ try {
     if ($parameters['root_user'] == "") {
         $parameters['root_user'] = "root";
     }
-    $link = new \PDO(
-        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
-        $parameters['root_user'],
-        $parameters['root_password']
-    );
-    checkMariaDBPrerequisite($link);
-    $link = null;
+//    $link = new \PDO(
+//        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
+//        $parameters['root_user'],
+//        $parameters['root_password']
+//    );
+//    checkMariaDBPrerequisite($link);
+//    $link = null;
 } catch (\Exception $e) {
     if ($e instanceof \PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
         $err['connection'] =

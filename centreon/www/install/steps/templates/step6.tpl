@@ -73,6 +73,7 @@
             <td class='formlabel'>{t}Use vault to store sensitive data{/t}</td>
             <td class='formvalue'>
                 <input type='checkbox' name='use_vault' value="{$parameters.use_vault}"/>
+                <label class='field_msg'></label>
             </td>
         </tr>
         </tbody>
@@ -92,7 +93,7 @@
             data: jQuery('#form_step6').serialize(),
             success: (data) => {
                 var result = JSON.parse(data);
-                if (!result.required.length && result.password && result.connection == '') {
+                if (!result.required.length && result.password && result.connection === '' && result.vault_error === '') {
                     if (result.use_vault) {
                         loadStep("vaultStep");
                     } else {
@@ -105,8 +106,11 @@
                     if (!result.password) {
                         jQuery('input[name="db_password_confirm"]').next().html("Password does not match");
                     }
-                    if (result.connection != '') {
+                    if (result.connection !== '') {
                         jQuery('input[name="address"]').next().html(result.connection);
+                    }
+                    if (result.vault_error !== '') {
+                        jQuery('input[name="use_vault"]').next().html(result.vault_error);
                     }
                 }
             }

@@ -37,8 +37,8 @@
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
+require __DIR__ . '/../../../common/common-Func.php';
 
-define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
 
 $requiredParameters = [
     'address',
