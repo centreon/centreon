@@ -31,7 +31,6 @@ use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Exception;
-use PDO;
 
 class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteTokenRepositoryInterface
 {
@@ -176,15 +175,17 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         $this->debug('Deleting expired refresh tokens');
 
         $this->db->query(
-            $this->translateDbName(
-                'DELETE st FROM `:db`.security_token st
+            $this->translateDbName(<<<'SQL'
+                DELETE st FROM `:db`.security_token st
                 WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
                 AND EXISTS (
                     SELECT 1
                     FROM `:db`.security_authentication_tokens sat
                     WHERE sat.provider_token_refresh_id = st.id
+                    AND sat.token_type = 'auto'
                     LIMIT 1
-                )'
+                )
+                SQL
             )
         );
     }
@@ -197,16 +198,17 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
         $this->debug('Deleting expired tokens which are not linked to a refresh token');
 
         $this->db->query(
-            $this->translateDbName(
-                'DELETE st FROM `:db`.security_token st
+            $this->translateDbName(<<<'SQL'
+                DELETE st FROM `:db`.security_token st
                 WHERE st.expiration_date < UNIX_TIMESTAMP(NOW())
                 AND NOT EXISTS (
                     SELECT 1
                     FROM `:db`.security_authentication_tokens sat
                     WHERE sat.provider_token_id = st.id
-                    AND sat.provider_token_refresh_id IS NOT NULL
+                        AND (sat.provider_token_refresh_id IS NOT NULL OR sat.token_type = 'manual')
                     LIMIT 1
-                )'
+                )
+                SQL
             )
         );
     }
@@ -259,16 +261,16 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 . 'VALUES (:token, :createdAt, :expireAt)'
             )
         );
-        $insertSecurityTokenStatement->bindValue(':token', $providerToken->getToken(), PDO::PARAM_STR);
+        $insertSecurityTokenStatement->bindValue(':token', $providerToken->getToken(), \PDO::PARAM_STR);
         $insertSecurityTokenStatement->bindValue(
             ':createdAt',
             $providerToken->getCreationDate()->getTimestamp(),
-            PDO::PARAM_INT
+            \PDO::PARAM_INT
         );
         $insertSecurityTokenStatement->bindValue(
             ':expireAt',
             $providerToken->getExpirationDate()?->getTimestamp(),
-            PDO::PARAM_INT
+            \PDO::PARAM_INT
         );
         $insertSecurityTokenStatement->execute();
     }
@@ -296,15 +298,15 @@ class DbWriteTokenRepository extends AbstractRepositoryDRB implements WriteToken
                 . 'VALUES (:sessionTokenId, :tokenId, :refreshTokenId, :configurationId, :userId)'
             )
         );
-        $insertSecurityAuthenticationStatement->bindValue(':sessionTokenId', $sessionId, PDO::PARAM_STR);
-        $insertSecurityAuthenticationStatement->bindValue(':tokenId', $securityTokenId, PDO::PARAM_INT);
-        $insertSecurityAuthenticationStatement->bindValue(':refreshTokenId', $securityRefreshTokenId, PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->bindValue(':sessionTokenId', $sessionId, \PDO::PARAM_STR);
+        $insertSecurityAuthenticationStatement->bindValue(':tokenId', $securityTokenId, \PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->bindValue(':refreshTokenId', $securityRefreshTokenId, \PDO::PARAM_INT);
         $insertSecurityAuthenticationStatement->bindValue(
             ':configurationId',
             $providerConfigurationId,
-            PDO::PARAM_INT
+            \PDO::PARAM_INT
         );
-        $insertSecurityAuthenticationStatement->bindValue(':userId', $contactId, PDO::PARAM_INT);
+        $insertSecurityAuthenticationStatement->bindValue(':userId', $contactId, \PDO::PARAM_INT);
         $insertSecurityAuthenticationStatement->execute();
     }
 }
