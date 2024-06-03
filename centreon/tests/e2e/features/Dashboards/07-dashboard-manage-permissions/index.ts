@@ -17,7 +17,7 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
+    url: '/centreon/api/latest/configuration/dashboards**'
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PUT',
@@ -31,11 +31,13 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
 });
 
 after(() => {
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -47,7 +49,14 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardCreatorUser.login).click();
     cy.getByTestId({ testId: 'add' }).click();
@@ -77,7 +86,9 @@ Given(
 When(
   'the dashboard administrator user promotes the viewer user to an editor',
   () => {
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).realClick();
     cy.get('[role="listbox"]').contains('Editor').click();
     cy.get('[data-state="updated"]').should('exist');
@@ -95,7 +106,10 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
@@ -106,7 +120,14 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'editor'
@@ -138,7 +159,10 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     cy.contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
@@ -151,8 +175,14 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
-    cy.visit('/centreon/home/dashboards/library');
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-creator' }).should(
       'have.value',
       'viewer'
@@ -183,7 +213,10 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit('/centreon/home/dashboards/library');
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
     // FIXME
     cy.contains('Dashboards').should('not.exist');
   }
@@ -192,8 +225,14 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
-    cy.visit('/centreon/home/dashboards/library');
-    cy.getByTestId({ testId: 'ShareIcon' }).should('be.visible').click();
+    cy.navigateTo({
+      page: 'Dashboards',
+      rootItemNumber: 0
+    });
+    cy.wait('@listAllDashboards');
+    cy.getByTestId({ testId: 'Share with contacts' })
+      .should('be.visible')
+      .click();
     cy.getByTestId({ testId: 'role-user-dashboard-administrator' }).should(
       'have.value',
       'editor'
@@ -243,7 +282,11 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards/library');
+  cy.navigateTo({
+    page: 'Dashboards',
+    rootItemNumber: 0
+  });
+  cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
     .click();

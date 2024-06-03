@@ -11,9 +11,12 @@ info:
     + Added service enpdoint (PATCH)
     + Added service severity configuration endpoint (PUT)
     + Added hosts status count endpoint (GET)
+    + Added endpoint to list unique service names (GET)
     +
     # Updated features
     + Added metrics by service listing endpoint to service resource type
+    + Added new filters for the /monitoring/services/categories endpoint
+    + Added new filters for the /monitoring/hosts/categories endpoint
     + Added new filters to the /monitoring/servicegroups endpoint
     + Added host_category filter to /monitoring/hostgroups endpoint
     +
@@ -493,6 +496,17 @@ paths:
       summary: "List all real-time service categories"
       description: |
         List of all service categories in real-time context
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * host.id
+        * host.name
+        * host_group.id
+        * host_group.name
+        * host_category.id
+        * host_category.name
+        * service_group.id
+        * service_group.name
       responses:
         "200":
           description: "OK"
@@ -2049,6 +2063,54 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /monitoring/services/names:
+    get:
+      tags:
+        - Service
+      summary: "List all services unique names"
+      description: |
+        List all the services in real-time monitoring.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * name
+        * host.id
+        * host.name
+        * host_group.id
+        * host_group.name
+        * host_category.id
+        * host_category.name
+        * service_group.id
+        * service_group.name
+        * service_category.id
+        * service_category.name
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: 'Cpu'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/{host_id}/services:
     get:
       tags:
@@ -2173,6 +2235,11 @@ paths:
       summary: "List all real-time host categories"
       description: |
         List of all host categories in real-time context
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * name
+        * host_group.id
+        * host_group.name
       responses:
         "200":
           description: "OK"
