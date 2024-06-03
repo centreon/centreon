@@ -9,15 +9,21 @@ import { LineChartProps } from './models';
 
 import WrapperLineChart from '.';
 
-interface Props extends Pick<LineChartProps, 'legend' | 'tooltip'> {
+interface Props extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis'> {
   data?: LineChartData;
 }
 
-const initialize = ({ data = dataLastDay, tooltip, legend }: Props): void => {
+const initialize = ({
+  data = dataLastDay,
+  tooltip,
+  legend,
+  axis
+}: Props): void => {
   cy.mount({
     Component: (
       <WrapperLineChart
         {...argumentsData}
+        axis={axis}
         data={data as unknown as LineChartData}
         legend={legend}
         tooltip={tooltip}
@@ -239,6 +245,83 @@ describe('Line chart', () => {
       cy.get('[data-as-list="true"]').should('exist');
 
       cy.contains('9:00 AM').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('Axis', () => {
+    it('does not display axis borders when the prop is set', () => {
+      initialize({ axis: { showBorder: false } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.get('line[class*="visx-axis-line"]')
+        .eq(0)
+        .should('have.attr', 'stroke-width')
+        .and('equal', '0');
+      cy.get('line[class*="visx-axis-line"]')
+        .eq(1)
+        .should('have.attr', 'stroke-width')
+        .and('equal', '0');
+      cy.get('line[class*="visx-axis-line"]')
+        .eq(2)
+        .should('have.attr', 'stroke-width')
+        .and('equal', '0');
+
+      cy.makeSnapshot();
+    });
+
+    it('does not display grids when the prop is set', () => {
+      initialize({ axis: { showGridLines: false } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.get('g[class="visx-group visx-rows"]').should('not.exist');
+      cy.get('g[class="visx-group visx-columns"]').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays only horizontal lines when the prop is set', () => {
+      initialize({ axis: { gridLinesType: 'horizontal' } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.get('g[class="visx-group visx-rows"]').should('be.visible');
+      cy.get('g[class="visx-group visx-columns"]').should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays only vertical lines when the prop is set', () => {
+      initialize({ axis: { gridLinesType: 'vertical' } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.get('g[class="visx-group visx-rows"]').should('not.exist');
+      cy.get('g[class="visx-group visx-columns"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('rotates the tick label when the props is set', () => {
+      initialize({ axis: { yAxisTickLabelRotation: -35 } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.get('text[transform="rotate(-35, -2, 388)"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays as centered to zero when the prop is set', () => {
+      initialize({ axis: { isCenteredZero: true } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.contains('0.9').should('be.visible');
+      cy.contains('-0.9').should('be.visible');
 
       cy.makeSnapshot();
     });
