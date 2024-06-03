@@ -1,6 +1,6 @@
 module.exports = {
   moduleNameMapper: {
-    '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',
+    '\\.(s?css|png|svg?component|jpg)$': 'identity-obj-proxy',
     '^.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
     '^react($|/.+)': '<rootDir>/node_modules/react$1'
