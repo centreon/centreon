@@ -219,7 +219,6 @@ When('a new host is created', () => {
 Then(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
-    // cy.loginByTypeOfUser({ jsonName: 'admin' });
     // Access to all resources should be deleted first
     cy.executeActionViaClapi({
       bodyContent: {
@@ -261,14 +260,11 @@ When(
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
     cy.contains('span', `${data.login}`).should('be.visible');
-    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type('test');
     cy.get('.MuiAutocomplete-loading').should('not.exist');
-    // cy.contains(`test`).click();
-    // cy.contains('span', `test`).should('be.visible');
     cy.getByLabel({ label: 'Close', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
-    // cy.wait(3000);
-    // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Save', tag: 'button' }, { timeout: 10000 })
+      .should('be.enabled')
+      .click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
     });
