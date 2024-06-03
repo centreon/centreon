@@ -121,20 +121,19 @@ Cypress.Commands.add('verifyDuplicatesGraphContainer', () => {
 });
 
 Cypress.Commands.add('waitUntilPingExists', () => {
-  cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
-
   cy.intercept({
     method: 'GET',
-    url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
-  }).as('resourceRequest');
+    url: /\/centreon\/api\/latest\/monitoring\/services\/names.*$/
+  }).as('servicesRequest');
 
   return cy.waitUntil(
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
+      cy.wait(60_000);
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
-      return cy.wait('@resourceRequest').then((interception) => {
+      return cy.wait('@servicesRequest').then((interception) => {
         if (interception && interception.response) {
           cy.log('Response Body:', interception.response.body);
           const responseBody = interception.response.body;
