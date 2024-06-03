@@ -53,6 +53,7 @@ import {
 interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
+  changeIdValue: (resourceType) => (({ name }) => string) | undefined;
   changeResource: (index: number) => (_, resources: SelectEntry) => void;
   changeResourceType: (
     index: number
@@ -87,7 +88,7 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/resources',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/resources',
+  [WidgetResourceType.service]: '/services/names',
   [WidgetResourceType.serviceCategory]: '/services/categories',
   [WidgetResourceType.serviceGroup]: '/servicegroups',
   [WidgetResourceType.metaService]: '/resources'
@@ -292,9 +293,13 @@ const useResources = ({
     resourceType
   ): Array<QueryParameter> => {
     const usesResourcesEndpoint = includes(resourceType, [
-      WidgetResourceType.service,
       WidgetResourceType.host,
       WidgetResourceType.metaService
+    ]);
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
+    const isOfTypeCategory = includes(resourceType, [
+      WidgetResourceType.hostCategory,
+      WidgetResourceType.serviceCategory
     ]);
 
     if (equals(index, 0)) {
@@ -305,7 +310,16 @@ const useResources = ({
     const searchParameter = value?.[index - 1].resourceType as string;
     const searchValues = pluck('name', value?.[index - 1].resources);
 
-    if (!usesResourcesEndpoint) {
+    if (!usesResourcesEndpoint && !isOfTypeCategory) {
+      const serviceParameters = isOfTypeService
+        ? [
+            {
+              name: 'only_with_performance_data',
+              value: hasMetricInputType
+            }
+          ]
+        : [];
+
       return [
         {
           name: 'search',
@@ -314,7 +328,8 @@ const useResources = ({
               $in: searchValues
             }
           }
-        }
+        },
+        ...serviceParameters
       ];
     }
 
@@ -322,20 +337,6 @@ const useResources = ({
       resourceType,
       hasMetricInputType
     );
-
-    if (equals(searchParameter, WidgetResourceType.host)) {
-      return [
-        ...baseParams,
-        {
-          name: 'search',
-          value: {
-            parent_name: {
-              $in: searchValues
-            }
-          }
-        }
-      ];
-    }
 
     return [
       ...baseParams,
@@ -479,8 +480,19 @@ const useResources = ({
       ?.availableResourceTypeOptions
   );
 
+  const changeIdValue = (resourceType): (({ name }) => string) | undefined => {
+    const isOfTypeService = equals(resourceType, WidgetResourceType.service);
+
+    if (!isOfTypeService) {
+      return undefined;
+    }
+
+    return ({ name }) => name;
+  };
+
   return {
     addResource,
+    changeIdValue,
     changeResource,
     changeResourceType,
     changeResources,
