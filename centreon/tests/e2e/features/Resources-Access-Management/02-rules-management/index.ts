@@ -255,17 +255,17 @@ Then(
 When(
   'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
-    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
-    // cy.get('.MuiAutocomplete-loading').should('not.exist');
-    // cy.contains(`${data.login}`).click();
-    // cy.contains('span', `${data.login}`).should('be.visible');
-    cy.get('#Contacts').invoke('val', `${data.login}`).trigger('input');
-    cy.get('#Contacts').should('have.value', `${data.login}`);
-    cy.wait('@getTopCounteruser');
-    cy.wait('@getTopCounterpoller');
-    cy.wait('@getTopCounterservice');
-    cy.wait('@getTopCounterhosts');
-    // cy.wait(3000);
+    cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
+    cy.get('.MuiAutocomplete-loading').should('not.exist');
+    cy.contains(`${data.login}`).click();
+    cy.contains('span', `${data.login}`).should('be.visible');
+    // cy.get('#Contacts').invoke('val', `${data.login}`).trigger('input');
+    // cy.get('#Contacts').should('have.value', `${data.login}`);
+    // cy.wait('@getTopCounteruser');
+    // cy.wait('@getTopCounterpoller');
+    // cy.wait('@getTopCounterservice');
+    // cy.wait('@getTopCounterhosts');
+    cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
