@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -65,6 +65,7 @@ foreach ($parameters as $name => $value) {
     }
 }
 
+// If the vault checkbox is checked, validate that the feature is enabled
 if (array_key_exists('use_vault', $parameters)) {
     $err['use_vault'] = is_enabled_feature_flag('vault');
     if (! $err['use_vault']) {
@@ -88,13 +89,13 @@ try {
     if ($parameters['root_user'] == "") {
         $parameters['root_user'] = "root";
     }
-//    $link = new \PDO(
-//        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
-//        $parameters['root_user'],
-//        $parameters['root_password']
-//    );
-//    checkMariaDBPrerequisite($link);
-//    $link = null;
+    $link = new \PDO(
+        'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
+        $parameters['root_user'],
+        $parameters['root_password']
+    );
+    checkMariaDBPrerequisite($link);
+    $link = null;
 } catch (\Exception $e) {
     if ($e instanceof \PDOException && (int) $e->getCode() === SQL_ERROR_CODE_ACCESS_DENIED) {
         $err['connection'] =
