@@ -6,7 +6,7 @@ import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg
 
 import Image from './Image';
 
-jest.mock('../../@assets/centreon-logo-one-line-light.svg');
+jest.mock('../../@assets/brand/centreon-logo-one-line-light.svg');
 
 const renderImage = (): RenderResult =>
   render(
