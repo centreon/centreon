@@ -148,7 +148,7 @@ it('should present a NotFoundResponse when the service template does not exist',
     $this->readAccessGroupRepository
         ->expects($this->any())
         ->method('findByContact')
-        ->with($this->user)
+        ->with($this->contact)
         ->willReturn($accessGroups);
 
     $this->readServiceTemplateRepository
@@ -182,7 +182,7 @@ it('should present a ConflictResponse when a host template does not exist', func
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->with($this->user)
+        ->with($this->contact)
         ->willReturn($accessGroups);
 
     $this->readServiceTemplateRepository
@@ -223,7 +223,7 @@ it('should present an ErrorResponse when an error occurs during host templates u
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->with($this->user)
+        ->with($this->contact)
         ->willReturn($accessGroups);
 
     $this->readServiceTemplateRepository
@@ -268,7 +268,7 @@ it('should present a ErrorResponse when an error occurs during host templates li
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->with($this->user)
+        ->with($this->contact)
         ->willReturn($accessGroups);
 
     $this->readServiceTemplateRepository

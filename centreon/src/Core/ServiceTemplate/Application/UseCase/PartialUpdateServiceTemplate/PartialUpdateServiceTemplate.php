@@ -70,7 +70,6 @@ final class PartialUpdateServiceTemplate
     private array $accessGroups = [];
 
     public function __construct(
-        private readonly ReadServiceTemplateRepositoryInterface $readRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
