@@ -152,7 +152,7 @@ function removeRelationLastHostgroupDependency(int $hgId): void
     }
 }
 
-function deleteHostGroupInDB($hostGroups = array())
+function deleteHostGroupInDB(array $hostGroups = [], bool $isCloudPlatform)
 {
     global $pearDB, $centreon;
 
@@ -160,22 +160,88 @@ function deleteHostGroupInDB($hostGroups = array())
         $previousPollerIds = getPollersForConfigChangeFlagFromHostgroupId((int) $hostgroupId);
 
         removeRelationLastHostgroupDependency((int) $hostgroupId);
-        $rq = "SELECT @nbr := (SELECT COUNT( * ) FROM host_service_relation WHERE service_service_id = " .
-            "hsr.service_service_id GROUP BY service_service_id ) AS nbr, hsr.service_service_id FROM " .
-            "host_service_relation hsr WHERE hsr.hostgroup_hg_id = '" . $hostgroupId . "'";
-        $dbResult = $pearDB->query($rq);
+        $rq = <<<'SQL'
+            SELECT @nbr := (
+                SELECT COUNT( * )
+                FROM host_service_relation
+                WHERE service_service_id = hsr.service_service_id
+                GROUP BY service_service_id
+            ) AS nbr,
+                hsr.service_service_id
+            FROM host_service_relation hsr
+            WHERE hsr.hostgroup_hg_id = :hostgroup_id
+            SQL;
+        $stmt= $pearDB->prepare($rq);
+        $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
 
         $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
-        while ($row = $dbResult->fetch()) {
+        while ($row = $stmt->fetch()) {
             if ($row["nbr"] == 1) {
                 $statement->bindValue(':service_id', (int) $row["service_service_id"], \PDO::PARAM_INT);
                 $statement->execute();
             }
         }
-        $dbResult3 = $pearDB->query("SELECT hg_name FROM `hostgroup` WHERE `hg_id` = '" . $hostgroupId . "' LIMIT 1");
-        $row = $dbResult3->fetch();
 
-        $pearDB->query("DELETE FROM hostgroup WHERE hg_id = '" . $hostgroupId . "'");
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                SELECT hg_name
+                FROM hostgroup
+                WHERE hg_id = :hostgroup_id
+                LIMIT 1
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetch();
+
+        if ($isCloudPlatform) {
+            if ($pearDB->beginTransaction()) {
+                try {
+                    $stmt = $pearDB->prepare(
+                        <<<'SQL'
+                            SELECT * FROM dataset_filters
+                            INNER JOIN acl_resources_hg_relations arhr
+                                ON arhr.acl_res_id = dataset_filters.acl_resource_id
+                            WHERE hg_hg_id = :hostgroup_id
+                            SQL
+                    );
+                    $stmt->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    while ($datasetFilter = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                        $resourceIds = explode(',', $datasetFilter['resource_ids']);
+                        $updatedResourcesIds = array_filter(
+                            $resourceIds,
+                            fn ($id) => trim($id) !== (string) $hostgroupId
+                        );
+                        $resourcesIdsAsString = implode(',', $updatedResourcesIds);
+                        $stmt = $pearDB->prepare(
+                            <<<'SQL'
+                                UPDATE dataset_filters
+                                SET resource_ids = :resource_ids
+                                WHERE id = :id
+                                SQL
+                        );
+                        $stmt->bindValue(':resource_ids', $resourcesIdsAsString, \PDO::PARAM_STR);
+                        $stmt->bindValue(':id', (int) $datasetFilter['id'], \PDO::PARAM_INT);
+
+                        $stmt->execute();
+                    }
+                    $pearDB->commit();
+                } catch (\Throwable $exception) {
+                    $pearDB->rollBack();
+                    throw $exception;
+                }
+            }
+        }
+
+        $statement = $pearDB->prepare(
+            <<<'SQL'
+                DELETE FROM hostgroup WHERE hg_id = :hostgroup_id
+                SQL
+        );
+        $statement->bindValue(':hostgroup_id', (int) $hostgroupId, \PDO::PARAM_INT);
+        $statement->execute();
 
         signalConfigurationChange('hostgroup', (int) $hostgroupId, $previousPollerIds);
         $centreon->CentreonLogAction->insertLog("hostgroup", $hostgroupId, $row['hg_name'], "d");
