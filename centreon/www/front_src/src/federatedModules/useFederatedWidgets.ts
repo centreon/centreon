@@ -44,16 +44,20 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
       return;
     }
 
+    const timestamp = `?t=${new Date().getTime()}`;
+
     Promise.all(
       widgets?.map((moduleName) =>
-        sendRequest({ endpoint: getFederatedWidget(moduleName) })
+        sendRequest({
+          endpoint: `${getFederatedWidget(moduleName)}${timestamp}`
+        })
       ) || []
     ).then(setFederatedWidgets);
 
     Promise.all(
       widgets?.map((moduleName) =>
         sendRequestProperties({
-          endpoint: getFederatedWidgetProperties(moduleName)
+          endpoint: `${getFederatedWidgetProperties(moduleName)}${timestamp}`
         })
       ) || []
     ).then(setFederatedWidgetsProperties);
