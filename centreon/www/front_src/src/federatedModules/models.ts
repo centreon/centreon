@@ -42,6 +42,7 @@ export enum FederatedWidgetOptionType {
   richText = 'rich-text',
   select = 'select',
   singleMetricGraphType = 'single-metric-graph-type',
+  slider = 'slider',
   switch = 'switch',
   textfield = 'textfield',
   threshold = 'threshold',

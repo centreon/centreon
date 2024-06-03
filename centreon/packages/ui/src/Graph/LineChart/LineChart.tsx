@@ -158,7 +158,15 @@ const LineChart = ({
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
-    [displayedLines, timeSeries, graphHeight, thresholdValues]
+    [
+      displayedLines,
+      timeSeries,
+      graphHeight,
+      thresholdValues,
+      axis?.isCenteredZero,
+      axis?.scale,
+      axis?.scaleLogarithmicBase
+    ]
   );
 
   const rightScale = useMemo(
@@ -173,7 +181,14 @@ const LineChart = ({
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
-    [timeSeries, displayedLines, graphHeight]
+    [
+      timeSeries,
+      displayedLines,
+      graphHeight,
+      axis?.isCenteredZero,
+      axis?.scale,
+      axis?.scaleLogarithmicBase
+    ]
   );
 
   const graphTooltipData = useGraphTooltip({

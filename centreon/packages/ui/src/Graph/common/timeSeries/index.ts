@@ -355,7 +355,7 @@ const getScale = ({
   scale,
   scaleLogarithmicBase
 }): ScaleLinear<number, number> => {
-  console.log(scale);
+  const isLogScale = equals(scale, 'logarithmic');
   const minValue = Math.min(
     getMin(graphValues),
     getMin(stackedValues),
@@ -383,7 +383,7 @@ const getScale = ({
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
-    domain: [minValue, maxValue],
+    domain: [isLogScale ? 0.001 : minValue, maxValue],
     range: [height, upperRangeValue]
   });
 };

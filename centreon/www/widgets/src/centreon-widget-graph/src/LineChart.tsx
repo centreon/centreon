@@ -77,6 +77,15 @@ const WidgetLineChart = ({
 
   return (
     <LineChart
+      axis={{
+        gridLinesType: panelOptions.gridLinesType,
+        isCenteredZero: panelOptions.isCenteredZero,
+        scale: panelOptions.scale,
+        scaleLogarithmicBase: Number(panelOptions.scaleLogarithmicBase),
+        showBorder: panelOptions.showAxisBorder,
+        showGridLines: panelOptions.showGridLines,
+        yAxisTickLabelRotation: panelOptions.yAxisTickLabelRotation
+      }}
       curve={panelOptions.curveType}
       data={graphData}
       end={end}

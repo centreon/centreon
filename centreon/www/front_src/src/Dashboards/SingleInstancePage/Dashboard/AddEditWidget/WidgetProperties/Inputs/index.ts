@@ -14,3 +14,4 @@ export { default as WidgetTiles } from './Tiles/Tiles';
 export { default as WidgetDisplayType } from './DisplayType/DisplayType';
 export { default as WidgetSelect } from './Select/Select';
 export { default as WidgetButtonGroup } from './ButtonGroup/ButtonGroup';
+export { default as WidgetSlider } from './Slider/Slider';
