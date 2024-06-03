@@ -69,33 +69,41 @@ When('I click on the {string} column header', (columnHeader: string) => {
 Then(
   'the tokens are sorted by {string} in descending order',
   (orderBy: string) => {
+    let previousValue: string = null;
     const values: Array<string> = [];
     const parsedDates: Array<Date> = [];
-    cy.get('.MuiTableBody-root .MuiTableRow-root')
-      .each((row) => {
-        cy.wrap(row)
-          .find('.MuiTableCell-body')
-          .eq(columns.indexOf(orderBy))
-          .invoke('text')
-          .then((value) => {
+    cy.get('.MuiTableBody-root .MuiTableRow-root').each((row) => {
+      cy.wrap(row)
+        .find('.MuiTableCell-body')
+        .eq(columns.indexOf(orderBy))
+        .invoke('text')
+        .then((value) => {
+          const nextValue = value.trim();
+
+          if (previousValue !== null) {
             if (orderBy.toLowerCase().includes('date')) {
-              parsedDates.push(new Date(value.trim()));
+              expect(new Date(previousValue).getTime()).to.be.gte(
+                new Date(nextValue).getTime()
+              );
             } else {
+              const lastOrderedValue = [previousValue, nextValue].sort().pop();
+              expect(lastOrderedValue).to.be.eq(nextValue);
               values.push(value.trim());
             }
-          });
-      })
-      .then(() => {
-        // For Date columns
-        if (orderBy.toLowerCase().includes('date')) {
-          const sortedParsedDates = [...parsedDates].sort(
-            (a, b) => b.getTime() - a.getTime()
-          );
-          expect(parsedDates).to.deep.equal(sortedParsedDates);
-        } else {
-          const sortedValues = [...values].sort().reverse();
-          expect(values).to.deep.equal(sortedValues);
-        }
-      });
+          }
+
+          previousValue = nextValue;
+        });
+    });
+    // For Date columns
+    if (orderBy.toLowerCase().includes('date')) {
+      const sortedParsedDates = [...parsedDates].sort(
+        (a, b) => b.getTime() - a.getTime()
+      );
+      expect(parsedDates).to.deep.equal(sortedParsedDates);
+    } else {
+      const sortedValues = [...values].sort().reverse();
+      expect(values).to.deep.equal(sortedValues);
+    }
   }
 );
