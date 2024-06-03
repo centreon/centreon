@@ -96,7 +96,6 @@ beforeEach(closure: function (): void {
     );
 
     $this->useCase = new PartialUpdateServiceTemplate(
-        $this->readServiceTemplateRepository,
         $this->writeServiceTemplateRepository,
         $this->readServiceCategoryRepository,
         $this->writeServiceCategoryRepository,
