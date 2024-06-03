@@ -501,20 +501,89 @@ function updateHostGroupAcl(int $hostGroupId, bool $isCloudPlatform, $submittedV
                     }
                 }
             } else {
-                if ($pearDB->beginTransaction()) {
-                    try {
-                        linkHostGroupToDataset(datasetId: $hostGroupDatasetFilters[0]['dataset_id'], hostGroupId: $hostGroupId);
-                        // Expend the existing hostgroup dataset_filter
-                        $expendedResourceIds = $hostGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $hostGroupId;
+                if (
+                    count($hostGroupDatasetFilters) === 1
+                    && ! empty($hostGroupDatasetFilters[0]['dataset_filter_resources'])
+                ) {
+                    if ($pearDB->beginTransaction()) {
+                        try {
+                            linkHostGroupToDataset(
+                                datasetId: $hostGroupDatasetFilters[0]['dataset_id'],
+                                hostGroupId: $hostGroupId
+                            );
+                            // Expend the existing hostgroup dataset_filter
+                            $expendedResourceIds = $hostGroupDatasetFilters[0]['dataset_filter_resources'] . ', '
+                                . $hostGroupId;
 
-                        updateDatasetFiltersResourceIds(
-                            datasetFilterId: $hostGroupDatasetFilters[0]['dataset_filter_id'],
-                            resourceIds: $expendedResourceIds
+                            updateDatasetFiltersResourceIds(
+                                datasetFilterId: $hostGroupDatasetFilters[0]['dataset_filter_id'],
+                                resourceIds: $expendedResourceIds
+                            );
+                            $pearDB->commit();
+                        } catch (\Throwable $exception) {
+                            $pearDB->rollBack();
+                            throw $exception;
+                        }
+                    }
+                }
+
+                if (count($hostGroupDatasetFilters) > 1) {
+                    $datasetFilterToPopulate = null;
+                    foreach ($hostGroupDatasetFilters as $hostGroupDatasetFilter) {
+                        $datasetFilter = array_filter(
+                            $datasets,
+                            fn (array $dataset) => $dataset['dataset_id'] === $hostGroupDatasetFilter['dataset_id']
                         );
-                        $pearDB->commit();
-                    } catch (\Throwable $exception) {
-                        $pearDB->rollBack();
-                        throw $exception;
+
+                        if (count($datasetFilter) === 1) {
+                            $datasetFilterToPopulate = $hostGroupDatasetFilter;
+                        }
+                    }
+
+                    if (
+                        $datasetFilterToPopulate !== null
+                        && ! empty($datasetFilterToPopulate['dataset_filter_resources'])
+                    ) {
+                        if ($pearDB->beginTransaction()) {
+                            try {
+                                linkHostGroupToDataset(
+                                    datasetId: $datasetFilterToPopulate['dataset_id'],
+                                    hostGroupId: $hostGroupId
+                                );
+                                // Expend the existing hostgroup dataset_filter
+                                $expendedResourceIds = $datasetFilterToPopulate['dataset_filter_resources'] . ', '
+                                    . $hostGroupId;
+
+                                updateDatasetFiltersResourceIds(
+                                    datasetFilterId: $datasetFilterToPopulate['dataset_filter_id'],
+                                    resourceIds: $expendedResourceIds
+                                );
+                                $pearDB->commit();
+                            } catch (\Throwable $exception) {
+                                $pearDB->rollBack();
+                                throw $exception;
+                            }
+                        }
+                    } else {
+                        $lastDatasetAdded = end($datasets);
+
+                        preg_match('/dataset_for_rule_\d+_(\d+)/', $lastDatasetAdded['dataset_name'], $matches);
+
+                        // calculate the new dataset_name
+                        $newDatasetName = 'dataset_for_rule_' . $ruleId . '_' . (int) $matches[1] + 1;
+
+                        if ($pearDB->beginTransaction()) {
+                            try {
+                                $datasetId = createNewDataset(datasetName: $newDatasetName);
+                                linkDatasetToRule(datasetId: $datasetId, ruleId: $ruleId);
+                                linkHostGroupToDataset(datasetId: $datasetId, hostGroupId: $hostGroupId);
+                                createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, hostGroupId: $hostGroupId);
+                                $pearDB->commit();
+                            } catch (\Throwable $exception) {
+                                $pearDB->rollBack();
+                                throw $exception;
+                            }
+                        }
                     }
                 }
             }
