@@ -264,6 +264,11 @@ When(
     cy.wait('@getTopCounterpoller');
     cy.wait('@getTopCounterservice');
     cy.wait('@getTopCounterhosts');
+    cy.get('div[class$="-textfield-textField"]').within(() => {
+      cy.get(
+        'div.MuiChip-deletableColorPrimary.MuiChip-filledPrimary.MuiAutocomplete-tag'
+      ).contains(`${data.login}`);
+    });
     // cy.wait(3000);
     cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
