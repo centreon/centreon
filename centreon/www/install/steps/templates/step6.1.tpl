@@ -58,9 +58,7 @@
             data: jQuery('#form_step6').serialize(),
             success: (data) => {
                 var result = JSON.parse(data);
-                console.log(result);
                 if (!result.required.length && result.connection_error === '') {
-                        console.log("here");
                         loadStep("nextStep");
                 } else {
                     result.required.forEach(function (element) {
