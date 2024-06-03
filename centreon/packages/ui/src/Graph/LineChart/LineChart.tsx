@@ -151,6 +151,9 @@ const LineChart = ({
       getLeftScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        isCenteredZero: axis?.isCenteredZero,
+        scale: axis?.scale,
+        scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
@@ -163,6 +166,9 @@ const LineChart = ({
       getRightScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        isCenteredZero: axis?.isCenteredZero,
+        scale: axis?.scale,
+        scaleLogarithmicBase: axis?.scaleLogarithmicBase,
         thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
@@ -192,6 +198,11 @@ const LineChart = ({
     lte(graphWidth, 808) &&
     gt(legendItemsWidth, graphWidth) &&
     displayLegendInBottom;
+
+  const showGridLines = useMemo(
+    () => isNil(axis?.showGridLines) || axis?.showGridLines,
+    [axis?.showGridLines]
+  );
 
   if (!isInViewport) {
     return (
@@ -257,12 +268,15 @@ const LineChart = ({
                   left={margin.left + extraMargin / 2}
                   top={margin.top}
                 >
-                  <Grids
-                    height={graphHeight - margin.top}
-                    leftScale={leftScale}
-                    width={graphWidth}
-                    xScale={xScale}
-                  />
+                  {showGridLines && (
+                    <Grids
+                      gridLinesType={axis?.gridLinesType}
+                      height={graphHeight - margin.top}
+                      leftScale={leftScale}
+                      width={graphWidth}
+                      xScale={xScale}
+                    />
+                  )}
                   <Axes
                     data={{
                       baseAxis,

@@ -341,12 +341,21 @@ const getYScale = ({
     : scale;
 };
 
+const getScaleType = (
+  scale: 'linear' | 'logarithimc'
+): typeof Scale.scaleLinear | typeof Scale.scaleLog =>
+  equals(scale, 'logarithmic') ? Scale.scaleLog : Scale.scaleLinear;
+
 const getScale = ({
   graphValues,
   height,
   stackedValues,
-  thresholds
+  thresholds,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase
 }): ScaleLinear<number, number> => {
+  console.log(scale);
   const minValue = Math.min(
     getMin(graphValues),
     getMin(stackedValues),
@@ -358,11 +367,23 @@ const getScale = ({
     Math.max(...thresholds)
   );
 
+  const scaleType = getScaleType(scale);
+
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
 
-  return Scale.scaleLinear<number>({
+  if (isCenteredZero) {
+    const greatestValue = Math.max(Math.abs(maxValue), Math.abs(minValue));
+
+    return scaleType<number>({
+      base: scaleLogarithmicBase || 2,
+      domain: [-greatestValue, greatestValue],
+      range: [height, upperRangeValue]
+    });
+  }
+
+  return scaleType<number>({
+    base: scaleLogarithmicBase || 2,
     domain: [minValue, maxValue],
-    nice: true,
     range: [height, upperRangeValue]
   });
 };
@@ -372,7 +393,10 @@ const getLeftScale = ({
   dataTimeSeries,
   valueGraphHeight,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase
 }: AxeScale): ScaleLinear<number, number> => {
   const [firstUnit, , thirdUnit] = getUnits(dataLines);
 
@@ -407,6 +431,9 @@ const getLeftScale = ({
   return getScale({
     graphValues,
     height: valueGraphHeight,
+    isCenteredZero,
+    scale,
+    scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : []
   });
@@ -427,7 +454,10 @@ const getRightScale = ({
   dataTimeSeries,
   valueGraphHeight,
   thresholds,
-  thresholdUnit
+  thresholdUnit,
+  isCenteredZero,
+  scale,
+  scaleLogarithmicBase
 }: AxeScale): ScaleLinear<number, number> => {
   const [, secondUnit] = getUnits(dataLines);
 
@@ -453,6 +483,9 @@ const getRightScale = ({
   return getScale({
     graphValues,
     height: valueGraphHeight,
+    isCenteredZero,
+    scale,
+    scaleLogarithmicBase,
     stackedValues,
     thresholds: shouldApplyThresholds ? thresholds : []
   });

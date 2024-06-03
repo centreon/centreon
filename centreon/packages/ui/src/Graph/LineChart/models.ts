@@ -48,10 +48,17 @@ export interface ShapeLines {
   areaStackedLines?: AreaStackedLines;
 }
 
-export interface Axis {
+export interface LineChartAxis {
   axisX?: AxisX;
   axisYLeft?: AxisYLeft;
   axisYRight?: AxisYRight;
+  gridLinesType?: 'horizontal' | 'vertical' | 'all';
+  isCenteredZero?: boolean;
+  scale?: 'linear' | 'logarithimc';
+  scaleLogarithmicBase?: number;
+  showBorder?: boolean;
+  showGridLines?: boolean;
+  yAxisTickLabelRotation?: number;
 }
 
 export interface InteractedZone {
@@ -86,7 +93,7 @@ export interface DisplayAnchor {
 
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
-  axis?: Axis;
+  axis?: LineChartAxis;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;

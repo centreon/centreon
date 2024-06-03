@@ -47,6 +47,10 @@
           "name": "Graph styles"
         },
         {
+          "id": "axis",
+          "name": "Axis"
+        },
+        {
           "id": "legend",
           "name": "Legend"
         },
@@ -119,7 +123,7 @@
         "showLegend": {
           "group": "legend",
           "type": "switch",
-          "label": "ShowLegend",
+          "label": "Show Legend",
           "defaultValue": true
         },
         "legendDisplayMode": {
@@ -155,6 +159,90 @@
             {
               "id": "right",
               "name": "Right"
+            }
+          ]
+        },
+        "showAxisBorder": {
+          "type": "switch",
+          "label": "Show axis border",
+          "group": "axis",
+          "defaultValue": true
+        },
+        "yAxisTickLabelRotation": {
+          "group": "axis",
+          "type": "slider",
+          "defaultValue": 0,
+          "slider": {
+            "min": -45,
+            "max": 45,
+            "unit": "°"
+          }
+        },
+        "isCenteredZero": {
+          "type": "switch",
+          "label": "Centered zero",
+          "group": "axis",
+          "defaultValue": false
+        },
+        "showGridLines": {
+          "type": "switch",
+          "label": "Show grid lines",
+          "group": "axis",
+          "defaultValue": true
+        },
+        "gridLinesType": {
+          "group": "axis",
+          "type": "button-group",
+          "label": "Grid lines type",
+          "defaultValue": "all",
+          "options": [
+            {
+              "id": "horizontal",
+              "name": "Horizontal"
+            },
+            {
+              "id": "vertical",
+              "name": "Vertical"
+            },
+            {
+              "id": "all",
+              "name": "Both"
+            }
+          ]
+        },
+        "scale": {
+          "group": "axis",
+          "type": "button-group",
+          "label": "Scale",
+          "defaultValue": "linear",
+          "options": [
+            {
+              "id": "linear",
+              "name": "Linear"
+            },
+            {
+              "id": "logarithimc",
+              "name": "Logarithimc"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "scaleLogarithmicBase",
+              "input": {
+                "type": "radio",
+                "defaultValue": "base2",
+                "options": [
+                  {
+                    "id": "base2",
+                    "name": "Base 2"
+                  },
+                  {
+                    "id": "base10",
+                    "name": "Base 10"
+                  }
+                ]
+              },
+              "displayValue": "logarithimc"
             }
           ]
         }
