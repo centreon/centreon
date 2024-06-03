@@ -219,6 +219,7 @@ When('a new host is created', () => {
 Then(
   'the Administrator is redirected to the "Resource Access Management" page',
   () => {
+    // cy.loginByTypeOfUser({ jsonName: 'admin' });
     // Access to all resources should be deleted first
     cy.executeActionViaClapi({
       bodyContent: {
@@ -249,6 +250,7 @@ Then(
     cy.getByLabel({ label: 'Host', tag: 'li' }).click();
     cy.getByLabel({ label: 'Select resource', tag: 'input' }).click();
     cy.contains('Centreon-Database').click();
+    // cy.contains('Centreon-Server').click();
   }
 );
 
@@ -259,14 +261,14 @@ When(
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
     cy.contains('span', `${data.login}`).should('be.visible');
-    // cy.get('#Contacts').invoke('val', `${data.login}`).trigger('input');
-    // cy.get('#Contacts').should('have.value', `${data.login}`);
-    // cy.wait('@getTopCounteruser');
-    // cy.wait('@getTopCounterpoller');
-    // cy.wait('@getTopCounterservice');
-    // cy.wait('@getTopCounterhosts');
-    cy.wait(3000);
-    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type('test');
+    cy.get('.MuiAutocomplete-loading').should('not.exist');
+    // cy.contains(`test`).click();
+    // cy.contains('span', `test`).should('be.visible');
+    cy.getByLabel({ label: 'Close', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.enabled').click();
+    // cy.wait(3000);
+    // cy.getByLabel({ label: 'Save', tag: 'button' }).click();
     cy.contains('div', 'The resource access rule was successfully created', {
       timeout: 10000
     });
