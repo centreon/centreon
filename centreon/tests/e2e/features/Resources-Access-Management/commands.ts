@@ -234,8 +234,6 @@ declare global {
       installBamModuleOnContainer: () => Cypress.Chainable;
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
-      reloadAcl: () => Cypress.Chainable;
-      retryUntilSuccess: () => Cypress.Chainable;
     }
   }
 }
