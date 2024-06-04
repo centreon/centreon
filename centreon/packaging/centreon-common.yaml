@@ -34,7 +34,7 @@ contents:
     file_info:
       owner: centreon
       group: centreon
-      mode: 2775
+      mode: 0775
 
   - dst: "/var/cache/centreon/backup"
     type: dir
