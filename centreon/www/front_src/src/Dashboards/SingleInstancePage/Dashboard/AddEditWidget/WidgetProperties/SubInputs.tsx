@@ -1,9 +1,9 @@
 import { useMemo, useRef } from 'react';
 
-import { equals, isNotNil } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil } from 'ramda';
 import { useFormikContext } from 'formik';
 
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 
 import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
@@ -29,6 +29,11 @@ const SubInputs = ({
     [subInputs, value]
   );
 
+  const hasSubInputs = useMemo(
+    () => !isEmpty(subInputsToDisplay) && !isNil(subInputsToDisplay),
+    [subInputsToDisplay]
+  );
+
   const hasRowDirection = useMemo(
     () => subInputsToDisplay?.some(({ direction }) => equals(direction, 'row')),
     [subInputsToDisplay]
@@ -46,13 +51,33 @@ const SubInputs = ({
   }
 
   return (
-    <Stack direction={hasRowDirection ? 'row' : 'column'} gap={1.5}>
-      {children}
-      {subInputsToDisplay?.map(({ input, name }) => {
-        const Component = propertiesInputType[input.type] || DefaultComponent;
+    <Stack
+      alignItems={hasRowDirection ? 'flex-end' : undefined}
+      direction={hasRowDirection ? 'row' : 'column'}
+      gap={hasSubInputs ? 1.5 : 0}
+    >
+      <Box sx={{ pr: 6 }}>{children}</Box>
+      {hasSubInputs && (
+        <Stack
+          alignItems={hasRowDirection ? 'center' : undefined}
+          direction={hasRowDirection ? 'row' : 'column'}
+          gap={1.5}
+        >
+          {subInputsToDisplay?.map(({ input, name }) => {
+            const Component =
+              propertiesInputType[input.type] || DefaultComponent;
 
-        return <Component key={input.label} propertyName={name} {...input} />;
-      })}
+            return (
+              <Component
+                key={input.label}
+                propertyName={name}
+                {...input}
+                isInGroup
+              />
+            );
+          })}
+        </Stack>
+      )}
     </Stack>
   );
 };

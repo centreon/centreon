@@ -80,6 +80,167 @@
             }
           ]
         },
+        "showPoints": {
+          "group": "graphStyles",
+          "type": "switch",
+          "label": "Display points",
+          "defaultValue": false
+        },
+        "lineWidthMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Line width",
+          "defaultValue": "auto",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "custom",
+              "name": "Custom"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "lineWidth",
+              "displayValue": "custom",
+              "input": {
+                "type": "slider",
+                "defaultValue": 2,
+                "slider": {
+                  "min": 1,
+                  "max": 10,
+                  "unit": "px"
+                }
+              }
+            }
+          ]
+        },
+        "showArea": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "label": "Show area",
+          "defaultValue": "auto",
+          "options": [
+            {
+              "id": "auto",
+              "name": "Auto"
+            },
+            {
+              "id": "show",
+              "name": "Show"
+            },
+            {
+              "id": "hide",
+              "name": "Hide"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "areaOpacity",
+              "displayValue": "show",
+              "input": {
+                "type": "slider",
+                "defaultValue": 70,
+                "label": "Fill opacity",
+                "slider": {
+                  "max": 100,
+                  "min": 0,
+                  "unit": "%"
+                }
+              }
+            }
+          ]
+        },
+        "lineStyleMode": {
+          "group": "graphStyles",
+          "type": "button-group",
+          "defaultValue": "solid",
+          "label": "Line style",
+          "options": [
+            {
+              "id": "solid",
+              "name": "Solid"
+            },
+            {
+              "id": "dash",
+              "name": "Dash"
+            },
+            {
+              "id": "dots",
+              "name": "Dots"
+            }
+          ],
+          "subInputs": [
+            {
+              "name": "dashLength",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Dash width",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "dashOffset",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dash",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            },
+            {
+              "name": "dotOffset",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "textfield",
+                "defaultValue": 5,
+                "label": "Space",
+                "text": {
+                  "size": "compact",
+                  "type": "number",
+                  "min": 0,
+                  "autoSize": true
+                }
+              }
+            },
+            {
+              "name": "",
+              "displayValue": "dots",
+              "direction": "row",
+              "input": {
+                "type": "text",
+                "label": "px"
+              }
+            }
+          ]
+        },
         "showAxisBorder": {
           "type": "switch",
           "label": "Show axis border",

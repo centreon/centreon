@@ -70,6 +70,8 @@ const WidgetTextField = ({
       helperText={isTouched && error}
       inputProps={{
         'aria-label': t(label) as string,
+        max: text?.max,
+        min: text?.min,
         step: text?.step || '1'
       }}
       label={t(label) || ''}

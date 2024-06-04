@@ -36,7 +36,8 @@ import {
   WidgetSwitch,
   WidgetSelect,
   WidgetButtonGroup,
-  WidgetSlider
+  WidgetSlider,
+  WidgetText
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -62,7 +63,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.switch]: WidgetSwitch,
   [FederatedWidgetOptionType.select]: WidgetSelect,
   [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
-  [FederatedWidgetOptionType.slider]: WidgetSlider
+  [FederatedWidgetOptionType.slider]: WidgetSlider,
+  [FederatedWidgetOptionType.text]: WidgetText
 };
 
 export const DefaultComponent = (): JSX.Element => (

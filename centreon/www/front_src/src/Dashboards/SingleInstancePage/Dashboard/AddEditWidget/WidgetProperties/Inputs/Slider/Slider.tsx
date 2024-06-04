@@ -17,7 +17,8 @@ const Slider = ({
   propertyName,
   slider,
   label,
-  isInGroup
+  isInGroup,
+  defaultValue
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useSliderStyles();
@@ -36,11 +37,12 @@ const Slider = ({
         <MuiSlider
           className={classes.slider}
           data-testid={`slider-${propertyName}`}
+          defaultValue={defaultValue as number}
           disabled={!canEditField}
           max={slider?.max || 100}
           min={slider?.min || 0}
           track={false}
-          value={value}
+          value={value || 0}
           onChange={changeSliderValue}
         />
         <div className={classes.inputContainer}>

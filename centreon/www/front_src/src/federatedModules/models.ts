@@ -44,6 +44,7 @@ export enum FederatedWidgetOptionType {
   singleMetricGraphType = 'single-metric-graph-type',
   slider = 'slider',
   switch = 'switch',
+  text = 'text',
   textfield = 'textfield',
   threshold = 'threshold',
   tiles = 'tiles',
