@@ -100,7 +100,10 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": false
+      "required": false,
+      "excludedResourceTypes": [
+        "meta-service"
+      ]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

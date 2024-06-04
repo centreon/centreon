@@ -10,6 +10,7 @@ import { useStyles } from './displayType.styles';
 interface Props {
   IconOnActive: string;
   IconOnInactive: string;
+  disabled: boolean;
   displayType: DisplayType;
   option: DisplayType;
   setPanelOptions: (panelOptions) => void;
@@ -22,7 +23,8 @@ const Option = ({
   title,
   option,
   displayType,
-  setPanelOptions
+  setPanelOptions,
+  disabled
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -31,12 +33,14 @@ const Option = ({
     setPanelOptions?.({ displayType: option });
   };
 
-  const imagePath = equals(displayType, option) ? IconOnActive : IconOnInactive;
+  const imagePath =
+    equals(displayType, option) && !disabled ? IconOnActive : IconOnInactive;
 
   return (
     <IconButton
       ariaLabel={title}
       className={classes.iconButton}
+      disabled={disabled}
       title={t(title)}
       tooltipClassName={classes.tooltipClassName}
       onClick={changeDisplayType}
