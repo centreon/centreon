@@ -82,8 +82,6 @@ services:
     Symfony\Component\Finder\Finder:
         shared: false
 
-    Symfony\Component\HttpClient\CurlHttpClient:
-        public: true
 
     # Security
     Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface:

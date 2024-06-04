@@ -3196,9 +3196,7 @@ function insertHostByApi(array $formData, bool $isCloudPlatform, string $basePat
     /** @var Core\Infrastructure\Common\Api\Router $router */
     $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-    /** @var Symfony\Component\HttpClient\CurlHttpClient */
-    $client = $kernel->getContainer()->get(Symfony\Component\HttpClient\CurlHttpClient::class)
-        ?? throw new LogicException('CurlHttpClient not found in container');
+    $client = new Symfony\Component\HttpClient\CurlHttpClient();
 
 
     $payload = getPayloadForHostTemplate($isCloudPlatform, $formData);
