@@ -76,35 +76,37 @@ Then(
         let previousValue: string | null = null;
         let isOrdered = true;
 
-        // eslint-disable-next-line cypress/unsafe-to-chain-command
         return cy
           .get('.MuiTableBody-root .MuiTableRow-root')
-          .each((row) => {
-            cy.wrap(row)
-              .find('.MuiTableCell-body')
-              .eq(columns.indexOf(orderBy))
-              .invoke('text')
-              .then((value) => {
-                const nextValue = value.trim();
+          .spread((...rows) => {
+            rows.forEach((row) => {
+              cy.wrap(row)
+                .find('.MuiTableCell-body')
+                .eq(columns.indexOf(orderBy))
+                .invoke('text')
+                .then((value) => {
+                  const nextValue = value.trim();
 
-                errorMessage = `${nextValue} should be listed before ${previousValue}`;
+                  errorMessage = `${nextValue} should be listed before ${previousValue}`;
 
-                if (previousValue !== null) {
-                  if (orderBy.toLowerCase().includes('date')) {
-                    isOrdered =
-                      new Date(previousValue).getTime() >=
-                      new Date(nextValue).getTime();
-                  } else {
-                    isOrdered =
-                      [previousValue, nextValue].sort().reverse().pop() ===
-                      nextValue;
+                  if (previousValue !== null) {
+                    if (orderBy.toLowerCase().includes('date')) {
+                      isOrdered =
+                        new Date(previousValue).getTime() >=
+                        new Date(nextValue).getTime();
+                    } else {
+                      isOrdered =
+                        [previousValue, nextValue].sort().reverse().pop() ===
+                        nextValue;
+                    }
                   }
-                }
 
-                previousValue = nextValue;
-              });
-          })
-          .then(() => isOrdered);
+                  previousValue = nextValue;
+                });
+            });
+
+            return cy.wrap(isOrdered);
+          });
       },
       {
         errorMsg: () => errorMessage
