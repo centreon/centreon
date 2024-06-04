@@ -23,6 +23,26 @@ namespace Centreon\Test\Api\Context;
 
 use Centreon\Test\Behat\Api\Context\ApiContext;
 
-class HostMonitoringContext extends ApiContext
+class PlatformUpdateContext extends ApiContext
 {
+    /**
+     * Create an update file
+     *
+     * @Given an update is available
+     */
+    public function anUpdateIsAvailable()
+    {
+        $this->getContainer()->execute(
+            'mkdir -p /usr/share/centreon/www/install/php',
+            'web'
+        );
+        $this->getContainer()->execute(
+            "sh -c 'echo \"<?php\" > /usr/share/centreon/www/install/php/Update-99.99.99.php'",
+            'web'
+        );
+        $this->getContainer()->execute(
+            'chmod -R 777 /usr/share/centreon/www/install',
+            'web'
+        );
+    }
 }

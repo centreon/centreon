@@ -23,6 +23,6 @@ namespace Centreon\Test\Api\Context;
 
 use Centreon\Test\Behat\Api\Context\ApiContext;
 
-class HostMonitoringContext extends ApiContext
+class PlatformTopologyContext extends ApiContext
 {
 }
