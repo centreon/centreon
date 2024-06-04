@@ -233,15 +233,17 @@ Cypress.Commands.add(
       attempts += 1;
 
       return new Cypress.Promise((resolve, reject) => {
-        action()
-          .then(resolve)
-          .catch((err) => {
-            if (attempts < retries) {
-              setTimeout(executeAction, delay);
-            } else {
-              reject(err);
-            }
-          });
+        cy.wrap(null).then(() => {
+          action()
+            .then(resolve)
+            .catch((err) => {
+              if (attempts < retries) {
+                setTimeout(executeAction, delay);
+              } else {
+                reject(err);
+              }
+            });
+        });
       });
     };
 
