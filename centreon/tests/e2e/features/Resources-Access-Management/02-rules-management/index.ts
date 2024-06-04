@@ -260,10 +260,10 @@ When(
     cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
-    cy.contains('span', `${data.login}`).should('be.visible');
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.getByLabel({ label: 'Close', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Save', tag: 'button' }, { timeout: 10000 })
+    cy.contains('span', `${data.login}`).should('be.visible');
+    cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
     cy.contains('div', 'The resource access rule was successfully created', {
