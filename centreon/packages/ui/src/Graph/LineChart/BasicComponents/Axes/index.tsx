@@ -1,7 +1,6 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 

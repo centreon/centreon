@@ -3,7 +3,6 @@ import { ChangeEvent, useMemo } from 'react';
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { clamp, equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import { TextField } from '@centreon/ui';
 
@@ -11,15 +10,6 @@ import { Widget, WidgetPropertyProps } from '../../models';
 import { useCanEditProperties } from '../../../hooks/useCanEditDashboard';
 
 import { getProperty } from './utils';
-
-const useStyles = makeStyles()((theme) => ({
-  compactInput: {
-    width: theme.spacing(9)
-  },
-  compactInputContainer: {
-    width: 'auto'
-  }
-}));
 
 const WidgetTextField = ({
   propertyName,

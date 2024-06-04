@@ -12,7 +12,7 @@ import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 import { LegendModel } from '../models';
 import { margin } from '../common';
 
-import { legendWidth, useStyles } from './Legend.styles';
+import { useStyles } from './Legend.styles';
 import LegendHeader from './LegendHeader';
 import { GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
@@ -27,7 +27,6 @@ interface Props extends Pick<LegendModel, 'placement' | 'mode'> {
   setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
   shouldDisplayLegendInCompactMode: boolean;
   toggable?: boolean;
-  width: number;
 }
 
 const MainLegend = ({
@@ -39,7 +38,6 @@ const MainLegend = ({
   setLinesGraph,
   shouldDisplayLegendInCompactMode,
   placement,
-  width,
   height,
   mode
 }: Props): JSX.Element => {
@@ -135,7 +133,6 @@ const MainLegend = ({
               <LegendHeader
                 color={markerColor}
                 disabled={!display}
-                isDisplayedOnSide={!equals(placement, 'bottom')}
                 isListMode={isListMode}
                 line={line}
                 minMaxAvg={
@@ -172,7 +169,6 @@ const Legend = (props: Props): JSX.Element => {
     base,
     shouldDisplayLegendInCompactMode,
     placement,
-    width,
     height,
     mode
   } = props;
@@ -186,7 +182,6 @@ const Legend = (props: Props): JSX.Element => {
       limitLegend,
       shouldDisplayLegendInCompactMode,
       placement,
-      width,
       height,
       mode
     ]

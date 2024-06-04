@@ -393,7 +393,6 @@ const LineChart = ({
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
-            width={width}
           />
         </div>
       )}

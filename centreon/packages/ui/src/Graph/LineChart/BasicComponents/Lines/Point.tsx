@@ -1,23 +1,17 @@
-import { TimeValue } from '../../../common/timeSeries/models';
-
 interface Props {
   lineColor: string;
-  metric_id: number;
-  timeSeries: Array<TimeValue>;
+  radius: number;
   timeTick: Date;
   xScale;
   yPoint: number;
-  yScale;
 }
 
 const Point = ({
-  metric_id,
-  timeSeries,
   timeTick,
-  yScale,
   yPoint,
   lineColor,
-  xScale
+  xScale,
+  radius
 }: Props): JSX.Element | null => {
   const x = xScale(timeTick);
 
@@ -30,7 +24,7 @@ const Point = ({
       cx={x}
       cy={yPoint}
       fill={lineColor}
-      r={2}
+      r={radius}
       stroke={lineColor}
       strokeWidth={2}
     />

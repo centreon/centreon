@@ -51,15 +51,6 @@ const RegularLine = ({
   const curveType = getCurveFactory(curve);
   const formattedLineWidth = lineWidth || 2;
 
-  console.log(
-    getStrokeDashArray({
-      dashLength,
-      dashOffset,
-      dotOffset,
-      lineWidth: formattedLineWidth
-    })
-  );
-
   const props = {
     curve: curveType,
     data: timeSeries,

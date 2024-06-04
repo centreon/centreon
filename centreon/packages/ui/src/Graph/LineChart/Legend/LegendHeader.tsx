@@ -15,7 +15,6 @@ import LegendContent from './LegendContent';
 interface Props {
   color: string;
   disabled?: boolean;
-  isDisplayedOnSide: boolean;
   isListMode: boolean;
   line: Line;
   minMaxAvg?;
@@ -28,8 +27,7 @@ const LegendHeader = ({
   disabled,
   value,
   minMaxAvg,
-  isListMode,
-  isDisplayedOnSide
+  isListMode
 }: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 

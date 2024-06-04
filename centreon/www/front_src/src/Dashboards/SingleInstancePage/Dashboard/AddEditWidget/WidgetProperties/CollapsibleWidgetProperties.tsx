@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useMemo } from 'react';
 
 import { equals, groupBy, isEmpty, isNil, path, toPairs } from 'ramda';

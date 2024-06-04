@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, find, isEmpty, path, propEq, toPairs } from 'ramda';
+import { equals, find, isEmpty, propEq, toPairs } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '@centreon/ui';

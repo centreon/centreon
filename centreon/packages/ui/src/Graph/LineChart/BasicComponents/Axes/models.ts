@@ -1,8 +1,6 @@
 import { Line, TimeValue } from '../../../common/timeSeries/models';
 import { LineChartAxis } from '../../models';
 
-i;
-
 export interface LabelProps {
   [x: string]: unknown;
   textAnchor?: string;

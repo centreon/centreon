@@ -8,7 +8,6 @@ import {
   isEmpty,
   isNil,
   map,
-  path,
   propEq,
   reduce,
   toPairs

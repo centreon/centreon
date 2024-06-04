@@ -3,10 +3,7 @@ import { ReactNode } from 'react';
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration, WidgetOptions } from '../models';
-import {
-  FederatedWidgetOption,
-  SubInput
-} from '../../../../federatedModules/models';
+import { SubInput } from '../../../../federatedModules/models';
 
 export interface Widget {
   data: object | null;

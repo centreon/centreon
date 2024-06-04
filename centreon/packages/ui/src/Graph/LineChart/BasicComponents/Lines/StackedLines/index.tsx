@@ -92,6 +92,7 @@ const StackLines = ({
                     key={timeTick.toString()}
                     lineColor={lineColor}
                     metric_id={metric_id}
+                    radius={Math.ceil((lineWidth || 2) * 1.3)}
                     timeSeries={timeSeries}
                     timeTick={timeTick}
                     xScale={xScale}
