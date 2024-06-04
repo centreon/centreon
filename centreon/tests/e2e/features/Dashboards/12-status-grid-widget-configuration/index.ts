@@ -425,6 +425,8 @@ Given('a dashboard having a configured Status Grid widget', () => {
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
