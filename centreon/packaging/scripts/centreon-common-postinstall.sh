@@ -44,3 +44,7 @@ case "$action" in
     startCentreon
     ;;
 esac
+
+# MON-69138
+chown centreon:centreon @CENTREON_CACHEDIR@
+chmod 755 @CENTREON_CACHEDIR@
