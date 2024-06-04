@@ -171,22 +171,16 @@ jobs:
 
   regroup-artifacts:
     needs: [behat-test-run, behat-test-report]
-    if: always()
+    if: ${{ contains(needs.behat-test-run.result, 'failure') }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         type_of_report: [test-logs, test-reports]
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
-        if: ${{ contains(needs.behat-test-run.result, 'failure') }}
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          source_paths: |
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
-          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          delete-merged: true

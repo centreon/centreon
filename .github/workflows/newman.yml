@@ -708,17 +708,13 @@ jobs:
 
   regroup-artifacts:
     needs: [newman-test-run]
-    if: always()
+    if: ${{ contains(needs.newman-test-run.result, 'failure') }}
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
-        if: ${{ contains(needs.newman-test-run.result, 'failure') }}
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          target_name: postman-html-reports
-          source_paths: postman-html-reports/**/*.html
-          source_name_pattern: postman-html-reports-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: postman-html-reports
+          pattern: postman-html-reports-*
+          delete-merged: true

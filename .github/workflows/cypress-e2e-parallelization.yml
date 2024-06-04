@@ -261,8 +261,6 @@ jobs:
       matrix:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
-      # - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
@@ -270,12 +268,3 @@ jobs:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           delete-merged: true
-
-      # - name: Merging Artifacts
-      #   uses: ./.github/actions/merge-artifacts
-      #   if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
-      #   with:
-      #     target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-      #     source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
-      #     source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
