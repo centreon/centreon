@@ -759,6 +759,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         return (bool) $statement->fetchColumn();
     }
+
     /**
      * Determine if access groups give access to all host groups
      * true: all host groups are accessible
