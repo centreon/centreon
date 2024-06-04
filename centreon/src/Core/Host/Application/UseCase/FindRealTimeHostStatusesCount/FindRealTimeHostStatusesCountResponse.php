@@ -19,24 +19,19 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Host\Application\UseCase\FindRealTimeHostStatusesCount;
 
-final class OkStatusCount
+final class FindRealTimeHostStatusesCountResponse
 {
-    /**
-     * @param int $total
-     */
-    public function __construct(private readonly int $total)
-    {
-    }
+    public int $upStatuses = 0;
 
-    /**
-     * @return int
-     */
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
+    public int $downStatuses = 0;
+
+    public int $unreachableStatuses = 0;
+
+    public int $pendingStatuses = 0;
+
+    public int $total = 0;
 }

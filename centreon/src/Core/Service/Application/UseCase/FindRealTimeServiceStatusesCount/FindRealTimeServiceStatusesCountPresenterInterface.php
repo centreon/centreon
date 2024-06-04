@@ -19,23 +19,18 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Resources\Application\UseCase\FindHostsStatusCount;
+namespace Core\Service\Application\UseCase\FindRealTimeServiceStatusesCount;
 
-final class FindHostsStatusCountResponse
+use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindRealTimeServiceStatusesCountPresenterInterface extends PresenterInterface
 {
-    /** @var array{total: int} */
-    public array $downStatus = ['total' => 0];
-
-    /** @var array{total: int} */
-    public array $unreachableStatus = ['total' => 0];
-
-    /** @var array{total: int} */
-    public array $upStatus = ['total' => 0];
-
-    /** @var array{total: int} */
-    public array $pendingStatus = ['total' => 0];
-
-    public int $total = 0;
+    /**
+     * @param FindRealTimeServiceStatusesCountResponse|ResponseStatusInterface $response
+     */
+    public function presentResponse(FindRealTimeServiceStatusesCountResponse|ResponseStatusInterface $response): void;
 }
+

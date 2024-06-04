@@ -21,30 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\API\FindServicesStatusCount;
+namespace Core\Host\Infrastructure\API\FindRealTimeHostStatusesCount;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountPresenterInterface;
-use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountResponse;
+use Core\Host\Application\UseCase\FindRealTimeHostStatusesCount\FindRealTimeHostStatusesCountPresenterInterface;
+use Core\Host\Application\UseCase\FindRealTimeHostStatusesCount\FindRealTimeHostStatusesCountResponse;
 
-final class FindServicesStatusCountPresenter extends AbstractPresenter implements FindServicesStatusCountPresenterInterface
+class FindRealTimeHostStatusesCountPresenter extends AbstractPresenter implements FindRealTimeHostStatusesCountPresenterInterface
 {
     /**
-     * @param FindServicesStatusCountResponse|ResponseStatusInterface $response
+     * @param FindRealTimeHostStatusesCountResponse|ResponseStatusInterface $response
      */
-    public function presentResponse(FindServicesStatusCountResponse|ResponseStatusInterface $response): void
+    public function presentResponse(FindRealTimeHostStatusesCountResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
             $this->present([
-                'critical' => $response->criticalStatus,
-                'warning' => $response->warningStatus,
-                'unknown' => $response->unknownStatus,
-                'ok' => $response->okStatus,
-                'pending' => $response->pendingStatus,
-                'total' => $response->total,
+                'up' => ['total' => $response->upStatuses],
+                'down' => ['total' => $response->downStatuses],
+                'unreachable' => ['total' => $response->unreachableStatuses],
+                'pending' => ['total' => $response->pendingStatuses],
+                'total' => ['total' => $response->total],
             ]);
         }
     }

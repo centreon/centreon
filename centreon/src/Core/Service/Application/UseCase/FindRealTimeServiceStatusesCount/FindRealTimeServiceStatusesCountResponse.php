@@ -19,18 +19,22 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Core\Resources\Domain\Model;
+namespace Core\Service\Application\UseCase\FindRealTimeServiceStatusesCount;
 
-final class PendingStatusCount
+final class FindRealTimeServiceStatusesCountResponse
 {
-    public function __construct(private readonly int $total)
-    {
-    }
+    public int $okStatuses = 0;
 
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
+    public int $warningStatuses = 0;
+
+    public int $unknownStatuses = 0;
+
+    public int $criticalStatuses = 0;
+
+    public int $pendingStatuses = 0;
+
+    public int $total = 0;
 }
+

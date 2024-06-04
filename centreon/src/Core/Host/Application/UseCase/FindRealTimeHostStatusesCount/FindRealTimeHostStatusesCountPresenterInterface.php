@@ -21,18 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Resources\Application\UseCase\FindServicesStatusCount;
+namespace Core\Host\Application\UseCase\FindRealTimeHostStatusesCount;
 
-use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountPresenterInterface;
-use Core\Resources\Application\UseCase\FindServicesStatusCount\FindServicesStatusCountResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-class FindServicesStatusCountPresenterStub implements FindServicesStatusCountPresenterInterface
+interface FindRealTimeHostStatusesCountPresenterInterface extends PresenterInterface
 {
-    public FindServicesStatusCountResponse|ResponseStatusInterface $data;
-
-    public function presentResponse(FindServicesStatusCountResponse|ResponseStatusInterface $response): void
-    {
-        $this->data = $response;
-    }
+    /**
+     * @param FindRealTimeHostStatusesCountResponse|ResponseStatusInterface $response
+     */
+    public function presentResponse(FindRealTimeHostStatusesCountResponse|ResponseStatusInterface $response): void;
 }
+
