@@ -393,8 +393,6 @@ describe('Line chart', () => {
       cy.get('path[stroke-width="4"]')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '4 10');
-
-      cy.makeSnapshot();
     });
 
     it('displays lines with dots width when the prop is set', () => {
