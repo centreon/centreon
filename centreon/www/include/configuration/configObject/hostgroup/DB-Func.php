@@ -173,6 +173,7 @@ function deleteHostGroupInDB(array $hostGroups = [], bool $isCloudPlatform)
             SQL;
         $stmt= $pearDB->prepare($rq);
         $stmt->bindValue(":hostgroup_id", (int) $hostgroupId, \PDO::PARAM_INT);
+        $stmt->execute();
 
         $statement = $pearDB->prepare("DELETE FROM service WHERE service_id = :service_id");
         while ($row = $stmt->fetch()) {
