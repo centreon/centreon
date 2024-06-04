@@ -55,9 +55,7 @@ class CloudPlatformContext extends FeatureFlagContext
         $phpScript = <<<PHP
             require_once '{$centreonDir}/vendor/autoload.php';
             require_once '{$centreonDir}/config/centreon.config.php';
-
             use Symfony\Component\Dotenv\Dotenv;
-
             \$env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
             \$env->load();
             foreach({$envVarsExported} as \$envVarKey => \$envVarValue) {
@@ -65,7 +63,6 @@ class CloudPlatformContext extends FeatureFlagContext
             }
             \$env->add('IS_CLOUD_PLATFORM', true);
             \$env->save();
-
             (new Dotenv())->bootEnv('{$centreonDir}/.env', 'dev', ['test'], true);
             PHP;
 
