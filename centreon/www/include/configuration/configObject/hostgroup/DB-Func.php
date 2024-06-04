@@ -152,7 +152,7 @@ function removeRelationLastHostgroupDependency(int $hgId): void
     }
 }
 
-function deleteHostGroupInDB(array $hostGroups = [], bool $isCloudPlatform)
+function deleteHostGroupInDB(bool $isCloudPlatform, array $hostGroups = [])
 {
     global $pearDB, $centreon;
 

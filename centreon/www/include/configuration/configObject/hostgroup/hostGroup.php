@@ -153,7 +153,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostGroupInDB($select ?? [], isCloudPlatform: $isCloudPlatform);
+            deleteHostGroupInDB($isCloudPlatform, $select ?? []);
         } else {
             unvalidFormMessage();
         }
