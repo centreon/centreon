@@ -205,7 +205,7 @@ Then(
 Given('an admin user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -374,7 +374,7 @@ Then(
 Given('a dashboard administrator user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -675,7 +675,7 @@ Then('the option to create a new dashboard is not displayed', () => {
 Given('a dashboard viewer user who could not create a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardViewerUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();

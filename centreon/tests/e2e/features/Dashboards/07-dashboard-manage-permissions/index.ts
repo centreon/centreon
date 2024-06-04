@@ -92,7 +92,7 @@ Then(
     cy.logout();
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
@@ -136,7 +136,7 @@ Then(
     cy.logout();
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
     cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
@@ -177,7 +177,7 @@ Then(
     cy.logout();
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
     cy.visitDashboards();
 
@@ -239,7 +239,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
   cy.logout();
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
   cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
   cy.url().should('match', /\/dashboards\/library\/\d+$/);

@@ -14,7 +14,7 @@
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.5",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.14.1",
     "cross-env": "^7.0.3",
     "cypress": "^13.10.0",
     "cypress-real-events": "^1.12.0",

@@ -66,7 +66,7 @@ afterEach(() => {
 Given('a non-admin user who is in a list of shared dashboards', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -102,7 +102,7 @@ Then('the creator of the dashboard is listed as its sole editor', () => {
 Given('a non-admin user who has update rights on a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -161,7 +161,7 @@ Then(
 When('the viewer user logs in on the platform', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardViewerUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -193,7 +193,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({
       jsonName: dashboardAdministratorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboards();
@@ -257,7 +257,7 @@ Then(
 When('the second editor user logs in on the platform', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -287,7 +287,7 @@ Then(
 Given('a non-admin editor user with creator rights on a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -350,7 +350,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember1.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -362,7 +362,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember2.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -375,7 +375,7 @@ Then(
 Given('a non-admin editor user who has creator rights on a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
 
   cy.visitDashboards();
@@ -438,7 +438,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember3.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -450,7 +450,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember4.login,
-      loginViaApi: false
+      loginViaApi: true
     });
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
 
@@ -464,7 +464,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -539,7 +539,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember3.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -557,7 +557,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCGMember4.login,
-      loginViaApi: false
+      loginViaApi: true
     });
 
     cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
@@ -572,13 +572,12 @@ Given(
   () => {
     cy.loginByTypeOfUser({
       jsonName: dashboardAdministratorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
     cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
   }
 );
-
 
 When('the admin user appoints one of the users as an editor', () => {
   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
@@ -600,7 +599,7 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: dashboardCreatorUser.login,
-      loginViaApi: false
+      loginViaApi: true
     });
     cy.visitDashboard(dashboards.fromDashboardAdministratorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
