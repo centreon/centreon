@@ -257,23 +257,16 @@ Then(
 When(
   'the Administrator selects a simple user from the contacts and clicks on "Save"',
   () => {
-    cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
+    // cy.getByLabel({ label: 'Contacts', tag: 'input' }).type(data.login);
+    cy.getByLabel({ label: 'Contacts', tag: 'input' }).click();
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.contains(`${data.login}`).click();
     cy.get('.MuiAutocomplete-loading').should('not.exist');
-    // cy.getByLabel({ label: 'Close', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Close', tag: 'button' }).click();
     cy.contains('span', `${data.login}`).should('be.visible');
     // cy.getByTestId({ tag: 'textarea', testId: 'Description' }).type(
     //   'This is a new Access Manager Rule'
     // );
-    cy.retryUntilSuccess(
-      () => {
-        return cy
-          .getByTestId({ tag: 'textarea', testId: 'Description' })
-          .type('This is a new Access Manager Rule');
-      },
-      { delay: 1000, retries: 3 }
-    );
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
