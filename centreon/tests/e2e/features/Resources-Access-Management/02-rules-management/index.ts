@@ -263,6 +263,9 @@ When(
     cy.get('.MuiAutocomplete-loading').should('not.exist');
     cy.getByLabel({ label: 'Close', tag: 'button' }).click();
     cy.contains('span', `${data.login}`).should('be.visible');
+    cy.getByTestId({ tag: 'textarea', testId: 'Description' }).type(
+      'This is a new Access Manager Rule'
+    );
     cy.getByLabel({ label: 'Save', tag: 'button' })
       .should('be.enabled')
       .click();
