@@ -24,6 +24,7 @@ export interface WidgetPropertyProps {
   disabled?: boolean;
   disabledCondition?: (values: Widget) => boolean;
   endAdornment?: ReactNode;
+  excludedResourceTypes?: Array<string>;
   keepOneOptionSelected?: boolean;
   label: string;
   options?: Array<SelectEntry>;
@@ -46,7 +47,7 @@ export interface WidgetPropertyProps {
 }
 
 export interface WidgetDataResource {
-  resourceType: 'host-group' | 'host-category' | 'host' | 'service';
+  resourceType: WidgetResourceType;
   resources: Array<SelectEntry>;
 }
 export interface WidgetDataMetric {
@@ -84,6 +85,7 @@ export enum WidgetResourceType {
   host = 'host',
   hostCategory = 'host-category',
   hostGroup = 'host-group',
+  metaService = 'meta-service',
   service = 'service',
   serviceCategory = 'service-category',
   serviceGroup = 'service-group'

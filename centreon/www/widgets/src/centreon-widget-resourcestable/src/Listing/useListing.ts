@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { Column, useSnackbar } from '@centreon/ui';
 
@@ -20,6 +21,7 @@ interface UseListingState {
   columns: Array<Column>;
   data: ResourceListing | undefined;
   goToResourceStatusPage?: (row) => void;
+  hasMetaService: boolean;
   isLoading: boolean;
   page: number | undefined;
   resetColumns: () => void;
@@ -103,6 +105,14 @@ const useListing = ({
     goToUrl(linkToResourceStatus)();
   };
 
+  const hasMetaService = useMemo(
+    () =>
+      resources.some(({ resourceType }) =>
+        equals(resourceType, 'meta-service')
+      ),
+    [resources]
+  );
+
   const changeSort = (sortParameters): void => {
     setPanelOptions?.(sortParameters);
   };
@@ -133,6 +143,14 @@ const useListing = ({
     setPanelOptions?.({ selectedColumnIds: defaultSelectedColumnIds });
   };
 
+  useEffect(() => {
+    if (!hasMetaService) {
+      return;
+    }
+
+    setPanelOptions?.({ displayType: DisplayType.All });
+  }, [hasMetaService]);
+
   return {
     changeLimit,
     changePage,
@@ -140,6 +158,7 @@ const useListing = ({
     columns,
     data,
     goToResourceStatusPage,
+    hasMetaService,
     isLoading,
     page,
     resetColumns,
