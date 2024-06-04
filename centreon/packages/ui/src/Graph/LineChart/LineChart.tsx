@@ -309,11 +309,15 @@ const LineChart = ({
                   <Lines
                     areaTransparency={lineStyle?.areaTransparency}
                     curve={lineStyle?.curve || 'linear'}
+                    dashLength={lineStyle?.dashLength}
+                    dashOffset={lineStyle?.dashOffset}
                     displayAnchor={displayAnchor}
                     displayedLines={displayedLines}
+                    dotOffset={lineStyle?.dotOffset}
                     graphSvgRef={graphSvgRef}
                     height={graphHeight - margin.top}
                     leftScale={leftScale}
+                    lineWidth={lineStyle?.lineWidth}
                     rightScale={rightScale}
                     showArea={lineStyle?.showArea}
                     showPoints={lineStyle?.showPoints}

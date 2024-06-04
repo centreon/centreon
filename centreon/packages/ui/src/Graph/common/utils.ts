@@ -6,6 +6,7 @@ import {
   gt,
   gte,
   head,
+  isNil,
   length,
   lt,
   lte,
@@ -139,4 +140,32 @@ export const emphasizeCurveColor = ({
   }
 
   return darken(color, normalizeLevel({ factor, level: levels[index] }));
+};
+
+interface GetStrokeDashArrayProps {
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
+  lineWidth?: number;
+}
+
+export const getStrokeDashArray = ({
+  dashLength,
+  dashOffset,
+  dotOffset,
+  lineWidth
+}: GetStrokeDashArrayProps): string | undefined => {
+  if (isNil(dotOffset) && isNil(dashLength) && isNil(dashOffset)) {
+    return undefined;
+  }
+
+  if (dotOffset) {
+    return `${lineWidth} ${dotOffset}`;
+  }
+
+  if (dashLength || dashOffset) {
+    return `${dashLength || 1} ${dashOffset || 1}`;
+  }
+
+  return undefined;
 };

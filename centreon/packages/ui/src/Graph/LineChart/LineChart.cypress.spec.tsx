@@ -9,7 +9,8 @@ import { LineChartProps } from './models';
 
 import WrapperLineChart from '.';
 
-interface Props extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis'> {
+interface Props
+  extends Pick<LineChartProps, 'legend' | 'tooltip' | 'axis' | 'lineStyle'> {
   data?: LineChartData;
 }
 
@@ -17,7 +18,8 @@ const initialize = ({
   data = dataLastDay,
   tooltip,
   legend,
-  axis
+  axis,
+  lineStyle
 }: Props): void => {
   cy.mount({
     Component: (
@@ -26,6 +28,7 @@ const initialize = ({
         axis={axis}
         data={data as unknown as LineChartData}
         legend={legend}
+        lineStyle={lineStyle}
         tooltip={tooltip}
       />
     )
@@ -324,6 +327,83 @@ describe('Line chart', () => {
       cy.contains('-0.9').should('be.visible');
 
       cy.makeSnapshot();
+    });
+  });
+
+  describe('Line style', () => {
+    it('displays the curve in a natural style when the prop is set', () => {
+      initialize({ lineStyle: { curve: 'natural' } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the curve in a step style when the prop is set', () => {
+      initialize({ lineStyle: { curve: 'step' } });
+
+      cy.contains('9:00 AM').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('shows the area when the prop is set', () => {
+      initialize({ lineStyle: { showArea: true } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('path[fill="rgba(102, 153, 204, 0.19999999999999996)"]').should(
+        'be.visible'
+      );
+
+      cy.makeSnapshot();
+    });
+
+    it('shows the area with a custom transparency when props are set', () => {
+      initialize({ lineStyle: { areaTransparency: 20, showArea: true } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('path[fill="rgba(102, 153, 204, 0.8)"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('shows points when the prop is set', () => {
+      initialize({ lineStyle: { showPoints: true } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('circle[cx="4.0625"]').should('be.visible');
+      cy.get('circle[cy="163.69430856642046"]').should('be.visible');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays lines with a custom line width when the prop is set', () => {
+      initialize({ lineStyle: { lineWidth: 6 } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('path[stroke-width="6"]').should('have.length', 3);
+
+      cy.makeSnapshot();
+    });
+
+    it('displays lines with dots width when the prop is set', () => {
+      initialize({ lineStyle: { dotOffset: 10, lineWidth: 4 } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('path[stroke-width="4"]')
+        .should('have.attr', 'stroke-dasharray')
+        .and('equals', '4 10');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays lines with dots width when the prop is set', () => {
+      initialize({ lineStyle: { dashLength: 5, dashOffset: 8 } });
+
+      cy.contains('9:00 AM').should('be.visible');
+      cy.get('path[stroke-width="2"]')
+        .should('have.attr', 'stroke-dasharray')
+        .and('equals', '5 8');
     });
   });
 });

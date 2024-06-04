@@ -31,11 +31,15 @@ import Point from './Point';
 interface Props extends GlobalAreaLines {
   areaTransparency?: number;
   curve: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
   displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
+  dotOffset?: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
   leftScale: ScaleLinear<number, number>;
+  lineWidth?: number;
   rightScale: ScaleLinear<number, number>;
   showArea?: boolean;
   showPoints?: boolean;
@@ -60,7 +64,11 @@ const Lines = ({
   areaStackedLines,
   areaRegularLines,
   showArea,
-  showPoints
+  showPoints,
+  lineWidth,
+  dotOffset,
+  dashLength,
+  dashOffset
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -85,10 +93,14 @@ const Lines = ({
   const commonStackedLinesProps = {
     areaTransparency,
     curve,
+    dashLength,
+    dashOffset,
     displayAnchor: displayGuidingLines,
+    dotOffset,
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
+    lineWidth,
     showArea,
     showPoints,
     xScale,
@@ -196,10 +208,14 @@ const Lines = ({
                   <RegularLine
                     areaColor={areaColor || lineColor}
                     curve={curve}
+                    dashLength={dashLength}
+                    dashOffset={dashOffset}
+                    dotOffset={dotOffset}
                     filled={isNil(showArea) ? filled : showArea}
                     graphHeight={height}
                     highlight={highlight}
                     lineColor={lineColor}
+                    lineWidth={lineWidth}
                     metric_id={metric_id}
                     timeSeries={timeSeries}
                     transparency={

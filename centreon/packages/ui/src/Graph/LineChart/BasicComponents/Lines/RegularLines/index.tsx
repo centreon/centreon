@@ -7,14 +7,19 @@ import { equals, isNil, pick, prop } from 'ramda';
 import { getTime } from '../../../../common/timeSeries';
 import { TimeValue } from '../../../../common/timeSeries/models';
 import { getCurveFactory, getFillColor } from '../../../common';
+import { getStrokeDashArray } from '../../../../common/utils';
 
 interface Props {
   areaColor: string;
   curve: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
   filled: boolean;
   graphHeight: number;
   highlight?: boolean;
   lineColor: string;
+  lineWidth?: number;
   metric_id: number;
   shapeAreaClosed?: Record<string, unknown>;
   shapeLinePath?: Record<string, unknown>;
@@ -37,16 +42,39 @@ const RegularLine = ({
   areaColor,
   transparency,
   graphHeight,
-  curve
+  curve,
+  lineWidth,
+  dotOffset,
+  dashLength,
+  dashOffset
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(curve);
+  const formattedLineWidth = lineWidth || 2;
+
+  console.log(
+    getStrokeDashArray({
+      dashLength,
+      dashOffset,
+      dotOffset,
+      lineWidth: formattedLineWidth
+    })
+  );
+
   const props = {
     curve: curveType,
     data: timeSeries,
     defined: (value): boolean => !isNil(value[metric_id]),
     opacity: 1,
     stroke: lineColor,
-    strokeWidth: !highlight ? 2 : 3,
+    strokeDasharray: getStrokeDashArray({
+      dashLength,
+      dashOffset,
+      dotOffset,
+      lineWidth: formattedLineWidth
+    }),
+    strokeWidth: highlight
+      ? Math.ceil(formattedLineWidth * 1.3)
+      : formattedLineWidth,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
     y: (timeValue): number => yScale(prop(metric_id, timeValue)) ?? null
@@ -74,7 +102,11 @@ const memoizedProps = [
   'lineColor',
   'areaColor',
   'filled',
-  'transparency'
+  'transparency',
+  'lineWidth',
+  'dotOffset',
+  'dashLength',
+  'dashOffset'
 ];
 
 export default memo(RegularLine, (prevProps, nextProps) => {

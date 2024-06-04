@@ -1,6 +1,6 @@
 import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
+import { all, equals, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
 import StackedAnchorPoint, {
   getYAnchorPoint
@@ -10,11 +10,16 @@ import { getCurveFactory, getFillColor } from '../../../common';
 import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
 import Point from '../Point';
+import { getStrokeDashArray } from '../../../../common/utils';
 
 interface Props {
   areaTransparency?: number;
   curve: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
   displayAnchor: boolean;
+  dotOffset?: number;
+  lineWidth?: number;
   lines: Array<Line>;
   showArea?: boolean;
   showPoints?: boolean;
@@ -32,9 +37,15 @@ const StackLines = ({
   curve,
   showPoints,
   showArea,
-  areaTransparency
+  areaTransparency,
+  lineWidth,
+  dashLength,
+  dashOffset,
+  dotOffset
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(curve);
+
+  const formattedLineWidth = lineWidth || 2;
 
   return (
     <Shape.AreaStack
@@ -95,13 +106,27 @@ const StackLines = ({
               <path
                 d={linePath(stack) || ''}
                 data-metric={metric_id}
-                fill={getFillColor({
-                  areaColor: areaColor || lineColor,
-                  transparency: formattedTransparency
-                })}
+                fill={
+                  equals(showArea, false)
+                    ? 'transparent'
+                    : getFillColor({
+                        areaColor: areaColor || lineColor,
+                        transparency: formattedTransparency
+                      })
+                }
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
-                strokeWidth={highlight ? 2 : 1}
+                strokeDasharray={getStrokeDashArray({
+                  dashLength,
+                  dashOffset,
+                  dotOffset,
+                  lineWidth: formattedLineWidth
+                })}
+                strokeWidth={
+                  highlight
+                    ? Math.ceil(formattedLineWidth * 1.3)
+                    : formattedLineWidth
+                }
               />
             </g>
           );

@@ -334,14 +334,7 @@ const LineChartWithCLS: Story = {
 export const LineChart: Story = {
   ...Template,
   argTypes,
-  args: {
-    ...argumentsData,
-    lineStyle: {
-      areaTransparency: 10,
-      showArea: true,
-      showPoints: false
-    }
-  }
+  args: argumentsData
 };
 
 export const LineChartWithStepCurve: Story = {
@@ -493,6 +486,9 @@ export const LineChartWithSameColorCurves: Story = {
     ...argumentsData,
     lineStyle: {
       areaTransparency: 10,
+      dashLength: 10,
+      dashOffset: 10,
+      lineWidth: 9,
       showArea: true,
       showPoints: true
     }
