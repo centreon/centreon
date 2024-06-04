@@ -223,6 +223,32 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'retryUntilSuccess',
+  (action, options = { delay: 1000, retries: 3 }) => {
+    const { retries, delay } = options;
+    let attempts = 0;
+
+    const executeAction = () => {
+      attempts += 1;
+
+      return new Cypress.Promise((resolve, reject) => {
+        action()
+          .then(resolve)
+          .catch((err) => {
+            if (attempts < retries) {
+              setTimeout(executeAction, delay);
+            } else {
+              reject(err);
+            }
+          });
+      });
+    };
+
+    return executeAction();
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -236,6 +262,7 @@ declare global {
       installCloudExtensionsModule: () => Cypress.Chainable;
       installCloudExtensionsOnContainer: () => Cypress.Chainable;
       reloadAcl: () => Cypress.Chainable;
+      retryUntilSuccess: () => Cypress.Chainable;
     }
   }
 }
