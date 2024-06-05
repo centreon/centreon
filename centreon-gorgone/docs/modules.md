@@ -27,9 +27,7 @@ Each module should have a hook.pm and a class.pm file with some mandatory functi
 ## hook.pm
 
 Mainly used for creating the module process(es)
-
-and route event to it each time a new message is received by gorgone.
-
+and route events to it each time a new message is received by gorgone.
 
 ### const EVENTS []
 
@@ -39,7 +37,6 @@ Array defining all events this module can process. Optionally add API endpoint f
 
 ### const NAMESPACE
 
-
 ### gently()
 
 Called by gorgone-core when stopping the module.
@@ -48,7 +45,7 @@ Called by gorgone-core when stopping the module.
 
 ### init()
 
-Called by library::loadmodule to initialize the module. It should create a child process as it's not done by gorgone-core.
+Called by library::loadmodule to initialize the module, it should create a child process as it's not done by gorgone-core.
 
 ### routing()
 
@@ -84,7 +81,7 @@ Class constructor
 
 Will be called by hook.pm. This method should wait for event and dispatch them accordingly.
 
-Uses the EV library to wait for new thing to do, either by waiting on the ZMQ file descriptor (fd)
+Uses the EV library to wait for new things to do, either by waiting on the ZMQ file descriptor (fd)
 
 or with a periodic timer.\
 Generally waits for new data on ZMQ socket with EV::io(), and call event() when there is.
@@ -93,11 +90,10 @@ Generally waits for new data on ZMQ socket with EV::io(), and call event() when 
 
 Reads data from ZMQ socket, and acts on it, generally by launching an action_* method to process the event.
 
-module.pm parent class has an event() method, so it's not mandatory to implement it. 
+module.pm parent class has an event() method, so it's not mandatory to implement it.
 
 ### action_*()
 
 Method called by event() when a ZMQ message is found.
-
 
 Method name is in the form `action_eventname` where eventname is the name of the event in lowercase, as defined by the constant in hook.pm  

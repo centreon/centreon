@@ -14,7 +14,7 @@ This module should be used on remote nodes where the connection has to be http/h
 | token     | token to authenticate to the central gorgone                  |               |
 | proxy     | http(s) proxy to access central gorgone                       |               |
 
-#### Example
+### Example
 
 ```yaml
 name: pullwss
