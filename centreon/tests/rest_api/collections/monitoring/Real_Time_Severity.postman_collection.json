@@ -799,7 +799,7 @@
 									"        \"icon_alternative\": null,\r",
 									"        \"comment\": null,\r",
 									"        \"timezone_id\": null,\r",
-									"        \"severity_id\": pm.collectionVariables.get(\"HostSeverity2Id\"),\r",
+									"        \"severity_id\": pm.collectionVariables.get(\"HostSeverity3Id\"),\r",
 									"        \"check_command_id\": null,\r",
 									"        \"check_timeperiod_id\": null,\r",
 									"        \"notification_timeperiod_id\": null,\r",
@@ -850,7 +850,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host2Name}}\",\r\n    \"alias\": \"{{Host2Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"severity_id\": {{HostSeverity2Id}},\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host2Name}}\",\r\n    \"alias\": \"{{Host2Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"severity_id\": {{HostSeverity3Id}},\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -1025,7 +1025,7 @@
 									"        \"icon_id\": null,\r",
 									"        \"icon_alternative\": null,\r",
 									"        \"geo_coords\": null,\r",
-									"        \"severity_id\": pm.collectionVariables.get(\"ServiceSeverity2Id\"),\r",
+									"        \"severity_id\": pm.collectionVariables.get(\"ServiceSeverity3Id\"),\r",
 									"        \"is_activated\": true,\r",
 									"        \"macros\": [],\r",
 									"        \"categories\": [],\r",
@@ -1044,7 +1044,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Service2Name}}\",\r\n    \"host_id\": {{Host2Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"severity_id\": {{ServiceSeverity2Id}},\r\n    \"max_check_attempts\": 1\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service2Name}}\",\r\n    \"host_id\": {{Host2Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"severity_id\": {{ServiceSeverity3Id}},\r\n    \"max_check_attempts\": 1\r\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",

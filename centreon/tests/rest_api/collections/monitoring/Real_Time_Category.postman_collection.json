@@ -2068,7 +2068,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addfilter_hostcategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{HostCategory1Name}}\"\r\n}",
+							"raw": "{\r\n  \"action\": \"addfilter_hostcategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{HostCategory2Name}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2374,7 +2374,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{baseUrl}}/monitoring/hosts/categories?sort_by={\"level\":\"ASC\"}",
+							"raw": "{{baseUrl}}/monitoring/hosts/categories",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2382,12 +2382,6 @@
 								"monitoring",
 								"hosts",
 								"categories"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"level\":\"ASC\"}"
-								}
 							]
 						}
 					},
@@ -2579,148 +2573,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "Command1Name",
-			"value": ""
-		},
-		{
-			"key": "CommandId",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceTemplate1Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory1Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory2Id",
-			"value": ""
-		},
-		{
-			"key": "HostCategory3Name",
-			"value": ""
-		},
-		{
-			"key": "HostCategory3Alias",
-			"value": ""
-		},
-		{
-			"key": "HostCategory3Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory1Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory1Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory1Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory2Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory2Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory2Id",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Name",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Alias",
-			"value": ""
-		},
-		{
-			"key": "ServiceCategory3Id",
-			"value": ""
-		},
-		{
-			"key": "Host1Name",
-			"value": ""
-		},
-		{
-			"key": "Host1Alias",
-			"value": ""
-		},
-		{
-			"key": "Host1Id",
-			"value": ""
-		},
-		{
-			"key": "Service1Name",
-			"value": ""
-		},
-		{
-			"key": "Service1Id",
-			"value": ""
-		},
-		{
-			"key": "expectedHttpStatus",
-			"value": ""
-		},
-		{
-			"key": "maxNumberOfTries",
-			"value": ""
-		},
-		{
-			"key": "sleepBetweenTries",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_non_admin",
-			"value": ""
 		}
 	]
 }
