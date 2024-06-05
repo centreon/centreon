@@ -95,6 +95,9 @@ export const useLegendHeaderStyles = makeStyles<StylesProps>()(
     legendName: {
       maxWidth: '75%'
     },
+    legendNameSide: {
+      maxWidth: '95%'
+    },
     markerAndLegendName: {
       alignItems: 'center',
       display: 'flex',

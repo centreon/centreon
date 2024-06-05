@@ -133,6 +133,7 @@ const MainLegend = ({
               <LegendHeader
                 color={markerColor}
                 disabled={!display}
+                isDisplayedOnSide={!equals(placement, 'bottom')}
                 isListMode={isListMode}
                 line={line}
                 minMaxAvg={

@@ -15,6 +15,7 @@ import LegendContent from './LegendContent';
 interface Props {
   color: string;
   disabled?: boolean;
+  isDisplayedOnSide: boolean;
   isListMode: boolean;
   line: Line;
   minMaxAvg?;
@@ -27,7 +28,8 @@ const LegendHeader = ({
   disabled,
   value,
   minMaxAvg,
-  isListMode
+  isListMode,
+  isDisplayedOnSide
 }: Props): JSX.Element => {
   const { classes, cx } = useLegendHeaderStyles({ color });
 
@@ -72,7 +74,11 @@ const LegendHeader = ({
             className={cx(classes.icon, { [classes.disabled]: disabled })}
           />
           <EllipsisTypography
-            className={cx(classes.text, !isListMode && classes.legendName)}
+            className={cx(
+              classes.text,
+              !isListMode && classes.legendName,
+              !isListMode && isDisplayedOnSide && classes.legendNameSide
+            )}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
             }

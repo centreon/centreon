@@ -142,7 +142,7 @@
               "displayValue": "show",
               "input": {
                 "type": "slider",
-                "defaultValue": 70,
+                "defaultValue": 20,
                 "label": "Fill opacity",
                 "slider": {
                   "max": 100,

@@ -101,7 +101,9 @@ const WidgetLineChart = ({
         placement: panelOptions.legendPlacement
       }}
       lineStyle={{
-        areaTransparency: 100 - panelOptions.areaOpacity,
+        areaTransparency: formattedShowArea
+          ? 100 - panelOptions.areaOpacity
+          : undefined,
         curve: panelOptions.curveType,
         dashLength: equals(panelOptions.lineStyleMode, 'dash')
           ? panelOptions.dashLength
