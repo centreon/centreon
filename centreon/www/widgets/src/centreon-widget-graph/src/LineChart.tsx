@@ -1,4 +1,4 @@
-import { head, pluck } from 'ramda';
+import { always, cond, equals, F, head, pluck, T } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
@@ -75,6 +75,12 @@ const WidgetLineChart = ({
     return <NoResources />;
   }
 
+  const formattedShowArea = cond([
+    [equals('auto'), always(undefined)],
+    [equals('show'), T],
+    [equals('hide'), F]
+  ])(panelOptions.showArea);
+
   return (
     <LineChart
       axis={{
@@ -86,7 +92,6 @@ const WidgetLineChart = ({
         showGridLines: panelOptions.showGridLines,
         yAxisTickLabelRotation: panelOptions.yAxisTickLabelRotation
       }}
-      curve={panelOptions.curveType}
       data={graphData}
       end={end}
       height={null}
@@ -94,6 +99,24 @@ const WidgetLineChart = ({
         display: panelOptions.showLegend,
         mode: panelOptions.legendDisplayMode,
         placement: panelOptions.legendPlacement
+      }}
+      lineStyle={{
+        areaTransparency: 100 - panelOptions.areaOpacity,
+        curve: panelOptions.curveType,
+        dashLength: equals(panelOptions.lineStyleMode, 'dash')
+          ? panelOptions.dashLength
+          : undefined,
+        dashOffset: equals(panelOptions.lineStyleMode, 'dash')
+          ? panelOptions.dashOffset
+          : undefined,
+        dotOffset: equals(panelOptions.lineStyleMode, 'dots')
+          ? panelOptions.dotOffset
+          : undefined,
+        lineWidth: equals(panelOptions.lineWidthMode, 'auto')
+          ? undefined
+          : panelOptions.lineWidth,
+        showArea: formattedShowArea,
+        showPoints: panelOptions.showPoints
       }}
       loading={isGraphLoading}
       start={start}

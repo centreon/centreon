@@ -1,3 +1,5 @@
+import { isNil } from 'ramda';
+
 interface Props {
   lineColor: string;
   radius: number;
@@ -15,7 +17,7 @@ const Point = ({
 }: Props): JSX.Element | null => {
   const x = xScale(timeTick);
 
-  if (!x || !yPoint) {
+  if (isNil(x) || isNil(yPoint)) {
     return null;
   }
 

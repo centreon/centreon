@@ -354,7 +354,7 @@
           "options": [
             {
               "id": "name",
-              "name": "ByName"
+              "name": "By name"
             },
             {
               "id": "ascending",

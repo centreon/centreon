@@ -107,6 +107,8 @@ const Lines = ({
     yScale: stackedYScale
   };
 
+  console.log(showArea);
+
   return (
     <g>
       {displayGuidingLines && (
