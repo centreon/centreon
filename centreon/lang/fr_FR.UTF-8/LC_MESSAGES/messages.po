@@ -18544,3 +18544,6 @@ msgstr "Vous n'êtes pas autorisé à accéder à la page Statut des ressources"
 
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
+
+msgid "Downloading the performance metrics is not allowed"
+msgstr "Le téléchargement des métriques de performance n'est pas autorisé"
