@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:d:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1 [24.04]=1 [24.05]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 default_timeout_in_sec=5
@@ -368,7 +368,7 @@ function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
 	case $version in
-	"24.04")
+	"24.0"[4-9]|"24.1"[0-2])
 		detected_mariadb_version="10.11"
 	;;
 	*)
@@ -480,7 +480,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" ~= "24.0"[4-9] || "$version" ~= "24.1"[0-2] ]]; then
 				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
@@ -542,7 +542,7 @@ function set_required_prerequisite() {
 	debian-release*)
 		case "$detected_os_version" in
 		11)
-			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" == "24.04" ]]; then
+			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
 			fi
 			;;
@@ -566,7 +566,7 @@ function set_required_prerequisite() {
 		ARCH=""
 		if [[ "$VENDORID" == "ARM" ]]; then
 			ARCH="[ arch=all,arm64 ]"
-			if ! [[ "$version" == "23.10" || "$version" == "24.04" || "$topology" == "poller" ]]; then
+			if ! [[ "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] || "$topology" == "poller" ]]; then
 				error_and_exit "For Debian on Raspberry, only Centreon versions (poller mode) >=23.10 are compatible. You chose $version to install $topology server"
 			fi
 		fi
@@ -869,7 +869,7 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "partitionTables.php"
 	install_wizard_post ${sessionID} "generationCache.php"
 	INSTALLED_EXTENSIONS='modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
-	if [[ "$version" == "24.04" ]]; then
+	if [[ "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
 		INSTALLED_EXTENSIONS+='&modules%5B%5D=centreon-it-edition-extensions'
 	fi
 	install_wizard_post ${sessionID} "process_step8.php" "$INSTALLED_EXTENSIONS"
