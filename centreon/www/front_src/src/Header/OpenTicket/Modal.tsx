@@ -15,13 +15,15 @@ const OpenTicketModal = (): JSX.Element => {
 
   const autoClose = (event: MessageEvent): void => {
     if (
-      !equals(event.data, 'success') ||
+      !equals(event.data.code, 0) ||
       !equals(event.source?.name, 'open-ticket')
     ) {
       return;
     }
 
-    showSuccessMessage('Ticket created');
+    showSuccessMessage(
+      `Ticket created. Ticket number: ${event.data.result.ticket_id}`
+    );
 
     close();
   };
