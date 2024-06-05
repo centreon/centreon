@@ -754,7 +754,7 @@ describe('Checks icon', () => {
       testId: 'SyncProblemIcon'
     }
   ].forEach(({ iconTitle, condition, testId }) => {
-    it.only(`displays the check icon ${iconTitle} when the ${condition} `, () => {
+    it(`displays the check icon ${iconTitle} when the ${condition} `, () => {
       cy.waitForRequest('@getListing');
       cy.findByTestId(testId).should('be.visible');
       cy.makeSnapshot(`displays the check icon ${iconTitle} when ${condition}`);
