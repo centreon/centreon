@@ -9,8 +9,8 @@ const getWidgets = () => {
     .filter((value) => value.isDirectory())
     .map(({ name }) => name)
     .filter((name) =>
-      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : name.match(/^centreon-widget/)
-    );
+      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : true
+    ).filter((name) => name=== "centreon-widget-statusgrid");
 };
 
 const getWebpackBuildConfiguration = () => {
@@ -18,54 +18,48 @@ const getWebpackBuildConfiguration = () => {
 
   if (buildMode === 'development') {
     return {
-      config: 'rspack.config.dev.js',
+      config: 'webpack.config.dev.js',
       mode: 'development',
-      watch: false,
-      analyze: false
+      watch: false
     };
   }
 
   if (buildMode === 'watch') {
     return {
-      config: 'rspack.config.dev.js',
+      config: 'webpack.config.dev.js',
       mode: 'development',
-      watch: true,
-      analyze: false
+      watch: true
     };
   }
 
   if (buildMode === 'analyze') {
     return {
-      config: 'rspack.config.js',
+      config: 'webpack.config.analyze.js',
       mode: 'production',
-      watch: false,
-      analyze: true,
+      watch: false
     };
   }
 
   return {
-    config: 'rspack.config.js',
+    config: 'webpack.config.prod.js',
     mode: 'production',
-    watch: false,
-    analyze: false
+    watch: false
   };
 };
 
 getWidgets().forEach((widgetName) => {
-  const { config, mode, watch, analyze } = getWebpackBuildConfiguration();
+  const { config, mode, watch } = getWebpackBuildConfiguration();
   console.log(`Bundling ${widgetName} in ${mode}...`);
   exec(
-    `rspack build -m ${mode} -c ./${config} --env widgetName=${widgetName} ${
-      watch ? '-w' : ''
-    } ${
-      analyze ? '--analyze' : ''
+    `node ./node_modules/webpack/bin/webpack.js --mode ${mode} --config ${config} --env widgetName=${widgetName} ${
+      watch ? '--watch' : ''
     }`,
     (error, stdout) => {
       if (error) {
-        console.error(`${widgetName}: ${error}`);
+        console.error(error);
       }
 
-      console.log(`${widgetName}: ${stdout}`);
+      console.log(stdout);
     }
   );
 });
