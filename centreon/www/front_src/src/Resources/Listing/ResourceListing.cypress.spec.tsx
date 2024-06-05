@@ -18,7 +18,9 @@ import {
   labelAcknowledged,
   labelViewByService,
   labelAll,
-  labelViewByHost
+  labelViewByHost,
+  labelChecksDisabled,
+  labelOnlyPassiveChecksEnabled
 } from '../translatedLabels';
 import useDetails from '../Details/useDetails';
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
@@ -721,5 +723,52 @@ describe('Tree view : Feature Flag', () => {
     cy.findByTestId('tree view').should('be.visible');
 
     cy.makeSnapshot();
+  });
+});
+
+describe('Checks icon', () => {
+  beforeEach(() => {
+    store.set(selectedColumnIdsAtom, ['checks', ...defaultSelectedColumnIds]);
+    cy.interceptAPIRequest({
+      alias: 'filterRequest',
+      method: Method.GET,
+      path: '**/events-view*',
+      response: fakeData
+    });
+    cy.fixture('resources/listing/checksIcon.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getListing',
+        method: Method.GET,
+        path: '**/resources?*',
+        response: data
+      });
+    });
+
+    cy.mount({
+      Component: (
+        <Router>
+          <ListingTestWithJotai />
+        </Router>
+      )
+    });
+  });
+
+  [
+    {
+      condition: 'active and  passive checks are false',
+      iconTitle: labelChecksDisabled,
+      testId: 'SyncDisabledIcon'
+    },
+    {
+      condition: 'active checks is false',
+      iconTitle: labelOnlyPassiveChecksEnabled,
+      testId: 'SyncProblemIcon'
+    }
+  ].forEach(({ iconTitle, condition, testId }) => {
+    it(`displays the check icon ${iconTitle} when the ${condition} `, () => {
+      cy.waitForRequest('@getListing');
+      cy.findByTestId(testId).should('be.visible');
+      cy.makeSnapshot(`displays the check icon ${iconTitle} when ${condition}`);
+    });
   });
 });
