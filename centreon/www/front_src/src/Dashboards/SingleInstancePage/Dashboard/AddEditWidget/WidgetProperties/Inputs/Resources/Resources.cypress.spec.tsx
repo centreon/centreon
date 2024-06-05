@@ -82,10 +82,6 @@ const initialize = ({
     alias: 'getServices',
     method: Method.GET,
     path: `**${resourceTypeBaseEndpoints[WidgetResourceType.service]}**`,
-    query: {
-      name: 'types',
-      value: '["service"]'
-    },
     response: generateResources('Service')
   });
 
@@ -161,7 +157,9 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain('only_with_performance_data=false');
+      expect(request.url.href).contain(
+        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%5D%7D%7D'
+      );
     });
   });
 
@@ -177,7 +175,9 @@ describe('Resources', () => {
 
     cy.findAllByTestId(labelSelectAResource).eq(1).click();
     cy.waitForRequest('@getServices').then(({ request }) => {
-      expect(request.url.href).contain('only_with_performance_data=true');
+      expect(request.url.href).contain(
+        'page=1&limit=30&search=%7B%22host.name%22%3A%7B%22%24in%22%3A%5B%22Host%200%22%5D%7D%7D'
+      );
     });
     cy.contains('Service 0').click();
 
