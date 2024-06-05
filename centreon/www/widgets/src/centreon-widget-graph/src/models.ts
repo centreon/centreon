@@ -27,7 +27,7 @@ export interface PanelOptions {
   lineWidthMode: 'auto' | 'custom';
   refreshInterval: 'default' | 'custom' | 'manual';
   refreshIntervalCustom?: number;
-  scale: 'linear' | 'logarithimc';
+  scale: 'linear' | 'logarithmic';
   scaleLogarithmicBase: string;
   showArea: 'auto' | 'show' | 'hide';
   showAxisBorder: boolean;
