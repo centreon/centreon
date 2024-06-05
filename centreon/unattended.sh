@@ -480,7 +480,7 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" ~= "24.0"[4-9] || "$version" ~= "24.1"[0-2] ]]; then
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" || "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
 				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
