@@ -835,7 +835,7 @@ function setup_before_installation() {
 
 	set_runtime_selinux_mode "disabled"
 
-	install_centreon_repo
+	# install_centreon_repo
 }
 #========= end of function setup_before_installation()
 
