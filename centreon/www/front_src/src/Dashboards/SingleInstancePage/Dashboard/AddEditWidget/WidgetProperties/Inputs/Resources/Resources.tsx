@@ -53,7 +53,8 @@ const Resources = ({
     changeResource,
     singleMetricSelection,
     singleHostPerMetric,
-    isLastResourceInTree
+    isLastResourceInTree,
+    changeIdValue
   } = useResources({ propertyName, required, restrictedResourceTypes });
 
   const { canEditField } = useCanEditProperties();
@@ -108,7 +109,7 @@ const Resources = ({
               />
               {singleMetricSelection && singleHostPerMetric ? (
                 <SingleConnectedAutocompleteField
-                  allowUniqOption
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary'
                   }}
@@ -128,7 +129,7 @@ const Resources = ({
                 />
               ) : (
                 <MultiConnectedAutocompleteField
-                  allowUniqOption
+                  changeIdValue={changeIdValue(resource.resourceType)}
                   chipProps={{
                     color: 'primary',
                     onDelete: (_, option): void =>
