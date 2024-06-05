@@ -2,10 +2,10 @@ FROM almalinux:9
 
 RUN bash -e <<EOF
 
-dnf install dnf-plugins-core
+dnf install -y dnf-plugins-core zstd curl mariadb
 dnf install epel-release
 dnf config-manager --set-enabled crb
-dnf -y config-manager --add-repo https://packages.centreon.com/rpm-standard/23.10/el9/centreon-23.10.repo
+dnf -y config-manager --add-repo https://packages.centreon.com/artifactory/rpm-standard/23.10/el9/centreon-23.10.repo
 dnf -y clean all --enablerepo=*
 dnf install -y python3.11 python3.11-pip
 pip3.11 install robotframework robotframework-examples robotframework-databaselibrary pymysql robotframework-requests
