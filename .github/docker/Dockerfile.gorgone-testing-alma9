@@ -3,7 +3,7 @@ FROM almalinux:9
 RUN bash -e <<EOF
 
 dnf install -y dnf-plugins-core zstd curl mariadb
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+dnf install epel-release
 dnf config-manager --set-enabled crb
 dnf -y config-manager --add-repo https://packages.centreon.com/artifactory/rpm-standard/23.10/el9/centreon-23.10.repo
 dnf -y clean all --enablerepo=*
