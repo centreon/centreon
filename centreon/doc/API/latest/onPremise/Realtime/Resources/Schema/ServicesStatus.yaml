@@ -4,26 +4,26 @@ properties:
     type: object
     properties:
       total:
-        type: integer
+        type: int
   unknown:
     type: object
     properties:
       total:
-        type: integer
+        type: int
   ok:
     type: object
     properties:
       total:
-        type: integer
+        type: int
   down:
     type: object
     properties:
       total:
-        type: integer
+        type: int
   pending:
     type: object
     properties:
       total:
-        type: integer
+        type: int
   total:
-    type: integer
+    type: int

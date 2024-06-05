@@ -1998,9 +1998,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts/status:
-    $ref: './latest/onPremise/Realtime/Hosts/FindHostsStatus.yaml'
+    $ref: './latest/onPremise/Realtime/Resources/FindHostsStatus.yaml'
   /monitoring/services/status:
-    $ref: './latest/onPremise/Realtime/Services/FindServicesStatus.yaml'
+    $ref: './latest/onPremise/Realtime/Resources/FindServicesStatus.yaml'
   /monitoring/services:
     get:
       tags:
