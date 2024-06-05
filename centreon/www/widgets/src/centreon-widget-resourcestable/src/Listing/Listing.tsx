@@ -65,7 +65,8 @@ const Listing = ({
     page,
     isLoading,
     data,
-    goToResourceStatusPage
+    goToResourceStatusPage,
+    hasMetaService
   } = useListing({
     changeViewMode,
     dashboardId,
@@ -122,6 +123,7 @@ const Listing = ({
       visualizationActions={
         <DisplayType
           displayType={displayType}
+          hasMetaService={hasMetaService}
           setPanelOptions={setPanelOptions}
         />
       }

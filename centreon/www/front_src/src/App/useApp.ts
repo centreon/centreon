@@ -92,15 +92,10 @@ const useApp = (): UseAppState => {
   useEffect(() => {
     getNavigation();
 
-    Promise.all([
-      getParameters({
-        endpoint: parametersEndpoint
-      }),
-      getAcl({
-        endpoint: aclEndpoint
-      })
-    ])
-      .then(([retrievedParameters, retrievedAcl]) => {
+    getParameters({
+      endpoint: parametersEndpoint
+    })
+      .then((retrievedParameters) => {
         setDowntime({
           duration: parseInt(
             retrievedParameters.monitoring_default_downtime_duration,
@@ -113,7 +108,6 @@ const useApp = (): UseAppState => {
         setRefreshInterval(
           parseInt(retrievedParameters.monitoring_default_refresh_interval, 10)
         );
-        setAcl({ actions: retrievedAcl });
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -130,6 +124,19 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
+
+    getAcl({
+      endpoint: aclEndpoint
+    })
+      .then((retrievedAcl) => {
+        setAcl({ actions: retrievedAcl });
+      })
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
     if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint

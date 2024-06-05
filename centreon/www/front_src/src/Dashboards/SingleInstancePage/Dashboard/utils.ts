@@ -37,7 +37,8 @@ const resourcesCriteriasMapping = {
   [WidgetResourceType.hostGroup]: 'host_groups',
   [WidgetResourceType.service]: 'name',
   [WidgetResourceType.serviceCategory]: 'service_categories',
-  [WidgetResourceType.serviceGroup]: 'service_groups'
+  [WidgetResourceType.serviceGroup]: 'service_groups',
+  [WidgetResourceType.metaService]: 'name'
 };
 
 export const getResourcesUrlForMetricsWidgets = ({
@@ -46,9 +47,11 @@ export const getResourcesUrlForMetricsWidgets = ({
 }): string => {
   const filters = data?.resources.map(({ resourceType, resources }) => {
     if (
-      [WidgetResourceType.host, WidgetResourceType.service].includes(
-        resourceType
-      )
+      [
+        WidgetResourceType.host,
+        WidgetResourceType.service,
+        WidgetResourceType.metaService
+      ].includes(resourceType)
     ) {
       return {
         name: resourcesCriteriasMapping[resourceType],
@@ -72,13 +75,8 @@ export const getResourcesUrlForMetricsWidgets = ({
     };
   });
 
-  const serviceCriteria = {
-    name: 'resource_types',
-    value: [{ id: 'service', name: 'Service' }]
-  };
-
   const filterQueryParameter = {
-    criterias: [serviceCriteria, ...filters, { name: 'search', value: '' }]
+    criterias: [...filters, { name: 'search', value: '' }]
   };
   const encodedFilterParams = encodeURIComponent(
     JSON.stringify(filterQueryParameter)

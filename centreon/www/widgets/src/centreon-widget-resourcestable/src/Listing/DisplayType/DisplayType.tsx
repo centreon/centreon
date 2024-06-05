@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
@@ -42,12 +43,14 @@ const options = [
 
 interface Props {
   displayType: DisplayTypeEnum;
+  hasMetaService: boolean;
   setPanelOptions: (panelOptions) => void;
 }
 
 const DisplayTypeComponent = ({
   displayType,
-  setPanelOptions
+  setPanelOptions,
+  hasMetaService
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -60,6 +63,7 @@ const DisplayTypeComponent = ({
           <Option
             IconOnActive={IconOnActive}
             IconOnInactive={IconOnInactive}
+            disabled={hasMetaService && equals(option, DisplayTypeEnum.Host)}
             displayType={displayType}
             key={option}
             option={option}
