@@ -77,7 +77,7 @@ var $callback_submitTicket = function(res) {
         jQuery("#form_error").html(data_ret['msg']);
     } else {
         jQuery("#OTcontainer").html(data_ret['result']['confirm_message']);
-        window.top.postMessage("success");
+        window.top.postMessage(data_ret);
         if (data_ret['result']['confirm_autoclose'] !== undefined && data_ret['result']['confirm_autoclose'] > 0) {
             jQuery('#OTWidgetPopin > .close').hide();
             jQuery('#centreonPopinOverlay').unbind('click');
