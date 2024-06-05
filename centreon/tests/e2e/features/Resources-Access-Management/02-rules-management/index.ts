@@ -346,9 +346,9 @@ Then('the user can access all the business views', () => {
   cy.getIframeBody()
     .find('span[aria-labelledby$="-bv_filter-container"]')
     .click();
-  data_bv.forEach((value) => {
+  for (const value of data_bv) {
     cy.getIframeBody().contains(value.Bv);
-  });
+  };
 });
 
 Then('the Administrator selects "All contacts" and clicks on "Save"', () => {
