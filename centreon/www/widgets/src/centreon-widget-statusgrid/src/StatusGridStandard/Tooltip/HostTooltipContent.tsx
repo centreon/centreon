@@ -99,7 +99,7 @@ const HostTooltipContent = ({ data }: Props): JSX.Element => {
           )}
           {isLoading && <CircularProgress size={24} />}
         </Box>
-        <Divider variant="middle" />
+        <Divider variant="fullWidth" />
         <Typography
           className={classes.dateContainer}
           color="text.secondary"

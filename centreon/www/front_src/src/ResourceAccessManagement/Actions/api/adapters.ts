@@ -32,8 +32,14 @@ export const adaptRule = ({
   isActivated,
   name
 }): object => ({
-  contact_groups: pluck('id', contactGroups),
-  contacts: pluck('id', contacts),
+  contact_groups: {
+    all: contactGroups.all,
+    ids: pluck('id', contactGroups.values)
+  },
+  contacts: {
+    all: contacts.all,
+    ids: pluck('id', contacts.values)
+  },
   dataset_filters: datasetFilters.map((datasetFilter: DatasetFilter) =>
     adaptDatasetFilter(datasetFilter)
   ),

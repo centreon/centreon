@@ -54,13 +54,13 @@ if (isset($_POST['searchACLG'])) {
 }
 
 if ($search) {
-    $searchStr .= "WHERE (acl_group_name LIKE :search OR acl_group_alias LIKE :search)";
+    $searchStr .= "AND (acl_group_name LIKE :search OR acl_group_alias LIKE :search)";
 }
 
 $rq = "
     SELECT SQL_CALC_FOUND_ROWS acl_group_id, acl_group_name, acl_group_alias, acl_group_activate
     FROM acl_groups
-    $searchStr
+    WHERE cloud_specific = 0 $searchStr
     ORDER BY acl_group_name LIMIT :num, :limit
 ";
 $statement = $pearDB->prepare($rq);

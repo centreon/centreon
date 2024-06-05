@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
+ * Copyright 2005-2024 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,77 +34,168 @@
  *
  */
 
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 class CentreonAdministrationAclgroup extends CentreonConfigurationObjects
 {
+    public const ADMIN_ACL_GROUP = 'customer_admin_acl';
+
     /**
-     * @return array
      * @throws RestBadRequestException
+     *
+     * @return array
      */
     public function getList()
     {
-        $queryValues = array();
-
         global $centreon;
-        $userId = $centreon->user->user_id;
-        $isAdmin = $centreon->user->admin;
-        $filterAclgroup = array();
 
-        if (!$isAdmin) {
-            $acl = new CentreonACL($userId, $isAdmin);
-            $filterAclgroup[] = ' acl_group_id IN (' . $acl->getAccessGroupsString() . ') ';
+        $queryValues = [];
+        $filterAclgroup = [];
+
+        $isUserAdmin = $this->isUserAdmin();
+
+        /**
+         * Determine if the connected user is an admin (or not). User is admin if
+         *  - he is configured as being an admin (onPrem) - is_admin = true
+         *  - he belongs to the customer_admin_acl acl_group (cloud).
+         */
+        if (! $isUserAdmin) {
+            $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+            $filterAclgroup[] = ' ag.acl_group_id IN (' . $acl->getAccessGroupsString() . ') ';
         }
 
-        if (isset($this->arguments['q'])) {
-            $filterAclgroup[] = " (acl_group_name LIKE :aclGroup OR acl_group_alias LIKE :aclGroup) ";
-            $queryValues['aclGroup'] = '%' . (string)$this->arguments['q'] . '%';
+        $query = filter_var($this->arguments['q'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        if ($query !== '') {
+            $filterAclgroup[] = ' (ag.acl_group_name LIKE :aclGroup OR ag.acl_group_alias LIKE :aclGroup) ';
+            $queryValues['aclGroup'] = '%' . $query . '%';
         }
 
-        if (isset($this->arguments['page_limit']) && isset($this->arguments['page'])) {
-            if (
-                !is_numeric($this->arguments['page'])
-                || !is_numeric($this->arguments['page_limit'])
-                || $this->arguments['page_limit'] < 1
-            ) {
-                throw new \RestBadRequestException('Error, limit must be an integer greater than zero');
-            }
-            $offset = ($this->arguments['page'] - 1) * $this->arguments['page_limit'];
-            $limit = $this->arguments['page_limit'];
-            $range = 'LIMIT :offset,:limit';
-            $queryValues['offset'] = (int)$offset;
-            $queryValues['limit'] = (int)$limit;
-        } else {
-            $range = '';
+        $limit = array_key_exists('page_limit', $this->arguments)
+            ? filter_var($this->arguments['page_limit'], FILTER_VALIDATE_INT)
+            : null;
+
+        $page = array_key_exists('page', $this->arguments)
+            ? filter_var($this->arguments['page'], FILTER_VALIDATE_INT)
+            : null;
+
+        $useResourceAccessManagement = filter_var(
+            $this->arguments['use_ram'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
+        $allHostGroupsFilter = filter_var(
+            $this->arguments['all_hostgroups_filter'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
+        $allServiceGroupsFilter = filter_var(
+            $this->arguments['all_servicegroups_filter'] ?? false,
+            FILTER_VALIDATE_BOOL
+        );
+
+        if ($limit === false) {
+            throw new RestBadRequestException('Error, limit must be an integer greater than zero');
         }
 
-        $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT acl_group_id, acl_group_name FROM acl_groups ";
-        if (count($filterAclgroup)) {
-            $query .= ' WHERE ' . implode(' AND ', $filterAclgroup);
+        if ($page === false) {
+            throw new RestBadRequestException('Error, page must be an integer greater than zero');
         }
-        $query .= " ORDER BY acl_group_name " . $range;
 
-        $stmt = $this->pearDB->prepare($query);
+        $range = '';
+        if (
+            $page !== null
+            && $limit !== null
+        ) {
+            $range = ' LIMIT :offset, :limit';
+            $queryValues['offset'] = (int) (($page - 1) * $limit);
+            $queryValues['limit'] = $limit;
+        }
+
+        $query = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS
+                    ag.acl_group_id,
+                    ag.acl_group_name
+                FROM acl_groups ag
+            SQL;
+
+        $query .= ! $isUserAdmin
+            ? <<<'SQL'
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_group_id = ag.acl_group_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
+            SQL
+            : '';
+
+        $whereCondition = '';
+
+        // In cloud environment we only want to return ACL defines through Resource Access Management page
+        if ($useResourceAccessManagement === true) {
+            $whereCondition = ' WHERE ag.cloud_specific = 1';
+        }
+
+        if ($filterAclgroup !== []) {
+            $whereCondition .= empty($whereCondition) ? ' WHERE ' : ' AND ';
+            $whereCondition .= implode(' AND ', $filterAclgroup);
+        }
+
+        $query .= $whereCondition;
+        $query .= ' GROUP BY ag.acl_group_id';
+
+        if ($allHostGroupsFilter && ! $isUserAdmin) {
+            $query .= <<<'SQL'
+                    HAVING SUM(CASE ar.all_hostgroups WHEN '1' THEN 1 ELSE 0 END) = 0
+                SQL;
+        }
+
+        if ($allServiceGroupsFilter && ! $isUserAdmin) {
+            $query .= <<<'SQL'
+                    HAVING SUM(CASE ar.all_servicegroups WHEN '1' THEN 1 ELSE 0 END) = 0
+                SQL;
+        }
+
+        $query .= ' ORDER BY ag.acl_group_name ' . $range;
+
+        $statement = $this->pearDB->prepare($query);
 
         if (isset($queryValues['aclGroup'])) {
-            $stmt->bindParam(':aclGroup', $queryValues["aclGroup"], PDO::PARAM_STR);
+            $statement->bindValue(':aclGroup', $queryValues['aclGroup'], \PDO::PARAM_STR);
         }
-        if (isset($queryValues["offset"])) {
-            $stmt->bindParam(':offset', $queryValues["offset"], PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $queryValues["limit"], PDO::PARAM_INT);
-        }
-        $stmt->execute();
-        $aclGroupList = array();
-        while ($data = $stmt->fetch()) {
-            $aclGroupList[] = array(
-                'id' => $data['acl_group_id'],
-                'text' => $data['acl_group_name']
-            );
+        if (isset($queryValues['offset'])) {
+            $statement->bindValue(':offset', $queryValues['offset'], \PDO::PARAM_INT);
+            $statement->bindValue(':limit', $queryValues['limit'], \PDO::PARAM_INT);
         }
 
-        return array(
+        $statement->execute();
+        $aclGroupList = [];
+        while ($data = $statement->fetch()) {
+            $aclGroupList[] = [
+                'id' => $data['acl_group_id'],
+                'text' => $data['acl_group_name'],
+            ];
+        }
+
+        return [
             'items' => $aclGroupList,
-            'total' => (int) $this->pearDB->numberRows()
-        );
+            'total' => (int) $this->pearDB->numberRows(),
+        ];
+    }
+
+    /**
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        global $centreon;
+
+        if ($centreon->user->admin) {
+            return true;
+        }
+
+        // Get user's ACL groups
+        $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+
+        return in_array(self::ADMIN_ACL_GROUP, $acl->getAccessGroups(), true);
     }
 }

@@ -1,17 +1,20 @@
 import { useMemo } from 'react';
 
 import { filter, intersection, isNil, map, pipe, toUpper } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { SeverityCode, useFetchQuery, useRefreshInterval } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { StatusGridProps } from '../StatusGridStandard/models';
 import { SeverityStatus, StatusDetail, StatusType } from '../../../models';
 import {
   formatStatus,
   getStatusNameByStatusSeverityandResourceType,
+  getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
-import { buildResourcesEndpoint } from '../api/endpoints';
+import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';
 import { getStatusNamesPerResourceType } from './utils';
@@ -33,14 +36,34 @@ export const useStatusGridCondensed = ({
   panelOptions,
   panelData,
   refreshCount,
-  globalRefreshInterval
+  globalRefreshInterval,
+  playlistHash,
+  dashboardId,
+  id,
+  widgetPrefixQuery,
+  isBAResourceType,
+  isBVResourceType,
+  lastSelectedResourceType
 }: Pick<
   StatusGridProps,
-  'panelOptions' | 'panelData' | 'refreshCount' | 'globalRefreshInterval'
->): UseStatusGridCondensedState => {
+  | 'panelOptions'
+  | 'panelData'
+  | 'refreshCount'
+  | 'globalRefreshInterval'
+  | 'dashboardId'
+  | 'id'
+  | 'playlistHash'
+  | 'widgetPrefixQuery'
+> & {
+  isBAResourceType;
+  isBVResourceType;
+  lastSelectedResourceType;
+}): UseStatusGridCondensedState => {
   const { refreshInterval, resourceType, statuses, refreshIntervalCustom } =
     panelOptions;
   const { resources } = panelData;
+
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -50,21 +73,35 @@ export const useStatusGridCondensed = ({
 
   const formattedStatuses = formatStatus(statuses);
 
+  const resourceTypeToUse =
+    isBVResourceType || isBAResourceType
+      ? lastSelectedResourceType
+      : resourceType;
+
   const statusesToUse = pipe(
     getStatusNamesPerResourceType,
     map(toUpper),
     intersection(formattedStatuses)
-  )(resourceType);
+  )(resourceTypeToUse);
+
+  const baseEndpoint = getStatusesEndpoint(resourceTypeToUse);
 
   const { data, isLoading } = useFetchQuery<StatusType>({
     getEndpoint: () =>
-      buildResourcesEndpoint({
-        baseEndpoint: getStatusesEndpoint(resourceType),
-        page: 0,
-        resources,
-        statuses: statusesToUse
+      getWidgetEndpoint({
+        dashboardId,
+        defaultEndpoint: buildCondensedViewEndpoint({
+          baseEndpoint,
+          resources,
+          statuses: statusesToUse,
+          type: resourceType
+        }),
+        isOnPublicPage,
+        playlistHash,
+        widgetId: id
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       'condensed',
       resourceType,
@@ -75,7 +112,8 @@ export const useStatusGridCondensed = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const statusesToDisplay = useMemo(
@@ -83,7 +121,7 @@ export const useStatusGridCondensed = ({
       pipe<[list: ReadonlyArray<SeverityStatus>], Array<FormattedStatus>>(
         map((severityStatus: SeverityStatus) => {
           const status = getStatusNameByStatusSeverityandResourceType({
-            resourceType,
+            resourceType: resourceTypeToUse,
             status: severityStatus
           });
           const count = data?.[status];

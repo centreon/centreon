@@ -20,7 +20,7 @@
     },
     "resourceType": {
       "type": "radio",
-      "label": "Display with this resource type",
+      "label": "Display resources with this type",
       "options": [
         {
           "id": "host",
@@ -31,31 +31,41 @@
           "name": "Service"
         }
       ],
-      "defaultValue": "host"
+      "defaultValue": "host",
+      "hiddenCondition": {
+        "target" : "data",
+        "when": "data.resources",
+        "property": "resourceType",
+        "method": "includes",
+        "matches":  [
+          "business-view",
+          "business-activity"
+        ]
+      }
     },
     "statuses": {
       "type": "checkbox",
       "label": "Display resources with this status",
       "options": [
         {
-          "id": "success",
-          "name": "Success (OK/Up)"
+          "id": "problem",
+          "name": "Problem (Down/Critical)"
         },
         {
           "id": "warning",
           "name": "Warning"
         },
         {
-          "id": "problem",
-          "name": "Problem (Down/Critical)"
+          "id": "pending",
+          "name": "Pending"
+        },
+        {
+          "id": "success",
+          "name": "Success (OK/Up)"
         },
         {
           "id": "undefined",
           "name": "Undefined (Unreachable/Unknown)"
-        },
-        {
-          "id": "pending",
-          "name": "Pending"
         }
       ],
       "defaultValue": [
@@ -78,7 +88,9 @@
       ],
       "defaultValue": "status_severity_code",
       "hiddenCondition": {
+        "target": "options",
         "when": "options.viewMode",
+        "method": "equals",
         "matches": "condensed"
       }
     },
@@ -86,7 +98,9 @@
       "type": "tiles",
       "defaultValue": 100,
       "hiddenCondition": {
+        "target": "options",
         "when": "options.viewMode",
+        "method": "equals",
         "matches": "condensed"
       }
     },
@@ -100,7 +114,11 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": false
+      "required": false,
+      "useAdditionalResources": true,
+      "excludedResourceTypes": [
+        "meta-service"
+      ]
     }
   },
   "moduleName": "centreon-widget-statusgrid"

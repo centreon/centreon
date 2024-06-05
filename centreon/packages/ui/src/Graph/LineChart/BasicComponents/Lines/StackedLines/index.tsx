@@ -1,18 +1,28 @@
 import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
+import { all, equals, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
-import StackedAnchorPoint from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
+import StackedAnchorPoint, {
+  getYAnchorPoint
+} from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
-import { getFillColor } from '../../../common';
-import { getTime } from '../../../../common/timeSeries';
+import { getCurveFactory, getFillColor } from '../../../common';
+import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
+import Point from '../Point';
+import { getPointRadius, getStrokeDashArray } from '../../../../common/utils';
 
 interface Props {
-  curve: CurveType;
+  areaTransparency?: number;
+  curve: 'linear' | 'step' | 'natural';
+  dashLength?: number;
+  dashOffset?: number;
   displayAnchor: boolean;
+  dotOffset?: number;
+  lineWidth?: number;
   lines: Array<Line>;
+  showArea?: boolean;
+  showPoints?: boolean;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
@@ -24,11 +34,22 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  curve
+  curve,
+  showPoints,
+  showArea,
+  areaTransparency,
+  lineWidth,
+  dashLength,
+  dashOffset,
+  dotOffset
 }: Props): JSX.Element => {
+  const curveType = getCurveFactory(curve);
+
+  const formattedLineWidth = lineWidth ?? 2;
+
   return (
     <Shape.AreaStack
-      curve={curve}
+      curve={curveType}
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
@@ -45,10 +66,12 @@ const StackLines = ({
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {
-          const { areaColor, transparency, lineColor, highlight } = nth(
-            index,
-            lines
-          ) as Line;
+          const { areaColor, transparency, lineColor, highlight, metric_id } =
+            nth(index, lines) as Line;
+
+          const formattedTransparency = isNil(areaTransparency)
+            ? transparency || 80
+            : areaTransparency;
 
           return (
             <g key={`stack-${prop('key', stack)}`}>
@@ -63,12 +86,48 @@ const StackLines = ({
                   yScale={yScale}
                 />
               )}
+              {showPoints &&
+                getDates(timeSeries).map((timeTick) => (
+                  <Point
+                    key={timeTick.toString()}
+                    lineColor={lineColor}
+                    metric_id={metric_id}
+                    radius={getPointRadius(lineWidth)}
+                    timeSeries={timeSeries}
+                    timeTick={timeTick}
+                    xScale={xScale}
+                    yPoint={getYAnchorPoint({
+                      stackValues: stack as unknown as Array<StackValue>,
+                      timeTick,
+                      yScale
+                    })}
+                    yScale={yScale}
+                  />
+                ))}
               <path
                 d={linePath(stack) || ''}
-                fill={getFillColor({ areaColor, transparency })}
+                data-metric={metric_id}
+                fill={
+                  equals(showArea, false)
+                    ? 'transparent'
+                    : getFillColor({
+                        areaColor: areaColor || lineColor,
+                        transparency: formattedTransparency
+                      })
+                }
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
-                strokeWidth={highlight ? 2 : 1}
+                strokeDasharray={getStrokeDashArray({
+                  dashLength,
+                  dashOffset,
+                  dotOffset,
+                  lineWidth: formattedLineWidth
+                })}
+                strokeWidth={
+                  highlight
+                    ? Math.ceil(formattedLineWidth * 1.3)
+                    : formattedLineWidth
+                }
               />
             </g>
           );

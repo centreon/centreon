@@ -12,6 +12,15 @@ export {
   featureFlagsDerivedAtom
 } from './platformFeauresAtom';
 
+export { platformVersionsAtom } from './platformVersionsAtom';
+
+export { isOnPublicPageAtom } from './isOnPublicPageAtom';
+export { additionalResourcesAtom } from './additionalResources';
+export {
+  federatedModulesAtom,
+  federatedWidgetsAtom
+} from './federatedModulesAndWidgetsAtoms';
+
 export type {
   User,
   UserContext,
@@ -23,5 +32,6 @@ export type {
   Acl,
   DashboardRolesAndPermissions,
   FeatureFlags,
-  PlatformFeatures
+  PlatformFeatures,
+  AdditionalResource
 } from './types';

@@ -3,25 +3,35 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/system';
 
 export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
-  previewDescription: {
-    marginTop: theme.spacing(1)
+  groupContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(1),
+    marginLeft: theme.spacing(0.5)
+  },
+  groupDivider: {
+    marginBottom: theme.spacing(1)
+  },
+  groupTitle: {
+    fontWeight: theme.typography.fontWeightBold
   },
   previewHeading: {
-    display: 'block',
-    height: '19px',
-    lineHeight: 1
+    display: 'block'
   },
   previewPanelContainer: {
     height: '400px',
     [theme.breakpoints.down('sm')]: {
       height: '200px'
     },
-    padding: theme.spacing(1),
+    padding: theme.spacing(1.5),
     position: 'relative',
     width: '100%'
   },
   previewTitle: {
-    marginBottom: theme.spacing(1)
+    fontSize: '1.3rem',
+    fontWeight: theme.typography.fontWeightBold,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(0)
   },
   previewUserRightPanel: {
     alignItems: 'center',

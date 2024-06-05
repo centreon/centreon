@@ -12,7 +12,6 @@ import IconAcknowledge from '@mui/icons-material/Person';
 import { PopoverMenu, SeverityCode, useCancelTokenSource } from '@centreon/ui';
 
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
-import IconDowntime from '../../icons/Downtime';
 import { Resource } from '../../models';
 import {
   labelAcknowledge,
@@ -31,8 +30,10 @@ import {
   Action,
   CheckActionModel,
   ExtraActionsInformation,
+  MoreSecondaryActions,
   ResourceActions
 } from '../model';
+import Downtime from '../../icons/Downtime';
 
 import AcknowledgeForm from './Acknowledge';
 import useAclQuery from './aclQuery';
@@ -58,8 +59,9 @@ const ResourceActions = ({
   success,
   mainActions,
   secondaryActions,
-  displayCondensed = false
-}: ResourceActions): JSX.Element => {
+  displayCondensed = false,
+  renderMoreSecondaryActions
+}: ResourceActions & MoreSecondaryActions): JSX.Element => {
   const { classes, cx } = useStyles();
   const { t } = useTranslation();
   const { cancel } = useCancelTokenSource();
@@ -284,7 +286,7 @@ const ResourceActions = ({
             <ResourceActionButton
               disabled={disableDowntime}
               displayCondensed={displayCondensed}
-              icon={<IconDowntime />}
+              icon={<Downtime />}
               label={t(labelSetDowntime)}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
@@ -293,7 +295,7 @@ const ResourceActions = ({
           </div>
         )}
         {displayCheck && (
-          <div className={classes.action}>
+          <div className={cx({ [classes.action]: !displayCondensed })}>
             <CheckActionButton
               displayCondensed={displayCondensed}
               resources={resources}
@@ -379,6 +381,7 @@ const ResourceActions = ({
                   prepareToAddComment();
                 }}
               />
+              {renderMoreSecondaryActions?.({ close })}
             </>
           )}
         </PopoverMenu>

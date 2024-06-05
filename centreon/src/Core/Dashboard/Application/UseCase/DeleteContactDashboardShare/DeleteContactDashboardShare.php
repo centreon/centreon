@@ -33,16 +33,20 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class DeleteContactDashboardShare
 {
     use LoggerTrait;
+    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     public function __construct(
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
@@ -50,7 +54,10 @@ final class DeleteContactDashboardShare
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -60,7 +67,7 @@ final class DeleteContactDashboardShare
         DeleteContactDashboardSharePresenterInterface $presenter
     ): void {
         try {
-            if ($this->rights->hasAdminRole()) {
+            if ($this->isUserAdmin()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
                     $this->info('Delete a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->deleteContactShareAsAdmin($dashboard, $contactId);
@@ -145,10 +152,37 @@ final class DeleteContactDashboardShare
             );
         }
 
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
+        if (! $this->readContactRepository->existInAccessGroups($contact->getId(), $accessGroupIds)) {
+            return new NotFoundResponse('Contact');
+        }
+
         if (! $this->writeDashboardShareRepository->deleteContactShare($contact->getId(), $dashboard->getId())) {
             return new NotFoundResponse('Dashboard share');
         }
 
         return new NoContentResponse();
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function isUserAdmin(): bool
+    {
+        if ($this->rights->hasAdminRole()) {
+            return true;
+        }
+
+        $userAccessGroupNames = array_map(
+            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
+            $this->readAccessGroupRepository->findByContact($this->contact)
+        );
+
+        return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
+            && $this->isCloudPlatform;
     }
 }

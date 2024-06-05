@@ -1,7 +1,0 @@
-AddContactDashboardShare:
-  methods: POST
-  path: /configuration/dashboards/{dashboardId}/access_rights/contacts
-  requirements:
-    dashboardId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\AddContactDashboardShare\AddContactDashboardShareController'
-  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

@@ -145,8 +145,8 @@ Feature:
       "id": 1,
       "name": "notification-name",
       "timeperiod": {
-          "id": 1,
-          "name": "24x7"
+          "id": 2,
+          "name": "none"
       },
       "users": [
           {
@@ -307,8 +307,8 @@ Feature:
         "id": 1,
         "name": "notification-name",
         "timeperiod": {
-            "id": 1,
-            "name": "24x7"
+            "id": 2,
+            "name": "none"
         },
         "users": [
             {
@@ -534,8 +534,8 @@ Feature:
             }
           ],
           "timeperiod": {
-            "id": 1,
-            "name": "24x7"
+            "id": 2,
+            "name": "none"
           }
         }
       ],
@@ -792,8 +792,8 @@ Feature:
         "id": 1,
         "name": "notification-name",
         "timeperiod": {
-            "id": 1,
-            "name": "24x7"
+            "id": 2,
+            "name": "none"
         },
         "is_activated": false,
         "messages": [
@@ -1156,8 +1156,8 @@ Feature:
           "id": 1,
           "name": "notification-name-updated",
           "timeperiod": {
-              "id": 1,
-              "name": "24x7"
+              "id": 2,
+              "name": "none"
           },
           "is_activated": true,
           "messages": [

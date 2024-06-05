@@ -1,10 +1,26 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals } from 'ramda';
+import {
+  propEq,
+  find,
+  path,
+  equals,
+  has,
+  pluck,
+  difference,
+  isEmpty,
+  reject,
+  includes,
+  type
+} from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
+import {
+  platformVersionsAtom,
+  featureFlagsDerivedAtom
+} from '@centreon/ui-context';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import {
@@ -13,7 +29,7 @@ import {
 } from '../../../../../federatedModules/models';
 import {
   customBaseColorAtom,
-  singleHostPerMetricAtom,
+  singleResourceSelectionAtom,
   singleMetricSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
@@ -33,7 +49,12 @@ import {
   WidgetCheckboxes,
   WidgetTiles,
   WidgetDisplayType,
-  WidgetSwitch
+  WidgetSwitch,
+  WidgetSelect,
+  WidgetButtonGroup,
+  WidgetSlider,
+  WidgetText,
+  WidgetConnectedAutocomplete
 } from './Inputs';
 
 export interface WidgetPropertiesRenderer {
@@ -56,10 +77,15 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.checkbox]: WidgetCheckboxes,
   [FederatedWidgetOptionType.tiles]: WidgetTiles,
   [FederatedWidgetOptionType.displayType]: WidgetDisplayType,
-  [FederatedWidgetOptionType.switch]: WidgetSwitch
+  [FederatedWidgetOptionType.switch]: WidgetSwitch,
+  [FederatedWidgetOptionType.select]: WidgetSelect,
+  [FederatedWidgetOptionType.buttonGroup]: WidgetButtonGroup,
+  [FederatedWidgetOptionType.slider]: WidgetSlider,
+  [FederatedWidgetOptionType.text]: WidgetText,
+  [FederatedWidgetOptionType.connectedAutocomplete]: WidgetConnectedAutocomplete
 };
 
-const DefaultComponent = (): JSX.Element => (
+export const DefaultComponent = (): JSX.Element => (
   <div data-testid="unknown widget property" />
 );
 
@@ -72,9 +98,11 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const { modules } = useAtomValue(platformVersionsAtom);
+  const featureFlags = useAtomValue(featureFlagsDerivedAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
-  const setSingleHostPerMetric = useSetAtom(singleHostPerMetricAtom);
+  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const selectedWidget = find(
@@ -84,20 +112,49 @@ export const useWidgetInputs = (
 
   const selectedWidgetProperties: {
     [key: string]: FederatedWidgetOption;
-  } | null = selectedWidget?.[widgetKey] || null;
+  } | null = path(widgetKey.split('.'), selectedWidget) || null;
 
   const inputs = useMemo(
     () =>
       selectedWidgetProperties
         ? Object.entries(selectedWidgetProperties)
             .filter(([, value]) => {
+              const hasModule = value.hasModule
+                ? has(value.hasModule, modules)
+                : true;
+
               if (!value.hiddenCondition) {
                 return true;
               }
 
-              return !equals(
-                path(value.hiddenCondition.when.split('.'), values),
-                value.hiddenCondition.matches
+              const { target, method, when, matches } = value.hiddenCondition;
+
+              if (equals(target, 'featureFlags')) {
+                return (
+                  hasModule &&
+                  !equals(featureFlags?.[value.hiddenCondition.when], matches)
+                );
+              }
+
+              if (equals(method, 'includes')) {
+                const formValue = path(when.split('.'), values);
+                const property = value.hiddenCondition?.property;
+                const items = property ? pluck(property, formValue) : formValue;
+                const areItemsString = equals(type(items), 'String');
+
+                return (
+                  hasModule &&
+                  (isEmpty(reject(equals(''), items)) ||
+                    (areItemsString
+                      ? !includes(items, matches)
+                      : !isEmpty(
+                          difference(reject(equals(''), items), matches)
+                        )))
+                );
+              }
+
+              return (
+                hasModule && !equals(path(when.split('.'), values), matches)
               );
             })
             .map(([key, value]) => {
@@ -106,9 +163,10 @@ export const useWidgetInputs = (
 
               return {
                 Component,
+                group: value.group,
                 key,
                 props: {
-                  ...(value as Omit<
+                  ...(value as unknown as Omit<
                     WidgetPropertyProps,
                     'propertyName' | 'propertyType'
                   >),
@@ -135,7 +193,7 @@ export const useWidgetInputs = (
       }
 
       setSingleMetricSection(selectedWidget.singleMetricSelection);
-      setSingleHostPerMetric(selectedWidget.singleHostPerMetric);
+      setSingleResourceSelection(selectedWidget.singleResourceSelection);
       setCustomBaseColor(selectedWidget.customBaseColor);
     },
     useDeepCompare([selectedWidget])

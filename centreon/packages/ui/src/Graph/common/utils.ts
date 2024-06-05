@@ -6,6 +6,7 @@ import {
   gt,
   gte,
   head,
+  isNil,
   length,
   lt,
   lte,
@@ -13,7 +14,7 @@ import {
 } from 'ramda';
 import numeral from 'numeral';
 
-import { Theme } from '@mui/material';
+import { darken, getLuminance, lighten, Theme } from '@mui/material';
 
 import { Thresholds } from './models';
 
@@ -91,4 +92,89 @@ export const getValueByUnit = ({
   }
 
   return `${((value * 100) / total).toFixed(1)}%`;
+};
+
+interface NormalizeLevelProps {
+  factor: number;
+  level: number;
+}
+
+const normalizeLevel = ({ level, factor }: NormalizeLevelProps): number =>
+  (level * factor) / 10;
+
+interface EmphasizeCurveColorProps {
+  color: string;
+  index: number;
+}
+
+export const emphasizeCurveColor = ({
+  color,
+  index
+}: EmphasizeCurveColorProps): string => {
+  const totalLevels = 5;
+  const levels = [...Array(totalLevels).keys()];
+  const factor = 10 / totalLevels;
+
+  if (gte(getLuminance(color), 0.5)) {
+    if (gte(index, totalLevels * 2)) {
+      return darken(color, normalizeLevel({ factor, level: last(levels) }));
+    }
+    if (gte(index, totalLevels)) {
+      return darken(
+        color,
+        normalizeLevel({ factor, level: levels[totalLevels + 1 - index] })
+      );
+    }
+
+    return lighten(color, normalizeLevel({ factor, level: levels[index] }));
+  }
+
+  if (gte(index, totalLevels * 2)) {
+    return lighten(color, normalizeLevel({ factor, level: last(levels) }));
+  }
+  if (gte(index, totalLevels)) {
+    return lighten(
+      color,
+      normalizeLevel({ factor, level: levels[totalLevels + 1 - index] })
+    );
+  }
+
+  return darken(color, normalizeLevel({ factor, level: levels[index] }));
+};
+
+interface GetStrokeDashArrayProps {
+  dashLength?: number;
+  dashOffset?: number;
+  dotOffset?: number;
+  lineWidth?: number;
+}
+
+export const getStrokeDashArray = ({
+  dashLength,
+  dashOffset,
+  dotOffset,
+  lineWidth
+}: GetStrokeDashArrayProps): string | undefined => {
+  if (isNil(dotOffset) && isNil(dashLength) && isNil(dashOffset)) {
+    return undefined;
+  }
+
+  if (dotOffset) {
+    return `${lineWidth} ${dotOffset}`;
+  }
+
+  if (dashLength || dashOffset) {
+    return `${dashLength || 1} ${dashOffset || 1}`;
+  }
+
+  return undefined;
+};
+
+export const getPointRadius = (lineWidth?: number): number =>
+  Math.max(Math.ceil((lineWidth ?? 2) * 1.2), 2);
+
+export const commonTickLabelProps = {
+  fontFamily: 'Roboto, sans-serif',
+  fontSize: 10,
+  textAnchor: 'middle'
 };

@@ -7,7 +7,6 @@ import {
   VariationThreshold
 } from '../../../models';
 import { TimeValue } from '../../../../common/timeSeries/models';
-import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';
@@ -17,7 +16,7 @@ import { WrapperThresholdLinesModel } from './models';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {
-  curve: CurveType;
+  curve: 'linear' | 'natural' | 'step';
   graphHeight: number;
   timeSeries: Array<TimeValue>;
 }
@@ -56,14 +55,14 @@ const WrapperThresholdLines = ({
   };
 
   const thresholdLines = areaThresholdLines?.map((item, index) => {
-    const { type } = item;
+    const { type, id } = item;
 
     if (equals(type, ThresholdType.basic)) {
       return [
         {
           Component: BasicThreshold,
           key: index,
-          props: { ...commonProps, getY0, getY1 }
+          props: { ...commonProps, getY0, getY1, id }
         }
       ];
     }
@@ -132,7 +131,7 @@ const WrapperThresholdLines = ({
     <g>
       {filteredThresholdLines.map((element) =>
         element?.map(({ Component, props, key }) => (
-          <Component {...props} id={key} key={key} />
+          <Component {...props} id={props?.id ?? key} key={key} />
         ))
       )}
     </g>

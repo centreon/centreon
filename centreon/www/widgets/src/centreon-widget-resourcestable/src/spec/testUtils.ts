@@ -27,6 +27,18 @@ export const resources: Array<Resource> = [
   }
 ];
 
+export const metaServiceResources: Array<Resource> = [
+  {
+    resourceType: 'meta-service',
+    resources: [
+      {
+        id: 1,
+        name: 'Meta service'
+      }
+    ]
+  }
+];
+
 export const selectedColumnIds = [
   'status',
   'resource',
@@ -60,13 +72,20 @@ export const columnsForViewByService = [
 ];
 
 export const options: PanelOptions = {
+  displayResources: 'all',
   displayType: DisplayType.All,
+  hostSeverities: [],
+  isDownHostHidden: false,
+  isOpenTicketEnabled: false,
+  isUnreachableHostHidden: false,
   limit: 40,
   refreshInterval: 'manual',
   refreshIntervalCustom: 30,
   selectedColumnIds,
+  serviceSeverities: [],
   sortField: 'status',
   sortOrder: SortOrder.Desc,
   states: [],
+  statusTypes: [],
   statuses: ['success', 'problem', 'undefined']
 };

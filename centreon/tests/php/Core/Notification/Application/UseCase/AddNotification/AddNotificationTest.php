@@ -44,6 +44,7 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
+use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationHostEvent;
@@ -55,6 +56,7 @@ use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
+use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -87,6 +89,8 @@ beforeEach(function (): void {
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->readTimeperiodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class),
+        $this->validator = $this->createMock(NotificationValidator::class)
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
@@ -138,6 +142,13 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('existsByName')
         ->willThrowException(new \Exception());
+    $this->readTimeperiodRepository
+        ->expects($this->exactly(0))
+        ->method('exists');
+
+    $this->validator
+        ->expects($this->once())
+        ->method('validateUsersAndContactGroups');
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -257,24 +268,32 @@ it('should throw an InvalidArgumentResponse if at least one resource ID is not p
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
+
+    $this->request->users = [10,12];
+
+    $this->validator
+        ->expects($this->once())
+        ->method('validateUsersAndContactGroups')
+        ->willThrowException(NotificationException::invalidId('users'));
+
     $this->user
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('isAdmin')
         ->willReturn(true);
     $this->resourceRepositoryProvider
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('eventEnum')
         ->willReturn(NotificationHostEvent::class);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('eventEnumConverter')
         ->willReturn(NotificationHostEventConverter::class);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('resourceType')
         ->willReturn('hostgroup');
 
@@ -283,15 +302,15 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->readNotificationRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('existsByName')
         ->willReturn(false);
     $this->resourceRepository
-        ->expects($this->atMost(1))
+        ->expects($this->never())
         ->method('exist')
         ->willReturn($this->request->resources[0]['ids']);
     $this->contactRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('exist')
         ->willReturn([$this->request->users[0]]);
 
@@ -304,26 +323,31 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
-    $this->request->users = [10,12];
+
+    $this->validator
+        ->expects($this->once())
+        ->method('validateUsersAndContactGroups')
+        ->willThrowException(NotificationException::invalidId('users'));
 
     $this->user
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('isAdmin')
         ->willReturn(true);
+
     $this->resourceRepositoryProvider
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('eventEnum')
         ->willReturn(NotificationHostEvent::class);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('eventEnumConverter')
         ->willReturn(NotificationHostEventConverter::class);
     $this->resourceRepository
-        ->expects($this->atLeast(1))
+        ->expects($this->never())
         ->method('resourceType')
         ->willReturn('hostgroup');
 
@@ -332,11 +356,11 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->readNotificationRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('existsByName')
         ->willReturn(false);
     $this->resourceRepository
-        ->expects($this->atMost(1))
+        ->expects($this->never())
         ->method('exist')
         ->willReturn($this->request->resources[0]['ids']);
 
@@ -349,8 +373,12 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
 });
 
 it('should present an ErrorResponse if the newly created service severity cannot be retrieved', function (): void {
+    $this->validator
+        ->expects($this->once())
+        ->method('validateUsersAndContactGroups');
+    
     $this->user
-        ->expects($this->atLeast(1))
+        ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
     $this->resourceRepositoryProvider
@@ -374,20 +402,22 @@ it('should present an ErrorResponse if the newly created service severity cannot
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
     $this->readNotificationRepository
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
+
     $this->resourceRepository
         ->expects($this->once())
         ->method('exist')
         ->willReturn($this->request->resources[0]['ids']);
     $this->contactRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('exist')
         ->willReturn($this->request->users);
     $this->contactGroupRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('findByIds')
         ->willReturn(
             [
@@ -423,6 +453,11 @@ it('should present an ErrorResponse if the newly created service severity cannot
 });
 
 it('should return created object on success', function (): void {
+
+    $this->validator
+        ->expects($this->once())
+        ->method('validateUsersAndContactGroups');
+
     $this->user
         ->expects($this->atLeast(2))
         ->method('isAdmin')
@@ -457,11 +492,11 @@ it('should return created object on success', function (): void {
         ->method('exist')
         ->willReturn($this->request->resources[0]['ids']);
     $this->contactRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('exist')
         ->willReturn($this->request->users);
     $this->contactGroupRepository
-        ->expects($this->once())
+        ->expects($this->never())
         ->method('findByIds')
         ->willReturn(
             [

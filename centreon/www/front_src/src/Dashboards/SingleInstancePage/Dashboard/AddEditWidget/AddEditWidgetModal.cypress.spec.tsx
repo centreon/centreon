@@ -20,18 +20,18 @@ import widgetTopBottomConfiguration from 'centreon-widgets/centreon-widget-topbo
 import widgetTopBottomProperties from 'centreon-widgets/centreon-widget-topbottom/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
-
 import {
   federatedWidgetsAtom,
-  federatedWidgetsPropertiesAtom
-} from '../../../../federatedModules/atoms';
+  platformVersionsAtom
+} from '@centreon/ui-context';
+
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   labelSave,
   labelDelete,
   labelShowDescription,
   labelSelectMetric,
   labelTitle,
-  labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
   labelResourceType,
   labelSelectAResource,
@@ -41,7 +41,8 @@ import {
   labelCancel,
   labelEditWidget,
   labelAddFilter,
-  labelAddMetric
+  labelAddMetric,
+  labelMetrics
 } from '../translatedLabels';
 import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 
@@ -63,6 +64,13 @@ const widgetsProperties = [
   widgetGraphProperties,
   widgetTopBottomProperties
 ];
+
+const platformVersion = {
+  modules: {},
+  web: {
+    version: '23.04.0'
+  }
+};
 
 const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -105,8 +113,10 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   ];
 
   const store = defaultStore || createStore();
+
   store.set(federatedWidgetsAtom, federatedWidgets);
   store.set(federatedWidgetsPropertiesAtom, widgetsProperties);
+  store.set(platformVersionsAtom, platformVersion);
 
   return store;
 };
@@ -129,8 +139,7 @@ const initialFormDataEdit = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./text'],
@@ -177,8 +186,7 @@ const initialFormData = {
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
       enabled: true
     },
-    name: 'Widget name',
-    openLinksInNewTab: false
+    name: 'Widget name'
   },
   panelConfiguration: {
     federatedComponents: ['./data'],
@@ -264,7 +272,6 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
         cy.findByLabelText(labelShowDescription).should('be.checked');
-        cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
@@ -459,6 +466,59 @@ describe('AddEditWidgetModal', () => {
 
       cy.makeSnapshot();
     });
+
+    it('displays general properties when a widget is selected', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('General properties').click();
+
+      cy.contains('Group name').should('exist');
+      cy.contains('Select field').should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays sub inputs when the corresponding field has the correct value', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('General properties').click();
+      cy.contains('Button 3').click();
+
+      cy.findByLabelText('Sub input 1').should('have.value', 'sample');
+      cy.findByLabelText('Sub input 2').should('have.value', 'text');
+
+      cy.contains('Button 4').click();
+
+      cy.findAllByLabelText('Radio 1')
+        .eq(0)
+        .parent()
+        .should('have.class', 'Mui-checked');
+
+      cy.makeSnapshot();
+    });
+
+    it('keeps a sub-input value when a sub-input is displayed and its value is changed', () => {
+      cy.findByLabelText(labelWidgetType).click();
+      cy.contains('Generic data (example)').click();
+
+      cy.contains('General properties').click();
+      cy.findByLabelText('Button 3').click();
+
+      cy.findAllByLabelText('Sub input 1').should('have.value', 'sample');
+      cy.findAllByLabelText('Sub input 1').clear().type('updated value');
+
+      cy.findByLabelText('Button 2').click();
+      cy.findByLabelText('Button 3').click();
+
+      cy.findAllByLabelText('Sub input 1').should(
+        'have.value',
+        'updated value'
+      );
+
+      cy.makeSnapshot();
+    });
   });
 
   describe('Disabled properties', () => {
@@ -507,7 +567,6 @@ describe('AddEditWidgetModal', () => {
         .eq(0)
         .should('have.attr', 'contenteditable', 'false');
       cy.findByLabelText(labelShowDescription).should('be.disabled');
-      cy.findByLabelText(labelOpenLinksInNewTab).should('be.disabled');
     });
   });
 
@@ -526,7 +585,22 @@ describe('AddEditWidgetModal', () => {
           alias: 'getHosts',
           method: Method.GET,
           path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+          query: {
+            name: 'types',
+            value: '["host"]'
+          },
           response: generateResources('Host')
+        });
+
+        cy.interceptAPIRequest({
+          alias: 'getMetaService',
+          method: Method.GET,
+          path: `**${resourceTypeBaseEndpoints[WidgetResourceType.metaService]}**`,
+          query: {
+            name: 'types',
+            value: '["metaservice"]'
+          },
+          response: generateResources('Meta service')
         });
 
         cy.fixture('Dashboards/Dashboard/serviceMetrics.json').then(
@@ -810,6 +884,23 @@ describe('AddEditWidgetModal', () => {
           'true'
         );
       });
+
+      it('hides metrics field when the Meta service resource type is selected and the Meta service is chosen', () => {
+        cy.findByLabelText(labelWidgetType).click();
+        cy.contains('Generic data for single metric (example)').click();
+
+        cy.contains(labelMetrics).should('be.visible');
+
+        cy.findByTestId(labelResourceType).parent().click();
+        cy.contains(/^Meta service$/).click();
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getMetaService');
+        cy.contains('Meta service 0').click();
+
+        cy.contains(labelMetrics).should('not.exist');
+
+        cy.makeSnapshot();
+      });
     });
 
     describe('With one service metrics', () => {
@@ -928,6 +1019,7 @@ describe('AddEditWidgetModal', () => {
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
       jotaiStore.set(hasEditPermissionAtom, true);
       jotaiStore.set(isEditingAtom, true);
+      jotaiStore.set(platformVersionsAtom, platformVersion);
 
       cy.mount({
         Component: (

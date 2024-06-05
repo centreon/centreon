@@ -79,7 +79,7 @@ switch ($o) {
             if ($lvl_access == "w") {
                 $myConnector = $connectorObj->read($connector_id);
                 $myConnector['enabled'] = '1';
-                $connectorObj->update($connector_id, $myConnector);
+                $connectorObj->update((int) $connector_id, $myConnector);
             }
         } else {
             unvalidFormMessage();
@@ -94,7 +94,7 @@ switch ($o) {
             if ($lvl_access == "w") {
                 $myConnector = $connectorObj->read($connector_id);
                 $myConnector['enabled'] = '0';
-                $connectorObj->update($connector_id, $myConnector);
+                $connectorObj->update((int) $connector_id, $myConnector);
             }
         } else {
             unvalidFormMessage();

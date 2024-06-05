@@ -3,8 +3,7 @@ import { useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
-
-import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import {
   authorizedFilterByModules,

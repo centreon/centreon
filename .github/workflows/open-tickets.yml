@@ -7,8 +7,15 @@ concurrency:
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
     paths:
       - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/veracode.json"
+      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -17,6 +24,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/veracode.json"
+      - "!centreon-open-tickets/.veracode-exclusions"
 
 env:
   module: open-tickets
@@ -52,7 +61,7 @@ jobs:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@2e947f1f6932d141d076ca441d0e1e881775e95b # v2.31.0
         with:
           php-version: 8.1
           coverage: none
@@ -68,8 +77,49 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
         working-directory: centreon-open-tickets
 
+      - name: Run of phpstan on /src at level max
+        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+        working-directory: centreon-open-tickets
+
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@57532f8be5bda426838819c5ee9afb8af389d51a # v3.0.0
+        with:
+          working-directory: centreon-open-tickets
+          composer-options: "--optimize-autoloader"
+
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon-open-tickets
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
+
   package:
-    needs: [get-version, backend-lint]
+    needs:
+      [
+        get-version,
+        backend-lint,
+        backend-unit-test
+      ]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:

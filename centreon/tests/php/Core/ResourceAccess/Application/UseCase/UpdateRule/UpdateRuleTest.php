@@ -80,6 +80,7 @@ beforeEach(closure: function (): void {
         validator: $this->validator = $this->createMock(UpdateRuleValidation::class),
         datasetValidator: $this->datasetValidator,
         dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
+        isCloudPlatform: true
     );
 
     $this->request = new UpdateRuleRequest();
@@ -398,7 +399,7 @@ it(
 
         $this->validator
             ->expects($this->once())
-            ->method('assertResourceIdsAreValid')
+            ->method('assertIdsAreValid')
             ->with(
                 $this->request->datasetFilters[0]['type'],
                 $this->request->datasetFilters[0]['resources']

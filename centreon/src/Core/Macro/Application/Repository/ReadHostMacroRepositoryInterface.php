@@ -25,6 +25,9 @@ namespace Core\Macro\Application\Repository;
 
 use Core\Macro\Domain\Model\Macro;
 
+/**
+ * This interface is designed to read macros for both hosts and host templates.
+ */
 interface ReadHostMacroRepositoryInterface
 {
     /**
@@ -48,4 +51,13 @@ interface ReadHostMacroRepositoryInterface
      * @return Macro[]
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find password macros.
+     *
+     * @throws \Throwable
+     *
+     * @return Macro[]
+     */
+    public function findPasswords(): array;
 }

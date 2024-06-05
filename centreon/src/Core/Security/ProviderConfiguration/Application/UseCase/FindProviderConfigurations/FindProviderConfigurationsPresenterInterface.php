@@ -24,7 +24,12 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface FindProviderConfigurationsPresenterInterface extends PresenterInterface
 {
+    /**
+     * @param FindProviderConfigurationsResponse|ResponseStatusInterface $data
+     */
+    public function presentResponse(FindProviderConfigurationsResponse|ResponseStatusInterface $data): void;
 }

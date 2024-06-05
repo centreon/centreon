@@ -35,6 +35,8 @@ const initializeStandaloneTree = ({
   treeLink,
   children = SimpleContent
 }: InitializeProps): void => {
+  cy.adjustViewport();
+
   cy.mount({
     Component: (
       <div style={{ height: '99vh' }}>
@@ -165,6 +167,30 @@ describe('Complex data tree', () => {
     cy.contains('2').click();
 
     cy.contains('BA 3').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the tree with step links when a prop is set', () => {
+    initializeStandaloneTree({
+      treeLink: {
+        type: 'step'
+      }
+    });
+
+    cy.contains('T').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the tree with line links when a prop is set', () => {
+    initializeStandaloneTree({
+      treeLink: {
+        type: 'line'
+      }
+    });
+
+    cy.contains('T').should('be.visible');
 
     cy.makeSnapshot();
   });

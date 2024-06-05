@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { equals, prop } from 'ramda';
+import { equals, isEmpty, prop } from 'ramda';
 
 import {
   Dataset,
@@ -9,9 +9,19 @@ import {
 } from '../../models';
 
 export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
+  allContactGroups: false,
+  allContacts: false,
   contactGroups: [],
   contacts: [],
-  datasetFilters: [[{ resourceType: ResourceTypeEnum.Empty, resources: [] }]],
+  datasetFilters: [
+    [
+      {
+        allOfResourceType: false,
+        resourceType: ResourceTypeEnum.Empty,
+        resources: []
+      }
+    ]
+  ],
   description: '',
   isActivated: true,
   name: ''
@@ -25,6 +35,7 @@ const nestedObjectToArray = (
     return [
       ...datasets,
       {
+        allOfResourceType: isEmpty(element.resources),
         resourceType: element.resourceType,
         resources: element.resources
       }
@@ -34,6 +45,7 @@ const nestedObjectToArray = (
   datasets = [
     ...datasets,
     {
+      allOfResourceType: isEmpty(element.resources),
       resourceType: element.resourceType,
       resources: element.resources
     }
@@ -61,8 +73,10 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
-  contactGroups,
-  contacts,
+  allContactGroups: contactGroups.all,
+  allContacts: contacts.all,
+  contactGroups: contactGroups.values,
+  contacts: contacts.values,
   datasetFilters: formatDatasetFilters(datasetFilters),
   description,
   isActivated,

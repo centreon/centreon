@@ -1,0 +1,85 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: Contact ID
+    example: 1
+
+  name:
+    type: string
+    description: Name of the current user
+    example: Administrator
+
+  alias:
+    type: string
+    description: Alias of the current user
+    example: admin
+
+  email:
+    type: string
+    description: Email of the current user
+    example: admin@localhost
+
+  timezone:
+    type: string
+    description: Timezone for the current user
+    example: Europe/Paris
+
+  locale:
+    type: string
+    nullable: true
+    description: Locale of the current user
+    example: en_US
+
+  is_admin:
+    type: boolean
+    description: If the current user is an administrator
+    example: true
+
+  can_manage_api_tokens:
+    type: boolean
+    description: If the current user has ACL action "Manage API Tokens"
+    example: true
+
+  use_deprecated_pages:
+    type: boolean
+    description: Indicates if user wants to use deprecated monitoring pages
+    example: false
+
+  theme:
+    type: string
+    description: Selected theme of the current user
+    example: light
+
+  user_interface_density:
+    type: string
+    description: Selected user interface density for the current user
+    example: extended
+    default: compact
+
+  default_page:
+    type: string
+    nullable: true
+    description: Default page for the current user
+    example: '/main.php?p=60901'
+
+  dashboard:
+    type: object
+    nullable: true
+    properties:
+      global_user_role:
+        type: string
+        enum: [ viewer, creator, administrator ]
+        description: The current user role as a string.
+
+      view_dashboards:
+        type: boolean
+        description: The current user has the Viewer role
+
+      create_dashboards:
+        type: boolean
+        description: The current user has the Creator role
+
+      administrate_dashboards:
+        type: boolean
+        description: The current user has the Administrator role

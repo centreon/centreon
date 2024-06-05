@@ -43,7 +43,7 @@ if (!isset($centreon)) {
  */
 $l_general_opt = [];
 
-$stmt = $pearDB->query("SELECT * FROM options WHERE `key` RLIKE '^color_(warn|crit)'");
+$stmt = $pearDB->query("SELECT * FROM options");
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $l_general_opt[$row['key']] = $row['value'];
 }
@@ -160,11 +160,11 @@ $l_dsColorList = [
     ],
     'ds_color_area_warn' => [
         'label' => _('Warning Area color'),
-        'color' => $l_general_opt['color_warning']
+        'color' => '#FD9B27'
     ],
     'ds_color_area_crit' => [
         'label' => _('Critical Area color'),
-        'color' => $l_general_opt['color_critical']
+        'color' => '#FF4A4A'
     ],
 ];
 
@@ -178,7 +178,8 @@ foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
         'value' => $l_hxColor,
         'size' => 7,
         'maxlength' => 7,
-        'style' => 'text-align: center;'
+        'style' => 'text-align: center;',
+        'class' => 'js-input-colorpicker'
     ];
     $form->addElement('text', $l_dsColor, $l_dCData["label"], $attColText);
 
@@ -317,7 +318,6 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'onClick' => 'javascript:resetLists(' . ($compo["host_id"] ?? 0) . ',' . ($compo["service_id"] ?? 0) . ')',
             'class' => 'btc bt_default'
         ]
     );
@@ -335,15 +335,14 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'onClick' => 'javascript:resetLists(0,0)',
             'class' => 'btc bt_default'
         ]
     );
     $form->setDefaults(
         [
             'ds_color_area' => '#FFFFFF',
-            'ds_color_area_warn' => '#F8C706',
-            'ds_color_area_crit' => '#F91E05',
+            'ds_color_area_warn' => '#FD9B27',
+            'ds_color_area_crit' => '#FF4A4A',
             'ds_color_line' => '#0000FF',
             'ds_color_line_mode' => 0,
             'ds_transparency' => 80,
@@ -456,8 +455,37 @@ if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
             multiple: false,
             allowClear: true,
             additionnalFilters: {
-                id: '#host_id',
+                id: '#host_service_id',
             }
         });
+        // color picker change event in form
+        document.querySelectorAll('.formTable .js-input-colorpicker').forEach(function (colorPickerInput){
+            colorPickerInput.addEventListener('change', function (e){
+                e.stopPropagation();
+                let newColor = e.target.value;
+                let nameColorPickerblock = `${e.target.name}_color`;
+                let divColorPickerBlock = document.querySelector(`input[name=${nameColorPickerblock}]`);
+                let oldColor = divColorPickerBlock.style.backgroundColor;
+                divColorPickerBlock.style.backgroundColor = (newColor !== '') ? newColor : oldColor;
+            })
+        });
+        // disable/enable List of known metrics in function of Linked Host Services to avoid an error 400
+        // tip to check if we display the form
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("compo_id")) {
+            const divLinkedHostServices = document.querySelector('#host_service_id');
+            const j_divLinkedHostServices = $('#host_service_id');
+            const divListKnownMetrics = document.querySelector('#sl_list_metrics');
+            const j_divListKnownMetrics = $('#sl_list_metrics');
+            if (divLinkedHostServices.value === '') {
+                divListKnownMetrics.disabled = true;
+            }
+            j_divLinkedHostServices.on("change", function (e) {
+                e.stopPropagation();
+                j_divListKnownMetrics.val(null).trigger("change");
+                let hasService = divLinkedHostServices.value !== '';
+                divListKnownMetrics.disabled = !hasService;
+            });
+        }
     });
 </script>

@@ -1,6 +1,8 @@
 import { useSetAtom, useAtomValue, useAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
 
+import { platformVersionsAtom } from '@centreon/ui-context';
+
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { ResourceListing, Visualization } from '../../models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
@@ -10,8 +12,6 @@ import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost
 } from '../../Listing/columns/index';
-
-import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 interface Props {
   type: Visualization;

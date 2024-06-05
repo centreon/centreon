@@ -20,6 +20,7 @@ import {
 import { isGenericText } from '../../utils';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
+import DescriptionWrapper from '../../components/DescriptionWrapper';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
@@ -68,26 +69,25 @@ const Preview = (): JSX.Element | null => {
           {values.options?.name}
         </Typography>
         {values.options?.description?.enabled && (
-          <RichTextEditor
-            disabled
-            contentClassName={cx(
-              classes.previewHeading,
-              classes.previewDescription
-            )}
-            editable={false}
-            editorState={
-              values.options?.description?.enabled
-                ? values.options?.description?.content || undefined
-                : undefined
-            }
-          />
+          <DescriptionWrapper>
+            <RichTextEditor
+              disabled
+              contentClassName={classes.previewHeading}
+              editable={false}
+              editorState={
+                values.options?.description?.enabled
+                  ? values.options?.description?.content || undefined
+                  : undefined
+              }
+            />
+          </DescriptionWrapper>
         )}
         {!isGenericTextWidget && (
           <div
             style={{
               height: `${
                 (previewRef.current?.getBoundingClientRect().height || 0) -
-                16 -
+                36 -
                 46
               }px`,
               overflow: 'auto'
