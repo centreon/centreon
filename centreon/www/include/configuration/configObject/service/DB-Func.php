@@ -2504,6 +2504,8 @@ function updateService_MC($service_id = null, $params = array())
         $ret = $form->getSubmitValues();
     }
 
+    $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
+
     $kernel = \App\Kernel::createForWeb();
     /** @var \Utility\Interfaces\UUIDGeneratorInterface $uuidGenerator */
     $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
@@ -2653,9 +2655,13 @@ function updateService_MC($service_id = null, $params = array())
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
 
-    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
-        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
-        : "service_activate = '1', ";
+    if (!$isServiceTemplate) {
+        if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
+            $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
+        }
+    } else {
+        $rq .= "service_activate = '1', ";
+    }
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request
