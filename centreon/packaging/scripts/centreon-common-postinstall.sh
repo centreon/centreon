@@ -46,5 +46,5 @@ case "$action" in
 esac
 
 # MON-69138
-chown centreon:centreon @CENTREON_CACHEDIR@
-chmod 755 @CENTREON_CACHEDIR@
+chown centreon:centreon /var/cache/centreon
+chmod 755 /var/cache/centreon
