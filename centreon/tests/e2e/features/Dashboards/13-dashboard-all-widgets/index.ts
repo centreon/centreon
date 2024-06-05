@@ -70,6 +70,10 @@ before(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/services\/names.*$/
+  }).as('servicesNames');
+  cy.intercept({
+    method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/dashboard\/metrics\/top\?.*$/
   }).as('dashboardMetricsTop');
   cy.intercept({
@@ -184,6 +188,10 @@ beforeEach(() => {
     method: 'GET',
     url: /\/centreon\/api\/latest\/monitoring\/resources.*$/
   }).as('resourceRequest');
+  cy.intercept({
+    method: 'GET',
+    url: /\/centreon\/api\/latest\/monitoring\/services\/names.*$/
+  }).as('servicesNames');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
