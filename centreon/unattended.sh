@@ -433,7 +433,6 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		8*)
 			log "INFO" "Setting specific part for v8 ($detected_os_version)"
-
 			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
 			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
 			PHP_SERVICE_UNIT="php-fpm"
@@ -547,7 +546,7 @@ function set_required_prerequisite() {
 			fi
 			;;
 		12)
-			if ! [[ "$version" == "24.04" ]]; then
+			if ! [[ "$version" =~ "24.0"[4-9] || "$version" =~ "24.1"[0-2] ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 24.04 are compatible. You chose $version"
 			fi
 			;;
@@ -835,7 +834,7 @@ function setup_before_installation() {
 
 	set_runtime_selinux_mode "disabled"
 
-	# install_centreon_repo
+	install_centreon_repo
 }
 #========= end of function setup_before_installation()
 
