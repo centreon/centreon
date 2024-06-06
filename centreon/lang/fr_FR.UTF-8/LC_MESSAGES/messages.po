@@ -18108,7 +18108,7 @@ msgid "Top"
 msgstr "Top"
 
 msgid "Bottom"
-msgstr "Bottom"
+msgstr "Bas"
 
 msgid "Includes {{count}} resources"
 msgstr "Inclut {{count}} ressources"
@@ -18992,7 +18992,7 @@ msgid "Linear"
 msgstr "Linéaire"
 
 msgid "Natural"
-msgstr "Naturel"
+msgstr "Naturelle"
 
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
@@ -19008,3 +19008,132 @@ msgstr "Impossible de migrer les mots de passe"
 
 msgid "No vault configured"
 msgstr "Aucun coffre configuré"
+
+msgid "Value sorting"
+msgstr "Tri des valeurs"
+
+msgid "By name"
+msgstr "Par nom"
+
+msgid "Tooltip display""
+msgstr "Affichage de l'infobulle"
+
+msgid "All"
+msgstr "Tout"
+
+msgid "Single"
+msgstr "Unique"
+
+msgid "Hidden"
+msgstr "Masqué"
+
+msgid "Hide"
+msgstr "Masquer"
+
+msgid "Line width"
+msgstr "Largeur de la ligne"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Show area"
+msgstr "Afficher l'aire"
+
+msgid "Show"
+msgstr "Afficher"
+
+msgid "Display curve points"
+msgstr "Afficher les points de la couche"
+
+msgid "Show axis border"
+msgstr "Afficher la bordure de l'axe"
+
+msgid "Y-axis tick label rotation"
+msgstr "Rotation de l'étiquette de l'axe Y"
+
+msgid "The Auto value corresponds to the value defined in the Curves configuration in Centreon."
+msgstr "La valeur Auto correspond à la valeur définie dans la configuration des courbes dans Centreon."
+
+msgid "Position"
+msgstr "Position"
+
+msgid "Display mode"
+msgstr "Afficher en mode"
+
+msgid "Grid"
+msgstr "Grille"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "Scale"
+msgstr "Échelle"
+
+msgid "Linear"
+msgstr "Linéaire"
+
+msgid "Logarithmic"
+msgstr "Logarithmique"
+
+msgid "Zero-centered"
+msgstr "Centré sur zéro"
+
+msgid "Solid"
+msgstr "Uni"
+
+msgid "Dashed"
+msgstr "Tiret"
+
+msgid "Dotted"
+msgstr "Pointillé"
+
+msgid "Graph style"
+msgstr "Style de graphe"
+
+msgid "Display type"
+msgstr "Type d'affichage"
+
+msgid "Display settings"
+msgstr "Afichage des paramètres"
+
+msgid "Fill opacity"
+msgstr "Opacité du remplissage"
+
+msgid "Line style"
+msgstr "Style de la ligne"
+
+msgid "Dash width"
+msgstr "Largeur du tiret"
+
+msgid "Space"
+msgstr "Espacement"
+
+msgid "Show grid lines"
+msgstr "Affichage de la grille"
+
+msgid "Horizontal"
+msgstr "Horizontal"
+
+msgid "Vertical"
+msgstr "Vertical"
+
+msgid "Both"
+msgstr "Les deux"
+
+msgid "Base 2"
+msgstr "Base 2"
+
+msgid "Base 10"
+msgstr "Base 10"
+
+msgid "Left"
+msgstr "Gauche"
+
+msgid "Right"
+msgstr "Droite"
+
+msgid "Axis"
+msgstr "Axe"
+
+msgid "Tooltip"
+msgstr "Infobulle"

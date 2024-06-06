@@ -167,11 +167,11 @@
             },
             {
               "id": "dash",
-              "name": "Dash"
+              "name": "Dashed"
             },
             {
               "id": "dots",
-              "name": "Dots"
+              "name": "Dotted"
             }
           ],
           "subInputs": [
@@ -262,7 +262,7 @@
         },
         "isCenteredZero": {
           "type": "switch",
-          "label": "Centered zero",
+          "label": "Zero-centered",
           "group": "axis",
           "defaultValue": false
         },
