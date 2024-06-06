@@ -334,7 +334,7 @@ class Engine extends AbstractObject
         if ($featureFlags->isCloudPlatform()) {
             $this->engine['enable_notifications'] = $featureFlags->isEnabled('notification') ? '1' : '0';
         } else {
-            $this->engine['enable_notifications'] = ($featureFlags->isEnabled('notification') && $this->engine['enable_notifications'] == '1') ? '1' : '0';
+            $this->engine['enable_notifications'] = ($featureFlags->isEnabled('notification') && $this->engine['enable_notifications'] === '1') ? '1' : '0';
         }
     }
 
