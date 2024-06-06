@@ -19,7 +19,7 @@ import FederatedComponent from '../../../components/FederatedComponents';
 import { ResourceDetails } from '../../Details/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { Resource } from '../../models';
+import { Resource, ResourceType } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
@@ -90,13 +90,17 @@ const GraphActions = ({
       date: end,
       formatString: 'X'
     });
+    const svcId =
+      resource?.type === ResourceType.metaservice
+        ? `_Module_Meta;meta_${resource?.id}`
+        : `${resource?.parent?.name};${resource?.name}`;
 
     const urlParameters = (): string => {
       const params = new URLSearchParams({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: `${resource?.parent?.name};${resource?.name}`
+        svc_id: svcId
       });
 
       return params.toString();
