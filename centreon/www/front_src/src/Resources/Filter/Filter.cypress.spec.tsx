@@ -397,13 +397,19 @@ describe('Criterias', () => {
         }
         if (equals(type, Type.checkbox)) {
           cy.findByText(value).click();
+          cy.findByTestId('CheckBoxIcon').should('be.visible')
           cy.findByPlaceholderText(labelSearch).should(
             'have.value',
             searchValue
           );
           cy.makeSnapshot();
 
+        
+
           cy.findByText(value).click();
+          cy.findByTestId('CheckBoxIcon').should('not.exist')
+     
+          cy.findByPlaceholderText(labelSearch).should('not.have.value',searchValue)
 
           cy.findByLabelText(labelSearchOptions).click();
           cy.findByPlaceholderText(labelSearch).clear();
