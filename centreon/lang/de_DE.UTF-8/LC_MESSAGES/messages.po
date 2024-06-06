@@ -16857,3 +16857,9 @@ msgstr "Erweiterter Modus"
 
 # msgid "You are not allowed to list contact templates"
 # msgstr ""
+
+# msgid "Add filter"
+# msgstr ""
+
+# msgid "Add resource dataset"
+# msgstr ""
