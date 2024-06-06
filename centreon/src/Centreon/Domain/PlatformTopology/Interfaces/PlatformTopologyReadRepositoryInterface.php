@@ -88,11 +88,11 @@ interface PlatformTopologyReadRepositoryInterface
     /**
      * Search for the address of a topology using its Id.
      *
-     * @param int $serverId
+     * @param int $platformId
      *
      * @return PlatformInterface|null
      */
-    public function findPlatform(int $serverId): ?PlatformInterface;
+    public function findPlatform(int $platformId): ?PlatformInterface;
 
     /**
      * Find the Top Level Platform.
