@@ -14,6 +14,7 @@ if (!fs.existsSync(reportFile)) {
 }
 
 const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+console.log(report);
 
 const totalSuites = report.stats.suites;
 const totalTests = report.stats.tests;
