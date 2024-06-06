@@ -18987,7 +18987,7 @@ msgstr "Tri des valeurs"
 msgid "By name"
 msgstr "Par nom"
 
-msgid "Tooltip display""
+msgid "Tooltip display"
 msgstr "Affichage de l'infobulle"
 
 msgid "All"
