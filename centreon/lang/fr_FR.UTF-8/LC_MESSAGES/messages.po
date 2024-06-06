@@ -887,18 +887,6 @@ msgstr "Nom de l'objet configuré"
 msgid "The type of block configuration"
 msgstr "Le type du bloc de configuration"
 
-#: centreon-web/www/class/centreonLogAction.class.php:308
-#: centreon-web/www/include/reporting/dashboard/initReport.php:166
-#: centreon-web/www/include/monitoring/status/Hosts/host.php:135
-#: centreon-web/www/include/monitoring/status/Services/serviceGrid.php:73
-#: centreon-web/www/include/monitoring/status/Services/service.php:340
-#: centreon-web/www/include/monitoring/status/ServicesHostGroups/serviceSummaryByHG.php:66
-#: centreon-web/www/include/monitoring/status/ServicesHostGroups/serviceGridByHG.php:59
-#: centreon-web/www/include/monitoring/status/ServicesServiceGroups/serviceSummaryBySG.php:67
-#: centreon-web/www/include/monitoring/status/ServicesServiceGroups/serviceGridBySG.php:67
-msgid "All"
-msgstr "Tous"
-
 #: centreon-web/www/class/centreon-knowledge/procedures_DB_Connector.class.php:61
 msgid ""
 "Connection to Wiki database failed, please contact your administrator or "
