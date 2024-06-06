@@ -971,7 +971,7 @@ msgstr "ici"
 
 #: centreon-web/www/install/centreon_broker_translation.php:39
 msgid "it's required"
-msgstr "Requis":
+msgstr "Requis"
 
 #: centreon-web/www/install/centreon_broker_translation.php:55
 msgid "Filter category"
