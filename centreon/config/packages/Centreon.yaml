@@ -63,6 +63,7 @@ services:
             $basename: '%database_db%'
             $login: '%database_user%'
             $password: '%database_password%'
+            $vaultConfigurationFile: '%vault_conf_path%'
         calls:
             - method: setCentreonDbName
               arguments: ['%database_db%']

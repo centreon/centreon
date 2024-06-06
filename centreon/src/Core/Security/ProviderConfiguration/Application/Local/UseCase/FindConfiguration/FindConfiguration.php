@@ -53,7 +53,9 @@ class FindConfiguration
         } catch (\Throwable $throwable) {
             $this->critical($throwable->getMessage());
             $presenter->setResponseStatus(
-                new FindConfigurationErrorResponse($throwable->getMessage())
+                new FindConfigurationErrorResponse(
+                    $throwable->getMessage()
+                )
             );
 
             return;

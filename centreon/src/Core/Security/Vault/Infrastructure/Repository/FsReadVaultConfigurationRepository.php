@@ -59,14 +59,11 @@ class FsReadVaultConfigurationRepository implements ReadVaultConfigurationReposi
             return null;
         }
 
-        $record = Yaml::parseFile($this->configurationFile);
+        $record = json_decode(file_get_contents($this->configurationFile), true);
 
         /**
          * @var array{
-         *  id: int,
          *  name: string,
-         *  vault_id: int,
-         *  vault_name: string,
          *  url: string,
          *  port: int,
          *  root_path: string,
