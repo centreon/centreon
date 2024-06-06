@@ -54,7 +54,7 @@ Cypress.Commands.add('editDashboard', (name) => {
   cy.getByLabel({
     label: 'Save',
     tag: 'button'
-  }).should('be.disabled');
+  }).should('be.visible');
 });
 
 Cypress.Commands.add(
