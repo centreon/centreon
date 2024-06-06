@@ -23,16 +23,12 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  cy.url().then((url) => {
-    if (url.includes('/home/dashboards/library')) {
-      cy.visit('/centreon/home/dashboards/library');
-    } else {
-      cy.navigateTo({
-        page: 'Dashboards',
-        rootItemNumber: 0
-      });
-    }
-  });
+  const dashboardsUrl = '/centreon/home/dashboards/library';
+  cy.url().then((url) =>
+    url.includes(dashboardsUrl)
+      ? cy.visit(dashboardsUrl)
+      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+  );
 
   cy.wait('@listAllDashboards');
 });
@@ -52,6 +48,13 @@ Cypress.Commands.add('editDashboard', (name) => {
     label: 'Edit dashboard',
     tag: 'button'
   }).click();
+
+  cy.url().should('match', /\/home\/dashboards\/library\/\d+\?edit=true/);
+
+  cy.getByLabel({
+    label: 'Save',
+    tag: 'button'
+  }).should('be.disabled');
 });
 
 Cypress.Commands.add(

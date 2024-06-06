@@ -194,7 +194,7 @@ When('I duplicate the Menu access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      if (win === null) {
+      if (!win) {
         throw new Error('Cannot get iframe');
       }
 
@@ -293,7 +293,7 @@ When('I delete the Menu access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      if (win === null) {
+      if (!win) {
         throw new Error('Cannot get iframe');
       }
 

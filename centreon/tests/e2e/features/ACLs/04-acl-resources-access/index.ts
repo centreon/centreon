@@ -243,7 +243,7 @@ When('I duplicate the Resources access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      if (win === null) {
+      if (!win) {
         throw new Error('Cannot get iframe');
       }
 
@@ -362,7 +362,7 @@ When('I delete the Resources access', () => {
     (iframe: JQuery<HTMLIFrameElement>) => {
       const win = iframe[0].contentWindow;
 
-      if (win === null) {
+      if (!win) {
         throw new Error('Cannot get iframe');
       }
 
