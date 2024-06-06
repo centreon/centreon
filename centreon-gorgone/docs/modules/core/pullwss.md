@@ -4,6 +4,10 @@
 
 This module should be used on remote nodes where the connection has to be http/https and must be opened from the node to the Central Gorgone.
 
+This module require proxy and register module to be configured on the central Gorgone.
+Register will allow to keep the state of every poller, and find out the connexion mode. 
+Proxy have to bind to a tcp port for pullwss module to connect to.
+
 ## Configuration
 
 | Directive | Description                                                   | Default value |
