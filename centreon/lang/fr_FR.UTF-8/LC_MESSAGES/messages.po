@@ -983,11 +983,7 @@ msgstr "ici"
 
 #: centreon-web/www/install/centreon_broker_translation.php:39
 msgid "it's required"
-msgstr "Requis"
-
-#: centreon-web/www/install/centreon_broker_translation.php:47
-msgid "Auto"
-msgstr "Automatique"
+msgstr "Requis":
 
 #: centreon-web/www/install/centreon_broker_translation.php:55
 msgid "Filter category"
@@ -1143,13 +1139,6 @@ msgstr "Localisation du fichier"
 #: centreon-web/www/include/configuration/configObject/meta_service/formMetaService.php:222
 msgid "Data Source Type"
 msgstr "Type de source de données"
-
-#: centreon-web/www/install/smarty_translate.php:30
-#: centreon-web/www/include/Administration/performance/viewMetrics.php:215
-#: centreon-web/www/include/Administration/performance/viewData.php:304
-#: centreon-web/www/include/views/virtualMetrics/listVirtualMetrics.php:72
-msgid "Hidden"
-msgstr "Caché"
 
 #: centreon-web/www/install/smarty_translate.php:33
 #: centreon-web/www/include/Administration/performance/viewMetrics.php:216
@@ -6419,11 +6408,6 @@ msgstr "ACL rechargées"
 #: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:125
 msgid "Connected users"
 msgstr "Utilisateurs connectés"
-
-#: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:126
-#: centreon-web/www/include/options/session/connected_user.php:98
-msgid "Position"
-msgstr "Page"
 
 #: centreon-web/www/include/options/accessLists/reloadACL/reloadACL.php:128
 #: centreon-web/www/include/options/session/connected_user.php:100
@@ -19063,14 +19047,8 @@ msgstr "Afficher en mode"
 msgid "Grid"
 msgstr "Grille"
 
-msgid "List"
-msgstr "Liste"
-
 msgid "Scale"
 msgstr "Échelle"
-
-msgid "Linear"
-msgstr "Linéaire"
 
 msgid "Logarithmic"
 msgstr "Logarithmique"
