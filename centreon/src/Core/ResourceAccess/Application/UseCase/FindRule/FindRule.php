@@ -54,8 +54,9 @@ final class FindRule
      * @param ReadResourceAccessRepositoryInterface $repository
      * @param ReadContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
-     * @param \Traversable<DatasetProviderInterface> $repositoryProviders
      * @param DatasetFilterValidator $datasetFilterValidator
+     * @param bool $isCloudPlatform
+     * @param \Traversable<DatasetProviderInterface> $repositoryProviders
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -64,6 +65,7 @@ final class FindRule
         private readonly ReadContactRepositoryInterface $contactRepository,
         private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly DatasetFilterValidator $datasetFilterValidator,
+        private readonly bool $isCloudPlatform,
         \Traversable $repositoryProviders
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
@@ -216,6 +218,7 @@ final class FindRule
          *     - authorized to reach the Resource Access Management page.
          */
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 }

@@ -46,12 +46,14 @@ final class FindRules
      * @param ReadResourceAccessRepositoryInterface $repository
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadResourceAccessRepositoryInterface $repository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -131,6 +133,7 @@ final class FindRules
         );
 
         return ! (empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS)))
-            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW);
+            && $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW)
+            && $this->isCloudPlatform;
     }
 }

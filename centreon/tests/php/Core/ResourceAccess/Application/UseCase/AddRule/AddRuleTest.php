@@ -74,7 +74,8 @@ beforeEach(closure: function (): void {
         dataStorageEngine: $this->createMock(DataStorageEngineInterface::class),
         validator: $this->validator = $this->createMock(AddRuleValidation::class),
         accessGroupRepository: $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        datasetValidator: $this->datasetValidator
+        datasetValidator: $this->datasetValidator,
+        isCloudPlatform: true
     );
 
     $this->request = new AddRuleRequest();
