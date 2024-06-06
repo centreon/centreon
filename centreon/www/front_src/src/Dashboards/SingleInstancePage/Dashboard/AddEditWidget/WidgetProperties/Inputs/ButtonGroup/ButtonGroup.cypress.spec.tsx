@@ -24,7 +24,11 @@ const buttons = [
   }
 ];
 
-const initialize = ({ isInGroup = false, canEdit = true }): void => {
+const initialize = ({
+  isInGroup = false,
+  canEdit = true,
+  secondaryLabel = undefined
+}): void => {
   const store = createStore();
 
   store.set(hasEditPermissionAtom, canEdit);
@@ -47,6 +51,7 @@ const initialize = ({ isInGroup = false, canEdit = true }): void => {
             label="Buttons"
             options={buttons}
             propertyName="test"
+            secondaryLabel={secondaryLabel}
             type=""
           />
         </Formik>
@@ -98,6 +103,16 @@ describe('Button group', () => {
     cy.findByLabelText('Button 2')
       .should('have.attr', 'data-selected')
       .and('equal', 'true');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the secondary label when the corresponding prop is set', () => {
+    initialize({ secondaryLabel: 'This is a secondary label' });
+
+    cy.findByTestId('secondary-label-test').realHover();
+
+    cy.contains('This is a secondary label').should('be.visible');
 
     cy.makeSnapshot();
   });

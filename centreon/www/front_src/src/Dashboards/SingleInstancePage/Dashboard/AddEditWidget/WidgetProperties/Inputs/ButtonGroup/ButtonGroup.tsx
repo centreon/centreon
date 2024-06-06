@@ -5,8 +5,12 @@ import { useTranslation } from 'react-i18next';
 import {
   Button,
   ButtonGroup as MuiButtonGroup,
+  Stack,
   Typography
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { Tooltip } from '@centreon/ui/components';
 
 import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
@@ -19,7 +23,8 @@ const ButtonGroup = ({
   propertyName,
   options,
   isInGroup,
-  label
+  label,
+  secondaryLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useResourceStyles();
@@ -35,20 +40,35 @@ const ButtonGroup = ({
   return (
     <div>
       <Label className={classes.subtitle}>{t(label)}</Label>
-      <MuiButtonGroup disabled={!canEditField} size="small">
-        {options?.map(({ id, name }) => (
-          <Button
-            aria-label={t(name)}
-            data-selected={isButtonSelected(id)}
-            data-testId={id}
-            key={id}
-            variant={isButtonSelected(id) ? 'contained' : 'outlined'}
-            onClick={selectOption(id)}
+      <Stack alignItems="center" direction="row" gap={1.5}>
+        <MuiButtonGroup disabled={!canEditField} size="small">
+          {options?.map(({ id, name }) => (
+            <Button
+              aria-label={t(name)}
+              data-selected={isButtonSelected(id)}
+              data-testId={id}
+              key={id}
+              variant={isButtonSelected(id) ? 'contained' : 'outlined'}
+              onClick={selectOption(id)}
+            >
+              {t(name)}
+            </Button>
+          ))}
+        </MuiButtonGroup>
+        {secondaryLabel && (
+          <Tooltip
+            followCursor={false}
+            label={t(secondaryLabel)}
+            position="right"
           >
-            {t(name)}
-          </Button>
-        ))}
-      </MuiButtonGroup>
+            <InfoOutlinedIcon
+              color="primary"
+              data-testid={`secondary-label-${propertyName}`}
+              fontSize="small"
+            />
+          </Tooltip>
+        )}
+      </Stack>
     </div>
   );
 };
