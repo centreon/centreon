@@ -83,7 +83,7 @@
         "showPoints": {
           "group": "graphStyles",
           "type": "switch",
-          "label": "Display points",
+          "label": "Display curve points",
           "defaultValue": false
         },
         "lineWidthMode": {
@@ -91,6 +91,7 @@
           "type": "button-group",
           "label": "Line width",
           "defaultValue": "auto",
+          "secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
           "options": [
             {
               "id": "auto",
@@ -109,7 +110,7 @@
                 "type": "slider",
                 "defaultValue": 2,
                 "slider": {
-                  "min": 1,
+                  "min": 0,
                   "max": 10,
                   "unit": "px"
                 }
@@ -122,6 +123,7 @@
           "type": "button-group",
           "label": "Show area",
           "defaultValue": "auto",
+          "secondaryLabel": "The Auto value corresponds to the value defined in the Curves configuration in Centreon.",
           "options": [
             {
               "id": "auto",
@@ -268,25 +270,31 @@
           "type": "switch",
           "label": "Show grid lines",
           "group": "axis",
-          "defaultValue": true
-        },
-        "gridLinesType": {
-          "group": "axis",
-          "type": "button-group",
-          "label": "Grid lines type",
-          "defaultValue": "all",
-          "options": [
+          "defaultValue": true,
+          "subInputs": [
             {
-              "id": "horizontal",
-              "name": "Horizontal"
-            },
-            {
-              "id": "vertical",
-              "name": "Vertical"
-            },
-            {
-              "id": "all",
-              "name": "Both"
+              "name": "gridLinesType",
+              "displayValue": true,
+              "input": {
+                "group": "axis",
+                "type": "button-group",
+                "label": "Grid lines type",
+                "defaultValue": "all",
+                "options": [
+                  {
+                    "id": "horizontal",
+                    "name": "Horizontal"
+                  },
+                  {
+                    "id": "vertical",
+                    "name": "Vertical"
+                  },
+                  {
+                    "id": "all",
+                    "name": "Both"
+                  }
+                ]
+              }
             }
           ]
         },
@@ -326,10 +334,62 @@
             }
           ]
         },
+        "showLegend": {
+          "group": "legend",
+          "type": "switch",
+          "label": "Show legend",
+          "defaultValue": true,
+          "subInputs": [
+            {
+              "name": "legendDisplayMode",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Display mode",
+                "defaultValue": "grid",
+                "options": [
+                  {
+                    "id": "grid",
+                    "name": "Grid"
+                  },
+                  {
+                    "id": "list",
+                    "name": "List"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "legendPlacement",
+              "displayValue": true,
+              "input": {
+                "group": "legend",
+                "type": "button-group",
+                "label": "Position",
+                "defaultValue": "bottom",
+                "options": [
+                  {
+                    "id": "left",
+                    "name": "Left"
+                  },
+                  {
+                    "id": "bottom",
+                    "name": "Bottom"
+                  },
+                  {
+                    "id": "right",
+                    "name": "Right"
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "tooltipMode": {
           "group": "tooltip",
           "type": "button-group",
-          "label": "Tooltip mode",
+          "label": "Tooltip display",
           "defaultValue": "all",
           "options": [
             {
@@ -349,7 +409,7 @@
         "tooltipSortOrder": {
           "group": "tooltip",
           "type": "button-group",
-          "label": "Value sort order",
+          "label": "Value sorting",
           "defaultValue": "name",
           "options": [
             {
@@ -363,48 +423,6 @@
             {
               "id": "descending",
               "name": "Descending"
-            }
-          ]
-        },
-        "showLegend": {
-          "group": "legend",
-          "type": "switch",
-          "label": "Show Legend",
-          "defaultValue": true
-        },
-        "legendDisplayMode": {
-          "group": "legend",
-          "type": "button-group",
-          "label": "Display mode",
-          "defaultValue": "grid",
-          "options": [
-            {
-              "id": "grid",
-              "name": "Grid"
-            },
-            {
-              "id": "list",
-              "name": "List"
-            }
-          ]
-        },
-        "legendPlacement": {
-          "group": "legend",
-          "type": "button-group",
-          "label": "Placement",
-          "defaultValue": "bottom",
-          "options": [
-            {
-              "id": "left",
-              "name": "Left"
-            },
-            {
-              "id": "bottom",
-              "name": "Bottom"
-            },
-            {
-              "id": "right",
-              "name": "Right"
             }
           ]
         }
