@@ -3,6 +3,7 @@ import { MutableRefObject } from 'react';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
+import { getPointRadius } from '../../../common/utils';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
@@ -193,7 +194,7 @@ const Lines = ({
                         key={timeTick.toString()}
                         lineColor={lineColor}
                         metric_id={metric_id}
-                        radius={Math.ceil((lineWidth || 2) * 1.2)}
+                        radius={getPointRadius(lineWidth)}
                         timeSeries={timeSeries}
                         timeTick={timeTick}
                         xScale={xScale}

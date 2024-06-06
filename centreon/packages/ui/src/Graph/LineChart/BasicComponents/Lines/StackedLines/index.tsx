@@ -10,7 +10,7 @@ import { getCurveFactory, getFillColor } from '../../../common';
 import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
 import Point from '../Point';
-import { getStrokeDashArray } from '../../../../common/utils';
+import { getPointRadius, getStrokeDashArray } from '../../../../common/utils';
 
 interface Props {
   areaTransparency?: number;
@@ -45,7 +45,7 @@ const StackLines = ({
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(curve);
 
-  const formattedLineWidth = lineWidth || 2;
+  const formattedLineWidth = lineWidth ?? 2;
 
   return (
     <Shape.AreaStack
@@ -92,7 +92,7 @@ const StackLines = ({
                     key={timeTick.toString()}
                     lineColor={lineColor}
                     metric_id={metric_id}
-                    radius={Math.ceil((lineWidth || 2) * 1.3)}
+                    radius={getPointRadius(lineWidth)}
                     timeSeries={timeSeries}
                     timeTick={timeTick}
                     xScale={xScale}

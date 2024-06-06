@@ -169,3 +169,6 @@ export const getStrokeDashArray = ({
 
   return undefined;
 };
+
+export const getPointRadius = (lineWidth?: number): number =>
+  Math.max(Math.ceil((lineWidth ?? 2) * 1.2), 2);

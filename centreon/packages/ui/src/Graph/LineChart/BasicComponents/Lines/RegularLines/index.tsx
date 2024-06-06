@@ -49,7 +49,7 @@ const RegularLine = ({
   dashOffset
 }: Props): JSX.Element => {
   const curveType = getCurveFactory(curve);
-  const formattedLineWidth = lineWidth || 2;
+  const formattedLineWidth = lineWidth ?? 2;
 
   const props = {
     curve: curveType,
@@ -64,7 +64,7 @@ const RegularLine = ({
       lineWidth: formattedLineWidth
     }),
     strokeWidth: highlight
-      ? Math.ceil(formattedLineWidth * 1.3)
+      ? Math.ceil((formattedLineWidth || 1) * 1.3)
       : formattedLineWidth,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
