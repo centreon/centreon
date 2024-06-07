@@ -40,7 +40,7 @@ afterEach(() => {
 Given(
   'a user with update rights on a dashboard featured in the dashboards library',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
   }
 );
 
@@ -105,7 +105,8 @@ Then(
 Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
+
     cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
     cy.getByLabel({ label: 'Edit properties' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -150,7 +151,8 @@ Then(
 );
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
+
   cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
   cy.getByLabel({ label: 'Edit properties' }).click();
 });
@@ -174,7 +176,8 @@ Then('the user can now save the dashboard', () => {
 Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
+
     cy.getByLabel({ label: 'More actions', tag: 'button' }).eq(3).click();
     cy.getByLabel({ label: 'Edit properties' }).click();
   }

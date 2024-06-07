@@ -1,10 +1,10 @@
 <?php
 
 use Centreon\Test\Behat\CentreonContext;
-use Centreon\Test\Behat\Configuration\HostConfigurationPage;
-use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
-use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostCategoryConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationListingPage;
+use Centreon\Test\Behat\Configuration\HostConfigurationPage;
+use Centreon\Test\Behat\Configuration\HostGroupConfigurationPage;
 use Centreon\Test\Behat\Configuration\HostTemplateConfigurationPage;
 
 class HostConfigurationContext extends CentreonContext
@@ -92,18 +92,12 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName2',
         'parent_hosts' => 'Centreon-Server',
         'child_hosts' => 'hostName2',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 1,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
         'event_handler_arguments' => 'event_handler_arguments',
@@ -112,10 +106,7 @@ class HostConfigurationContext extends CentreonContext
         'action_url' => 'hostMassiveChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
         'comments' => 'hostMassiveChangeComments'
     );
@@ -155,18 +146,12 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName2',
         'parent_hosts' => 'Centreon-Server',
         'child_hosts' => 'hostName2',
-        'obsess_over_host' => 2,
         'acknowledgement_timeout' => 2,
         'check_freshness' => 1,
         'freshness_threshold' => 34,
         'flap_detection_enabled' => 1,
         'low_flap_threshold' => 67,
         'high_flap_threshold' => 85,
-        'retain_status_information' => 2,
-        'retain_non_status_information' => 0,
-        'stalking_option_on_up' => 1,
-        'stalking_option_on_down' => 0,
-        'stalking_option_on_unreachable' => 1,
         'event_handler_enabled' => 2,
         'event_handler' => 'check_https',
         'event_handler_arguments' => 'event_handler_arguments',
@@ -175,10 +160,7 @@ class HostConfigurationContext extends CentreonContext
         'action_url' => 'hostMassiveChangeActionUrl',
         'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '15,84',
-        '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
         'comments' => 'hostMassiveChangeComments'
     );
@@ -221,18 +203,12 @@ class HostConfigurationContext extends CentreonContext
         'parent_host_categories' => 'hostCategoryName3',
         'parent_hosts' => 'hostName3',
         'child_hosts' => 'Centreon-Server',
-        'obsess_over_host' => 1,
         'acknowledgement_timeout' => 0,
         'check_freshness' => 2,
         'freshness_threshold' => 65,
         'flap_detection_enabled' => 0,
         'low_flap_threshold' => 38,
         'high_flap_threshold' => 51,
-        'retain_status_information' => 1,
-        'retain_non_status_information' => 1,
-        'stalking_option_on_up' => 0,
-        'stalking_option_on_down' => 1,
-        'stalking_option_on_unreachable' => 0,
         'event_handler_enabled' => 1,
         'event_handler' => 'check_http',
         'event_handler_arguments' => 'eventHandlerArgumentsChanged',
@@ -241,10 +217,7 @@ class HostConfigurationContext extends CentreonContext
         'action_url' => 'hostMassiveChangeActionUrlChanged',
         'icon' => '',
         'alt_icon' => 'hostMassiveChangeIconChanged',
-        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
-        '2d_coords' => '2,3',
-        '3d_coords' => '42,24,66',
         'severity_level' => '',
         'comments' => 'hostMassiveChangeCommentsChanged'
     );
