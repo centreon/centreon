@@ -147,6 +147,9 @@ jobs:
           - package_extension: deb
             image: gorgone-testing-bullseye
             distrib: bullseye
+          - package_extension: deb
+            image: gorgone-testing-bookworm
+            distrib: bookworm
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
