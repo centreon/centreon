@@ -868,7 +868,7 @@ jobs:
       - if: ${{ needs.get-version.outputs.release_cloud == '1' }}
         name: Build openapi documentation
         run: |
-          if [[ ${{ needs.get-version.outputs.release_cloud }} == "1" ]]; then
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
           else
             redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api-v24.04.yaml -o index.html
@@ -884,7 +884,7 @@ jobs:
 
       - name: Copy to AWS S3
         run: |
-          if [[ ${{ needs.get-version.outputs.release_cloud }} == "1" ]]; then
+          if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/cloud/index.html
           else
             aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
