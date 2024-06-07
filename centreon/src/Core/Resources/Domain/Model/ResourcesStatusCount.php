@@ -21,27 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Resources\Domain\Model;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-
-interface ReadRealTimeServiceRepositoryInterface
+class ResourcesStatusCount
 {
     /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return string[]
+     * @param HostsStatusCount|null $hostsStatusCount
+     * @param ServicesStatusCount|null $servicesStatusCount
      */
-    public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function __construct(
+        private readonly ?HostsStatusCount $hostsStatusCount,
+        private readonly ?ServicesStatusCount $servicesStatusCount
+    ) {
+    }
 
-    /**
-     * @param RequestParametersInterface $requestParameters
-     * @param int[] $accessGroupIds
-     *
-     * @return string[]
-     */
-    public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
-        RequestParametersInterface $requestParameters,
-        array $accessGroupIds
-    ): array;
+    public function getHostsStatusCount(): ?HostsStatusCount
+    {
+        return $this->hostsStatusCount;
+    }
+
+    public function getServicesStatusCount(): ?ServicesStatusCount
+    {
+        return $this->servicesStatusCount;
+    }
 }

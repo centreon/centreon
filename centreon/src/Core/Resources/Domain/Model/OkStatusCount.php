@@ -19,29 +19,24 @@
  *
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Resources\Domain\Model;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-
-interface ReadRealTimeServiceRepositoryInterface
+final class OkStatusCount
 {
     /**
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @return string[]
+     * @param int $total
      */
-    public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function __construct(private readonly int $total)
+    {
+    }
 
     /**
-     * @param RequestParametersInterface $requestParameters
-     * @param int[] $accessGroupIds
-     *
-     * @return string[]
+     * @return int
      */
-    public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
-        RequestParametersInterface $requestParameters,
-        array $accessGroupIds
-    ): array;
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
 }

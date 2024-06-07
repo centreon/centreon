@@ -62,14 +62,6 @@ class ServiceException extends \Exception
     /**
      * @return self
      */
-    public static function accessNotAllowedForRealTime(): self
-    {
-        return new self(_('You are not allowed to access real time services'));
-    }
-
-    /**
-     * @return self
-     */
     public static function checkCommandCannotBeNull(): self
     {
         return new self(_('The check command cannot be null if the service template is null'));
@@ -173,13 +165,5 @@ class ServiceException extends \Exception
             ),
             self::CODE_CONFLICT
         );
-    }
-
-    /**
-     * @return ServiceException
-     */
-    public static function errorWhileRetrievingServiceStatusesCount(): self
-    {
-        return new self(_('Error while retrieving service statuses distribution'));
     }
 }
