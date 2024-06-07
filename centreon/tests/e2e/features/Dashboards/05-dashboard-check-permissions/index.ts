@@ -78,19 +78,10 @@ Given('an admin user is logged in on a platform with dashboards', () => {
     jsonName: adminUser.login,
     loginViaApi: false
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
 });
 
 When('the admin user accesses the dashboards library', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -144,8 +135,6 @@ Then(
 
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
-  cy.get('body').type('{esc}');
-  cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
@@ -174,19 +163,10 @@ Given('an admin user on the dashboards library', () => {
     jsonName: adminUser.login,
     loginViaApi: false
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
 });
 
 When('the admin user creates a new dashboard', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -223,18 +203,10 @@ Then(
 Given('an admin user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+
+  cy.visitDashboards();
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -266,20 +238,11 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-    cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
-        cy.get('.MuiAlert-message').should('not.be.visible');
-      }
-    });
   }
 );
 
 When('the dashboard administrator user accesses the dashboards library', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -369,20 +332,11 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-    cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
-        cy.get('.MuiAlert-message').should('not.be.visible');
-      }
-    });
   }
 );
 
 When('the dashboard administrator user creates a new dashboard', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -418,18 +372,10 @@ Then(
 Given('a dashboard administrator user who has just created a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
-    loginViaApi: false
+    loginViaApi: true
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+
+  cy.visitDashboards();
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
 
@@ -463,20 +409,11 @@ Given(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
-        cy.get('.MuiAlert-message').should('not.be.visible');
-      }
-    });
   }
 );
 
 When('the dashboard editor user accesses the dashboards library', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
 });
 
 Then(
@@ -535,17 +472,18 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    cy.get('div.MuiDialog-container input[aria-label="Name"]').type(
       `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
     );
 
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    cy.get('div.MuiDialog-container textarea[aria-label="Description"]').type(
       `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
     );
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
+    cy.getByLabel({ label: 'Update', tag: 'button' })
+      .should('be.enabled')
+      .click();
 
-    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.getByLabel({ label: 'page header title' })
       .should(
         'contain.text',
@@ -566,11 +504,6 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
-  });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
   });
 });
 
@@ -618,16 +551,7 @@ Given('a dashboard editor user who has just created a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
+  cy.visitDashboards();
 
   cy.contains(dashboards.fromCurrentUser.name).should('exist');
 });
@@ -659,12 +583,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.fromDashboardCreatorUser.name).click();
+    cy.visitDashboard(dashboards.fromDashboardCreatorUser.name);
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
     cy.contains(dashboardViewerUser.login).click();
@@ -737,11 +656,6 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
-  });
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
@@ -759,15 +673,10 @@ Then('the option to create a new dashboard is not displayed', () => {
 Given('a dashboard viewer user who could not create a dashboard', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardViewerUser.login,
-    loginViaApi: false
-  });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
-      cy.get('.MuiAlert-message').should('not.be.visible');
-    }
+    loginViaApi: true
   });
 
-  cy.visit('/centreon/home/dashboards');
+  cy.visitDashboards();
 });
 
 When('the dashboard viewer user tries to delete a dashboard', () => {
