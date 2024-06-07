@@ -1,10 +1,6 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import notificationBody from '../../fixtures/notifications/notification-creation.json';
-import {
-  getStatusNumberFromString,
-  getStatusTypeNumberFromString
-} from 'e2e/commons';
 
 const cloudNotificationLogFile =
   '/var/log/centreon-broker/centreon-cloud-notifications.log';
@@ -16,7 +12,7 @@ Given('the user is on the Notification Rules page', () => {
 
 const enableNotificationFeature = (): Cypress.Chainable => {
   return cy.execInContainer({
-    command: `sed -i 's@"notification" : 2@"notification" : 3@' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's@"notification": [0-3]@"notification": 3@' /usr/share/centreon/config/features.json`,
     name: 'web'
   });
 };
@@ -136,7 +132,7 @@ const notificationSentCheck = ({
   logs
 }: {
   contain?: boolean;
-  logs: string | string[];
+  logs: string | Array<string>;
 }): Cypress.Chainable => {
   cy.log(`checking logs`);
 
@@ -215,29 +211,16 @@ const waitUntilLogFileChange = (): Cypress.Chainable => {
   );
 };
 
-let servicesFoundStepCount = 0;
-
-const stepWaitingTime = 250;
-const pollingCheckTimeout = 60000;
-const maxSteps = pollingCheckTimeout / stepWaitingTime;
-
-interface MonitoredService {
-  acknowledged?: boolean | null;
-  inDowntime?: boolean | null;
-  output?: string;
-  status?: string;
-  statusType?: string;
-}
-
-const initializeDataFiles = () => {
+const initializeDataFiles = (): void => {
   let values = '';
   let centreonStorageServicesValues = '';
   let centreonServicesValues = '';
   let hostServiceRelationValues = '';
-  let resources: { id: number; parent: { id: number }; type: string }[] = [];
+  const resources: Array<{ id: number; parent: { id: number }; type: string }> =
+    [];
 
   // The first service will got an id of 28
-  for (let i = 28; i < 1028; i++) {
+  for (let i = 28; i < 1028; i += 1) {
     // Generate values for centreon_storage_services.txt
     values = [
       15, // host_id
@@ -310,7 +293,7 @@ const initializeDataFiles = () => {
       1, // state_type
       0 // volatile
     ].join('\t');
-    centreonStorageServicesValues += values + '\n';
+    centreonStorageServicesValues += `${values}\n`;
 
     // Generate values for centreon_services.txt
     values = [
@@ -338,7 +321,7 @@ const initializeDataFiles = () => {
       1, // service_register
       1 // service_activate
     ].join('\t');
-    centreonServicesValues += values + '\n';
+    centreonServicesValues += `${values}\n`;
 
     // Generate values for host_service_relation.txt
     values = `15\t${i}\n`;
