@@ -18981,3 +18981,9 @@ msgstr "Toutes les vues métier sont sélectionnées"
 
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
+
+msgid "Add filter"
+msgstr "Ajouter un filtre"
+
+msgid "Add resource dataset"
+msgstr "Ajouter un jeu de données de ressources"
