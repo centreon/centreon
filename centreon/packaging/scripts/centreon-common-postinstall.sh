@@ -13,12 +13,6 @@ fixCacheConfigRights() {
   chmod 0770 /var/cache/centreon/config/broker/*
 }
 
-fixSymfonyCacheRights() {
-  # MON-69138
-  chown centreon:centreon /var/cache/centreon
-  chmod 755 /var/cache/centreon
-}
-
 startCentreon() {
   systemctl daemon-reload ||:
   systemctl unmask centreon.service ||:
@@ -39,12 +33,10 @@ fi
 case "$action" in
   "1" | "install")
     fixCacheConfigRights
-    fixSymfonyCacheRights
     startCentreon
     ;;
   "2" | "upgrade")
     fixCacheConfigRights
-    fixSymfonyCacheRights
     startCentreon
     ;;
   *)
