@@ -18986,4 +18986,4 @@ msgid "Add filter"
 msgstr "Ajouter un filtre"
 
 msgid "Add resource dataset"
-msgstr "Ajouter un jeu de données de resources"
+msgstr "Ajouter un jeu de données de ressources"
