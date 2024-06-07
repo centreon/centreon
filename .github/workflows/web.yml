@@ -866,13 +866,13 @@ jobs:
         shell: bash
 
       - if: ${{ needs.get-version.outputs.release_cloud == '1' }}
-        name: Build cloud openapi documentation
-        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
-        shell: bash
-
-      - if: ${{ needs.get-version.outputs.release_cloud == '0' }}
-        name: Build onprem openapi documentation
-        run: redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api.yaml -o index.html
+        name: Build openapi documentation
+        run: |
+          if [[ ${{ needs.get-version.outputs.release_cloud }} == "1" ]]; then
+            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
+          else
+            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api.yaml -o index.html
+          fi
         shell: bash
 
       - name: Setup awscli
@@ -884,8 +884,11 @@ jobs:
 
       - name: Copy to AWS S3
         run: |
-          # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/cloud/index.html
-          # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
+          if [[ ${{ needs.get-version.outputs.release_cloud }} == "1" ]]; then
+            # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/cloud/index.html
+          else
+            # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
+          fi
         shell: bash
 
       - name: Invalidate AWS Cloudfront
