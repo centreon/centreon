@@ -387,6 +387,7 @@ When(
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.wait('@resourceRequest');
   }
 );
 
