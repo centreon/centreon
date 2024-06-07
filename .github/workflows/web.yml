@@ -865,8 +865,7 @@ jobs:
         run: pnpm add -g @redocly/cli@1.12.0
         shell: bash
 
-      - if: ${{ needs.get-version.outputs.release_cloud == '1' }}
-        name: Build openapi documentation
+      - name: Build openapi documentation
         run: |
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
