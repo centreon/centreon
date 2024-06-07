@@ -12,11 +12,11 @@ get:
     '200':
       $ref: 'Schema/Notification.Details.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 put:
   tags:
       - Notification
@@ -35,15 +35,15 @@ put:
           $ref: "Schema/Notification.Add.yaml"
   responses:
     '204':
-      $ref: '../../../../Common/Response/NoContent.yaml'
+      $ref: '../../../Common/Response/NoContent.yaml'
     '400':
-      $ref: '../../../../Common/Response/BadRequest.yaml'
+      $ref: '../../../Common/Response/BadRequest.yaml'
     '403':
-      $ref: '../../../../Common/Response/Forbidden.yaml'
+      $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../../Common/Response/NotFound.yaml'
+      $ref: '../../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../../Common/Response/InternalServerError.yaml'
 patch:
   tags:
     - Notification
@@ -64,11 +64,11 @@ patch:
         schema:
           $ref: 'Schema/PartialUpdateNotificationRequest.yaml'
   responses:
-    '204': { $ref: '../../../../Common/Response/NoContent.yaml' }
-    '400': { $ref: '../../../../Common/Response/BadRequest.yaml' }
-    '403': { $ref: '../../../../Common/Response/Forbidden.yaml' }
-    '404': { $ref: '../../../../Common/Response/NotFound.yaml' }
-    '500': { $ref: '../../../../Common/Response/InternalServerError.yaml' }
+    '204': { $ref: '../../../Common/Response/NoContent.yaml' }
+    '400': { $ref: '../../../Common/Response/BadRequest.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }
 
 delete:
   tags:
@@ -80,7 +80,7 @@ delete:
   parameters:
     - $ref: 'QueryParameter/NotificationId.yaml'
   responses:
-    '204': { $ref: '../../../../Common/Response/NoContent.yaml' }
-    '403': { $ref: '../../../../Common/Response/Forbidden.yaml' }
-    '404': { $ref: '../../../../Common/Response/NotFound.yaml' }
-    '500': { $ref: '../../../../Common/Response/InternalServerError.yaml' }
+    '204': { $ref: '../../../Common/Response/NoContent.yaml' }
+    '403': { $ref: '../../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../../Common/Response/InternalServerError.yaml' }

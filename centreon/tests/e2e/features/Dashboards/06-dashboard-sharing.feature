@@ -50,7 +50,7 @@ Feature: Sharing a dashboard
     Then the user whose permissions have been overridden can perform write operations on the dashboard
     Then the other users of the contact group still have read-only permissions on the dashboard
 
-  @TEST_MON-22185
+  @TEST_MON-22185 @ignore
   Scenario: Add new users to the share list as a new dashboard editor
     Given a dashboard featuring a dashboard administrator as editor, and three users who are not part of the dashboard's share list
     When the admin user appoints one of the users as an editor

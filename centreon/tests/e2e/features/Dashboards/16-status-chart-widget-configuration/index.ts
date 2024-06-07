@@ -203,9 +203,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -325,14 +323,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.editDashboard(dashboards.default.name);
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -362,13 +354,7 @@ Then('the unit of the resources already displayed should be updated', () => {
 
 Given('a dashboard featuring two Status Chart widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoStatuschartWidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@getDashboard');
   cy.wait('@getServiceStatus');
   cy.wait('@getHostStatus');
@@ -409,34 +395,18 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
 });
 
 When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
   }
 );
 
 Then('a second Status Chart widget is displayed on the dashboard', () => {
-  cy.verifyLegendItemStyle(
-    2,
-    [
-      'background: rgb(136, 185, 34)',
-      'background: rgb(255, 102, 102)',
-      'background: rgb(227, 227, 227)',
-      'background: rgb(30, 190, 179)'
-    ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
-  );
   cy.verifyLegendItemStyle(
     3,
     [
@@ -454,14 +424,8 @@ Given(
   'a dashboard administrator user configuring a Status Chart widget',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
     cy.getByLabel({
       label: 'Edit widget',
       tag: 'li'

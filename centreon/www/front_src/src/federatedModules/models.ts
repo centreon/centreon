@@ -39,6 +39,7 @@ export enum FederatedWidgetOptionType {
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
+  select = 'select',
   singleMetricGraphType = 'single-metric-graph-type',
   switch = 'switch',
   textfield = 'textfield',
@@ -63,6 +64,7 @@ export interface FederatedWidgetOption {
         then: unknown;
         when: string;
       };
+  group?: string;
   hiddenCondition: WidgetHiddenCondition;
   label: string;
   options?:
@@ -84,6 +86,14 @@ export interface FederatedWidgetProperties {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };
   description: string;
+  generalProperties?: {
+    elements: {
+      [key: string]: FederatedWidgetOption & {
+        group?: string;
+      };
+    };
+    groups: Array<SelectEntry>;
+  };
   icon?: string;
   moduleName: string;
   options: {

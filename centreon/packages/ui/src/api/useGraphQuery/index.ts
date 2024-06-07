@@ -27,6 +27,7 @@ interface UseMetricsQueryProps {
   bypassQueryParams?: boolean;
   includeAllResources?: boolean;
   metrics: Array<Metric>;
+  prefix?: string;
   refreshCount?: number;
   refreshInterval?: number | false;
   resources?: Array<Resource>;
@@ -92,7 +93,8 @@ const useGraphQuery = ({
   },
   refreshInterval = false,
   refreshCount,
-  bypassQueryParams = false
+  bypassQueryParams = false,
+  prefix
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -109,6 +111,8 @@ const useGraphQuery = ({
   const formattedDefinedMetrics = definedMetrics.map((metric) =>
     encodeURIComponent(metric.name)
   );
+
+  const prefixQuery = prefix ? [prefix] : [];
 
   const {
     data: graphData,
@@ -139,6 +143,7 @@ const useGraphQuery = ({
       }&metric_names=[${formattedDefinedMetrics.join(',')}]`;
     },
     getQueryKey: () => [
+      ...prefixQuery,
       'graph',
       JSON.stringify(definedMetrics),
       JSON.stringify(resources),
@@ -149,7 +154,8 @@ const useGraphQuery = ({
       enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
       refetchInterval: refreshInterval,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const data = useRef<PerformanceGraphData | undefined>(undefined);

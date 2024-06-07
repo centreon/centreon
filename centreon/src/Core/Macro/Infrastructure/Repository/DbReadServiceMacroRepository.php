@@ -28,7 +28,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Utility\SqlConcatenator;
 
 /**
  * @phpstan-type _Macro array{
@@ -59,24 +58,58 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
             return [];
         }
 
-        $concatenator = new SqlConcatenator();
-        $concatenator
-            ->defineSelect(
-                <<<'SQL'
-                    SELECT
+        $bindValues = [];
+        foreach ($serviceIds as $index => $serviceId) {
+            $bindValues[':service_id' . $index] = $serviceId;
+        }
+        $serviceIdsAsString = implode(',', array_keys($bindValues));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    m.svc_macro_name,
+                    m.svc_macro_value,
+                    m.is_password,
+                    m.svc_svc_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_service m
+                WHERE m.svc_svc_id IN ({$serviceIdsAsString})
+                SQL
+        ));
+        foreach ($bindValues as $index => $serviceId) {
+            $statement->bindValue($index, $serviceId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $macros = [];
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($results as $result) {
+            /** @var _Macro $result */
+            $macros[] = $this->createMacro($result);
+        }
+
+        return $macros;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findPasswords(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
                         m.svc_macro_name,
                         m.svc_macro_value,
                         m.is_password,
                         m.svc_svc_id,
                         m.description,
                         m.macro_order
-                    FROM `:db`.on_demand_macro_service m
-                    WHERE m.svc_svc_id IN (:service_ids)
-                    SQL
-            )->storeBindValueMultiple(':service_ids', array_values($serviceIds), \PDO::PARAM_INT);
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
-        $concatenator->bindValuesToStatement($statement);
+                FROM `:db`.on_demand_macro_service m
+                WHERE m.is_password = 1
+                SQL
+        ));
         $statement->execute();
 
         $macros = [];

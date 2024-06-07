@@ -65,14 +65,14 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c665c7a15b5295c2488ac8a87af9cb806cd72198 # v2.30.4
         with:
           php-version: 8.1
           coverage: none
@@ -178,15 +178,16 @@ jobs:
       matrix:
         type_of_report: [test-logs, test-reports]
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
         with:
-          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          source_paths: |
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
-          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          retention-days: 1
+
+      - name: Delete merged artifacts
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          failOnError: false

@@ -20,6 +20,7 @@ interface Props
     | 'dashboardId'
     | 'id'
     | 'playlistHash'
+    | 'widgetPrefixQuery'
   > {
   panelData: Data;
   panelOptions: PanelOptions;
@@ -32,7 +33,8 @@ const WidgetLineChart = ({
   refreshCount,
   dashboardId,
   playlistHash,
-  id
+  id,
+  widgetPrefixQuery
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
@@ -56,6 +58,7 @@ const WidgetLineChart = ({
       }),
       bypassQueryParams: isOnPublicPage,
       metrics: panelData.metrics,
+      prefix: widgetPrefixQuery,
       refreshCount,
       refreshInterval: refreshIntervalToUse,
       resources: panelData.resources,
@@ -74,6 +77,7 @@ const WidgetLineChart = ({
 
   return (
     <LineChart
+      curve={panelOptions.curveType}
       data={graphData}
       end={end}
       height={null}

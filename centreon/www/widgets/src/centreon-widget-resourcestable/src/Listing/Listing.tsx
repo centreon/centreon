@@ -10,7 +10,8 @@ import { PanelOptions } from '../models';
 import { rowColorConditions } from './colors';
 import useListing from './useListing';
 import { defaultSelectedColumnIds } from './Columns';
-import { DisplayType } from './models';
+import { DisplayType as DisplayTypeEnum } from './models';
+import DisplayType from './DisplayType';
 
 interface ListingProps
   extends Pick<
@@ -18,7 +19,7 @@ interface ListingProps
     'dashboardId' | 'id' | 'playlistHash'
   > {
   changeViewMode?: (displayType) => void;
-  displayType: DisplayType;
+  displayType?: DisplayTypeEnum;
   isFromPreview?: boolean;
   limit?: number;
   refreshCount: number;
@@ -30,10 +31,11 @@ interface ListingProps
   sortOrder?: SortOrder;
   states: Array<string>;
   statuses: Array<string>;
+  widgetPrefixQuery: string;
 }
 
 const Listing = ({
-  displayType,
+  displayType = DisplayTypeEnum.All,
   refreshCount,
   refreshIntervalToUse,
   resources,
@@ -48,7 +50,8 @@ const Listing = ({
   isFromPreview,
   playlistHash,
   dashboardId,
-  id
+  id,
+  widgetPrefixQuery
 }: ListingProps): JSX.Element => {
   const theme = useTheme();
 
@@ -62,7 +65,8 @@ const Listing = ({
     page,
     isLoading,
     data,
-    goToResourceStatusPage
+    goToResourceStatusPage,
+    hasMetaService
   } = useListing({
     changeViewMode,
     dashboardId,
@@ -78,7 +82,8 @@ const Listing = ({
     sortField,
     sortOrder,
     states,
-    statuses
+    statuses,
+    widgetPrefixQuery
   });
 
   return (
@@ -94,7 +99,15 @@ const Listing = ({
       }
       limit={limit}
       loading={isLoading}
-      memoProps={[data, sortField, sortOrder, page, isLoading, columns]}
+      memoProps={[
+        data,
+        sortField,
+        sortOrder,
+        page,
+        isLoading,
+        columns,
+        displayType
+      ]}
       rowColorConditions={rowColorConditions(theme)}
       rows={data?.result}
       sortField={sortField}
@@ -107,6 +120,13 @@ const Listing = ({
         labelExpand: 'Expand'
       }}
       totalRows={data?.meta?.total}
+      visualizationActions={
+        <DisplayType
+          displayType={displayType}
+          hasMetaService={hasMetaService}
+          setPanelOptions={setPanelOptions}
+        />
+      }
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}

@@ -35,8 +35,9 @@ const StatusGrid = ({
   refreshCount,
   id: widgetId,
   dashboardId,
-  playlistHash
-}: Omit<StatusGridProps, 'store'>): JSX.Element => {
+  playlistHash,
+  widgetPrefixQuery
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -76,6 +77,7 @@ const StatusGrid = ({
         widgetId
       }),
     getQueryKey: () => [
+      widgetPrefixQuery,
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
@@ -87,7 +89,8 @@ const StatusGrid = ({
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
       suspense: false
-    }
+    },
+    useLongCache: true
   });
 
   const hasMoreResources = gt(data?.meta.total || 0, tiles);
