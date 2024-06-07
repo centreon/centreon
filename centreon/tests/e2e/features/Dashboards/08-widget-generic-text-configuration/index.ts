@@ -53,10 +53,6 @@ beforeEach(() => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
 });
 
 after(() => {
@@ -70,7 +66,7 @@ after(() => {
 Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -136,6 +132,7 @@ Then('its title and description are displayed', () => {
 });
 
 Given('a dashboard featuring a single Generic text widget', () => {
+  cy.visitDashboards();
   cy.contains(dashboards.default.name).click();
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 1);
   cy.contains(genericTextWidget.default.title).should('exist');
@@ -172,14 +169,8 @@ Then(
 );
 
 Given('a dashboard featuring two Generic text widgets', () => {
-  cy.visit('/centreon/home/dashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByTestId({ testId: 'edit_dashboard' }).click();
-  cy.get('*[class^="react-grid-layout"]')
-    .children()
-    .eq(0)
-    .should('contain.text', `${genericTextWidget.default.title}`)
-    .should('contain.text', `${genericTextWidget.default.description}`);
+  cy.editDashboard(dashboards.default.name);
+
   cy.get('*[class^="react-grid-layout"]').children().should('have.length', 2);
 });
 
