@@ -871,7 +871,7 @@ jobs:
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
             redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-cloud-api.yaml -o index.html
           else
-            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api-v24.04.yaml -o index.html
+            redocly build-docs --theme.openapi.hideDownloadButton=true centreon/doc/API/centreon-api.yaml -o index.html
           fi
         shell: bash
 
@@ -885,10 +885,11 @@ jobs:
       - name: Copy to AWS S3
         run: |
           if [[ "${{ needs.get-version.outputs.release_cloud }}" == "1" ]]; then
+            echo "::warning::uncomment once PR is ready"
             # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/cloud/index.html
-            echo "not yet"
           else
-            aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
+            echo "::warning::uncomment once PR is ready"
+            # aws s3 sync --delete "index.html" s3://centreon-documentation-api/api/centreon-web/${{ needs.get-version.outputs.major_version }}/index.html
           fi
         shell: bash
 
