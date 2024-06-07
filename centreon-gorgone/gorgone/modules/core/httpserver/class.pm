@@ -324,7 +324,23 @@ sub send_response {
     my ($self, %options) = @_;
 
     if (defined($options{response}) && $options{response} ne '') {
-        my $response = HTTP::Response->new(200);
+        my $http_code = 200;
+        eval {
+            # we don't want to raise an error if we can't find an http code or if we don't send back
+            # something else than a json, so we don't check $@ variable
+            my $content = JSON::XS->new->decode($options{response});
+            if ($content->{http_response_code}){
+                $http_code = $content->{http_response_code};
+                delete($content->{http_response_code});
+                $options{response} = JSON::XS->new->encode($content);
+            }
+            elsif ($content->{error}){
+                $http_code = 400;
+            }
+        };
+
+
+        my $response = HTTP::Response->new($http_code);
         $response->header('Content-Type' => 'application/json'); 
         $response->content($options{response} . "\n");
         $options{connection}->send_response($response);
@@ -352,7 +368,7 @@ sub api_call {
             if ($request->method =~ /POST|PATCH/ && defined($request->content));
     };
     if ($@) {
-        return '{"error":"decode_error","message":"POST content must be JSON-formated"}';;
+        return '{"error":"decode_error","message":"POST content must be JSON-formated","http_response_code":"400"}';
     }
 
     my %parameters = $request->uri->query_form;
