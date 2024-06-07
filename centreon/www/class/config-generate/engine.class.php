@@ -327,7 +327,7 @@ class Engine extends AbstractObject
      * This method indicates if engine notifications needs to be disabled according to feature flags and engine conf in the database.
      * conditions: "notification" feature flag AND isCloudPlatform must be true OR feature flag and enabled in the database
      */
-    private function getEngineNotificationState() {
+    private function setEngineNotificationState() {
         $kernel = \App\Kernel::createForWeb();
         $featureFlags = $kernel->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
 
@@ -352,7 +352,7 @@ class Engine extends AbstractObject
         $result = $this->stmt_engine->fetchAll(PDO::FETCH_ASSOC);
 
         $this->engine = array_pop($result);
-        $this->getEngineNotificationState();
+        $this->setEngineNotificationState();
 
         if (is_null($this->engine)) {
             throw new Exception(
