@@ -44,8 +44,8 @@ check http api post api ${tc}
 *** Keywords ***
 
 Setup Gorgone
-    Setup Gorgone Config    httpserver_api_statuscode    ${push_central_config}
-    Start Gorgone    /etc/centreon-gorgone/httpserver_api_statuscode/includer.yaml    debug    httpserver_api_statuscode
+    Setup Gorgone Config    ${push_central_config}    ${gorgone_core_config}    gorgone_name=httpserver_api_statuscode
+    Start Gorgone    debug    httpserver_api_statuscode
 
     Log To Console    \nGorgone Started. We have to wait for it to be ready to respond.
     Sleep    10
