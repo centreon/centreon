@@ -416,6 +416,8 @@ paths:
         * hostgroup.name
         * hostcategory.id
         * hostcategory.name
+        * servicegroup.id
+        * servicegroup.name
       responses:
         "200":
           description: "OK"
