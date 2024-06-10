@@ -76,7 +76,7 @@ describe('WidgetTextField', () => {
     });
   });
 
-  describe.only('Number', () => {
+  describe('Number', () => {
     it('displays the text field', () => {
       initialize({ text: { type: 'number' } });
 
