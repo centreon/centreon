@@ -59,7 +59,7 @@ const PanelsLayout = ({
                   id={i}
                   linkToResourceStatus={
                     data?.resources
-                      ? getLinkToResourceStatusPage(data, name)
+                      ? getLinkToResourceStatusPage(data, name, options)
                       : undefined
                   }
                   pageType={getPageType(data)}
