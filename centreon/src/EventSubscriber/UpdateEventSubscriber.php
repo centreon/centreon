@@ -66,7 +66,12 @@ class UpdateEventSubscriber implements EventSubscriberInterface
      */
     public function validateCentreonWebVersionOrFail(RequestEvent $event): void
     {
-        $this->debug('Checking if route matches updates endpoint');
+        $this->debug(
+            sprintf(
+                'Checking if route matches updates endpoint (%s)',
+                $event->getRequest()->getPathInfo()
+            )
+        );
         if (
             $event->getRequest()->getMethod() === Request::METHOD_PATCH
             && preg_match(

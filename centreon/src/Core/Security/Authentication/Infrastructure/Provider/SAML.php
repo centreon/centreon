@@ -28,7 +28,6 @@ use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use CentreonSession;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -60,6 +59,8 @@ use OneLogin\Saml2\Error;
 use OneLogin\Saml2\Utils;
 use OneLogin\Saml2\ValidationError;
 use Pimple\Container;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class SAML implements ProviderAuthenticationInterface
@@ -100,6 +101,7 @@ class SAML implements ProviderAuthenticationInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -114,11 +116,13 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
+        $this->debug('[AUTHENTICATE] Start SAML authentication...');
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
         $this->auth = $auth = new Auth($this->formatter->format($customConfiguration));
-        $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
+
+        $auth->processResponse($this->requestStack->getSession()->get('AuthNRequestID'));
         $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
@@ -156,7 +160,8 @@ class SAML implements ProviderAuthenticationInterface
         }
 
         $this->username = $attrs[0];
-        CentreonSession::writeSessionClose('saml', [
+
+        $this->requestStack->getSession()->set('saml', [
             'samlSessionIndex' => $auth->getSessionIndex(),
             'samlNameId' => $auth->getNameId(),
         ]);
@@ -411,6 +416,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function login(string $returnTo = ''): void
     {
+        $this->debug('[AUTHENTICATE] login from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $auth->login($returnTo ?: null);
     }
@@ -420,36 +426,34 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function logout(): void
     {
-        $returnTo = '/login';
+        $this->debug('[AUTHENTICATE] logout from SAML and redirect');
+        $returnTo = '/centreon/login';
         $parameters = [];
         $nameId = null;
         $sessionIndex = null;
 
-        if (isset($_SESSION['saml']['samlNameId'])) {
-            $nameId = $_SESSION['saml']['samlNameId'];
+        $saml = $this->requestStack->getSession()->get('saml');
+        if ($saml !== null) {
+            $nameId = $saml['samlNameId'] ?? null;
+            $sessionIndex = $saml['samlSessionIndex'] ?? null;
         }
 
-        if (isset($_SESSION['saml']['samlSessionIndex'])) {
-            $sessionIndex = $_SESSION['saml']['samlSessionIndex'];
-        }
-
-        $this->info('logout from SAML and redirect');
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
         $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
     }
 
     public function handleCallbackLogoutResponse(): void
     {
-        $this->info('SAML SLS invoked');
+        $this->info('[AUTHENTICATE] SAML SLS invoked');
 
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION, $_SESSION['LogoutRequestID'])) {
-            $requestID = $_SESSION['LogoutRequestID'];
-        } else {
-            $requestID = null;
-        }
 
-        $auth->processSLO(true, $requestID);
+        $requestID = $this->requestStack->getSession()->get('LogoutRequestID');
+
+        $auth->processSLO(true, $requestID, false, function() {
+            $this->info('[AUTHENTICATE] Delete SAML session');
+            $this->requestStack->getSession()->invalidate();
+        });
 
         // Avoid 'Open Redirect' attacks
         if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
@@ -475,7 +479,7 @@ class SAML implements ProviderAuthenticationInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->info('Auto import starting...', ['user' => $this->username]);
+        $this->info('[AUTHENTICATE] Auto import starting...', ['user' => $this->username]);
         $this->loginLogger->info(
             $this->configuration->getType(),
             'auto import starting...',
