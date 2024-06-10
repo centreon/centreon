@@ -1352,3 +1352,122 @@ function insertServiceSecretsInVault(
         updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswordIds, $servicePath);
     }
 }
+
+/**
+ * @param string $password
+ * @param VaultConfiguration $vaultConfiguration
+ * @param Logger $logger
+ * @param string|null $uuid
+ * @param UUIDGeneratorInterface $uuidGenerator
+ *
+ * @throws \Throwable
+ */
+function upsertKnowledgeBasePasswordInVault(
+    string $password,
+    VaultConfiguration $vaultConfiguration,
+    Logger $logger,
+    ?string $uuid,
+    UUIDGeneratorInterface $uuidGenerator
+): void {
+    global $pearDB;
+
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    $uuid = $uuid ?? $uuidGenerator->generateV4();
+    writeKnowledgeBasePasswordInVault($vaultConfiguration, $uuid, $clientToken, $password, $logger, $httpClient);
+    $kbPath = "secret::" . $vaultConfiguration->getName() . "::" . $vaultConfiguration->getRootPath()
+        . "/data/configuration/knowledge_base/" . $uuid;
+    updateOptionTableWithKnowledgeBaseVaultPath($pearDB, $kbPath);
+}
+
+/**
+ * @param Logger $logger
+ * @param string $kbPasswordPath
+ * @param VaultConfiguration $vaultConfiguration
+ *
+ * @return string
+ *
+ * @throws \Throwable
+ */
+function findKnowledgeBasePasswordFromVault(
+    Logger $logger,
+    string $kbPasswordPath,
+    VaultConfiguration $vaultConfiguration
+): string {
+    $httpClient = new CentreonRestHttp();
+    $clientToken = authenticateToVault($vaultConfiguration, $logger, $httpClient);
+    $response = $httpClient->call(
+        'https://' . $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/'
+            . $kbPasswordPath,
+        'GET',
+        null,
+        ['X-Vault-Token: ' . $clientToken]
+    );
+    return $response['data']['data']['_KBPASSWORD'] ?? throw new \Exception(
+        'Unable to retrieve Knowledge Base password from Vault'
+    );
+}
+
+/**
+ * @param VaultConfiguration $vaultConfiguration
+ * @param string $uuid
+ * @param string $clientToken
+ * @param string $password
+ * @param Logger $logger
+ * @param CentreonRestHttp $httpClient
+ *
+ * @throws \Throwable
+ */
+function writeKnowledgeBasePasswordInVault(
+    VaultConfiguration $vaultConfiguration,
+    string $uuid,
+    string $clientToken,
+    string $password,
+    Logger $logger,
+    CentreonRestHttp $httpClient
+): void {
+    try {
+        $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort()
+            . '/v1/' . $vaultConfiguration->getRootPath()
+            . '/data/configuration/knowledge_base/' . $uuid;
+        $url = sprintf("%s://%s", DEFAULT_SCHEME, $url);
+        $logger->info(
+            "Writing Knowledge Base Password at : " . $url,
+            ["password" => $password]
+        );
+        $httpClient->call(
+            $url,
+            "POST",
+            ['data' => ['_KBPASSWORD' => $password]],
+            ['X-Vault-Token: ' . $clientToken]
+        );
+    } catch(\Exception $ex) {
+        $logger->error(
+            "Unable to write Knowledge Base Password into vault",
+            [
+                "message" => $ex->getMessage(),
+                "trace" => $ex->getTraceAsString(),
+                "password" => $password
+            ]
+        );
+
+        throw $ex;
+    }
+
+    $logger->info(sprintf("Write successfully Knowledge Base Password in vault: %s", $password));
+}
+
+/**
+ * @param CentreonDB $pearDB
+ * @param string $vaultPath
+ */
+function updateOptionTableWithKnowledgeBaseVaultPath(CentreonDB $pearDB, string $vaultPath): void
+{
+    $stmt = $pearDB->prepare("DELETE FROM `options` WHERE `key` = 'kb_wiki_password'");
+    $stmt->execute();
+
+    $stmt = $pearDB->prepare("INSERT INTO `options` (`key`, `value`) VALUES (:key, :value)");
+    $stmt->bindValue(':key', "kb_wiki_password", \PDO::PARAM_STR);
+    $stmt->bindValue(':value', $vaultPath, \PDO::PARAM_STR);
+    $stmt->execute();
+}
