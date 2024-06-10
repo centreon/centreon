@@ -103,16 +103,14 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             <<<SQL
                 SELECT 1
                 FROM `:db`.`nagios_server` ns
-                INNER JOIN `:db`.`ns_host_relation` ns_hrel
-                    ON ns_hrel.`nagios_server_id` = ns.`id`
-                INNER JOIN `:db`.`acl_resources_host_relation` arhr
-                    ON arhr.`host_host_id` = ns_hrel.`host_host_id`
+                INNER JOIN `:db`.`acl_resources_poller_relations` arpr
+                    ON arpr.`poller_id` = ns.`id`
                 INNER JOIN `:db`.`acl_res_group_relations` argr
-                    ON argr.`acl_res_id` = arhr.`acl_res_id`
+                    ON argr.`acl_res_id` = arpr.`acl_res_id`
                 INNER JOIN `:db`.`acl_groups` ag
                     ON ag.`acl_group_id` = argr.`acl_group_id`
                 WHERE `id` = :monitoring_server_id
-                    AND `acl_group_id` IN ({$bindQuery})
+                    AND ag.`acl_group_id` IN ({$bindQuery})
                 SQL
         );
         $statement = $this->db->prepare($request);
