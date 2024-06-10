@@ -77,6 +77,7 @@ services:
     Core\Infrastructure\Common\Api\Router:
         decorates: router
         arguments: ['@.inner']
+        public: true
 
     Symfony\Component\Finder\Finder:
         shared: false
