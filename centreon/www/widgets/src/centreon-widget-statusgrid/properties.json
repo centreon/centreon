@@ -31,7 +31,10 @@
           "name": "Service"
         }
       ],
-      "defaultValue": "host"
+      "defaultValue": "host",
+      "hiddenCondition": {
+        "cond": "includesBAs"
+      }
     },
     "statuses": {
       "type": "checkbox",
@@ -101,6 +104,7 @@
       "type": "resources",
       "defaultValue": [],
       "required": false,
+      "useAdditionalResources": true,
       "excludedResourceTypes": [
         "meta-service"
       ]

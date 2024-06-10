@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { propEq, find, path, equals } from 'ramda';
+import { propEq, find, path, equals, includes, pluck } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useDeepCompare } from '@centreon/ui';
@@ -95,6 +95,18 @@ export const useWidgetInputs = (
             .filter(([, value]) => {
               if (!value.hiddenCondition) {
                 return true;
+              }
+
+              if (equals(value.hiddenCondition.cond, 'includesBAs')) {
+                const resourceTypes = pluck(
+                  'resourceType',
+                  values?.data?.resources || []
+                );
+
+                return (
+                  !includes('business-view', resourceTypes) &&
+                  !includes('business-activity', resourceTypes)
+                );
               }
 
               return !equals(

@@ -3,6 +3,8 @@ import { useInfiniteScrollListing } from '@centreon/ui';
 import { ResourceStatus } from '../../StatusGridStandard/models';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 import {
+  baIndicatorsEndpoint,
+  businessActivitiesEndpoint,
   getListingCustomQueryParameters,
   resourcesEndpoint
 } from '../../api/endpoints';
@@ -10,6 +12,8 @@ import { Resource } from '../../../../models';
 
 interface UseLoadResourcesProps {
   bypassRequest: boolean;
+  isBAResourceType: boolean;
+  isBVResourceType: boolean;
   resourceType: string;
   resources: Array<Resource>;
   status: string;
@@ -26,8 +30,21 @@ export const useLoadResources = ({
   resources,
   resourceType,
   status,
-  bypassRequest
+  bypassRequest,
+  isBVResourceType,
+  isBAResourceType
 }: UseLoadResourcesProps): UseLoadResourcesState => {
+  const getEndpoint = (): string => {
+    if (isBVResourceType) {
+      return businessActivitiesEndpoint;
+    }
+    if (isBAResourceType) {
+      return baIndicatorsEndpoint;
+    }
+
+    return resourcesEndpoint;
+  };
+
   const { elementRef, elements, isLoading, total } =
     useInfiniteScrollListing<ResourceStatus>({
       customQueryParameters: getListingCustomQueryParameters({
@@ -36,7 +53,7 @@ export const useLoadResources = ({
         types: [resourceType]
       }),
       enabled: !bypassRequest,
-      endpoint: resourcesEndpoint,
+      endpoint: getEndpoint(),
       limit: 10,
       pageAtom: tooltipPageAtom,
       parameters: {

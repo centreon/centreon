@@ -402,23 +402,29 @@ const useResources = ({
 
   const resourcetypesIds = pluck('resourceType', value || []);
 
+  const additionalResourceTypeOptions = useAdditionalResources
+    ? additionalResources.map(
+        ({ resourceType, label, availableResourceTypeOptions }) => ({
+          availableResourceTypeOptions,
+          id: resourceType,
+          name: label
+        })
+      )
+    : [];
+
+  const allResources = [
+    ...resourceTypeOptions,
+    ...additionalResourceTypeOptions
+  ];
+
   const getResourceTypeOptions = useCallback(
     (index, resource): Array<ResourceTypeOption> => {
-      const additionalResourceTypeOptions = useAdditionalResources
-        ? additionalResources.map(({ resourceType, label }) => ({
-            id: resourceType,
-            name: label
-          }))
-        : [];
-
-      const availableResourceTypes = [
-        ...(index < 1
-          ? resourceTypeOptions
-          : resourceTypeOptions.find(
+      const availableResourceTypes =
+        index < 1
+          ? allResources
+          : allResources.find(
               ({ id }) => id === value?.[index - 1].resourceType
-            )?.availableResourceTypeOptions || []),
-        ...additionalResourceTypeOptions
-      ];
+            )?.availableResourceTypeOptions || [];
 
       const filteredResourceTypeOptions = filter(({ id }) => {
         if (hasRestrictedTypes) {
@@ -476,7 +482,7 @@ const useResources = ({
   }, [values.moduleName]);
 
   const isLastResourceInTree = isEmpty(
-    resourceTypeOptions.find(({ id }) => equals(id, last(resourcetypesIds)))
+    allResources.find(({ id }) => equals(id, last(resourcetypesIds)))
       ?.availableResourceTypeOptions
   );
 

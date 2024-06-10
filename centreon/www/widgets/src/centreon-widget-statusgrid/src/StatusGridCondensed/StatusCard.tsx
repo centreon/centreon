@@ -21,6 +21,8 @@ import ResourcesTooltip from './Tooltip/ResourcesTooltip';
 
 interface Props {
   count: StatusDetail;
+  isBAResourceType: boolean;
+  isBVResourceType: boolean;
   label: string;
   resourceType: string;
   resources: Array<Resource>;
@@ -34,7 +36,9 @@ const StatusCard = ({
   severityCode,
   resourceType,
   resources,
-  total
+  total,
+  isBVResourceType,
+  isBAResourceType
 }: Props): JSX.Element => {
   const { classes, cx } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
@@ -64,6 +68,8 @@ const StatusCard = ({
       label={
         <ResourcesTooltip
           count={count.total}
+          isBAResourceType={isBAResourceType}
+          isBVResourceType={isBVResourceType}
           resourceType={resourceType}
           resources={resources}
           severityCode={severityCode}

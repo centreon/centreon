@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { equals, last } from 'ramda';
 
 import { Typography } from '@mui/material';
 
-import { formatMetricValue } from '@centreon/ui';
+import { formatMetricValue, usePluralizedTranslation } from '@centreon/ui';
 
 import { StatusGridProps } from '../StatusGridStandard/models';
 
@@ -10,6 +11,7 @@ import Skeleton from './Skeleton';
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import { useStatusGridCondensed } from './useStatusGridCondensed';
 import StatusCard from './StatusCard';
+import { labelBusinessActivity } from './translatedLabels';
 
 const StatusGridCondensed = ({
   globalRefreshInterval,
@@ -23,12 +25,35 @@ const StatusGridCondensed = ({
 }: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
   const { classes } = useStatusGridCondensedStyles();
   const { t } = useTranslation();
+  const { pluralizedT } = usePluralizedTranslation();
+
+  const lastSelectedResourceType = last(panelData?.resources)?.resourceType;
+
+  const isBVResourceType = equals(lastSelectedResourceType, 'business-view');
+  const isBAResourceType = equals(
+    lastSelectedResourceType,
+    'business-activity'
+  );
+
+  const getResourceTypeLabel = (): string => {
+    if (isBVResourceType) {
+      return t(labelBusinessActivity);
+    }
+    if (isBAResourceType) {
+      return 'KPI';
+    }
+
+    return panelOptions.resourceType;
+  };
 
   const { statusesToDisplay, hasData, isLoading, total } =
     useStatusGridCondensed({
       dashboardId,
       globalRefreshInterval,
       id,
+      isBAResourceType,
+      isBVResourceType,
+      lastSelectedResourceType,
       panelData,
       panelOptions,
       playlistHash,
@@ -44,12 +69,17 @@ const StatusGridCondensed = ({
     <div className={classes.container}>
       <Typography fontWeight="bold">
         {formatMetricValue({ unit: '', value: total || 0 })}{' '}
-        {t(`${panelOptions.resourceType}s`)}
+        {pluralizedT({
+          count: total || 0,
+          label: getResourceTypeLabel()
+        })}
       </Typography>
       <div className={classes.statuses}>
         {statusesToDisplay.map(({ count, label, severityCode }) => (
           <StatusCard
             count={count}
+            isBAResourceType={isBAResourceType}
+            isBVResourceType={isBVResourceType}
             key={label}
             label={label}
             resourceType={panelOptions.resourceType}

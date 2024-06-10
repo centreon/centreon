@@ -40,7 +40,7 @@ export const getColor = ({
   return getStatusColors({
     severityCode: severityCode as SeverityCode,
     theme
-  }).backgroundColor;
+  })?.backgroundColor;
 };
 
 interface GetStatusFromThresholdsProps {

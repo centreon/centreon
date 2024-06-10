@@ -153,3 +153,7 @@ export const buildResourcesEndpoint = ({
     })
   });
 };
+
+export const baIndicatorsEndpoint =
+  '/bam/monitoring/business-activities/indicators';
+export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
