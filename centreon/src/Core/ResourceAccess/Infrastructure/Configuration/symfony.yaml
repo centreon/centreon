@@ -27,6 +27,7 @@ services:
 
     Core\ResourceAccess\Application\UseCase\FindRule\FindRule:
         arguments:
+          $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.providers'
 
     Core\ResourceAccess\Domain\Model\DatasetFilter\DatasetFilterValidator:
