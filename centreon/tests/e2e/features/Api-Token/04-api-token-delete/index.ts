@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
 import { Contact, Token, durationMap } from '../common';
 import tokens from '../../../fixtures/api-token/tokens.json';
 
@@ -46,12 +47,12 @@ Given('API tokens with predefined details are created', () => {
         user_id: token.userId
       };
       cy.request({
-        method: 'POST',
-        url: '/centreon/api/latest/administration/tokens',
         body: payload,
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        method: 'POST',
+        url: '/centreon/api/latest/administration/tokens'
       }).then((response) => {
         expect(response.status).to.eq(201);
       });
@@ -60,11 +61,7 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.visit('/centreon/administration/api-token');
-  cy.wait('@getTokens');
-
-  cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
-  cy.wait('@getTokens');
+  cy.visitApiTokens();
 });
 
 When('I locate the API token to delete', () => {
@@ -82,7 +79,7 @@ When('I click on the "delete token" icon for that token', () => {
 });
 
 When('I confirm the deletion in the confirmation dialog', () => {
-  cy.getByTestId({ testId: 'Confirm', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'Confirm' }).click();
 });
 
 Then('the token is deleted successfully', () => {
@@ -93,7 +90,7 @@ Then('the token is deleted successfully', () => {
 });
 
 When('I cancel the deletion in the confirmation dialog', () => {
-  cy.getByTestId({ testId: 'Cancel', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'Cancel' }).click();
 });
 
 Then('the deletion action is cancelled', () => {

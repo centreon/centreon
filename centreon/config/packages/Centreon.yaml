@@ -87,6 +87,13 @@ services:
         calls:
             - method: setFirstKey
               arguments: ['%env(APP_SECRET)%']
+        public: true
+
+    Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepositoryInterface:
+        class: Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository
+        public: true
+        arguments:
+            $configurationFile: '%vault_conf_path%'
 
     # JSON Validator
     Centreon\Domain\Service\JsonValidator\Interfaces\JsonValidatorInterface:
@@ -295,10 +302,6 @@ services:
         class: Core\Platform\Infrastructure\Repository\DbWriteUpdateRepository
         arguments: ['%centreon_var_lib%', '%centreon_install_path%']
         public: true
-
-    Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository:
-        arguments:
-            $configurationFile: '%vault_conf_path%'
 
     Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface:
         class: Core\Security\Vault\Infrastructure\Repository\FsReadVaultConfigurationRepository

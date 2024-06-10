@@ -25,10 +25,6 @@ before(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
-  }).as('listAllDashboards');
-  cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
@@ -54,10 +50,6 @@ beforeEach(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
-  }).as('listAllDashboards');
-  cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
@@ -65,7 +57,6 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit('/centreon/home/dashboards');
 });
 
 afterEach(() => {
@@ -83,7 +74,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.visit('/centreon/home/dashboards');
+    cy.visitDashboards();
     cy.contains(dashboards.default.name).click();
   }
 );
@@ -146,65 +137,56 @@ Then('the information about the selected metric is displayed', () => {
   cy.verifyGraphContainer(metrics);
 });
 
-// Given('a dashboard featuring a single Single Metric widget', () => {
-//   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
-//   cy.visit('/centreon/home/dashboards');
-//   cy.contains(dashboards.default.name).click();
-// });
+Given('a dashboard featuring a single Single Metric widget', () => {
+  cy.insertDashboardWithWidget(dashboards.default, singleMetricPayload);
+  cy.visitDashboards();
+  cy.contains(dashboards.default.name).click();
+});
 
-// When(
-//   'the dashboard administrator user duplicates the Single Metric widget',
-//   () => {
-//     cy.getByLabel({
-//       label: 'Edit dashboard',
-//       tag: 'button'
-//     }).click();
-//     cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-//     cy.getByTestId({ testId: 'RefreshIcon' }).click();
-//     cy.getByTestId({ testId: 'MoreHorizIcon' }).click({ force: true });
-//     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
-//   }
-// );
+When(
+  'the dashboard administrator user duplicates the Single Metric widget',
+  () => {
+    cy.visitDashboards();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  }
+);
 
-// Then('a second Single Metric widget is displayed on the dashboard', () => {
-//   cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
-// });
+Then('a second Single Metric widget is displayed on the dashboard', () => {
+  cy.get('[class*="graphContainer"]').eq(1).should('be.visible');
+});
 
-// Then('the second widget reports on the same metric as the first widget', () => {
-//   cy.get('[class*="MuiTypography-h2"]')
-//     .eq(1)
-//     .then(($element) => {
-//       const text = $element.text();
-//       expect(text).to.include('%');
-//     });
-// });
+Then('the second widget reports on the same metric as the first widget', () => {
+  cy.get('[class*="MuiTypography-h2"]')
+    .eq(1)
+    .then(($element) => {
+      const text = $element.text();
+      expect(text).to.include('%');
+    });
+});
 
-// Then('the second widget has the same properties as the first widget', () => {
-//   cy.verifyDuplicatesGraphContainer(metrics);
-// });
+Then('the second widget has the same properties as the first widget', () => {
+  cy.verifyDuplicatesGraphContainer(metrics);
+});
 
 Given(
   'a dashboard with a Single Metric widget displaying a human-readable value format',
   () => {
     cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-    cy.visit('/centreon/home/dashboards');
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
-    cy.getByLabel({
-      label: 'Edit dashboard',
-      tag: 'button'
-    }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByLabel({
-      label: 'Edit widget',
-      tag: 'li'
-    }).realClick();
   }
 );
 
 When(
   'the dashboard administrator user updates the value format of the Single Metric widget to "raw value"',
   () => {
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByLabel({
+      label: 'Edit widget',
+      tag: 'li'
+    }).realClick();
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Raw value').find('input').click();
   }
@@ -225,20 +207,14 @@ Then(
 
 Given('a dashboard containing a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').click();
 });
 
 When(
   'the dashboard administrator user updates the custom warning threshold to a value below the current value',
   () => {
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.get('li[aria-label="Edit widget"]').click();
     cy.get('[class^="MuiAccordionDetails-root"]').eq(1).scrollIntoView();
     cy.contains('Custom').find('input').eq(0).click();
     cy.getByLabel({
@@ -258,13 +234,13 @@ Then(
 When(
   'the dashboard administrator user updates the custom critical threshold to a value below the current value',
   () => {
-    cy.get('input[type="radio"][value="custom"]').eq(1).click({ force: true });
+    cy.get('input[type="radio"][value="custom"]').eq(1).click();
     cy.getByLabel({
       label: 'Thresholds',
       tag: 'input'
     })
       .eq(1)
-      .type('40', { force: true });
+      .type('40');
   }
 );
 
@@ -277,20 +253,14 @@ Then(
 
 Given('a dashboard featuring a Single Metric widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricPayloadRta);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).click();
-  cy.get('li[aria-label="Edit widget"]').realClick();
 });
 
 When(
   'the dashboard administrator user changes the display type of the widget to a gauge',
   () => {
+    cy.editDashboard(dashboards.default.name);
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.get('li[aria-label="Edit widget"]').realClick();
     cy.getByTestId({ testId: 'SpeedIcon' }).click();
   }
 );
@@ -318,17 +288,11 @@ Then(
 
 Given('a dashboard featuring two Single Metric widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, singleMetricDoubleWidgets);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
+  cy.editDashboard(dashboards.default.name);
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
     label: 'Delete',
