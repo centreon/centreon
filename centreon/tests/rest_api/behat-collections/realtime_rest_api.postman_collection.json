@@ -16,10 +16,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var jsonData = JSON.parse(responseBody);",
-									"postman.setEnvironmentVariable(\"token\",jsonData.authToken);",
+									"pm.environment.set(\"token\",  pm.response.json().authToken);",
 									"",
-									"postman.setGlobalVariable(\"loadHelpers\", function loadHelpers() {",
+									"pm.globals.set(\"loadHelpers\", function loadHelpers() {",
 									"    \"use strict\";",
 									"",
 									"    let helpers = {};",
@@ -53,7 +52,6 @@
 									"        }",
 									"        ",
 									"        let hostListSchema = {",
-									"          \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
 									"          \"type\": \"array\",",
 									"          \"items\": {\t\t",
 									"            \"type\": \"object\",",
@@ -90,7 +88,6 @@
 									"        }",
 									"        ",
 									"        let serviceListSchema = {",
-									"          \"$schema\": \"http://json-schema.org/draft-04/schema#\",",
 									"          \"type\": \"array\",",
 									"          \"items\": {\t\t",
 									"            \"type\": \"object\",",
@@ -137,7 +134,6 @@
 									"",
 									"    return helpers;",
 									"} + '; loadHelpers();'); // when eval'd out of globals, execute it",
-									"tests[\"helpers initialized\"] = true;",
 									""
 								],
 								"type": "text/javascript",
