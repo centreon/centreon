@@ -18954,8 +18954,8 @@ msgstr "Toutes les vues métier sont sélectionnées"
 msgid "You are not allowed to list contact templates"
 msgstr "Vous n'êtes pas autorisé à lister les modèles de contact"
 
-msgid "Graph styles"
-msgstr "Styles du graphe"
+msgid "Graph style"
+msgstr "Style du graphe"
 
 msgid "Curve type"
 msgstr "Type de courbe"
