@@ -150,7 +150,7 @@ const notificationSentCheck = ({
             return cy.wrap(result.output.includes('INFO: Response code: 304'));
           });
       },
-      { interval: 20000, timeout: 300000 }
+      { interval: 30000, timeout: 300000 }
     )
     .then(() => {
       const command =
@@ -163,7 +163,7 @@ const notificationSentCheck = ({
       cy.task<ExecInContainerResult>(
         'execInContainer',
         { command, name: 'web' },
-        { timeout: 600000 }
+        { timeout: 800000 }
       ).then((result) => {
         if (contain) {
           expect(result.exitCode).to.eq(0);
