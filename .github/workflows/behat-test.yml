@@ -45,7 +45,7 @@ jobs:
         id: list-features
         run: |
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | grep 'RestApi' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
     needs: [behat-test-list]
@@ -57,8 +57,7 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      # IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      IMAGE_TAG: develop
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
