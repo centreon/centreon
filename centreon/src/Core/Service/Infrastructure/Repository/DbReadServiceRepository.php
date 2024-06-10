@@ -32,6 +32,7 @@ use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Domain\Common\GeoCoords;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
