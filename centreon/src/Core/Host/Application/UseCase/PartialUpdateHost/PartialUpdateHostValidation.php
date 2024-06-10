@@ -112,10 +112,16 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidMonitoringServer(int $monitoringServerId): void
     {
-        if (false === $this->readMonitoringServerRepository->exists($monitoringServerId)) {
-            $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+        if ($monitoringServerId !== null) {
+            $exists = ($this->accessGroups === [])
+                ? $this->readMonitoringServerRepository->exists($monitoringServerId)
+                : $this->readMonitoringServerRepository->existsByAccessGroups($monitoringServerId, $this->accessGroups);
 
-            throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            if (! $exists) {
+                $this->error('Monitoring server does not exist', ['monitoringServerId' => $monitoringServerId]);
+
+                throw HostException::idDoesNotExist('monitoringServerId', $monitoringServerId);
+            }
         }
     }
 
