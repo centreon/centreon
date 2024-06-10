@@ -5,6 +5,7 @@ Library            Process
 Library            RequestsLibrary
 
 *** Variables ***
+${gorgone_binary}           /usr/bin/gorgoned
 ${ROOT_CONFIG}              ${CURDIR}${/}..${/}config${/}
 ${pull_central_config}      ${ROOT_CONFIG}pull_central_config.yaml
 ${pull_poller_config}       ${ROOT_CONFIG}pull_poller_config.yaml
@@ -21,7 +22,7 @@ Start Gorgone
     [Arguments]    ${CONFIG_FILE}    ${SEVERITY}    ${ALIAS}
     ${process}    Start Process
     ...    /usr/bin/perl
-    ...    /usr/bin/gorgoned
+    ...    ${gorgone_binary}
     ...    --config
     ...    ${CONFIG_FILE}
     ...    --logfile

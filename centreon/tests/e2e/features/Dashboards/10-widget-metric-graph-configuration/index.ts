@@ -208,12 +208,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -296,16 +291,7 @@ Then('the information about the selected metric is displayed', () => {
 
 Given('a dashboard featuring having Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@performanceData');
   cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
   cy.getByLabel({
@@ -381,17 +367,14 @@ Then(
 
 Given('a dashboard that includes a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
   'the dashboard administrator user duplicates the Metrics Graph widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
@@ -415,16 +398,7 @@ Then('the second widget has the same properties as the first widget', () => {
 
 Given('a dashboard featuring two Metrics Graph widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphDoubleWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.wait('@performanceData');
 });
@@ -453,17 +427,8 @@ Then(
 
 Given('a dashboard featuring a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.editDashboard(dashboards.default.name);
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'
@@ -507,17 +472,8 @@ Then('the thresholds are automatically hidden', () => {
 
 Given('a dashboard with a configured Metrics Graph widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, metricsGraphWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
+  cy.editDashboard(dashboards.default.name);
+  cy.getByTestId({ testId: 'More actions' }).click();
   cy.getByLabel({
     label: 'Edit widget',
     tag: 'li'

@@ -102,12 +102,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
-    cy.wait('@listAllDashboards');
-    cy.contains(dashboards.default.name).click();
+    cy.visitDashboard(dashboards.default.name);
   }
 );
 
@@ -167,16 +162,7 @@ Then("the Top Bottom metric widget is added in the dashboard's layout", () => {
 
 Given('a dashboard configured with a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
   cy.getByTestId({ testId: 'warning-line-200-tooltip' }).should('be.visible');
@@ -232,24 +218,19 @@ Then(
 
 Given('a dashboard having a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
+  cy.visitDashboard(dashboards.default.name);
 });
 
 When(
   'the dashboard administrator user duplicates the Top Bottom widget',
   () => {
+    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
+    cy.getByTestId({ testId: 'RefreshIcon' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
     cy.getByTestId({ testId: 'More actions' }).click();
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
-    cy.getByTestId({ testId: 'More actions' }).click({ force: true });
     cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
   }
 );
@@ -264,16 +245,7 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
     dashboards.default,
     dashbboardWithTwoTopBottomWidgets
   );
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.wait('@dashboardMetricsTop');
   cy.getByTestId({ testId: 'More actions' }).eq(0).click();
 });
@@ -293,13 +265,7 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard with a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
 });
@@ -325,13 +291,7 @@ Then(
 
 Given('a dashboard containing a Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.visit('/centreon/home/dashboards');
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
 });
@@ -364,16 +324,7 @@ Then(
 
 Given('a dashboard featuring a configured Top Bottom widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, topBottomWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
-  cy.wait('@listAllDashboards');
-  cy.contains(dashboards.default.name).click();
-  cy.getByLabel({
-    label: 'Edit dashboard',
-    tag: 'button'
-  }).click();
+  cy.editDashboard(dashboards.default.name);
   cy.getByTestId({ testId: 'More actions' }).click();
   cy.get('li[aria-label="Edit widget"]').click();
 });
