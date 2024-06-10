@@ -137,8 +137,8 @@ case "$action" in
     updateGorgoneConfiguration
     manageLocales $package_type
     manageApacheAndPhpFpm $package_type
-    rebuildSymfonyCache $package_type
     fixSymfonyCacheRights $package_type
+    rebuildSymfonyCache $package_type
     ;;
   *)
     # $1 == version being installed
