@@ -156,13 +156,13 @@ const searchParametersBySelectedResourceType = {
     [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
     [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
     [ResourceTypeEnum.Host]: 'host.id',
-    [ResourceTypeEnum.ServiceCategory]: 'category.id'
+    [ResourceTypeEnum.ServiceCategory]: 'servicecategory.id'
   },
   [ResourceTypeEnum.ServiceCategory]: {
     [ResourceTypeEnum.HostGroup]: 'hostgroup.id',
     [ResourceTypeEnum.HostCategory]: 'hostcategory.id',
     [ResourceTypeEnum.Host]: 'host.id',
-    [ResourceTypeEnum.ServiceGroup]: 'group.id'
+    [ResourceTypeEnum.ServiceGroup]: 'servicegroup.id'
   }
 };
 
