@@ -14,7 +14,7 @@ import {
   getWidgetEndpoint,
   severityCodeBySeverityStatus
 } from '../../../utils';
-import { buildResourcesEndpoint } from '../api/endpoints';
+import { buildCondensedViewEndpoint } from '../api/endpoints';
 
 import { getStatusesEndpoint } from './api/endpoints';
 import { getStatusNamesPerResourceType } from './utils';
@@ -76,11 +76,11 @@ export const useStatusGridCondensed = ({
     getEndpoint: () =>
       getWidgetEndpoint({
         dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
+        defaultEndpoint: buildCondensedViewEndpoint({
           baseEndpoint: getStatusesEndpoint(resourceType),
-          page: 0,
           resources,
-          statuses: statusesToUse
+          statuses: statusesToUse,
+          type: resourceType
         }),
         isOnPublicPage,
         playlistHash,
