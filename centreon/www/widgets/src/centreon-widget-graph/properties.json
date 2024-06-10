@@ -44,7 +44,7 @@
       "groups": [
         {
           "id": "graphStyles",
-          "name": "Graph styles"
+          "name": "Graph style"
         },
         {
           "id": "axis",
