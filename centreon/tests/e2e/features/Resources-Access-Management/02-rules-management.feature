@@ -32,7 +32,7 @@ Feature: Resource Access Management
     When the user is redirected to the monitoring "Business Activity" page
     Then the user can access the selected business view
 
-  Scenario: Adding access rule for all host groups
+  Scenario: Adding access rule for all hosts
     Given an Administrator is logged in on the platform
     When a new host is created
     Then the Administrator is redirected to the "Resource Access Management" page
