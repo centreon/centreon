@@ -68,10 +68,7 @@ export default ({
     },
     execTimeout: 60000,
     requestTimeout: 20000,
-    retries: {
-      openMode: 0,
-      runMode: 2
-    },
+    retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: isDevelopment,
     videoCompression: 0,
