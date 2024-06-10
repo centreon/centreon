@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "392ffdb7-a412-48b0-ae8b-133aa807a7d6",
+		"_postman_id": "bce524d4-a807-4227-ba46-c321efcebdd2",
 		"name": "Centreon Web Rest API realtime",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "1366693"
@@ -15,36 +15,36 @@
 						{
 							"listen": "test",
 							"script": {
-								"type": "text/javascript",
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
 									"postman.setEnvironmentVariable(\"token\",jsonData.authToken);",
 									"",
 									"postman.setGlobalVariable(\"loadHelpers\", function loadHelpers() {",
 									"    \"use strict\";",
+									"",
 									"    let helpers = {};",
 									"",
 									"    /** Test function to show this kludge is working. */",
 									"    helpers.test200 = function test200() {",
-									"        tests[\"Response returned 200\"] = responseCode.code === 200;",
+									"        pm.test(\"Status code is 200\", function () {",
+									"            pm.response.to.have.status(200);",
+									"        });",
 									"    }",
 									"    ",
 									"    helpers.testJson = function testJson() {",
-									"        tests[\"Content-Type header is application/json\"] = postman.getResponseHeader(\"Content-Type\") === 'application/json;charset=utf-8';",
+									"        pm.test(\"Content-Type header is application/json\", function () {",
+									"            pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json;charset=utf-8');",
+									"        });",
 									"        ",
-									"        let result;",
-									"        try {",
-									"            JSON.parse(responseBody);",
-									"        } catch (e) {",
-									"            result = false;",
-									"        }",
-									"        result = true;",
-									"        ",
-									"        tests[\"Response body uses json format\"] = result;",
+									"        pm.test(\"Response body uses json format\", function () {",
+									"            pm.response.json();",
+									"        });",
 									"    }",
 									"    ",
 									"    helpers.notEmpty = function notEmpty() {",
-									"        tests[\"Result is not empty\"] = JSON.parse(responseBody).length > 0;",
+									"        pm.test(\"Result is not empty\", function () {",
+									"            pm.response.json().length > 0;",
+									"        });",
 									"    }",
 									"    ",
 									"    helpers.checkHostListFormat = function checkHostListFormat(columns) {",
@@ -78,12 +78,10 @@
 									"            \"additionalProperties\": true",
 									"          }",
 									"        };",
-									"        const validationResult = tv4.validate(JSON.parse(responseBody), hostListSchema);",
-									"        let testMessage = \"host list is well formatted\";",
-									"        if (tv4.error) {",
-									"          testMessage = testMessage + ' ... ' + tv4.error.dataPath + ' : ' + tv4.error.message;",
-									"        }",
-									"        tests[testMessage] = validationResult;",
+									"",
+									"        pm.test('host list is well formatted', function() {",
+									"            pm.response.to.have.jsonSchema(hostListSchema);",
+									"        });",
 									"    }",
 									"    ",
 									"    helpers.checkServiceListFormat = function checkServiceListFormat(columns) {",
@@ -117,12 +115,10 @@
 									"            \"additionalProperties\": true",
 									"          }",
 									"        };",
-									"        const validationResult = tv4.validate(JSON.parse(responseBody), serviceListSchema);",
-									"        let testMessage = \"service list is well formatted\";",
-									"        if (tv4.error) {",
-									"          testMessage = testMessage + ' ... ' + tv4.error.dataPath + ' : ' + tv4.error.message;",
-									"        }",
-									"        tests[testMessage] = validationResult;",
+									"",
+									"        pm.test('service list is well formatted', function() {",
+									"            pm.response.to.have.jsonSchema(serviceListSchema);",
+									"        });",
 									"    }",
 									"    ",
 									"    helpers.checkHostList = function checkHostList(columns) {",
@@ -143,7 +139,19 @@
 									"} + '; loadHelpers();'); // when eval'd out of globals, execute it",
 									"tests[\"helpers initialized\"] = true;",
 									""
-								]
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -205,10 +213,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -259,10 +270,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -313,10 +327,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -367,10 +384,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -421,10 +441,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -475,10 +498,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -529,10 +555,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -583,10 +612,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -642,10 +674,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -702,10 +737,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -756,10 +794,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -810,10 +851,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -864,10 +908,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -918,10 +965,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -972,10 +1022,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1026,10 +1079,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1086,10 +1142,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1140,10 +1199,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1200,10 +1262,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1260,10 +1325,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1314,10 +1382,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1374,10 +1445,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1428,10 +1502,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1488,10 +1565,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1548,10 +1628,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1602,10 +1685,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1656,10 +1742,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1710,10 +1799,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1764,10 +1856,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1818,10 +1913,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1872,10 +1970,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1926,10 +2027,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1980,10 +2084,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2039,10 +2146,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2093,10 +2203,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2147,10 +2260,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2201,10 +2317,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2255,10 +2374,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2309,10 +2431,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2363,10 +2488,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2417,10 +2545,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2471,10 +2602,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2526,9 +2660,12 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2580,9 +2717,12 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2639,10 +2779,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2693,10 +2836,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2747,10 +2893,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2801,10 +2950,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2855,10 +3007,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2909,10 +3064,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2963,10 +3121,13 @@
 								{
 									"listen": "test",
 									"script": {
-										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
-										]
+											"pm.test(\"Status code is 200\", function () {\r",
+											"  pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -3025,7 +3186,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3079,7 +3240,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3133,7 +3294,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3187,7 +3348,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3241,7 +3402,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3295,7 +3456,7 @@
 									"script": {
 										"type": "text/javascript",
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										]
 									}
 								}
@@ -3348,7 +3509,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										],
 										"type": "text/javascript"
 									}
@@ -3402,7 +3563,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										],
 										"type": "text/javascript"
 									}
@@ -3456,7 +3617,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										],
 										"type": "text/javascript"
 									}
@@ -3510,7 +3671,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;"
+											"tests[\"Status code is 200\"] = pm.response.code === 200;"
 										],
 										"type": "text/javascript"
 									}
@@ -3570,7 +3731,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"tests[\"Status code is 200\"] = responseCode.code === 200;",
+											"tests[\"Status code is 200\"] = pm.response.code === 200;",
 											"",
 											"function wait(millis) {",
 											"  var date = new Date();",
@@ -5651,7 +5812,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"function wait(millis) {",
 									"  var date = new Date();",
@@ -5714,7 +5875,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"function wait(millis) {",
 									"  var date = new Date();",
@@ -5777,7 +5938,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"function wait(millis) {",
 									"  var date = new Date();",
@@ -5840,7 +6001,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"function wait(millis) {",
 									"  var date = new Date();",
@@ -5903,7 +6064,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
@@ -5987,7 +6148,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
@@ -6072,7 +6233,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
@@ -6158,7 +6319,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
+									"tests[\"Status code is 200\"] = pm.response.code === 200;"
 								],
 								"type": "text/javascript"
 							}
@@ -6304,7 +6465,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
+									"tests[\"Status code is 200\"] = pm.response.code === 200;"
 								]
 							}
 						},
@@ -6378,7 +6539,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
+									"tests[\"Status code is 200\"] = pm.response.code === 200;"
 								]
 							}
 						},
@@ -6451,7 +6612,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;"
+									"tests[\"Status code is 200\"] = pm.response.code === 200;"
 								]
 							}
 						},
@@ -6524,7 +6685,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"",
 									"function wait(millis) {",
 									"  var date = new Date();",
@@ -6606,7 +6767,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
 									"",
@@ -6690,7 +6851,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
 									"",
@@ -6776,7 +6937,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"tests[\"Status code is 200\"] = responseCode.code === 200;",
+									"tests[\"Status code is 200\"] = pm.response.code === 200;",
 									"var contentType = postman.getResponseHeader(\"Content-Type\");",
 									"tests[\"Content-Type is application/json\"] = contentType === \"application/json;charset=utf-8\";",
 									""

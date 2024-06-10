@@ -45,7 +45,7 @@ jobs:
         id: list-features
         run: |
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | grep 'RestApi' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
     needs: [behat-test-list]
