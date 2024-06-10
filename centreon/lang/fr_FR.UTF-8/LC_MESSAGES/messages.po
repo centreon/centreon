@@ -18964,7 +18964,7 @@ msgid "Linear"
 msgstr "Linéaire"
 
 msgid "Natural"
-msgstr "Naturelle"
+msgstr "Naturel"
 
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
@@ -19015,7 +19015,7 @@ msgid "Show"
 msgstr "Afficher"
 
 msgid "Display curve points"
-msgstr "Afficher les points de la couche"
+msgstr "Afficher les points de la courbe"
 
 msgid "Show axis border"
 msgstr "Afficher la bordure de l'axe"
