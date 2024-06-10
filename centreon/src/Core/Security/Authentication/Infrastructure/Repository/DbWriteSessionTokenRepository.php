@@ -32,6 +32,7 @@ use Security\Domain\Authentication\Model\Session;
 class DbWriteSessionTokenRepository extends AbstractRepositoryDRB implements WriteSessionTokenRepositoryInterface
 {
     use LoggerTrait;
+
     /**
      * @param DatabaseConnection $db
      */

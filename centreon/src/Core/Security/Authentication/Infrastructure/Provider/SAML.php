@@ -59,7 +59,6 @@ use OneLogin\Saml2\Error;
 use OneLogin\Saml2\Utils;
 use OneLogin\Saml2\ValidationError;
 use Pimple\Container;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
@@ -91,6 +90,7 @@ class SAML implements ProviderAuthenticationInterface
      * @param RolesMapping $rolesMapping
      * @param GroupsMappingSecurityAccess $groupsMapping
      * @param SettingsFormatterInterface $formatter
+     * @param RequestStack $requestStack
      */
     public function __construct(
         private readonly Container $dependencyInjector,
@@ -450,7 +450,7 @@ class SAML implements ProviderAuthenticationInterface
 
         $requestID = $this->requestStack->getSession()->get('LogoutRequestID');
 
-        $auth->processSLO(true, $requestID, false, function() {
+        $auth->processSLO(true, $requestID, false, function (): void {
             $this->info('[AUTHENTICATE] Delete SAML session');
             $this->requestStack->getSession()->invalidate();
         });
